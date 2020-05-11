@@ -1,0 +1,15 @@
+- reorganize sources to something more neutral (not specific to the game)
+- new game's world state
+- action-turn-solver: solve turns until it's player's choice and provide just data
+  - use coroutines?
+- add enemies
+- tweening functions (for procedural animations)
+- action-sequence-interpreter: interpret actions graphically/with-audio
+- change initial sprites to something in-theme
+- write a basic scenario
+- prepare for pitch
+  - make slides
+  - prepare trello
+  - request meeting to
+
+- DONE - reorganize code around JS modules
