@@ -34,7 +34,13 @@ class BodyView {
         this.body = body;
 
         this.sprite = new graphics.Sprite();
+
+        // TODO: make a better logic to let know how to load the body spritesheet
         this.sprite.source_image = assets.images.warrior;
+        if(this.body.assets){
+            if(this.body.assets.spritesheet)
+                this.sprite.source_image = this.body.assets.spritesheet
+        }
 
         this.some_value = -99999.0 + random_int(0, 7);
     }

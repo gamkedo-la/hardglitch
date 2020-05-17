@@ -9,12 +9,13 @@ import * as asset_system from "./system/assets.js";
 const game_assets = { // Description of the assets to load.
     images : { // group "images"
         asset_loader : asset_system.image_loader, // This is the function that will be used to convert the following data into usable objects.
+        player: "./images/player.png",
         warrior: "./images/warrior.png",
         door : "./images/world_door.png",
         goal : "./images/world_goal.png",
         ground : "./images/world_ground.png",
         key : "./images/world_key.png",
-        wall : "./images/world_wall.png"
+        wall : "./images/world_wall.png",
     }
 };
 

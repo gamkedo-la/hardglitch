@@ -7,6 +7,7 @@ import * as concepts from "./core/concepts.js";
 import { Wait, BasicRules } from "./rules/rules-basic.js";
 import { MovementRules } from "./rules/rules-movement.js";
 import {random_sample, random_int} from "./system/utility.js";
+import { assets } from "./game-assets.js";
 
 class SomeAI extends concepts.Agent {
 
@@ -31,6 +32,7 @@ class Enemy extends SomeAI {
 class PlayerBody extends concepts.Body {
     constructor(){
         super();
+        this.assets = { spritesheet : assets.images.player };
     }
 }
 
