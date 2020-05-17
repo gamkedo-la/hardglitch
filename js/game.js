@@ -22,6 +22,7 @@ class Game {
         // Prepare the game turns to be ready to play (player's turn)
         this.__turn_sequence = turns.execute_turns_until_players_turn(this.world);
         this.update_until_player_turn(new Wait());
+        this.last_turn_info.clear_events(); // Remove previous events, we don't really want to know what happened before the first turn.
     }
 
     update_until_player_turn(next_player_action) {

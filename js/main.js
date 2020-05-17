@@ -43,8 +43,7 @@ function update_everything() {
 
 function draw_everything() {
   graphics.clear();
-  if(current_view)
-    current_view.render_graphics();
+  current_view.render_graphics();
 }
 
 function new_game() {

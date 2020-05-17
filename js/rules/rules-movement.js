@@ -4,12 +4,12 @@ import * as concepts from "../core/concepts.js";
 export { MovementRules, Move, Moved }
 
 class Moved extends concepts.Event {
-    constructor(body, from_pos, to_pos) {
-        super();
-        this.body = body;
+    constructor(agent, body, from_pos, to_pos) {
+        super(agent.agent_id, body.body_id);
         this.from_pos = from_pos;
         this.to_pos = to_pos;
     }
+
 };
 
 
@@ -25,7 +25,7 @@ class Move extends concepts.Action {
         console.assert(agent.body);
         const initial_pos = agent.body.position;
         agent.body.position = this.new_position;
-        return [ new Moved(agent.body, initial_pos, this.new_position) ];
+        return [ new Moved(agent, agent.body, initial_pos, this.new_position) ];
     }
 };
 

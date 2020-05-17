@@ -2,7 +2,7 @@
 
 export { make_test_world, next_update };
 
-import { current_game } from "./main.js";
+import { current_game, current_view } from "./main.js";
 import * as concepts from "./core/concepts.js";
 import { Wait, BasicRules } from "./rules/rules-basic.js";
 import { MovementRules } from "./rules/rules-movement.js";
@@ -30,9 +30,10 @@ class Enemy extends SomeAI {
 };
 
 class PlayerBody extends concepts.Body {
+    assets = { spritesheet : assets.images.player };
+
     constructor(){
         super();
-        this.assets = { spritesheet : assets.images.player };
     }
 }
 
@@ -83,8 +84,12 @@ function select_player_action(keycode){
 }
 
 function next_update(event){
-    let player_action = select_player_action(event.keyCode);
-    current_game.update_until_player_turn(player_action);
+    // Only handle input from the player when it's "visible" that it's player's turn.
+    if(current_view.is_time_for_player_to_chose_action){
+        let player_action = select_player_action(event.keyCode);
+        current_game.update_until_player_turn(player_action);
+        current_view.interpret_turn_events(); // Starts showing each event one by one until it's player's turn.
+    }
 }
 
 // entity = {          // every field is optional

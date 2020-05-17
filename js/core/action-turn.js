@@ -17,6 +17,10 @@ class PlayerTurn
         this.player_agent = player_agent;           // Agent that represent the player for this turn.
         this.possible_actions = possible_actions;   // Actions that the player could take.
     }
+
+    clear_events(){
+        this.events = [];
+    }
 };
 
 // Returns a generator of sequence of events (produced through the turns of the different agents).

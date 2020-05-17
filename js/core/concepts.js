@@ -18,6 +18,16 @@ export {
     Body,
 };
 
+let next_body_id = 0;
+function new_body_id(){
+    return ++next_body_id;
+}
+
+let next_agent_id = 0;
+function new_agent_id(){
+    return ++next_agent_id;
+}
+
 
 // An action is when an Agent changes something in the world, following the
 // world's rules.
@@ -32,14 +42,20 @@ class Action {
 
 // Represents the record of something that happened in the past.
 class Event{
-    Event(agent){
-        this.agent = agent;
+
+    constructor(agent_id, body_id){
+        console.assert(agent_id);
+        console.assert(body_id);
+        this.agent_id = agent_id;
+        this.body_id = body_id;
     }
+
 };
 
 
 // Agents are entities that can take decisions and produce actions.
 class Agent {
+    agent_id = new_agent_id();
 
     action_points_left = 0;
     max_action_points = 0;
@@ -116,11 +132,14 @@ class Item extends Object {
     actions = [];
 };
 
-// Bodies are special entities that have "physical" existence,
+
+
+
+// Bodies are special entities that have "physical" existence and can perform action,
 // like objects, but they can move by themselves.
 // Most of the time they are owned by agents.
 class Body extends Object { // TODO: consider inheriting from Object?
-
+    body_id = new_body_id();
 };
 
 // This is the world as known by the game.
