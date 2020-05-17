@@ -84,13 +84,6 @@ class Rule {
 
 };
 
-// Objects are things that have a "physical" existence, that is it can
-// be located (in space or relative to another object).
-// For example a body, a pen in a bag, a software in a computer in a bag.
-// However objects cannot move by themselves.
-class Object {
-
-};
 
 // We assume that the world is made of 2D grids.
 // This position is one square of that grid, so all the values are integers.
@@ -107,11 +100,27 @@ class Position {
     get south() { return new Position( this.x, this.y + 1 ); }
 };
 
+
+
+// Objects are things that have a "physical" existence, that is it can
+// be located (in space or relative to another object).
+// For example a body, a pen in a bag, a software in a computer in a bag.
+class Object {
+    position = new Position();
+};
+
+// Items are objects that cannot ever move by themselves.
+// However, they can be owned by bodies and have a position in the world (like all objects).
+// They provide Actions and modifiers for the body stats that equip them.
+class Item extends Object {
+    actions = [];
+};
+
 // Bodies are special entities that have "physical" existence,
 // like objects, but they can move by themselves.
 // Most of the time they are owned by agents.
-class Body { // TODO: consider inheriting from Object?
-    position = new Position();
+class Body extends Object { // TODO: consider inheriting from Object?
+
 };
 
 // This is the world as known by the game.
@@ -119,7 +128,7 @@ class Body { // TODO: consider inheriting from Object?
 class World
 {
     agents = [];    // Might or might not be associated with one or several bodies.
-    objects = [];   // Objects that are in the space of the world, not in other objects.
+    items = [];     // Items that are in the space of the world, not in other objects.
     bodies = [];    // Bodies are always in the space of the world.
     rules = [];
     player_action = null; // TODO: try to find a better way to "pass" the player action to the turn solver.
@@ -130,8 +139,8 @@ class World
 
     // Automatically sort out how to store the thing being added to this world.
     add(thing){ // TODO: kill this thing with fire
-        if(thing instanceof Object){
-            this.objects.push(thing);
+        if(thing instanceof Item){
+            this.items.push(thing);
             // TODO: add here to some spatial partitionning system
         }
         else if(thing instanceof Agent){
