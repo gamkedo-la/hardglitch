@@ -60,6 +60,19 @@ class Agent {
     action_points_left = 0;
     max_action_points = 0;
 
+    // TODO: replace this with action point system!
+    // BEWARE, this is a hack to simulate being able to act once per turn.
+    acted_this_turn = true;
+    get can_perform_actions(){
+        const result = this.acted_this_turn;
+        this.acted_this_turn = !this.acted_this_turn;
+        return result;
+    }
+
+    restore_action_points(){
+        this.acted_this_turn = true; // TODO: replace this by actual action point code
+    }
+
     objects = [];
     body = null; // TODO: consider handling more than one body for an agent (like a big boss?)
 
