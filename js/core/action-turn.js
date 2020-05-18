@@ -4,7 +4,6 @@
 export { execute_turns_until_players_turn, PlayerTurn };
 
 import * as concept from "./concepts.js";
-import { rotate_array } from "../system/utility.js";
 
 // Data needed for the player (or the "view" part of the game code) to:
 // - know what happened since last player turn;
@@ -62,11 +61,8 @@ function* execute_turns_until_players_turn(world) {
             continue; // Skip to the beginning of next turn.
         }
 
-        // TODO: Apply HERE the rules of the world that must happen at each Turn (when we cycle all characters).
-
-        for(const agent of world.agents){ // TODO: consider replacing by a rule!
-            agent.restore_action_points();
-        }
+        // Apply the rules of the world that must happen at each Turn (before we begin doing characters turns).
+        events_since_last_player_action.push(...world.apply_rules_beginning_of_game_turn());
 
         let looping_agent_sequence = loop_agents_until_end_of_turn(world); // This sequence includes turn phases, so one character with enough action points left can occur more than one time.
 
@@ -93,7 +89,7 @@ function* execute_turns_until_players_turn(world) {
             events_since_last_player_action.push(...action_events);
 
             // Update the world according to it's rules.
-            const rules_events = world.apply_rules();
+            const rules_events = world.apply_rules_end_of_characters_turn(agent);
             events_since_last_player_action.push(...rules_events);
         }
     }

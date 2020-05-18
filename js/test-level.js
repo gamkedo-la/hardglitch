@@ -7,6 +7,7 @@ import { Wait, BasicRules } from "./rules/rules-basic.js";
 import { MovementRules } from "./rules/rules-movement.js";
 import {random_sample, random_int} from "./system/utility.js";
 import { assets } from "./game-assets.js";
+import { Rules_ActionPoints } from "./rules/rules-actionpoints.js";
 
 class RandomActionSelector extends concepts.Agent {
 
@@ -44,6 +45,7 @@ function make_test_world(){
 
     world.add( new BasicRules() );
     world.add( new MovementRules() );
+    world.add( new Rules_ActionPoints() );
 
     player.body = new PlayerBody();
     world.add(player);

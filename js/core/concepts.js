@@ -69,10 +69,6 @@ class Agent {
         return result;
     }
 
-    restore_action_points(){
-        this.acted_this_turn = true; // TODO: replace this by actual action point code
-    }
-
     objects = [];
     body = null; // TODO: consider handling more than one body for an agent (like a big boss?)
 
@@ -104,10 +100,17 @@ class Rule {
         return {};
     }
 
-    // Update the world according to this rule.
+    // Update the world according to this rule after a character performed an action.
     // Called once per agent after they are finished with their action (players too).
     // Returns a sequence of events resulting from changing the world.
-    update_world_after_turn(world){
+    update_world_after_agent_turn(world, agent){
+        return [];
+    }
+
+    // Update the world according to this rule at the beginning of each game "Turn".
+    // Called once per agent after they are finished with their action (players too).
+    // Returns a sequence of events resulting from changing the world.
+    update_world_at_the_beginning_of_game_turn(world){
         return [];
     }
 
@@ -207,14 +210,23 @@ class World
         return possible_actions;
     }
 
-    // Apply all rules to update this world according to them.
+    // Apply all rules to update this world according to them, at the end of a character's turn.
     // Should be called after each turn of an agent.
-    apply_rules(){
+    apply_rules_end_of_characters_turn(agent){
         const events = [];
         for(const rule of this.rules){
-            events.push(...(rule.update_world_after_turn(this)));
+            events.push(...(rule.update_world_after_agent_turn(this, agent)));
+        }
+        return events;
+    }
+
+    // Apply all rules to update this world according to them, at the end of a game turn.
+    // Should be at the beginning of each game turn.
+    apply_rules_beginning_of_game_turn(){
+        const events = [];
+        for(const rule of this.rules){
+            events.push(...(rule.update_world_at_the_beginning_of_game_turn(this)));
         }
         return events;
     }
 };
-
