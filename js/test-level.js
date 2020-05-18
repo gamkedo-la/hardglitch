@@ -51,7 +51,7 @@ function make_test_world(){
     world.add(player);
     world.add(player.body);
 
-    for(let i = 0; i < 10; ++i){
+    for(let i = 0; i < 3; ++i){
         const enemy_body = new concepts.Body();
         const enemy =  new Enemy(enemy_body);
         enemy_body.position.x = random_int(0, 10);
