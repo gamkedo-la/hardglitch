@@ -1,6 +1,6 @@
 // This file contains the main loop and initialization code for this game.
 
-export { current_game, current_view }
+export { current_game, current_game_view }
 
 // save the canvas for dimensions, and its 2d context for drawing to it
 import * as graphics from "./system/graphics.js";
@@ -9,11 +9,11 @@ import { Game } from "./game.js";
 import { GameView } from "./game-view.js";
 
 import * as input from "./system/input.js";
-
-import { make_test_world, next_update } from "./scratchpad.js";
+import { on_player_input_in_game } from "./game-input.js";
+import { make_test_world } from "./test-level.js";
 
 let current_game = null;
-let current_view = null;
+let current_game_view = null;
 
 window.onload = async function() {
   graphics.initialize();
@@ -32,21 +32,21 @@ function start() {
       draw_everything();
     }, 1000/framesPerSecond);
 
-  input.initialize(next_update);
+  input.initialize(on_player_input_in_game); // TODO: change that so that when we have different screens with different input situations
 
   console.log("GAME READY - STARTED");
 }
 
 function update_everything() {
-  current_view.update();
+  current_game_view.update();
 }
 
 function draw_everything() {
   graphics.clear();
-  current_view.render_graphics();
+  current_game_view.render_graphics();
 }
 
 function new_game() {
   current_game = new Game(make_test_world());
-  current_view = new GameView(current_game);
+  current_game_view = new GameView(current_game);
 }
