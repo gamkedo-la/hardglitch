@@ -16,6 +16,7 @@ import { Vector2 } from "./system/spatial.js";
 import { Waited } from "./rules/rules-basic.js";
 import { Moved } from "./rules/rules-movement.js";
 
+import * as debug from "./debug.js";
 
 const PIXELS_PER_TILES_SIDE = 50;
 const HALF_PIXELS_PER_TILES_SIDE = PIXELS_PER_TILES_SIDE / 2;
@@ -121,7 +122,10 @@ class GameView {
     update(){
         // Update the currently animating event view, if any.
         if(this.current_animation || this.event_view_animation_queue.length > 0){
-            this.is_time_for_player_to_chose_action = false;
+            if(this.is_time_for_player_to_chose_action){
+                this.is_time_for_player_to_chose_action = false;
+                debug.setText("PROCESSING NPC TURNS...");
+            }
 
             if(!this.current_animation){
                 this.current_animation = this.event_view_animation_queue.shift();
@@ -130,8 +134,10 @@ class GameView {
             const animation_state = this.current_animation.next(); // Updates the animation
             if(animation_state.done){
                 this.current_animation = null;
-                if(this.event_view_animation_queue.length == 0)
+                if(this.event_view_animation_queue.length == 0){
                     this.is_time_for_player_to_chose_action = true;
+                    debug.setText("PLAYER'S TURN!");
+                }
             }
         }
 
