@@ -28,12 +28,57 @@ class Vector2{
         this.y = values.y || 0.0;
     }
 
+    get length() {
+        if (x === 0 && y === 0) return 0;
+        return Math.hypot(this.x, this.y);
+    }
+
+    set length(scalar) {
+        if (scalar <= 0) {
+            this.x = 0;
+            this.y = 0;
+        } else {
+            let unit_vector = this.normalize();
+            unit_vector.multiply(scalar);
+            this.x = unit_vector.x;
+            this.y = unit_vector.y;
+        }
+    }
+
+    clamp(min, max) {
+        let magnitude = this.length;
+        if (magnitude > max) {
+            this.length = max;
+        } else if (magnitude < min) {
+            this.length = min;
+        }
+    }
+
+    normalize() {
+        let magnitude = this.length;
+        if (magnitude === 0) return this;
+        return this.divide(magnitude);
+    }
+
+    multiply(scalar) {
+        return new Vector2({x: this.x * scalar, y: this.y * scalar});
+    }
+
+    divide(scalar) {
+        return new Vector2({x: this.x / scalar, y: this.y / scalar});
+    }
+
     translate(translation){
         return new Vector2({ x: this.x + translation.x, y: this.y + translation.y });
     }
 
-    rotate(degrees){
-        throw "not implemented yet";
+    rotate(degrees) {
+        let rads = Math.radians(degrees);
+
+        let rx = this.x * Math.cos(rads) - this.y * Math.sin(rads);
+		let ry = this.x * Math.sin(rads) + this.y * Math.cos(rads);
+        
+        return new Vector2({x: rx, y: ry});
     }
 };
 
