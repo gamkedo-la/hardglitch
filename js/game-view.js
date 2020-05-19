@@ -18,7 +18,7 @@ import { Moved } from "./rules/rules-movement.js";
 
 import * as debug from "./debug.js";
 
-const PIXELS_PER_TILES_SIDE = 50;
+const PIXELS_PER_TILES_SIDE = 64;
 const HALF_PIXELS_PER_TILES_SIDE = PIXELS_PER_TILES_SIDE / 2;
 
 // Return a vector in the graphic-world by interpreting a game-world position.
