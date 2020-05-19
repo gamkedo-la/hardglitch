@@ -59,32 +59,17 @@ class BodyView {
         this.sprite.draw();
     }
 
-    // TODO: move that in the event's code.
-    *wait(){
+    // This is used in animations to set the graphics at specific squares of the grid.
+    set game_position(new_game_position){
+        this.position = graphic_position(new_game_position);
+    }
+
+    *animate_event(event){
         this.is_performing_animation = true;
-        const start_time = Date.now();
-        const duration_ms = 333;
-        const target_time = start_time + duration_ms;
-        while(Date.now() < target_time){
-            yield;
-        }
+        yield* event.animation(this); // Let the event describe how to do it!
         this.is_performing_animation = false;
     }
 
-    // TODO: move that in the event's code.
-    *move(new_position){
-        console.assert(new_position);
-        this.is_performing_animation = true;
-        // TODO: implement this with tweening instead of manually
-        // For this first version we'll just stop a short time and teleport the
-        // sprite to the right position.
-        const target_position = graphic_position(new_position);
-        const wait_animation = this.wait();
-        while(!wait_animation.next().done)
-            yield;
-        this.position = target_position;
-        this.is_performing_animation = false;
-    }
 
 };
 
@@ -108,14 +93,8 @@ class GameView {
         events.forEach(event => {
             const body_view = this.body_views[event.body_id];
             console.assert(body_view); // TODO: handle the case where a new one appeared
-            // TODO: make the event do the view animation codeinstead of implementing it here
-            // The following is VERY WRONG but oh well, can be easilly replaced.
-            if(event instanceof Moved){
-                this.event_view_animation_queue.push(body_view.move(event.to_pos));
-            }
-            else if(event instanceof Waited){
-                this.event_view_animation_queue.push(body_view.wait());
-            }
+            // Add the animation to do to represent the event, for the player to see.
+            this.event_view_animation_queue.push(body_view.animate_event(event));
         });
     }
 

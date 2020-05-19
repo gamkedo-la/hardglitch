@@ -8,6 +8,10 @@ class Event_ActionPointsRestored extends concepts.Event {
         super(agent.agent_id, body.body_id);
         this.restored_points = restored_points;
     }
+
+    *animation(){
+        // TODO: display the restored points or something
+    }
 };
 
 class Rules_ActionPoints extends concepts.Rule {

@@ -50,6 +50,11 @@ class Event{
         this.body_id = body_id;
     }
 
+    // Animation to perform when viewing this event.
+    *animation(body_view){
+        throw "Event animation not implemented!";
+    }
+
 };
 
 

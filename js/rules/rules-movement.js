@@ -1,5 +1,6 @@
 
 import * as concepts from "../core/concepts.js";
+import { animation_wait_event } from "./rules-basic.js";
 
 export { MovementRules, Move, Moved }
 
@@ -10,8 +11,11 @@ class Moved extends concepts.Event {
         this.to_pos = to_pos;
     }
 
-};
+    *animation(body_view){
+        yield* animation_move_event(body_view, this.to_pos);
+    }
 
+};
 
 class Move extends concepts.Action {
 
@@ -56,3 +60,13 @@ class MovementRules extends concepts.Rule {
     }
 
 };
+
+
+function * animation_move_event(body_view, new_position){
+    console.assert(new_position);
+    // TODO: implement this with tweening instead of manually
+    // For this first version we'll just stop a short time and teleport the
+    // sprite to the right position.
+    yield* animation_wait_event(body_view);
+    body_view.game_position = new_position;
+}
