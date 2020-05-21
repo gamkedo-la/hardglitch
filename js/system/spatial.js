@@ -29,7 +29,7 @@ class Vector2{
     }
 
     get length() {
-        if (x === 0 && y === 0) return 0;
+        if (this.x === 0 && this.y === 0) return 0;
         return Math.hypot(this.x, this.y);
     }
 
@@ -39,7 +39,7 @@ class Vector2{
             this.y = 0;
         } else {
             let unit_vector = this.normalize();
-            unit_vector.multiply(scalar);
+            unit_vector = unit_vector.multiply(scalar);
             this.x = unit_vector.x;
             this.y = unit_vector.y;
         }
@@ -56,7 +56,7 @@ class Vector2{
 
     normalize() {
         let magnitude = this.length;
-        if (magnitude === 0) return this;
+        if (magnitude === 0) return new Vector2(this);
         return this.divide(magnitude);
     }
 
@@ -77,8 +77,16 @@ class Vector2{
 
         let rx = this.x * Math.cos(rads) - this.y * Math.sin(rads);
 		let ry = this.x * Math.sin(rads) + this.y * Math.cos(rads);
-        
+
         return new Vector2({x: rx, y: ry});
+    }
+
+    substract(other_vec2){
+        return new Vector2({ x: this.x - other_vec2.x, y: this.y - other_vec2.y });
+    }
+
+    distance(other_vec2){
+        return this.substract(other_vec2).length;
     }
 };
 
