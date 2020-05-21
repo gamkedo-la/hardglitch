@@ -29,13 +29,13 @@ function new_actor_id(){
 }
 
 
-// An action is when an Actor changes something in the world, following the
+// An action is when an Actor changes something (using it's Body) in the world, following the
 // world's rules.
 class Action {
 
     // Apply the action, transform the world.
     // Must return events corresponding to what happened.
-    execute(world, actor){
+    execute(world, body){
         return [];
     }
 };
@@ -43,10 +43,8 @@ class Action {
 // Represents the record of something that happened in the past.
 class Event{
 
-    constructor(actor_id, body_id){
-        console.assert(actor_id);
-        console.assert(body_id);
-        this.actor_id = actor_id;
+    constructor(body_id){
+        console.assert(Number.isInteger(body_id)); // 0 means it's a world event
         this.body_id = body_id;
     }
 
@@ -59,36 +57,25 @@ class Event{
 
 
 // Actors are entities that can take decisions and produce actions.
+// Think of them as the "mind" part of the Body.
+// In some cases, an Actor can control several bodies. In this case the bodies
+// will refer to the same Actor instance.
 class Actor {
     actor_id = new_actor_id();
 
-    action_points_left = 0;
-    max_action_points = 0;
-
-    // TODO: replace this with action point system!
-    // BEWARE, this is a hack to simulate being able to act once per turn.
-    acted_this_turn = true;
-    get can_perform_actions(){
-        const result = this.acted_this_turn;
-        this.acted_this_turn = !this.acted_this_turn;
-        return result;
-    }
-
-    objects = [];
-    body = null; // TODO: consider handling more than one body for an actor (like a big boss?)
-
-    // Decides what to do for this turn, returns an Action or null if players must decide.
+    // Decides what to do for this turn for a specific body, returns an Action or null if players must decide.
     // `possible_actions` is a map of { "ActionName" : ActionType } possibles.
-    // Therefore one could just instantiate an action with `new possible_actions["Move"]` etc.
-    decide_next_action(possible_actions){
+    // Therefore the Action object can be used directory (for example: `possible_actions.move.execute(...)`).
+    decide_next_action(body, possible_actions){
         throw "decide_next_action not implemented";
     }
 };
 
 // Special Actor representing the player.
+// Any Body having this Actor will let the player chose what to do.
 class Player extends Actor {
 
-    decide_next_action(possible_actions){
+    decide_next_action(body, possible_actions){
         return null; // By default, let the player decide.
     }
 }
@@ -101,14 +88,14 @@ class Rule {
     // Returns a map of { "action name" : ActionType } this rule allows to the actor.
     // This will be called to get the full list of actions an actor can
     // do, including the ones related to the environment.
-    get_actions_for(actor, world){
+    get_actions_for(body, world){
         return {};
     }
 
     // Update the world according to this rule after a character performed an action.
     // Called once per actor after they are finished with their action (players too).
     // Returns a sequence of events resulting from changing the world.
-    update_world_after_actor_turn(world, actor){
+    update_world_after_actor_turn(world, body){
         return [];
     }
 
@@ -123,7 +110,7 @@ class Rule {
 
 
 // We assume that the world is made of 2D grids.
-// This position is one square of that grid, so all the values are integers.
+// This position is one square of that grid, so all the values are integers, not floats.
 class Position {
     constructor(x = 0, y = 0){
         this.x = x;
@@ -139,8 +126,7 @@ class Position {
 
 
 
-// Objects are things that have a "physical" existence, that is it can
-// be located (in space or relative to another object).
+// Objects are things that have a "physical" existence, that is it can be located in the space of the game (it have a position).
 // For example a body, a pen in a bag, a software in a computer in a bag.
 class Object {
     position = new Position();
@@ -151,75 +137,91 @@ class Object {
 // They provide Actions and modifiers for the body stats that equip them.
 class Item extends Object {
     actions = [];
+    // TODO: Action mechanisms here.
 };
-
-
 
 
 // Bodies are special entities that have "physical" existence and can perform action,
 // like objects, but they can move by themselves.
-// Most of the time they are owned by actors.
-class Body extends Object { // TODO: consider inheriting from Object?
+// Each Body owns an Actor that will decide what Actions to do when it's the Body's turn.
+class Body extends Object {
     body_id = new_body_id();
+    actor = null; // Actor that controls this body. If null, this body cannot take decisions.
+
+    // Action Point System here.
+    action_points_left = 0;
+    max_action_points = 0;
+
+    // TODO: replace the following functions implementations with action point system!
+    // BEWARE, this is a hack to simulate being able to act once per turn.
+    acted_this_turn = false;
+
+    get can_perform_actions(){
+        // Cannot perform actions if we don't have an actor to decide which action to perform.
+        return this.actor && !this.acted_this_turn;
+    }
+
+    disable_further_actions(){
+        this.acted_this_turn = true;
+    }
+
+    items = []; // Items owned by this body. They don't appear in the World's list unless they are put back in the World (not owned anymore).
 };
 
 // This is the world as known by the game.
 // It's mainly a big container of every entities that makes the world.
 class World
 {
-    items = [];     // Items that are in the space of the world, not in other objects.
+    // Avoid using these members directly, prefer using the functions below, if you can (sometime yuo can't).
+    items = [];     // Items that are in the space of the world, not in other objects (not owned by Bodies).
     bodies = [];    // Bodies are always in the space of the world. They can be controlled by Actors.
-    rules = [];
+    rules = [];     // Rules that will be applied through this game.
     player_action = null; // TODO: try to find a better way to "pass" the player action to the turn solver.
 
-    World(){
 
-    }
-
-    // Automatically sort out how to store the thing being added to this world.
-    add(thing){ // TODO: kill this thing with fire
-        if(thing instanceof Item){
+    // Adds an object to the world (a Body or an Item), setup the necessary spatial information.
+    add(object){
+        console.assert(object instanceof Object);
+        console.assert(object.position);
+        if(object instanceof Body)
+            this.bodies.push(object);
+        else if(object instanceof Item)
             this.items.push(thing);
-            // TODO: add here to some spatial partitionning system
-        }
-        else if(thing instanceof Actor){
-            this.actors.push(thing);
-        }
-        else if(thing instanceof Body){
-            this.bodies.push(thing);
-            // TODO: add here to some spatial partitioning system
-        }
-        else if(thing instanceof Rule){
-            this.rules.push(thing);
-        }
-        else {
-            throw "Unknown type : " + typeof thing;
-        }
+        else throw "Tried to add to the World an unknown type of Object";
+        // TODO: add the necessary info in the system that handles space partitionning
     }
 
-    set_player_action(action){
-        console.assert(action);
+    // Set a list of rules that should be ordered as they should be applied.
+    set_rules(...rules){
+        console.assert(rules instanceof Array);
+        this.rules = rules;
+    }
+
+    // Set the next action for player's turn. Called when the player decided the action, set it and then run the turn solver.
+    set_next_player_action(action){
+        console.assert(action instanceof Action);
         // TODO: add some checks?
         this.player_action = action;
     }
 
-    // Returns a set of possible actions according to the current rules, for the specified actor.
-    gather_possible_actions_from_rules(actor){
-        console.assert(actor instanceof Actor);
+    // Returns a set of possible actions according to the current rules, for the specified body.
+    gather_possible_actions_from_rules(body){
+        console.assert(body instanceof Body);
+        console.assert(!body.actor || body.actor instanceof Actor); // If the body have an Actor to control it, then it needs to be an Actor.
         let possible_actions = {};
         for(const rule of this.rules){
-            const actions_from_rule = rule.get_actions_for(actor, this);
+            const actions_from_rule = rule.get_actions_for(body, this);
             possible_actions = { ...possible_actions, ...actions_from_rule };
         }
         return possible_actions;
     }
 
     // Apply all rules to update this world according to them, at the end of a character's turn.
-    // Should be called after each turn of an actor.
-    apply_rules_end_of_characters_turn(actor){
+    // Should be called after each turn of an body.
+    apply_rules_end_of_characters_turn(body){
         const events = [];
         for(const rule of this.rules){
-            events.push(...(rule.update_world_after_actor_turn(this, actor)));
+            events.push(...(rule.update_world_after_actor_turn(this, body)));
         }
         return events;
     }

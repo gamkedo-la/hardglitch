@@ -5,8 +5,8 @@ import { animation_wait_event } from "./rules-basic.js";
 export { MovementRules, Move, Moved }
 
 class Moved extends concepts.Event {
-    constructor(actor, body, from_pos, to_pos) {
-        super(actor.actor_id, body.body_id);
+    constructor(body, from_pos, to_pos) {
+        super(body.body_id);
         this.from_pos = from_pos;
         this.to_pos = to_pos;
     }
@@ -25,36 +25,37 @@ class Move extends concepts.Action {
         this.new_position = new_position;
     }
 
-    execute(world, actor) {
-        console.assert(actor.body);
-        const initial_pos = actor.body.position;
-        actor.body.position = this.new_position;
-        return [ new Moved(actor, actor.body, initial_pos, this.new_position) ];
+    execute(world, body) {
+        console.assert(body);
+        const initial_pos = body.position;
+        body.position = this.new_position;
+        return [ new Moved(body, initial_pos, this.new_position) ];
     }
 };
 
 
-// Rule: actors with a body can move (depending on what is arround).
+// Rule: can move (depending on what is arround).
 // Movement can be done only 1 square per turn.
 class MovementRules extends concepts.Rule {
 
-    get_actions_for(actor, world) {
+    get_actions_for(body, world) {
+        console.assert(body);
+        console.assert(world);
 
+        // TODO: change the rule below to make the possible moves dependent on the BODY characteristics
         let actions = {};
 
-        if (actor.body) {
-            // TODO: check if we CAN move (or not) in each direction, add actions accordingly
-            // TEMPORARY HIDDEN WALLS:
-            const boundaries = { top : 0, left : 0, bottom : 10, right : 14 };
+        // TODO: check if we CAN move (or not) in each direction, add actions accordingly
+        // TEMPORARY HIDDEN WALLS (to remove when we have proper walls):
+        const boundaries = { top : 0, left : 0, bottom : 10, right : 14 };
 
-            const current_pos = actor.body.position;
-            console.assert(current_pos);
+        const current_pos = body.position;
+        console.assert(current_pos);
 
-            if( current_pos.x > boundaries.left )   actions.move_west  = new Move(current_pos.west);
-            if( current_pos.x < boundaries.right )  actions.move_east  = new Move(current_pos.east);
-            if( current_pos.y > boundaries.top )    actions.move_north = new Move(current_pos.north);
-            if( current_pos.y < boundaries.bottom ) actions.move_south = new Move(current_pos.south);
-        }
+        if( current_pos.x > boundaries.left )   actions.move_west  = new Move(current_pos.west);
+        if( current_pos.x < boundaries.right )  actions.move_east  = new Move(current_pos.east);
+        if( current_pos.y > boundaries.top )    actions.move_north = new Move(current_pos.north);
+        if( current_pos.y < boundaries.bottom ) actions.move_south = new Move(current_pos.south);
 
         return actions;
     }

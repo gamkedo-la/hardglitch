@@ -22,42 +22,42 @@ class RandomActionSelector extends concepts.Actor {
     }
 };
 
-class Enemy extends RandomActionSelector {
+class Enemy extends concepts.Body {
+
     constructor(body){
         super();
-        this.body = body;
+        this.actor = new RandomActionSelector();
     }
 };
 
-class PlayerBody extends concepts.Body {
+class Player extends concepts.Body {
     assets = { spritesheet : assets.images.player };
 
     constructor(){
         super();
+        this.actor = new concepts.Player();
     }
 }
 
 
-const player = new concepts.Player();
 
-function make_test_world(){
+function make_test_world(){ // The game assets must have been initialized first.
     const world = new concepts.World();
 
-    world.add( new BasicRules() );
-    world.add( new MovementRules() );
-    world.add( new Rules_ActionPoints() );
+    world.set_rules(
+        new BasicRules(),
+        new MovementRules(),
+        new Rules_ActionPoints(),
+    );
 
-    player.body = new PlayerBody();
+    const player = new Player();
     world.add(player);
-    world.add(player.body);
 
     for(let i = 0; i < 3; ++i){
-        const enemy_body = new concepts.Body();
-        const enemy =  new Enemy(enemy_body);
-        enemy_body.position.x = random_int(0, 10);
-        enemy_body.position.y = random_int(0, 10);
+        const enemy = new Enemy();
+        enemy.position.x = random_int(0, 9);
+        enemy.position.y = random_int(0, 9);
         world.add(enemy);
-        world.add(enemy_body);
     }
 
     return world;

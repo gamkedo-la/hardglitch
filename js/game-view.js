@@ -91,10 +91,14 @@ class GameView {
 
         let events = this.game.last_turn_info.events; // turns.PlayerTurn
         events.forEach(event => {
-            const body_view = this.body_views[event.body_id];
-            console.assert(body_view); // TODO: handle the case where a new one appeared
-            // Add the animation to do to represent the event, for the player to see.
-            this.event_view_animation_queue.push(body_view.animate_event(event));
+            if(event.body_id == 0){ // 0 means it's a World event.
+                // TODO: add world event animations launch HERE.
+            } else { // If it's not a World event, it's a character-related event.
+                const body_view = this.body_views[event.body_id];
+                console.assert(body_view); // TODO: handle the case where a new one appeared
+                // Add the animation to do to represent the event, for the player to see.
+                this.event_view_animation_queue.push(body_view.animate_event(event));
+            }
         });
     }
 

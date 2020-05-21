@@ -27,7 +27,7 @@ class Game {
     }
 
     update_until_player_turn(next_player_action) {
-        this.world.set_player_action(next_player_action); // The player action will be used in solving turns.
+        this.world.set_next_player_action(next_player_action); // The player action will be used in solving turns.
 
         console.log(`SOLVING TURNS ...`);
         const turn_iter = this.__turn_sequence.next();
@@ -39,7 +39,7 @@ class Game {
         console.log(`NEW PLAYER TURN: ${this.player_turn_count}`);
         console.log(`Events Since Last Turn: `);
         for(const event of this.last_turn_info.events){
-            console.log(` - ${event.constructor.name} { actor: ${event.actor_id}, body: ${event.body_id} }`);
+            console.log(` - ${event.constructor.name} { character: ${event.body_id} }`);
         }
         console.log(`Possible Actions: `);
         for(const action_name in this.last_turn_info.possible_actions){
