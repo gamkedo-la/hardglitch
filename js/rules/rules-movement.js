@@ -1,8 +1,10 @@
-
-import * as concepts from "../core/concepts.js";
-import { animation_wait_event } from "./rules-basic.js";
+// This file contains all the code describing the general rules of movement.
 
 export { MovementRules, Move, Moved }
+
+import * as concepts from "../core/concepts.js";
+import { BodyView, graphic_position } from "../game-view.js";
+
 
 class Moved extends concepts.Event {
     constructor(body, from_pos, to_pos) {
@@ -62,10 +64,22 @@ class MovementRules extends concepts.Rule {
 
 
 function * animation_move_event(body_view, new_position){
-    console.assert(new_position);
-    // TODO: implement this with tweening instead of manually
-    // For this first version we'll just stop a short time and teleport the
-    // sprite to the right position.
-    yield* animation_wait_event(body_view);
+    console.assert(body_view instanceof BodyView)
+    console.assert(new_position instanceof concepts.Position);
+    // TODO: implement this with TWEENING instead of manually
+
+    // Below we we'll work with graphic positions:
+    const steps_count = 20;
+    const target_gfx_pos = graphic_position(new_position);
+    const translation_step = target_gfx_pos.substract(body_view.position).divide(steps_count);
+
+    while(true){
+        body_view.position = body_view.position.translate(translation_step);
+        yield;
+        const distance_left = body_view.position.distance(target_gfx_pos);
+        if(distance_left < translation_step.length)
+            break;
+    }
+
     body_view.game_position = new_position;
 }

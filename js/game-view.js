@@ -4,7 +4,7 @@
 // We interpret events to animate the view of the world.
 // The code here is just the skeleton to build over the actual representation.
 
-export { GameView };
+export { GameView, BodyView, graphic_position };
 
 import * as graphics from "./system/graphics.js";
 import { random_int } from "./system/utility.js";
@@ -40,18 +40,16 @@ class BodyView {
         else
             this.sprite.source_image = assets.images.warrior;
 
-        this.position = graphic_position(body_position);
-        this.sprite.position = this.position;
+        this.sprite.position = graphic_position(body_position);
 
         this.some_value = -99999.0 + random_int(0, 7);
     }
 
     update(){ // TODO: make this a generator with an infinite loop
-        this.sprite.position = this.position;
-        if(this.is_performing_animation){ // true or false, it's just for fun
+        if(!this.is_performing_animation){ // true or false, it's just for fun
             this.some_value += 0.5;
             const some_direction = {x:Math.sin(this.some_value), y:Math.cos(this.some_value)};
-            this.sprite.position = this.position.translate(some_direction);
+            this.position = this.position.translate(some_direction);
         }
     }
 
@@ -62,6 +60,13 @@ class BodyView {
     // This is used in animations to set the graphics at specific squares of the grid.
     set game_position(new_game_position){
         this.position = graphic_position(new_game_position);
+    }
+
+    get position(){
+        return this.sprite.position;
+    }
+    set position(new_position){
+        this.sprite.position = new_position;
     }
 
     *animate_event(event){
