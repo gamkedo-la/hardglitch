@@ -2,10 +2,10 @@ import * as concepts from "../core/concepts.js";
 
 export { BasicRules, Wait, Waited, animation_wait_event };
 
-// That agent decided to take a pause.
+// That actor decided to take a pause.
 class Waited extends concepts.Event {
-    constructor(agent, body){
-        super(agent.agent_id, body.body_id);
+    constructor(actor, body){
+        super(actor.actor_id, body.body_id);
     }
 
     *animation(body_view){
@@ -15,14 +15,14 @@ class Waited extends concepts.Event {
 
 // Action: Wait. Do Nothing. Almost like sleep but not quite.
 class Wait extends concepts.Action {
-    execute(world, agent) {
-        return [ new Waited(agent, agent.body) ];
+    execute(world, actor) {
+        return [ new Waited(actor, actor.body) ];
     }
 };
 
 // The most basic rules.
 class BasicRules extends concepts.Rule {
-    get_actions_for(agent, world) {
+    get_actions_for(actor, world) {
         return {
             "wait" : new Wait()
         };

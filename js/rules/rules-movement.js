@@ -5,8 +5,8 @@ import { animation_wait_event } from "./rules-basic.js";
 export { MovementRules, Move, Moved }
 
 class Moved extends concepts.Event {
-    constructor(agent, body, from_pos, to_pos) {
-        super(agent.agent_id, body.body_id);
+    constructor(actor, body, from_pos, to_pos) {
+        super(actor.actor_id, body.body_id);
         this.from_pos = from_pos;
         this.to_pos = to_pos;
     }
@@ -25,29 +25,29 @@ class Move extends concepts.Action {
         this.new_position = new_position;
     }
 
-    execute(world, agent) {
-        console.assert(agent.body);
-        const initial_pos = agent.body.position;
-        agent.body.position = this.new_position;
-        return [ new Moved(agent, agent.body, initial_pos, this.new_position) ];
+    execute(world, actor) {
+        console.assert(actor.body);
+        const initial_pos = actor.body.position;
+        actor.body.position = this.new_position;
+        return [ new Moved(actor, actor.body, initial_pos, this.new_position) ];
     }
 };
 
 
-// Rule: agents with a body can move (depending on what is arround).
+// Rule: actors with a body can move (depending on what is arround).
 // Movement can be done only 1 square per turn.
 class MovementRules extends concepts.Rule {
 
-    get_actions_for(agent, world) {
+    get_actions_for(actor, world) {
 
         let actions = {};
 
-        if (agent.body) {
+        if (actor.body) {
             // TODO: check if we CAN move (or not) in each direction, add actions accordingly
             // TEMPORARY HIDDEN WALLS:
             const boundaries = { top : 0, left : 0, bottom : 10, right : 14 };
 
-            const current_pos = agent.body.position;
+            const current_pos = actor.body.position;
             console.assert(current_pos);
 
             if( current_pos.x > boundaries.left )   actions.move_west  = new Move(current_pos.west);

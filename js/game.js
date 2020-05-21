@@ -39,7 +39,7 @@ class Game {
         console.log(`NEW PLAYER TURN: ${this.player_turn_count}`);
         console.log(`Events Since Last Turn: `);
         for(const event of this.last_turn_info.events){
-            console.log(` - ${event.constructor.name} { agent: ${event.agent_id}, body: ${event.body_id} }`);
+            console.log(` - ${event.constructor.name} { actor: ${event.actor_id}, body: ${event.body_id} }`);
         }
         console.log(`Possible Actions: `);
         for(const action_name in this.last_turn_info.possible_actions){

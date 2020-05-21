@@ -4,8 +4,8 @@ export { Rules_ActionPoints, Event_ActionPointsRestored }
 import * as concepts from "../core/concepts.js";
 
 class Event_ActionPointsRestored extends concepts.Event {
-    constructor(agent, body, restored_points){
-        super(agent.agent_id, body.body_id);
+    constructor(actor, body, restored_points){
+        super(actor.actor_id, body.body_id);
         this.restored_points = restored_points;
     }
 
@@ -23,9 +23,9 @@ class Rules_ActionPoints extends concepts.Rule {
 
 function restore_characters_action_points(world){
     const events = [];
-    for(const agent of world.agents){
-        agent.acted_this_turn = true; // TODO: replace this by actual action point logic
-        events.push(new Event_ActionPointsRestored(agent, agent.body, 1) ); // TODO: set the real action points restored here.
+    for(const actor of world.actors){
+        actor.acted_this_turn = true; // TODO: replace this by actual action point logic
+        events.push(new Event_ActionPointsRestored(actor, actor.body, 1) ); // TODO: set the real action points restored here.
     }
     return events;
 }

@@ -9,7 +9,7 @@ import {random_sample, random_int} from "./system/utility.js";
 import { assets } from "./game-assets.js";
 import { Rules_ActionPoints } from "./rules/rules-actionpoints.js";
 
-class RandomActionSelector extends concepts.Agent {
+class RandomActionSelector extends concepts.Actor {
 
     decide_next_action(possible_actions) {
         // Just picking a random action is a perfectly valid strategy, lol
