@@ -16,6 +16,7 @@ export {
     Rule,
     Object,
     Body,
+    Position,
 };
 
 let next_body_id = 0;
@@ -122,6 +123,10 @@ class Position {
     get east() { return new Position( this.x + 1, this.y ); }
     get north() { return new Position( this.x, this.y - 1 ); }
     get south() { return new Position( this.x, this.y + 1 ); }
+
+    equals(other_position){
+        return other_position.x == this.x && other_position.y == this.y;
+    }
 };
 
 
@@ -235,4 +240,39 @@ class World
         }
         return events;
     }
+
+    // Returns true if the position given is blocked by an object (Body or Item) or a tile that blocks (wall).
+    is_blocked_position(position){
+        // TODO: check the tile at that position.
+
+
+        if(this.body_at(position))
+            return true;
+
+        if(this.item_at(position))
+            return true;
+
+        return false;
+    }
+
+    body_at(position){
+        // TODO: optimize this if necessary
+        for(const body of this.bodies){
+            if(body.position.equals(position))
+                return body;
+        }
+        return null;
+    }
+
+    item_at(position){
+        // TODO: optimize this if necessary
+        for(const item of this.items){
+            if(items.position.equals(position))
+                return item;
+        }
+        return null;
+    }
+
+
+
 };

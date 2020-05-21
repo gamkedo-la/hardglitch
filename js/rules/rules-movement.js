@@ -45,17 +45,13 @@ class MovementRules extends concepts.Rule {
         // TODO: change the rule below to make the possible moves dependent on the BODY characteristics
         let actions = {};
 
-        // TODO: check if we CAN move (or not) in each direction, add actions accordingly
-        // TEMPORARY HIDDEN WALLS (to remove when we have proper walls):
-        const boundaries = { top : 0, left : 0, bottom : 10, right : 14 };
-
         const current_pos = body.position;
         console.assert(current_pos);
 
-        if( current_pos.x > boundaries.left )   actions.move_west  = new Move(current_pos.west);
-        if( current_pos.x < boundaries.right )  actions.move_east  = new Move(current_pos.east);
-        if( current_pos.y > boundaries.top )    actions.move_north = new Move(current_pos.north);
-        if( current_pos.y < boundaries.bottom ) actions.move_south = new Move(current_pos.south);
+        if( !world.is_blocked_position(current_pos.west)  ) actions.move_west  = new Move(current_pos.west);
+        if( !world.is_blocked_position(current_pos.east)  ) actions.move_east  = new Move(current_pos.east);
+        if( !world.is_blocked_position(current_pos.north) ) actions.move_north = new Move(current_pos.north);
+        if( !world.is_blocked_position(current_pos.south) ) actions.move_south = new Move(current_pos.south);
 
         return actions;
     }
