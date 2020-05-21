@@ -65,6 +65,18 @@ function initialize(){
 
   canvas = document.getElementById('gameCanvas');
   canvasContext = canvas.getContext('2d');
+  canvas_resize_to_window();
+  window.addEventListener('resize', on_window_resized);
+}
+
+function canvas_resize_to_window(){
+  canvasContext.canvas.width  = window.innerWidth;
+  canvasContext.canvas.height = window.innerHeight;
+}
+
+function on_window_resized(){
+  // TODO: handle camera stuffs here.
+  canvas_resize_to_window();
 }
 
 function colorRect(rectangle, fillColor) {

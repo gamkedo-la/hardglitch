@@ -2,10 +2,6 @@
 
 export { setText };
 
-let textBox = document.getElementById("debugText");
-
-
-function setText(text){
-    textBox.innerHTML = text;
-    console.log(text);
+function setText(text){ // TODO: add a text display in the Canvas to display this
+    console.log(text); // TEMPORARY: just log for now.
 }
