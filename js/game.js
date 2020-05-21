@@ -8,7 +8,6 @@ import * as turns from "./core/action-turn.js";
 import { Wait } from "./rules/rules-basic.js";
 
 
-
 // Abstract but complete representation of a game.
 // Create this object for each new game.
 // Make it visible using a GameView.
@@ -28,6 +27,7 @@ class Game {
 
     update_until_player_turn(next_player_action) {
         this.world.set_next_player_action(next_player_action); // The player action will be used in solving turns.
+        console.log(`Player Action: ${next_player_action.name}`);
 
         console.log(`SOLVING TURNS ...`);
         const turn_iter = this.__turn_sequence.next();
@@ -42,8 +42,9 @@ class Game {
             console.log(` - ${event.constructor.name} { character: ${event.body_id} }`);
         }
         console.log(`Possible Actions: `);
-        for(const action_name in this.last_turn_info.possible_actions){
-            console.log(` - ${action_name}`);
+        for(const action_id in this.last_turn_info.possible_actions){
+            const action = this.last_turn_info.possible_actions[action_id];
+            console.log(` - ${action.name}`);
         }
         return this.last_turn_info;
     }

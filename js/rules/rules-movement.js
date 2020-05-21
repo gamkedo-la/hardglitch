@@ -19,14 +19,14 @@ class Moved extends concepts.Event {
 
 class Move extends concepts.Action {
 
-    constructor(new_position){
+    constructor(move_name, new_position){
         console.assert(new_position);
-        super();
+        super(move_name, `Move to ${JSON.stringify(new_position)} (${move_name})`);
         this.new_position = new_position;
     }
 
     execute(world, body) {
-        console.assert(body);
+        console.assert(body instanceof concepts.Body);
         const initial_pos = body.position;
         body.position = this.new_position;
         return [ new Moved(body, initial_pos, this.new_position) ];
@@ -43,15 +43,17 @@ class MovementRules extends concepts.Rule {
         console.assert(world);
 
         // TODO: change the rule below to make the possible moves dependent on the BODY characteristics
-        let actions = {};
+        const actions = {};
 
         const current_pos = body.position;
         console.assert(current_pos);
 
-        if( !world.is_blocked_position(current_pos.west)  ) actions.move_west  = new Move(current_pos.west);
-        if( !world.is_blocked_position(current_pos.east)  ) actions.move_east  = new Move(current_pos.east);
-        if( !world.is_blocked_position(current_pos.north) ) actions.move_north = new Move(current_pos.north);
-        if( !world.is_blocked_position(current_pos.south) ) actions.move_south = new Move(current_pos.south);
+        const allowed_moves = body.allowed_moves();
+        for(const move_id in allowed_moves){
+            const move_target = allowed_moves[move_id];
+            if(!world.is_blocked_position(move_target))
+                actions[move_id] = new Move(move_id, move_target);
+        }
 
         return actions;
     }

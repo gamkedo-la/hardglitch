@@ -15,6 +15,10 @@ class Waited extends concepts.Event {
 
 // Action: Wait. Do Nothing. Almost like sleep but not quite.
 class Wait extends concepts.Action {
+    constructor(){
+        super("wait", "Wait");
+    }
+
     execute(world, body) {
         return [ new Waited(body) ];
     }
@@ -25,7 +29,7 @@ class BasicRules extends concepts.Rule {
     get_actions_for(body, world) {
         // Anyone can "wait".
         return {
-            "wait" : new Wait()
+            wait: new Wait()
         };
     }
 };

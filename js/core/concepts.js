@@ -33,6 +33,14 @@ function new_actor_id(){
 // An action is when an Actor changes something (using it's Body) in the world, following the
 // world's rules.
 class Action {
+    constructor(id, name, description = "MISSING ACTION DESCRIPTION"){
+        console.assert(typeof id === 'string');
+        console.assert(typeof name === 'string');
+        console.assert(typeof description === 'string');
+        this.id = id;                       // Used internally to identify this Action in some special code (for example to identify special moves to bind to keyboard keys)
+        this.name = name,                   // Name that will be displayed to the player.
+        this.description = description;     // Description that will be displayed to the player.
+    }
 
     // Apply the action, transform the world.
     // Must return events corresponding to what happened.
@@ -65,7 +73,7 @@ class Actor {
     actor_id = new_actor_id();
 
     // Decides what to do for this turn for a specific body, returns an Action or null if players must decide.
-    // `possible_actions` is a map of { "ActionName" : ActionType } possibles.
+    // `possible_actions` is a map of { "action_id" : action_object } possibles.
     // Therefore the Action object can be used directory (for example: `possible_actions.move.execute(...)`).
     decide_next_action(body, possible_actions){
         throw "decide_next_action not implemented";
@@ -86,7 +94,7 @@ class Player extends Actor {
 class Rule {
     // TODO: add on_something for each case we want to apply rules to.
 
-    // Returns a map of { "action name" : ActionType } this rule allows to the actor.
+    // Returns a map of { "action_id" : ActionType } this rule allows to the actor.
     // This will be called to get the full list of actions an actor can
     // do, including the ones related to the environment.
     get_actions_for(body, world){
@@ -152,7 +160,9 @@ class Item extends Object {
 class Body extends Object {
     body_id = new_body_id();
     actor = null; // Actor that controls this body. If null, this body cannot take decisions.
+    items = []; // Items owned by this body. They don't appear in the World's list unless they are put back in the World (not owned anymore).
 
+    ////////////////////////////////
     // Action Point System here.
     action_points_left = 0;
     max_action_points = 0;
@@ -170,7 +180,20 @@ class Body extends Object {
         this.acted_this_turn = true;
     }
 
-    items = []; // Items owned by this body. They don't appear in the World's list unless they are put back in the World (not owned anymore).
+    // Describe the possible positions relative to the current ones that could be reached in one step,
+    // assuming there is no obstacles.
+    // Should be overloaded by bodies that have limited sets of movements.
+    // Returns an object: { move_id: target_position, another_move_name: another_position }
+    allowed_moves(){ // By default: can go on the next square on north, south, east and west.
+        return {
+            move_east: this.position.east,
+            move_west: this.position.west,
+            move_north: this.position.north,
+            move_south: this.position.south
+        };
+    }
+
+
 };
 
 // This is the world as known by the game.
