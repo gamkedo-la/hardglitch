@@ -2,12 +2,12 @@
 
 export { make_test_world }
 
-import * as concepts from "./core/concepts.js";
-import { Wait, BasicRules } from "./rules/rules-basic.js";
-import { MovementRules } from "./rules/rules-movement.js";
-import {random_sample, random_int} from "./system/utility.js";
-import { assets } from "./game-assets.js";
-import { Rules_ActionPoints } from "./rules/rules-actionpoints.js";
+import * as concepts from "../core/concepts.js";
+import { Wait, BasicRules } from "../rules/rules-basic.js";
+import { MovementRules } from "../rules/rules-movement.js";
+import {random_sample, random_int} from "../system/utility.js";
+import { assets } from "../game-assets.js";
+import { Rules_ActionPoints } from "../rules/rules-actionpoints.js";
 
 class RandomActionSelector extends concepts.Actor {
 
