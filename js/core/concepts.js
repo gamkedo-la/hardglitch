@@ -58,10 +58,7 @@ class Event{
     }
 
     // Animation to perform when viewing this event.
-    *animation(body_view){
-        throw "Event animation not implemented!";
-    }
-
+    *animation(body_view){} // Do nothing by default
 };
 
 
