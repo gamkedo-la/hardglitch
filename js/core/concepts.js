@@ -219,6 +219,7 @@ class World
     // Set a list of rules that should be ordered as they should be applied.
     set_rules(...rules){
         console.assert(rules instanceof Array);
+        console.assert(rules.every(rule => rule instanceof Rule));
         this.rules = rules;
     }
 
