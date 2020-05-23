@@ -79,7 +79,7 @@ class GameView {
     tile_grid = new graphics.TileGrid();
     body_views = {};
     is_time_for_player_to_chose_action = true;
-    event_view_animation_queue = []; // Must contain only js generators.
+    animation_queue = []; // Must contain only js generators. // TODO: make the animation system separately to be used anywhere there are animations to play.
     current_animation = null; // Must be a js generator.
 
     constructor(game){
@@ -89,43 +89,47 @@ class GameView {
     }
 
     interpret_turn_events() {
-        console.assert(this.event_view_animation_queue.length == 0);
+        console.assert(this.animation_queue.length == 0);
 
         let events = this.game.last_turn_info.events; // turns.PlayerTurn
         events.forEach(event => {
             if(event.body_id == 0){ // 0 means it's a World event.
-                // TODO: add world event animations launch HERE.
+                // Launch the event's animation, if any.
+                this.animation_queue.push(event.animation());
+
             } else { // If it's not a World event, it's a character-related event.
                 const body_view = this.body_views[event.body_id];
                 console.assert(body_view); // TODO: handle the case where a new one appeared
-                // Add the animation to do to represent the event, for the player to see.
-                this.event_view_animation_queue.push(body_view.animate_event(event));
+                // Add the animation to do to represent the event, for the player to see, if any.
+                this.animation_queue.push(body_view.animate_event(event));
             }
         });
     }
 
     update(){
-        // Update the currently animating event view, if any.
-        if(this.current_animation || this.event_view_animation_queue.length > 0){
+
+        // Update the current animation, if any, or switch to the next one, until there isn't any left.
+        if(this.current_animation || this.animation_queue.length > 0){
             if(this.is_time_for_player_to_chose_action){
                 this.is_time_for_player_to_chose_action = false;
                 debug.setText("PROCESSING NPC TURNS...");
             }
 
             if(!this.current_animation){
-                this.current_animation = this.event_view_animation_queue.shift();
+                this.current_animation = this.animation_queue.shift(); // pop!
             }
 
-            const animation_state = this.current_animation.next(); // Updates the animation
+            const animation_state = this.current_animation.next(); // Updates the animation.
             if(animation_state.done){
                 this.current_animation = null;
-                if(this.event_view_animation_queue.length == 0){
+                if(this.animation_queue.length == 0){
                     this.is_time_for_player_to_chose_action = true;
                     debug.setText("PLAYER'S TURN!");
                 }
             }
         }
 
+        // Update all body-views animations.
         for(const body_id in this.body_views){
             this.body_views[body_id].update();
         };
