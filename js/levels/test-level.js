@@ -4,10 +4,10 @@ export { make_test_world }
 
 import * as concepts from "../core/concepts.js";
 import { random_int } from "../system/utility.js";
-import { BasicRules } from "../rules/rules-basic.js";
-import { MovementRules } from "../rules/rules-movement.js";
+import * as basic_rules from "../rules/rules-basic.js";
+import { Rule_Movements } from "../rules/rules-movement.js";
 import { assets } from "../game-assets.js";
-import { Rules_ActionPoints } from "../rules/rules-actionpoints.js";
+import { Rule_ActionPoints } from "../rules/rules-actionpoints.js";
 import { RandomActionEnemy } from "../enemies/test-enemy.js";
 
 class Player extends concepts.Body {
@@ -23,9 +23,9 @@ function make_test_world(){ // The game assets must have been initialized first.
     const world = new concepts.World();
 
     world.set_rules(
-        new BasicRules(),
-        new MovementRules(),
-        new Rules_ActionPoints(),
+        new basic_rules.Rule_BasicActions(),
+        new Rule_Movements(),
+        new Rule_ActionPoints(),
     );
 
     const player = new Player();

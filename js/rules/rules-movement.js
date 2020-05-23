@@ -1,6 +1,10 @@
 // This file contains all the code describing the general rules of movement.
 
-export { MovementRules, Move, Moved }
+export {
+    Rule_Movements,
+    Move,
+    Moved
+}
 
 import * as concepts from "../core/concepts.js";
 import { BodyView, graphic_position } from "../game-view.js";
@@ -38,7 +42,7 @@ class Move extends concepts.Action {
 
 // Rule: can move (depending on what is arround).
 // Movement can be done only 1 square per turn.
-class MovementRules extends concepts.Rule {
+class Rule_Movements extends concepts.Rule {
 
     get_actions_for(body, world) {
         console.assert(body);

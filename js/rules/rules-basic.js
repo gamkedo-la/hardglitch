@@ -1,6 +1,11 @@
 import * as concepts from "../core/concepts.js";
 
-export { BasicRules, Wait, Waited, animation_wait_event };
+export {
+    Rule_BasicActions,
+    Wait,
+    Waited,
+    animation_wait_event
+};
 
 // That actor decided to take a pause.
 class Waited extends concepts.Event {
@@ -25,11 +30,11 @@ class Wait extends concepts.Action {
 };
 
 // The most basic rules.
-class BasicRules extends concepts.Rule {
+class Rule_BasicActions extends concepts.Rule {
     get_actions_for(body, world) {
-        // Anyone can "wait".
+
         return {
-            wait: new Wait()
+            wait: new Wait() // Anyone can "wait".
         };
     }
 };

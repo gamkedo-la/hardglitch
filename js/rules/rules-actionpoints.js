@@ -1,5 +1,8 @@
 
-export { Rules_ActionPoints, Event_ActionPointsRestored }
+export {
+    Rule_ActionPoints,
+    Event_ActionPointsRestored,
+ }
 
 import * as concepts from "../core/concepts.js";
 
@@ -14,7 +17,7 @@ class Event_ActionPointsRestored extends concepts.Event {
     }
 };
 
-class Rules_ActionPoints extends concepts.Rule {
+class Rule_ActionPoints extends concepts.Rule {
 
     update_world_at_the_beginning_of_game_turn(world){
         return restore_characters_action_points(world);
