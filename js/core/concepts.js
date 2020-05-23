@@ -218,6 +218,12 @@ class World
         // TODO: add the necessary info in the system that handles space partitionning
     }
 
+    remove_body(...body_ids){
+        for(const body_id of body_ids){
+            delete this._bodies[body_id];
+        }
+    }
+
     // Set a list of rules that should be ordered as they should be applied.
     set_rules(...rules){
         console.assert(rules instanceof Array);
@@ -287,6 +293,10 @@ class World
 
     find_body(body_id){
         return this._bodies[body_id];
+    }
+
+    get player_characters(){
+        return this.bodies.filter(body => body.actor instanceof Player);
     }
 
     body_at(position){

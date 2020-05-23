@@ -153,6 +153,13 @@ class GameView {
         });
     }
 
+
+    remove_view(...body_ids){
+        for(const body_id of body_ids){
+            delete this.body_views[body_id];
+        }
+    }
+
 };
 
 
