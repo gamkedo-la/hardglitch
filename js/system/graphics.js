@@ -7,6 +7,8 @@ export {
   clear,
   Sprite,
   TileGrid,
+  draw_text,
+  canvas_center_position,
 };
 
 import * as spatial from "./spatial.js"
@@ -102,4 +104,19 @@ function drawBitmapCenteredAtLocationWithRotation(graphic, atX, atY,withAngle) {
 
 function clear(){
   canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+
+
+function draw_text(text, position, font="24px arial", color="black"){
+  canvasContext.font = font; // TODO: replace this by proper font handling.
+  canvasContext.fillStyle = color;
+  canvasContext.fillText(text, position.x, position.y);
+}
+
+function canvas_center_position(){
+  return {
+    x: canvas.width / 2,
+    y: canvas.height / 2
+  };
 }
