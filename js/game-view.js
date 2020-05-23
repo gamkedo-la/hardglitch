@@ -99,9 +99,11 @@ class GameView {
 
             } else { // If it's not a World event, it's a character-related event.
                 const body_view = this.body_views[event.body_id];
-                console.assert(body_view); // TODO: handle the case where a new one appeared
-                // Add the animation to do to represent the event, for the player to see, if any.
-                this.animation_queue.push(body_view.animate_event(event));
+                // TODO: handle the case where a new one appeared
+                if(body_view){
+                    // Add the animation to do to represent the event, for the player to see, if any.
+                    this.animation_queue.push(body_view.animate_event(event));
+                }
             }
         });
     }
