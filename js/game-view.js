@@ -13,9 +13,6 @@ import { assets } from "./game-assets.js";
 import { Game } from "./game.js";
 import { Vector2 } from "./system/spatial.js";
 
-import { Waited } from "./rules/rules-basic.js";
-import { Moved } from "./rules/rules-movement.js";
-
 import * as debug from "./debug.js";
 
 const PIXELS_PER_TILES_SIDE = 64;

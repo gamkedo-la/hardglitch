@@ -203,7 +203,6 @@ class World
     rules = [];     // Rules that will be applied through this game.
     player_action = null; // TODO: try to find a better way to "pass" the player action to the turn solver.
 
-
     // Adds an object to the world (a Body or an Item), setup the necessary spatial information.
     add(object){
         console.assert(object instanceof Object);
