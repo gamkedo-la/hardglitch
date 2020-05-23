@@ -25,6 +25,7 @@ function make_test_world(){ // The game assets must have been initialized first.
     world.set_rules(
         new basic_rules.Rule_BasicActions(),
         new Rule_Movements(),
+        new basic_rules.Rule_GameOver(),
         new Rule_ActionPoints(),
     );
 
@@ -40,5 +41,4 @@ function make_test_world(){ // The game assets must have been initialized first.
 
     return world;
 }
-
 
