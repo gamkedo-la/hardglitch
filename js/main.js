@@ -12,6 +12,8 @@ import * as input from "./system/input.js";
 import { on_player_input_in_game } from "./game-input.js";
 import { make_test_world } from "./levels/test-level.js";
 
+import * as debug from "./debug.js";
+
 let current_game = null;
 let current_game_view = null;
 
@@ -44,6 +46,7 @@ function update_everything() {
 function draw_everything() {
   graphics.clear();
   current_game_view.render_graphics();
+  debug.display();
 }
 
 function new_game() {
