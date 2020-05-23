@@ -17,6 +17,7 @@ export {
     Element,
     Body,
     Position,
+    perform_action,
 };
 
 let next_body_id = 0;
@@ -48,6 +49,16 @@ class Action {
         return [];
     }
 };
+
+// Properly performs an action after having spent the action points from the body etc.
+// Returns events resulting from performing the action.
+function perform_action(action, body, world){
+    // TODO: Spend the action points etc. HERE
+    body.disable_further_actions(); // TEMPORARY/TODO: REPLACE THIS BY PROPER ACTION POINT SPENDING
+
+    // Then execute the action:
+    return action.execute(action, body);
+}
 
 // Represents the record of something that happened in the past.
 class Event{
@@ -189,8 +200,6 @@ class Body extends Element {
             move_south: this.position.south
         };
     }
-
-
 };
 
 // This is the world as known by the game.
@@ -205,6 +214,7 @@ class World
 
     get bodies() { return Object.values(this._bodies); }
     get items() { return Object.values(this._items); }
+    is_game_over = false; // True if this world is in a game-over state. TODO: protect against manipulations
 
     // Adds an element to the world (a Body or an Item), setup the necessary spatial information.
     add(element){

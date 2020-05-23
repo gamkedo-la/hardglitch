@@ -69,8 +69,10 @@ function* execute_turns_until_players_turn(world) {
         events_since_last_player_action.push(new NewTurn());
 
         // Make sure there are characters ready to do act!
-        if(world.bodies.length == 0){ // No characters (with a body)?
-            // In this situation, let the player take control, but don't allow any action.
+        while( world.is_game_over         // Game is over
+            || world.bodies.length == 0){ // No characters in game?
+            // In this situation, do nothing more unless the rest of the game resolve the situation:
+            // let the player take control, but don't allow or handle any action.
             yield* request_player_action(null, []);
             continue; // Skip to the beginning of next turn.
         }
@@ -107,9 +109,8 @@ function* execute_turns_until_players_turn(world) {
             }
 
             console.assert(action); // Ath this point, an action MUST have been defined (even if it's just Wait)
-            console.log(`ACTION: ${action.constructor.name}`);
             // Apply the selected action.
-            const action_events = action.execute(world, character_body);
+            const action_events = concepts.perform_action(action, character_body, world);
             events_since_last_player_action.push(...action_events);
 
             // In all cases:
@@ -119,7 +120,6 @@ function* execute_turns_until_players_turn(world) {
         }
     }
 }
-
 
 // Generates a sequence of character's bodies that can perform actions now.
 // The filtered bodies can appear only once each.
@@ -138,15 +138,16 @@ function *characters_that_can_act_now(world){
 // Generates a sequence of characters (bodies) until no character can act for this turn.
 function *loop_characters_until_end_of_turn(world){
     console.assert(world instanceof concepts.World);
-    let some_characters_can_act = true;
-    while(some_characters_can_act){
+    while(true){
         // New Turn Phase (if any actor can act)
         yield new NewTurnPhase();
-        some_characters_can_act = false;
+        let some_characters_can_act = false;
         for(const character_body of characters_that_can_act_now(world)){
             yield character_body;
-            some_characters_can_act = true;
+            some_characters_can_act = some_characters_can_act && character_body.can_perform_actions;
         }
+        if(!some_characters_can_act) // No character could act last phase cycle.
+            break;
     }
     // No characters could act for this turn: END OF TURN!
 }
