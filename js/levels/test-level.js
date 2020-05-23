@@ -29,15 +29,16 @@ function make_test_world(){ // The game assets must have been initialized first.
         new Rule_ActionPoints(),
     );
 
-    const player = new Player();
-    world.add(player);
-
     for(let i = 0; i < 3; ++i){
         const enemy = new RandomActionEnemy();
         enemy.position.x = random_int(0, 9);
         enemy.position.y = random_int(0, 9);
         world.add(enemy);
     }
+
+
+    const player = new Player();
+    world.add(player);
 
     return world;
 }
