@@ -1,6 +1,6 @@
 // This file describes the core concepts that exist in the game mechanics.
 // This is not a modelisation of these concept, just rules of how things
-// work in the game system. For example, we can say what an "object" is,
+// work in the game system. For example, we can say what an "element" is,
 // what rules can be applied on it and what interface it should have to work
 // in our system.
 // Think about it this way: code here could be reused to make another similar
@@ -14,7 +14,7 @@ export {
     Actor,
     Player,
     Rule,
-    Object,
+    Element,
     Body,
     Position,
 };
@@ -71,7 +71,7 @@ class Actor {
 
     // Decides what to do for this turn for a specific body, returns an Action or null if players must decide.
     // `possible_actions` is a map of { "action_id" : action_object } possibles.
-    // Therefore the Action object can be used directory (for example: `possible_actions.move.execute(...)`).
+    // Therefore the Action element can be used directory (for example: `possible_actions.move.execute(...)`).
     decide_next_action(body, possible_actions){
         throw "decide_next_action not implemented";
     }
@@ -136,25 +136,25 @@ class Position {
 
 
 
-// Objects are things that have a "physical" existence, that is it can be located in the space of the game (it have a position).
+// Elements are things that have a "physical" existence, that is it can be located in the space of the game (it have a position).
 // For example a body, a pen in a bag, a software in a computer in a bag.
-class Object {
+class Element {
     position = new Position();
 };
 
-// Items are objects that cannot ever move by themselves.
-// However, they can be owned by bodies and have a position in the world (like all objects).
+// Items are elements that cannot ever move by themselves.
+// However, they can be owned by bodies and have a position in the world (like all elements).
 // They provide Actions and modifiers for the body stats that equip them.
-class Item extends Object {
+class Item extends Element {
     actions = [];
     // TODO: Action mechanisms here.
 };
 
 
 // Bodies are special entities that have "physical" existence and can perform action,
-// like objects, but they can move by themselves.
+// like elements, but they can move by themselves.
 // Each Body owns an Actor that will decide what Actions to do when it's the Body's turn.
-class Body extends Object {
+class Body extends Element {
     body_id = new_body_id();
     actor = null; // Actor that controls this body. If null, this body cannot take decisions.
     items = []; // Items owned by this body. They don't appear in the World's list unless they are put back in the World (not owned anymore).
@@ -180,7 +180,7 @@ class Body extends Object {
     // Describe the possible positions relative to the current ones that could be reached in one step,
     // assuming there is no obstacles.
     // Should be overloaded by bodies that have limited sets of movements.
-    // Returns an object: { move_id: target_position, another_move_name: another_position }
+    // Returns an element: { move_id: target_position, another_move_name: another_position }
     allowed_moves(){ // By default: can go on the next square on north, south, east and west.
         return {
             move_east: this.position.east,
@@ -197,21 +197,24 @@ class Body extends Object {
 // It's mainly a big container of every entities that makes the world.
 class World
 {
-    // Avoid using these members directly, prefer using the functions below, if you can (sometime yuo can't).
-    items = [];     // Items that are in the space of the world, not in other objects (not owned by Bodies).
-    bodies = [];    // Bodies are always in the space of the world. They can be controlled by Actors.
-    rules = [];     // Rules that will be applied through this game.
-    player_action = null; // TODO: try to find a better way to "pass" the player action to the turn solver.
+    // BEWARE: Avoid using these members directly, prefer using the functions below, if you can (sometime yuo can't).
+    _items = {};     // Items that are in the space of the world, not in other elements (not owned by Bodies).
+    _bodies = {};    // Bodies are always in the space of the world. They can be controlled by Actors.
+    _rules = [];     // Rules that will be applied through this game.
+    _player_action = null; // TODO: try to find a better way to "pass" the player action to the turn solver.
 
-    // Adds an object to the world (a Body or an Item), setup the necessary spatial information.
-    add(object){
-        console.assert(object instanceof Object);
-        console.assert(object.position);
-        if(object instanceof Body)
-            this.bodies.push(object);
-        else if(object instanceof Item)
-            this.items.push(thing);
-        else throw "Tried to add to the World an unknown type of Object";
+    get bodies() { return Object.values(this._bodies); }
+    get items() { return Object.values(this._items); }
+
+    // Adds an element to the world (a Body or an Item), setup the necessary spatial information.
+    add(element){
+        console.assert(element instanceof Element);
+        console.assert(element.position);
+        if(element instanceof Body)
+            this._bodies[element.body_id] = element;
+        else if(element instanceof Item)
+            this._items[element.item_id] = element;
+        else throw "Tried to add to the World an unknown type of Element";
         // TODO: add the necessary info in the system that handles space partitionning
     }
 
@@ -219,14 +222,21 @@ class World
     set_rules(...rules){
         console.assert(rules instanceof Array);
         console.assert(rules.every(rule => rule instanceof Rule));
-        this.rules = rules;
+        this._rules = rules;
+    }
+
+    // Returns the action decided by the player and unreference it.
+    acquire_player_action() {
+        const action = this._player_action;
+        this._player_action = null;
+        return action;
     }
 
     // Set the next action for player's turn. Called when the player decided the action, set it and then run the turn solver.
     set_next_player_action(action){
         console.assert(action instanceof Action);
         // TODO: add some checks?
-        this.player_action = action;
+        this._player_action = action;
     }
 
     // Returns a set of possible actions according to the current rules, for the specified body.
@@ -234,7 +244,7 @@ class World
         console.assert(body instanceof Body);
         console.assert(!body.actor || body.actor instanceof Actor); // If the body have an Actor to control it, then it needs to be an Actor.
         let possible_actions = {};
-        for(const rule of this.rules){
+        for(const rule of this._rules){
             const actions_from_rule = rule.get_actions_for(body, this);
             possible_actions = { ...possible_actions, ...actions_from_rule };
         }
@@ -245,7 +255,7 @@ class World
     // Should be called after each turn of an body.
     apply_rules_end_of_characters_turn(body){
         const events = [];
-        for(const rule of this.rules){
+        for(const rule of this._rules){
             events.push(...(rule.update_world_after_actor_turn(this, body)));
         }
         return events;
@@ -255,13 +265,13 @@ class World
     // Should be at the beginning of each game turn.
     apply_rules_beginning_of_game_turn(){
         const events = [];
-        for(const rule of this.rules){
+        for(const rule of this._rules){
             events.push(...(rule.update_world_at_the_beginning_of_game_turn(this)));
         }
         return events;
     }
 
-    // Returns true if the position given is blocked by an object (Body or Item) or a tile that blocks (wall).
+    // Returns true if the position given is blocked by an element (Body or Item) or a tile that blocks (wall).
     is_blocked_position(position){
         // TODO: check the tile at that position.
 
@@ -273,6 +283,10 @@ class World
             return true;
 
         return false;
+    }
+
+    find_body(body_id){
+        return this._bodies[body_id];
     }
 
     body_at(position){
@@ -293,6 +307,7 @@ class World
         return null;
     }
 
-
-
 };
+
+
+

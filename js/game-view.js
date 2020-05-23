@@ -129,16 +129,16 @@ class GameView {
             }
         }
 
-        // Update all body-views animations.
-        for(const body_id in this.body_views){
-            this.body_views[body_id].update();
+        // Update all body-views.
+        for(const body_view of Object.values(this.body_views)){
+            body_view.update();
         };
     }
 
     render_graphics(){
         this.tile_grid.draw();
-        for(const body_id in this.body_views){
-            this.body_views[body_id].render_graphics();
+        for(const body_view of Object.values(this.body_views)){
+            body_view.render_graphics();
         };
     }
 
@@ -152,6 +152,7 @@ class GameView {
             this.body_views[body.body_id] = body_view;
         });
     }
+
 };
 
 
