@@ -20,8 +20,8 @@ const HALF_PIXELS_PER_TILES_SIDE = PIXELS_PER_TILES_SIDE / 2;
 
 // Return a vector in the graphic-world by interpreting a game-world position.
 function graphic_position(vec2){
-    return new Vector2({ x: (vec2.x * PIXELS_PER_TILES_SIDE) - HALF_PIXELS_PER_TILES_SIDE
-                       , y: (vec2.y * PIXELS_PER_TILES_SIDE) - HALF_PIXELS_PER_TILES_SIDE
+    return new Vector2({ x: (vec2.x * PIXELS_PER_TILES_SIDE)
+                       , y: (vec2.y * PIXELS_PER_TILES_SIDE)
                        });
 }
 
