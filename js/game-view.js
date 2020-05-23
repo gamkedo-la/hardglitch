@@ -139,6 +139,8 @@ class GameView {
 
     render_graphics(){
         this.tile_grid.draw();
+        graphics.draw_grid_lines(PIXELS_PER_TILES_SIDE);
+
         for(const body_view of Object.values(this.body_views)){
             body_view.render_graphics();
         };

@@ -9,6 +9,7 @@ export {
   TileGrid,
   draw_text,
   canvas_center_position,
+  draw_grid_lines,
 };
 
 import * as spatial from "./spatial.js"
@@ -120,3 +121,24 @@ function canvas_center_position(){
     y: canvas.height / 2
   };
 }
+
+function draw_grid_lines(square_size, start_position={x:0, y:0}){
+  const grid_line_color = "#aa00aa";
+  canvasContext.strokeStyle = grid_line_color;
+
+  for(let x = start_position.x; x < canvas.width; x += square_size){
+    canvasContext.beginPath();
+    canvasContext.moveTo(x, start_position.y);
+    canvasContext.lineTo(x, canvas.height - start_position.y);
+    canvasContext.stroke();
+  }
+
+  for(let y = start_position.y; y < canvas.height; y += square_size){
+    canvasContext.beginPath();
+    canvasContext.moveTo(start_position.x, y);
+    canvasContext.lineTo(canvas.width - start_position.x, y);
+    canvasContext.stroke();
+  }
+
+}
+
