@@ -40,10 +40,10 @@ function make_test_world(){ // The game assets must have been initialized first.
     const player1 = new Player();
     world.add(player1);
 
-    const player2 = new Player();
-    player2.position.x = 5;
-    player2.position.y = 5;
-    world.add(player2);
+    // const player2 = new Player();
+    // player2.position.x = 5;
+    // player2.position.y = 5;
+    // world.add(player2);
 
     return world;
 }
