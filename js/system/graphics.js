@@ -20,8 +20,6 @@ class Sprite {
   transform = new spatial.Transform();
   size = new spatial.Vector2({ x:10.0, y: 10.0 });
   source_image = undefined; // If null, draw a colored rectangle
-  source_transform = new spatial.Transform(); // not sure we'll need this one in the end
-  source_size = new spatial.Vector2({ x:1.0, y: 1.0 }); // ?
 
   get position() { return this.transform.position; }
   set position(new_position) { this.transform.position = new_position; }
