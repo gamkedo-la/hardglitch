@@ -211,10 +211,19 @@ class World
     _bodies = {};    // Bodies are always in the space of the world. They can be controlled by Actors.
     _rules = [];     // Rules that will be applied through this game.
     _player_action = null; // TODO: try to find a better way to "pass" the player action to the turn solver.
+    is_game_over = false; // True if this world is in a game-over state. TODO: protect against manipulations
+
+    constructor(width, height, floor_tiles, surface_tiles){
+        console.assert(Number.isInteger(width) && width > 2);
+        console.assert(Number.isInteger(height) && height > 2);
+        this.width = width;
+        this.height = height;
+        this._floor_tile_grid = new Grid(width, height, floor_tiles); // Tiles on the floor layer.
+        this._surface_tile_grid = new Grid(width, height, surface_tiles); // Tiles over the floor, including "walls".
+    }
 
     get bodies() { return Object.values(this._bodies); }
     get items() { return Object.values(this._items); }
-    is_game_over = false; // True if this world is in a game-over state. TODO: protect against manipulations
 
     // Adds an element to the world (a Body or an Item), setup the necessary spatial information.
     add(element){
@@ -289,8 +298,18 @@ class World
 
     // Returns true if the position given is blocked by an element (Body or Item) or a tile that blocks (wall).
     is_blocked_position(position){
-        // TODO: check the tile at that position.
 
+        if(position.x >= this.width || position.x < 0
+        || position.y >= this.height || position.y < 0
+        ){
+            return true;
+        }
+
+        // TODO: check the tile at that position.
+        const surface_tile = this._surface_tile_grid.get_at(position);
+        if(surface_tile){
+            return true;
+        }
 
         if(this.body_at(position))
             return true;
@@ -329,5 +348,37 @@ class World
 
 };
 
+function index_from_position(width, height, position){
+    console.assert(Number.isInteger(position.x) && Number.isInteger(position.y));
+    console.assert(position.x < width);
+    console.assert(position.y < height);
+    return (position.y * width) + position.x;
+}
 
+// A grid of elements, representing the topology of a world.
+// Multiple grids can be used to represent layers of the world.
+class Grid {
+    constructor(width, height, elements){
+        console.assert(width > 2);
+        console.assert(height > 2);
+        this.width = width;
+        this.height = height;
+        if(elements){
+            console.assert(elements instanceof Array);
+            console.assert(elements.length == width * height);
+            this.elements = elements;
+        } else {
+            this.elements = new Array(width * height);
+        }
+    }
+
+    get_at(position){
+        return this.elements[index_from_position(this.width, this.height, position)];
+    }
+
+    set_at(position, element){
+        this.elements[index_from_position(this.width, this.height, position)] = element;
+    }
+
+};
 

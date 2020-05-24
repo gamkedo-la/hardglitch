@@ -10,6 +10,8 @@ import { assets, sprite_def } from "./game-assets.js";
 import { Rule_ActionPoints } from "./rules/rules-actionpoints.js";
 import { RandomActionEnemy } from "./enemies/test-enemy.js";
 
+import * as tiles from "./definitions-tiles.js";
+
 class Player extends concepts.Body {
     assets = {
         graphics : {
@@ -24,7 +26,13 @@ class Player extends concepts.Body {
 }
 
 function make_test_world(){ // The game assets must have been initialized first.
-    const world = new concepts.World();
+    const world_size = {
+        width: 12, height: 12
+    };
+
+    const world = new concepts.World( world_size.width, world_size.height );
+    world._floor_tile_grid.set_at({x:5, y:5}, tiles.ID.GROUND);
+    world._floor_tile_grid.set_at({x:6, y:6}, tiles.ID.WALL);
 
     world.set_rules(
         new basic_rules.Rule_BasicActions(),
@@ -35,8 +43,8 @@ function make_test_world(){ // The game assets must have been initialized first.
 
     for(let i = 0; i < 3; ++i){
         const enemy = new RandomActionEnemy();
-        enemy.position.x = random_int(0, 9);
-        enemy.position.y = random_int(0, 9);
+        enemy.position.x = random_int(0, world_size.width);
+        enemy.position.y = random_int(0, world_size.height);
         world.add(enemy);
     }
 
@@ -51,4 +59,5 @@ function make_test_world(){ // The game assets must have been initialized first.
 
     return world;
 }
+
 
