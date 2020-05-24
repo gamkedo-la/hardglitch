@@ -1,7 +1,11 @@
 // This file describe the assets specific to this game
 // and how to load them.
 
-export { loaded_assets as assets, load_all_assets };
+export {
+    loaded_assets as assets,
+    load_all_assets,
+    sprite_def,
+};
 
 import * as asset_system from "./system/assets.js";
 
@@ -30,3 +34,25 @@ async function load_all_assets(){
     loaded_assets = await asset_system.load_assets(game_assets);
     console.log(`ASSETS: ${JSON.stringify(loaded_assets)}`);
 }
+
+//////////////////////////////////////////////////////////////////////////////////////
+// Sprite descriptions here.
+// Describe here all the sprites and sprite animations as defined by Sprite class.
+const sprite_def = {
+    player : {
+        image: "player",
+        frames: [],
+    },
+    test_enemy: {
+        image: "warrior",
+        frames: [],
+    },
+    ground : {
+        image: "ground",
+        frames: [],
+    },
+    wall : {
+        image: "wall",
+        frames: [],
+    },
+};

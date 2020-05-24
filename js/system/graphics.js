@@ -21,8 +21,29 @@ class Sprite {
   size = new spatial.Vector2({ x:10.0, y: 10.0 });
   source_image = undefined; // If null, draw a colored rectangle
 
+  // Setup the sprite using a sprite definition if provided.
+  // A sprite definition looks like this:
+  //
+  //    sprite_def = {
+  //      image: some_image_object_used_as_spritesheet,
+  //      frames: [ // Here we define 2 frames inside the image.
+  //                { top_left:{ x:0, y:0 }, bottom_right:{ x:image.width / 2, y:image.height }},
+  //                { top_left:{ x:image.width / 2, y:0 }, bottom_right:{ x:image.width / 2, y:image.height }},
+  //              ],
+  //    };
+  //
+  // By default we use the first frame if specified, or the whole image if not.
+  constructor(sprite_def){
+    if(sprite_def){
+      this.source_image = sprite_def.image;
+      // TODO: handle frames here
+    }
+  }
+
+
   get position() { return this.transform.position; }
   set position(new_position) { this.transform.position = new_position; }
+
 
   draw(){ // TODO: take a camera into account
     if(this.source_image){

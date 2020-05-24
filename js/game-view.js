@@ -31,12 +31,10 @@ class BodyView {
     is_performing_animation = false;
 
     constructor(body_position, body_assets){
+        console.assert(body_position);
+        console.assert(body_assets);
         // TODO: make a better logic to let know how to load the body spritesheet
-        if(body_assets)
-            this.sprite.source_image = body_assets.spritesheet;
-        else
-            this.sprite.source_image = assets.images.warrior;
-
+        this.sprite.source_image = assets.images[body_assets.graphics.sprite_def.image]; // Use the name of the image and get it already loaded from the assets.
         this.sprite.position = graphic_position(body_position);
 
         this.some_value = -99999.0 + random_int(0, 7);

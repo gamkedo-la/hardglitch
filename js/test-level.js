@@ -6,12 +6,16 @@ import * as concepts from "./core/concepts.js";
 import { random_int } from "./system/utility.js";
 import * as basic_rules from "./rules/rules-basic.js";
 import { Rule_Movements } from "./rules/rules-movement.js";
-import { assets } from "./game-assets.js";
+import { assets, sprite_def } from "./game-assets.js";
 import { Rule_ActionPoints } from "./rules/rules-actionpoints.js";
 import { RandomActionEnemy } from "./enemies/test-enemy.js";
 
 class Player extends concepts.Body {
-    assets = { spritesheet : assets.images.player };
+    assets = {
+        graphics : {
+            sprite_def : sprite_def.player,
+        }
+    };
 
     constructor(){
         super();
