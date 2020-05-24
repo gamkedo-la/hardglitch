@@ -10,7 +10,7 @@ import { GameView } from "./game-view.js";
 
 import * as input from "./system/input.js";
 import { on_player_input_in_game } from "./game-input.js";
-import { make_test_world } from "./levels/test-level.js";
+import { make_test_world } from "./test-level.js";
 
 import * as debug from "./debug.js";
 
