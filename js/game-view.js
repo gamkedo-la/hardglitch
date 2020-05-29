@@ -17,13 +17,15 @@ import * as tiledefs from "./definitions-tiles.js";
 import * as debug from "./debug.js";
 
 const PIXELS_PER_TILES_SIDE = 64;
-const HALF_PIXELS_PER_TILES_SIDE = PIXELS_PER_TILES_SIDE / 2;
 
 // Return a vector in the graphic-world by interpreting a game-world position.
 function graphic_position(vec2){
-    return new Vector2({ x: (vec2.x * PIXELS_PER_TILES_SIDE)
-                       , y: (vec2.y * PIXELS_PER_TILES_SIDE)
-                       });
+    return graphics.from_grid_to_graphic_position(vec2, PIXELS_PER_TILES_SIDE);
+}
+
+// Return a vector in the game-world by interpreting a graphic-world position.
+function game_position_from_graphic_po(vec2){
+    return graphics.from_graphic_to_grid_position(vec2, PIXELS_PER_TILES_SIDE);
 }
 
 

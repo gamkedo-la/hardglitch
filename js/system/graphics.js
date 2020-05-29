@@ -10,12 +10,29 @@ export {
   draw_text,
   canvas_center_position,
   draw_grid_lines,
+  from_grid_to_graphic_position,
+  from_graphic_to_grid_position,
 };
 
 import * as spatial from "./spatial.js"
 import { is_number } from "./utility.js";
 
 var canvas, canvasContext, loaded_assets;
+
+// Return a vector in the graphic-world by interpreting a fixed-size grid position.
+function from_grid_to_graphic_position(vec2, square_size, graphics_origin = {x:0, y:0}){
+  return new spatial.Vector2({ x: graphics_origin.x + (vec2.x * square_size)
+                             , y: graphics_origin.y + (vec2.y * square_size)
+                             });
+}
+
+// Return a vector in the game-world by interpreting a graphic-world position.
+function from_graphic_to_grid_position(vec2, square_size, graphics_origin = {x:0, y:0}){
+  return new spatial.Vector2({ x: ((vec2.x - graphics_origin) / square_size)
+                             , y: ((vec2.y - graphics_origin) / square_size)
+                             });
+}
+
 
 class Sprite {
   transform = new spatial.Transform();
