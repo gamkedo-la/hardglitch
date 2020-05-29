@@ -305,7 +305,7 @@ class World
     }
 
     // Returns true if the position given is blocked by an element (Body or Item) or a tile that blocks (wall).
-    is_blocked_position(position){
+    is_blocked_position(position, predicate_tile_is_walkable){
 
         if(position.x >= this.width || position.x < 0
         || position.y >= this.height || position.y < 0
@@ -315,7 +315,7 @@ class World
 
         // TODO: check the tile at that position.
         const surface_tile = this._surface_tile_grid.get_at(position);
-        if(surface_tile && !surface_tile.is_walkable){
+        if(surface_tile && !predicate_tile_is_walkable(surface_tile)){
             return true;
         }
 

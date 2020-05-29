@@ -6,7 +6,7 @@ import * as concepts from "./core/concepts.js";
 import { random_int } from "./system/utility.js";
 import * as basic_rules from "./rules/rules-basic.js";
 import { Rule_Movements } from "./rules/rules-movement.js";
-import { assets, sprite_defs } from "./game-assets.js";
+import { sprite_defs } from "./game-assets.js";
 import { Rule_ActionPoints } from "./rules/rules-actionpoints.js";
 import { RandomActionEnemy } from "./enemies/test-enemy.js";
 
@@ -32,6 +32,7 @@ function make_test_world(){ // The game assets must have been initialized first.
 
     const world = new concepts.World( world_size.width, world_size.height );
     world._floor_tile_grid.set_at({x:5, y:5}, tiles.ID.GROUND);
+    world._floor_tile_grid.set_at({x:4, y:4}, tiles.ID.GROUND);
     world._surface_tile_grid.set_at({x:6, y:6}, tiles.ID.WALL);
 
     world.set_rules(

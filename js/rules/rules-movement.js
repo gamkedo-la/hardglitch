@@ -8,6 +8,7 @@ export {
 
 import * as concepts from "../core/concepts.js";
 import { BodyView, graphic_position } from "../game-view.js";
+import { is_walkable } from "../definitions-tiles.js";
 
 
 class Moved extends concepts.Event {
@@ -57,7 +58,7 @@ class Rule_Movements extends concepts.Rule {
         const allowed_moves = body.allowed_moves();
         for(const move_id in allowed_moves){
             const move_target = allowed_moves[move_id];
-            if(!world.is_blocked_position(move_target))
+            if(!world.is_blocked_position(move_target, is_walkable))
                 actions[move_id] = new Move(move_id, move_target);
         }
 

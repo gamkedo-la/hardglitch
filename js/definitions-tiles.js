@@ -1,7 +1,10 @@
 // This file describe all the game elements in the game and how they are configured.
 // These elements are used to build levels.
 
-export { ID, defs, tile_sprite_defs as sprite_defs }
+export {
+    ID, defs, tile_sprite_defs as sprite_defs,
+    is_walkable,
+}
 
 import { sprite_defs } from "./game-assets.js";
 
@@ -45,4 +48,12 @@ const defs = {
 const tile_sprite_defs = {};
 for(const tile_id of Object.values(ID)){
     tile_sprite_defs[tile_id] = defs[tile_id].sprite_def;
+}
+
+
+function is_walkable(tile_id){
+    console.assert(tile_id);
+    const tile_def = defs[tile_id];
+    console.assert(tile_def);
+    return tile_def.is_walkable;
 }
