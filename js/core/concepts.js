@@ -7,7 +7,7 @@
 // game, without being changed too much.
 // We will describe what kind of entities can exist here.
 
-import { is_number } from "../system/utility.js";
+import { is_number, index_from_position } from "../system/utility.js";
 
 export {
     World,
@@ -355,13 +355,6 @@ class World
     }
 
 };
-
-function index_from_position(width, height, position){
-    console.assert(Number.isInteger(position.x) && Number.isInteger(position.y));
-    console.assert(position.x < width);
-    console.assert(position.y < height);
-    return (position.y * width) + position.x;
-}
 
 // A grid of elements, representing the topology of a world.
 // Multiple grids can be used to represent layers of the world.

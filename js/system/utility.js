@@ -3,6 +3,7 @@ export {
     random_sample,
     random_int,
     is_number,
+    index_from_position,
 }
 
 
@@ -37,4 +38,11 @@ function random_int(min, max) {
 
 function is_number(n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
+function index_from_position(width, height, position){
+    console.assert(Number.isInteger(position.x) && Number.isInteger(position.y));
+    console.assert(position.x < width);
+    console.assert(position.y < height);
+    return (position.y * width) + position.x;
 }

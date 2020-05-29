@@ -15,7 +15,7 @@ export {
 };
 
 import * as spatial from "./spatial.js"
-import { is_number } from "./utility.js";
+import { is_number, index_from_position } from "./utility.js";
 
 var canvas, canvasContext, loaded_assets;
 
