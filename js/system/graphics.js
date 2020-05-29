@@ -31,6 +31,15 @@ class Sprite {
   //                { x:0, y:0 , width:image.width / 2, height:image.height },
   //                { x:image.width / 2, y:0, width:image.width / 2, height:image.height },
   //              ],
+  //      animations: [ // One object per animation
+  //                    {
+  //                      loop: true,   // Loops if true, stay on the last frame otherwise.
+  //                      timeline: [   // Sequence of frames
+  //                                  { frame: 0, duration: 1000 }, // Frame is the frame index to display, duration is in millisecs
+  //                                  { frame: 1, duration: 1000 }
+  //                                ],
+  //                     },
+  //                  ],
   //    };
   //
   // By default we use the first frame if specified, or the whole image if not.
@@ -78,7 +87,7 @@ class Sprite {
         canvasContext.drawImage(this.source_image,
           this._current_frame.x, this._current_frame.y, this._current_frame.width, this._current_frame.height, // source
           0, 0, this._current_frame.width, this._current_frame.height, // destination
-          );
+        );
       }
       else
       {
@@ -137,13 +146,20 @@ class TileGrid
 {
   background_color = "orange"; // Color displayed where there is no sprite in the grid.
 
-  constructor(info = {}){
-
+  constructor(position, size, sprites, index_grid){
+    console.assert(position instanceof Vector2);
+    console.assert(size instanceof Vector2);
+    console.assert(sprites instanceof Object);
+    console.assert(index_grid instanceof Array);
+    this.position = position;
+    this.size = size;
+    this.sprites = sprites;
+    this.index_grid = index_grid;
   }
 
   draw(){ // TODO: take a camera into account
     // TODO: write a proper implementation :P
-    colorRect(new spatial.Rectangle({ position: {x:0, y:0}, size: {x: canvas.width, y: canvas.height }}) , this.background_color);
+    colorRect(new spatial.Rectangle({ position: this.position, size: this.size}) , this.background_color);
   }
 
 };
