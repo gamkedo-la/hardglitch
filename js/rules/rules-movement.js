@@ -13,7 +13,9 @@ import { is_walkable } from "../definitions-tiles.js";
 
 class Moved extends concepts.Event {
     constructor(body, from_pos, to_pos) {
-        super(body.body_id);
+        super(body.body_id, {
+            allow_parallel_animation: true,
+        });
         this.from_pos = from_pos;
         this.to_pos = to_pos;
     }

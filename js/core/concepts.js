@@ -64,10 +64,13 @@ function perform_action(action, body, world){
 
 // Represents the record of something that happened in the past.
 class Event{
+    allow_parallel_animation = false; // Will be played in parallel with other parallel animations if true, will be animated alone otherwise.
 
-    constructor(body_id){
+    constructor(body_id, options){
         console.assert(Number.isInteger(body_id)); // 0 means it's a world event
         this.body_id = body_id;
+        if(options && options.allow_parallel_animation)
+            this.allow_parallel_animation = options.allow_parallel_animation;
     }
 
     // Animation to perform when viewing this event.
