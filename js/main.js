@@ -16,10 +16,12 @@ import * as debug from "./debug.js";
 
 let current_game = null;
 let current_game_view = null;
+let last_update_time = Date.now();
 
 window.onload = async function() {
-  graphics.initialize();
-  await load_all_assets();
+  const assets = await load_all_assets();
+  graphics.initialize(assets);
+
 
   new_game(); // TODO : call this function only once we start a new game.
 
@@ -40,7 +42,10 @@ function start() {
 }
 
 function update_everything() {
-  current_game_view.update();
+  const now = Date.now();
+  const delta_time = now - last_update_time;
+  last_update_time = now;
+  current_game_view.update(delta_time);
 }
 
 function draw_everything() {

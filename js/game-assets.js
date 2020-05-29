@@ -33,6 +33,7 @@ let loaded_assets = {}; // This object will be set with all the asset converted 
 async function load_all_assets(){
     loaded_assets = await asset_system.load_assets(game_assets);
     console.log(`ASSETS: ${JSON.stringify(loaded_assets)}`);
+    return loaded_assets;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -41,18 +42,32 @@ async function load_all_assets(){
 const sprite_def = {
     player : {
         image: "player",
-        frames: [],
+        frames: [
+                    { x: 0, y: 0, width: 64, height: 64 },
+                    { x: 64, y: 0, width: 64, height: 64 },
+                ],
+        animations: [
+            {
+                loop: true,
+                timeline: [
+                            { frame: 0, duration: 1000 },
+                            { frame: 1, duration: 1000 }
+                          ],
+            },
+        ],
     },
     test_enemy: {
         image: "warrior",
-        frames: [],
+        // frames: [],
     },
     ground : {
         image: "ground",
-        frames: [],
+        // frames: [],
     },
     wall : {
         image: "wall",
-        frames: [],
+        // frames: [],
     },
 };
+
+

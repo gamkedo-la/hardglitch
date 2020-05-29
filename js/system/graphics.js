@@ -13,13 +13,14 @@ export {
 };
 
 import * as spatial from "./spatial.js"
+import { is_number } from "./utility.js";
 
-var canvas, canvasContext;
+var canvas, canvasContext, loaded_assets;
 
 class Sprite {
   transform = new spatial.Transform();
-  size = new spatial.Vector2({ x:10.0, y: 10.0 });
-  source_image = undefined; // If null, draw a colored rectangle
+  animation_time = 0.0;
+  animation_keyframe_idx = 0;
 
   // Setup the sprite using a sprite definition if provided.
   // A sprite definition looks like this:
@@ -27,37 +28,113 @@ class Sprite {
   //    sprite_def = {
   //      image: some_image_object_used_as_spritesheet,
   //      frames: [ // Here we define 2 frames inside the image.
-  //                { top_left:{ x:0, y:0 }, bottom_right:{ x:image.width / 2, y:image.height }},
-  //                { top_left:{ x:image.width / 2, y:0 }, bottom_right:{ x:image.width / 2, y:image.height }},
+  //                { x:0, y:0 , width:image.width / 2, height:image.height },
+  //                { x:image.width / 2, y:0, width:image.width / 2, height:image.height },
   //              ],
+  //      animations: [ // One object per animation
+  //                    {
+  //                      loop: true,   // Loops if true, stay on the last frame otherwise.
+  //                      timeline: [   // Sequence of frames
+  //                                  { frame: 0, duration: 1000 }, // Frame is the frame index to display, duration is in millisecs
+  //                                  { frame: 1, duration: 1000 }
+  //                                ],
+  //                     },
+  //                  ],
   //    };
   //
   // By default we use the first frame if specified, or the whole image if not.
   constructor(sprite_def){
     if(sprite_def){
-      this.source_image = sprite_def.image;
-      // TODO: handle frames here
+      this.source_image = loaded_assets.images[sprite_def.image];
+      this.frames = sprite_def.frames;
+      this.animations = sprite_def.animations;
+      if(this.frames) {
+        this.change_frame(0);
+      }
+      if(this.animations){
+        this.change_animation(0);
+      }
+
     }
   }
-
 
   get position() { return this.transform.position; }
   set position(new_position) { this.transform.position = new_position; }
 
+  change_frame(frame_idx) {
+    console.assert(is_number(frame_idx));
+    console.assert(frame_idx >= 0 && frame_idx < this.frames.length);
+    this._current_frame = this.frames[frame_idx];
+  }
+
+  change_animation(animation_idx){
+    console.assert(is_number(animation_idx));
+    console.assert(animation_idx >= 0 && animation_idx < this.animations.length);
+    this._current_animation = this.animations[animation_idx];
+    this.animation_time = 0.0;
+    this.animation_keyframe_idx = 0;
+  }
 
   draw(){ // TODO: take a camera into account
     if(this.source_image){
-      // TODO: complete by using all the sprite info
-      canvasContext.save(); // TODO : this should be done by the caller, probably
+
+      canvasContext.save(); // TODO : this should be done by the caller? probably
       canvasContext.translate(this.transform.position.x, this.transform.position.y);
       canvasContext.rotate(this.transform.orientation.degrees); // TODO: check if t's radian or degrees
-      // canvasContext.drawImage(this.source_image,this.size.width,this.size.height);
-      canvasContext.drawImage(this.source_image, this.source_image.width, this.source_image.height); // TODO: replace by specified size
+      if(this._current_frame)
+      {
+        // TODO: handle scaling and other deformations
+        canvasContext.drawImage(this.source_image,
+          this._current_frame.x, this._current_frame.y, this._current_frame.width, this._current_frame.height, // source
+          0, 0, this._current_frame.width, this._current_frame.height, // destination
+        );
+      }
+      else
+      {
+        // No frame, use the whole image.
+        // TODO: handle scaling and other deformations
+        canvasContext.drawImage(this.source_image, this.source_image.width, this.source_image.height);
+      }
       canvasContext.restore();
     } else {
       // We don't have an image so we draw a colored rectangle instead.
-      const empty_sprite_color = "grey"; // TODO: use a proper color, maybe fushia
+      // TODO: handle scaling and other deformations
+      const empty_sprite_color = "#ff00ff";
       colorRect(new spatial.Rectangle( { position: this.position, size: this.size } ), empty_sprite_color);
+    }
+  }
+
+  update(delta_time){
+    // Update the animation if any
+    if(!this._current_animation)
+      return;
+
+    this.animation_time += delta_time;
+    let need_to_change_frame = false;
+    while(true){ // Try to find the right keyframe to display
+      const current_keyframe = this._current_animation.timeline[this.animation_keyframe_idx];
+      if(this.animation_time < current_keyframe.duration)
+        break; // nothing to do, we are in the right keyframe
+      // We need to switch to the next frame if any, and take into account the time passed beyond the time required.
+      this.animation_time -= current_keyframe.duration;
+      ++this.animation_keyframe_idx; // Next keyframe
+      if(this.animation_keyframe_idx >= this._current_animation.timeline.length){
+         // no more keyframes
+         if(this._current_animation.loop){
+          // loop to the first frame
+          this.animation_keyframe_idx = 0;
+         }else{
+           // stay on the last frame
+          this.animation_keyframe_idx = this._current_animation.timeline.length - 1;
+         }
+      }
+      need_to_change_frame = true;
+    }
+
+    // Only change the frame if we need to.
+    if(need_to_change_frame){
+      const current_keyframe = this._current_animation.timeline[this.animation_keyframe_idx];
+      this.change_frame(current_keyframe.frame);
     }
   }
 };
@@ -69,21 +146,32 @@ class TileGrid
 {
   background_color = "orange"; // Color displayed where there is no sprite in the grid.
 
-  constructor(info = {}){
-
+  constructor(position, size, sprites, index_grid){
+    console.assert(position instanceof Vector2);
+    console.assert(size instanceof Vector2);
+    console.assert(sprites instanceof Object);
+    console.assert(index_grid instanceof Array);
+    this.position = position;
+    this.size = size;
+    this.sprites = sprites;
+    this.index_grid = index_grid;
   }
 
   draw(){ // TODO: take a camera into account
     // TODO: write a proper implementation :P
-    colorRect(new spatial.Rectangle({ position: {x:0, y:0}, size: {x: canvas.width, y: canvas.height }}) , this.background_color);
+    colorRect(new spatial.Rectangle({ position: this.position, size: this.size}) , this.background_color);
   }
 
 };
 
 
-function initialize(){
-  if(canvasContext || canvas)
+function initialize(assets){
+  console.assert(assets);
+  console.assert(assets.images);
+  if(canvasContext || canvas || loaded_assets)
     throw "Graphic system already initialized.";
+
+  loaded_assets = assets;
 
   canvas = document.getElementById('gameCanvas');
   canvasContext = canvas.getContext('2d');

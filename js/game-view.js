@@ -12,6 +12,7 @@ import { random_int } from "./system/utility.js";
 import { assets } from "./game-assets.js";
 import { Game } from "./game.js";
 import { Vector2 } from "./system/spatial.js";
+import * as tiledefs from "./definitions-tiles.js";
 
 import * as debug from "./debug.js";
 
@@ -25,27 +26,27 @@ function graphic_position(vec2){
                        });
 }
 
+
 // Representation of a body.
 class BodyView {
-    sprite = new graphics.Sprite();
     is_performing_animation = false;
 
     constructor(body_position, body_assets){
         console.assert(body_position);
         console.assert(body_assets);
-        // TODO: make a better logic to let know how to load the body spritesheet
-        this.sprite.source_image = assets.images[body_assets.graphics.sprite_def.image]; // Use the name of the image and get it already loaded from the assets.
+        this.sprite = new graphics.Sprite(body_assets.graphics.sprite_def);
         this.sprite.position = graphic_position(body_position);
 
         this.some_value = -99999.0 + random_int(0, 7);
     }
 
-    update(){ // TODO: make this a generator with an infinite loop
+    update(delta_time){ // TODO: make this a generator with an infinite loop
         if(!this.is_performing_animation){ // true or false, it's just for fun
             this.some_value += 0.5;
             const some_direction = {x:Math.sin(this.some_value), y:Math.cos(this.some_value)};
             this.position = this.position.translate(some_direction);
         }
+        this.sprite.update(delta_time);
     }
 
     render_graphics(){
@@ -73,8 +74,27 @@ class BodyView {
 
 };
 
+// Display tiles.
+class TileGridView {
+
+    constructor(position, size, tile_id_grid){
+        // const tile_sprites = {};
+        // for(const tile_id of tile_id_grid){
+        //     tile_sprites[tile_id] = new Sprite(assets.images[tiledefs[tile_id].sprite_def.image]);
+        // }
+
+        // this.ground_tile_grid = new graphics.TileGrid(position, size, tile_sprites, tile_id_grid);
+        // this.surface_tile_grid = new graphics.TileGrid(position, size, tile_sprites, tile_id_grid);
+    }
+
+    draw(){
+        // this.ground_tile_grid.draw();
+        // this.ground_tile_grid.draw();
+    }
+
+};
+
 class GameView {
-    tile_grid = new graphics.TileGrid();
     body_views = {};
     is_time_for_player_to_chose_action = true;
     animation_queue = []; // Must contain only js generators. // TODO: make the animation system separately to be used anywhere there are animations to play.
@@ -83,6 +103,7 @@ class GameView {
     constructor(game){
         console.assert(game instanceof Game);
         this.game = game;
+        this.tile_grid = new TileGridView(new Vector2(), new Vector2({ x:game.width, y:game.height }), /*game.*/);
         this.reset();
     }
 
@@ -106,7 +127,7 @@ class GameView {
         });
     }
 
-    update(){
+    update(delta_time){
 
         // Update the current animation, if any, or switch to the next one, until there isn't any left.
         if(this.current_animation || this.animation_queue.length > 0){
@@ -119,7 +140,7 @@ class GameView {
                 this.current_animation = this.animation_queue.shift(); // pop!
             }
 
-            const animation_state = this.current_animation.next(); // Updates the animation.
+            const animation_state = this.current_animation.next(delta_time); // Updates the animation.
             if(animation_state.done){
                 this.current_animation = null;
                 if(this.animation_queue.length == 0){
@@ -131,7 +152,7 @@ class GameView {
 
         // Update all body-views.
         for(const body_view of Object.values(this.body_views)){
-            body_view.update();
+            body_view.update(delta_time);
         };
     }
 

@@ -2,6 +2,7 @@ export {
     rotate_array,
     random_sample,
     random_int,
+    is_number,
 }
 
 
@@ -33,3 +34,7 @@ function random_int(min, max) {
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive
   }
+
+function is_number(n) {
+    return !isNaN(parseFloat(n)) && isFinite(n);
+}
