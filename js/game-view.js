@@ -78,11 +78,13 @@ class BodyView {
 
 // Display tiles.
 class TileGridView {
+    enable_grid_lines = true;
 
     constructor(position, size, ground_tile_grid, surface_tile_grid){
         console.assert(position instanceof Vector2);
         console.assert(size instanceof Vector2 && size.x > 2 && size.y > 2);
-
+        this.position = position;
+        this.size = size;
         // TODO: replace this by just tiles we use, not all tiles in the world
         this.ground_tile_grid = new graphics.TileGrid(position, size, PIXELS_PER_TILES_SIDE, tiledefs.sprite_defs, ground_tile_grid);
         this.ground_tile_grid.enable_draw_background = true; // display the background
@@ -96,6 +98,8 @@ class TileGridView {
 
     draw(){
         this.ground_tile_grid.draw();
+        if(this.enable_grid_lines)
+            graphics.draw_grid_lines(this.size.x, this.size.y, PIXELS_PER_TILES_SIDE, this.position);
         this.surface_tile_grid.draw();
     }
 
@@ -165,7 +169,6 @@ class GameView {
 
     render_graphics(){
         this.tile_grid.draw();
-        graphics.draw_grid_lines(PIXELS_PER_TILES_SIDE);
 
         for(const body_view of Object.values(this.body_views)){
             body_view.render_graphics();

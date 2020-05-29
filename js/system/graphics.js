@@ -306,23 +306,25 @@ function canvas_center_position(){
   };
 }
 
-function draw_grid_lines(square_size, start_position={x:0, y:0}){
+function draw_grid_lines(width, height, square_size, start_position={x:0, y:0}){
   const grid_line_color = "#aa00aa";
   canvasContext.strokeStyle = grid_line_color;
-
-  for(let x = start_position.x; x < canvas.width; x += square_size){
+  const graphic_width = width * square_size;
+  const graphic_height = height * square_size;
+  for(let x = start_position.x; x <= graphic_width; x += square_size){
     canvasContext.beginPath();
     canvasContext.moveTo(x, start_position.y);
-    canvasContext.lineTo(x, canvas.height - start_position.y);
+    canvasContext.lineTo(x, graphic_height - start_position.y);
     canvasContext.stroke();
   }
 
-  for(let y = start_position.y; y < canvas.height; y += square_size){
+  for(let y = start_position.y; y <= graphic_height; y += square_size){
     canvasContext.beginPath();
     canvasContext.moveTo(start_position.x, y);
-    canvasContext.lineTo(canvas.width - start_position.x, y);
+    canvasContext.lineTo(graphic_width - start_position.x, y);
     canvasContext.stroke();
   }
 
 }
+
 
