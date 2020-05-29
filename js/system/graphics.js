@@ -162,21 +162,83 @@ class Sprite {
 class TileGrid
 {
   background_color = "orange"; // Color displayed where there is no sprite in the grid.
+  enable_draw_background = false;
 
-  constructor(position, size, sprites, index_grid){
-    console.assert(position instanceof Vector2);
-    console.assert(size instanceof Vector2);
-    console.assert(sprites instanceof Object);
-    console.assert(index_grid instanceof Array);
+  constructor(position, size, square_size, sprite_defs, tile_id_grid){
+    console.assert(position instanceof spatial.Vector2);
+    console.assert(size instanceof spatial.Vector2);
+    console.assert(is_number(square_size));
+    console.assert(tile_id_grid instanceof Array);
+    console.assert(tile_id_grid.length == size.x * size.y);
+    console.assert(sprite_defs);
+
     this.position = position;
     this.size = size;
-    this.sprites = sprites;
-    this.index_grid = index_grid;
+    this.square_size = square_size;
+    this.tile_id_grid = tile_id_grid;
+    this.sprites = {};
+    for(const sprite_id in sprite_defs){
+      this.set_tile_type(sprite_id, sprite_defs[sprite_id]);
+    }
+  }
+
+  // Adds a sprite that can be used for tiles,
+  set_tile_type(tile_id, sprite_def){
+    console.assert(tile_id);
+    console.assert(sprite_def);
+    const sprite = new Sprite(sprite_def);
+    this.sprites[tile_id] = sprite;
+    return sprite;
+  }
+
+  change_tile(position, tile_sprite_id, sprite_def){
+    console.assert(position && is_number(position.x) && is_number(position.y));
+    console.assert(tile_sprite_id);
+    let sprite = this.sprites[tile_sprite_id];
+    if(!sprite){
+      console.assert(sprite_def);
+      sprite = set_tile_type(tile_sprite_id, sprite_def);
+    }
+    console.assert(sprite);
+
+  }
+
+  update(delta_time){
+    for(const sprite of Object.values(this.sprites)){
+      sprite.update(delta_time);
+    }
+  }
+
+  draw_background(){ // TODO: take a camera into account
+    // TODO: consider allowing an image as a background
+    const background_size = from_grid_to_graphic_position({ x:this.size.x +1, y:this.size.y+1 }, this.square_size); // TODO: calculate that only when necessary
+    colorRect(new spatial.Rectangle({ position: this.position, size: background_size }), this.background_color);
+  }
+
+  draw_tiles(){ // TODO: take a camera into account
+    // TODO: optimize this by batching and keeping a side canvas of the drawn sprites
+    for(let y = 0; y < this.size.y; ++y){
+      for(let x = 0; x < this.size.x; ++x){
+        const tile_idx = (y * this.size.x) + x;
+        console.assert(tile_idx >= 0 && tile_idx < this.tile_id_grid.length);
+        let sprite_id = this.tile_id_grid[tile_idx];
+        if(sprite_id === undefined) // Undefined means we display no sprite.
+          continue;
+        const sprite = this.sprites[sprite_id];
+        console.assert(sprite);
+        const graphic_pos = from_grid_to_graphic_position({x:x, y:y}, this.square_size, this.position);
+        sprite.position = graphic_pos;
+        sprite.draw();
+      }
+    }
   }
 
   draw(){ // TODO: take a camera into account
-    // TODO: write a proper implementation :P
-    colorRect(new spatial.Rectangle({ position: this.position, size: this.size}) , this.background_color);
+    if(this.enable_draw_background){
+      this.draw_background();
+    }
+
+    this.draw_tiles();
   }
 
 };
@@ -230,8 +292,6 @@ function drawBitmapCenteredAtLocationWithRotation(graphic, atX, atY,withAngle) {
 function clear(){
   canvasContext.clearRect(0, 0, canvas.width, canvas.height);
 }
-
-
 
 function draw_text(text, position, font="24px arial", color="black"){
   canvasContext.font = font; // TODO: replace this by proper font handling.

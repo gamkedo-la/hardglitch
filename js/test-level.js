@@ -32,7 +32,7 @@ function make_test_world(){ // The game assets must have been initialized first.
 
     const world = new concepts.World( world_size.width, world_size.height );
     world._floor_tile_grid.set_at({x:5, y:5}, tiles.ID.GROUND);
-    world._floor_tile_grid.set_at({x:6, y:6}, tiles.ID.WALL);
+    world._surface_tile_grid.set_at({x:6, y:6}, tiles.ID.WALL);
 
     world.set_rules(
         new basic_rules.Rule_BasicActions(),
@@ -43,13 +43,14 @@ function make_test_world(){ // The game assets must have been initialized first.
 
     for(let i = 0; i < 3; ++i){
         const enemy = new RandomActionEnemy();
-        enemy.position.x = random_int(0, world_size.width);
-        enemy.position.y = random_int(0, world_size.height);
+        enemy.position.x = random_int(0, world_size.width -1 );
+        enemy.position.y = random_int(0, world_size.height -1 );
         world.add(enemy);
     }
 
 
     const player1 = new Player();
+    player1.position = { x: 5, y: 5 };
     world.add(player1);
 
     // const player2 = new Player();

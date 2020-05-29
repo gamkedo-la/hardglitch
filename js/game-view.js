@@ -79,19 +79,24 @@ class BodyView {
 // Display tiles.
 class TileGridView {
 
-    constructor(position, size, tile_id_grid){
-        // const tile_sprites = {};
-        // for(const tile_id of tile_id_grid){
-        //     tile_sprites[tile_id] = new Sprite(assets.images[tiledefs[tile_id].sprite_def.image]);
-        // }
+    constructor(position, size, ground_tile_grid, surface_tile_grid){
+        console.assert(position instanceof Vector2);
+        console.assert(size instanceof Vector2 && size.x > 2 && size.y > 2);
 
-        // this.ground_tile_grid = new graphics.TileGrid(position, size, tile_sprites, tile_id_grid);
-        // this.surface_tile_grid = new graphics.TileGrid(position, size, tile_sprites, tile_id_grid);
+        // TODO: replace this by just tiles we use, not all tiles in the world
+        this.ground_tile_grid = new graphics.TileGrid(position, size, PIXELS_PER_TILES_SIDE, tiledefs.sprite_defs, ground_tile_grid);
+        this.ground_tile_grid.enable_draw_background = true; // display the background
+        this.surface_tile_grid = new graphics.TileGrid(position, size, PIXELS_PER_TILES_SIDE, tiledefs.sprite_defs, surface_tile_grid);
+    }
+
+    update(delta_time){
+        this.ground_tile_grid.update(delta_time);
+        this.surface_tile_grid.update(delta_time);
     }
 
     draw(){
-        // this.ground_tile_grid.draw();
-        // this.ground_tile_grid.draw();
+        this.ground_tile_grid.draw();
+        this.surface_tile_grid.draw();
     }
 
 };
@@ -105,7 +110,6 @@ class GameView {
     constructor(game){
         console.assert(game instanceof Game);
         this.game = game;
-        this.tile_grid = new TileGridView(new Vector2(), new Vector2({ x:game.width, y:game.height }), /*game.*/);
         this.reset();
     }
 
@@ -130,6 +134,7 @@ class GameView {
     }
 
     update(delta_time){
+        this.tile_grid.update(delta_time);
 
         // Update the current animation, if any, or switch to the next one, until there isn't any left.
         if(this.current_animation || this.animation_queue.length > 0){
@@ -173,13 +178,15 @@ class GameView {
 
     // Re-interpret the game's state from scratch.
     reset(){
-        // TODO: reset the tiles
+        this.tile_grid = new TileGridView(new Vector2(), new Vector2({ x: this.game.world.width, y: this.game.world.height }),
+                                            this.game.world._floor_tile_grid.elements, this.game.world._surface_tile_grid.elements);
 
         this.body_views = {};
         this.game.world.bodies.forEach(body => {
             const body_view = new BodyView(body.position, body.assets);
             this.body_views[body.body_id] = body_view;
         });
+
     }
 
 
