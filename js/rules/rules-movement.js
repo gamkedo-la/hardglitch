@@ -82,7 +82,7 @@ function * animation_move_event(body_view, new_position){
         body_view.position = body_view.position.translate(translation_step);
         yield;
         const distance_left = body_view.position.distance(target_gfx_pos);
-        if(distance_left < translation_step.length)
+        if(distance_left < translation_step.length * 2)
             break;
     }
 
