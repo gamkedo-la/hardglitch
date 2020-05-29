@@ -14,7 +14,7 @@ export {
 
 import * as spatial from "./spatial.js"
 
-var canvas, canvasContext;
+var canvas, canvasContext, loaded_assets;
 
 class Sprite {
   transform = new spatial.Transform();
@@ -81,9 +81,13 @@ class TileGrid
 };
 
 
-function initialize(){
-  if(canvasContext || canvas)
+function initialize(assets){
+  console.assert(assets);
+  console.assert(assets.images);
+  if(canvasContext || canvas || loaded_assets)
     throw "Graphic system already initialized.";
+
+  loaded_assets = assets;
 
   canvas = document.getElementById('gameCanvas');
   canvasContext = canvas.getContext('2d');

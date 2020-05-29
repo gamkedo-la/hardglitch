@@ -18,8 +18,9 @@ let current_game = null;
 let current_game_view = null;
 
 window.onload = async function() {
-  graphics.initialize();
-  await load_all_assets();
+  const assets = await load_all_assets();
+  graphics.initialize(assets);
+
 
   new_game(); // TODO : call this function only once we start a new game.
 
