@@ -1,6 +1,6 @@
 // This is where Klaim test some ideas.
 
-import * as concepts from "./core/concepts.js";
+import * as concepts from "../core/concepts.js";
 
 
 

@@ -4,7 +4,7 @@
 export {
     loaded_assets as assets,
     load_all_assets,
-    sprite_def,
+    sprite_defs,
 };
 
 import * as asset_system from "./system/assets.js";
@@ -39,7 +39,7 @@ async function load_all_assets(){
 //////////////////////////////////////////////////////////////////////////////////////
 // Sprite descriptions here.
 // Describe here all the sprites and sprite animations as defined by Sprite class.
-const sprite_def = {
+const sprite_defs = {
     player : {
         image: "player",
         frames: [

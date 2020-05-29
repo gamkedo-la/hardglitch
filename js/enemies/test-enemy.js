@@ -4,7 +4,7 @@ export { RandomActionEnemy };
 import * as concepts from "../core/concepts.js";
 import {random_sample} from "../system/utility.js";
 import { Wait } from "../rules/rules-basic.js";
-import { sprite_def } from "../game-assets.js";
+import { sprite_defs } from "../game-assets.js";
 
 class RandomActionSelector extends concepts.Actor {
 
@@ -22,7 +22,7 @@ class RandomActionSelector extends concepts.Actor {
 class RandomActionEnemy extends concepts.Body {
     assets = {
         graphics : {
-            sprite_def : sprite_def.test_enemy,
+            sprite_def : sprite_defs.test_enemy,
         }
     };
 

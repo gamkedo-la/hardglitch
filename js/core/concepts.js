@@ -7,6 +7,8 @@
 // game, without being changed too much.
 // We will describe what kind of entities can exist here.
 
+import { is_number, index_from_position } from "../system/utility.js";
+
 export {
     World,
     Event,
@@ -62,10 +64,13 @@ function perform_action(action, body, world){
 
 // Represents the record of something that happened in the past.
 class Event{
+    allow_parallel_animation = false; // Will be played in parallel with other parallel animations if true, will be animated alone otherwise.
 
-    constructor(body_id){
+    constructor(body_id, options){
         console.assert(Number.isInteger(body_id)); // 0 means it's a world event
         this.body_id = body_id;
+        if(options && options.allow_parallel_animation)
+            this.allow_parallel_animation = options.allow_parallel_animation;
     }
 
     // Animation to perform when viewing this event.
@@ -130,6 +135,8 @@ class Rule {
 // This position is one square of that grid, so all the values are integers, not floats.
 class Position {
     constructor(x = 0, y = 0){
+        console.assert(is_number(x));
+        console.assert(is_number(y));
         this.x = x;
         this.y = y;
     }
@@ -150,7 +157,11 @@ class Position {
 // Elements are things that have a "physical" existence, that is it can be located in the space of the game (it have a position).
 // For example a body, a pen in a bag, a software in a computer in a bag.
 class Element {
-    position = new Position();
+    _position = new Position();
+    get position() { return this._position; }
+    set position(new_pos){
+        this._position = new Position(new_pos.x, new_pos.y);
+    }
 };
 
 // Items are elements that cannot ever move by themselves.
@@ -297,7 +308,7 @@ class World
     }
 
     // Returns true if the position given is blocked by an element (Body or Item) or a tile that blocks (wall).
-    is_blocked_position(position){
+    is_blocked_position(position, predicate_tile_is_walkable){
 
         if(position.x >= this.width || position.x < 0
         || position.y >= this.height || position.y < 0
@@ -307,7 +318,7 @@ class World
 
         // TODO: check the tile at that position.
         const surface_tile = this._surface_tile_grid.get_at(position);
-        if(surface_tile){
+        if(surface_tile && !predicate_tile_is_walkable(surface_tile)){
             return true;
         }
 
@@ -347,13 +358,6 @@ class World
     }
 
 };
-
-function index_from_position(width, height, position){
-    console.assert(Number.isInteger(position.x) && Number.isInteger(position.y));
-    console.assert(position.x < width);
-    console.assert(position.y < height);
-    return (position.y * width) + position.x;
-}
 
 // A grid of elements, representing the topology of a world.
 // Multiple grids can be used to represent layers of the world.

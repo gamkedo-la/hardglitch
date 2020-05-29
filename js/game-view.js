@@ -17,13 +17,15 @@ import * as tiledefs from "./definitions-tiles.js";
 import * as debug from "./debug.js";
 
 const PIXELS_PER_TILES_SIDE = 64;
-const HALF_PIXELS_PER_TILES_SIDE = PIXELS_PER_TILES_SIDE / 2;
 
 // Return a vector in the graphic-world by interpreting a game-world position.
 function graphic_position(vec2){
-    return new Vector2({ x: (vec2.x * PIXELS_PER_TILES_SIDE)
-                       , y: (vec2.y * PIXELS_PER_TILES_SIDE)
-                       });
+    return graphics.from_grid_to_graphic_position(vec2, PIXELS_PER_TILES_SIDE);
+}
+
+// Return a vector in the game-world by interpreting a graphic-world position.
+function game_position_from_graphic_po(vec2){
+    return graphics.from_graphic_to_grid_position(vec2, PIXELS_PER_TILES_SIDE);
 }
 
 
@@ -76,20 +78,29 @@ class BodyView {
 
 // Display tiles.
 class TileGridView {
+    enable_grid_lines = true;
 
-    constructor(position, size, tile_id_grid){
-        // const tile_sprites = {};
-        // for(const tile_id of tile_id_grid){
-        //     tile_sprites[tile_id] = new Sprite(assets.images[tiledefs[tile_id].sprite_def.image]);
-        // }
+    constructor(position, size, ground_tile_grid, surface_tile_grid){
+        console.assert(position instanceof Vector2);
+        console.assert(size instanceof Vector2 && size.x > 2 && size.y > 2);
+        this.position = position;
+        this.size = size;
+        // TODO: replace this by just tiles we use, not all tiles in the world
+        this.ground_tile_grid = new graphics.TileGrid(position, size, PIXELS_PER_TILES_SIDE, tiledefs.sprite_defs, ground_tile_grid);
+        this.ground_tile_grid.enable_draw_background = true; // display the background
+        this.surface_tile_grid = new graphics.TileGrid(position, size, PIXELS_PER_TILES_SIDE, tiledefs.sprite_defs, surface_tile_grid);
+    }
 
-        // this.ground_tile_grid = new graphics.TileGrid(position, size, tile_sprites, tile_id_grid);
-        // this.surface_tile_grid = new graphics.TileGrid(position, size, tile_sprites, tile_id_grid);
+    update(delta_time){
+        this.ground_tile_grid.update(delta_time);
+        this.surface_tile_grid.update(delta_time);
     }
 
     draw(){
-        // this.ground_tile_grid.draw();
-        // this.ground_tile_grid.draw();
+        this.ground_tile_grid.draw();
+        if(this.enable_grid_lines)
+            graphics.draw_grid_lines(this.size.x, this.size.y, PIXELS_PER_TILES_SIDE, this.position);
+        this.surface_tile_grid.draw();
     }
 
 };
@@ -97,13 +108,12 @@ class TileGridView {
 class GameView {
     body_views = {};
     is_time_for_player_to_chose_action = true;
-    animation_queue = []; // Must contain only js generators. // TODO: make the animation system separately to be used anywhere there are animations to play.
-    current_animation = null; // Must be a js generator.
+    animation_queue = []; // Must contain only js generators + parallel: (true||false). // TODO: make the animation system separately to be used anywhere there are animations to play.
+    current_animations = []; // Must be a set of js generators, each one an animation that can be played together.
 
     constructor(game){
         console.assert(game instanceof Game);
         this.game = game;
-        this.tile_grid = new TileGridView(new Vector2(), new Vector2({ x:game.width, y:game.height }), /*game.*/);
         this.reset();
     }
 
@@ -114,14 +124,20 @@ class GameView {
         events.forEach(event => {
             if(event.body_id == 0){ // 0 means it's a World event.
                 // Launch the event's animation, if any.
-                this.animation_queue.push(event.animation());
+                this.animation_queue.push({
+                    animation:event.animation(),
+                    parallel: event.allow_parallel_animation,
+                });
 
             } else { // If it's not a World event, it's a character-related event.
                 const body_view = this.body_views[event.body_id];
                 // TODO: handle the case where a new one appeared
                 if(body_view){
                     // Add the animation to do to represent the event, for the player to see, if any.
-                    this.animation_queue.push(body_view.animate_event(event));
+                    this.animation_queue.push({
+                        animation: body_view.animate_event(event),
+                        parallel: event.allow_parallel_animation,
+                    });
                 }
             }
         });
@@ -129,24 +145,46 @@ class GameView {
 
     update(delta_time){
 
+        this.tile_grid.update(delta_time);
+
         // Update the current animation, if any, or switch to the next one, until there isn't any left.
-        if(this.current_animation || this.animation_queue.length > 0){
+        if(this.current_animations.length != 0 || this.animation_queue.length > 0){
             if(this.is_time_for_player_to_chose_action){
                 this.is_time_for_player_to_chose_action = false;
                 debug.setText("PROCESSING NPC TURNS...");
             }
 
-            if(!this.current_animation){
-                this.current_animation = this.animation_queue.shift(); // pop!
+            const delay_between_animations_ms = 100; // we'll try to keep a little delay between each beginning of parallel animation.
+
+            if(this.current_animations.length == 0){
+                // Get the next animations that are allowed to happen in parallel.
+                let delay_for_next_animation = 0;
+                while(this.animation_queue.length > 0){
+                    const animation = this.animation_queue.shift(); // pop!
+                    animation.delay = delay_for_next_animation;
+                    delay_for_next_animation += delay_between_animations_ms;
+                    this.current_animations.push(animation);
+                    if(animation.parallel === false)
+                        break; // We need to only play the animations that are next to each other and parallel.
+                }
             }
 
-            const animation_state = this.current_animation.next(delta_time); // Updates the animation.
-            if(animation_state.done){
-                this.current_animation = null;
-                if(this.animation_queue.length == 0){
-                    this.is_time_for_player_to_chose_action = true;
-                    debug.setText("PLAYER'S TURN!");
+            for(const animation of this.current_animations){
+                if(animation.delay <= 0){
+                    const animation_state = animation.animation.next(delta_time); // Updates the animation.
+                    animation.done = animation_state.done;
+                } else {
+                    animation.done = false;
+                    animation.delay -= delta_time;
+                    if(animation.delay < 0)
+                        animation.delay = 0;
                 }
+            }
+            this.current_animations = this.current_animations.filter(animation => !animation.done);
+
+            if(this.current_animations.length == 0 && this.animation_queue.length == 0){
+                this.is_time_for_player_to_chose_action = true;
+                debug.setText("PLAYER'S TURN!");
             }
         }
 
@@ -158,7 +196,6 @@ class GameView {
 
     render_graphics(){
         this.tile_grid.draw();
-        graphics.draw_grid_lines(PIXELS_PER_TILES_SIDE);
 
         for(const body_view of Object.values(this.body_views)){
             body_view.render_graphics();
@@ -171,13 +208,15 @@ class GameView {
 
     // Re-interpret the game's state from scratch.
     reset(){
-        // TODO: reset the tiles
+        this.tile_grid = new TileGridView(new Vector2(), new Vector2({ x: this.game.world.width, y: this.game.world.height }),
+                                            this.game.world._floor_tile_grid.elements, this.game.world._surface_tile_grid.elements);
 
         this.body_views = {};
         this.game.world.bodies.forEach(body => {
             const body_view = new BodyView(body.position, body.assets);
             this.body_views[body.body_id] = body_view;
         });
+
     }
 
 

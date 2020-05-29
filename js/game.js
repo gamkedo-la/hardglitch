@@ -37,6 +37,10 @@ class Game {
         ++this.player_turn_count;
 
         console.log(`NEW PLAYER TURN: ${this.player_turn_count}`);
+        console.log(`Characters Positions: `);
+        for(const body of this.world.bodies){
+            console.log(` - ${body.body_id}: ${JSON.stringify(body.position)}`);
+        }
         console.log(`Events Since Last Turn: `);
         for(const event of this.last_turn_info.events){
             console.log(` - ${event.constructor.name} { character: ${event.body_id} }`);

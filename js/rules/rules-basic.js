@@ -11,7 +11,9 @@ export {
 // That actor decided to take a pause.
 class Waited extends concepts.Event {
     constructor(body){
-        super(body.body_id);
+        super(body.body_id, {
+            allow_parallel_animation: true,
+        });
     }
 
     *animation(body_view){

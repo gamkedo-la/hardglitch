@@ -3,6 +3,9 @@ export {
     random_sample,
     random_int,
     is_number,
+    index_from_position,
+    remove_array_item,
+    remove_all_array_items,
 }
 
 
@@ -37,4 +40,31 @@ function random_int(min, max) {
 
 function is_number(n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
+function index_from_position(width, height, position){
+    console.assert(Number.isInteger(position.x) && Number.isInteger(position.y));
+    console.assert(position.x < width);
+    console.assert(position.y < height);
+    return (position.y * width) + position.x;
+}
+
+function remove_array_item(arr, value) {
+    var index = arr.indexOf(value);
+    if (index > -1) {
+        arr.splice(index, 1);
+    }
+    return arr;
+}
+
+function remove_all_array_items(arr, value) {
+    var i = 0;
+    while (i < arr.length) {
+        if(arr[i] === value) {
+            arr.splice(i, 1);
+        } else {
+            ++i;
+        }
+    }
+    return arr;
 }
