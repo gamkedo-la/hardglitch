@@ -25,27 +25,27 @@ function graphic_position(vec2){
                        });
 }
 
+
 // Representation of a body.
 class BodyView {
-    sprite = new graphics.Sprite();
     is_performing_animation = false;
 
     constructor(body_position, body_assets){
         console.assert(body_position);
         console.assert(body_assets);
-        // TODO: make a better logic to let know how to load the body spritesheet
-        this.sprite.source_image = assets.images[body_assets.graphics.sprite_def.image]; // Use the name of the image and get it already loaded from the assets.
+        this.sprite = new graphics.Sprite(body_assets.graphics.sprite_def);
         this.sprite.position = graphic_position(body_position);
 
         this.some_value = -99999.0 + random_int(0, 7);
     }
 
-    update(){ // TODO: make this a generator with an infinite loop
+    update(delta_time){ // TODO: make this a generator with an infinite loop
         if(!this.is_performing_animation){ // true or false, it's just for fun
             this.some_value += 0.5;
             const some_direction = {x:Math.sin(this.some_value), y:Math.cos(this.some_value)};
             this.position = this.position.translate(some_direction);
         }
+        this.sprite.update(delta_time);
     }
 
     render_graphics(){
@@ -106,7 +106,7 @@ class GameView {
         });
     }
 
-    update(){
+    update(delta_time){
 
         // Update the current animation, if any, or switch to the next one, until there isn't any left.
         if(this.current_animation || this.animation_queue.length > 0){
@@ -119,7 +119,7 @@ class GameView {
                 this.current_animation = this.animation_queue.shift(); // pop!
             }
 
-            const animation_state = this.current_animation.next(); // Updates the animation.
+            const animation_state = this.current_animation.next(delta_time); // Updates the animation.
             if(animation_state.done){
                 this.current_animation = null;
                 if(this.animation_queue.length == 0){
@@ -131,7 +131,7 @@ class GameView {
 
         // Update all body-views.
         for(const body_view of Object.values(this.body_views)){
-            body_view.update();
+            body_view.update(delta_time);
         };
     }
 
