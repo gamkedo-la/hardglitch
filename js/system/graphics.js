@@ -110,7 +110,7 @@ class Sprite {
       {
         // No frame, use the whole image.
         // TODO: handle scaling and other deformations
-        canvasContext.drawImage(this.source_image, this.source_image.width, this.source_image.height);
+        canvasContext.drawImage(this.source_image, 0, 0, this.source_image.width, this.source_image.height);
       }
       canvasContext.restore();
     } else {
@@ -219,7 +219,7 @@ class TileGrid
     // TODO: optimize this by batching and keeping a side canvas of the drawn sprites
     for(let y = 0; y < this.size.y; ++y){
       for(let x = 0; x < this.size.x; ++x){
-        const tile_idx = (y * this.size.x) + x;
+        const tile_idx = index_from_position(this.size.x, this.size.y, {x, y});
         console.assert(tile_idx >= 0 && tile_idx < this.tile_id_grid.length);
         let sprite_id = this.tile_id_grid[tile_idx];
         if(sprite_id === undefined) // Undefined means we display no sprite.
