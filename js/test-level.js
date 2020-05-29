@@ -6,7 +6,7 @@ import * as concepts from "./core/concepts.js";
 import { random_int } from "./system/utility.js";
 import * as basic_rules from "./rules/rules-basic.js";
 import { Rule_Movements } from "./rules/rules-movement.js";
-import { assets, sprite_def } from "./game-assets.js";
+import { assets, sprite_defs } from "./game-assets.js";
 import { Rule_ActionPoints } from "./rules/rules-actionpoints.js";
 import { RandomActionEnemy } from "./enemies/test-enemy.js";
 
@@ -15,7 +15,7 @@ import * as tiles from "./definitions-tiles.js";
 class Player extends concepts.Body {
     assets = {
         graphics : {
-            sprite_def : sprite_def.player,
+            sprite_def : sprite_defs.player,
         }
     };
 

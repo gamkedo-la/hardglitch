@@ -1,9 +1,9 @@
 // This file describe all the game elements in the game and how they are configured.
 // These elements are used to build levels.
 
-export { ID, defs }
+export { ID, defs, tile_sprite_defs as sprite_defs }
 
-import { sprite_def } from "./game-assets.js";
+import { sprite_defs } from "./game-assets.js";
 
 ////////////////////////////////////////////////////////////////////////////////
 // TILES DEFINITIONS
@@ -20,14 +20,29 @@ const ID = {
 // Tile Types Descritions:
 const defs = {
     [ID.GROUND] : {
-        sprite_def: sprite_def.ground,
+        sprite_def: sprite_defs.ground,
         is_walkable: true,
         // TODO: add other information here
     },
     [ID.WALL] : {
-        sprite_def: sprite_def.wall,
+        sprite_def: sprite_defs.wall,
         is_walkable: false,
+    },
+    [ID.ENTRY] : {
+        sprite_def: sprite_defs.ground,
+        is_walkable: true,
+        // TODO: add other information here
+    },
+    [ID.EXIT] : {
+        sprite_def: sprite_defs.wall,
+        is_walkable: true,
     },
 };
 
 
+
+// All the tile sprites definitions (as described by tiles definitions).
+const tile_sprite_defs = {};
+for(const tile_id of Object.values(ID)){
+    tile_sprite_defs[tile_id] = defs[tile_id].sprite_def;
+}
