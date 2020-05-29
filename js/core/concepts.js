@@ -7,6 +7,8 @@
 // game, without being changed too much.
 // We will describe what kind of entities can exist here.
 
+import { is_number } from "../system/utility.js";
+
 export {
     World,
     Event,
@@ -130,6 +132,8 @@ class Rule {
 // This position is one square of that grid, so all the values are integers, not floats.
 class Position {
     constructor(x = 0, y = 0){
+        console.assert(is_number(x));
+        console.assert(is_number(y));
         this.x = x;
         this.y = y;
     }
@@ -150,7 +154,11 @@ class Position {
 // Elements are things that have a "physical" existence, that is it can be located in the space of the game (it have a position).
 // For example a body, a pen in a bag, a software in a computer in a bag.
 class Element {
-    position = new Position();
+    _position = new Position();
+    get position() { return this._position; }
+    set position(new_pos){
+        this._position = new Position(new_pos.x, new_pos.y);
+    }
 };
 
 // Items are elements that cannot ever move by themselves.
@@ -307,7 +315,7 @@ class World
 
         // TODO: check the tile at that position.
         const surface_tile = this._surface_tile_grid.get_at(position);
-        if(surface_tile){
+        if(surface_tile && !surface_tile.is_walkable){
             return true;
         }
 
