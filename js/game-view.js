@@ -12,6 +12,7 @@ import { random_int } from "./system/utility.js";
 import { assets } from "./game-assets.js";
 import { Game } from "./game.js";
 import { Vector2 } from "./system/spatial.js";
+import * as tiledefs from "./definitions-tiles.js";
 
 import * as debug from "./debug.js";
 
@@ -73,8 +74,27 @@ class BodyView {
 
 };
 
+// Display tiles.
+class TileGridView {
+
+    constructor(position, size, tile_id_grid){
+        // const tile_sprites = {};
+        // for(const tile_id of tile_id_grid){
+        //     tile_sprites[tile_id] = new Sprite(assets.images[tiledefs[tile_id].sprite_def.image]);
+        // }
+
+        // this.ground_tile_grid = new graphics.TileGrid(position, size, tile_sprites, tile_id_grid);
+        // this.surface_tile_grid = new graphics.TileGrid(position, size, tile_sprites, tile_id_grid);
+    }
+
+    draw(){
+        // this.ground_tile_grid.draw();
+        // this.ground_tile_grid.draw();
+    }
+
+};
+
 class GameView {
-    tile_grid = new graphics.TileGrid();
     body_views = {};
     is_time_for_player_to_chose_action = true;
     animation_queue = []; // Must contain only js generators. // TODO: make the animation system separately to be used anywhere there are animations to play.
@@ -83,6 +103,7 @@ class GameView {
     constructor(game){
         console.assert(game instanceof Game);
         this.game = game;
+        this.tile_grid = new TileGridView(new Vector2(), new Vector2({ x:game.width, y:game.height }), /*game.*/);
         this.reset();
     }
 
