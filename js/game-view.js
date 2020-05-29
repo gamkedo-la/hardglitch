@@ -144,6 +144,7 @@ class GameView {
     }
 
     update(delta_time){
+
         this.tile_grid.update(delta_time);
 
         // Update the current animation, if any, or switch to the next one, until there isn't any left.
@@ -153,19 +154,31 @@ class GameView {
                 debug.setText("PROCESSING NPC TURNS...");
             }
 
+            const delay_between_animations_ms = 100; // we'll try to keep a little delay between each beginning of parallel animation.
+
             if(this.current_animations.length == 0){
                 // Get the next animations that are allowed to happen in parallel.
+                let delay_for_next_animation = 0;
                 while(this.animation_queue.length > 0){
                     const animation = this.animation_queue.shift(); // pop!
-                    this.current_animations.push(animation.animation);
+                    animation.delay = delay_for_next_animation;
+                    delay_for_next_animation += delay_between_animations_ms;
+                    this.current_animations.push(animation);
                     if(animation.parallel === false)
                         break; // We need to only play the animations that are next to each other and parallel.
                 }
             }
 
             for(const animation of this.current_animations){
-                const animation_state = animation.next(delta_time); // Updates the animation.
-                animation.done = animation_state.done;
+                if(animation.delay <= 0){
+                    const animation_state = animation.animation.next(delta_time); // Updates the animation.
+                    animation.done = animation_state.done;
+                } else {
+                    animation.done = false;
+                    animation.delay -= delta_time;
+                    if(animation.delay < 0)
+                        animation.delay = 0;
+                }
             }
             this.current_animations = this.current_animations.filter(animation => !animation.done);
 
