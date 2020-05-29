@@ -211,7 +211,7 @@ class TileGrid
 
   draw_background(){ // TODO: take a camera into account
     // TODO: consider allowing an image as a background
-    const background_size = from_grid_to_graphic_position({ x:this.size.x +1, y:this.size.y+1 }, this.square_size); // TODO: calculate that only when necessary
+    const background_size = from_grid_to_graphic_position({ x:this.size.x, y:this.size.y }, this.square_size); // TODO: calculate that only when necessary
     colorRect(new spatial.Rectangle({ position: this.position, size: background_size }), this.background_color);
   }
 
