@@ -20,8 +20,8 @@ let last_update_time = Date.now();
 
 window.onload = async function() {
   const assets = await load_all_assets();
-  graphics.initialize(assets);
-
+  const canvas = graphics.initialize(assets);
+  input.initialize(canvas, on_player_input_in_game); // TODO: change that so that when we have different screens with different input situations
 
   new_game(); // TODO : call this function only once we start a new game.
 
@@ -36,7 +36,6 @@ function start() {
       draw_everything();
     }, 1000/framesPerSecond);
 
-  input.initialize(on_player_input_in_game); // TODO: change that so that when we have different screens with different input situations
 
   console.log("GAME READY - STARTED");
 }

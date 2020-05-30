@@ -258,6 +258,8 @@ function initialize(assets){
   canvasContext = canvas.getContext('2d');
   canvas_resize_to_window();
   window.addEventListener('resize', on_window_resized);
+
+  return canvas;
 }
 
 function canvas_resize_to_window(){
