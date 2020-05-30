@@ -282,8 +282,8 @@ function genPerspectiveOverlay(grid, overlay) {
                     if (v) { // wall
                         tl = "bi";
                         tr = "bi";
-                        bl = (grid.dl(p)) ? "rtbe": "btrs";
-                        br = (grid.dr(p)) ? "btls": "ltbe";
+                        bl = (grid.dl(p)) ? "rtbe": "b";
+                        br = (grid.dr(p)) ? "btls": "b";
                     }
                     break;
                 case 6: // top|left
@@ -300,8 +300,8 @@ function genPerspectiveOverlay(grid, overlay) {
                     if (v) { // wall
                         tl = "bi";
                         tr = "bi";
-                        bl = "b";
-                        br = (grid.dr(p)) ? "btls": "ltbe";
+                        bl = (grid.dl(p)) ? "rtbe": "b";
+                        br = (grid.dr(p)) ? "btls": "b";
                     } else { // empty
                         tl = (grid.ul(p)) ? "ortb" : "";
                         tr = (grid.ur(p)) ? "obtl" : "";
@@ -349,7 +349,7 @@ function genPerspectiveOverlay(grid, overlay) {
                         br = (grid.dr(p)) ? "m" : "rtb"
                     } else { // empty
                         // FIXME: conflict between oltt and obtl
-                        tr = (grid.ur(p)) ? "obtl" : "";
+                        tr = (grid.dr(p)) ? "oltt" : (grid.ur(p)) ? "obtl" : "";
                         br = (grid.dr(p)) ? "oltte" : "ortt";
                         bl = (grid.dl(p)) ? "ot" : "ottl";
                     }
@@ -386,8 +386,9 @@ function genPerspectiveOverlay(grid, overlay) {
                         bl = (grid.dl(p)) ? "m" : "btl"
                         br = (grid.dr(p)) ? "ttre": "r";
                     } else { // empty
-                        // FIXME: conflict between oltt and obtl
-                        tl = (grid.ul(p)) ? "ortb" : "";
+                        // FIXME: conflict between ottr and ortb
+                        tl = (grid.dl(p)) ? "ottr" : (grid.ul(p)) ? "ortb" : "";
+                        //tl = (grid.ul(p)) ? "ortb" : "";
                         bl = (grid.dl(p)) ? "ottrs" : "ottl";
                         br = (grid.dr(p)) ? "ot" : "ortt";
                     }
