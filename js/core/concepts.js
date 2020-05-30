@@ -190,7 +190,13 @@ class Body extends Element {
     // BEWARE, this is a hack to simulate being able to act once per turn.
     acted_this_turn = false;
 
-    get can_perform_actions(){
+    // True if the control of this body is to the player, false otherwise.
+    // Note that a non-player actor can also decide to let the player chose their action
+    // by returning null.
+    get is_player_actor() { return this.actor instanceof Player; }
+
+    // True if this body can perform actions (have an actor for decisions and have enough action points).
+    get can_perform_actions(){ // TODO: use actual action points
         // Cannot perform actions if we don't have an actor to decide which action to perform.
         return this.actor && !this.acted_this_turn;
     }
@@ -336,7 +342,7 @@ class World
     }
 
     get player_characters(){
-        return this.bodies.filter(body => body.actor instanceof Player);
+        return this.bodies.filter(body => body.is_player_actor);
     }
 
     body_at(position){

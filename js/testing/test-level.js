@@ -40,11 +40,6 @@ function make_test_world(){ // The game assets must have been initialized first.
         world.add(enemy);
     }
 
-    // const player2 = new Player();
-    // player2.position.x = 5;
-    // player2.position.y = 5;
-    // world.add(player2);
-
     return world;
 }
 

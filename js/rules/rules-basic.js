@@ -56,10 +56,10 @@ function* animation_wait_event(body_view) {
 function is_game_over(world){
     // Currently, Game Over is when there is no player characters in game anymore.
     // Note that this is different from characters controlled by the player (Actor.decide_next_action() returns null)
-    // but not being the player (the Actor inherits from Player).
+    // but not being the player.
     for(const character_body of world.bodies){
         console.assert(character_body instanceof concepts.Body);
-        if(character_body.actor instanceof concepts.Player) // found a player character: not game over
+        if(character_body.is_player_actor) // found a player character: not game over
             return false;
     }
     return true; // didn't found any player character: game over
