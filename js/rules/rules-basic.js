@@ -81,8 +81,8 @@ class Rule_GameOver extends concepts.Rule {
             return []; // Nothing happens otherwise.
     }
 
-    // We check after each actor's turn.
-    update_world_after_actor_turn(world){
+    // We check after each character's turn.
+    update_world_after_character_turn(world){
         return this.check_game_over(world);
     }
 

@@ -117,7 +117,7 @@ class Rule {
     // Update the world according to this rule after a character performed an action.
     // Called once per actor after they are finished with their action (players too).
     // Returns a sequence of events resulting from changing the world.
-    update_world_after_actor_turn(world, body){
+    update_world_after_character_turn(world, body){
         return [];
     }
 
@@ -292,7 +292,7 @@ class World
     apply_rules_end_of_characters_turn(body){
         const events = [];
         for(const rule of this._rules){
-            events.push(...(rule.update_world_after_actor_turn(this, body)));
+            events.push(...(rule.update_world_after_character_turn(this, body)));
         }
         return events;
     }
