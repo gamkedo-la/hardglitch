@@ -3,15 +3,14 @@
 export { make_test_world }
 
 import * as concepts from "../core/concepts.js";
-import { random_int } from "../system/utility.js";
-import * as basic_rules from "../rules/rules-basic.js";
-import { Rule_Movements } from "../rules/rules-movement.js";
-import { sprite_defs } from "../game-assets.js";
-import { Rule_ActionPoints } from "../rules/rules-actionpoints.js";
+import { random_int, index_from_position } from "../system/utility.js";
 import { RandomActionEnemy } from "../enemies/test-enemy.js";
 
 import * as tiles from "../definitions-tiles.js";
-import { world_grid } from "../definitions-world.js";
+import { world_grid, default_rules } from "../definitions-world.js";
+
+
+
 
 
 function make_test_world(){ // The game assets must have been initialized first.
@@ -26,13 +25,7 @@ function make_test_world(){ // The game assets must have been initialized first.
     world._surface_tile_grid.set_at({x:4, y:8}, tiles.ID.ENTRY);
     world._surface_tile_grid.set_at({x:8, y:8}, tiles.ID.EXIT);
 
-    world.set_rules( // TODO: move them in world definition
-        new basic_rules.Rule_BasicActions(),
-        new Rule_Movements(),
-        new basic_rules.Rule_GameOver(),
-        new Rule_ActionPoints(),
-        new basic_rules.Rule_LevelExit(),
-    );
+    world.set_rules(...default_rules);
 
     for(let i = 0; i < 3; ++i){
         const enemy = new RandomActionEnemy();
