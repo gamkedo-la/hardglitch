@@ -48,15 +48,15 @@ class Sprite {
   //                { x:0, y:0 , width:image.width / 2, height:image.height },
   //                { x:image.width / 2, y:0, width:image.width / 2, height:image.height },
   //              ],
-  //      animations: [ // One object per animation
-  //                    {
+  //      animations: { // One object per animation
+  //                    normal: {
   //                      loop: true,   // Loops if true, stay on the last frame otherwise.
   //                      timeline: [   // Sequence of frames
   //                                  { frame: 0, duration: 1000 }, // Frame is the frame index to display, duration is in millisecs
   //                                  { frame: 1, duration: 1000 }
   //                                ],
   //                     },
-  //                  ],
+  //                  },
   //    };
   //
   // By default we use the first frame if specified, or the whole image if not.
@@ -66,10 +66,11 @@ class Sprite {
       this.frames = sprite_def.frames;
       this.animations = sprite_def.animations;
       if(this.frames) {
-        this.change_frame(0);
+        this.force_frame(0);
       }
       if(this.animations){
-        this.change_animation(0);
+        // Use the first animation by default. TODO: reconsider...
+        this.start_animation(Object.keys(this.animations)[0]);
       }
 
     }
@@ -78,16 +79,17 @@ class Sprite {
   get position() { return this.transform.position; }
   set position(new_position) { this.transform.position = new_position; }
 
-  change_frame(frame_idx) {
+  force_frame(frame_idx) {
     console.assert(is_number(frame_idx));
     console.assert(frame_idx >= 0 && frame_idx < this.frames.length);
     this._current_frame = this.frames[frame_idx];
   }
 
-  change_animation(animation_idx){
-    console.assert(is_number(animation_idx));
-    console.assert(animation_idx >= 0 && animation_idx < this.animations.length);
-    this._current_animation = this.animations[animation_idx];
+  start_animation(animation_id){
+    console.assert(animation_id);
+    const animation = this.animations[animation_id];
+    console.assert(animation);
+    this._current_animation = animation;
     this.animation_time = 0.0;
     this.animation_keyframe_idx = 0;
   }
@@ -151,7 +153,7 @@ class Sprite {
     // Only change the frame if we need to.
     if(need_to_change_frame){
       const current_keyframe = this._current_animation.timeline[this.animation_keyframe_idx];
-      this.change_frame(current_keyframe.frame);
+      this.force_frame(current_keyframe.frame);
     }
   }
 };
