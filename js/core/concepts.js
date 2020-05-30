@@ -7,7 +7,7 @@
 // game, without being changed too much.
 // We will describe what kind of entities can exist here.
 
-import { is_number, index_from_position } from "../system/utility.js";
+import { is_number, index_from_position, position_from_index } from "../system/utility.js";
 
 export {
     World,
@@ -382,6 +382,17 @@ class Grid {
 
     set_at(position, element){
         this.elements[index_from_position(this.width, this.height, position)] = element;
+    }
+
+    matching_positions(predicate){
+        const positions = [];
+        for(let idx = 0; idx < this.elements.length; ++idx){
+            const element = this.elements[idx];
+            if(element != undefined && predicate(element)){
+                positions.push(position_from_index(this.width, this.height, idx));
+            }
+        }
+        return positions;
     }
 
 };

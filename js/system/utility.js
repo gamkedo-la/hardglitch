@@ -4,6 +4,7 @@ export {
     random_int,
     is_number,
     index_from_position,
+    position_from_index,
     remove_array_item,
     remove_all_array_items,
 }
@@ -43,10 +44,24 @@ function is_number(n) {
 }
 
 function index_from_position(width, height, position){
+    console.assert(Number.isInteger(width));
+    console.assert(Number.isInteger(height));
+    console.assert(width > 0);
+    console.assert(height > 0);
     console.assert(Number.isInteger(position.x) && Number.isInteger(position.y));
     console.assert(position.x < width);
     console.assert(position.y < height);
     return (position.y * width) + position.x;
+}
+
+function position_from_index(width, height, index){
+    console.assert(Number.isInteger(width));
+    console.assert(Number.isInteger(height));
+    console.assert(width > 0);
+    console.assert(height > 0);
+    console.assert(Number.isInteger(index));
+
+    return { x: index % width, y: Math.floor(index / width) };
 }
 
 function remove_array_item(arr, value) {

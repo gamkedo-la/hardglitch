@@ -20,6 +20,7 @@ const game_assets = { // Description of the assets to load.
         ground : "./images/world_ground.png",
         key : "./images/world_key.png",
         wall : "./images/world_wall.png",
+        tileset_entry_exit : "./images/tileset_entry_exit.png",
     }
 };
 
@@ -68,6 +69,18 @@ const sprite_defs = {
         image: "wall",
         // frames: [],
     },
+    entry : {
+        image: "tileset_entry_exit",
+        frames: [
+            { x:0, y:0, width:64, height:64 }
+         ]
+    },
+    exit : {
+        image: "tileset_entry_exit",
+        frames: [
+            { x:64, y:0, width:64, height:64 }
+         ]
+    }
 };
 
 

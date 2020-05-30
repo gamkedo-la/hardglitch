@@ -32,12 +32,12 @@ const defs = {
         is_walkable: false,
     },
     [ID.ENTRY] : {
-        sprite_def: sprite_defs.ground,
+        sprite_def: sprite_defs.entry,
         is_walkable: true,
         // TODO: add other information here
     },
     [ID.EXIT] : {
-        sprite_def: sprite_defs.wall,
+        sprite_def: sprite_defs.exit,
         is_walkable: true,
     },
 };
