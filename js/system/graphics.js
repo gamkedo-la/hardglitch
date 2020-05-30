@@ -28,8 +28,8 @@ function from_grid_to_graphic_position(vec2, square_size, graphics_origin = {x:0
 
 // Return a vector in the game-world by interpreting a graphic-world position.
 function from_graphic_to_grid_position(vec2, square_size, graphics_origin = {x:0, y:0}){
-  return new spatial.Vector2({ x: ((vec2.x - graphics_origin) / square_size)
-                             , y: ((vec2.y - graphics_origin) / square_size)
+  return new spatial.Vector2({ x: Math.floor((vec2.x - graphics_origin.x) / square_size)
+                             , y: Math.floor((vec2.y - graphics_origin.y) / square_size)
                              });
 }
 
