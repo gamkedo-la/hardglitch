@@ -228,7 +228,7 @@ class World
     _bodies = {};    // Bodies are always in the space of the world. They can be controlled by Actors.
     _rules = [];     // Rules that will be applied through this game.
     _player_action = null; // TODO: try to find a better way to "pass" the player action to the turn solver.
-    is_game_over = false; // True if this world is in a game-over state. TODO: protect against manipulations
+    is_finished = false; // True if this world is in a finished state, in which case it should not be updated anymore. TODO: protect against manipulations
 
     constructor(width, height, floor_tiles, surface_tiles){
         console.assert(Number.isInteger(width) && width > 2);
