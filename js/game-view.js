@@ -200,10 +200,6 @@ class GameView {
         for(const body_view of Object.values(this.body_views)){
             body_view.render_graphics();
         };
-
-        if(this.game.world.is_game_over){
-            graphics.draw_text("GAME OVER", graphics.canvas_center_position());
-        }
     }
 
     // Re-interpret the game's state from scratch.
