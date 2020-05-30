@@ -1,10 +1,17 @@
 import * as concepts from "../core/concepts.js";
+import * as tiles from "../definitions-tiles.js";
+import * as graphics from "../system/graphics.js";
+
+import * as debug from "../debug.js";
 
 export {
     Rule_GameOver,
     Rule_BasicActions,
+    Rule_LevelExit,
     Wait,
     Waited,
+    GameOver,
+    PlayerExitLevel,
     animation_wait_event
 };
 
@@ -69,6 +76,11 @@ class GameOver extends concepts.Event {
     constructor(){
         super(0); // body_id==0 means "the world"
     }
+
+    *animation(){ // TEMPORARY ANIMATION
+        debug.setCentralText("GAME OVER! - RELOAD TO RESTART");
+        while(true) yield;
+    }
 }
 
 class Rule_GameOver extends concepts.Rule {
@@ -91,3 +103,36 @@ class Rule_GameOver extends concepts.Rule {
         return this.check_game_over(world);
     }
 };
+
+
+class PlayerExitLevel extends concepts.Event {
+    constructor(){
+        super(0);
+    }
+
+    *animation(){ // TEMPORARY ANIMATION
+        let time_left = 4000;
+        debug.setCentralText("YOU WIN THIS LEVEL! - LOADING NEXT LEVEL ...");
+        while(time_left > 0){
+            const delta_time = yield;
+            time_left -= delta_time;
+        }
+        window.location.reload(); // TODO: replace by proper handling of the level exit
+    }
+};
+
+
+
+class Rule_LevelExit extends concepts.Rule {
+    update_world_after_character_turn(world, character_body){
+        if(character_body.is_player_actor){ // Only check player bodies (only the player can exit the level).
+            const exit_positions = world._surface_tile_grid.matching_positions(tile_id => tile_id == tiles.ID.EXIT); // TODO: keep a cache until the world's tiles have changed?
+            if(exit_positions.some(position => character_body.position.equals(position))){
+                return [ new PlayerExitLevel() ];
+            }
+        }
+        return [];
+    }
+
+
+}
