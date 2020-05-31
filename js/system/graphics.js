@@ -12,12 +12,14 @@ export {
   draw_grid_lines,
   from_grid_to_graphic_position,
   from_graphic_to_grid_position,
+  camera,
 };
 
 import * as spatial from "./spatial.js"
 import { is_number, index_from_position } from "./utility.js";
 
 var canvas, canvasContext, loaded_assets;
+
 
 // Return a vector in the graphic-world by interpreting a fixed-size grid position.
 function from_grid_to_graphic_position(vec2, square_size, graphics_origin = {x:0, y:0}){
@@ -33,6 +35,22 @@ function from_graphic_to_grid_position(vec2, square_size, graphics_origin = {x:0
                              });
 }
 
+class Camera{
+  transform = new spatial.Transform();
+  get position() { return this.transform.position; }
+  set position(new_pos) {
+    this.transform.position = new_pos;
+    canvasContext.resetTransform();
+    const translation = new_pos.inverse;
+    canvasContext.translate(translation.x, translation.y);
+  }
+  translate(translation){
+    this.transform.position = this.transform.position.translate(translation);
+    translation = translation.inverse;
+    canvasContext.translate(translation.x, translation.y);
+  }
+};
+const camera = new Camera();
 
 class Sprite {
   transform = new spatial.Transform();
@@ -94,7 +112,7 @@ class Sprite {
     this.animation_keyframe_idx = 0;
   }
 
-  draw(){ // TODO: take a camera into account
+  draw(){
     if(this.source_image){
 
       canvasContext.save(); // TODO : this should be done by the caller? probably
@@ -294,7 +312,10 @@ function drawBitmapCenteredAtLocationWithRotation(graphic, atX, atY,withAngle) {
 }
 
 function clear(){
+  canvasContext.save();
+  canvasContext.resetTransform();
   canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+  canvasContext.restore();
 }
 
 function draw_text(text, position, font="24px arial", color="black"){

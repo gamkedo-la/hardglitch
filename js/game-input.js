@@ -3,7 +3,9 @@
 export { update }
 
 import * as input from "./system/input.js";
+import * as graphics from "./system/graphics.js";
 import { current_game, current_game_view } from "./main.js";
+import { Vector2_unit_x, Vector2_unit_y } from "./system/spatial.js";
 
 // TODO: add the system that changes the mouse icons here
 
@@ -56,8 +58,25 @@ function remove_all_players(){ // THIS IS A HACK, DON'T DO THIS AT HOME
     }
 }
 
+function update_camera_control(delta_time){
+    const camera_speed = 1;
+    const current_speed = camera_speed * delta_time;
+    const keyboard = input.keyboard;
+
+    if(keyboard.is_down(KEY_LETTER_A))
+        graphics.camera.translate(Vector2_unit_x.multiply(-current_speed));
+    if(keyboard.is_down(KEY_LETTER_D))
+        graphics.camera.translate(Vector2_unit_x.multiply(current_speed));
+    if(keyboard.is_down(KEY_LETTER_W))
+        graphics.camera.translate(Vector2_unit_y.multiply(-current_speed));
+    if(keyboard.is_down(KEY_LETTER_S))
+        graphics.camera.translate(Vector2_unit_y.multiply(current_speed));
+}
+
 function update(delta_time){
     input.update(delta_time);
+
+    update_camera_control(delta_time);
 
     // Only handle input from the player when it's "visible" that it's player's turn.
     if(current_game_view.is_time_for_player_to_chose_action){
@@ -69,6 +88,8 @@ function update(delta_time){
             current_game_view.interpret_turn_events(); // Starts showing each event one by one until it's player's turn.
         }
     }
+
+
   }
 
 
