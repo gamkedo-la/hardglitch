@@ -86,8 +86,8 @@ class GameOver extends concepts.Event {
 class Rule_GameOver extends concepts.Rule {
 
     check_game_over(world){
-        world.is_game_over = is_game_over(world);
-        if(world.is_game_over)
+        world.is_finished = is_game_over(world);
+        if(world.is_finished)
             return [ new GameOver() ]; // This event will notify the rest of the code that the game is over.
         else
             return []; // Nothing happens otherwise.
@@ -128,6 +128,7 @@ class Rule_LevelExit extends concepts.Rule {
         if(character_body.is_player_actor){ // Only check player bodies (only the player can exit the level).
             const exit_positions = world._surface_tile_grid.matching_positions(tile_id => tile_id == tiles.ID.EXIT); // TODO: keep a cache until the world's tiles have changed?
             if(exit_positions.some(position => character_body.position.equals(position))){
+                world.is_finished = true;
                 return [ new PlayerExitLevel() ];
             }
         }

@@ -7,7 +7,8 @@
 export { GameView, BodyView, graphic_position };
 
 import * as graphics from "./system/graphics.js";
-import { random_int } from "./system/utility.js";
+import * as input from "./system/input.js";
+import { random_int, position_from_index } from "./system/utility.js";
 
 import { assets } from "./game-assets.js";
 import { Game } from "./game.js";
@@ -90,6 +91,9 @@ class TileGridView {
         this.ground_tile_grid.enable_draw_background = true; // display the background
         this.surface_tile_grid = new graphics.TileGrid(position, size, PIXELS_PER_TILES_SIDE, tiledefs.sprite_defs, surface_tile_grid);
     }
+
+    get width() { return this.size.x; }
+    get height() { return this.size.y; }
 
     update(delta_time){
         this.ground_tile_grid.update(delta_time);
@@ -220,6 +224,20 @@ class GameView {
         for(const body_id of body_ids){
             delete this.body_views[body_id];
         }
+    }
+
+    // Returns the position of the mouse on the grid if pointing it,
+    // returns { x:"?", y:"?"} if the mouse isn't pointing on the grid.
+    get mouse_grid_position(){
+        const grid_pos = graphics.from_graphic_to_grid_position(input.mouse.position, PIXELS_PER_TILES_SIDE, this.tile_grid.position);
+
+        if(grid_pos.x < 0 || grid_pos.x > this.tile_grid.width
+        || grid_pos.y < 0 || grid_pos.y > this.tile_grid.height
+        ){
+            return { x: "?", y: "?" }
+        }
+
+        return grid_pos;
     }
 
 };

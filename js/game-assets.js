@@ -47,15 +47,15 @@ const sprite_defs = {
                     { x: 0, y: 0, width: 64, height: 64 },
                     { x: 64, y: 0, width: 64, height: 64 },
                 ],
-        animations: [
-            {
-                loop: true,
-                timeline: [
-                            { frame: 0, duration: 1000 },
-                            { frame: 1, duration: 1000 }
-                          ],
-            },
-        ],
+        animations: {
+            idle: {
+                    loop: true,
+                    timeline: [
+                                { frame: 0, duration: 1000 },
+                                { frame: 1, duration: 1000 }
+                              ],
+                  },
+        },
     },
     test_enemy: {
         image: "warrior",
