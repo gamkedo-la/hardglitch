@@ -605,7 +605,7 @@ function start() {
 }
 
 const bgTemplatePath = "srcref/bgtemplate.png";
-const tileTemplatePath = "srcref/tiletemplate.png";
+const tileTemplatePath = "srcref/tiletemplate2.png";
 
 let bgtiles;
 let walltiles;
