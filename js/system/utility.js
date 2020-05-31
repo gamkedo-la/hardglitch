@@ -92,5 +92,6 @@ function duration(start_time, end_time){
 }
 
 function is_valid_duration(value){
-    return is_number(new_duration) && (new_duration > 0)
+    return is_number(value)
+        && value > 0;
 }

@@ -34,6 +34,8 @@ class Move extends concepts.Action {
         this.new_position = new_position;
     }
 
+    get target_position(){ return this.new_position; }
+
     execute(world, body) {
         console.assert(body instanceof concepts.Body);
         const initial_pos = body.position;
