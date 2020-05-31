@@ -51,9 +51,11 @@ class KeyState{
 
 
 class Mouse{
+  buttons = new Keyboard(3); // Yeah, the mouse buttons are like a 3 button keyboard...
+
   constructor(){
     this._position = new spatial.Vector2();
-    this._last_position_update = Date.now();
+    this._last_update_time = Date.now();
   }
 
   get position(){ return this._position; }
@@ -63,14 +65,29 @@ class Mouse{
     console.assert(new_pos.x >= 0 && new_pos.y >= 0);
     this._position.x = new_pos.x;
     this._position.y = new_pos.y;
-    this._last_position_update = Date.now();
   }
 
   // Return the time (milliseconds) since the mouse took the current position.
-  get time_since_position_changed() { return duration(this._last_position_update, Date.now()); }
+  get time_since_position_changed() { return duration(this._last_update_time, Date.now()); }
 
   update(delta_time){
-    // update states so that
+    this._last_update_time = Date.now();
+    this.buttons.update(delta_time);
+    if(this._last_captured_position)
+      this.position = this._last_captured_position;
+    this._last_captured_position = undefined;
+  }
+
+  on_mouse_move(new_pos){
+    this._last_captured_position = new_pos;
+  }
+
+  on_mouse_button_down(button_id){
+    this.buttons.on_key_down(button_id);
+  }
+
+  on_mouse_button_up(button_id){
+    this.buttons.on_key_up(button_id);
   }
 
 };
@@ -85,13 +102,13 @@ function is_valid_keycode(key_code){
 
 class Keyboard {
 
-  constructor(){
+  constructor(key_count = KEYCODES_COUNT){
     this._last_update_time = Date.now();
-    this._raw_states_changes = new Array(KEYCODES_COUNT); // Boolean state for each key: true == down, false == up, or undefined if nothing changed
+    this._raw_states_changes = new Array(key_count); // Boolean state for each key: true == down, false == up, or undefined if nothing changed
     this._time_until_pressed_becomes_hold = 0; // Time (ms) it takes for a pressed key to switch from being "down" to "hold".
     this._time_until_released_becomes_not_used = 0; // Time (ms) it takes for a pressed key to switch from being "down" to "hold".
-    this._keys_states = new Array(KEYCODES_COUNT);
-    for(let idx = 0; idx < KEYCODES_COUNT; ++idx){
+    this._keys_states = new Array(key_count);
+    for(let idx = 0; idx < key_count; ++idx){
       this._keys_states[idx] = new KeyState(this._last_update_time); // We want a different state objects for each key.
     }
   }
@@ -187,7 +204,7 @@ class Keyboard {
   update(delta_time){
     this._last_update_time = Date.now();
 
-    for(let key_code = 0; key_code < KEYCODES_COUNT; ++key_code){
+    for(let key_code = 0; key_code < this._raw_states_changes.length; ++key_code){
       const is_key_physically_down = this._raw_states_changes[key_code];
       const key_state = this._keys_states[key_code];
 
@@ -267,16 +284,16 @@ function initialize(canvas) {
     input_update_queue.push(()=> keyboard.on_key_up(event.keyCode) );
   });
 
-  function update_mouse_pos(event){
-    mouse.position = canvas_mouse_position(canvas, event);
-  }
-
   canvas.addEventListener('mousemove', function(event) {
-    input_update_queue.push(()=> update_mouse_pos(event) );
+    input_update_queue.push(()=> mouse.on_mouse_move(canvas_mouse_position(canvas, event)) );
   });
 
   canvas.addEventListener('mousedown', function(event) {
-    input_update_queue.push(()=> update_mouse_pos(event) );
+    input_update_queue.push(()=> mouse.on_mouse_button_down(event.button) );
+  });
+
+  canvas.addEventListener('mouseup', function(event) {
+    input_update_queue.push(()=> mouse.on_mouse_button_up(event.button) );
   });
 
 }

@@ -26,6 +26,8 @@ function display_mouse_position(){
     const center = graphics.canvas_center_position();
     const mouse_grid_pos = current_game_view.mouse_grid_position;
     graphics.draw_text(`Mouse: X = ${input.mouse.position.x}\tY = ${input.mouse.position.y}\t\tGRID: X = ${mouse_grid_pos.x}\tY = ${mouse_grid_pos.y}`, {x: center.x, y: 20 });
+
+    graphics.draw_text(`Buttons: LEFT: ${input.mouse.buttons.is_down(0)}\t\tRIGHT: ${input.mouse.buttons.is_down(2)}`, {x: center.x, y: 40 });
 }
 
 function display(){
