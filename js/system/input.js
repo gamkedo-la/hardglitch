@@ -3,7 +3,7 @@
 
 export {
   initialize, update,
-  mouse, keyboard,
+  mouse, keyboard, MOUSE_BUTTON,
   KEY_STATE, KeyState,
 };
 
@@ -48,14 +48,20 @@ class KeyState{
   }
 };
 
+const MOUSE_BUTTON = {
+  LEFT: 0, MIDDLE: 1, RIGHT: 2
+};
 
 
 class Mouse{
-  buttons = new Keyboard(3); // Yeah, the mouse buttons are like a 3 button keyboard...
 
   constructor(){
+    this.buttons = new Keyboard(3); // Yeah, the mouse buttons are like a 3 button keyboard...
     this._position = new spatial.Vector2();
     this._last_update_time = Date.now();
+
+    this.buttons.time_until_pressed_becomes_hold = 50; // We'll use the hold state for dragging.
+    this._dragging_radius = 32; // Pixels distance from the dragging start position where
   }
 
   get position(){ return this._position; }
@@ -70,12 +76,42 @@ class Mouse{
   // Return the time (milliseconds) since the mouse took the current position.
   get time_since_position_changed() { return duration(this._last_update_time, Date.now()); }
 
+  get is_dragging() {
+    return this.buttons.is_hold(MOUSE_BUTTON.LEFT)
+        && this._dragging_start_position.distance(this.position) >= this._dragging_radius;
+  }
+
+  get dragging_positions(){
+    return {
+      begin: this._dragging_start_position,
+      end: this._dragging_end_position,
+    };
+  }
+
   update(delta_time){
     this._last_update_time = Date.now();
+
     this.buttons.update(delta_time);
+
     if(this._last_captured_position)
       this.position = this._last_captured_position;
     this._last_captured_position = undefined;
+
+    const left_button_state = this.buttons.get_key_state(MOUSE_BUTTON.LEFT);
+    switch(left_button_state.state){
+      case(KEY_STATE.DOWN):
+        this._dragging_start_position = new spatial.Vector2(this.position);
+        break;
+      case(KEY_STATE.UP):
+        this._dragging_end_position = new spatial.Vector2(this.position);
+        break;
+      case(KEY_STATE.NOT_USED):
+        this._dragging_start_position = undefined;
+        this._dragging_end_position = undefined;
+        break;
+      default:
+        break;
+    }
   }
 
   on_mouse_move(new_pos){

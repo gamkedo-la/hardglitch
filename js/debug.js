@@ -19,6 +19,9 @@ function setCentralText(text){ // TODO: add a text display in the Canvas to disp
     text_to_display = text;
 }
 
+let dragging = undefined;
+let dragging_display_time = 0;
+
 function display_mouse_position(){
     if(!current_game_view)
         return;
@@ -28,6 +31,17 @@ function display_mouse_position(){
     graphics.draw_text(`Mouse: X = ${input.mouse.position.x}\tY = ${input.mouse.position.y}\t\tGRID: X = ${mouse_grid_pos.x}\tY = ${mouse_grid_pos.y}`, {x: center.x, y: 20 });
 
     graphics.draw_text(`Buttons: LEFT: ${input.mouse.buttons.is_down(0)}\t\tRIGHT: ${input.mouse.buttons.is_down(2)}`, {x: center.x, y: 40 });
+
+    if(input.mouse.is_dragging)
+        dragging_display_time = 100;
+
+    if(dragging_display_time > 0){
+        --dragging_display_time;
+        const drag_pos = input.mouse.dragging_positions;
+        if(drag_pos.begin != undefined)
+            dragging = drag_pos;
+        graphics.draw_text(`Dragging: FROM: ${JSON.stringify(dragging.begin)}\t\tTO: ${JSON.stringify(dragging.end)}`, {x: center.x, y: 60 });
+    }
 }
 
 function display(){
