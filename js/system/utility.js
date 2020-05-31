@@ -7,6 +7,8 @@ export {
     position_from_index,
     remove_array_item,
     remove_all_array_items,
+    duration,
+    is_valid_duration,
 }
 
 
@@ -82,4 +84,13 @@ function remove_all_array_items(arr, value) {
         }
     }
     return arr;
+}
+
+
+function duration(start_time, end_time){
+    return end_time - start_time;
+}
+
+function is_valid_duration(value){
+    return is_number(new_duration) && (new_duration > 0)
 }

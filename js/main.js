@@ -9,7 +9,7 @@ import { Game } from "./game.js";
 import { GameView } from "./game-view.js";
 
 import * as input from "./system/input.js";
-import { on_player_input_in_game } from "./game-input.js";
+import * as game_input from "./game-input.js";
 import { make_test_world } from "./testing/test-level.js";
 
 import * as debug from "./debug.js";
@@ -21,7 +21,7 @@ let last_update_time = Date.now();
 window.onload = async function() {
   const assets = await load_all_assets();
   const canvas = graphics.initialize(assets);
-  input.initialize(canvas, on_player_input_in_game); // TODO: change that so that when we have different screens with different input situations
+  input.initialize(canvas); // TODO: change that so that when we have different screens with different input situations
 
   new_game(); // TODO : call this function only once we start a new game.
 
@@ -44,6 +44,7 @@ function update_everything() {
   const now = Date.now();
   const delta_time = now - last_update_time;
   last_update_time = now;
+  game_input.update(delta_time);
   current_game_view.update(delta_time);
 }
 
