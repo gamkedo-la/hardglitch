@@ -16,10 +16,11 @@ let templateMap = {
     ttle:   {i:4,   j:2},
     ottls:  {i:5,   j:0},
     ottl:   {i:4,   j:0},
-    l:      {i:4,   j:3},
+    l:      {i:0,   j:7},
     ltts:   {i:4,   j:4},
     ltt:    {i:4,   j:5},
     ltte:   {i:3,   j:5},
+    ltti:   {i:4,   j:3},
     oltt:   {i:3,   j:3},
     oltte:  {i:3,   j:4},
     ltbs:   {i:0,   j:9},
@@ -29,6 +30,7 @@ let templateMap = {
     b:      {i:2,   j:10},
     bi:     {i:2,   j:9},
     btls:   {i:3,   j:10},
+    btlsi:  {i:3,   j:9},
     btl:    {i:4,   j:10},
     btle:   {i:4,   j:11},
     btli:   {i:4,   j:9},
@@ -40,6 +42,7 @@ let templateMap = {
     r:      {i:9,   j:12},
     rtbs:   {i:9,   j:11},
     rtb:    {i:9,   j:10},
+    rtbei:  {i:10,  j:9},
     rtbe:   {i:10,  j:10},
     rtbi:   {i:9,   j:9},
     ortb:   {i:10,  j:11},
@@ -51,6 +54,7 @@ let templateMap = {
     ttrs:   {i:10,  j:5},
     ttr:    {i:9,   j:5},
     ttre:   {i:9,   j:4},
+    ttri:   {i:9,   j:3},
     ottr:   {i:10,  j:3},
     ottrs:  {i:10,  j:4},
 };
@@ -254,7 +258,7 @@ function genPerspectiveOverlay(grid, overlay) {
                 case 1: // right
                     if (v) { // wall
                         tl = "ltbs";
-                        tr = "ltbi";
+                        tr = (grid.dr(p)) ? "btlsi" : "ltbi";
                         bl = "ltb";
                         br = (grid.dr(p)) ? "btls": "ltbe";
                     }
@@ -270,7 +274,7 @@ function genPerspectiveOverlay(grid, overlay) {
                 case 3: // top|right
                     if (v) { // wall
                         tl = "ltbs";
-                        tr = "ltbi";
+                        tr = (grid.dr(p)) ? "btlsi" : "ltbi";
                         bl = "ltb";
                         br = (grid.dr(p)) ? "btls": "ltbe";
                     } else { // empty
@@ -279,7 +283,7 @@ function genPerspectiveOverlay(grid, overlay) {
                     break;
                 case 4: // left
                     if (v) { // wall
-                        tl = "btri";
+                        tl = (grid.dl(p)) ? "rtbei" : "btri";
                         tr = "btre";
                         bl = "btrs";
                         bl = (grid.dl(p)) ? "rtbe": "btrs";
@@ -288,15 +292,15 @@ function genPerspectiveOverlay(grid, overlay) {
                     break;
                 case 5: // left|right
                     if (v) { // wall
-                        tl = "bi";
-                        tr = "bi";
+                        tl = (grid.dl(p)) ? "rtbei" : "bi";
+                        tr = (grid.dr(p)) ? "btlsi" : "bi";
                         bl = (grid.dl(p)) ? "rtbe": "b";
                         br = (grid.dr(p)) ? "btls": "b";
                     }
                     break;
                 case 6: // top|left
                     if (v) { // wall
-                        tl = "btri";
+                        tl = (grid.dl(p)) ? "rtbei" : "btri";
                         tr = "btre";
                         bl = (grid.dl(p)) ? "rtbe": "btrs";
                         br = "btr";
@@ -306,8 +310,8 @@ function genPerspectiveOverlay(grid, overlay) {
                     break;
                 case 7: // top|left|right
                     if (v) { // wall
-                        tl = "bi";
-                        tr = "bi";
+                        tl = (grid.dl(p)) ? "rtbei" : "bi";
+                        tr = (grid.dl(p)) ? "btlsi" : "bi";
                         bl = (grid.dl(p)) ? "rtbe": "b";
                         br = (grid.dr(p)) ? "btls": "b";
                     } else { // empty
@@ -317,8 +321,8 @@ function genPerspectiveOverlay(grid, overlay) {
                     break;
                 case 8: // down
                     if (v) { // wall
-                        tl = "ttl";
-                        tr = "rtt";
+                        tl = (grid.dl(p)) ? "ltti" : "ttl";
+                        tr = (grid.dr(p)) ? "ttri" : "rtt";
                         bl = (grid.dl(p)) ? "ltts" : "ttle";
                         br = (grid.dr(p)) ? "ttre": "rtts";
                     } else { // empty
@@ -328,7 +332,7 @@ function genPerspectiveOverlay(grid, overlay) {
                     break;
                 case 9: // down|right
                     if (v) { // wall
-                        tl = "ttl";
+                        tl = (grid.dl(p)) ? "ltti" : "ttl";
                         tr = (grid.dr(p)) ? "ttls" : "rtbi";
                         bl = (grid.dl(p)) ? "ltts" : "ttle";
                         br = (grid.dr(p)) ? "m" : "rtb";
@@ -340,8 +344,8 @@ function genPerspectiveOverlay(grid, overlay) {
                     break;
                 case 10: // top|down
                     if (v) { // wall
-                        tl = "l";
-                        tr = "r";
+                        tl = (grid.dl(p)) ? "ltti" : "l";
+                        tr = (grid.dr(p)) ? "ttri" : "r";
                         bl = (grid.dl(p)) ? "ltts": "l";
                         br = (grid.dr(p)) ? "ttre": "r";
                     } else {
@@ -351,7 +355,7 @@ function genPerspectiveOverlay(grid, overlay) {
                     break;
                 case 11: // top|down|right
                     if (v) { // wall
-                        tl = "l";
+                        tl = (grid.dl(p)) ? "ltti" : "l";
                         tr = (grid.dr(p)) ? (grid.ur(p)) ? "m" : "ttr" : "rtbi";
                         bl = (grid.dl(p)) ? "ltts": "l";
                         br = (grid.dr(p)) ? "m" : "rtb"
@@ -365,7 +369,7 @@ function genPerspectiveOverlay(grid, overlay) {
                 case 12: // down|left
                     if (v) { // wall
                         tl = (grid.dl(p)) ? "rtte" : "btli";
-                        tr = "rtt";
+                        tr = (grid.dr(p)) ? "ttri" : "rtt";
                         bl = (grid.dl(p)) ? "m" : "btl"
                         br = (grid.dr(p)) ? "ttre": "rtts";
                     } else { // empty
@@ -390,7 +394,7 @@ function genPerspectiveOverlay(grid, overlay) {
                 case 14: // top|down|left
                     if (v) { // wall
                         tl = (grid.dl(p)) ? (grid.ul(p)) ? "m" : "ltt" : "btli";
-                        tr = "r";
+                        tr = (grid.dr(p)) ? "ttri" : "r";
                         bl = (grid.dl(p)) ? "m" : "btl"
                         br = (grid.dr(p)) ? "ttre": "r";
                     } else { // empty
@@ -605,7 +609,7 @@ function start() {
 }
 
 const bgTemplatePath = "srcref/bgtemplate.png";
-const tileTemplatePath = "srcref/tiletemplate2.png";
+const tileTemplatePath = "srcref/tiletemplate.png";
 
 let bgtiles;
 let walltiles;
