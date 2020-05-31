@@ -22,6 +22,7 @@ const KEY_LETTER_P = 80;
 
 function select_player_action(){
     const keyboard = input.keyboard;
+    const mouse = input.mouse;
     const possible_actions = current_game.last_turn_info.possible_actions;
 
     if(keyboard.is_just_down(KEY_SPACE)) return possible_actions.wait;
@@ -29,6 +30,13 @@ function select_player_action(){
     if(keyboard.is_down(KEY_DOWN_ARROW)) return possible_actions.move_south;
     if(keyboard.is_down(KEY_RIGHT_ARROW)) return possible_actions.move_east;
     if(keyboard.is_down(KEY_LEFT_ARROW)) return possible_actions.move_west;
+
+    if(mouse.buttons.is_just_released(input.MOUSE_BUTTON.LEFT)){ // Select an action which targets the square under the mouse.
+        for(const action of Object.values(possible_actions)){
+            if(action.target_position && action.target_position.equals(current_game_view.mouse_grid_position))
+                return action;
+        }
+    }
 
     // EDITOR STYLE HACKS FOLLOWS:
     if(keyboard.is_just_down(KEY_LETTER_P))
