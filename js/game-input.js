@@ -25,10 +25,10 @@ function select_player_action(){
     const possible_actions = current_game.last_turn_info.possible_actions;
 
     if(keyboard.is_just_down(KEY_SPACE)) return possible_actions.wait;
-    if(keyboard.is_just_down(KEY_UP_ARROW)) return possible_actions.move_north;
-    if(keyboard.is_just_down(KEY_DOWN_ARROW)) return possible_actions.move_south;
-    if(keyboard.is_just_down(KEY_RIGHT_ARROW)) return possible_actions.move_east;
-    if(keyboard.is_just_down(KEY_LEFT_ARROW)) return possible_actions.move_west;
+    if(keyboard.is_down(KEY_UP_ARROW)) return possible_actions.move_north;
+    if(keyboard.is_down(KEY_DOWN_ARROW)) return possible_actions.move_south;
+    if(keyboard.is_down(KEY_RIGHT_ARROW)) return possible_actions.move_east;
+    if(keyboard.is_down(KEY_LEFT_ARROW)) return possible_actions.move_west;
 
     // EDITOR STYLE HACKS FOLLOWS:
     if(keyboard.is_just_down(KEY_LETTER_P))
