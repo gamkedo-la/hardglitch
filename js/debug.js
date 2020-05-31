@@ -40,3 +40,7 @@ function display(){
 
     display_mouse_position();
 }
+
+function update(){
+
+}
