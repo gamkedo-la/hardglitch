@@ -44,7 +44,7 @@ class KeyState{
     if(new_state == this.state) return;
     this._state = new_state;
     this._since = new_time;
-    console.log(`KEY CHANGE : ${new_state}`);
+    // console.log(`KEY CHANGE : ${new_state}`);
   }
 };
 
