@@ -69,7 +69,7 @@ function* execute_turns_until_players_turn(world) {
         events_since_last_player_action.push(new NewTurn());
 
         // Make sure there are characters ready to do act!
-        while( world.is_game_over         // Game is over
+        while( world.is_finished         // Game is over
             || world.bodies.length == 0){ // No characters in game?
             // In this situation, do nothing more unless the rest of the game resolve the situation:
             // let the player take control, but don't allow or handle any action.

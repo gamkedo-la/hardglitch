@@ -6,7 +6,22 @@ export { Game }
 import * as concepts from "./core/concepts.js";
 import * as turns from "./core/action-turn.js";
 import { Wait } from "./rules/rules-basic.js";
+import { random_sample } from "./system/utility.js";
+import * as tiles from "./definitions-tiles.js";
+import { sprite_defs } from "./game-assets.js";
 
+class Player extends concepts.Body {
+    assets = {
+        graphics : {
+            sprite_def : sprite_defs.player,
+        }
+    };
+
+    constructor(){
+        super();
+        this.actor = new concepts.Player();
+    }
+}
 
 // Abstract but complete representation of a game.
 // Create this object for each new game.
@@ -20,6 +35,7 @@ class Game {
         this.world = world ? world : new concepts.World();
 
         // Prepare the game turns to be ready to play (player's turn)
+        this.add_player_character_at_random_entry_point();
         this.__turn_sequence = turns.execute_turns_until_players_turn(this.world);
         this.update_until_player_turn(new Wait());
         this.last_turn_info.clear_events(); // Remove previous events, we don't really want to know what happened before the first turn.
@@ -37,6 +53,10 @@ class Game {
         ++this.player_turn_count;
 
         console.log(`NEW PLAYER TURN: ${this.player_turn_count}`);
+        console.log(`Characters Positions: `);
+        for(const body of this.world.bodies){
+            console.log(` - ${body.body_id}: ${JSON.stringify(body.position)}`);
+        }
         console.log(`Events Since Last Turn: `);
         for(const event of this.last_turn_info.events){
             console.log(` - ${event.constructor.name} { character: ${event.body_id} }`);
@@ -47,6 +67,19 @@ class Game {
             console.log(` - ${action.name}`);
         }
         return this.last_turn_info;
+    }
+
+    add_player_character_at_random_entry_point(){
+        const entry_points = this.all_entry_points_positions;
+        console.assert(entry_points);
+        const position = random_sample(entry_points);
+        const player = new Player();
+        player.position = position;
+        this.world.add(player);
+    }
+
+    get all_entry_points_positions(){
+        return this.world._surface_tile_grid.matching_positions(tile_id => tile_id == tiles.ID.ENTRY);
     }
 
 };

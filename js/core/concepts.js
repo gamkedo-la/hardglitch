@@ -7,6 +7,8 @@
 // game, without being changed too much.
 // We will describe what kind of entities can exist here.
 
+import { is_number, index_from_position, position_from_index } from "../system/utility.js";
+
 export {
     World,
     Event,
@@ -62,10 +64,13 @@ function perform_action(action, body, world){
 
 // Represents the record of something that happened in the past.
 class Event{
+    allow_parallel_animation = false; // Will be played in parallel with other parallel animations if true, will be animated alone otherwise.
 
-    constructor(body_id){
+    constructor(body_id, options){
         console.assert(Number.isInteger(body_id)); // 0 means it's a world event
         this.body_id = body_id;
+        if(options && options.allow_parallel_animation)
+            this.allow_parallel_animation = options.allow_parallel_animation;
     }
 
     // Animation to perform when viewing this event.
@@ -112,7 +117,7 @@ class Rule {
     // Update the world according to this rule after a character performed an action.
     // Called once per actor after they are finished with their action (players too).
     // Returns a sequence of events resulting from changing the world.
-    update_world_after_actor_turn(world, body){
+    update_world_after_character_turn(world, body){
         return [];
     }
 
@@ -130,6 +135,8 @@ class Rule {
 // This position is one square of that grid, so all the values are integers, not floats.
 class Position {
     constructor(x = 0, y = 0){
+        console.assert(is_number(x));
+        console.assert(is_number(y));
         this.x = x;
         this.y = y;
     }
@@ -150,7 +157,11 @@ class Position {
 // Elements are things that have a "physical" existence, that is it can be located in the space of the game (it have a position).
 // For example a body, a pen in a bag, a software in a computer in a bag.
 class Element {
-    position = new Position();
+    _position = new Position();
+    get position() { return this._position; }
+    set position(new_pos){
+        this._position = new Position(new_pos.x, new_pos.y);
+    }
 };
 
 // Items are elements that cannot ever move by themselves.
@@ -179,7 +190,13 @@ class Body extends Element {
     // BEWARE, this is a hack to simulate being able to act once per turn.
     acted_this_turn = false;
 
-    get can_perform_actions(){
+    // True if the control of this body is to the player, false otherwise.
+    // Note that a non-player actor can also decide to let the player chose their action
+    // by returning null.
+    get is_player_actor() { return this.actor instanceof Player; }
+
+    // True if this body can perform actions (have an actor for decisions and have enough action points).
+    get can_perform_actions(){ // TODO: use actual action points
         // Cannot perform actions if we don't have an actor to decide which action to perform.
         return this.actor && !this.acted_this_turn;
     }
@@ -211,7 +228,7 @@ class World
     _bodies = {};    // Bodies are always in the space of the world. They can be controlled by Actors.
     _rules = [];     // Rules that will be applied through this game.
     _player_action = null; // TODO: try to find a better way to "pass" the player action to the turn solver.
-    is_game_over = false; // True if this world is in a game-over state. TODO: protect against manipulations
+    is_finished = false; // True if this world is in a finished state, in which case it should not be updated anymore. TODO: protect against manipulations
 
     constructor(width, height, floor_tiles, surface_tiles){
         console.assert(Number.isInteger(width) && width > 2);
@@ -281,7 +298,7 @@ class World
     apply_rules_end_of_characters_turn(body){
         const events = [];
         for(const rule of this._rules){
-            events.push(...(rule.update_world_after_actor_turn(this, body)));
+            events.push(...(rule.update_world_after_character_turn(this, body)));
         }
         return events;
     }
@@ -297,7 +314,7 @@ class World
     }
 
     // Returns true if the position given is blocked by an element (Body or Item) or a tile that blocks (wall).
-    is_blocked_position(position){
+    is_blocked_position(position, predicate_tile_is_walkable){
 
         if(position.x >= this.width || position.x < 0
         || position.y >= this.height || position.y < 0
@@ -307,7 +324,7 @@ class World
 
         // TODO: check the tile at that position.
         const surface_tile = this._surface_tile_grid.get_at(position);
-        if(surface_tile){
+        if(surface_tile && !predicate_tile_is_walkable(surface_tile)){
             return true;
         }
 
@@ -325,7 +342,7 @@ class World
     }
 
     get player_characters(){
-        return this.bodies.filter(body => body.actor instanceof Player);
+        return this.bodies.filter(body => body.is_player_actor);
     }
 
     body_at(position){
@@ -347,13 +364,6 @@ class World
     }
 
 };
-
-function index_from_position(width, height, position){
-    console.assert(Number.isInteger(position.x) && Number.isInteger(position.y));
-    console.assert(position.x < width);
-    console.assert(position.y < height);
-    return (position.y * width) + position.x;
-}
 
 // A grid of elements, representing the topology of a world.
 // Multiple grids can be used to represent layers of the world.
@@ -378,6 +388,17 @@ class Grid {
 
     set_at(position, element){
         this.elements[index_from_position(this.width, this.height, position)] = element;
+    }
+
+    matching_positions(predicate){
+        const positions = [];
+        for(let idx = 0; idx < this.elements.length; ++idx){
+            const element = this.elements[idx];
+            if(element != undefined && predicate(element)){
+                positions.push(position_from_index(this.width, this.height, idx));
+            }
+        }
+        return positions;
     }
 
 };

@@ -4,7 +4,7 @@
 export {
     loaded_assets as assets,
     load_all_assets,
-    sprite_def,
+    sprite_defs,
 };
 
 import * as asset_system from "./system/assets.js";
@@ -20,6 +20,7 @@ const game_assets = { // Description of the assets to load.
         ground : "./images/world_ground.png",
         key : "./images/world_key.png",
         wall : "./images/world_wall.png",
+        tileset_entry_exit : "./images/tileset_entry_exit.png",
     }
 };
 
@@ -33,26 +34,53 @@ let loaded_assets = {}; // This object will be set with all the asset converted 
 async function load_all_assets(){
     loaded_assets = await asset_system.load_assets(game_assets);
     console.log(`ASSETS: ${JSON.stringify(loaded_assets)}`);
+    return loaded_assets;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
 // Sprite descriptions here.
 // Describe here all the sprites and sprite animations as defined by Sprite class.
-const sprite_def = {
+const sprite_defs = {
     player : {
         image: "player",
-        frames: [],
+        frames: [
+                    { x: 0, y: 0, width: 64, height: 64 },
+                    { x: 64, y: 0, width: 64, height: 64 },
+                ],
+        animations: {
+            idle: {
+                    loop: true,
+                    timeline: [
+                                { frame: 0, duration: 1000 },
+                                { frame: 1, duration: 1000 }
+                              ],
+                  },
+        },
     },
     test_enemy: {
         image: "warrior",
-        frames: [],
+        // frames: [],
     },
     ground : {
         image: "ground",
-        frames: [],
+        // frames: [],
     },
     wall : {
         image: "wall",
-        frames: [],
+        // frames: [],
     },
+    entry : {
+        image: "tileset_entry_exit",
+        frames: [
+            { x:0, y:0, width:64, height:64 }
+         ]
+    },
+    exit : {
+        image: "tileset_entry_exit",
+        frames: [
+            { x:64, y:0, width:64, height:64 }
+         ]
+    }
 };
+
+

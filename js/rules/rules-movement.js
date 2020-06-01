@@ -8,11 +8,14 @@ export {
 
 import * as concepts from "../core/concepts.js";
 import { BodyView, graphic_position } from "../game-view.js";
+import { is_walkable } from "../definitions-tiles.js";
 
 
 class Moved extends concepts.Event {
     constructor(body, from_pos, to_pos) {
-        super(body.body_id);
+        super(body.body_id, {
+            allow_parallel_animation: true,
+        });
         this.from_pos = from_pos;
         this.to_pos = to_pos;
     }
@@ -30,6 +33,8 @@ class Move extends concepts.Action {
         super(move_name, `Move to ${JSON.stringify(new_position)} (${move_name})`);
         this.new_position = new_position;
     }
+
+    get target_position(){ return this.new_position; }
 
     execute(world, body) {
         console.assert(body instanceof concepts.Body);
@@ -57,7 +62,7 @@ class Rule_Movements extends concepts.Rule {
         const allowed_moves = body.allowed_moves();
         for(const move_id in allowed_moves){
             const move_target = allowed_moves[move_id];
-            if(!world.is_blocked_position(move_target))
+            if(!world.is_blocked_position(move_target, is_walkable))
                 actions[move_id] = new Move(move_id, move_target);
         }
 
@@ -81,7 +86,7 @@ function * animation_move_event(body_view, new_position){
         body_view.position = body_view.position.translate(translation_step);
         yield;
         const distance_left = body_view.position.distance(target_gfx_pos);
-        if(distance_left < translation_step.length)
+        if(distance_left < translation_step.length * 2)
             break;
     }
 

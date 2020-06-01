@@ -1,6 +1,6 @@
 
 export {
-    Vector2, Vector2_origin, Vector2_unit_x, Vector2_unit_y,
+    Vector2, Vector2_origin, Vector2_unit, Vector2_unit_x, Vector2_unit_y,
     Transform,
     Angle,
     Rectangle
@@ -43,6 +43,10 @@ class Vector2{
             this.x = unit_vector.x;
             this.y = unit_vector.y;
         }
+    }
+
+    get inverse() {
+        return new Vector2({ x: -this.x, y: -this.y });
     }
 
     clamp(min, max) {
@@ -93,6 +97,7 @@ class Vector2{
 const Vector2_origin = new Vector2();
 const Vector2_unit_x = new Vector2({ x: 1.0 });
 const Vector2_unit_y = new Vector2({ y: 1.0 });
+const Vector2_unit = new Vector2({ x: 1.0, y: 1.0 });
 
 
 class Angle {
