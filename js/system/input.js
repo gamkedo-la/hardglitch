@@ -64,6 +64,7 @@ class Mouse{
     this._dragging_radius = 32; // Pixels distance from the dragging start position where
   }
 
+  // Returns the position in the canvas.
   get position(){ return this._position; }
   set position(new_pos){
     // TODO: add checks here

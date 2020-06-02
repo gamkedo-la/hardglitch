@@ -25,12 +25,20 @@ let dragging_display_time = 0;
 function display_mouse_position(){
     if(!current_game_view)
         return;
+    let line = 4;
+    function next_line(){
+        return line += 30;
+    }
 
     const center = graphics.canvas_center_position();
     const mouse_grid_pos = current_game_view.mouse_grid_position;
-    graphics.draw_text(`Mouse: X = ${input.mouse.position.x}\tY = ${input.mouse.position.y}\t\tGRID: X = ${mouse_grid_pos.x}\tY = ${mouse_grid_pos.y}`, {x: center.x, y: 20 });
+    const mouse_game_pos = current_game_view.mouse_game_position;
+    graphics.draw_text(`MOUSE STATE:`, {x: center.x, y: next_line() });
+    graphics.draw_text(`SCREEN X = ${input.mouse.position.x}\tY = ${input.mouse.position.y}`, {x: center.x, y: next_line() });
+    graphics.draw_text(`GAME SPACE: X = ${mouse_game_pos.x}\tY = ${mouse_game_pos.y}`, {x: center.x, y: next_line() });
+    graphics.draw_text(`GAME GRID: X = ${mouse_grid_pos.x}\tY = ${mouse_grid_pos.y}`, {x: center.x, y: next_line() });
 
-    graphics.draw_text(`Buttons: LEFT: ${input.mouse.buttons.is_down(0)}\t\tRIGHT: ${input.mouse.buttons.is_down(2)}`, {x: center.x, y: 40 });
+    graphics.draw_text(`Buttons: LEFT: ${input.mouse.buttons.is_down(0)}\t\tRIGHT: ${input.mouse.buttons.is_down(2)}`, {x: center.x, y: next_line() });
 
     if(input.mouse.is_dragging)
         dragging_display_time = 100;
@@ -40,7 +48,7 @@ function display_mouse_position(){
         const drag_pos = input.mouse.dragging_positions;
         if(drag_pos.begin != undefined)
             dragging = drag_pos;
-        graphics.draw_text(`Dragging: FROM: ${JSON.stringify(dragging.begin)}\t\tTO: ${JSON.stringify(dragging.end)}`, {x: center.x, y: 60 });
+        graphics.draw_text(`Dragging: FROM: ${JSON.stringify(dragging.begin)}\t\tTO: ${JSON.stringify(dragging.end)}`, {x: center.x, y: next_line() });
     }
 }
 
