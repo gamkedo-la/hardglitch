@@ -14,7 +14,7 @@ import { world_grid, default_rules } from "../definitions-world.js";
 
 
 function make_test_world(){ // The game assets must have been initialized first.
-    const test_world_size = { width: 12, height: 12 }; // = world_grid;
+    const test_world_size = { width: 24, height: 24 }; // = world_grid;
     const grid_size = test_world_size.height * test_world_size.width;
     const floor_tile_grid = new Array(grid_size);
     floor_tile_grid.fill(tiles.ID.GROUND, grid_size /2, grid_size);
