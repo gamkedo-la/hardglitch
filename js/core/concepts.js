@@ -363,6 +363,16 @@ class World
         return null;
     }
 
+    everything_at(position){
+        const things = [
+            this._surface_tile_grid.get_at(position),
+            this._floor_tile_grid.get_at(position),
+            this.item_at(position),
+            this.body_at(position),
+        ];
+        return things.filter(thing => thing != undefined);
+    }
+
 };
 
 // A grid of elements, representing the topology of a world.
