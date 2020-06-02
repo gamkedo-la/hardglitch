@@ -44,11 +44,11 @@ class BodyView {
     }
 
     update(delta_time){ // TODO: make this a generator with an infinite loop
-        if(!this.is_performing_animation){ // true or false, it's just for fun
-            this.some_value += 0.5;
-            const some_direction = {x:Math.sin(this.some_value), y:Math.cos(this.some_value)};
-            this.position = this.position.translate(some_direction);
-        }
+        // if(!this.is_performing_animation){ // true or false, it's just for fun
+        //     this.some_value += 0.5;
+        //     const some_direction = {x:Math.sin(this.some_value), y:Math.cos(this.some_value)};
+        //     this.position = this.position.translate(some_direction);
+        // }
         this.sprite.update(delta_time);
     }
 
