@@ -165,6 +165,9 @@ class GameView {
                 let delay_for_next_animation = 0;
                 while(this.animation_queue.length > 0){
                     const animation = this.animation_queue.shift(); // pop!
+                    const animation_state = animation.animation.next(); // Get to the first step of the animation
+                    if(animation_state.done) // Skip when there was actually no animation.
+                        continue;
                     animation.delay = delay_for_next_animation;
                     delay_for_next_animation += delay_between_animations_ms;
                     this.current_animations.push(animation);
