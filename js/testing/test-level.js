@@ -48,7 +48,7 @@ function make_test_world(){ // The game assets must have been initialized first.
 
     world.set_rules(...default_rules);
 
-    for(let i = 0; i < 3; ++i){
+    for(let i = 0; i < 20; ++i){
         const enemy = new RandomActionEnemy();
         enemy.position = random_position();
         world.add(enemy);
