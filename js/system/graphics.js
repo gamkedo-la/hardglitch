@@ -318,10 +318,16 @@ function clear(){
   canvasContext.restore();
 }
 
-function draw_text(text, position, font="24px arial", color="black"){
+function draw_text(text, position, font="24px arial", color="black", in_screen_space=true){
+  if(in_screen_space){
+    canvasContext.save();
+    canvasContext.resetTransform();
+  }
   canvasContext.font = font; // TODO: replace this by proper font handling.
   canvasContext.fillStyle = color;
   canvasContext.fillText(text, position.x, position.y);
+  if(in_screen_space)
+    canvasContext.restore();
 }
 
 function canvas_center_position(){
