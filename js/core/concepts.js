@@ -322,7 +322,11 @@ class World
             return true;
         }
 
-        // TODO: check the tile at that position.
+        const floor_tile = this._floor_tile_grid.get_at(position);
+        if(!floor_tile || !predicate_tile_is_walkable(floor_tile)){
+            return true;
+        }
+
         const surface_tile = this._surface_tile_grid.get_at(position);
         if(surface_tile && !predicate_tile_is_walkable(surface_tile)){
             return true;
