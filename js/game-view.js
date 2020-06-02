@@ -18,6 +18,8 @@ import * as tiledefs from "./definitions-tiles.js";
 import * as debug from "./debug.js";
 
 const PIXELS_PER_TILES_SIDE = 64;
+const square_unit_vector = new Vector2({ x: PIXELS_PER_TILES_SIDE, y: PIXELS_PER_TILES_SIDE });
+const square_half_unit_vector = new Vector2({ x: PIXELS_PER_TILES_SIDE / 2 , y: PIXELS_PER_TILES_SIDE / 2 });
 
 // Return a vector in the graphic-world by interpreting a game-world position.
 function graphic_position(vec2){
@@ -241,6 +243,15 @@ class GameView {
         }
 
         return grid_pos;
+    }
+
+    center_on_player(){
+        const player_characters = this.game.player_characters;
+        const player = player_characters.shift();
+        const player_position = player.position;
+        const graphic_player_position = graphics.from_grid_to_graphic_position(player_position, PIXELS_PER_TILES_SIDE);
+        const graphic_player_center_square_position = graphic_player_position.translate(square_half_unit_vector);
+        graphics.camera.center(graphic_player_center_square_position);
     }
 
 };

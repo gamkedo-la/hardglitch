@@ -82,6 +82,10 @@ class Game {
         return this.world._surface_tile_grid.matching_positions(tile_id => tile_id == tiles.ID.ENTRY);
     }
 
+    get player_characters(){
+        return this.world.bodies.filter(body=>body.is_player_actor);
+    }
+
 };
 
 
