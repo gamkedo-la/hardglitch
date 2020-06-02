@@ -4,6 +4,7 @@ export { setText, setCentralText, display };
 
 import * as graphics from "./system/graphics.js";
 import * as input from "./system/input.js";
+import * as game_input from "./game-input.js";
 import { current_game_view } from "./main.js";
 
 let text_to_display = "READY";
@@ -31,8 +32,8 @@ function display_mouse_position(){
     }
 
     const center = graphics.canvas_center_position();
-    const mouse_grid_pos = current_game_view.mouse_grid_position;
-    const mouse_game_pos = current_game_view.mouse_game_position;
+    const mouse_grid_pos = game_input.mouse_grid_position();
+    const mouse_game_pos = game_input.mouse_game_position();
     graphics.draw_text(`MOUSE STATE:`, {x: center.x, y: next_line() });
     graphics.draw_text(`SCREEN X = ${input.mouse.position.x}\tY = ${input.mouse.position.y}`, {x: center.x, y: next_line() });
     graphics.draw_text(`GAME SPACE: X = ${mouse_game_pos.x}\tY = ${mouse_game_pos.y}`, {x: center.x, y: next_line() });

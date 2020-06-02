@@ -226,20 +226,15 @@ class GameView {
         }
     }
 
-    // Returns the pixel position pointed by the mouse when taking into account the camera.
-    get mouse_game_position(){
-        return input.mouse.position.translate(graphics.camera.position);
-    }
-
-    // Returns the position of the mouse on the grid if pointing it,
-    // returns { x:"?", y:"?"} if the mouse isn't pointing on the grid.
-    get mouse_grid_position(){
-        const grid_pos = graphics.from_graphic_to_grid_position(this.mouse_game_position, PIXELS_PER_TILES_SIDE, this.tile_grid.position);
+    // Returns the position on the grid of a graphic position in the game space (not taking into account the camera scrolling).
+    // returns {} if the positing isn't on the grid.
+    grid_position(game_position){
+        const grid_pos = graphics.from_graphic_to_grid_position(game_position, PIXELS_PER_TILES_SIDE, this.tile_grid.position);
 
         if(grid_pos.x < 0 || grid_pos.x >= this.tile_grid.width
         || grid_pos.y < 0 || grid_pos.y >= this.tile_grid.height
         ){
-            return { x: "?", y: "?" }
+            return {};
         }
 
         return grid_pos;
