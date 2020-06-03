@@ -18,6 +18,8 @@ import * as tiledefs from "./definitions-tiles.js";
 import * as debug from "./debug.js";
 
 const PIXELS_PER_TILES_SIDE = 64;
+const square_unit_vector = new Vector2({ x: PIXELS_PER_TILES_SIDE, y: PIXELS_PER_TILES_SIDE });
+const square_half_unit_vector = new Vector2({ x: PIXELS_PER_TILES_SIDE / 2 , y: PIXELS_PER_TILES_SIDE / 2 });
 
 // Return a vector in the graphic-world by interpreting a game-world position.
 function graphic_position(vec2){
@@ -44,11 +46,11 @@ class BodyView {
     }
 
     update(delta_time){ // TODO: make this a generator with an infinite loop
-        if(!this.is_performing_animation){ // true or false, it's just for fun
-            this.some_value += 0.5;
-            const some_direction = {x:Math.sin(this.some_value), y:Math.cos(this.some_value)};
-            this.position = this.position.translate(some_direction);
-        }
+        // if(!this.is_performing_animation){ // true or false, it's just for fun
+        //     this.some_value += 0.5;
+        //     const some_direction = {x:Math.sin(this.some_value), y:Math.cos(this.some_value)};
+        //     this.position = this.position.translate(some_direction);
+        // }
         this.sprite.update(delta_time);
     }
 
@@ -158,13 +160,16 @@ class GameView {
                 debug.setText("PROCESSING NPC TURNS...");
             }
 
-            const delay_between_animations_ms = 100; // we'll try to keep a little delay between each beginning of parallel animation.
+            const delay_between_animations_ms = 33; // we'll try to keep a little delay between each beginning of parallel animation.
 
             if(this.current_animations.length == 0){
                 // Get the next animations that are allowed to happen in parallel.
                 let delay_for_next_animation = 0;
                 while(this.animation_queue.length > 0){
                     const animation = this.animation_queue.shift(); // pop!
+                    const animation_state = animation.animation.next(); // Get to the first step of the animation
+                    if(animation_state.done) // Skip when there was actually no animation.
+                        continue;
                     animation.delay = delay_for_next_animation;
                     delay_for_next_animation += delay_between_animations_ms;
                     this.current_animations.push(animation);
@@ -226,18 +231,27 @@ class GameView {
         }
     }
 
-    // Returns the position of the mouse on the grid if pointing it,
-    // returns { x:"?", y:"?"} if the mouse isn't pointing on the grid.
-    get mouse_grid_position(){
-        const grid_pos = graphics.from_graphic_to_grid_position(input.mouse.position, PIXELS_PER_TILES_SIDE, this.tile_grid.position);
+    // Returns the position on the grid of a graphic position in the game space (not taking into account the camera scrolling).
+    // returns {} if the positing isn't on the grid.
+    grid_position(game_position){
+        const grid_pos = graphics.from_graphic_to_grid_position(game_position, PIXELS_PER_TILES_SIDE, this.tile_grid.position);
 
-        if(grid_pos.x < 0 || grid_pos.x > this.tile_grid.width
-        || grid_pos.y < 0 || grid_pos.y > this.tile_grid.height
+        if(grid_pos.x < 0 || grid_pos.x >= this.tile_grid.width
+        || grid_pos.y < 0 || grid_pos.y >= this.tile_grid.height
         ){
-            return { x: "?", y: "?" }
+            return {};
         }
 
         return grid_pos;
+    }
+
+    center_on_player(){
+        const player_characters = this.game.player_characters;
+        const player = player_characters.shift();
+        const player_position = player.position;
+        const graphic_player_position = graphics.from_grid_to_graphic_position(player_position, PIXELS_PER_TILES_SIDE);
+        const graphic_player_center_square_position = graphic_player_position.translate(square_half_unit_vector);
+        graphics.camera.center(graphic_player_center_square_position);
     }
 
 };

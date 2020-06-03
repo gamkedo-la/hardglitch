@@ -14,6 +14,7 @@ const game_assets = { // Description of the assets to load.
     images : { // group "images"
         asset_loader : asset_system.image_loader, // This is the function that will be used to convert the following data into usable objects.
         player: "./images/player.png",
+        test_enemy: "./images/test_enemy.png",
         warrior: "./images/warrior.png",
         door : "./images/world_door.png",
         goal : "./images/world_goal.png",
@@ -58,8 +59,20 @@ const sprite_defs = {
         },
     },
     test_enemy: {
-        image: "warrior",
-        // frames: [],
+        image: "test_enemy",
+        frames: [
+                    { x: 0, y: 0, width: 64, height: 64 },
+                    { x: 64, y: 0, width: 64, height: 64 },
+                ],
+        animations: {
+            idle: {
+                    loop: true,
+                    timeline: [
+                                { frame: 0, duration: 400 },
+                                { frame: 1, duration: 400 }
+                              ],
+                  },
+        },
     },
     ground : {
         image: "ground",

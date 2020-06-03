@@ -23,6 +23,8 @@ var canvas, canvasContext, loaded_assets;
 
 // Return a vector in the graphic-world by interpreting a fixed-size grid position.
 function from_grid_to_graphic_position(vec2, square_size, graphics_origin = {x:0, y:0}){
+  console.assert(vec2);
+  console.assert(Number.isInteger(square_size));
   return new spatial.Vector2({ x: graphics_origin.x + (vec2.x * square_size)
                              , y: graphics_origin.y + (vec2.y * square_size)
                              });
@@ -30,6 +32,8 @@ function from_grid_to_graphic_position(vec2, square_size, graphics_origin = {x:0
 
 // Return a vector in the game-world by interpreting a graphic-world position.
 function from_graphic_to_grid_position(vec2, square_size, graphics_origin = {x:0, y:0}){
+  console.assert(vec2 && vec2.x != undefined && vec2.y != undefined);
+  console.assert(Number.isInteger(square_size));
   return new spatial.Vector2({ x: Math.floor((vec2.x - graphics_origin.x) / square_size)
                              , y: Math.floor((vec2.y - graphics_origin.y) / square_size)
                              });
@@ -39,12 +43,21 @@ class Camera{
   transform = new spatial.Transform();
   get position() { return this.transform.position; }
   set position(new_pos) {
+    console.assert(new_pos instanceof spatial.Vector2);
     this.transform.position = new_pos;
     canvasContext.resetTransform();
     const translation = new_pos.inverse;
     canvasContext.translate(translation.x, translation.y);
   }
+
+  center(position_at_center){
+    console.assert(position_at_center instanceof spatial.Vector2);
+    this.position = position_at_center.translate({ x: -(canvas.width / 2), y: -(canvas.height / 2) });
+  }
+
+
   translate(translation){
+    console.assert(translation instanceof spatial.Vector2);
     this.transform.position = this.transform.position.translate(translation);
     translation = translation.inverse;
     canvasContext.translate(translation.x, translation.y);
@@ -318,10 +331,16 @@ function clear(){
   canvasContext.restore();
 }
 
-function draw_text(text, position, font="24px arial", color="black"){
+function draw_text(text, position, font="24px arial", color="black", in_screen_space=true){
+  if(in_screen_space){
+    canvasContext.save();
+    canvasContext.resetTransform();
+  }
   canvasContext.font = font; // TODO: replace this by proper font handling.
   canvasContext.fillStyle = color;
   canvasContext.fillText(text, position.x, position.y);
+  if(in_screen_space)
+    canvasContext.restore();
 }
 
 function canvas_center_position(){
