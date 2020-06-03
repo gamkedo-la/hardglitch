@@ -756,8 +756,16 @@ function start() {
     game.play();
 }
 
-const bgTemplatePath = "srcref/bgtemplate.png";
-const tileTemplatePath = "srcref/tiletemplate.png";
+//const bgTemplatePath = "srcref/bgtemplate.png";
+//const tileTemplatePath = "srcref/tiletemplate.png";
+//const bgTemplatePath = "srcref/colortest1_bg.png";
+//const tileTemplatePath = "srcref/colortest1.png";
+//const bgTemplatePath = "srcref/colortest2_bg.png";
+//const tileTemplatePath = "srcref/colortest2.png";
+//const bgTemplatePath = "srcref/colortest3_bg.png";
+//const tileTemplatePath = "srcref/colortest3.png";
+const bgTemplatePath = "srcref/colortest4_bg.png";
+const tileTemplatePath = "srcref/colortest4.png";
 
 let bgtiles;
 let walltiles;
