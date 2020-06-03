@@ -78,7 +78,7 @@ function * animation_move_event(body_view, new_position){
     // TODO: implement this with TWEENING instead of manually
 
     // Below we we'll work with graphic positions:
-    const steps_count = 20;
+    const steps_count = 10;
     const target_gfx_pos = graphic_position(new_position);
     const translation_step = target_gfx_pos.substract(body_view.position).divide(steps_count);
 
