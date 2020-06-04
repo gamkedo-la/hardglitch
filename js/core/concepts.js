@@ -7,7 +7,7 @@
 // game, without being changed too much.
 // We will describe what kind of entities can exist here.
 
-import { is_number, index_from_position, position_from_index } from "../system/utility.js";
+import { is_number, position_from_index } from "../system/utility.js";
 
 export {
     World,
@@ -396,6 +396,29 @@ class Grid {
         }
     }
 
+    /**
+     * determine storage index given either a point or x/y coordinates in grid
+     * @param {*} p - either a point or x index within grid
+     * @param {*} j - (optional) y index within grid
+     */
+    idx(p, j) {
+        if (typeof p === 'number') {
+            return (p) % this.width + this.width*j;
+        }
+        return (p.x) % this.width + this.width*p.y;
+    }
+
+    get_at(p, j){
+        let idx = this.idx(p, j);
+        return this.elements[idx];
+    }
+
+    set_at(v, p, j){
+        let idx = this.idx(p, j);
+        this.elements[idx] = v;
+    }
+
+    /*
     get_at(position){
         return this.elements[index_from_position(this.width, this.height, position)];
     }
@@ -403,7 +426,75 @@ class Grid {
     set_at(position, element){
         this.elements[index_from_position(this.width, this.height, position)] = element;
     }
+    */
 
+    /**
+     *  get node left of given point
+     */ 
+    left(p, dflt=0) {
+        if (p.x>0) {
+            let idx = this.idx(p.x-1, p.y);
+            return this.elements[idx];
+        }
+        return dflt;
+    }
+
+    right(p, dflt=0) {
+        if (p.x<this.width-1) {
+            let idx = this.idx(p.x+1, p.y);
+            return this.elements[idx];
+        }
+        return dflt;
+    }
+
+    up(p, dflt=0) {
+        if (p.y>0) {
+            let idx = this.idx(p.x, p.y-1);
+            return this.elements[idx];
+        }
+        return dflt;
+    }
+
+    down(p, dflt=0) {
+        if (p.y<this.height-1) {
+            let idx = this.idx(p.x, p.y+1);
+            return this.elements[idx];
+        }
+        return dflt;
+    }
+
+    ul(p, dflt=0) {
+        if (p.x>0 && p.y>0) {
+            let idx = this.idx(p.x-1, p.y-1);
+            return this.elements[idx];
+        }
+        return dflt;
+    }
+
+    ur(p, dflt=0) {
+        if (p.x<this.width-1 && p.y>0) {
+            let idx = this.idx(p.x+1, p.y-1);
+            return this.elements[idx];
+        }
+        return dflt;
+    }
+
+    dl(p, dflt=0) {
+        if (p.x>0 && p.y<this.height-1) {
+            let idx = this.idx(p.x-1, p.y+1);
+            return this.elements[idx];
+        }
+        return dflt;
+    }
+
+    dr(p, dflt=0) {
+        if (p.x<this.width-1 && p.y<this.height-1) {
+            let idx = this.idx(p.x+1, p.y+1);
+            return this.elements[idx];
+        }
+        return dflt;
+    }
+    
     matching_positions(predicate){
         const positions = [];
         for(let idx = 0; idx < this.elements.length; ++idx){

@@ -92,7 +92,6 @@ function loadTemplateSheet(sheet, map, tilesize) {
         //let count = Object.keys(map).length;
         let promises = [];
         for (const k of Object.keys(map)) {
-            //console.log("k: " + k);
             ctx.clearRect(0, 0, tileBuffer.width, tileBuffer.height);
             let p = map[k];
             // draw the image to the tile buffer
@@ -140,7 +139,6 @@ function genOverlay(grid, overlay) {
             let tr = "";
             let bl = "";
             let br = "";
-            //console.log("i: " + i + " j: " + j + " n: " + neighbors);
             switch (neighbors) {
                 case 0: // none
                     if (v) {
@@ -393,7 +391,6 @@ function genPerspectiveOverlay(grid, overlay) {
             let tr = "";
             let bl = "";
             let br = "";
-            //console.log("i: " + i + " j: " + j + " n: " + neighbors);
             switch (neighbors) {
                 case 0: // none
                     if (v) { // wall
@@ -719,7 +716,6 @@ class Game {
             for (let i=0; i<bgoverlay.width; i++) {
                 let v = bgoverlay.get(i,j);
                 if (!v) continue;
-                //console.log("i: " + i + " j: " + j + " v: " + v);
                 let img = bgtiles[v];
                 if (!img) continue;
                 this.ctx.drawImage(img, tsize*i, tsize*j);
@@ -731,9 +727,7 @@ class Game {
             for (let i=0; i<poverlay.width; i++) {
                 let v = poverlay.get(i,j);
                 if (!v) continue;
-                //console.log("i: " + i + " j: " + j + " v: " + v);
                 let img = walltiles[v];
-                //console.log("img: " + img);
                 if (!img) continue;
                 this.ctx.drawImage(img, tsize*i, tsize*j);
             }
@@ -756,16 +750,16 @@ function start() {
     game.play();
 }
 
-//const bgTemplatePath = "srcref/bgtemplate.png";
-//const tileTemplatePath = "srcref/tiletemplate.png";
+const bgTemplatePath = "srcref/bgtemplate.png";
+const tileTemplatePath = "srcref/tiletemplate.png";
 //const bgTemplatePath = "srcref/colortest1_bg.png";
 //const tileTemplatePath = "srcref/colortest1.png";
 //const bgTemplatePath = "srcref/colortest2_bg.png";
 //const tileTemplatePath = "srcref/colortest2.png";
 //const bgTemplatePath = "srcref/colortest3_bg.png";
 //const tileTemplatePath = "srcref/colortest3.png";
-const bgTemplatePath = "srcref/colortest4_bg.png";
-const tileTemplatePath = "srcref/colortest4.png";
+//const bgTemplatePath = "srcref/colortest4_bg.png";
+//const tileTemplatePath = "srcref/colortest4.png";
 
 let bgtiles;
 let walltiles;
