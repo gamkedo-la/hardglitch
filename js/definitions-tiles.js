@@ -6,7 +6,7 @@ export {
     is_walkable,
 }
 
-import { sprite_defs } from "./game-assets.js";
+import { sprite_defs, tile_id, tile_defs } from "./game-assets.js";
 
 ////////////////////////////////////////////////////////////////////////////////
 // TILES DEFINITIONS
@@ -42,6 +42,27 @@ const defs = {
     },
 };
 
+/**
+ * update ID/defs for tile definitions based on given level layer
+ * @param {*} lvl - level to be associated w/ ID/defs (e.g.: "lvl1")
+ * @param {*} layer  - layer to be associated w/ ID/defs update (e.g.: "fg"|"bg")
+ */
+function update_id_defs(lvl, layer) {
+    for (const k of Object.keys(tile_defs)) {
+        // add tile ID
+        let id = tile_id(lvl, layer, k);
+        ID[id] = id;
+        // add def
+        let def = {
+            sprite_def: sprite_defs[id],
+            is_walkable: false,
+        }
+        defs[id] = def;
+    }
+}
+// update ID/defs for level 1 tiles
+update_id_defs("lvl1", "fg");
+update_id_defs("lvl1", "bg");
 
 
 // All the tile sprites definitions (as described by tiles definitions).
