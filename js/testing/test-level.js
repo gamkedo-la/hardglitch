@@ -32,6 +32,17 @@ function make_test_world(){ // The game assets must have been initialized first.
         return new concepts.Position(random_int(0, test_world_size.width - 1 ), random_int(0, test_world_size.height - 1 ));
     }
 
+    // set floor/walls
+    let wallPct = .2;
+    for (let j=0; j<test_world_size.height; j++) {
+        for (let i=0; i<test_world_size.width; i++) {
+            let tileID = (Math.random() <= wallPct) ? tiles.ID.WALL : tiles.ID.GROUND;
+            set_surface_tile(new concepts.Position(i, j), tileID);
+            set_floor_tile(new concepts.Position(i, j), tiles.ID.GROUND);
+        }
+    }
+
+    /*
     for(let i = 0; i < grid_size / 0.8; ++ i){
         set_floor_tile(random_position(), tiles.ID.GROUND);
     }
@@ -39,6 +50,7 @@ function make_test_world(){ // The game assets must have been initialized first.
     for(let i = 0; i < grid_size / 5; ++ i){
         set_surface_tile(random_position(), tiles.ID.WALL);
     }
+    */
 
     for(let i = 0; i < grid_size / 200; ++i){
         set_surface_tile(random_position(), tiles.ID.ENTRY);
