@@ -418,16 +418,6 @@ class Grid {
         this.elements[idx] = v;
     }
 
-    /*
-    get_at(position){
-        return this.elements[index_from_position(this.width, this.height, position)];
-    }
-
-    set_at(position, element){
-        this.elements[index_from_position(this.width, this.height, position)] = element;
-    }
-    */
-
     /**
      *  get node left of given point
      */ 

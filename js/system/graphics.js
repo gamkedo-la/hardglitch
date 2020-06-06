@@ -217,6 +217,7 @@ class TileGrid
 
   // Adds a sprite that can be used for tiles,
   set_tile_type(tile_id, sprite_def){
+    //console.log("set_tile_type: " + tile_id + " sprite_def: " + sprite_def);
     console.assert(tile_id);
     console.assert(sprite_def);
     const sprite = new Sprite(sprite_def);
