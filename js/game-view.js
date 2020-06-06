@@ -540,6 +540,7 @@ function genFgOverlay(lvl, layer, grid, overlay) {
 // Display tiles.
 class TileGridView {
     enable_grid_lines = true;
+    enable_overlay = true;
 
     constructor(position, size, ground_tile_grid, surface_tile_grid){
         console.assert(position instanceof Vector2);
@@ -552,13 +553,20 @@ class TileGridView {
         let fg_grid = new Grid(size.x*2, size.y*2);
         genBgOverlay("lvl1", "bg", surface_tile_grid, bg_grid);
         genFgOverlay("lvl1", "fg", surface_tile_grid, fg_grid);
+        // filter out all wall/ground tiles from fg
+        let midData = new Array(size.x * size.y);
+        for (let i=0; i<midData.length; i++) {
+            if (surface_tile_grid.elements[i] == tiledefs.ID.WALL) continue;
+            if (surface_tile_grid.elements[i] == tiledefs.ID.GROUND) continue;
+            midData[i] = surface_tile_grid.elements[i];
+        }
 
         let dsize = new Vector2({x: size.x*2, y: size.y*2});
         // TODO: replace this by just tiles we use, not all tiles in the world
-        // FIXME: for now, useOverlay is the switch between the old tile display and the new tile display
-        let useOverlay = true;
-        if (useOverlay) {
+        // FIXME: for now, enable_overlay is the switch between the old tile display and the new tile display
+        if (this.enable_overlay) {
             this.ground_tile_grid = new graphics.TileGrid(position, dsize, PIXELS_PER_HALF_SIDE, tiledefs.sprite_defs, bg_grid.elements);
+            this.mid_tile_grid = new graphics.TileGrid(position, size, PIXELS_PER_TILES_SIDE, tiledefs.sprite_defs, midData);
             this.surface_tile_grid = new graphics.TileGrid(position, dsize, PIXELS_PER_HALF_SIDE, tiledefs.sprite_defs, fg_grid.elements);
         } else {
             this.ground_tile_grid = new graphics.TileGrid(position, size, PIXELS_PER_TILES_SIDE, tiledefs.sprite_defs, ground_tile_grid.elements);
@@ -572,6 +580,9 @@ class TileGridView {
 
     update(delta_time){
         this.ground_tile_grid.update(delta_time);
+        if (this.enable_overlay) {
+            this.mid_tile_grid.update(delta_time);
+        }
         this.surface_tile_grid.update(delta_time);
     }
 
@@ -579,6 +590,9 @@ class TileGridView {
         this.ground_tile_grid.draw();
         if(this.enable_grid_lines)
             graphics.draw_grid_lines(this.size.x, this.size.y, PIXELS_PER_TILES_SIDE, this.position);
+        if (this.enable_overlay) {
+            this.mid_tile_grid.draw();
+        }
         this.surface_tile_grid.draw();
     }
 
