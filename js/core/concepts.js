@@ -20,6 +20,7 @@ export {
     Body,
     Position,
     perform_action,
+    Grid,
 };
 
 let next_body_id = 0;
