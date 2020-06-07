@@ -7,15 +7,16 @@
 export { GameView, BodyView, graphic_position };
 
 import * as graphics from "./system/graphics.js";
-import { random_int } from "./system/utility.js";
-
 import { tile_id } from "./game-assets.js";
+import { random_int, is_number } from "./system/utility.js";
+import * as concepts from "./core/concepts.js";
+
 import { Game } from "./game.js";
 import { Vector2 } from "./system/spatial.js";
-import { Grid } from "./core/concepts.js";
 import * as tiledefs from "./definitions-tiles.js";
 
 import * as debug from "./debug.js";
+import { tween } from "./system/tweening.js";
 
 const PIXELS_PER_TILES_SIDE = 64;
 const PIXELS_PER_HALF_SIDE = 32;
@@ -47,11 +48,6 @@ class BodyView {
     }
 
     update(delta_time){ // TODO: make this a generator with an infinite loop
-        // if(!this.is_performing_animation){ // true or false, it's just for fun
-        //     this.some_value += 0.5;
-        //     const some_direction = {x:Math.sin(this.some_value), y:Math.cos(this.some_value)};
-        //     this.position = this.position.translate(some_direction);
-        // }
         this.sprite.update(delta_time);
     }
 
@@ -77,6 +73,24 @@ class BodyView {
         this.is_performing_animation = false;
     }
 
+    *move_animation(target_game_position){
+        console.assert(target_game_position instanceof concepts.Position);
+
+        const move_duration = 200;
+        const target_gfx_pos = graphic_position(target_game_position);
+        const tweening_iter = tween(this.position, {x:target_gfx_pos.x, y:target_gfx_pos.y}, move_duration);
+        tweening_iter.next(0); // Initialize tweening.
+        while(true){
+            const delta_time = yield;
+            console.assert(is_number(delta_time));
+            const tweening_state = tweening_iter.next(delta_time);
+            if(tweening_state.done)
+                break;
+            console.assert(tweening_state.value);
+            this.position = tweening_state.value;
+        }
+        this.game_position = target_game_position;
+    }
 
 };
 
@@ -549,8 +563,8 @@ class TileGridView {
         this.size = size;
 
         // translate given grids to display grids
-        let bg_grid = new Grid(size.x*2, size.y*2);
-        let fg_grid = new Grid(size.x*2, size.y*2);
+        let bg_grid = new concepts.Grid(size.x*2, size.y*2);
+        let fg_grid = new concepts.Grid(size.x*2, size.y*2);
         genBgOverlay("lvl1", "bg", surface_tile_grid, bg_grid);
         genFgOverlay("lvl1", "fg", surface_tile_grid, fg_grid);
         // filter out all wall/ground tiles from fg

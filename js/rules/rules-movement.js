@@ -9,9 +9,6 @@ export {
 import * as concepts from "../core/concepts.js";
 import { BodyView, graphic_position } from "../game-view.js";
 import { is_walkable } from "../definitions-tiles.js";
-import { tween } from "../system/tweening.js";
-import { is_number } from "../system/utility.js";
-
 
 class Moved extends concepts.Event {
     constructor(body, from_pos, to_pos) {
@@ -75,22 +72,7 @@ class Rule_Movements extends concepts.Rule {
 
 
 function* animation_move_event(body_view, new_position){
-    console.assert(body_view instanceof BodyView)
+    console.assert(body_view instanceof BodyView);
     console.assert(new_position instanceof concepts.Position);
-
-    const move_duration = 200;
-    const target_gfx_pos = graphic_position(new_position);
-    const tweening_iter = tween(body_view.position, {x:target_gfx_pos.x, y:target_gfx_pos.y}, move_duration);
-    tweening_iter.next(0); // Initialize tweening.
-    while(true){
-        const delta_time = yield;
-        console.assert(is_number(delta_time));
-        const tweening_state = tweening_iter.next(delta_time);
-        if(tweening_state.done)
-            break;
-        console.assert(tweening_state.value);
-        body_view.position = tweening_state.value;
-    }
-
-    body_view.game_position = new_position;
+    yield* body_view.move_animation(new_position);
 }
