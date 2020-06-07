@@ -9,6 +9,8 @@ export {
 import * as concepts from "../core/concepts.js";
 import { BodyView, graphic_position } from "../game-view.js";
 import { is_walkable } from "../definitions-tiles.js";
+import { tween } from "../system/tweening.js";
+import { is_number } from "../system/utility.js";
 
 
 class Moved extends concepts.Event {
@@ -72,22 +74,22 @@ class Rule_Movements extends concepts.Rule {
 };
 
 
-function * animation_move_event(body_view, new_position){
+function* animation_move_event(body_view, new_position){
     console.assert(body_view instanceof BodyView)
     console.assert(new_position instanceof concepts.Position);
-    // TODO: implement this with TWEENING instead of manually
 
-    // Below we we'll work with graphic positions:
-    const steps_count = 10;
+    const move_duration = 200;
     const target_gfx_pos = graphic_position(new_position);
-    const translation_step = target_gfx_pos.substract(body_view.position).divide(steps_count);
-
+    const tweening_iter = tween(body_view.position, {x:target_gfx_pos.x, y:target_gfx_pos.y}, move_duration);
+    tweening_iter.next(0); // Initialize tweening.
     while(true){
-        body_view.position = body_view.position.translate(translation_step);
-        yield;
-        const distance_left = body_view.position.distance(target_gfx_pos);
-        if(distance_left < translation_step.length * 2)
+        const delta_time = yield;
+        console.assert(is_number(delta_time));
+        const tweening_state = tweening_iter.next(delta_time);
+        if(tweening_state.done)
             break;
+        console.assert(tweening_state.value);
+        body_view.position = tweening_state.value;
     }
 
     body_view.game_position = new_position;
