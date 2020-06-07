@@ -2,7 +2,7 @@
 
 import { is_number } from "./utility.js";
 
-export { tween, easing }
+export { Tweening, tween, easing }
 
 const easing = {
     linear: function(begin_value, end_value, ratio){
@@ -28,86 +28,81 @@ class AnimatedValue {
 
 };
 
+class Tweening{
+    constructor(initial_values, target_values, duration_ms, easing_funcs = easing.linear){
+        console.assert(is_number(duration_ms));
+        console.assert(duration_ms > 0);
 
-function* tween(initial_values, target_values, duration_ms, easing_funcs = easing.linear){
-    console.assert(is_number(duration_ms));
-    console.assert(duration_ms > 0);
+        this.duration = duration_ms;
+        this.time_since_start = 0;
+        this.animated_values = {}; // Only AnimatedValue objects.
 
-    const animated_values = {}; // Only AnimatedValue objects.
-
-    if(target_values instanceof Object){
-        // Make sure we have one easing function per value with a target.
-        // If only one function was provided, just use that same function for each value.
-        if(easing_funcs instanceof Function){
-            const func = easing_funcs;
-            easing_funcs = {};
-            for(const value_id in target_values){
-                easing_funcs[value_id] = func;
+        if(target_values instanceof Object){
+            // Make sure we have one easing function per value with a target.
+            // If only one function was provided, just use that same function for each value.
+            if(easing_funcs instanceof Function){
+                const func = easing_funcs;
+                easing_funcs = {};
+                for(const value_id in target_values){
+                    easing_funcs[value_id] = func;
+                }
+            } else {
+                console.assert(easing_funcs instanceof Object);
             }
-        } else {
-            console.assert(easing_funcs instanceof Object);
-        }
 
-        // Then register each value to modify (based on the target values, because the object passed for initial values might have more members than the ones we want to animate).
-        for(const value_id in target_values){
-            animated_values[value_id] = new AnimatedValue(initial_values[value_id], target_values[value_id], easing_funcs[value_id]);
+            // Then register each value to modify (based on the target values, because the object passed for initial values might have more members than the ones we want to animate).
+            for(const value_id in target_values){
+                this.animated_values[value_id] = new AnimatedValue(initial_values[value_id], target_values[value_id], easing_funcs[value_id]);
+            }
+        }
+        else{
+            // We have only one value to animate.
+            console.assert(easing_funcs instanceof Function);
+            this.animated_values = new AnimatedValue(initial_values, target_values, easing_funcs);
         }
     }
-    else{
-        // We have only one value to animate.
-        console.assert(easing_funcs instanceof Function);
-        animated_values = new AnimatedValue(initial_values, target_values, easing_funcs);
-    }
 
-    function reduce_values(ratio){
+    get_values(ratio){
         console.assert(ratio >= 0 && ratio <=1);
-        if(animated_values instanceof Object){
+        if(this.animated_values instanceof Object){
             const result_values = {};
-            for(const id in animated_values){
-                result_values[id] = animated_values[id].get_value(ratio);
+            for(const id in this.animated_values){
+                result_values[id] = this.animated_values[id].get_value(ratio);
             }
             return result_values;
         } else {
-            return animated_values.get_value(ratio);
+            return this.animated_values.get_value(ratio);
         }
     }
 
-    let current_values = reduce_values(0);
-    let time_since_start = 0;
-    while(time_since_start < duration_ms){
-        const delta_time = yield current_values;
+    get ratio(){ return this.time_since_start / this.duration; };
+    get values() { return this.get_values(this.ratio); }
+    get done() { return this.time_since_start == this.duration; }
+
+    update(delta_time){
         console.assert(is_number(delta_time));
-        time_since_start += delta_time;
+        this.time_since_start += delta_time;
 
-        if(time_since_start > duration_ms){
-            time_since_start = duration_ms;
+        if(this.time_since_start > this.duration){
+            this.time_since_start = this.duration;
         }
 
-        const ratio = time_since_start / duration_ms;
-        current_values = reduce_values(ratio);
+        return this.values;
     }
+
+    *run(update_callback){
+        console.assert(update_callback);
+        this.time_since_start = 0;
+        while(!this.done){
+            const delta_time = yield this.values;
+            update_callback(this.update(delta_time));
+        }
+    }
+
 }
 
-// const x = tween(0, 42, 1000);
-
-// const y = tween({x:0, y:0}, {x:42, y:42}, 1000, { x:easing_linear, y:easing_linear });
-
-// const z = tween(sprite.position, {x:42, y:42}, 1000, { x:easing_linear, y:easing_linear });
-
-
-// x.next(delta_time);
-// const new_value = x.value;
-
-// function* sprite_animation(sprite, ...args){
-//     const tw = tween(sprite.position, ...args);
-//     while(!tw.done){
-//         sprite.position = tw.value;
-//         const delta_time = yield;
-//         tw.next(delta_time);
-//     }
-// }
-
-// function run_tween(...args){
-
-// }
+function* tween(initial_values, target_values, duration_ms, update_func = ()=>{}, easing_funcs = easing.linear){
+    const tweening = new Tweening(initial_values, target_values, duration_ms, easing_funcs);
+    yield* tweening.run(update_func);
+}
 
