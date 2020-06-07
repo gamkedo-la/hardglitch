@@ -243,13 +243,13 @@ class TileGrid
     }
   }
 
-  draw_background(){ // TODO: take a camera into account
+  draw_background(){
     // TODO: consider allowing an image as a background
     const background_size = from_grid_to_graphic_position({ x:this.size.x, y:this.size.y }, this.square_size); // TODO: calculate that only when necessary
     colorRect(new spatial.Rectangle({ position: this.position, size: background_size }), this.background_color);
   }
 
-  draw_tiles(){ // TODO: take a camera into account
+  draw_tiles(){
     // TODO: optimize this by batching and keeping a side canvas of the drawn sprites
     for(let y = 0; y < this.size.y; ++y){
       for(let x = 0; x < this.size.x; ++x){
