@@ -17,6 +17,7 @@ const ID = {
 
     GROUND: 10,
     WALL: 20,
+    VOID: 30,
 };
 
 
@@ -30,6 +31,10 @@ const defs = {
     [ID.WALL] : {
         sprite_def: sprite_defs.wall,
         is_walkable: false,
+    },
+    [ID.VOID] : {
+        sprite_def: sprite_defs.void,
+        is_walkable: true,
     },
     [ID.ENTRY] : {
         sprite_def: sprite_defs.entry,

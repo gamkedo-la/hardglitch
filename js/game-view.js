@@ -95,13 +95,16 @@ function isWall(v) {
  * @param {*} grid - the level data in grid form
  * @param {*} overlay - the overlay grid which should be twice as big as the grid
  */
-function genBgOverlay(lvl, layer, grid, overlay) {
+function genFloorOverlay(lvl, layer, grid, overlay, baseID, otherID) {
     for (let j=0; j<grid.height; j++) {
         for (let i=0; i<grid.width; i++) {
             let v = grid.get_at(i,j);
             // compute neighbors
             let p = {x:i, y:j};
-            let neighbors = isWall(grid.right(p)) + (isWall(grid.up(p)) << 1) + (isWall(grid.left(p)) << 2) + (isWall(grid.down(p))<<3);
+            let neighbors = ((grid.right(p) == otherID) ? 1 : 0) + 
+                            (((grid.up(p) == otherID) ? 1 : 0) << 1) + 
+                            (((grid.left(p) == otherID) ? 1 : 0) << 2) + 
+                            (((grid.down(p) == otherID) ? 1 : 0) << 3);
             // compute tl overlay
             let tl = "";
             let tr = "";
@@ -109,7 +112,7 @@ function genBgOverlay(lvl, layer, grid, overlay) {
             let br = "";
             switch (neighbors) {
                 case 0: // none
-                    if (isWall(v)) {
+                    if (v == otherID) {
                         tl = "ttl";
                         tr = "rtt";
                         bl = "ltb";
@@ -122,7 +125,7 @@ function genBgOverlay(lvl, layer, grid, overlay) {
                     }
                     break;
                 case 1: // right
-                    if (isWall(v)) {
+                    if (v == otherID) {
                         tl = "ttl";
                         tr = "t";
                         bl = "ltb";
@@ -135,7 +138,7 @@ function genBgOverlay(lvl, layer, grid, overlay) {
                     }
                     break;
                 case 2: // top
-                    if (isWall(v)) {
+                    if (v == otherID) {
                         tl = "l";
                         tr = "r";
                         bl = "ltb";
@@ -148,7 +151,7 @@ function genBgOverlay(lvl, layer, grid, overlay) {
                     }
                     break;
                 case 3: // top|right
-                    if (isWall(v)) {
+                    if (v == otherID) {
                         tl = "l";
                         tr = (isWall(grid.ur(p))) ? "m" : "ttr";
                         bl = "ltb";
@@ -162,7 +165,7 @@ function genBgOverlay(lvl, layer, grid, overlay) {
                     }
                     break;
                 case 4: // left
-                    if (isWall(v)) {
+                    if (v == otherID) {
                         tl = "t";
                         tr = "rtt";
                         bl = "b";
@@ -175,7 +178,7 @@ function genBgOverlay(lvl, layer, grid, overlay) {
                     }
                     break;
                 case 5: // left|right
-                    if (isWall(v)) {
+                    if (v == otherID) {
                         tl = "t";
                         tr = "t";
                         bl = "b";
@@ -188,7 +191,7 @@ function genBgOverlay(lvl, layer, grid, overlay) {
                     }
                     break;
                 case 6: // top|left
-                    if (isWall(v)) {
+                    if (v == otherID) {
                         tl = (isWall(grid.ul(p))) ? "m" : "ltt";
                         tr = "r";
                         bl = "b";
@@ -202,7 +205,7 @@ function genBgOverlay(lvl, layer, grid, overlay) {
                     }
                     break;
                 case 7: // top|left|right
-                    if (isWall(v)) {
+                    if (v == otherID) {
                         tl = (isWall(grid.ul(p))) ? "m" : "ltt";
                         tr = (isWall(grid.ur(p))) ? "m" : "ttr"
                         bl = "b";
@@ -217,7 +220,7 @@ function genBgOverlay(lvl, layer, grid, overlay) {
                     }
                     break;
                 case 8: // down
-                    if (isWall(v)) {
+                    if (v == otherID) {
                         tl = "ttl";
                         tr = "rtt";
                         bl = "l";
@@ -230,7 +233,7 @@ function genBgOverlay(lvl, layer, grid, overlay) {
                     }
                     break;
                 case 9: // down|right
-                    if (isWall(v)) {
+                    if (v == otherID) {
                         tl = "ttl";
                         tr = "t";
                         bl = "l";
@@ -244,7 +247,7 @@ function genBgOverlay(lvl, layer, grid, overlay) {
                     }
                     break;
                 case 10: // top|down
-                    if (isWall(v)) {
+                    if (v == otherID) {
                         tl = "l";
                         tr = "r";
                         bl = "l";
@@ -257,7 +260,7 @@ function genBgOverlay(lvl, layer, grid, overlay) {
                     }
                     break;
                 case 11: // top|down|right
-                    if (isWall(v)) {
+                    if (v == otherID) {
                         tl = "l";
                         tr = (isWall(grid.ur(p))) ? "m" : "ttr"
                         bl = "l";
@@ -272,7 +275,7 @@ function genBgOverlay(lvl, layer, grid, overlay) {
                     }
                     break;
                 case 12: // down|left
-                    if (isWall(v)) {
+                    if (v == otherID) {
                         tl = "t";
                         tr = "rtt";
                         bl = (isWall(grid.dl(p))) ? "m" : "btl"
@@ -286,7 +289,7 @@ function genBgOverlay(lvl, layer, grid, overlay) {
                     }
                     break;
                 case 13: // down|left|right
-                    if (isWall(v)) {
+                    if (v == otherID) {
                         tl = "t";
                         tr = "t";
                         bl = (isWall(grid.dl(p))) ? "m" : "btl"
@@ -301,7 +304,7 @@ function genBgOverlay(lvl, layer, grid, overlay) {
                     }
                     break;
                 case 14: // top|down|left
-                    if (isWall(v)) {
+                    if (v == otherID) {
                         tl = (isWall(grid.ul(p))) ? "m" : "ltt";
                         tr = "r";
                         bl = (isWall(grid.dl(p))) ? "m" : "btl"
@@ -316,7 +319,7 @@ function genBgOverlay(lvl, layer, grid, overlay) {
                     }
                     break;
                 case 15: // top|down|left|right
-                    if (isWall(v)) {
+                    if (v == otherID) {
                         tl = (isWall(grid.ul(p))) ? "m" : "ltt";
                         tr = (isWall(grid.ur(p))) ? "m" : "ttr"
                         bl = (isWall(grid.dl(p))) ? "m" : "btl"
@@ -557,7 +560,11 @@ class TileGridView {
         // translate given grids to display grids
         let bg_grid = new concepts.Grid(size.x*2, size.y*2);
         let fg_grid = new concepts.Grid(size.x*2, size.y*2);
-        genBgOverlay("lvl1", "bg", surface_tile_grid, bg_grid);
+        // handle transitions from ground<->floor
+        genFloorOverlay("lvl1", "bg", ground_tile_grid, bg_grid, tiledefs.ID.GROUND, tiledefs.ID.WALL);
+        // handle transitions from ground<->void
+        //genFloorOverlay("lvl1", "bg", surface_tile_grid, bg_grid);
+        // handle surface transitions
         genFgOverlay("lvl1", "fg", surface_tile_grid, fg_grid);
         // filter out all wall/ground tiles from fg
         let midData = new Array(size.x * size.y);
