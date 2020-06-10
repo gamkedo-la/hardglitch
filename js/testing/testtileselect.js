@@ -1,8 +1,13 @@
+import { genBgOverlay } from "../tile-select.js";
+import { Grid } from "../core/concepts.js";
+
 // hard-coded bg tiles
-const fgtw = new Image();
-fgtw.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAADRJREFUWIXtzjEBADAIxMCnKiqlK/5FFRksFwO5uq9/FjubcwAAAAAAAAAAAAAAAAAAgCQZQm4B0KN9/LwAAAAASUVORK5CYII=";
-const fgte = new Image();
-fgte.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAADVJREFUWIXtzkEBADAIxLBjSuZf1gRgYcjgkxpoqt/9WexszgEAAAAAAAAAAAAAAAAAAJJkAF3RAy8pxiovAAAAAElFTkSuQmCC";
+const wall = new Image();
+wall.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAADRJREFUWIXtzjEBADAIxMCnKiqlK/5FFRksFwO5uq9/FjubcwAAAAAAAAAAAAAAAAAAgCQZQm4B0KN9/LwAAAAASUVORK5CYII=";
+const floor = new Image();
+floor.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAADVJREFUWIXtzkEBADAIxLBjSuZf1gRgYcjgkxpoqt/9WexszgEAAAAAAAAAAAAAAAAAAJJkAF3RAy8pxiovAAAAAElFTkSuQmCC";
+const hole = new Image();
+hole.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAGJJREFUWIXt1rENwDAIRNFL5CHSUFK4ZxrPnA08TLIDRCLFpz/xJAruWNd6lBwP1753Ni4P15lOfzQAAAAAAABAO2B4eDps00rLbZpG5Z9LKvUB6QcnAAAAAAAAANoB7X3gBR0LDRuz+iG/AAAAAElFTkSuQmCC";
 
 /**
  * template map defines the position of named tiles within the tileset template where each coordinate is given as a grid index {i,j}
@@ -112,12 +117,19 @@ function loadTemplateSheet(sheet, map, tilesize) {
  * random generator for a grid, uses 0 for empty, 1 for wall
  * @param {*} grid - the grid to populate
  * @param {*} wallPct - percentage of walls
+ * @param {*} holePct - percentage of holes
  */
-function gen(grid, wallPct) {
+function gen(grid, wallPct, holePct) {
     for (let j=0; j<grid.height; j++) {
         for (let i=0; i<grid.width; i++) {
-            let v = (Math.random() <= wallPct) ? 1 : 0;
-            grid.set(v,i,j);
+            let r = Math.random();
+            let v = 0;
+            if (r <= wallPct) {
+                v = 1;
+            } else if (r <= wallPct+holePct) {
+                v = 2;
+            }
+            grid.set_at(v,i,j);
         }
     }
 }
@@ -130,9 +142,9 @@ function gen(grid, wallPct) {
 function genOverlay(grid, overlay) {
     for (let j=0; j<grid.height; j++) {
         for (let i=0; i<grid.width; i++) {
-            let v = grid.get(i,j);
+            let v = grid.get_at(i,j);
             // compute neighbors
-            let p = {i:i, j:j};
+            let p = {x:i, y:j};
             let neighbors = grid.right(p) + (grid.up(p) << 1) + (grid.left(p) << 2) + (grid.down(p)<<3);
             // compute tl overlay
             let tl = "";
@@ -366,10 +378,10 @@ function genOverlay(grid, overlay) {
                     break;
             }
             // add to overlay grid
-            if (tl) overlay.set(tl, i*2, j*2);
-            if (tr) overlay.set(tr, i*2+1, j*2);
-            if (bl) overlay.set(bl, i*2, j*2+1);
-            if (br) overlay.set(br, i*2+1, j*2+1);
+            if (tl) overlay.set_at(tl, i*2, j*2);
+            if (tr) overlay.set_at(tr, i*2+1, j*2);
+            if (bl) overlay.set_at(bl, i*2, j*2+1);
+            if (br) overlay.set_at(br, i*2+1, j*2+1);
         }
     }
 }
@@ -382,7 +394,7 @@ function genOverlay(grid, overlay) {
 function genPerspectiveOverlay(grid, overlay) {
     for (let j=0; j<grid.height; j++) {
         for (let i=0; i<grid.width; i++) {
-            let v = grid.get(i,j);
+            let v = grid.get_at(i,j);
             // compute neighbors
             let p = {i:i, j:j};
             let neighbors = grid.right(p) + (grid.up(p) << 1) + (grid.left(p) << 2) + (grid.down(p)<<3);
@@ -567,10 +579,10 @@ function genPerspectiveOverlay(grid, overlay) {
                     break;
             }
             // add to overlay grid
-            if (tl) overlay.set(tl, i*2, j*2);
-            if (tr) overlay.set(tr, i*2+1, j*2);
-            if (bl) overlay.set(bl, i*2, j*2+1);
-            if (br) overlay.set(br, i*2+1, j*2+1);
+            if (tl) overlay.set_at(tl, i*2, j*2);
+            if (tr) overlay.set_at(tr, i*2+1, j*2);
+            if (bl) overlay.set_at(bl, i*2, j*2+1);
+            if (br) overlay.set_at(br, i*2+1, j*2+1);
         }
     }
 }
@@ -578,6 +590,7 @@ function genPerspectiveOverlay(grid, overlay) {
 /**
  * a grid of data
  */
+/*
 class Grid {
     constructor(width, height) {
         this.width = width;
@@ -602,9 +615,6 @@ class Grid {
         return this.data[idx];
     }
 
-    /**
-     *  get node left of given point
-     */ 
     left(p, dflt=0) {
         if (p.i>0) {
             let idx = this.idx(p.i-1, p.j);
@@ -669,6 +679,7 @@ class Grid {
         return dflt;
     }
 }
+*/
 
 
 /**
@@ -689,13 +700,22 @@ class Game {
         let tsize = 32;
         let width = 16;
         let height = 12;
+        //let width = 4;
+        //let height = 4;
         // generate the test grid and level data
         let grid = new Grid(width, height);
-        gen(grid, .35);
+        gen(grid, .35, .2);
 
         // generate the bg overlay based on level data
         let bgoverlay = new Grid(width*2, height*2);
         genOverlay(grid, bgoverlay);
+
+        let bg2 = new Grid(width*2, height*2);
+        genBgOverlay("lvl1", "bg", grid, bg2, (fg) => (fg == 1), (bg) => (bg == 0));
+        for (let i=0; i<width; i++) {
+            let id = bg2.get_at(i,1);
+            console.log("bg2(" + i + ",1): " + id);
+        }
 
         // generate the perspective overlay based on level data
         let poverlay = new Grid(width*2, height*2);
@@ -704,24 +724,39 @@ class Game {
         // draw grid
         for (let j=0; j<height; j++) {
             for (let i=0; i<width; i++) {
-                let v = grid.get(i,j);
-                //let img = (v) ? fgtw : fgte;
-                let img = fgte;
+                let v = grid.get_at(i,j);
+                let img = floor;
+                if (v == 1) img = wall;
+                if (v == 2) img = hole;
                 this.ctx.drawImage(img, tsize*i*2, tsize*j*2, 64, 64);
             }
         }
 
         // draw background overlay
+        /*
         for (let j=0; j<bgoverlay.height; j++) {
             for (let i=0; i<bgoverlay.width; i++) {
-                let v = bgoverlay.get(i,j);
+                let v = bgoverlay.get_at(i,j);
                 if (!v) continue;
                 let img = bgtiles[v];
                 if (!img) continue;
                 this.ctx.drawImage(img, tsize*i, tsize*j);
             }
         }
+        */
+        for (let j=0; j<bg2.height; j++) {
+            for (let i=0; i<bg2.width; i++) {
+                let v = bg2.get_at(i,j);
+                if (!v) continue;
+                v = v.slice(8);
+                console.log("v: " + v);
+                let img = bgtiles[v];
+                if (!img) continue;
+                this.ctx.drawImage(img, tsize*i, tsize*j);
+            }
+        }
 
+        /*
         // draw perspective overlay
         for (let j=0; j<poverlay.height; j++) {
             for (let i=0; i<poverlay.width; i++) {
@@ -732,6 +767,7 @@ class Game {
                 this.ctx.drawImage(img, tsize*i, tsize*j);
             }
         }
+        */
 
     }
 }
