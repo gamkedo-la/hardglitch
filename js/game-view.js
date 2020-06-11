@@ -103,8 +103,8 @@ class TileGridView {
         this.size = size;
 
         // translate given grids to display grids
-        let bg_grid = new concepts.Grid(size.x*2, size.y*2);
-        let fg_grid = new concepts.Grid(size.x*2, size.y*2);
+        const bg_grid = new concepts.Grid(size.x*2, size.y*2);
+        const fg_grid = new concepts.Grid(size.x*2, size.y*2);
         // handle transitions from ground<->floor
         genFloorOverlay("lvl1", "bg", ground_tile_grid, bg_grid, tiledefs.ID.GROUND, tiledefs.ID.WALL);
         // handle transitions from ground<->void
@@ -112,14 +112,15 @@ class TileGridView {
         // handle surface transitions
         genFgOverlay("lvl1", "fg", surface_tile_grid, fg_grid);
         // filter out all wall/ground tiles from fg
-        let midData = new Array(size.x * size.y);
+        const midData = new Array(size.x * size.y);
         for (let i=0; i<midData.length; i++) {
-            if (surface_tile_grid.elements[i] == tiledefs.ID.WALL) continue;
-            if (surface_tile_grid.elements[i] == tiledefs.ID.GROUND) continue;
-            midData[i] = surface_tile_grid.elements[i];
+            const surface_element = surface_tile_grid.elements[i];
+            if (surface_element == tiledefs.ID.WALL) continue;
+            if (surface_element == tiledefs.ID.GROUND) continue;
+            midData[i] = surface_element;
         }
 
-        let dsize = new Vector2({x: size.x*2, y: size.y*2});
+        const dsize = new Vector2({x: size.x*2, y: size.y*2});
         // TODO: replace this by just tiles we use, not all tiles in the world
         // FIXME: for now, enable_overlay is the switch between the old tile display and the new tile display
         if (this.enable_overlay) {
@@ -146,12 +147,17 @@ class TileGridView {
 
     draw(){
         this.ground_tile_grid.draw();
-        if(this.enable_grid_lines)
+
+        if(this.enable_grid_lines){
             graphics.draw_grid_lines(this.size.x, this.size.y, PIXELS_PER_TILES_SIDE, this.position);
+        }
+
         if (this.enable_overlay) {
             this.mid_tile_grid.draw();
         }
+
         this.surface_tile_grid.draw();
+
     }
 
 };
