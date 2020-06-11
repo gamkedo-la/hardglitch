@@ -21,6 +21,7 @@ const game_assets = { // Description of the assets to load.
         door : "./images/world_door.png",
         goal : "./images/world_goal.png",
         ground : "./images/world_ground.png",
+        void : "./images/world_void.png",
         key : "./images/world_key.png",
         wall : "./images/world_wall.png",
         tileset_entry_exit : "./images/tileset_entry_exit.png",
@@ -84,6 +85,10 @@ const sprite_defs = {
     },
     wall : {
         image: "wall",
+        // frames: [],
+    },
+    void : {
+        image: "void",
         // frames: [],
     },
     entry : {

@@ -10,7 +10,6 @@ import * as concepts from "../core/concepts.js";
 import { BodyView, graphic_position } from "../game-view.js";
 import { is_walkable } from "../definitions-tiles.js";
 
-
 class Moved extends concepts.Event {
     constructor(body, from_pos, to_pos) {
         super(body.body_id, {
@@ -72,23 +71,8 @@ class Rule_Movements extends concepts.Rule {
 };
 
 
-function * animation_move_event(body_view, new_position){
-    console.assert(body_view instanceof BodyView)
+function* animation_move_event(body_view, new_position){
+    console.assert(body_view instanceof BodyView);
     console.assert(new_position instanceof concepts.Position);
-    // TODO: implement this with TWEENING instead of manually
-
-    // Below we we'll work with graphic positions:
-    const steps_count = 10;
-    const target_gfx_pos = graphic_position(new_position);
-    const translation_step = target_gfx_pos.substract(body_view.position).divide(steps_count);
-
-    while(true){
-        body_view.position = body_view.position.translate(translation_step);
-        yield;
-        const distance_left = body_view.position.distance(target_gfx_pos);
-        if(distance_left < translation_step.length * 2)
-            break;
-    }
-
-    body_view.game_position = new_position;
+    yield* body_view.move_animation(new_position);
 }

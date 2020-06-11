@@ -7,17 +7,20 @@
 export { GameView, BodyView, graphic_position };
 
 import * as graphics from "./system/graphics.js";
-import * as input from "./system/input.js";
-import { random_int, position_from_index } from "./system/utility.js";
+import { tile_id } from "./game-assets.js";
+import { random_int, is_number } from "./system/utility.js";
+import * as concepts from "./core/concepts.js";
+import { genBgOverlay, genFloorOverlay, genFgOverlay } from "./tile-select.js";
 
-import { assets } from "./game-assets.js";
 import { Game } from "./game.js";
 import { Vector2 } from "./system/spatial.js";
 import * as tiledefs from "./definitions-tiles.js";
 
 import * as debug from "./debug.js";
+import { tween } from "./system/tweening.js";
 
 const PIXELS_PER_TILES_SIDE = 64;
+const PIXELS_PER_HALF_SIDE = 32;
 const square_unit_vector = new Vector2({ x: PIXELS_PER_TILES_SIDE, y: PIXELS_PER_TILES_SIDE });
 const square_half_unit_vector = new Vector2({ x: PIXELS_PER_TILES_SIDE / 2 , y: PIXELS_PER_TILES_SIDE / 2 });
 
@@ -46,11 +49,6 @@ class BodyView {
     }
 
     update(delta_time){ // TODO: make this a generator with an infinite loop
-        // if(!this.is_performing_animation){ // true or false, it's just for fun
-        //     this.some_value += 0.5;
-        //     const some_direction = {x:Math.sin(this.some_value), y:Math.cos(this.some_value)};
-        //     this.position = this.position.translate(some_direction);
-        // }
         this.sprite.update(delta_time);
     }
 
@@ -76,22 +74,63 @@ class BodyView {
         this.is_performing_animation = false;
     }
 
+    *move_animation(target_game_position){
+        console.assert(target_game_position instanceof concepts.Position);
+
+        const move_duration = 200;
+        const target_gfx_pos = graphic_position(target_game_position);
+
+        yield* tween(this.position, {x:target_gfx_pos.x, y:target_gfx_pos.y}, move_duration,
+            (updated_position)=>{ this.position = updated_position; });
+        this.game_position = target_game_position;
+    }
 
 };
+
+function isWall(v) {
+    return (v == tiledefs.ID.WALL) ? 1 : 0;
+}
 
 // Display tiles.
 class TileGridView {
     enable_grid_lines = true;
+    enable_overlay = true;
 
     constructor(position, size, ground_tile_grid, surface_tile_grid){
         console.assert(position instanceof Vector2);
         console.assert(size instanceof Vector2 && size.x > 2 && size.y > 2);
         this.position = position;
         this.size = size;
+
+        // translate given grids to display grids
+        let bg_grid = new concepts.Grid(size.x*2, size.y*2);
+        let fg_grid = new concepts.Grid(size.x*2, size.y*2);
+        // handle transitions from ground<->floor
+        genFloorOverlay("lvl1", "bg", ground_tile_grid, bg_grid, tiledefs.ID.GROUND, tiledefs.ID.WALL);
+        // handle transitions from ground<->void
+        //genFloorOverlay("lvl1", "bg", surface_tile_grid, bg_grid);
+        // handle surface transitions
+        genFgOverlay("lvl1", "fg", surface_tile_grid, fg_grid);
+        // filter out all wall/ground tiles from fg
+        let midData = new Array(size.x * size.y);
+        for (let i=0; i<midData.length; i++) {
+            if (surface_tile_grid.elements[i] == tiledefs.ID.WALL) continue;
+            if (surface_tile_grid.elements[i] == tiledefs.ID.GROUND) continue;
+            midData[i] = surface_tile_grid.elements[i];
+        }
+
+        let dsize = new Vector2({x: size.x*2, y: size.y*2});
         // TODO: replace this by just tiles we use, not all tiles in the world
-        this.ground_tile_grid = new graphics.TileGrid(position, size, PIXELS_PER_TILES_SIDE, tiledefs.sprite_defs, ground_tile_grid);
+        // FIXME: for now, enable_overlay is the switch between the old tile display and the new tile display
+        if (this.enable_overlay) {
+            this.ground_tile_grid = new graphics.TileGrid(position, dsize, PIXELS_PER_HALF_SIDE, tiledefs.sprite_defs, bg_grid.elements);
+            this.mid_tile_grid = new graphics.TileGrid(position, size, PIXELS_PER_TILES_SIDE, tiledefs.sprite_defs, midData);
+            this.surface_tile_grid = new graphics.TileGrid(position, dsize, PIXELS_PER_HALF_SIDE, tiledefs.sprite_defs, fg_grid.elements);
+        } else {
+            this.ground_tile_grid = new graphics.TileGrid(position, size, PIXELS_PER_TILES_SIDE, tiledefs.sprite_defs, ground_tile_grid.elements);
+            this.surface_tile_grid = new graphics.TileGrid(position, size, PIXELS_PER_TILES_SIDE, tiledefs.sprite_defs, surface_tile_grid.elements);
+        }
         this.ground_tile_grid.enable_draw_background = true; // display the background
-        this.surface_tile_grid = new graphics.TileGrid(position, size, PIXELS_PER_TILES_SIDE, tiledefs.sprite_defs, surface_tile_grid);
     }
 
     get width() { return this.size.x; }
@@ -99,6 +138,9 @@ class TileGridView {
 
     update(delta_time){
         this.ground_tile_grid.update(delta_time);
+        if (this.enable_overlay) {
+            this.mid_tile_grid.update(delta_time);
+        }
         this.surface_tile_grid.update(delta_time);
     }
 
@@ -106,6 +148,9 @@ class TileGridView {
         this.ground_tile_grid.draw();
         if(this.enable_grid_lines)
             graphics.draw_grid_lines(this.size.x, this.size.y, PIXELS_PER_TILES_SIDE, this.position);
+        if (this.enable_overlay) {
+            this.mid_tile_grid.draw();
+        }
         this.surface_tile_grid.draw();
     }
 
@@ -214,7 +259,7 @@ class GameView {
     // Re-interpret the game's state from scratch.
     reset(){
         this.tile_grid = new TileGridView(new Vector2(), new Vector2({ x: this.game.world.width, y: this.game.world.height }),
-                                            this.game.world._floor_tile_grid.elements, this.game.world._surface_tile_grid.elements);
+                                            this.game.world._floor_tile_grid, this.game.world._surface_tile_grid);
 
         this.body_views = {};
         this.game.world.bodies.forEach(body => {
