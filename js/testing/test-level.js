@@ -32,13 +32,30 @@ function make_test_world(){ // The game assets must have been initialized first.
         return new concepts.Position(random_int(0, test_world_size.width - 1 ), random_int(0, test_world_size.height - 1 ));
     }
 
-    // set floor/walls
+    // set floor/walls/holes
     let wallPct = .2;
+    let voidPct = .1;
     for (let j=0; j<test_world_size.height; j++) {
         for (let i=0; i<test_world_size.width; i++) {
-            let tileID = (Math.random() <= wallPct) ? tiles.ID.WALL : tiles.ID.GROUND;
-            set_surface_tile(new concepts.Position(i, j), tileID);
-            set_floor_tile(new concepts.Position(i, j), tiles.ID.GROUND);
+            // pick a random number
+            let choice = Math.random();
+            let tileID;
+            // check wall pct
+            if (choice <= wallPct) {
+                tileID = tiles.ID.WALL;
+            // check void pct
+            } else if ( choice <= wallPct+voidPct) {
+                tileID = tiles.ID.VOID;
+            // otherwise ground
+            } else {
+                tileID = tiles.ID.GROUND;
+            }
+            // walls get assigned to both surface layers
+            if (tileID == tiles.ID.WALL) {
+                set_surface_tile(new concepts.Position(i, j), tileID);
+            }
+            // void/ground/wall tiles get assigned to floor layer (wall gets assigned to both surface/floor)
+            set_floor_tile(new concepts.Position(i, j), tileID);
         }
     }
 
