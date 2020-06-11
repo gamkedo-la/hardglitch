@@ -704,17 +704,20 @@ class Game {
         //let height = 4;
         // generate the test grid and level data
         let grid = new Grid(width, height);
-        gen(grid, .35, .2);
+        gen(grid, .35, .1);
 
         // generate the bg overlay based on level data
         let bgoverlay = new Grid(width*2, height*2);
         genOverlay(grid, bgoverlay);
 
         let bg2 = new Grid(width*2, height*2);
-        genBgOverlay("lvl1", "bg", grid, bg2, (fg) => (fg == 1), (bg) => (bg == 0));
+        genBgOverlay("lvl1", "wall", grid, bg2, (fg) => (fg == 1), (bg) => (bg == 0));
+        genBgOverlay("lvl1", "floor", grid, bg2, (fg) => (fg == 0), (bg) => (bg == 1));
+        genBgOverlay("lvl1", "h2g", grid, bg2, (fg) => (fg == 2), (bg) => (bg == 0));
+        genBgOverlay("lvl1", "g2h", grid, bg2, (fg) => (fg == 0), (bg) => (bg == 2));
         for (let i=0; i<width; i++) {
             let id = bg2.get_at(i,1);
-            console.log("bg2(" + i + ",1): " + id);
+            //console.log("bg2(" + i + ",1): " + id);
         }
 
         // generate the perspective overlay based on level data
@@ -747,10 +750,23 @@ class Game {
         for (let j=0; j<bg2.height; j++) {
             for (let i=0; i<bg2.width; i++) {
                 let v = bg2.get_at(i,j);
+                let tiles = bgtiles;
                 if (!v) continue;
-                v = v.slice(8);
-                console.log("v: " + v);
-                let img = bgtiles[v];
+                v = v.slice(5);
+                //console.log("v: " + v);
+                if (v.startsWith("wall")) {
+                    v = v.slice(5);
+                } else if (v.startsWith("floor")) {
+                    v = v.slice(6);
+                    tiles = groundToWallTiles;
+                } else if (v.startsWith("h2g")) {
+                    v = v.slice(4);
+                    tiles = holeToGroundTiles;
+                } else if (v.startsWith("g2h")) {
+                    v = v.slice(4);
+                    tiles = groundToHoleTiles;
+                }
+                let img = tiles[v];
                 if (!img) continue;
                 this.ctx.drawImage(img, tsize*i, tsize*j);
             }
@@ -786,8 +802,11 @@ function start() {
     game.play();
 }
 
-const bgTemplatePath = "srcref/bgtemplate.png";
+const bgTemplatePath = "srcref/wallToGround.png";
 const tileTemplatePath = "srcref/tiletemplate.png";
+const groundToWallPath = "srcref/groundToWall.png";
+const groundToHolePath = "srcref/groundToHole.png";
+const holeToGroundPath = "srcref/holeToGround.png";
 //const bgTemplatePath = "srcref/colortest1_bg.png";
 //const tileTemplatePath = "srcref/colortest1.png";
 //const bgTemplatePath = "srcref/colortest2_bg.png";
@@ -799,12 +818,15 @@ const tileTemplatePath = "srcref/tiletemplate.png";
 
 let bgtiles;
 let walltiles;
+let groundToWallTiles;
+let groundToHoleTiles;
+let holeToGroundTiles;
 
 function setup() {
     return new Promise((resolve) => {
         // load tileset images
         let promises = [];
-        for (const path of [bgTemplatePath, tileTemplatePath]) {
+        for (const path of [bgTemplatePath, tileTemplatePath, groundToWallPath, groundToHolePath, holeToGroundPath]) {
             promises.push(loadImage(path));
         }
         Promise.all(promises).then((imgs) => {
@@ -815,6 +837,9 @@ function setup() {
             Promise.all(promises).then((tilesets) => {
                 bgtiles = tilesets[0];
                 walltiles = tilesets[1];
+                groundToWallTiles = tilesets[2];
+                groundToHoleTiles = tilesets[3];
+                holeToGroundTiles = tilesets[4];
                 resolve();
             });
         });
