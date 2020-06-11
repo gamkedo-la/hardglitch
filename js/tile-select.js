@@ -24,17 +24,24 @@ const UL = 32;
 const DL = 64;
 const DR = 128;
 
+function same() {
+    let a = Array.from(arguments);
+    let same = true;
+    for (let i=0; same && i<arguments.length; i++) {
+        if (i>0 && arguments[i] != arguments[0]) same = false;
+    }
+    return same;
+}
+
 /**
  * create an overlay of images for the level data represented in given grid
  * @param {*} grid - the level data in grid form
  * @param {*} overlay - the overlay grid which should be twice as big as the grid
  */
-function genBgOverlay(lvl, layer, grid, overlay, baseCmp, otherCmp) {
+function genBgOverlay(lvl, layer, grid, overlay, baseCmp, otherCmp, fillOM=false) {
     for (let j=0; j<grid.height; j++) {
         for (let i=0; i<grid.width; i++) {
             let v = grid.get_at(i,j);
-            // skip tile if not matching base...
-            if (!baseCmp(v)) continue;
             // compute neighbors
             let p = {x:i, y:j};
             let otherMask = ((otherCmp(grid.right(p))) ? RIGHT : 0) + 
@@ -62,105 +69,217 @@ function genBgOverlay(lvl, layer, grid, overlay, baseCmp, otherCmp) {
             switch (baseMask & 15) {
                 case 0: // none
                     //console.log("matching none for " + p.x + "," + p.y);
-                    if (otherMask & (UP|LEFT)) tl = (baseMask & UL) ? "ortbc" : "ttl";
-                    if (otherMask & (UP|RIGHT)) tr = (baseMask & UR) ? "obtlc" : "rtt";
-                    if (otherMask & (DOWN|LEFT)) bl = (baseMask & DL) ? "ottrc" : "ltb";
-                    if (otherMask & (DOWN|RIGHT)) br = (baseMask & DR) ? "olttc" : "btr";
+                    if (baseCmp(v)) {
+                        if (otherMask & (UP|LEFT)) tl = (!same(grid.left(p), grid.ul(p), grid.up(p)) || (baseMask & UL)) ? "btrc" : "ttl";
+                        if (otherMask & (UP|RIGHT)) tr = (!same(grid.up(p), grid.ur(p), grid.right(p)) || (baseMask & UR)) ? "ltbc" : "rtt";
+                        if (otherMask & (DOWN|LEFT)) bl = (!same(grid.down(p), grid.dl(p), grid.left(p)) || (baseMask & DL)) ? "rttc" : "ltb";
+                        if (otherMask & (DOWN|RIGHT)) br = (!same(grid.right(p), grid.dr(p), grid.down(p)) || (baseMask & DR)) ? "ttlc" : "btr";
+                    } else if (otherCmp(v)) {
+                        tl = (fillOM) ? ((baseMask & UL) ? "obtr" : "om") : "";
+                        tr = (fillOM) ? ((baseMask & UR) ? "oltb" : "om") : "";
+                        bl = (fillOM) ? ((baseMask & DL) ? "ortt" : "om") : "";
+                        br = (fillOM) ? ((baseMask & DR) ? "ottl" : "om") : "";
+                    }
                     break;
                 case 1: // right
                     //console.log("matching right for " + p.x + "," + p.y);
-                    if (otherMask & (UP|LEFT)) tl = (baseMask & UL) ? "ortbc" : "ttl";
-                    if (otherMask & (UP)) tr = (baseMask & UR) ? "ltte" : "t";
-                    if (otherMask & (DOWN|LEFT)) bl = (baseMask & DL) ? "ottrc" : "ltb";
-                    if (otherMask & (DOWN)) br = (baseMask & DR) ? "btls" : "b";
-                    //br = (isWall(grid.dr(p))) ? "btls": "ltbe";
+                    if (baseCmp(v)) {
+                        if (otherMask & (UP|LEFT)) tl = (!same(grid.left(p), grid.ul(p), grid.up(p)) || (baseMask & UL)) ? "btrc" : "ttl";
+                        if (otherMask & (UP)) tr = (baseMask & UR) ? "ltte" : "t";
+                        if (otherMask & (DOWN|LEFT)) bl = (!same(grid.down(p), grid.dl(p), grid.left(p)) || (baseMask & DL)) ? "rttc" : "ltb";
+                        if (otherMask & (DOWN)) br = (baseMask & DR) ? "btls" : "b";
+                    } else if (otherCmp(v)) {
+                        tl = (fillOM) ? ((baseMask & UL) ? "obtr" : "om") : "";
+                        tr = (baseMask & UR) ? "ol" : "ottle";
+                        bl = (fillOM) ? ((baseMask & DL) ? "ortt" : "om") : "";
+                        br = (baseMask & DR) ? "ol" : "oltbs";
+                    }
                     break;
                 case 2: // top
                     //console.log("matching top for " + p.x + "," + p.y);
-                    if (otherMask & (LEFT)) tl = (baseMask & UL) ? "btle": "l";
-                    if (otherMask & (RIGHT)) tr = (baseMask & UR) ? "rtbs": "r";
-                    if (otherMask & (DOWN|LEFT)) bl = (baseMask & DL) ? "ottrc" : "ltb";
-                    if (otherMask & (DOWN|RIGHT)) br = (baseMask & DR) ? "olttc" : "btr";
+                    if (baseCmp(v)) {
+                        if (otherMask & (LEFT)) tl = (baseMask & UL) ? "btle": "l";
+                        if (otherMask & (RIGHT)) tr = (baseMask & UR) ? "rtbs": "r";
+                        if (otherMask & (DOWN|LEFT)) bl = (!same(grid.down(p), grid.dl(p), grid.left(p)) || (baseMask & DL)) ? "rttc" : "ltb";
+                        if (otherMask & (DOWN|RIGHT)) br = (!same(grid.right(p), grid.dr(p), grid.down(p)) || (baseMask & DR)) ? "ttlc" : "btr";
+                    } else if (otherCmp(v)) {
+                        tl = (baseMask & UL) ? "ob" : "oltbe";
+                        tr = (baseMask & UR) ? "ob" : "obtrs";
+                        bl = (fillOM) ? ((baseMask & DL) ? "ortt" : "om") : "";
+                        br = (fillOM) ? ((baseMask & DR) ? "ottl" : "om") : "";
+                    }
                     break;
                 case 3: // top|right
                     //console.log("matching top|right for " + p.x + "," + p.y);
-                    if (otherMask & (LEFT)) tl = (baseMask & UL) ? "btle": "l";
-                    tr = (baseMask & UR) ? "m" : "ttr";
-                    if (otherMask & (DOWN|LEFT)) bl = (baseMask & DL) ? "ottrc" : "ltb";
-                    if (otherMask & (DOWN)) br = (baseMask & DR) ? "btls" : "b";
+                    if (baseCmp(v)) {
+                        if (otherMask & (LEFT)) tl = (baseMask & UL) ? "btle": "l";
+                        tr = (baseMask & UR) ? "m" : "ttr";
+                        if (otherMask & (DOWN|LEFT)) bl = (!same(grid.down(p), grid.dl(p), grid.left(p)) || (baseMask & DL)) ? "rttc" : "ltb";
+                        if (otherMask & (DOWN)) br = (baseMask & DR) ? "btls" : "b";
+                    } else if (otherCmp(v)) {
+                        tl = (baseMask & UL) ? "ob" : "oltbe";
+                        // conflict between obtrs and ottle -> obtlc
+                        tr = (baseMask & UR) ? "obtl" : "obtlc";
+                        bl = (fillOM) ? ((baseMask & DL) ? "ortt" : "om") : "";
+                        br = (baseMask & DR) ? "ol" : "oltbs";
+                    }
                     break;
                 case 4: // left
                     //console.log("matching left for " + p.x + "," + p.y);
-                    if (otherMask & (UP)) tl = (baseMask & UL) ? "ttrs" : "t";
-                    if (otherMask & (UP|RIGHT)) tr = (baseMask & UR) ? "obtlc" : "rtt";
-                    if (otherMask & (DOWN)) bl = (baseMask & DL) ? "rtbe": "b";
-                    if (otherMask & (DOWN|RIGHT)) br = (baseMask & DR) ? "olttc" : "btr";
+                    if (baseCmp(v)) {
+                        if (otherMask & (UP)) tl = (baseMask & UL) ? "ttrs" : "t";
+                        if (otherMask & (UP|RIGHT)) tr = (!same(grid.up(p), grid.ur(p), grid.right(p)) || (baseMask & UR)) ? "ltbc" : "rtt";
+                        if (otherMask & (DOWN)) bl = (baseMask & DL) ? "rtbe": "b";
+                        if (otherMask & (DOWN|RIGHT)) br = (!same(grid.right(p), grid.dr(p), grid.down(p)) || (baseMask & DR)) ? "ttlc" : "btr";
+                    } else if (otherCmp(v)) {
+                        tl = (baseMask & UL) ? "or" : "ortts";
+                        tr = (fillOM) ? ((baseMask & UR) ? "oltb" : "om") : "";
+                        bl = (baseMask & DL) ? "or" : "obtre";
+                        br = (fillOM) ? ((baseMask & DR) ? "ottl" : "om") : "";
+                    }
                     break;
                 case 5: // left|right
-                    if (otherMask & (UP)) tl = (baseMask & UL) ? "ttrs" : "t";
-                    if (otherMask & (UP)) tr = (baseMask & UR) ? "ltte" : "t";
-                    if (otherMask & (DOWN)) bl = (baseMask & DL) ? "rtbe": "b";
-                    if (otherMask & (DOWN)) br = (baseMask & DR) ? "btls" : "b";
+                    if (baseCmp(v)) {
+                        if (otherMask & (UP)) tl = (baseMask & UL) ? "ttrs" : "t";
+                        if (otherMask & (UP)) tr = (baseMask & UR) ? "ltte" : "t";
+                        if (otherMask & (DOWN)) bl = (baseMask & DL) ? "rtbe": "b";
+                        if (otherMask & (DOWN)) br = (baseMask & DR) ? "btls" : "b";
+                    } else if (otherCmp(v)) {
+                        tl = (baseMask & UL) ? "or" : "ortts";
+                        tr = (baseMask & UR) ? "ol" : "ottle";
+                        bl = (baseMask & DL) ? "or" : "obtre";
+                        br = (baseMask & DR) ? "ol" : "oltbs";
+                    }
                     break;
                 case 6: // top|left
-                    tl = (baseMask & UL) ? "m" : "ltt";
-                    if (otherMask & (RIGHT)) tr = (baseMask & UR) ? "rtbs": "r";
-                    if (otherMask & (DOWN)) bl = (baseMask & DL) ? "rtbe": "b";
-                    if (otherMask & (DOWN|RIGHT)) br = (baseMask & DR) ? "olttc" : "btr";
+                    if (baseCmp(v)) {
+                        tl = (baseMask & UL) ? "m" : "ltt";
+                        if (otherMask & (RIGHT)) tr = (baseMask & UR) ? "rtbs": "r";
+                        if (otherMask & (DOWN)) bl = (baseMask & DL) ? "rtbe": "b";
+                        if (otherMask & (DOWN|RIGHT)) br = (!same(grid.right(p), grid.dr(p), grid.down(p)) || (baseMask & DR)) ? "ttlc" : "btr";
+                    } else if (otherCmp(v)) {
+                        tl = (baseMask & UL) ? "ortb" : "ortbc";
+                        tr = (baseMask & UR) ? "ob" : "obtrs";
+                        bl = (baseMask & DL) ? "or" : "obtre";
+                        br = (fillOM) ? ((baseMask & DR) ? "ottl" : "om") : "";
+                    }
                     break;
                 case 7: // top|left|right
-                    tl = (baseMask & UL) ? "m" : "ltt";
-                    tr = (baseMask & UR) ? "m" : "ttr"
-                    if (otherMask & (DOWN)) bl = (baseMask & DL) ? "rtbe": "b";
-                    if (otherMask & (DOWN)) br = (baseMask & DR) ? "btls" : "b";
+                    if (baseCmp(v)) {
+                        tl = (baseMask & UL) ? "m" : "ltt";
+                        tr = (baseMask & UR) ? "m" : "ttr"
+                        if (otherMask & (DOWN)) bl = (baseMask & DL) ? "rtbe": "b";
+                        if (otherMask & (DOWN)) br = (baseMask & DR) ? "btls" : "b";
+                    } else if (otherCmp(v)) {
+                        tl = (baseMask & UL) ? "ortb" : "ortbc";
+                        tr = (baseMask & UR) ? "obtl" : "obtlc";
+                        bl = (baseMask & DL) ? "or" : "obtre";
+                        br = (baseMask & DR) ? "ol" : "oltbs";
+                    }
                     break;
                 case 8: // down
-                    if (otherMask & (UP|LEFT)) tl = (baseMask & UL) ? "ortbc" : "ttl";
-                    if (otherMask & (UP|RIGHT)) tr = (baseMask & UR) ? "obtlc" : "rtt";
-                    if (otherMask & (LEFT)) bl = (baseMask & DL) ? "ltts" : "l";
-                    if (otherMask & (RIGHT)) br = (baseMask & DR) ? "ttre" : "r";
+                    if (baseCmp(v)) {
+                        if (otherMask & (UP|LEFT)) tl = (!same(grid.left(p), grid.ul(p), grid.up(p)) || (baseMask & UL)) ? "btrc" : "ttl";
+                        if (otherMask & (UP|RIGHT)) tr = (!same(grid.up(p), grid.ur(p), grid.right(p)) || (baseMask & UR)) ? "ltbc" : "rtt";
+                        if (otherMask & (LEFT)) bl = (baseMask & DL) ? "ltts" : "l";
+                        if (otherMask & (RIGHT)) br = (baseMask & DR) ? "ttre" : "r";
+                    } else if (otherCmp(v)) {
+                        tl = (fillOM) ? ((baseMask & UL) ? "obtr" : "om") : "";
+                        tr = (fillOM) ? ((baseMask & UR) ? "oltb" : "om") : "";
+                        bl = (baseMask & DL) ? "ot" : "ottls";
+                        br = (baseMask & DR) ? "ot" : "ortte";
+                    }
                     break;
                 case 9: // down|right
-                    if (otherMask & (UP|LEFT)) tl = (baseMask & UL) ? "ortbc" : "ttl";
-                    if (otherMask & (UP)) tr = (baseMask & UR) ? "ltte" : "t";
-                    if (otherMask & (LEFT)) bl = (baseMask & DL) ? "ltts" : "l";
-                    br = (baseMask & DR) ? "m" : "rtb";
+                    if (baseCmp(v)) {
+                        if (otherMask & (UP|LEFT)) tl = (!same(grid.left(p), grid.ul(p), grid.up(p)) || (baseMask & UL)) ? "btrc" : "ttl";
+                        if (otherMask & (UP)) tr = (baseMask & UR) ? "ltte" : "t";
+                        if (otherMask & (LEFT)) bl = (baseMask & DL) ? "ltts" : "l";
+                        br = (baseMask & DR) ? "m" : "rtb";
+                    } else if (otherCmp(v)) {
+                        tl = (fillOM) ? ((baseMask & UL) ? "obtr" : "om") : "";
+                        tr = (baseMask & UR) ? "ol" : "ottle";
+                        bl = (baseMask & DL) ? "ot" : "ottls";
+                        br = (baseMask & DR) ? "oltt" : "olttc";
+                    }
                     break;
                 case 10: // top|down
-                    if (otherMask & (LEFT)) tl = (baseMask & UL) ? "btle": "l";
-                    if (otherMask & (RIGHT)) tr = (baseMask & UR) ? "rtbs": "r";
-                    if (otherMask & (LEFT)) bl = (baseMask & DL) ? "ltts" : "l";
-                    if (otherMask & (RIGHT)) br = (baseMask & DR) ? "ttre" : "r";
+                    if (baseCmp(v)) {
+                        if (otherMask & (LEFT)) tl = (baseMask & UL) ? "btle": "l";
+                        if (otherMask & (RIGHT)) tr = (baseMask & UR) ? "rtbs": "r";
+                        if (otherMask & (LEFT)) bl = (baseMask & DL) ? "ltts" : "l";
+                        if (otherMask & (RIGHT)) br = (baseMask & DR) ? "ttre" : "r";
+                    } else if (otherCmp(v)) {
+                        tl = (baseMask & UL) ? "ob" : "oltbe";
+                        tr = (baseMask & UR) ? "ob" : "obtrs";
+                        bl = (baseMask & DL) ? "ot" : "ottls";
+                        br = (baseMask & DR) ? "ot" : "ortte";
+                    }
                     break;
                 case 11: // top|down|right
-                    if (otherMask & (LEFT)) tl = (baseMask & UL) ? "btle": "l";
-                    tr = (baseMask & UR) ? "m" : "ttr"
-                    if (otherMask & (LEFT)) bl = (baseMask & DL) ? "ltts" : "l";
-                    br = (baseMask & DR) ? "m" : "rtb"
+                    if (baseCmp(v)) {
+                        if (otherMask & (LEFT)) tl = (baseMask & UL) ? "btle": "l";
+                        tr = (baseMask & UR) ? "m" : "ttr"
+                        if (otherMask & (LEFT)) bl = (baseMask & DL) ? "ltts" : "l";
+                        br = (baseMask & DR) ? "m" : "rtb"
+                    } else if (otherCmp(v)) {
+                        tl = (baseMask & UL) ? "ob" : "oltbe";
+                        tr = (baseMask & UR) ? "obtl" : "obtlc";
+                        bl = (baseMask & DL) ? "ot" : "ottls";
+                        br = (baseMask & DR) ? "oltt" : "olttc";
+                    }
                     break;
                 case 12: // down|left
-                    if (otherMask & (UP)) tl = (baseMask & UL) ? "ttrs" : "t";
-                    if (otherMask & (UP|RIGHT)) tr = (baseMask & UR) ? "obtlc" : "rtt";
-                    bl = (baseMask & DL) ? "m" : "btl"
-                    if (otherMask & (RIGHT)) br = (baseMask & DR) ? "ttre" : "r";
+                    if (baseCmp(v)) {
+                        if (otherMask & (UP)) tl = (baseMask & UL) ? "ttrs" : "t";
+                        if (otherMask & (UP|RIGHT)) tr = (!same(grid.up(p), grid.ur(p), grid.right(p)) || (baseMask & UR)) ? "ltbc" : "rtt";
+                        bl = (baseMask & DL) ? "m" : "btl"
+                        if (otherMask & (RIGHT)) br = (baseMask & DR) ? "ttre" : "r";
+                    } else if (otherCmp(v)) {
+                        tl = (baseMask & UL) ? "or" : "ortts";
+                        tr = (fillOM) ? ((baseMask & UR) ? "oltb" : "om") : "";
+                        bl = (baseMask & DL) ? "ottr" : "ottrc";
+                        br = (baseMask & DR) ? "ot" : "ortte";
+                    }
                     break;
                 case 13: // down|left|right
-                    if (otherMask & (UP)) tl = (baseMask & UL) ? "ttrs" : "t";
-                    if (otherMask & (UP)) tr = (baseMask & UR) ? "ltte" : "t";
-                    bl = (baseMask & DL) ? "m" : "btl"
-                    br = (baseMask & DR) ? "m" : "rtb"
+                    if (baseCmp(v)) {
+                        if (otherMask & (UP)) tl = (baseMask & UL) ? "ttrs" : "t";
+                        if (otherMask & (UP)) tr = (baseMask & UR) ? "ltte" : "t";
+                        bl = (baseMask & DL) ? "m" : "btl"
+                        br = (baseMask & DR) ? "m" : "rtb"
+                    } else if (otherCmp(v)) {
+                        tl = (baseMask & UL) ? "or" : "ortts";
+                        tr = (baseMask & UR) ? "ol" : "ottle";
+                        bl = (baseMask & DL) ? "ottr" : "ottrc";
+                        br = (baseMask & DR) ? "oltt" : "olttc";
+                    }
                     break;
                 case 14: // top|down|left
-                    tl = (baseMask & UL) ? "m" : "ltt";
-                    if (otherMask & (RIGHT)) tr = (baseMask & UR) ? "rtbs": "r";
-                    bl = (baseMask & DL) ? "m" : "btl"
-                    if (otherMask & (RIGHT)) br = (baseMask & DR) ? "ttre" : "r";
+                    if (baseCmp(v)) {
+                        tl = (baseMask & UL) ? "m" : "ltt";
+                        if (otherMask & (RIGHT)) tr = (baseMask & UR) ? "rtbs": "r";
+                        bl = (baseMask & DL) ? "m" : "btl"
+                        if (otherMask & (RIGHT)) br = (baseMask & DR) ? "ttre" : "r";
+                    } else if (otherCmp(v)) {
+                        tl = (baseMask & UL) ? "ortb" : "ortbc";
+                        tr = (baseMask & UR) ? "ob" : "obtrs";
+                        bl = (baseMask & DL) ? "ottr" : "ottrc";
+                        br = (baseMask & DR) ? "ot" : "ortte";
+                    }
                     break;
                 case 15: // top|down|left|right
-                    tl = (baseMask & UL) ? "m" : "ltt";
-                    tr = (baseMask & UR) ? "m" : "ttr"
-                    bl = (baseMask & DL) ? "m" : "btl"
-                    br = (baseMask & DR) ? "m" : "rtb"
+                    if (baseCmp(v)) {
+                        tl = (baseMask & UL) ? "m" : "ltt";
+                        tr = (baseMask & UR) ? "m" : "ttr"
+                        bl = (baseMask & DL) ? "m" : "btl"
+                        br = (baseMask & DR) ? "m" : "rtb"
+                    } else if (otherCmp(v)) {
+                        tl = (baseMask & UL) ? "ortb" : "ortbc";
+                        tr = (baseMask & UR) ? "obtl" : "obtlc";
+                        bl = (baseMask & DL) ? "ottr" : "ottrc";
+                        br = (baseMask & DR) ? "oltt" : "olttc";
+                    }
                     break;
             }
             // add to overlay grid
