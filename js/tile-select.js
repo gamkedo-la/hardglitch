@@ -4,7 +4,7 @@
 // We interpret events to animate the view of the world.
 // The code here is just the skeleton to build over the actual representation.
 
-export { genBgOverlay, genFloorOverlay, genFgOverlay };
+export { select, SeamSelector, genBgOverlay, genFloorOverlay, genFgOverlay };
 
 import { tile_id } from "./game-assets.js";
 
@@ -31,6 +31,237 @@ function same() {
         if (i>0 && arguments[i] != arguments[0]) same = false;
     }
     return same;
+}
+
+class SeamSelector {
+    constructor(name, baseCmp, otherCmp) {
+        this.name = name;
+        this.baseCmp = baseCmp;
+        this.otherCmp = otherCmp;
+    }
+
+    match(base, ...others) {
+        if (!this.baseCmp(base)) return 0;
+        let score = 1;
+        for (const other of others) {
+            if (this.baseCmp(other) || this.otherCmp(other)) score++;
+        }
+        return score;
+    }
+
+    toString() {
+        return this.name;
+    }
+}
+
+function pickSelector(selectors, base, ...others) {
+    let best;
+    let bestScore = 0;
+    for (const selector of selectors) {
+        let score = selector.match(base, ...others);
+        if (score > bestScore) {
+            best = selector;
+            bestScore = score;
+        }
+    }
+    return best;
+}
+
+/**
+ * create an overlay of images for the level data represented in given grid
+ * @param {*} grid - the level data in grid form
+ * @param {*} overlay - the overlay grid which should be twice as big as the grid
+ */
+function select(lvl, grid, overlay, selectors) {
+    for (let j=0; j<grid.height; j++) {
+        for (let i=0; i<grid.width; i++) {
+            let v = grid.get_at(i,j);
+            let p = {x:i, y:j};
+
+            // consider top-left
+            // - possible tiles are: ttl, t, rtte, l, ltbs, m, btle, ttrs, btrc, ltt, btri, rtbi, bi, rtbei, btli
+            // FIXME: not currently assigning btri, rtbi, bi, rtbei, btli
+            // pick best selector based on bordering tiles
+            let selector = pickSelector(selectors, v, grid.up(p), grid.ul(p), grid.left(p));
+            if (!selector) continue;
+            // compute base mask of surrounding tiles based on selector
+            let baseMask =  ((selector.baseCmp(grid.right(p))) ? RIGHT : 0) + 
+                            ((selector.baseCmp(grid.up(p))) ? UP : 0) + 
+                            ((selector.baseCmp(grid.left(p))) ? LEFT : 0) + 
+                            ((selector.baseCmp(grid.down(p))) ? DOWN : 0) +
+                            ((selector.baseCmp(grid.ur(p))) ? UR : 0) +
+                            ((selector.baseCmp(grid.ul(p))) ? UL : 0) +
+                            ((selector.baseCmp(grid.dl(p))) ? DL : 0) +
+                            ((selector.baseCmp(grid.dr(p))) ? DR : 0);
+            //console.log("ul: " + i + "," + j + ": " + selector + " mask: " + baseMask);
+            let tl = "";
+            switch (baseMask & (LEFT|UL|UP)) {
+                case 0:
+                    tl = "ttl";
+                    break;
+                case LEFT:
+                    tl = (baseMask & RIGHT) ? "t" : "rtte";
+                    break;
+                case UP:
+                    tl = (baseMask & DOWN) ? "l" : "ltbs";
+                    break;
+                case UL:
+                    tl = "btrc";
+                    break;
+                case UP|UL:
+                    tl = "btle";
+                    break;
+                case UP|LEFT:
+                    tl = "ltt";
+                    break;
+                case LEFT|UL:
+                    tl = "ttrs";
+                    break;
+                case LEFT|UL|UP:
+                    tl = "m";
+                    break;
+            }
+            let layer = selector.name;
+            if (tl) overlay.set_at(tile_id(lvl, layer, tl), i*2, j*2);
+
+            // consider top-right
+            // - possible tiles are: rtt, t, ttls, r, btre, m, rtbs, ltte, ltbc, ttr, ltbi, btli, bi, btlsi, rtbi
+            // FIXME: not currently assigning ltbi, btli, bi, btlsi, rtbi
+            // pick best selector based on bordering tiles
+            selector = pickSelector(selectors, v, grid.up(p), grid.ur(p), grid.right(p));
+            if (!selector) continue;
+            // compute base mask of surrounding tiles based on selector
+            baseMask =  ((selector.baseCmp(grid.right(p))) ? RIGHT : 0) + 
+                            ((selector.baseCmp(grid.up(p))) ? UP : 0) + 
+                            ((selector.baseCmp(grid.left(p))) ? LEFT : 0) + 
+                            ((selector.baseCmp(grid.down(p))) ? DOWN : 0) +
+                            ((selector.baseCmp(grid.ur(p))) ? UR : 0) +
+                            ((selector.baseCmp(grid.ul(p))) ? UL : 0) +
+                            ((selector.baseCmp(grid.dl(p))) ? DL : 0) +
+                            ((selector.baseCmp(grid.dr(p))) ? DR : 0);
+            //if (v == 2) console.log("ur: " + i + "," + j + ": " + selector + " mask: " + baseMask);
+            let tr = "";
+            switch (baseMask & (RIGHT|UR|UP)) {
+                case 0:
+                    tr = "rtt";
+                    break;
+                case RIGHT:
+                    tr = (baseMask & LEFT) ? "t" : "ttls";
+                    break;
+                case UP:
+                    tr = (baseMask & DOWN) ? "r" : "btre";
+                    break;
+                case UR:
+                    tr = "ltbc";
+                    break;
+                case UP|UR:
+                    tr = "rtbs";
+                    break;
+                case UP|RIGHT:
+                    tr = "ttr";
+                    break;
+                case RIGHT|UR:
+                    tr = "ltte";
+                    break;
+                case RIGHT|UR|UP:
+                    tr = "m";
+                    break;
+            }
+            layer = selector.name;
+            if (tr) overlay.set_at(tile_id(lvl, layer, tr), i*2+1, j*2);
+
+            // consider bottom-left
+            // - possible tiles are: ltb, b, btrs, l, ttle, m, ltts, rtbe, rttc, btl
+            // pick best selector based on bordering tiles
+            selector = pickSelector(selectors, v, grid.down(p), grid.dl(p), grid.left(p));
+            if (!selector) continue;
+            // compute base mask of surrounding tiles based on selector
+            baseMask =  ((selector.baseCmp(grid.right(p))) ? RIGHT : 0) + 
+                            ((selector.baseCmp(grid.up(p))) ? UP : 0) + 
+                            ((selector.baseCmp(grid.left(p))) ? LEFT : 0) + 
+                            ((selector.baseCmp(grid.down(p))) ? DOWN : 0) +
+                            ((selector.baseCmp(grid.ur(p))) ? UR : 0) +
+                            ((selector.baseCmp(grid.ul(p))) ? UL : 0) +
+                            ((selector.baseCmp(grid.dl(p))) ? DL : 0) +
+                            ((selector.baseCmp(grid.dr(p))) ? DR : 0);
+            //if (v == 2) console.log("dl: " + i + "," + j + ": " + selector + " mask: " + baseMask);
+            let bl = "";
+            switch (baseMask & (LEFT|DL|DOWN)) {
+                case 0:
+                    bl = "ltb";
+                    break;
+                case LEFT:
+                    bl = (baseMask & RIGHT) ? "b" : "btrs";
+                    break;
+                case DOWN:
+                    bl = (baseMask & UP) ? "l" : "ttle";
+                    break;
+                case DL:
+                    bl = "rttc";
+                    break;
+                case DOWN|DL:
+                    bl = "ltts";
+                    break;
+                case DOWN|LEFT:
+                    bl = "btl";
+                    break;
+                case LEFT|DL:
+                    bl = "rtbe";
+                    break;
+                case LEFT|DL|DOWN:
+                    bl = "m";
+                    break;
+            }
+            layer = selector.name;
+            if (bl) overlay.set_at(tile_id(lvl, layer, bl), i*2, j*2+1);
+
+            // consider bottom-right
+            // - possible tiles are: btr, b, ltbe, r, rtts, m, ttre, btls, ttlc, rtb
+            // - possible tiles are: rtt, t, ttls, r, btre, m, rtbs, ltte, ltbc, ttr
+            // pick best selector based on bordering tiles
+            selector = pickSelector(selectors, v, grid.down(p), grid.dr(p), grid.right(p));
+            if (!selector) continue;
+            // compute base mask of surrounding tiles based on selector
+            baseMask =  ((selector.baseCmp(grid.right(p))) ? RIGHT : 0) + 
+                            ((selector.baseCmp(grid.up(p))) ? UP : 0) + 
+                            ((selector.baseCmp(grid.left(p))) ? LEFT : 0) + 
+                            ((selector.baseCmp(grid.down(p))) ? DOWN : 0) +
+                            ((selector.baseCmp(grid.ur(p))) ? UR : 0) +
+                            ((selector.baseCmp(grid.ul(p))) ? UL : 0) +
+                            ((selector.baseCmp(grid.dl(p))) ? DL : 0) +
+                            ((selector.baseCmp(grid.dr(p))) ? DR : 0);
+            //if (v == 2) console.log("dr: " + i + "," + j + ": " + selector + " mask: " + baseMask);
+            let br = "";
+            switch (baseMask & (RIGHT|DR|DOWN)) {
+                case 0:
+                    br = "btr";
+                    break;
+                case RIGHT:
+                    br = (baseMask & LEFT) ? "b" : "ltbe";
+                    break;
+                case DOWN:
+                    br = (baseMask & UP) ? "r" : "rtts";
+                    break;
+                case DR:
+                    br = "ttlc";
+                    break;
+                case DOWN|DR:
+                    br = "ttre";
+                    break;
+                case DOWN|RIGHT:
+                    br = "rtb";
+                    break;
+                case RIGHT|DR:
+                    br = "btls";
+                    break;
+                case RIGHT|DR|DOWN:
+                    br = "m";
+                    break;
+            }
+            layer = selector.name;
+            if (br) overlay.set_at(tile_id(lvl, layer, br), i*2+1, j*2+1);
+        }
+    }
 }
 
 /**

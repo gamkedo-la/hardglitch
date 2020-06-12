@@ -1,4 +1,4 @@
-import { genBgOverlay } from "../tile-select.js";
+import { genBgOverlay, SeamSelector, select } from "../tile-select.js";
 import { Grid } from "../system/grid.js";
 
 // hard-coded bg tiles
@@ -452,8 +452,8 @@ class Game {
         let tsize = 32;
         let width = 16;
         let height = 12;
-        //let width = 4;
-        //let height = 4;
+        //let width = 8;
+        //let height = 8;
         // generate the test grid and level data
         let grid = new Grid(width, height);
         gen(grid, .35, .1);
@@ -462,8 +462,18 @@ class Game {
         //let bgoverlay = new Grid(width*2, height*2);
 
         let bg2 = new Grid(width*2, height*2);
-        genBgOverlay("lvl1", "w2g", grid, bg2, (fg) => (fg == 1), (bg) => (bg == 0));
-        genBgOverlay("lvl1", "h2g", grid, bg2, (fg) => (fg == 2), (bg) => (bg == 0));
+        let selectors = [
+            new SeamSelector("w2h", (fg) => (fg==1), (bg) => (bg == 2)),
+            new SeamSelector("h2w", (fg) => (fg==2), (bg) => (bg == 1)),
+            new SeamSelector("g2w", (fg) => (fg==0), (bg) => (bg == 1)),
+            new SeamSelector("g2h", (fg) => (fg==0), (bg) => (bg == 2)),
+            new SeamSelector("w2g", (fg) => (fg==1), (bg) => (bg != 1)),
+            new SeamSelector("h2g", (fg) => (fg==2), (bg) => (bg != 2)),
+            new SeamSelector("g2o", (fg) => (fg==0), (bg) => (bg != 0)),
+        ];
+        select("lvl1", grid, bg2, selectors);
+        //genBgOverlay("lvl1", "w2g", grid, bg2, (fg) => (fg == 1), (bg) => (bg == 0));
+        //genBgOverlay("lvl1", "h2g", grid, bg2, (fg) => (fg == 2), (bg) => (bg == 0));
         //genBgOverlay("lvl1", "floor", grid, bg2, (fg) => (fg == 0), (bg) => (bg == 1));
         //genBgOverlay("lvl1", "h2g", grid, bg2, (fg) => (fg == 2), (bg) => (bg == 0));
         //genBgOverlay("lvl1", "g2h", grid, bg2, (fg) => (fg == 0), (bg) => (bg == 2));
@@ -499,24 +509,31 @@ class Game {
         for (let j=0; j<bg2.height; j++) {
             for (let i=0; i<bg2.width; i++) {
                 let v = bg2.get_at(i,j);
-                let tiles = wallToGroundTiles;
+                let tiles = {};
                 if (!v) continue;
                 v = v.slice(5);
                 //console.log("v: " + v);
                 if (v.startsWith("w2g")) {
                     v = v.slice(4);
-                } else if (v.startsWith("floor")) {
-                    v = v.slice(6);
-                    tiles = groundToWallTiles;
+                    tiles = w2gTiles;
+                } else if (v.startsWith("g2w")) {
+                    v = v.slice(4);
+                    tiles = g2wTiles;
                 } else if (v.startsWith("h2g")) {
                     v = v.slice(4);
-                    tiles = holeToGroundTiles;
+                    tiles = h2gTiles;
                 } else if (v.startsWith("g2h")) {
                     v = v.slice(4);
-                    tiles = groundToHoleTiles;
+                    tiles = g2hTiles;
                 } else if (v.startsWith("h2w")) {
                     v = v.slice(4);
-                    tiles = holeToWallTiles;
+                    tiles = h2wTiles;
+                } else if (v.startsWith("w2h")) {
+                    v = v.slice(4);
+                    tiles = w2hTiles;
+                } else if (v.startsWith("g2o")) {
+                    v = v.slice(4);
+                    tiles = g2oTiles;
                 }
                 let img = tiles[v];
                 if (!img) continue;
@@ -524,11 +541,11 @@ class Game {
             }
         }
 
-        /*
         // draw perspective overlay
+        /*
         for (let j=0; j<poverlay.height; j++) {
             for (let i=0; i<poverlay.width; i++) {
-                let v = poverlay.get(i,j);
+                let v = poverlay.get_at(i,j);
                 if (!v) continue;
                 let img = walltiles[v];
                 if (!img) continue;
@@ -554,12 +571,17 @@ function start() {
     game.play();
 }
 
-const bgTemplatePath = "srcref/wallToGround.png";
-const tileTemplatePath = "srcref/tiletemplate.png";
 const groundToWallPath = "srcref/groundToWall.png";
 const groundToHolePath = "srcref/groundToHole.png";
-const holeToGroundPath = "srcref/holeToGround.png";
+const groundToOtherPath = "srcref/groundToOther.png";
 const holeToWallPath = "srcref/holeToWall.png";
+const holeToGroundPath = "srcref/holeToGround.png";
+const wallToHolePath = "srcref/wallToHole.png";
+const wallToGroundPath = "srcref/wallToGround.png";
+const allPaths = [groundToWallPath, groundToHolePath, groundToOtherPath, holeToWallPath, holeToGroundPath, wallToHolePath, wallToGroundPath];
+
+//const bgTemplatePath = "srcref/wallToGround.png";
+//const tileTemplatePath = "srcref/tiletemplate.png";
 //const bgTemplatePath = "srcref/colortest1_bg.png";
 //const tileTemplatePath = "srcref/colortest1.png";
 //const bgTemplatePath = "srcref/colortest2_bg.png";
@@ -569,19 +591,19 @@ const holeToWallPath = "srcref/holeToWall.png";
 //const bgTemplatePath = "srcref/colortest4_bg.png";
 //const tileTemplatePath = "srcref/colortest4.png";
 
-let bgtiles;
-let walltiles;
-let wallToGroundTiles;
-let groundToWallTiles;
-let groundToHoleTiles;
-let holeToGroundTiles;
-let holeToWallTiles;
+let g2wTiles;
+let g2hTiles;
+let g2oTiles;
+let h2wTiles;
+let h2gTiles;
+let w2hTiles;
+let w2gTiles;
 
 function setup() {
     return new Promise((resolve) => {
         // load tileset images
         let promises = [];
-        for (const path of [bgTemplatePath, tileTemplatePath, groundToWallPath, groundToHolePath, holeToGroundPath, holeToWallPath]) {
+        for (const path of allPaths) {
             promises.push(loadImage(path));
         }
         Promise.all(promises).then((imgs) => {
@@ -590,12 +612,13 @@ function setup() {
                 promises.push(loadTemplateSheet(img, templateMap, 32));
             }
             Promise.all(promises).then((tilesets) => {
-                wallToGroundTiles = tilesets[0];
-                walltiles = tilesets[1];
-                groundToWallTiles = tilesets[2];
-                groundToHoleTiles = tilesets[3];
-                holeToGroundTiles = tilesets[4];
-                holeToWallTiles = tilesets[4];
+                g2wTiles = tilesets[0];
+                g2hTiles = tilesets[1];
+                g2oTiles = tilesets[2];
+                h2wTiles = tilesets[3];
+                h2gTiles = tilesets[4];
+                w2hTiles = tilesets[5];
+                w2gTiles = tilesets[6];
                 resolve();
             });
         });
