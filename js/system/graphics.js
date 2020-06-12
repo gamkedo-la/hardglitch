@@ -41,7 +41,8 @@ function from_graphic_to_grid_position(vec2, square_size, graphics_origin = {x:0
 
 class Camera{
   transform = new spatial.Transform();
-  get position() { return this.transform.position; }
+
+  get position() { return new spatial.Vector2(this.transform.position); }
   set position(new_pos) {
     console.assert(new_pos instanceof spatial.Vector2);
     this.transform.position = new_pos;
@@ -62,6 +63,13 @@ class Camera{
     translation = translation.inverse;
     canvasContext.translate(translation.x, translation.y);
   }
+
+  get rectangle() { return new spatial.Rectangle({ position: this.position, width: canvas.width, height: canvas.height }); }
+
+  can_see(rect){
+    return spatial.is_intersection(rect, this.rectangle);
+  }
+
 };
 const camera = new Camera();
 
@@ -125,7 +133,23 @@ class Sprite {
     this.animation_keyframe_idx = 0;
   }
 
+  get size(){
+    if(this._current_frame)
+      return { width: this._current_frame.width, height: this._current_frame.height,
+               x: this._current_frame.width, y: this._current_frame.height };
+    else if(this.source_image)
+      return { width: this.source_image.width, height: this.source_image.height,
+                x: this.source_image.width, y: this.source_image.height };
+    else
+      return { width: 64, height: 64, x: 64, y: 64 };
+  }
+
   draw(){
+    const size = this.size;
+    // Skip any work if we are outside the camera view.
+    if(!camera.can_see(new spatial.Rectangle({ position: this.position, size: size })))
+      return;
+
     if(this.source_image){
 
       canvasContext.save(); // TODO : this should be done by the caller? probably
@@ -135,22 +159,22 @@ class Sprite {
       {
         // TODO: handle scaling and other deformations
         canvasContext.drawImage(this.source_image,
-          this._current_frame.x, this._current_frame.y, this._current_frame.width, this._current_frame.height, // source
-          0, 0, this._current_frame.width, this._current_frame.height, // destination
+          this._current_frame.x, this._current_frame.y, size.width, size.height, // source
+          0, 0, size.width, size.height, // destination
         );
       }
       else
       {
         // No frame, use the whole image.
         // TODO: handle scaling and other deformations
-        canvasContext.drawImage(this.source_image, 0, 0, this.source_image.width, this.source_image.height);
+        canvasContext.drawImage(this.source_image, 0, 0, size.width, size.height);
       }
       canvasContext.restore();
     } else {
       // We don't have an image so we draw a colored rectangle instead.
       // TODO: handle scaling and other deformations
       const empty_sprite_color = "#ff00ff";
-      colorRect(new spatial.Rectangle( { position: this.position, size: this.size } ), empty_sprite_color);
+      colorRect(new spatial.Rectangle( { position: this.position, size: size } ), empty_sprite_color);
     }
   }
 

@@ -3,7 +3,8 @@ export {
     Vector2, Vector2_origin, Vector2_unit, Vector2_unit_x, Vector2_unit_y,
     Transform,
     Angle,
-    Rectangle
+    Rectangle,
+    is_intersection,
 };
 
 /////////////////////////////////////////////
@@ -118,23 +119,28 @@ class Transform {
     orientation = new Angle();
 };
 
+function is_intersection(rect_a, rect_b){
+    return rect_a.position.x < rect_b.position.x + rect_b.width
+        && rect_a.position.x + rect_a.width > rect_b.position.x
+        && rect_a.position.y < rect_b.position.y + rect_b.height
+        && rect_a.position.y + rect_a.height > rect_b.position.y
+        ;
+}
+
+
 // BEWARE, THIS RECTANGLE CANNOT BE ROTATED
 class Rectangle {
     position = new Vector2();
     size = new Vector2();
 
     constructor(rect = {}){
-        if(rect.position) this.position = rect.position;
-        if(rect.size) this.size = rect.size;
+        if(rect.position) this.position = new Vector2(rect.position);
+        if(rect.size) this.size = new Vector2(rect.size);
         if(rect.x || rect.y) this.position = new Vector2(rect);
-        if(rect.width || rect.height) this.position = new Vector2({x:rect.width || 0.0, y:rect.height || 0.0});
+        if(rect.width || rect.height) this.size = new Vector2({x:rect.width || 0.0, y:rect.height || 0.0});
     }
 
-    get width(){
-        return this.size.x;
-    }
-    get height(){
-        return this.size.y;
-    }
+    get width(){ return this.size.x; }
+    get height(){ return this.size.y; }
 };
 

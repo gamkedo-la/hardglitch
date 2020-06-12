@@ -38,7 +38,7 @@ function make_test_world(){ // The game assets must have been initialized first.
     for (let j=0; j<test_world_size.height; j++) {
         for (let i=0; i<test_world_size.width; i++) {
             // pick a random number
-            let choice = Math.random();
+            const choice = Math.random();
             let tileID;
             // check wall pct
             if (choice <= wallPct) {
