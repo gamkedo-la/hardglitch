@@ -1,5 +1,5 @@
 import { genBgOverlay } from "../tile-select.js";
-import { Grid } from "../core/concepts.js";
+import { Grid } from "../system/grid.js";
 
 // hard-coded bg tiles
 const wall = new Image();

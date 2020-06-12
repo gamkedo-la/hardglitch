@@ -14,6 +14,7 @@ import { genBgOverlay, genFloorOverlay, genFgOverlay } from "./tile-select.js";
 
 import { Game } from "./game.js";
 import { Vector2 } from "./system/spatial.js";
+import { Grid } from "./system/grid.js";
 import * as tiledefs from "./definitions-tiles.js";
 
 import * as debug from "./debug.js";
@@ -103,8 +104,8 @@ class TileGridView {
         this.size = size;
 
         // translate given grids to display grids
-        const bg_grid = new concepts.Grid(size.x*2, size.y*2);
-        const fg_grid = new concepts.Grid(size.x*2, size.y*2);
+        const bg_grid = new Grid(size.x*2, size.y*2);
+        const fg_grid = new Grid(size.x*2, size.y*2);
         // handle transitions from ground<->floor
         genFloorOverlay("lvl1", "bg", ground_tile_grid, bg_grid, tiledefs.ID.GROUND, tiledefs.ID.WALL);
         // handle transitions from ground<->void
