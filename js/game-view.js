@@ -10,7 +10,7 @@ import * as graphics from "./system/graphics.js";
 import { tile_id } from "./game-assets.js";
 import { random_int, is_number } from "./system/utility.js";
 import * as concepts from "./core/concepts.js";
-import { genBgOverlay, genFloorOverlay, genFgOverlay } from "./tile-select.js";
+import { SeamSelector, genFloorOverlay, genFgOverlay } from "./tile-select.js";
 
 import { Game } from "./game.js";
 import { Vector2 } from "./system/spatial.js";
@@ -105,11 +105,19 @@ class TileGridView {
 
         // translate given grids to display grids
         const bg_grid = new Grid(size.x*2, size.y*2);
+        const test_grid = new Grid(size.x*2, size.y*2);
         const fg_grid = new Grid(size.x*2, size.y*2);
-        // handle transitions from ground<->floor
-        genFloorOverlay("lvl1", "bg", ground_tile_grid, bg_grid, tiledefs.ID.GROUND, tiledefs.ID.WALL);
-        // handle transitions from ground<->void
-        //genFloorOverlay("lvl1", "bg", surface_tile_grid, bg_grid);
+        let selectors = [
+            new SeamSelector("w2h", (fg) => (fg==tiledefs.ID.WALL), (bg) => (bg == tiledefs.ID.HOLE)),
+            new SeamSelector("h2w", (fg) => (fg==tiledefs.ID.HOLE), (bg) => (bg == tiledefs.ID.WALL)),
+            new SeamSelector("g2w", (fg) => (fg==tiledefs.ID.GROUND), (bg) => (bg == tiledefs.ID.WALL)),
+            new SeamSelector("g2h", (fg) => (fg==tiledefs.ID.GROUND), (bg) => (bg == tiledefs.ID.HOLE)),
+            new SeamSelector("w2g", (fg) => (fg==tiledefs.ID.WALL), (bg) => (bg != tiledefs.ID.WALL)),
+            new SeamSelector("h2g", (fg) => (fg==tiledefs.ID.HOLE), (bg) => (bg != tiledefs.ID.HOLE)),
+            new SeamSelector("g2o", (fg) => (fg==tiledefs.ID.GROUND), (bg) => (bg != tiledefs.ID.GROUND)),
+        ];
+        // handle floor transitions
+        genFloorOverlay("lvl1", ground_tile_grid, bg_grid, selectors);
         // handle surface transitions
         genFgOverlay("lvl1", "fg", surface_tile_grid, fg_grid);
         // filter out all wall/ground tiles from fg

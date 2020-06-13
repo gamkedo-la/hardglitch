@@ -32,6 +32,10 @@ const defs = {
         sprite_def: sprite_defs.wall,
         is_walkable: false,
     },
+    [ID.HOLE] : {
+        sprite_def: sprite_defs.void,
+        is_walkable: false,
+    },
     [ID.VOID] : {
         sprite_def: sprite_defs.void,
         is_walkable: true,
@@ -68,6 +72,13 @@ function update_id_defs(lvl, layer) {
 // update ID/defs for level 1 tiles
 update_id_defs("lvl1", "fg");
 update_id_defs("lvl1", "bg");
+update_id_defs("lvl1", "g2w");
+update_id_defs("lvl1", "g2h");
+update_id_defs("lvl1", "g2o");
+update_id_defs("lvl1", "h2w");
+update_id_defs("lvl1", "h2g");
+update_id_defs("lvl1", "w2h");
+update_id_defs("lvl1", "w2g");
 
 
 // All the tile sprites definitions (as described by tiles definitions).

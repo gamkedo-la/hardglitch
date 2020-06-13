@@ -34,7 +34,7 @@ function make_test_world(){ // The game assets must have been initialized first.
 
     // set floor/walls/holes
     let wallPct = .2;
-    let voidPct = .1;
+    let holePct = .1;
     for (let j=0; j<test_world_size.height; j++) {
         for (let i=0; i<test_world_size.width; i++) {
             // pick a random number
@@ -43,9 +43,9 @@ function make_test_world(){ // The game assets must have been initialized first.
             // check wall pct
             if (choice <= wallPct) {
                 tileID = tiles.ID.WALL;
-            // check void pct
-            } else if ( choice <= wallPct+voidPct) {
-                tileID = tiles.ID.VOID;
+            // check hole pct
+            } else if ( choice <= wallPct+holePct) {
+                tileID = tiles.ID.HOLE;
             // otherwise ground
             } else {
                 tileID = tiles.ID.GROUND;
@@ -54,7 +54,7 @@ function make_test_world(){ // The game assets must have been initialized first.
             if (tileID == tiles.ID.WALL) {
                 set_surface_tile(new concepts.Position(i, j), tileID);
             }
-            // void/ground/wall tiles get assigned to floor layer (wall gets assigned to both surface/floor)
+            // hole/ground/wall tiles get assigned to floor layer (wall gets assigned to both surface/floor)
             set_floor_tile(new concepts.Position(i, j), tileID);
         }
     }

@@ -1,4 +1,4 @@
-import { genBgOverlay, SeamSelector, select } from "../tile-select.js";
+import { SeamSelector, genFloorOverlay } from "../tile-select.js";
 import { Grid } from "../system/grid.js";
 
 // hard-coded bg tiles
@@ -459,8 +459,6 @@ class Game {
         gen(grid, .35, .1);
 
         // generate the bg overlay based on level data
-        //let bgoverlay = new Grid(width*2, height*2);
-
         let bg2 = new Grid(width*2, height*2);
         let selectors = [
             new SeamSelector("w2h", (fg) => (fg==1), (bg) => (bg == 2)),
@@ -471,13 +469,7 @@ class Game {
             new SeamSelector("h2g", (fg) => (fg==2), (bg) => (bg != 2)),
             new SeamSelector("g2o", (fg) => (fg==0), (bg) => (bg != 0)),
         ];
-        select("lvl1", grid, bg2, selectors);
-        //genBgOverlay("lvl1", "w2g", grid, bg2, (fg) => (fg == 1), (bg) => (bg == 0));
-        //genBgOverlay("lvl1", "h2g", grid, bg2, (fg) => (fg == 2), (bg) => (bg == 0));
-        //genBgOverlay("lvl1", "floor", grid, bg2, (fg) => (fg == 0), (bg) => (bg == 1));
-        //genBgOverlay("lvl1", "h2g", grid, bg2, (fg) => (fg == 2), (bg) => (bg == 0));
-        //genBgOverlay("lvl1", "g2h", grid, bg2, (fg) => (fg == 0), (bg) => (bg == 2));
-        //genBgOverlay("lvl1", "h2w", grid, bg2, (fg) => (fg == 2), (bg) => (bg == 1));
+        genFloorOverlay("lvl1", grid, bg2, selectors);
 
         // generate the perspective overlay based on level data
         let poverlay = new Grid(width*2, height*2);
