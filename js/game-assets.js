@@ -34,6 +34,7 @@ const game_assets = { // Description of the assets to load.
         h2g_template : "./images/holeToGround.png",
         w2h_template : "./images/wallToHole.png",
         w2g_template : "./images/wallToGround.png",
+        test_button : "./images/test_button.png",
     }
 };
 
@@ -109,7 +110,17 @@ const sprite_defs = {
         frames: [
             { x:64, y:0, width:64, height:64 }
          ]
+    },
+    test_button: {
+        image: "test_button",
+        frames: [
+            { x:0, y:0, width:50, height:50 },
+            { x:50, y:0, width:50, height:50 },
+            { x:100, y:0, width:50, height:50 },
+            { x:150, y:0, width:50, height:50 },
+        ]
     }
+
 };
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -198,9 +209,9 @@ const tile_defs = {
 
 /**
  * return the full tile id given level, layer and tile name
- * @param {*} lvl 
- * @param {*} layer 
- * @param {*} name 
+ * @param {*} lvl
+ * @param {*} layer
+ * @param {*} name
  */
 function tile_id(lvl, layer, name) {
     return lvl + "_" + layer + "_" + name;
@@ -209,13 +220,13 @@ function tile_id(lvl, layer, name) {
 function update_sprite_defs(imgname, lvl, layer, tilesize) {
     for (const k of Object.keys(tile_defs)) {
         let p = tile_defs[k];
-        let def = { 
+        let def = {
             image: imgname,
             frames: [
-                { 
-                    x: p.i*tilesize, 
-                    y: p.j*tilesize, 
-                    width: tilesize, 
+                {
+                    x: p.i*tilesize,
+                    y: p.j*tilesize,
+                    width: tilesize,
                     height: tilesize
                 },
             ],

@@ -8,6 +8,7 @@ export {
   Sprite,
   TileGrid,
   draw_text,
+  draw_rectangle,
   canvas_center_position,
   draw_grid_lines,
   from_grid_to_graphic_position,
@@ -174,7 +175,7 @@ class Sprite {
       // We don't have an image so we draw a colored rectangle instead.
       // TODO: handle scaling and other deformations
       const empty_sprite_color = "#ff00ff";
-      colorRect(new spatial.Rectangle( { position: this.position, size: size } ), empty_sprite_color);
+      draw_rectangle(new spatial.Rectangle( { position: this.position, size: size } ), empty_sprite_color);
     }
   }
 
@@ -270,7 +271,7 @@ class TileGrid
   draw_background(){
     // TODO: consider allowing an image as a background
     const background_size = from_grid_to_graphic_position({ x:this.size.x, y:this.size.y }, this.square_size); // TODO: calculate that only when necessary
-    colorRect(new spatial.Rectangle({ position: this.position, size: background_size }), this.background_color);
+    draw_rectangle(new spatial.Rectangle({ position: this.position, size: background_size }), this.background_color);
   }
 
   draw_tiles(){
@@ -328,13 +329,13 @@ function on_window_resized(){
   canvas_resize_to_window();
 }
 
-function colorRect(rectangle, fillColor) {
+function draw_rectangle(rectangle, fillColor) {
   canvasContext.fillStyle = fillColor;
   canvasContext.fillRect(rectangle.position.x, rectangle.position.y,
     rectangle.width, rectangle.height);
 }
 
-function colorCircle(centerX, centerY, radius, fillColor) {
+function draw_circle(centerX, centerY, radius, fillColor) {
   canvasContext.fillStyle = fillColor;
   canvasContext.beginPath();
   canvasContext.arc(centerX, centerY, radius, 0, Math.PI*2, true);

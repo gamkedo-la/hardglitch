@@ -20,6 +20,8 @@ import * as tiledefs from "./definitions-tiles.js";
 import * as debug from "./debug.js";
 import { tween } from "./system/tweening.js";
 
+import { GameInterface } from "./game-ui.js";
+
 const PIXELS_PER_TILES_SIDE = 64;
 const PIXELS_PER_HALF_SIDE = 32;
 const square_unit_vector = new Vector2({ x: PIXELS_PER_TILES_SIDE, y: PIXELS_PER_TILES_SIDE });
@@ -177,6 +179,8 @@ class GameView {
     animation_queue = []; // Must contain only js generators + parallel: (true||false). // TODO: make the animation system separately to be used anywhere there are animations to play.
     current_animations = []; // Must be a set of js generators, each one an animation that can be played together.
 
+    ui = new GameInterface();
+
     constructor(game){
         console.assert(game instanceof Game);
         this.game = game;
@@ -261,6 +265,8 @@ class GameView {
         for(const body_view of Object.values(this.body_views)){
             body_view.update(delta_time);
         };
+
+        this.ui.update(delta_time);
     }
 
     render_graphics(){
@@ -269,6 +275,8 @@ class GameView {
         for(const body_view of Object.values(this.body_views)){
             body_view.render_graphics();
         };
+
+        this.ui.display();
     }
 
     // Re-interpret the game's state from scratch.
