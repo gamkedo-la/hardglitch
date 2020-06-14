@@ -107,6 +107,8 @@ class Sprite {
   animation_time = 0.0;
   animation_keyframe_idx = 0;
 
+  _frame_changed_since_update = false;
+
   // Setup the sprite using a sprite definition if provided.
   // A sprite definition looks like this:
   //
@@ -140,17 +142,21 @@ class Sprite {
         // Use the first animation by default. TODO: reconsider...
         this.start_animation(Object.keys(this.animations)[0]);
       }
-
     }
   }
 
   get position() { return this.transform.position; }
   set position(new_position) { this.transform.position = new_position; }
 
+  get did_frame_change_since_last_update(){
+    return this._frame_changed_since_update;
+  }
+
   force_frame(frame_idx) {
     console.assert(is_number(frame_idx));
     console.assert(frame_idx >= 0 && frame_idx < this.frames.length);
     this._current_frame = this.frames[frame_idx];
+    this._frame_changed_since_update = true;
   }
 
   start_animation(animation_id){
@@ -173,21 +179,21 @@ class Sprite {
       return { width: 64, height: 64, x: 64, y: 64 };
   }
 
-  draw(){
+  draw(canvas_context){
+    if(!canvas_context)
+      canvas_context = canvasContext;
+
     const size = this.size;
-    // Skip any work if we are outside the camera view.
-    if(!camera.can_see(new spatial.Rectangle({ position: this.position, size: size })))
-      return;
 
     if(this.source_image){
 
-      canvasContext.save(); // TODO : this should be done by the caller? probably
-      canvasContext.translate(this.transform.position.x, this.transform.position.y);
-      canvasContext.rotate(this.transform.orientation.degrees); // TODO: check if t's radian or degrees
+      canvas_context.save(); // TODO : this should be done by the caller? probably
+      canvas_context.translate(this.transform.position.x, this.transform.position.y);
+      canvas_context.rotate(this.transform.orientation.degrees); // TODO: check if t's radian or degrees
       if(this._current_frame)
       {
         // TODO: handle scaling and other deformations
-        canvasContext.drawImage(this.source_image,
+        canvas_context.drawImage(this.source_image,
           this._current_frame.x, this._current_frame.y, size.width, size.height, // source
           0, 0, size.width, size.height, // destination
         );
@@ -196,9 +202,9 @@ class Sprite {
       {
         // No frame, use the whole image.
         // TODO: handle scaling and other deformations
-        canvasContext.drawImage(this.source_image, 0, 0, size.width, size.height);
+        canvas_context.drawImage(this.source_image, 0, 0, size.width, size.height);
       }
-      canvasContext.restore();
+      canvas_context.restore();
     } else {
       // We don't have an image so we draw a colored rectangle instead.
       // TODO: handle scaling and other deformations
@@ -207,10 +213,13 @@ class Sprite {
     }
   }
 
+  // Update the animation if necessary,
   update(delta_time){
+    this._frame_changed_since_update = false;
+
     // Update the animation if any
     if(!this._current_animation)
-      return;
+      return ;
 
     this.animation_time += delta_time;
     let need_to_change_frame = false;
@@ -239,6 +248,7 @@ class Sprite {
       const current_keyframe = this._current_animation.timeline[this.animation_keyframe_idx];
       this.force_frame(current_keyframe.frame);
     }
+
   }
 };
 
@@ -249,6 +259,9 @@ class TileGrid
 {
   background_color = "orange"; // Color displayed where there is no sprite in the grid.
   enable_draw_background = false;
+  _offscreen_canvas = document.createElement('canvas');
+  _offscreen_canvas_context = this._offscreen_canvas.getContext('2d');
+  _request_rendering = true;
 
   constructor(position, size, square_size, sprite_defs, tile_id_grid){
     console.assert(position instanceof spatial.Vector2);
@@ -266,6 +279,9 @@ class TileGrid
     for(const sprite_id in sprite_defs){
       this.set_tile_type(sprite_id, sprite_defs[sprite_id]);
     }
+
+    this._offscreen_canvas.width = this.size.x * square_size;
+    this._offscreen_canvas.height = this.size.y * square_size;
   }
 
   // Adds a sprite that can be used for tiles,
@@ -290,20 +306,11 @@ class TileGrid
 
   }
 
-  update(delta_time){
-    for(const sprite of Object.values(this.sprites)){
-      sprite.update(delta_time);
-    }
-  }
+  _render_offscreen(){
 
-  draw_background(){
-    // TODO: consider allowing an image as a background
-    const background_size = from_grid_to_graphic_position({ x:this.size.x, y:this.size.y }, this.square_size); // TODO: calculate that only when necessary
-    draw_rectangle(new spatial.Rectangle({ position: this.position, size: background_size }), this.background_color);
-  }
+    this._offscreen_canvas_context.fillStyle = "#00000000";
+    this._offscreen_canvas_context.fillRect(0, 0, this._offscreen_canvas.width, this._offscreen_canvas.height);
 
-  draw_tiles(){
-    // TODO: optimize this by batching and keeping a side canvas of the drawn sprites
     for(let y = 0; y < this.size.y; ++y){
       for(let x = 0; x < this.size.x; ++x){
         const tile_idx = index_from_position(this.size.x, this.size.y, {x, y});
@@ -315,9 +322,36 @@ class TileGrid
         console.assert(sprite);
         const graphic_pos = from_grid_to_graphic_position({x:x, y:y}, this.square_size, this.position);
         sprite.position = graphic_pos;
-        sprite.draw();
+        sprite.draw(this._offscreen_canvas_context);
       }
     }
+    this._request_rendering = false;
+  }
+
+  update(delta_time){
+    let is_any_sprite_changed = false;
+    for(const sprite of Object.values(this.sprites)){
+      // Note if the sprite changed outside of animation updates.
+      is_any_sprite_changed = is_any_sprite_changed || sprite.did_frame_change_since_last_update;
+      sprite.update(delta_time);
+      // Note if the sprite changed because of an animation updates.
+      is_any_sprite_changed = is_any_sprite_changed || sprite.did_frame_change_since_last_update;
+    }
+    if(is_any_sprite_changed){
+      this._request_rendering = true;
+    }
+  }
+
+  draw_background(){
+    // TODO: consider allowing an image as a background
+    const background_size = from_grid_to_graphic_position({ x:this.size.x, y:this.size.y }, this.square_size); // TODO: calculate that only when necessary
+    draw_rectangle(new spatial.Rectangle({ position: this.position, size: background_size }), this.background_color);
+  }
+
+  draw_tiles(){
+    if(this._request_rendering)
+      this._render_offscreen();
+    canvasContext.drawImage(this._offscreen_canvas, 0, 0);
   }
 
   draw(){ // TODO: take a camera into account
