@@ -29,9 +29,11 @@ class GameInterface {
         position: { x: 200, y: 300 },
         width: 50, height: 50,
         sprite_def: sprite_defs.test_button,
+        frames: { up: 0, down: 1, over: 2, disabled: 3 },
         is_action_on_up: true,
-        action: function(){
+        action: ()=>{
             console.log("ANOTHER TEST BUTTON ACTION");
+            this.another_test_button.enabled = false;
         }
     });
 
