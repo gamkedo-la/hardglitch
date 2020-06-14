@@ -25,6 +25,7 @@ const KEY_LETTER_A = 65;
 const KEY_LETTER_S = 83;
 const KEY_LETTER_D = 68;
 const KEY_LETTER_P = 80;
+const KEY_LETTER_M = 77;
 
 // Returns the pixel position inside the game space (taking into acount the camera).
 function game_position_from_graphic_position(graphic_position){
@@ -126,6 +127,10 @@ function update(delta_time){
                 current_game_view.interpret_turn_events(); // Starts showing each event one by one until it's player's turn.
             }
         }
+    }
+
+    if(input.keyboard.is_just_down(KEY_LETTER_M)){
+        current_game_view.tile_grid.enable_grid_lines = !current_game_view.tile_grid.enable_grid_lines;
     }
 }
 

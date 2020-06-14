@@ -96,7 +96,7 @@ function isWall(v) {
 
 // Display tiles.
 class TileGridView {
-    enable_grid_lines = true;
+    enable_grid_lines = false;
     enable_overlay = true;
 
     constructor(position, size, ground_tile_grid, surface_tile_grid){
