@@ -35,6 +35,20 @@ class GameInterface {
         action: ()=>{
             console.log("ANOTHER TEST BUTTON ACTION");
             this.another_test_button.enabled = false;
+            this.third_test_button.visible = true;
+        }
+    });
+
+    third_test_button = new ui.Button({
+        position: { x: 200, y: 400 },
+        width: 50, height: 50,
+        sprite_def: sprite_defs.test_button,
+        frames: { up: 0, down: 1, over: 2, disabled: 3 },
+        visible: false,
+        action: ()=>{
+            console.log("THIRD TEST BUTTON ACTION");
+            this.another_test_button.enabled = true;
+            this.third_test_button.visible = false;
         }
     });
 
