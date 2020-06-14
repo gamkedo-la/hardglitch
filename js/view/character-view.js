@@ -1,7 +1,7 @@
 // This file contains the code deciding how to display characters.
 
 export {
-    BodyView,
+    CharacterView,
 }
 
 
@@ -10,8 +10,8 @@ import * as concepts from "../core/concepts.js";
 import { tween } from "../system/tweening.js";
 import { graphic_position } from "./common-view.js";
 
-// Representation of a body.
-class BodyView {
+// Representation of a character's body.
+class CharacterView {
     is_performing_animation = false;
 
     constructor(body_position, body_assets){

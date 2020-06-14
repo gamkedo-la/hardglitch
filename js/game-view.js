@@ -4,7 +4,7 @@
 // We interpret events to animate the view of the world.
 // The code here is just the skeleton to build over the actual representation.
 
-export { GameView, BodyView, graphic_position };
+export { GameView, CharacterView as BodyView, graphic_position };
 
 import * as graphics from "./system/graphics.js";
 
@@ -15,7 +15,7 @@ import * as debug from "./debug.js";
 
 import { graphic_position, PIXELS_PER_TILES_SIDE, square_half_unit_vector } from "./view/common-view.js";
 import { TileGridView } from "./view/tilegrid-view.js";
-import { BodyView } from "./view/character-view.js";
+import { CharacterView } from "./view/character-view.js";
 import { GameInterface } from "./game-ui.js";
 
 class GameView {
@@ -131,7 +131,7 @@ class GameView {
 
         this.body_views = {};
         this.game.world.bodies.forEach(body => {
-            const body_view = new BodyView(body.position, body.assets);
+            const body_view = new CharacterView(body.position, body.assets);
             this.body_views[body.body_id] = body_view;
         });
 
