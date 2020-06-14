@@ -1,6 +1,7 @@
 // This file handles input code specific to this game.
 
 export {
+    KEY,
     update,
     game_position_from_graphic_position,
     mouse_game_position,
@@ -15,17 +16,21 @@ import { Vector2_unit_x, Vector2_unit_y, Vector2 } from "./system/spatial.js";
 // TODO: add the system that changes the mouse icons here
 
 // keyboard keycode constants, determined by printing out evt.keyCode from a key handler
-const KEY_SPACE = 32;
-const KEY_LEFT_ARROW = 37;
-const KEY_UP_ARROW = 38;
-const KEY_RIGHT_ARROW = 39;
-const KEY_DOWN_ARROW = 40;
-const KEY_LETTER_W = 87;
-const KEY_LETTER_A = 65;
-const KEY_LETTER_S = 83;
-const KEY_LETTER_D = 68;
-const KEY_LETTER_P = 80;
-const KEY_LETTER_M = 77;
+const KEY = {
+    SPACE: 32,
+    LEFT_ARROW: 37,
+    UP_ARROW: 38,
+    RIGHT_ARROW: 39,
+    DOWN_ARROW: 40,
+    LEFT_CTRL:17,
+    ESCAPE:27,
+    W: 87,
+    A: 65,
+    S: 83,
+    D: 68,
+    P: 80,
+    M: 77,
+};
 
 // Returns the pixel position inside the game space (taking into acount the camera).
 function game_position_from_graphic_position(graphic_position){
@@ -49,11 +54,11 @@ function select_player_action(){
     const mouse = input.mouse;
     const possible_actions = current_game.last_turn_info.possible_actions;
 
-    if(keyboard.is_just_down(KEY_SPACE)) return possible_actions.wait;
-    if(keyboard.is_down(KEY_UP_ARROW)) return possible_actions.move_north;
-    if(keyboard.is_down(KEY_DOWN_ARROW)) return possible_actions.move_south;
-    if(keyboard.is_down(KEY_RIGHT_ARROW)) return possible_actions.move_east;
-    if(keyboard.is_down(KEY_LEFT_ARROW)) return possible_actions.move_west;
+    if(keyboard.is_just_down(KEY.SPACE)) return possible_actions.wait;
+    if(keyboard.is_down(KEY.UP_ARROW)) return possible_actions.move_north;
+    if(keyboard.is_down(KEY.DOWN_ARROW)) return possible_actions.move_south;
+    if(keyboard.is_down(KEY.RIGHT_ARROW)) return possible_actions.move_east;
+    if(keyboard.is_down(KEY.LEFT_ARROW)) return possible_actions.move_west;
 
     if(mouse.buttons.is_just_released(input.MOUSE_BUTTON.LEFT)){ // Select an action which targets the square under the mouse.
         for(const action of Object.values(possible_actions)){
@@ -63,7 +68,7 @@ function select_player_action(){
     }
 
     // EDITOR STYLE HACKS FOLLOWS:
-    if(keyboard.is_just_down(KEY_LETTER_P))
+    if(keyboard.is_just_down(KEY.P))
     {
         remove_all_players();
         return possible_actions.wait;
@@ -97,13 +102,13 @@ function update_camera_control(delta_time){
     } else {
         draggin_start_camera_position = undefined;
 
-        if(keyboard.is_down(KEY_LETTER_A))
+        if(keyboard.is_down(KEY.A))
             graphics.camera.translate(Vector2_unit_x.multiply(-current_speed));
-        if(keyboard.is_down(KEY_LETTER_D))
+        if(keyboard.is_down(KEY.D))
             graphics.camera.translate(Vector2_unit_x.multiply(current_speed));
-        if(keyboard.is_down(KEY_LETTER_W))
+        if(keyboard.is_down(KEY.W))
             graphics.camera.translate(Vector2_unit_y.multiply(-current_speed));
-        if(keyboard.is_down(KEY_LETTER_S))
+        if(keyboard.is_down(KEY.S))
             graphics.camera.translate(Vector2_unit_y.multiply(current_speed));
     }
 }
@@ -129,7 +134,7 @@ function update(delta_time){
         }
     }
 
-    if(input.keyboard.is_just_down(KEY_LETTER_M)){
+    if(input.keyboard.is_just_down(KEY.M)){
         current_game_view.tile_grid.enable_grid_lines = !current_game_view.tile_grid.enable_grid_lines;
     }
 }
