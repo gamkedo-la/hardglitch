@@ -1,5 +1,5 @@
-import { genBgOverlay } from "../tile-select.js";
-import { Grid } from "../core/concepts.js";
+import { SeamSelector, genFloorOverlay } from "../tile-select.js";
+import { Grid } from "../system/grid.js";
 
 // hard-coded bg tiles
 const wall = new Image();
@@ -19,6 +19,7 @@ let templateMap = {
     om:     {i:3,   j:3},
     ttls:   {i:6,   j:1},
     ttl:    {i:5,   j:1},
+    ttlc:   {i:7,   j:3},
     ttle:   {i:5,   j:2},
     ottls:  {i:5,   j:0},
     ottl:   {i:4,   j:0},
@@ -32,9 +33,10 @@ let templateMap = {
     oltts:  {i:4,   j:3},
     oltt:   {i:4,   j:4},
     oltte:  {i:3,   j:4},
-    olttc:  {i:7,   j:3},
+    olttc:  {i:1,   j:1},
     ltbs:   {i:1,   j:9},
     ltb:    {i:1,   j:10},
+    ltbc:   {i:7,   j:4},
     ltbe:   {i:2,   j:10},
     ltbi:   {i:2,   j:9},
     oltbs:  {i:0,   j:10},
@@ -51,9 +53,10 @@ let templateMap = {
     obtls:  {i:3,   j:11},
     obtl:   {i:4,   j:11},
     obtle:  {i:4,   j:12},
-    obtlc:  {i:7,   j:4},
+    obtlc:  {i:1,   j:2},
     btrs:   {i:9,   j:14},
     btr:    {i:10,  j:14},
+    btrc:   {i:8,   j:4},
     btre:   {i:10,  j:13},
     btri:   {i:9,   j:13},
     obtrs:  {i:10,  j:15},
@@ -69,9 +72,10 @@ let templateMap = {
     ortbs:  {i:11,  j:12},
     ortb:   {i:11,  j:11},
     ortbe:  {i:12,  j:11},
-    ortbc:  {i:8,   j:4},
+    ortbc:  {i:2,   j:2},
     rtts:   {i:10,  j:2},
     rtt:    {i:10,  j:1},
+    rttc:   {i:8,   j:3},
     rtte:   {i:9,   j:1},
     ortts:  {i:11,  j:1},
     ortt:   {i:11,  j:0},
@@ -83,7 +87,7 @@ let templateMap = {
     ottrs:  {i:12,  j:4},
     ottr:   {i:11,  j:4},
     ottre:  {i:11,  j:3},
-    ottrc:  {i:8,   j:3},
+    ottrc:  {i:2,   j:1},
 };
 
 function loadTemplateSheet(sheet, map, tilesize) {
@@ -123,265 +127,13 @@ function gen(grid, wallPct, holePct) {
     for (let j=0; j<grid.height; j++) {
         for (let i=0; i<grid.width; i++) {
             let r = Math.random();
-            let v = 0;
+            let v = 0;              // ground
             if (r <= wallPct) {
-                v = 1;
+                v = 1;              // wall
             } else if (r <= wallPct+holePct) {
-                v = 2;
+                v = 2;              // hole
             }
             grid.set_at(v,i,j);
-        }
-    }
-}
-
-/**
- * create an overlay of images for the level data represented in given grid
- * @param {*} grid - the level data in grid form
- * @param {*} overlay - the overlay grid which should be twice as big as the grid
- */
-function genOverlay(grid, overlay) {
-    for (let j=0; j<grid.height; j++) {
-        for (let i=0; i<grid.width; i++) {
-            let v = grid.get_at(i,j);
-            // compute neighbors
-            let p = {x:i, y:j};
-            let neighbors = grid.right(p) + (grid.up(p) << 1) + (grid.left(p) << 2) + (grid.down(p)<<3);
-            // compute tl overlay
-            let tl = "";
-            let tr = "";
-            let bl = "";
-            let br = "";
-            switch (neighbors) {
-                case 0: // none
-                    if (v) {
-                        tl = "ttl";
-                        tr = "rtt";
-                        bl = "ltb";
-                        br = "btr";
-                    } else {
-                        tl = (grid.ul(p)) ? "obtr" : "om";
-                        tr = (grid.ur(p)) ? "oltb" : "om";
-                        bl = (grid.dl(p)) ? "ortt" : "om";
-                        br = (grid.dr(p)) ? "ottl" : "om";
-                    }
-                    break;
-                case 1: // right
-                    if (v) {
-                        tl = "ttl";
-                        tr = "t";
-                        bl = "ltb";
-                        br = "b";
-                    } else {
-                        tl = (grid.ul(p)) ? "obtr" : "om";
-                        tr = (grid.ur(p)) ? "ol" : "ottle";
-                        bl = (grid.dl(p)) ? "ortt" : "om";
-                        br = (grid.dr(p)) ? "ol" : "oltbs";
-                    }
-                    break;
-                case 2: // top
-                    if (v) {
-                        tl = "l";
-                        tr = "r";
-                        bl = "ltb";
-                        br = "btr";
-                    } else {
-                        tl = (grid.ul(p)) ? "ob" : "oltbe";
-                        tr = (grid.ur(p)) ? "ob" : "obtrs";
-                        bl = (grid.dl(p)) ? "ortt" : "om";
-                        br = (grid.dr(p)) ? "ottl" : "om";
-                    }
-                    break;
-                case 3: // top|right
-                    if (v) {
-                        tl = "l";
-                        tr = (grid.ur(p)) ? "m" : "ttr";
-                        bl = "ltb";
-                        br = "b";
-                    } else {
-                        tl = (grid.ul(p)) ? "ob" : "oltbe";
-                        // conflict between obtrs and ottle -> obtlc
-                        tr = (grid.ur(p)) ? "obtl" : "obtlc";
-                        br = (grid.dr(p)) ? "ol" : "oltbs";
-                        bl = (grid.dl(p)) ? "ortt" : "om";
-                    }
-                    break;
-                case 4: // left
-                    if (v) {
-                        tl = "t";
-                        tr = "rtt";
-                        bl = "b";
-                        br = "btr";
-                    } else {
-                        tl = (grid.ul(p)) ? "or" : "ortts";
-                        tr = (grid.ur(p)) ? "oltb" : "om";
-                        bl = (grid.dl(p)) ? "or" : "obtre";
-                        br = (grid.dr(p)) ? "ottl" : "om";
-                    }
-                    break;
-                case 5: // left|right
-                    if (v) {
-                        tl = "t";
-                        tr = "t";
-                        bl = "b";
-                        br = "b";
-                    } else {
-                        tl = (grid.ul(p)) ? "or" : "ortts";
-                        tr = (grid.ur(p)) ? "ol" : "ottle";
-                        bl = (grid.dl(p)) ? "or" : "obtre";
-                        br = (grid.dr(p)) ? "ol" : "oltbs";
-                    }
-                    break;
-                case 6: // top|left
-                    if (v) {
-                        tl = (grid.ul(p)) ? "m" : "ltt";
-                        tr = "r";
-                        bl = "b";
-                        br = "btr";
-                    } else {
-                        // conflict between oltbe and ortts -> ortbc
-                        tl = (grid.ul(p)) ? "ortb" : "ortbc";
-                        tr = (grid.ur(p)) ? "ob" : "obtrs";
-                        bl = (grid.dl(p)) ? "or" : "obtre";
-                        br = (grid.dr(p)) ? "ottl" : "om";
-                    }
-                    break;
-                case 7: // top|left|right
-                    if (v) {
-                        tl = (grid.ul(p)) ? "m" : "ltt";
-                        tr = (grid.ur(p)) ? "m" : "ttr"
-                        bl = "b";
-                        br = "b";
-                    } else {
-                        // conflict between oltbe and ortts -> ortbc
-                        tl = (grid.ul(p)) ? "ortb" : "ortbc";
-                        // conflict between obtrs and ottle -> obtlc
-                        tr = (grid.ur(p)) ? "obtl" : "obtlc";
-                        bl = (grid.dl(p)) ? "or" : "obtre";
-                        br = (grid.dr(p)) ? "ol" : "oltbs";
-                    }
-                    break;
-                case 8: // down
-                    if (v) {
-                        tl = "ttl";
-                        tr = "rtt";
-                        bl = "l";
-                        br = "r";
-                    } else {
-                        tl = (grid.ul(p)) ? "obtr" : "om";
-                        tr = (grid.ur(p)) ? "oltb" : "om";
-                        bl = (grid.dl(p)) ? "ot" : "ottls";
-                        br = (grid.dr(p)) ? "ot" : "ortte";
-                    }
-                    break;
-                case 9: // down|right
-                    if (v) {
-                        tl = "ttl";
-                        tr = "t";
-                        bl = "l";
-                        br = (grid.dr(p)) ? "m" : "rtb";
-                    } else {
-                        tl = (grid.ul(p)) ? "obtr" : "om";
-                        tr = (grid.ur(p)) ? "ol" : "ottle";
-                        bl = (grid.dl(p)) ? "ot" : "ottls";
-                        // conflict between oltbs and ortte -> olttc
-                        br = (grid.dr(p)) ? "oltt" : "olttc";
-                    }
-                    break;
-                case 10: // top|down
-                    if (v) {
-                        tl = "l";
-                        tr = "r";
-                        bl = "l";
-                        br = "r";
-                    } else {
-                        tl = (grid.ul(p)) ? "ob" : "oltbe";
-                        tr = (grid.ur(p)) ? "ob" : "obtrs";
-                        bl = (grid.dl(p)) ? "ot" : "ottls";
-                        br = (grid.dr(p)) ? "ot" : "ortte";
-                    }
-                    break;
-                case 11: // top|down|right
-                    if (v) {
-                        tl = "l";
-                        tr = (grid.ur(p)) ? "m" : "ttr"
-                        bl = "l";
-                        br = (grid.dr(p)) ? "m" : "rtb"
-                    } else {
-                        tl = (grid.ul(p)) ? "ob" : "oltbe";
-                        // conflict between obtrs and ottle -> obtlc
-                        tr = (grid.ur(p)) ? "obtl" : "obtlc";
-                        bl = (grid.dl(p)) ? "ot" : "ottls";
-                        // conflict between oltbs and ortte -> olttc
-                        br = (grid.dr(p)) ? "oltt" : "olttc";
-                    }
-                    break;
-                case 12: // down|left
-                    if (v) {
-                        tl = "t";
-                        tr = "rtt";
-                        bl = (grid.dl(p)) ? "m" : "btl"
-                        br = "r";
-                    } else {
-                        tl = (grid.ul(p)) ? "or" : "ortts";
-                        tr = (grid.ur(p)) ? "oltb" : "om";
-                        //  conflict between ottls and obtre -> ottrc
-                        bl = (grid.dl(p)) ? "ottr" : "ottrc";
-                        br = (grid.dr(p)) ? "ot" : "ortte";
-                    }
-                    break;
-                case 13: // down|left|right
-                    if (v) {
-                        tl = "t";
-                        tr = "t";
-                        bl = (grid.dl(p)) ? "m" : "btl"
-                        br = (grid.dr(p)) ? "m" : "rtb"
-                    } else {
-                        tl = (grid.ul(p)) ? "or" : "ortts";
-                        tr = (grid.ur(p)) ? "ol" : "ottle";
-                        //  conflict between ottls and obtre -> ottrc
-                        bl = (grid.dl(p)) ? "ottr" : "ottrc";
-                        // conflict between oltbs and ortte -> olttc
-                        br = (grid.dr(p)) ? "oltt" : "olttc";
-                    }
-                    break;
-                case 14: // top|down|left
-                    if (v) {
-                        tl = (grid.ul(p)) ? "m" : "ltt";
-                        tr = "r";
-                        bl = (grid.dl(p)) ? "m" : "btl"
-                        br = "r";
-                    } else {
-                        // conflict between oltbe and ortts -> ortbc
-                        tl = (grid.ul(p)) ? "ortb" : "ortbc";
-                        tr = (grid.ur(p)) ? "ob" : "obtrs";
-                        //  conflict between ottls and obtre -> ottrc
-                        bl = (grid.dl(p)) ? "ottr" : "ottrc";
-                        br = (grid.dr(p)) ? "ot" : "ortte";
-                    }
-                    break;
-                case 15: // top|down|left|right
-                    if (v) {
-                        tl = (grid.ul(p)) ? "m" : "ltt";
-                        tr = (grid.ur(p)) ? "m" : "ttr"
-                        bl = (grid.dl(p)) ? "m" : "btl"
-                        br = (grid.dr(p)) ? "m" : "rtb"
-                    } else {
-                        // conflict between oltbe and ortts -> ortbc
-                        tl = (grid.ul(p)) ? "ortb" : "ortbc";
-                        // conflict between obtrs and ottle -> obtlc
-                        tr = (grid.ur(p)) ? "obtl" : "obtlc";
-                        //  conflict between ottls and obtre -> ottrc
-                        bl = (grid.dl(p)) ? "ottr" : "ottrc";
-                        // conflict between oltbs and ortte -> olttc
-                        br = (grid.dr(p)) ? "oltt" : "olttc";
-                    }
-                    break;
-            }
-            // add to overlay grid
-            if (tl) overlay.set_at(tl, i*2, j*2);
-            if (tr) overlay.set_at(tr, i*2+1, j*2);
-            if (bl) overlay.set_at(bl, i*2, j*2+1);
-            if (br) overlay.set_at(br, i*2+1, j*2+1);
         }
     }
 }
@@ -700,22 +452,24 @@ class Game {
         let tsize = 32;
         let width = 16;
         let height = 12;
-        //let width = 4;
-        //let height = 4;
+        //let width = 8;
+        //let height = 8;
         // generate the test grid and level data
         let grid = new Grid(width, height);
-        gen(grid, .35, .2);
+        gen(grid, .35, .1);
 
         // generate the bg overlay based on level data
-        let bgoverlay = new Grid(width*2, height*2);
-        genOverlay(grid, bgoverlay);
-
         let bg2 = new Grid(width*2, height*2);
-        genBgOverlay("lvl1", "bg", grid, bg2, (fg) => (fg == 1), (bg) => (bg == 0));
-        for (let i=0; i<width; i++) {
-            let id = bg2.get_at(i,1);
-            console.log("bg2(" + i + ",1): " + id);
-        }
+        let selectors = [
+            new SeamSelector("w2h", (fg) => (fg==1), (bg) => (bg == 2)),
+            new SeamSelector("h2w", (fg) => (fg==2), (bg) => (bg == 1)),
+            new SeamSelector("g2w", (fg) => (fg==0), (bg) => (bg == 1)),
+            new SeamSelector("g2h", (fg) => (fg==0), (bg) => (bg == 2)),
+            new SeamSelector("w2g", (fg) => (fg==1), (bg) => (bg != 1)),
+            new SeamSelector("h2g", (fg) => (fg==2), (bg) => (bg != 2)),
+            new SeamSelector("g2o", (fg) => (fg==0), (bg) => (bg != 0)),
+        ];
+        genFloorOverlay("lvl1", grid, bg2, selectors);
 
         // generate the perspective overlay based on level data
         let poverlay = new Grid(width*2, height*2);
@@ -747,20 +501,43 @@ class Game {
         for (let j=0; j<bg2.height; j++) {
             for (let i=0; i<bg2.width; i++) {
                 let v = bg2.get_at(i,j);
+                let tiles = {};
                 if (!v) continue;
-                v = v.slice(8);
-                console.log("v: " + v);
-                let img = bgtiles[v];
+                v = v.slice(5);
+                //console.log("v: " + v);
+                if (v.startsWith("w2g")) {
+                    v = v.slice(4);
+                    tiles = w2gTiles;
+                } else if (v.startsWith("g2w")) {
+                    v = v.slice(4);
+                    tiles = g2wTiles;
+                } else if (v.startsWith("h2g")) {
+                    v = v.slice(4);
+                    tiles = h2gTiles;
+                } else if (v.startsWith("g2h")) {
+                    v = v.slice(4);
+                    tiles = g2hTiles;
+                } else if (v.startsWith("h2w")) {
+                    v = v.slice(4);
+                    tiles = h2wTiles;
+                } else if (v.startsWith("w2h")) {
+                    v = v.slice(4);
+                    tiles = w2hTiles;
+                } else if (v.startsWith("g2o")) {
+                    v = v.slice(4);
+                    tiles = g2oTiles;
+                }
+                let img = tiles[v];
                 if (!img) continue;
                 this.ctx.drawImage(img, tsize*i, tsize*j);
             }
         }
 
-        /*
         // draw perspective overlay
+        /*
         for (let j=0; j<poverlay.height; j++) {
             for (let i=0; i<poverlay.width; i++) {
-                let v = poverlay.get(i,j);
+                let v = poverlay.get_at(i,j);
                 if (!v) continue;
                 let img = walltiles[v];
                 if (!img) continue;
@@ -786,8 +563,17 @@ function start() {
     game.play();
 }
 
-const bgTemplatePath = "srcref/bgtemplate.png";
-const tileTemplatePath = "srcref/tiletemplate.png";
+const groundToWallPath = "srcref/groundToWall.png";
+const groundToHolePath = "srcref/groundToHole.png";
+const groundToOtherPath = "srcref/groundToOther.png";
+const holeToWallPath = "srcref/holeToWall.png";
+const holeToGroundPath = "srcref/holeToGround.png";
+const wallToHolePath = "srcref/wallToHole.png";
+const wallToGroundPath = "srcref/wallToGround.png";
+const allPaths = [groundToWallPath, groundToHolePath, groundToOtherPath, holeToWallPath, holeToGroundPath, wallToHolePath, wallToGroundPath];
+
+//const bgTemplatePath = "srcref/wallToGround.png";
+//const tileTemplatePath = "srcref/tiletemplate.png";
 //const bgTemplatePath = "srcref/colortest1_bg.png";
 //const tileTemplatePath = "srcref/colortest1.png";
 //const bgTemplatePath = "srcref/colortest2_bg.png";
@@ -797,14 +583,19 @@ const tileTemplatePath = "srcref/tiletemplate.png";
 //const bgTemplatePath = "srcref/colortest4_bg.png";
 //const tileTemplatePath = "srcref/colortest4.png";
 
-let bgtiles;
-let walltiles;
+let g2wTiles;
+let g2hTiles;
+let g2oTiles;
+let h2wTiles;
+let h2gTiles;
+let w2hTiles;
+let w2gTiles;
 
 function setup() {
     return new Promise((resolve) => {
         // load tileset images
         let promises = [];
-        for (const path of [bgTemplatePath, tileTemplatePath]) {
+        for (const path of allPaths) {
             promises.push(loadImage(path));
         }
         Promise.all(promises).then((imgs) => {
@@ -813,8 +604,13 @@ function setup() {
                 promises.push(loadTemplateSheet(img, templateMap, 32));
             }
             Promise.all(promises).then((tilesets) => {
-                bgtiles = tilesets[0];
-                walltiles = tilesets[1];
+                g2wTiles = tilesets[0];
+                g2hTiles = tilesets[1];
+                g2oTiles = tilesets[2];
+                h2wTiles = tilesets[3];
+                h2gTiles = tilesets[4];
+                w2hTiles = tilesets[5];
+                w2gTiles = tilesets[6];
                 resolve();
             });
         });

@@ -4,7 +4,7 @@
 // We interpret events to animate the view of the world.
 // The code here is just the skeleton to build over the actual representation.
 
-export { genBgOverlay, genFloorOverlay, genFgOverlay };
+export { SeamSelector, genFloorOverlay, genFgOverlay };
 
 import { tile_id } from "./game-assets.js";
 
@@ -19,514 +19,227 @@ const RIGHT = 1;
 const UP = 2;
 const LEFT = 4;
 const DOWN = 8;
+const UR = 16;
+const UL = 32;
+const DL = 64;
+const DR = 128;
 
-/**
- * create an overlay of images for the level data represented in given grid
- * @param {*} grid - the level data in grid form
- * @param {*} overlay - the overlay grid which should be twice as big as the grid
- */
-function genBgOverlay(lvl, layer, grid, overlay, baseCmp, otherCmp) {
-    for (let j=0; j<grid.height; j++) {
-        for (let i=0; i<grid.width; i++) {
-            let v = grid.get_at(i,j);
-            // compute neighbors
-            let p = {x:i, y:j};
-            let otherMask = ((otherCmp(grid.right(p))) ? RIGHT : 0) + 
-                            ((otherCmp(grid.up(p))) ? UP : 0) + 
-                            ((otherCmp(grid.left(p))) ? LEFT : 0) + 
-                            ((otherCmp(grid.down(p))) ? DOWN : 0);
-            let baseMask =  ((baseCmp(grid.right(p))) ? RIGHT : 0) + 
-                            ((baseCmp(grid.up(p))) ? UP : 0) + 
-                            ((baseCmp(grid.left(p))) ? LEFT : 0) + 
-                            ((baseCmp(grid.down(p))) ? DOWN : 0);
-            //console.log("i: " + i + " j: " + j + " otherMask: " + otherMask + " baseMask: " + baseMask);
-            // compute tl overlay
-            let tl = "";
-            let tr = "";
-            let bl = "";
-            let br = "";
-            switch (baseMask) {
-                case 0: // none
-                    if (baseCmp(v)) {
-                        if (otherMask & (UP|LEFT)) tl = "ttl";
-                        if (otherMask & (UP|RIGHT)) tr = "rtt";
-                        if (otherMask & (DOWN|LEFT)) bl = "ltb";
-                        if (otherMask & (DOWN|RIGHT)) br = "btr";
-                    }
-                    break;
-                    /*
-                case 1: // right
-                    if (v == otherID) {
-                        tl = "ttl";
-                        tr = "t";
-                        bl = "ltb";
-                        br = "b";
-                    } else {
-                        tl = (isWall(grid.ul(p))) ? "obtr" : "om";
-                        tr = (isWall(grid.ur(p))) ? "ol" : "ottle";
-                        bl = (isWall(grid.dl(p))) ? "ortt" : "om";
-                        br = (isWall(grid.dr(p))) ? "ol" : "oltbs";
-                    }
-                    break;
-                case 2: // top
-                    if (v == otherID) {
-                        tl = "l";
-                        tr = "r";
-                        bl = "ltb";
-                        br = "btr";
-                    } else {
-                        tl = (isWall(grid.ul(p))) ? "ob" : "oltbe";
-                        tr = (isWall(grid.ur(p))) ? "ob" : "obtrs";
-                        bl = (isWall(grid.dl(p))) ? "ortt" : "om";
-                        br = (isWall(grid.dr(p))) ? "ottl" : "om";
-                    }
-                    break;
-                case 3: // top|right
-                    if (v == otherID) {
-                        tl = "l";
-                        tr = (isWall(grid.ur(p))) ? "m" : "ttr";
-                        bl = "ltb";
-                        br = "b";
-                    } else {
-                        tl = (isWall(grid.ul(p))) ? "ob" : "oltbe";
-                        // conflict between obtrs and ottle -> obtlc
-                        tr = (isWall(grid.ur(p))) ? "obtl" : "obtlc";
-                        br = (isWall(grid.dr(p))) ? "ol" : "oltbs";
-                        bl = (isWall(grid.dl(p))) ? "ortt" : "om";
-                    }
-                    break;
-                case 4: // left
-                    if (v == otherID) {
-                        tl = "t";
-                        tr = "rtt";
-                        bl = "b";
-                        br = "btr";
-                    } else {
-                        tl = (isWall(grid.ul(p))) ? "or" : "ortts";
-                        tr = (isWall(grid.ur(p))) ? "oltb" : "om";
-                        bl = (isWall(grid.dl(p))) ? "or" : "obtre";
-                        br = (isWall(grid.dr(p))) ? "ottl" : "om";
-                    }
-                    break;
-                case 5: // left|right
-                    if (v == otherID) {
-                        tl = "t";
-                        tr = "t";
-                        bl = "b";
-                        br = "b";
-                    } else {
-                        tl = (isWall(grid.ul(p))) ? "or" : "ortts";
-                        tr = (isWall(grid.ur(p))) ? "ol" : "ottle";
-                        bl = (isWall(grid.dl(p))) ? "or" : "obtre";
-                        br = (isWall(grid.dr(p))) ? "ol" : "oltbs";
-                    }
-                    break;
-                case 6: // top|left
-                    if (v == otherID) {
-                        tl = (isWall(grid.ul(p))) ? "m" : "ltt";
-                        tr = "r";
-                        bl = "b";
-                        br = "btr";
-                    } else {
-                        // conflict between oltbe and ortts -> ortbc
-                        tl = (isWall(grid.ul(p))) ? "ortb" : "ortbc";
-                        tr = (isWall(grid.ur(p))) ? "ob" : "obtrs";
-                        bl = (isWall(grid.dl(p))) ? "or" : "obtre";
-                        br = (isWall(grid.dr(p))) ? "ottl" : "om";
-                    }
-                    break;
-                case 7: // top|left|right
-                    if (v == otherID) {
-                        tl = (isWall(grid.ul(p))) ? "m" : "ltt";
-                        tr = (isWall(grid.ur(p))) ? "m" : "ttr"
-                        bl = "b";
-                        br = "b";
-                    } else {
-                        // conflict between oltbe and ortts -> ortbc
-                        tl = (isWall(grid.ul(p))) ? "ortb" : "ortbc";
-                        // conflict between obtrs and ottle -> obtlc
-                        tr = (isWall(grid.ur(p))) ? "obtl" : "obtlc";
-                        bl = (isWall(grid.dl(p))) ? "or" : "obtre";
-                        br = (isWall(grid.dr(p))) ? "ol" : "oltbs";
-                    }
-                    break;
-                case 8: // down
-                    if (v == otherID) {
-                        tl = "ttl";
-                        tr = "rtt";
-                        bl = "l";
-                        br = "r";
-                    } else {
-                        tl = (isWall(grid.ul(p))) ? "obtr" : "om";
-                        tr = (isWall(grid.ur(p))) ? "oltb" : "om";
-                        bl = (isWall(grid.dl(p))) ? "ot" : "ottls";
-                        br = (isWall(grid.dr(p))) ? "ot" : "ortte";
-                    }
-                    break;
-                case 9: // down|right
-                    if (v == otherID) {
-                        tl = "ttl";
-                        tr = "t";
-                        bl = "l";
-                        br = (isWall(grid.dr(p))) ? "m" : "rtb";
-                    } else {
-                        tl = (isWall(grid.ul(p))) ? "obtr" : "om";
-                        tr = (isWall(grid.ur(p))) ? "ol" : "ottle";
-                        bl = (isWall(grid.dl(p))) ? "ot" : "ottls";
-                        // conflict between oltbs and ortte -> olttc
-                        br = (isWall(grid.dr(p))) ? "oltt" : "olttc";
-                    }
-                    break;
-                case 10: // top|down
-                    if (v == otherID) {
-                        tl = "l";
-                        tr = "r";
-                        bl = "l";
-                        br = "r";
-                    } else {
-                        tl = (isWall(grid.ul(p))) ? "ob" : "oltbe";
-                        tr = (isWall(grid.ur(p))) ? "ob" : "obtrs";
-                        bl = (isWall(grid.dl(p))) ? "ot" : "ottls";
-                        br = (isWall(grid.dr(p))) ? "ot" : "ortte";
-                    }
-                    break;
-                case 11: // top|down|right
-                    if (v == otherID) {
-                        tl = "l";
-                        tr = (isWall(grid.ur(p))) ? "m" : "ttr"
-                        bl = "l";
-                        br = (isWall(grid.dr(p))) ? "m" : "rtb"
-                    } else {
-                        tl = (isWall(grid.ul(p))) ? "ob" : "oltbe";
-                        // conflict between obtrs and ottle -> obtlc
-                        tr = (isWall(grid.ur(p))) ? "obtl" : "obtlc";
-                        bl = (isWall(grid.dl(p))) ? "ot" : "ottls";
-                        // conflict between oltbs and ortte -> olttc
-                        br = (isWall(grid.dr(p))) ? "oltt" : "olttc";
-                    }
-                    break;
-                case 12: // down|left
-                    if (v == otherID) {
-                        tl = "t";
-                        tr = "rtt";
-                        bl = (isWall(grid.dl(p))) ? "m" : "btl"
-                        br = "r";
-                    } else {
-                        tl = (isWall(grid.ul(p))) ? "or" : "ortts";
-                        tr = (isWall(grid.ur(p))) ? "oltb" : "om";
-                        //  conflict between ottls and obtre -> ottrc
-                        bl = (isWall(grid.dl(p))) ? "ottr" : "ottrc";
-                        br = (isWall(grid.dr(p))) ? "ot" : "ortte";
-                    }
-                    break;
-                case 13: // down|left|right
-                    if (v == otherID) {
-                        tl = "t";
-                        tr = "t";
-                        bl = (isWall(grid.dl(p))) ? "m" : "btl"
-                        br = (isWall(grid.dr(p))) ? "m" : "rtb"
-                    } else {
-                        tl = (isWall(grid.ul(p))) ? "or" : "ortts";
-                        tr = (isWall(grid.ur(p))) ? "ol" : "ottle";
-                        //  conflict between ottls and obtre -> ottrc
-                        bl = (isWall(grid.dl(p))) ? "ottr" : "ottrc";
-                        // conflict between oltbs and ortte -> olttc
-                        br = (isWall(grid.dr(p))) ? "oltt" : "olttc";
-                    }
-                    break;
-                case 14: // top|down|left
-                    if (v == otherID) {
-                        tl = (isWall(grid.ul(p))) ? "m" : "ltt";
-                        tr = "r";
-                        bl = (isWall(grid.dl(p))) ? "m" : "btl"
-                        br = "r";
-                    } else {
-                        // conflict between oltbe and ortts -> ortbc
-                        tl = (isWall(grid.ul(p))) ? "ortb" : "ortbc";
-                        tr = (isWall(grid.ur(p))) ? "ob" : "obtrs";
-                        //  conflict between ottls and obtre -> ottrc
-                        bl = (isWall(grid.dl(p))) ? "ottr" : "ottrc";
-                        br = (isWall(grid.dr(p))) ? "ot" : "ortte";
-                    }
-                    break;
-                case 15: // top|down|left|right
-                    if (v == otherID) {
-                        tl = (isWall(grid.ul(p))) ? "m" : "ltt";
-                        tr = (isWall(grid.ur(p))) ? "m" : "ttr"
-                        bl = (isWall(grid.dl(p))) ? "m" : "btl"
-                        br = (isWall(grid.dr(p))) ? "m" : "rtb"
-                    } else {
-                        // conflict between oltbe and ortts -> ortbc
-                        tl = (isWall(grid.ul(p))) ? "ortb" : "ortbc";
-                        // conflict between obtrs and ottle -> obtlc
-                        tr = (isWall(grid.ur(p))) ? "obtl" : "obtlc";
-                        //  conflict between ottls and obtre -> ottrc
-                        bl = (isWall(grid.dl(p))) ? "ottr" : "ottrc";
-                        // conflict between oltbs and ortte -> olttc
-                        br = (isWall(grid.dr(p))) ? "oltt" : "olttc";
-                    }
-                    break;
-                    */
-            }
-            // add to overlay grid
-            if (tl) overlay.set_at(tile_id(lvl, layer, tl), i*2, j*2);
-            if (tr) overlay.set_at(tile_id(lvl, layer, tr), i*2+1, j*2);
-            if (bl) overlay.set_at(tile_id(lvl, layer, bl), i*2, j*2+1);
-            if (br) overlay.set_at(tile_id(lvl, layer, br), i*2+1, j*2+1);
+function same() {
+    let a = Array.from(arguments);
+    let same = true;
+    for (let i=0; same && i<arguments.length; i++) {
+        if (i>0 && arguments[i] != arguments[0]) same = false;
+    }
+    return same;
+}
+
+class SeamSelector {
+    constructor(name, baseCmp, otherCmp) {
+        this.name = name;
+        this.baseCmp = baseCmp;
+        this.otherCmp = otherCmp;
+    }
+
+    match(base, ...others) {
+        if (!this.baseCmp(base)) return 0;
+        let score = 1;
+        for (const other of others) {
+            if (this.baseCmp(other) || this.otherCmp(other)) score++;
+        }
+        return score;
+    }
+
+    toString() {
+        return this.name;
+    }
+}
+
+function pickSelector(selectors, base, ...others) {
+    let best;
+    let bestScore = 0;
+    for (const selector of selectors) {
+        let score = selector.match(base, ...others);
+        if (score > bestScore) {
+            best = selector;
+            bestScore = score;
         }
     }
+    return best;
+}
+
+function getMask(grid, p, fcn) {
+    let m = ((fcn(grid.right(p))) ? RIGHT : 0) + 
+            ((fcn(grid.up(p))) ? UP : 0) + 
+            ((fcn(grid.left(p))) ? LEFT : 0) + 
+            ((fcn(grid.down(p))) ? DOWN : 0) +
+            ((fcn(grid.ur(p))) ? UR : 0) +
+            ((fcn(grid.ul(p))) ? UL : 0) +
+            ((fcn(grid.dl(p))) ? DL : 0) +
+            ((fcn(grid.dr(p))) ? DR : 0);
+    return m;
 }
 
 /**
  * create an overlay of images for the level data represented in given grid
+ * @param {*} lvl - level associated w/ selection
  * @param {*} grid - the level data in grid form
  * @param {*} overlay - the overlay grid which should be twice as big as the grid
+ * @param {*} selectors - list of Selector instances used to define comparision functions for tile seams
  */
-function genFloorOverlay(lvl, layer, grid, overlay, baseID, otherID) {
+function genFloorOverlay(lvl, grid, overlay, selectors) {
     for (let j=0; j<grid.height; j++) {
         for (let i=0; i<grid.width; i++) {
             let v = grid.get_at(i,j);
-            // compute neighbors
             let p = {x:i, y:j};
-            let neighbors = ((grid.right(p) == otherID) ? 1 : 0) + 
-                            (((grid.up(p) == otherID) ? 1 : 0) << 1) + 
-                            (((grid.left(p) == otherID) ? 1 : 0) << 2) + 
-                            (((grid.down(p) == otherID) ? 1 : 0) << 3);
-            // compute tl overlay
+            // consider top-left
+            // - possible tiles are: ttl, t, rtte, l, ltbs, m, btle, ttrs, btrc, ltt, btri, rtbi, bi, rtbei, btli
+            // FIXME: not currently assigning btri, rtbi, bi, rtbei, btli
+            // pick best selector based on bordering tiles
+            let selector = pickSelector(selectors, v, grid.up(p), grid.ul(p), grid.left(p));
+            if (!selector) continue;
+            // compute base mask of surrounding tiles based on selector
+            let baseMask = getMask(grid, p, selector.baseCmp);
             let tl = "";
-            let tr = "";
-            let bl = "";
-            let br = "";
-            switch (neighbors) {
-                case 0: // none
-                    if (v == otherID) {
-                        tl = "ttl";
-                        tr = "rtt";
-                        bl = "ltb";
-                        br = "btr";
-                    } else {
-                        tl = (isWall(grid.ul(p))) ? "obtr" : "om";
-                        tr = (isWall(grid.ur(p))) ? "oltb" : "om";
-                        bl = (isWall(grid.dl(p))) ? "ortt" : "om";
-                        br = (isWall(grid.dr(p))) ? "ottl" : "om";
-                    }
+            switch (baseMask & (LEFT|UL|UP)) {
+                case 0:
+                    tl = "ttl";
                     break;
-                case 1: // right
-                    if (v == otherID) {
-                        tl = "ttl";
-                        tr = "t";
-                        bl = "ltb";
-                        br = "b";
-                    } else {
-                        tl = (isWall(grid.ul(p))) ? "obtr" : "om";
-                        tr = (isWall(grid.ur(p))) ? "ol" : "ottle";
-                        bl = (isWall(grid.dl(p))) ? "ortt" : "om";
-                        br = (isWall(grid.dr(p))) ? "ol" : "oltbs";
-                    }
+                case LEFT:
+                    tl = (baseMask & RIGHT) ? "t" : "rtte";
                     break;
-                case 2: // top
-                    if (v == otherID) {
-                        tl = "l";
-                        tr = "r";
-                        bl = "ltb";
-                        br = "btr";
-                    } else {
-                        tl = (isWall(grid.ul(p))) ? "ob" : "oltbe";
-                        tr = (isWall(grid.ur(p))) ? "ob" : "obtrs";
-                        bl = (isWall(grid.dl(p))) ? "ortt" : "om";
-                        br = (isWall(grid.dr(p))) ? "ottl" : "om";
-                    }
+                case UP:
+                    tl = (baseMask & DOWN) ? "l" : "ltbs";
                     break;
-                case 3: // top|right
-                    if (v == otherID) {
-                        tl = "l";
-                        tr = (isWall(grid.ur(p))) ? "m" : "ttr";
-                        bl = "ltb";
-                        br = "b";
-                    } else {
-                        tl = (isWall(grid.ul(p))) ? "ob" : "oltbe";
-                        // conflict between obtrs and ottle -> obtlc
-                        tr = (isWall(grid.ur(p))) ? "obtl" : "obtlc";
-                        br = (isWall(grid.dr(p))) ? "ol" : "oltbs";
-                        bl = (isWall(grid.dl(p))) ? "ortt" : "om";
-                    }
+                case UL:
+                    tl = "btrc";
                     break;
-                case 4: // left
-                    if (v == otherID) {
-                        tl = "t";
-                        tr = "rtt";
-                        bl = "b";
-                        br = "btr";
-                    } else {
-                        tl = (isWall(grid.ul(p))) ? "or" : "ortts";
-                        tr = (isWall(grid.ur(p))) ? "oltb" : "om";
-                        bl = (isWall(grid.dl(p))) ? "or" : "obtre";
-                        br = (isWall(grid.dr(p))) ? "ottl" : "om";
-                    }
+                case UP|UL:
+                    tl = "btle";
                     break;
-                case 5: // left|right
-                    if (v == otherID) {
-                        tl = "t";
-                        tr = "t";
-                        bl = "b";
-                        br = "b";
-                    } else {
-                        tl = (isWall(grid.ul(p))) ? "or" : "ortts";
-                        tr = (isWall(grid.ur(p))) ? "ol" : "ottle";
-                        bl = (isWall(grid.dl(p))) ? "or" : "obtre";
-                        br = (isWall(grid.dr(p))) ? "ol" : "oltbs";
-                    }
+                case UP|LEFT:
+                    tl = "ltt";
                     break;
-                case 6: // top|left
-                    if (v == otherID) {
-                        tl = (isWall(grid.ul(p))) ? "m" : "ltt";
-                        tr = "r";
-                        bl = "b";
-                        br = "btr";
-                    } else {
-                        // conflict between oltbe and ortts -> ortbc
-                        tl = (isWall(grid.ul(p))) ? "ortb" : "ortbc";
-                        tr = (isWall(grid.ur(p))) ? "ob" : "obtrs";
-                        bl = (isWall(grid.dl(p))) ? "or" : "obtre";
-                        br = (isWall(grid.dr(p))) ? "ottl" : "om";
-                    }
+                case LEFT|UL:
+                    tl = "ttrs";
                     break;
-                case 7: // top|left|right
-                    if (v == otherID) {
-                        tl = (isWall(grid.ul(p))) ? "m" : "ltt";
-                        tr = (isWall(grid.ur(p))) ? "m" : "ttr"
-                        bl = "b";
-                        br = "b";
-                    } else {
-                        // conflict between oltbe and ortts -> ortbc
-                        tl = (isWall(grid.ul(p))) ? "ortb" : "ortbc";
-                        // conflict between obtrs and ottle -> obtlc
-                        tr = (isWall(grid.ur(p))) ? "obtl" : "obtlc";
-                        bl = (isWall(grid.dl(p))) ? "or" : "obtre";
-                        br = (isWall(grid.dr(p))) ? "ol" : "oltbs";
-                    }
-                    break;
-                case 8: // down
-                    if (v == otherID) {
-                        tl = "ttl";
-                        tr = "rtt";
-                        bl = "l";
-                        br = "r";
-                    } else {
-                        tl = (isWall(grid.ul(p))) ? "obtr" : "om";
-                        tr = (isWall(grid.ur(p))) ? "oltb" : "om";
-                        bl = (isWall(grid.dl(p))) ? "ot" : "ottls";
-                        br = (isWall(grid.dr(p))) ? "ot" : "ortte";
-                    }
-                    break;
-                case 9: // down|right
-                    if (v == otherID) {
-                        tl = "ttl";
-                        tr = "t";
-                        bl = "l";
-                        br = (isWall(grid.dr(p))) ? "m" : "rtb";
-                    } else {
-                        tl = (isWall(grid.ul(p))) ? "obtr" : "om";
-                        tr = (isWall(grid.ur(p))) ? "ol" : "ottle";
-                        bl = (isWall(grid.dl(p))) ? "ot" : "ottls";
-                        // conflict between oltbs and ortte -> olttc
-                        br = (isWall(grid.dr(p))) ? "oltt" : "olttc";
-                    }
-                    break;
-                case 10: // top|down
-                    if (v == otherID) {
-                        tl = "l";
-                        tr = "r";
-                        bl = "l";
-                        br = "r";
-                    } else {
-                        tl = (isWall(grid.ul(p))) ? "ob" : "oltbe";
-                        tr = (isWall(grid.ur(p))) ? "ob" : "obtrs";
-                        bl = (isWall(grid.dl(p))) ? "ot" : "ottls";
-                        br = (isWall(grid.dr(p))) ? "ot" : "ortte";
-                    }
-                    break;
-                case 11: // top|down|right
-                    if (v == otherID) {
-                        tl = "l";
-                        tr = (isWall(grid.ur(p))) ? "m" : "ttr"
-                        bl = "l";
-                        br = (isWall(grid.dr(p))) ? "m" : "rtb"
-                    } else {
-                        tl = (isWall(grid.ul(p))) ? "ob" : "oltbe";
-                        // conflict between obtrs and ottle -> obtlc
-                        tr = (isWall(grid.ur(p))) ? "obtl" : "obtlc";
-                        bl = (isWall(grid.dl(p))) ? "ot" : "ottls";
-                        // conflict between oltbs and ortte -> olttc
-                        br = (isWall(grid.dr(p))) ? "oltt" : "olttc";
-                    }
-                    break;
-                case 12: // down|left
-                    if (v == otherID) {
-                        tl = "t";
-                        tr = "rtt";
-                        bl = (isWall(grid.dl(p))) ? "m" : "btl"
-                        br = "r";
-                    } else {
-                        tl = (isWall(grid.ul(p))) ? "or" : "ortts";
-                        tr = (isWall(grid.ur(p))) ? "oltb" : "om";
-                        //  conflict between ottls and obtre -> ottrc
-                        bl = (isWall(grid.dl(p))) ? "ottr" : "ottrc";
-                        br = (isWall(grid.dr(p))) ? "ot" : "ortte";
-                    }
-                    break;
-                case 13: // down|left|right
-                    if (v == otherID) {
-                        tl = "t";
-                        tr = "t";
-                        bl = (isWall(grid.dl(p))) ? "m" : "btl"
-                        br = (isWall(grid.dr(p))) ? "m" : "rtb"
-                    } else {
-                        tl = (isWall(grid.ul(p))) ? "or" : "ortts";
-                        tr = (isWall(grid.ur(p))) ? "ol" : "ottle";
-                        //  conflict between ottls and obtre -> ottrc
-                        bl = (isWall(grid.dl(p))) ? "ottr" : "ottrc";
-                        // conflict between oltbs and ortte -> olttc
-                        br = (isWall(grid.dr(p))) ? "oltt" : "olttc";
-                    }
-                    break;
-                case 14: // top|down|left
-                    if (v == otherID) {
-                        tl = (isWall(grid.ul(p))) ? "m" : "ltt";
-                        tr = "r";
-                        bl = (isWall(grid.dl(p))) ? "m" : "btl"
-                        br = "r";
-                    } else {
-                        // conflict between oltbe and ortts -> ortbc
-                        tl = (isWall(grid.ul(p))) ? "ortb" : "ortbc";
-                        tr = (isWall(grid.ur(p))) ? "ob" : "obtrs";
-                        //  conflict between ottls and obtre -> ottrc
-                        bl = (isWall(grid.dl(p))) ? "ottr" : "ottrc";
-                        br = (isWall(grid.dr(p))) ? "ot" : "ortte";
-                    }
-                    break;
-                case 15: // top|down|left|right
-                    if (v == otherID) {
-                        tl = (isWall(grid.ul(p))) ? "m" : "ltt";
-                        tr = (isWall(grid.ur(p))) ? "m" : "ttr"
-                        bl = (isWall(grid.dl(p))) ? "m" : "btl"
-                        br = (isWall(grid.dr(p))) ? "m" : "rtb"
-                    } else {
-                        // conflict between oltbe and ortts -> ortbc
-                        tl = (isWall(grid.ul(p))) ? "ortb" : "ortbc";
-                        // conflict between obtrs and ottle -> obtlc
-                        tr = (isWall(grid.ur(p))) ? "obtl" : "obtlc";
-                        //  conflict between ottls and obtre -> ottrc
-                        bl = (isWall(grid.dl(p))) ? "ottr" : "ottrc";
-                        // conflict between oltbs and ortte -> olttc
-                        br = (isWall(grid.dr(p))) ? "oltt" : "olttc";
-                    }
+                case LEFT|UL|UP:
+                    tl = "m";
                     break;
             }
-            // add to overlay grid
+            let layer = selector.name;
             if (tl) overlay.set_at(tile_id(lvl, layer, tl), i*2, j*2);
+            // consider top-right
+            // - possible tiles are: rtt, t, ttls, r, btre, m, rtbs, ltte, ltbc, ttr, ltbi, btli, bi, btlsi, rtbi
+            // FIXME: not currently assigning ltbi, btli, bi, btlsi, rtbi
+            // pick best selector based on bordering tiles
+            selector = pickSelector(selectors, v, grid.up(p), grid.ur(p), grid.right(p));
+            if (!selector) continue;
+            // compute base mask of surrounding tiles based on selector
+            baseMask = getMask(grid, p, selector.baseCmp);
+            //if (v == 2) console.log("ur: " + i + "," + j + ": " + selector + " mask: " + baseMask);
+            let tr = "";
+            switch (baseMask & (RIGHT|UR|UP)) {
+                case 0:
+                    tr = "rtt";
+                    break;
+                case RIGHT:
+                    tr = (baseMask & LEFT) ? "t" : "ttls";
+                    break;
+                case UP:
+                    tr = (baseMask & DOWN) ? "r" : "btre";
+                    break;
+                case UR:
+                    tr = "ltbc";
+                    break;
+                case UP|UR:
+                    tr = "rtbs";
+                    break;
+                case UP|RIGHT:
+                    tr = "ttr";
+                    break;
+                case RIGHT|UR:
+                    tr = "ltte";
+                    break;
+                case RIGHT|UR|UP:
+                    tr = "m";
+                    break;
+            }
+            layer = selector.name;
             if (tr) overlay.set_at(tile_id(lvl, layer, tr), i*2+1, j*2);
+            // consider bottom-left
+            // - possible tiles are: ltb, b, btrs, l, ttle, m, ltts, rtbe, rttc, btl
+            // pick best selector based on bordering tiles
+            selector = pickSelector(selectors, v, grid.down(p), grid.dl(p), grid.left(p));
+            if (!selector) continue;
+            // compute base mask of surrounding tiles based on selector
+            baseMask = getMask(grid, p, selector.baseCmp);
+            //if (v == 2) console.log("dl: " + i + "," + j + ": " + selector + " mask: " + baseMask);
+            let bl = "";
+            switch (baseMask & (LEFT|DL|DOWN)) {
+                case 0:
+                    bl = "ltb";
+                    break;
+                case LEFT:
+                    bl = (baseMask & RIGHT) ? "b" : "btrs";
+                    break;
+                case DOWN:
+                    bl = (baseMask & UP) ? "l" : "ttle";
+                    break;
+                case DL:
+                    bl = "rttc";
+                    break;
+                case DOWN|DL:
+                    bl = "ltts";
+                    break;
+                case DOWN|LEFT:
+                    bl = "btl";
+                    break;
+                case LEFT|DL:
+                    bl = "rtbe";
+                    break;
+                case LEFT|DL|DOWN:
+                    bl = "m";
+                    break;
+            }
+            layer = selector.name;
             if (bl) overlay.set_at(tile_id(lvl, layer, bl), i*2, j*2+1);
+            // consider bottom-right
+            // - possible tiles are: btr, b, ltbe, r, rtts, m, ttre, btls, ttlc, rtb
+            // - possible tiles are: rtt, t, ttls, r, btre, m, rtbs, ltte, ltbc, ttr
+            // pick best selector based on bordering tiles
+            selector = pickSelector(selectors, v, grid.down(p), grid.dr(p), grid.right(p));
+            if (!selector) continue;
+            // compute base mask of surrounding tiles based on selector
+            baseMask = getMask(grid, p, selector.baseCmp);
+            //if (v == 2) console.log("dr: " + i + "," + j + ": " + selector + " mask: " + baseMask);
+            let br = "";
+            switch (baseMask & (RIGHT|DR|DOWN)) {
+                case 0:
+                    br = "btr";
+                    break;
+                case RIGHT:
+                    br = (baseMask & LEFT) ? "b" : "ltbe";
+                    break;
+                case DOWN:
+                    br = (baseMask & UP) ? "r" : "rtts";
+                    break;
+                case DR:
+                    br = "ttlc";
+                    break;
+                case DOWN|DR:
+                    br = "ttre";
+                    break;
+                case DOWN|RIGHT:
+                    br = "rtb";
+                    break;
+                case RIGHT|DR:
+                    br = "btls";
+                    break;
+                case RIGHT|DR|DOWN:
+                    br = "m";
+                    break;
+            }
+            layer = selector.name;
             if (br) overlay.set_at(tile_id(lvl, layer, br), i*2+1, j*2+1);
         }
     }

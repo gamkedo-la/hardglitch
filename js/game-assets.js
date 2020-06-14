@@ -27,6 +27,13 @@ const game_assets = { // Description of the assets to load.
         tileset_entry_exit : "./images/tileset_entry_exit.png",
         bgtemplate : "./images/bgtemplate.png",
         tiletemplate : "./images/tiletemplate.png",
+        g2w_template : "./images/groundToWall.png",
+        g2h_template : "./images/groundToHole.png",
+        g2o_template : "./images/groundToOther.png",
+        h2w_template : "./images/holeToWall.png",
+        h2g_template : "./images/holeToGround.png",
+        w2h_template : "./images/wallToHole.png",
+        w2g_template : "./images/wallToGround.png",
     }
 };
 
@@ -118,6 +125,7 @@ const tile_defs = {
     om:     {i:3,   j:3},
     ttls:   {i:6,   j:1},
     ttl:    {i:5,   j:1},
+    ttlc:   {i:7,   j:3},
     ttle:   {i:5,   j:2},
     ottls:  {i:5,   j:0},
     ottl:   {i:4,   j:0},
@@ -131,9 +139,10 @@ const tile_defs = {
     oltts:  {i:4,   j:3},
     oltt:   {i:4,   j:4},
     oltte:  {i:3,   j:4},
-    olttc:  {i:7,   j:3},
+    olttc:  {i:1,   j:1},
     ltbs:   {i:1,   j:9},
     ltb:    {i:1,   j:10},
+    ltbc:   {i:7,   j:4},
     ltbe:   {i:2,   j:10},
     ltbi:   {i:2,   j:9},
     oltbs:  {i:0,   j:10},
@@ -150,9 +159,10 @@ const tile_defs = {
     obtls:  {i:3,   j:11},
     obtl:   {i:4,   j:11},
     obtle:  {i:4,   j:12},
-    obtlc:  {i:7,   j:4},
+    obtlc:  {i:1,   j:2},
     btrs:   {i:9,   j:14},
     btr:    {i:10,  j:14},
+    btrc:   {i:8,   j:4},
     btre:   {i:10,  j:13},
     btri:   {i:9,   j:13},
     obtrs:  {i:10,  j:15},
@@ -168,9 +178,10 @@ const tile_defs = {
     ortbs:  {i:11,  j:12},
     ortb:   {i:11,  j:11},
     ortbe:  {i:12,  j:11},
-    ortbc:  {i:8,   j:4},
+    ortbc:  {i:2,   j:2},
     rtts:   {i:10,  j:2},
     rtt:    {i:10,  j:1},
+    rttc:   {i:8,   j:3},
     rtte:   {i:9,   j:1},
     ortts:  {i:11,  j:1},
     ortt:   {i:11,  j:0},
@@ -182,7 +193,7 @@ const tile_defs = {
     ottrs:  {i:12,  j:4},
     ottr:   {i:11,  j:4},
     ottre:  {i:11,  j:3},
-    ottrc:  {i:8,   j:3},
+    ottrc:  {i:2,   j:1},
 };
 
 /**
@@ -216,3 +227,10 @@ function update_sprite_defs(imgname, lvl, layer, tilesize) {
 
 update_sprite_defs("bgtemplate", "lvl1", "bg", 32);
 update_sprite_defs("tiletemplate", "lvl1", "fg", 32);
+update_sprite_defs("g2w_template", "lvl1", "g2w", 32);
+update_sprite_defs("g2h_template", "lvl1", "g2h", 32);
+update_sprite_defs("g2o_template", "lvl1", "g2o", 32);
+update_sprite_defs("h2w_template", "lvl1", "h2w", 32);
+update_sprite_defs("h2g_template", "lvl1", "h2g", 32);
+update_sprite_defs("w2h_template", "lvl1", "w2h", 32);
+update_sprite_defs("w2g_template", "lvl1", "w2g", 32);
