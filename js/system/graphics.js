@@ -68,13 +68,20 @@ class Camera{
   get rectangle() { return new spatial.Rectangle({ position: this.position, width: canvas.width, height: canvas.height }); }
 
   can_see(rect){
-    return spatial.is_intersection(rect, this.rectangle);
+    if(this._in_screen_rendering == true)
+      return spatial.is_intersection(rect, { position: {x:0, y:0}, width: canvas.width, height: canvas.height });
+    else
+      return spatial.is_intersection(rect, this.rectangle);
   }
+
+  get is_rendering_in_screen() { return this._in_screen_rendering; }
 
   // Any draw call after calling this function will be in the canvas space instead of the game's space.
   // This is useful to display things that should appear as part of the interface.
   // BEWARE: don't call this if you didn't call end_in_screen_rendering() before!!!
   begin_in_screen_rendering(){
+    console.assert(!this._in_screen_rendering);
+    this._in_screen_rendering = true;
     canvasContext.save();
     canvasContext.resetTransform();
   }
@@ -82,7 +89,9 @@ class Camera{
   // Back to in-world space rendering (any draw after calling this function will be relative to the position of the camera)
   // BEWARE: will only work if you called begin_in_screen_rendering() first before!!!
   end_in_screen_rendering(){
+    console.assert(this._in_screen_rendering);
     canvasContext.restore();
+    this._in_screen_rendering = false;
   }
 
 };

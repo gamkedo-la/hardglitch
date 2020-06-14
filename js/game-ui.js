@@ -36,8 +36,8 @@ class GameInterface {
     });
 
     constructor(){
-        this.test_button.draw_debug = true;
-        this.another_test_button.draw_debug = true;
+        // this.test_button.draw_debug = true;
+        // this.another_test_button.draw_debug = true;
     }
 
     update(delta_time){
