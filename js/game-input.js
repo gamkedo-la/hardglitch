@@ -86,11 +86,11 @@ function update_camera_control(delta_time){
     const current_speed = camera_speed * delta_time;
     const keyboard = input.keyboard;
 
-    if(input.mouse.is_dragging){ // TODO: don't do this if we're dragging from
+    const drag_pos = input.mouse.dragging_positions;
+    if(input.mouse.is_dragging && !current_game_view.ui.is_under(drag_pos.begin)){ // Don't drag the camera if we are manipulating UI
         // Map dragging
         if(!draggin_start_camera_position)
             draggin_start_camera_position = graphics.camera.position;
-        const drag_pos = input.mouse.dragging_positions;
         graphics.camera.position = draggin_start_camera_position.translate(game_position_from_graphic_position(drag_pos.begin).substract(mouse_game_position()));
 
     } else {
@@ -114,7 +114,10 @@ function update(delta_time){
         update_camera_control(delta_time);
 
         // Only handle input from the player when it's "visible" that it's player's turn.
-        if(!input.mouse.is_dragging && current_game_view.is_time_for_player_to_chose_action){
+        if(!input.mouse.is_dragging
+        && current_game_view.is_time_for_player_to_chose_action
+        && !current_game_view.ui.is_mouse_over
+        ){
             const player_action = select_player_action();
 
             if(player_action) // Player just selected an action

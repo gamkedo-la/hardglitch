@@ -3,6 +3,7 @@
 // to the UI you want to build.
 
 export {
+    UIElement,
     Button,
 };
 

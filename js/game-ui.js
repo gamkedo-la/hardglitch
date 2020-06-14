@@ -8,6 +8,7 @@ export {
 import * as graphics from "./system/graphics.js";
 import * as ui from "./system/ui.js";
 import { sprite_defs } from "./game-assets.js";
+import { mouse } from "./system/input.js";
 
 // The interface used by the player when inside the game.
 // NOTE: it's a class instead of just globals because we need to initialize and destroy it
@@ -38,21 +39,30 @@ class GameInterface {
     });
 
     constructor(){
-        // this.test_button.draw_debug = true;
-        // this.another_test_button.draw_debug = true;
+        // this.elements.map(element => element.draw_debug=true);
     }
 
+    get elements(){
+        return Object.values(this).filter(element => element instanceof ui.UIElement );
+    }
+
+    is_under(position){
+        return this.elements.some(element => element.is_under(position));
+    }
+
+    get is_mouse_over(){
+        return this.elements.some(element => element.is_mouse_over);
+    }
+
+
+
     update(delta_time){
-        this.test_button.update(delta_time);
-        this.another_test_button.update(delta_time);
+        this.elements.map(element => element.update(delta_time));
     }
 
     display() {
         graphics.camera.begin_in_screen_rendering();
-
-        this.test_button.draw();
-        this.another_test_button.draw();
-
+        this.elements.map(element => element.draw());
         graphics.camera.end_in_screen_rendering();
     }
 
