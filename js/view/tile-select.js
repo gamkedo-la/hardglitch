@@ -1,15 +1,10 @@
-// This file contains the code that knows how to represent the things in the game.
-// We basically translate what's happening in the game's state to visual and audio
-// stuffs here.
-// We interpret events to animate the view of the world.
-// The code here is just the skeleton to build over the actual representation.
+// This file contains the code that knows how to select tiles sprites
+// depending on a grid of tiles.
 
 export { SeamSelector, genFloorOverlay, genFgOverlay };
 
-import { tile_id } from "./game-assets.js";
-
-import { Vector2 } from "./system/spatial.js";
-import * as tiledefs from "./definitions-tiles.js";
+import { tile_id } from "../game-assets.js";
+import * as tiledefs from "../definitions-tiles.js";
 
 function isWall(v) {
     return (v == tiledefs.ID.WALL) ? 1 : 0;
@@ -68,9 +63,9 @@ function pickSelector(selectors, base, ...others) {
 }
 
 function getMask(grid, p, fcn) {
-    let m = ((fcn(grid.right(p))) ? RIGHT : 0) + 
-            ((fcn(grid.up(p))) ? UP : 0) + 
-            ((fcn(grid.left(p))) ? LEFT : 0) + 
+    let m = ((fcn(grid.right(p))) ? RIGHT : 0) +
+            ((fcn(grid.up(p))) ? UP : 0) +
+            ((fcn(grid.left(p))) ? LEFT : 0) +
             ((fcn(grid.down(p))) ? DOWN : 0) +
             ((fcn(grid.ur(p))) ? UR : 0) +
             ((fcn(grid.ul(p))) ? UL : 0) +
