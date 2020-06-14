@@ -124,12 +124,18 @@ class Button extends UIElement {
         super(button_def);
         this._sprite = new Sprite(button_def.sprite_def);
         this._sprite.position = this.position;
-        this._frames = {
-            up: button_def.up != undefined ? button_def.up : 0,
-            down: button_def.down != undefined ? button_def.down : 0,
-            over: button_def.over != undefined ? button_def.over : 0,
-            disabled: button_def.disabled != undefined ? button_def.disabled : 0,
-        };
+        const frames = button_def.frames;
+        if(frames != undefined){
+            this._frames = {
+                up: frames.up != undefined ? frames.up : 0,
+                down: frames.down != undefined ? frames.down : 0,
+                over: frames.over != undefined ? frames.over : 0,
+                disabled: frames.disabled != undefined ? frames.disabled : 0,
+            };
+        } else {
+            this._frames = { up:0, down:0, over:0, disabled:0 };
+        }
+
 
         this.is_action_on_up = button_def.is_action_on_up != undefined? button_def.is_action_on_up : false;
         this.action = button_def.action;
@@ -148,12 +154,12 @@ class Button extends UIElement {
 
         switch(this.state){
             case ButtonState.UP:
-                if(mouse.buttons.is_down(MOUSE_BUTTON.LEFT)){
+                if(mouse.buttons.is_down(MOUSE_BUTTON.LEFT) && mouse_is_over_now){
                     this._on_down();
                 }
                 break;
             case ButtonState.DOWN:
-                if(mouse.buttons.is_up(MOUSE_BUTTON.RIGHT) || !mouse_is_over_now){
+                if(mouse.buttons.is_up(MOUSE_BUTTON.LEFT) || !mouse_is_over_now){
                     this._on_up();
                 }
                 break;
@@ -172,7 +178,6 @@ class Button extends UIElement {
                 this.action();
             }
         }
-
 
         this._sprite.position = this.position;
         this._sprite.update(delta_time);
