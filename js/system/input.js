@@ -60,7 +60,7 @@ class Mouse{
     this._position = new spatial.Vector2();
     this._last_update_time = Date.now();
 
-    this.buttons.time_until_pressed_becomes_hold = 50; // We'll use the hold state for dragging.
+    this.buttons.time_until_pressed_becomes_hold = 8; // We'll use the hold state for dragging.
     this._dragging_radius = 32; // Pixels distance from the dragging start position where
   }
 

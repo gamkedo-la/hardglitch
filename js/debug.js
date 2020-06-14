@@ -23,6 +23,9 @@ function setCentralText(text){ // TODO: add a text display in the Canvas to disp
 let dragging = undefined;
 let dragging_display_time = 0;
 
+let lmb_down_frames = 0;
+let x_key_frames = 0;
+
 function display_mouse_position(){
     if(!current_game_view)
         return;
@@ -51,6 +54,23 @@ function display_mouse_position(){
             dragging = drag_pos;
         graphics.draw_text(`Dragging: FROM: ${JSON.stringify(dragging.begin)}\t\tTO: ${JSON.stringify(dragging.end)}`, {x: center.x, y: next_line() });
     }
+
+    if(input.mouse.buttons.is_just_down(input.MOUSE_BUTTON.LEFT)){
+        graphics.draw_text(`JUST DOWN: LEFT MOUSE BUTTON`, {x: center.x, y: next_line() });
+        lmb_down_frames++;
+    }
+    if(input.mouse.buttons.is_just_released(input.MOUSE_BUTTON.LEFT)){
+        graphics.draw_text(`JUST DOWN: LEFT MOUSE BUTTON`, {x: center.x, y: next_line() });
+    }
+
+    if(input.keyboard.is_just_down(88)){ // X key
+        graphics.draw_text(`JUST DOWN: X KEY`, {x: center.x, y: next_line() });
+        x_key_frames++;
+    }
+
+    graphics.draw_text(`FRAMES LEFT MOUSE BUTTON ${lmb_down_frames}`, {x: center.x, y: next_line() });
+    graphics.draw_text(`FRAMES X KEY ${x_key_frames}`, {x: center.x, y: next_line() });
+
 }
 
 function display(){
