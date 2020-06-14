@@ -1,11 +1,17 @@
 // This file contains debug utilities for working with this game.
 
-export { setText, setCentralText, display };
+export {
+    is_enabled,
+    setText, setCentralText,
+    update, display,
+};
 
 import * as graphics from "./system/graphics.js";
 import * as input from "./system/input.js";
-import * as game_input from "./game-input.js";
+import { mouse_grid_position, mouse_game_position, KEY } from "./game-input.js";
 import { current_game_view } from "./main.js";
+
+let is_enabled = false; // TURN THIS ON TO SEE THE EDITOR, see the update() function below
 
 let text_to_display = "READY";
 let central_text = null;
@@ -34,8 +40,8 @@ function display_mouse_position(){
     }
 
     const center = graphics.canvas_center_position();
-    const mouse_grid_pos = game_input.mouse_grid_position();
-    const mouse_game_pos = game_input.mouse_game_position();
+    const mouse_grid_pos = mouse_grid_position();
+    const mouse_game_pos = mouse_game_position();
     graphics.draw_text(`MOUSE STATE:`, {x: center.x, y: next_line() });
     graphics.draw_text(`SCREEN X = ${input.mouse.position.x}\tY = ${input.mouse.position.y}`, {x: center.x, y: next_line() });
     graphics.draw_text(`GAME SPACE: X = ${mouse_game_pos.x}\tY = ${mouse_game_pos.y}`, {x: center.x, y: next_line() });
@@ -66,9 +72,15 @@ function display_mouse_position(){
 }
 
 function display(){
+    if(!is_enabled)
+        return;
+
     graphics.camera.begin_in_screen_rendering();
 
+    graphics.draw_text("EDITOR MODE", {x: 20, y: 40 });
+
     const center = graphics.canvas_center_position();
+
     if(text_to_display){
         graphics.draw_text(text_to_display, {x: center.x, y: center.y + 20 });
     }
@@ -82,5 +94,16 @@ function display(){
 }
 
 function update(){
+
+    if(!is_enabled){
+        if(input.keyboard.is_just_down(KEY.ESCAPE))
+            is_enabled = true;
+        return; // Skip this frame, whatever the case.
+    }
+
+    if(input.keyboard.is_just_down(KEY.ESCAPE)){
+        is_enabled = false;
+        return;
+    }
 
 }

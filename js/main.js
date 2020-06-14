@@ -12,7 +12,7 @@ import * as input from "./system/input.js";
 import * as game_input from "./game-input.js";
 import { make_test_world } from "./testing/test-level.js";
 
-import * as debug from "./debug.js";
+import * as editor from "./editor.js";
 
 let current_game = null;
 let current_game_view = null;
@@ -46,12 +46,13 @@ function update_everything() {
   last_update_time = now;
   game_input.update(delta_time);
   current_game_view.update(delta_time);
+  editor.update(delta_time);
 }
 
 function draw_everything() {
   graphics.clear();
   current_game_view.render_graphics();
-  debug.display();
+  editor.display();
 }
 
 function new_game() {

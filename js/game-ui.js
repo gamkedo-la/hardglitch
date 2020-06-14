@@ -8,7 +8,6 @@ export {
 import * as graphics from "./system/graphics.js";
 import * as ui from "./system/ui.js";
 import { sprite_defs } from "./game-assets.js";
-import { mouse } from "./system/input.js";
 
 // The interface used by the player when inside the game.
 // NOTE: it's a class instead of just globals because we need to initialize and destroy it
@@ -67,8 +66,6 @@ class GameInterface {
     get is_mouse_over(){
         return this.elements.some(element => element.is_mouse_over);
     }
-
-
 
     update(delta_time){
         this.elements.map(element => element.update(delta_time));

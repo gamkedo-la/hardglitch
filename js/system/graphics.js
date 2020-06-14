@@ -42,6 +42,7 @@ function from_graphic_to_grid_position(vec2, square_size, graphics_origin = {x:0
 
 class Camera{
   transform = new spatial.Transform();
+  _in_screen_rendering = false;
 
   get position() { return new spatial.Vector2(this.transform.position); }
   set position(new_pos) {

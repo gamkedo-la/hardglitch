@@ -11,7 +11,7 @@ import * as graphics from "./system/graphics.js";
 import { Game } from "./game.js";
 import { Vector2 } from "./system/spatial.js";
 
-import * as debug from "./debug.js";
+import * as editor from "./editor.js";
 
 import { graphic_position, PIXELS_PER_TILES_SIDE, square_half_unit_vector } from "./view/common-view.js";
 import { TileGridView } from "./view/tilegrid-view.js";
@@ -60,13 +60,16 @@ class GameView {
 
     update(delta_time){
 
+        if(editor.is_enabled)
+            return;
+
         this.tile_grid.update(delta_time);
 
         // Update the current animation, if any, or switch to the next one, until there isn't any left.
         if(this.current_animations.length != 0 || this.animation_queue.length > 0){
             if(this.is_time_for_player_to_chose_action){
                 this.is_time_for_player_to_chose_action = false;
-                debug.setText("PROCESSING NPC TURNS...");
+                editor.setText("PROCESSING NPC TURNS...");
             }
 
             const delay_between_animations_ms = 33; // we'll try to keep a little delay between each beginning of parallel animation.
@@ -102,7 +105,7 @@ class GameView {
 
             if(this.current_animations.length == 0 && this.animation_queue.length == 0){
                 this.is_time_for_player_to_chose_action = true;
-                debug.setText("PLAYER'S TURN!");
+                editor.setText("PLAYER'S TURN!");
             }
         }
 

@@ -10,6 +10,7 @@ export {
 
 import * as input from "./system/input.js";
 import * as graphics from "./system/graphics.js";
+import * as editor from "./editor.js";
 import { current_game, current_game_view } from "./main.js";
 import { Vector2_unit_x, Vector2_unit_y, Vector2 } from "./system/spatial.js";
 
@@ -123,6 +124,7 @@ function update(delta_time){
         if(!input.mouse.is_dragging
         && current_game_view.is_time_for_player_to_chose_action
         && !current_game_view.ui.is_mouse_over
+        && !editor.is_enabled
         ){
             const player_action = select_player_action();
 

@@ -2,7 +2,7 @@ import * as concepts from "../core/concepts.js";
 import * as tiles from "../definitions-tiles.js";
 import * as graphics from "../system/graphics.js";
 
-import * as debug from "../debug.js";
+import * as editor from "../editor.js";
 
 export {
     Rule_GameOver,
@@ -78,7 +78,7 @@ class GameOver extends concepts.Event {
     }
 
     *animation(){ // TEMPORARY ANIMATION
-        debug.setCentralText("GAME OVER! - RELOAD TO RESTART");
+        editor.setCentralText("GAME OVER! - RELOAD TO RESTART");
         while(true) yield;
     }
 }
@@ -112,7 +112,7 @@ class PlayerExitLevel extends concepts.Event {
 
     *animation(){ // TEMPORARY ANIMATION
         let time_left = 4000;
-        debug.setCentralText("YOU WIN THIS LEVEL! - LOADING NEXT LEVEL ...");
+        editor.setCentralText("YOU WIN THIS LEVEL! - LOADING NEXT LEVEL ...");
         while(time_left > 0){
             const delta_time = yield;
             time_left -= delta_time;
