@@ -29,6 +29,7 @@ class GameView {
     constructor(game){
         console.assert(game instanceof Game);
         this.game = game;
+        this._requires_reset = true;
         this.reset();
     }
 
@@ -60,8 +61,12 @@ class GameView {
 
     update(delta_time){
 
-        if(editor.is_enabled)
+        if(editor.is_enabled){
+            if(this._requires_reset){
+                this.reset();
+            }
             return;
+        }
 
         this.tile_grid.update(delta_time);
 
@@ -129,16 +134,28 @@ class GameView {
 
     // Re-interpret the game's state from scratch.
     reset(){
+        console.assert(this._requires_reset);
+
+        if(this.tile_grid)
+            this.tile_grid.reset(new Vector2(), new Vector2({ x: this.game.world.width, y: this.game.world.height }), this.game.world._floor_tile_grid);
+        else
         this.tile_grid = new TileGridView(new Vector2(), new Vector2({ x: this.game.world.width, y: this.game.world.height }), this.game.world._floor_tile_grid);
+        this.tile_grid.update(0);
 
         this.body_views = {};
         this.game.world.bodies.forEach(body => {
             const body_view = new CharacterView(body.position, body.assets);
             this.body_views[body.body_id] = body_view;
+            body_view.update(0);
         });
 
+        this._requires_reset = false;
     }
 
+    // Called by the editor code when editing the game in a way the require re-interpreting the game's state.
+    notify_edition(){
+        this._requires_reset = true;
+    }
 
     remove_view(...body_ids){
         for(const body_id of body_ids){

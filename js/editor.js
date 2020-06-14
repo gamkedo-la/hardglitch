@@ -1,17 +1,19 @@
 // This file contains debug utilities for working with this game.
 
 export {
-    is_enabled,
+    is_enabled, is_editing,
     setText, setCentralText,
     update, display,
 };
 
 import * as graphics from "./system/graphics.js";
 import * as input from "./system/input.js";
+import * as tiles from "./definitions-tiles.js";
 import { mouse_grid_position, mouse_game_position, KEY } from "./game-input.js";
-import { current_game_view } from "./main.js";
+import { current_game_view, current_game } from "./main.js";
 
 let is_enabled = false; // TURN THIS ON TO SEE THE EDITOR, see the update() function below
+let is_editing = false; // True if we are doing an edition manipulation and no other input should be handled.
 
 let text_to_display = "READY";
 let central_text = null;
@@ -71,6 +73,34 @@ function display_mouse_position(){
     graphics.draw_text(`FRAMES LEFT MOUSE BUTTON ${lmb_down_frames}`, {x: center.x, y: next_line() });
 }
 
+function update_world_edition(){
+    is_editing = input.keyboard.is_any_key_down();
+    if(!is_editing)
+        return;
+
+    const mouse_grid_pos = mouse_grid_position();
+
+    if(input.mouse.buttons.is_down(input.MOUSE_BUTTON.LEFT)){
+        if(input.keyboard.is_down(KEY.NUMBER_0)){
+            current_game.world._floor_tile_grid.set_at(undefined, mouse_grid_pos);
+        }
+        if(input.keyboard.is_down(KEY.NUMBER_1)){
+            current_game.world._floor_tile_grid.set_at(tiles.ID.GROUND, mouse_grid_pos);
+        }
+        if(input.keyboard.is_down(KEY.NUMBER_2)){
+            current_game.world._floor_tile_grid.set_at(tiles.ID.WALL, mouse_grid_pos);
+        }
+        if(input.keyboard.is_down(KEY.NUMBER_3)){
+            current_game.world._floor_tile_grid.set_at(tiles.ID.VOID, mouse_grid_pos);
+        }
+
+
+        current_game_view.notify_edition();
+    }
+
+}
+
+
 function display(){
     if(!is_enabled)
         return;
@@ -95,6 +125,11 @@ function display(){
 
 function update(){
 
+    if(input.keyboard.is_just_down(KEY.N)){
+        current_game_view.tile_grid.enable_tile_sprites = !current_game_view.tile_grid.enable_tile_sprites;
+    }
+
+
     if(!is_enabled){
         if(input.keyboard.is_just_down(KEY.ESCAPE))
             is_enabled = true;
@@ -106,4 +141,6 @@ function update(){
         return;
     }
 
+
+    update_world_edition();
 }

@@ -21,8 +21,13 @@ function isWall(v) {
 class TileGridView {
     enable_grid_lines = false;
     enable_overlay = true;
+    enable_tile_sprites = true;
 
     constructor(position, size, ground_tile_grid){
+        this.reset(position, size, ground_tile_grid);
+    }
+
+    reset(position, size, ground_tile_grid){
         console.assert(position instanceof Vector2);
         console.assert(size instanceof Vector2 && size.x > 2 && size.y > 2);
         this.position = position;
@@ -80,17 +85,20 @@ class TileGridView {
     }
 
     draw(){
-        this.ground_tile_grid.draw();
+        if(this.enable_tile_sprites)
+            this.ground_tile_grid.draw();
 
         if(this.enable_grid_lines){
             graphics.draw_grid_lines(this.size.x, this.size.y, PIXELS_PER_TILES_SIDE, this.position);
         }
 
-        if (this.enable_overlay) {
-            this.mid_tile_grid.draw();
-        }
+        if(this.enable_tile_sprites){
+            if (this.enable_overlay) {
+                this.mid_tile_grid.draw();
+            }
 
-        this.surface_tile_grid.draw();
+            this.surface_tile_grid.draw();
+        }
 
     }
 

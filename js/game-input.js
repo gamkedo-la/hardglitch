@@ -31,6 +31,12 @@ const KEY = {
     D: 68,
     P: 80,
     M: 77,
+    N: 78,
+    NUMBER_0: 48,
+    NUMBER_1: 49,
+    NUMBER_2: 50,
+    NUMBER_3: 51,
+    NUMBER_4: 52,
 };
 
 // Returns the pixel position inside the game space (taking into acount the camera).
@@ -94,7 +100,10 @@ function update_camera_control(delta_time){
     const keyboard = input.keyboard;
 
     const drag_pos = input.mouse.dragging_positions;
-    if(input.mouse.is_dragging && !current_game_view.ui.is_under(drag_pos.begin)){ // Don't drag the camera if we are manipulating UI
+    if(input.mouse.is_dragging
+    && !current_game_view.ui.is_under(drag_pos.begin) // Don't drag the camera if we are manipulating UI
+    && !editor.is_editing // Don't drag when we are editing the world with the editor
+    ){
         // Map dragging
         if(!draggin_start_camera_position)
             draggin_start_camera_position = graphics.camera.position;
