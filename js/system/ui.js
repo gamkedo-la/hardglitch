@@ -166,11 +166,13 @@ class Button extends UIElement {
                 this._on_end_over();
         }
 
-
-        const is_time_to_trigger_action = this.is_action_on_up ? mouse.buttons.is_just_released(MOUSE_BUTTON.LEFT) : mouse.buttons.is_just_down(MOUSE_BUTTON.LEFT);
-        if(is_time_to_trigger_action && this.action != undefined){
-            this.action();
+        if(mouse_is_over_now){
+            const is_time_to_trigger_action = this.is_action_on_up ? mouse.buttons.is_just_released(MOUSE_BUTTON.LEFT) : mouse.buttons.is_just_down(MOUSE_BUTTON.LEFT);
+            if(is_time_to_trigger_action && this.action != undefined){
+                this.action();
+            }
         }
+
 
         this._sprite.position = this.position;
         this._sprite.update(delta_time);

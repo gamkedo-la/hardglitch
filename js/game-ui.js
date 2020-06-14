@@ -5,6 +5,7 @@ export {
     GameInterface,
 };
 
+import * as graphics from "./system/graphics.js";
 import * as ui from "./system/ui.js";
 import { sprite_defs } from "./game-assets.js";
 
@@ -19,16 +20,25 @@ class GameInterface {
         width: 50, height: 50,
         sprite_def: sprite_defs.test_button,
         frames: { up: 0, down: 1, over: 2, disabled: 3 },
-        action: function(){ console.log("TEST BUTTON ACTION"); }
+        action: function(){
+            console.log("TEST BUTTON ACTION");
+        }
     });
 
     another_test_button = new ui.Button({
         position: { x: 200, y: 300 },
-        width: 20, height: 20,
+        width: 50, height: 50,
         sprite_def: sprite_defs.test_button,
         is_action_on_up: true,
-        action: function(){ console.log("ANOTHER TEST BUTTON ACTION"); }
+        action: function(){
+            console.log("ANOTHER TEST BUTTON ACTION");
+        }
     });
+
+    constructor(){
+        this.test_button.draw_debug = true;
+        this.another_test_button.draw_debug = true;
+    }
 
     update(delta_time){
         this.test_button.update(delta_time);
@@ -36,8 +46,12 @@ class GameInterface {
     }
 
     display() {
+        graphics.camera.begin_in_screen_rendering();
+
         this.test_button.draw();
         this.another_test_button.draw();
+
+        graphics.camera.end_in_screen_rendering();
     }
 
 

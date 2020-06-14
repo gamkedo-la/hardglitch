@@ -54,6 +54,8 @@ function display_mouse_position(){
 }
 
 function display(){
+    graphics.camera.begin_in_screen_rendering();
+
     const center = graphics.canvas_center_position();
     if(text_to_display){
         graphics.draw_text(text_to_display, {x: center.x, y: center.y + 20 });
@@ -62,8 +64,9 @@ function display(){
         graphics.draw_text(central_text, {x: center.x, y: center.y - 20 });
     }
 
-
     display_mouse_position();
+
+    graphics.camera.end_in_screen_rendering();
 }
 
 function update(){

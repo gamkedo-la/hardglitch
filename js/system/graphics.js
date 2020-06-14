@@ -71,6 +71,20 @@ class Camera{
     return spatial.is_intersection(rect, this.rectangle);
   }
 
+  // Any draw call after calling this function will be in the canvas space instead of the game's space.
+  // This is useful to display things that should appear as part of the interface.
+  // BEWARE: don't call this if you didn't call end_in_screen_rendering() before!!!
+  begin_in_screen_rendering(){
+    canvasContext.save();
+    canvasContext.resetTransform();
+  }
+
+  // Back to in-world space rendering (any draw after calling this function will be relative to the position of the camera)
+  // BEWARE: will only work if you called begin_in_screen_rendering() first before!!!
+  end_in_screen_rendering(){
+    canvasContext.restore();
+  }
+
 };
 const camera = new Camera();
 
@@ -357,16 +371,10 @@ function clear(){
   canvasContext.restore();
 }
 
-function draw_text(text, position, font="24px arial", color="black", in_screen_space=true){
-  if(in_screen_space){
-    canvasContext.save();
-    canvasContext.resetTransform();
-  }
+function draw_text(text, position, font="24px arial", color="black"){
   canvasContext.font = font; // TODO: replace this by proper font handling.
   canvasContext.fillStyle = color;
   canvasContext.fillText(text, position.x, position.y);
-  if(in_screen_space)
-    canvasContext.restore();
 }
 
 function canvas_center_position(){
