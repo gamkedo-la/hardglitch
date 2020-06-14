@@ -94,6 +94,10 @@ class Camera{
     this._in_screen_rendering = false;
   }
 
+  on_canvas_resized() {
+    this.position = this.position; // Recalculate the position assuming it didn't change but the canvas size might have changed.
+  }
+
 };
 const camera = new Camera();
 
@@ -343,13 +347,13 @@ function initialize(assets){
 }
 
 function canvas_resize_to_window(){
-  canvasContext.canvas.width  = window.innerWidth;
-  canvasContext.canvas.height = window.innerHeight;
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
 }
 
 function on_window_resized(){
-  // TODO: handle camera stuffs here.
   canvas_resize_to_window();
+  camera.on_canvas_resized();
 }
 
 function draw_rectangle(rectangle, fillColor) {
