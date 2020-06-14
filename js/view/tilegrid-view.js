@@ -22,7 +22,7 @@ class TileGridView {
     enable_grid_lines = false;
     enable_overlay = true;
 
-    constructor(position, size, ground_tile_grid, surface_tile_grid){
+    constructor(position, size, ground_tile_grid){
         console.assert(position instanceof Vector2);
         console.assert(size instanceof Vector2 && size.x > 2 && size.y > 2);
         this.position = position;
@@ -44,11 +44,11 @@ class TileGridView {
         // handle floor transitions
         genFloorOverlay("lvl1", ground_tile_grid, bg_grid, selectors);
         // handle surface transitions
-        genFgOverlay("lvl1", "fg", surface_tile_grid, fg_grid);
+        genFgOverlay("lvl1", "fg", ground_tile_grid, fg_grid);
         // filter out all wall/ground tiles from fg
         const midData = new Array(size.x * size.y);
         for (let i=0; i<midData.length; i++) {
-            const surface_element = surface_tile_grid.elements[i];
+            const surface_element = ground_tile_grid.elements[i];
             if (surface_element == tiledefs.ID.WALL) continue;
             if (surface_element == tiledefs.ID.GROUND) continue;
             midData[i] = surface_element;
@@ -63,7 +63,7 @@ class TileGridView {
             this.surface_tile_grid = new graphics.TileGrid(position, dsize, PIXELS_PER_HALF_SIDE, tiledefs.sprite_defs, fg_grid.elements);
         } else {
             this.ground_tile_grid = new graphics.TileGrid(position, size, PIXELS_PER_TILES_SIDE, tiledefs.sprite_defs, ground_tile_grid.elements);
-            this.surface_tile_grid = new graphics.TileGrid(position, size, PIXELS_PER_TILES_SIDE, tiledefs.sprite_defs, surface_tile_grid.elements);
+            this.surface_tile_grid = new graphics.TileGrid(position, size, PIXELS_PER_TILES_SIDE, tiledefs.sprite_defs, ground_tile_grid.elements);
         }
         this.ground_tile_grid.enable_draw_background = true; // display the background
     }

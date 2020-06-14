@@ -50,10 +50,6 @@ function make_test_world(){ // The game assets must have been initialized first.
             } else {
                 tileID = tiles.ID.GROUND;
             }
-            // walls get assigned to both surface layers
-            if (tileID == tiles.ID.WALL) {
-                set_surface_tile(new concepts.Position(i, j), tileID);
-            }
             // hole/ground/wall tiles get assigned to floor layer (wall gets assigned to both surface/floor)
             set_floor_tile(new concepts.Position(i, j), tileID);
         }

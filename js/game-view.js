@@ -129,8 +129,7 @@ class GameView {
 
     // Re-interpret the game's state from scratch.
     reset(){
-        this.tile_grid = new TileGridView(new Vector2(), new Vector2({ x: this.game.world.width, y: this.game.world.height }),
-                                            this.game.world._floor_tile_grid, this.game.world._surface_tile_grid);
+        this.tile_grid = new TileGridView(new Vector2(), new Vector2({ x: this.game.world.width, y: this.game.world.height }), this.game.world._floor_tile_grid);
 
         this.body_views = {};
         this.game.world.bodies.forEach(body => {
