@@ -13,10 +13,6 @@ import { Vector2 } from "../system/spatial.js";
 import { PIXELS_PER_TILES_SIDE, PIXELS_PER_HALF_SIDE } from "./common-view.js";
 
 
-function isWall(v) {
-    return (v == tiledefs.ID.WALL) ? 1 : 0;
-}
-
 // Display tiles.
 class TileGridView {
     enable_grid_lines = false;
@@ -35,7 +31,6 @@ class TileGridView {
 
         // translate given grids to display grids
         const bg_grid = new Grid(size.x*2, size.y*2);
-        const test_grid = new Grid(size.x*2, size.y*2);
         const fg_grid = new Grid(size.x*2, size.y*2);
         let selectors = [
             new SeamSelector("w2h", (fg) => (fg==tiledefs.ID.WALL), (bg) => (bg == tiledefs.ID.HOLE)),
