@@ -20,16 +20,33 @@ function make_test_world(){ // The game assets must have been initialized first.
     const floor_tile_grid = new Array(grid_size);
     const surface_tile_grid = new Array(grid_size);
 
+    function index(position){
+        return index_from_position(test_world_size.width, test_world_size.height, position)
+    }
+
     function set_floor_tile(position, tile_id){
-        floor_tile_grid[index_from_position(test_world_size.width, test_world_size.height, position)] = tile_id;
+        floor_tile_grid[index(position)] = tile_id;
     };
 
     function set_surface_tile(position, tile_id){
-        surface_tile_grid[index_from_position(test_world_size.width, test_world_size.height, position)] = tile_id;
+        surface_tile_grid[index(position)] = tile_id;
     };
 
+    function floor_tile_id(position){
+        return floor_tile_grid[index(position)];
+    }
+
+    function is_walkable(position){
+        const tile_id = floor_tile_id(position);
+        return tiles.defs[tile_id].is_walkable;
+    }
+
     function random_position(){
-        return new concepts.Position(random_int(0, test_world_size.width - 1 ), random_int(0, test_world_size.height - 1 ));
+        while(true){
+            const position = { x:random_int(0, test_world_size.width - 1 ), y:random_int(0, test_world_size.height - 1 )};
+            if(is_walkable(position))
+                return new concepts.Position(position.x, position.y);
+        }
     }
 
     // set floor/walls/holes
