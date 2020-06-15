@@ -79,13 +79,16 @@ class TileGridView {
         this.surface_tile_grid.update(delta_time);
     }
 
-    draw(){
+    draw_floor(){
         if(this.enable_tile_sprites)
             this.ground_tile_grid.draw();
 
         if(this.enable_grid_lines){
             graphics.draw_grid_lines(this.size.x, this.size.y, PIXELS_PER_TILES_SIDE, this.position);
         }
+    }
+
+    draw_surface(){
 
         if(this.enable_tile_sprites){
             if (this.enable_overlay) {

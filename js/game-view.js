@@ -123,11 +123,13 @@ class GameView {
     }
 
     render_graphics(){
-        this.tile_grid.draw();
+        this.tile_grid.draw_floor();
 
         for(const body_view of Object.values(this.body_views)){
             body_view.render_graphics();
         };
+
+        this.tile_grid.draw_surface();
 
         this.ui.display();
     }
