@@ -27,7 +27,7 @@ class Grid {
      * @param {*} p - either a point or x index within grid
      * @param {*} j - (optional) y index within grid
      */
-    idx(p, j) {
+    index(p, j) {
         if (typeof p === 'number') {
             return (p) % this.width + this.width*j;
         }
@@ -35,12 +35,12 @@ class Grid {
     }
 
     get_at(p, j){
-        let idx = this.idx(p, j);
+        const idx = this.index(p, j);
         return this.elements[idx];
     }
 
     set_at(v, p, j){
-        let idx = this.idx(p, j);
+        const idx = this.index(p, j);
         this.elements[idx] = v;
     }
 
@@ -49,7 +49,7 @@ class Grid {
      */
     left(p, dflt=0) {
         if (p.x>0) {
-            let idx = this.idx(p.x-1, p.y);
+            const idx = this.index(p.x-1, p.y);
             return this.elements[idx];
         }
         return dflt;
@@ -57,7 +57,7 @@ class Grid {
 
     right(p, dflt=0) {
         if (p.x<this.width-1) {
-            let idx = this.idx(p.x+1, p.y);
+            const idx = this.index(p.x+1, p.y);
             return this.elements[idx];
         }
         return dflt;
@@ -65,7 +65,7 @@ class Grid {
 
     up(p, dflt=0) {
         if (p.y>0) {
-            let idx = this.idx(p.x, p.y-1);
+            const idx = this.index(p.x, p.y-1);
             return this.elements[idx];
         }
         return dflt;
@@ -73,7 +73,7 @@ class Grid {
 
     down(p, dflt=0) {
         if (p.y<this.height-1) {
-            let idx = this.idx(p.x, p.y+1);
+            const idx = this.index(p.x, p.y+1);
             return this.elements[idx];
         }
         return dflt;
@@ -81,7 +81,7 @@ class Grid {
 
     ul(p, dflt=0) {
         if (p.x>0 && p.y>0) {
-            let idx = this.idx(p.x-1, p.y-1);
+            const idx = this.index(p.x-1, p.y-1);
             return this.elements[idx];
         }
         return dflt;
@@ -89,7 +89,7 @@ class Grid {
 
     ur(p, dflt=0) {
         if (p.x<this.width-1 && p.y>0) {
-            let idx = this.idx(p.x+1, p.y-1);
+            const idx = this.index(p.x+1, p.y-1);
             return this.elements[idx];
         }
         return dflt;
@@ -97,7 +97,7 @@ class Grid {
 
     dl(p, dflt=0) {
         if (p.x>0 && p.y<this.height-1) {
-            let idx = this.idx(p.x-1, p.y+1);
+            const idx = this.index(p.x-1, p.y+1);
             return this.elements[idx];
         }
         return dflt;
@@ -105,7 +105,7 @@ class Grid {
 
     dr(p, dflt=0) {
         if (p.x<this.width-1 && p.y<this.height-1) {
-            let idx = this.idx(p.x+1, p.y+1);
+            const idx = this.index(p.x+1, p.y+1);
             return this.elements[idx];
         }
         return dflt;
