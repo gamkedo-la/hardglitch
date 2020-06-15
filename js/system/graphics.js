@@ -259,9 +259,6 @@ class TileGrid
 {
   background_color = "orange"; // Color displayed where there is no sprite in the grid.
   enable_draw_background = false;
-  _offscreen_canvas = document.createElement('canvas');
-  _offscreen_canvas_context = this._offscreen_canvas.getContext('2d');
-  _request_rendering = true;
 
   constructor(position, size, square_size, sprite_defs, tile_id_grid){
     console.assert(position instanceof spatial.Vector2);
@@ -280,6 +277,10 @@ class TileGrid
       this.set_tile_type(sprite_id, sprite_defs[sprite_id]);
     }
 
+
+    this._offscreen_canvas = document.createElement('canvas');
+    this._offscreen_canvas_context = this._offscreen_canvas.getContext('2d');
+    this._rendering_requests = [];
     this._offscreen_canvas.width = this.size.x * square_size;
     this._offscreen_canvas.height = this.size.y * square_size;
   }
@@ -295,7 +296,9 @@ class TileGrid
   }
 
   change_tile(position, tile_sprite_id, sprite_def){
-    console.assert(position && is_number(position.x) && is_number(position.y));
+    console.assert(position && Number.isInteger(position.x) && Number.isInteger(position.y));
+
+    // First make sure that the sprite is available.
     console.assert(tile_sprite_id);
     let sprite = this.sprites[tile_sprite_id];
     if(!sprite){
@@ -304,29 +307,65 @@ class TileGrid
     }
     console.assert(sprite);
 
+    // Then record the change.
+    this.tile_id_grid[this.index(position)] = tile_sprite_id;
+    this.request_redraw({ x_begin:position.x, x_end:position.x+1, y_begin:position.y, y_end:position.y+1 });
   }
 
-  _render_offscreen(){
-
+  _render_offscreen(x_begin=0, x_end=this.size.x, y_begin=0, y_end=this.size.y){
+    const grid = {
+      x: x_begin, y:y_begin,
+      width: x_end - x_begin,
+      height: y_end - x_begin,
+    }
+    const render = {
+      x: grid.x * this.square_size,
+      y: grid.y * this.square_size,
+      width: grid.width * this.square_size,
+      height: grid.height * this.square_size,
+    }
     this._offscreen_canvas_context.fillStyle = "#00000000";
-    this._offscreen_canvas_context.fillRect(0, 0, this._offscreen_canvas.width, this._offscreen_canvas.height);
+    this._offscreen_canvas_context.fillRect(render.x, render.y, render.width, render.height);
 
-    for(let y = 0; y < this.size.y; ++y){
-      for(let x = 0; x < this.size.x; ++x){
-        const tile_idx = index_from_position(this.size.x, this.size.y, {x, y});
-        console.assert(tile_idx >= 0 && tile_idx < this.tile_id_grid.length);
-        let sprite_id = this.tile_id_grid[tile_idx];
+    for(let y = grid.y; y < grid.height; ++y){
+      for(let x = grid.x; x < grid.width; ++x){
+        const sprite_id = this.tile_sprite_id_at({x, y});
         if(sprite_id === undefined) // Undefined means we display no sprite.
           continue;
         const sprite = this.sprites[sprite_id];
         console.assert(sprite);
-        const graphic_pos = from_grid_to_graphic_position({x:x, y:y}, this.square_size, this.position);
+        const graphic_pos = from_grid_to_graphic_position({x, y}, this.square_size, this.position);
         sprite.position = graphic_pos;
         sprite.draw(this._offscreen_canvas_context);
       }
     }
-    this._request_rendering = false;
   }
+
+  _handle_rendering_requests(){
+    while(this._rendering_requests.length != 0){
+      const request = this._rendering_requests.shift();
+      this._render_offscreen(request.x_begin, request.y_begin, request.x_end, request.y_end);
+    }
+  }
+
+  // Request to redraw some sprites (maybe after changes)
+  // {
+  //   x_begin: 0, y_begin: 0, // Top left of the squares to redraw
+  //   x_end: 42, y_end: 42,   // Bottom right of the squares to redraw
+  // }
+  request_redraw(rect) {
+    //console.assert(rect && Number.isInteger(rect.x_begin) && Number.isInteger(rect.y_begin) && Number.isInteger(rect.x_end) && Number.isInteger(rect.y_end) );
+    this._rendering_requests.push(rect);
+  }
+
+  tile_sprite_id_at(position){
+    const tile_idx = this.index(position);
+    console.assert(tile_idx >= 0 && tile_idx < this.tile_id_grid.length);
+    const tile_sprite_id = this.tile_id_grid[tile_idx];
+    return tile_sprite_id;
+  }
+
+  index(position){ return index_from_position(this.size.x, this.size.y, position); }
 
   update(delta_time){
     let is_any_sprite_changed = false;
@@ -338,7 +377,8 @@ class TileGrid
       is_any_sprite_changed = is_any_sprite_changed || sprite.did_frame_change_since_last_update;
     }
     if(is_any_sprite_changed){
-      this._request_rendering = true;
+      // We need to redraw the whole grid.
+      this.request_redraw({});
     }
   }
 
@@ -349,8 +389,7 @@ class TileGrid
   }
 
   draw_tiles(){
-    if(this._request_rendering)
-      this._render_offscreen();
+    this._handle_rendering_requests();
     canvasContext.drawImage(this._offscreen_canvas, 0, 0);
   }
 
