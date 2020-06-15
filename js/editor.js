@@ -81,21 +81,23 @@ function update_world_edition(){
     const mouse_grid_pos = mouse_grid_position();
 
     if(input.mouse.buttons.is_down(input.MOUSE_BUTTON.LEFT)){
-        if(input.keyboard.is_down(KEY.NUMBER_0)){
-            current_game.world._floor_tile_grid.set_at(undefined, mouse_grid_pos);
-        }
-        if(input.keyboard.is_down(KEY.NUMBER_1)){
-            current_game.world._floor_tile_grid.set_at(tiles.ID.GROUND, mouse_grid_pos);
-        }
-        if(input.keyboard.is_down(KEY.NUMBER_2)){
-            current_game.world._floor_tile_grid.set_at(tiles.ID.WALL, mouse_grid_pos);
-        }
-        if(input.keyboard.is_down(KEY.NUMBER_3)){
-            current_game.world._floor_tile_grid.set_at(tiles.ID.VOID, mouse_grid_pos);
-        }
 
+        function change_pointed_tile_if_key_down(key_code, tile_id){
+            if(input.keyboard.is_down(key_code)
+            && current_game.world._floor_tile_grid.get_at(mouse_grid_pos) != tile_id){
+                current_game.world._floor_tile_grid.set_at(tile_id, mouse_grid_pos);
+                return true;
+            }
+            return false;
+        };
 
-        current_game_view.notify_edition();
+        let tiles_changed = false;
+        tiles_changed = tiles_changed || change_pointed_tile_if_key_down(KEY.NUMBER_0, undefined);
+        tiles_changed = tiles_changed || change_pointed_tile_if_key_down(KEY.NUMBER_1, tiles.ID.GROUND);
+        tiles_changed = tiles_changed || change_pointed_tile_if_key_down(KEY.NUMBER_2, tiles.ID.WALL);
+        tiles_changed = tiles_changed || change_pointed_tile_if_key_down(KEY.NUMBER_3, tiles.ID.VOID);
+        if(tiles_changed)
+            current_game_view.notify_edition();
     }
 
 }
