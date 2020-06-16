@@ -142,5 +142,8 @@ class Rectangle {
 
     get width(){ return this.size.x; }
     get height(){ return this.size.y; }
+
+    get top_left() { return new Vector2(position); }
+    get bottom_right() { return new Vector2({x: this.position.x + this.width, y: this.position.y + this.height}); }
 };
 

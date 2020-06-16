@@ -16,7 +16,7 @@ class GameInterface {
 
     // Define the UI elements here:
     test_button = new ui.Button({
-        position: { x: 200, y: 200 },
+        position: { x: 200, y: 500 },
         width: 50, height: 50,
         sprite_def: sprite_defs.test_button,
         frames: { up: 0, down: 1, over: 2, disabled: 3 },
@@ -26,7 +26,7 @@ class GameInterface {
     });
 
     another_test_button = new ui.Button({
-        position: { x: 200, y: 300 },
+        position: { x: 200, y: 600 },
         width: 50, height: 50,
         sprite_def: sprite_defs.test_button,
         frames: { up: 0, down: 1, over: 2, disabled: 3 },
@@ -39,7 +39,7 @@ class GameInterface {
     });
 
     third_test_button = new ui.Button({
-        position: { x: 200, y: 400 },
+        position: { x: 200, y: 700 },
         width: 50, height: 50,
         sprite_def: sprite_defs.test_button,
         frames: { up: 0, down: 1, over: 2, disabled: 3 },

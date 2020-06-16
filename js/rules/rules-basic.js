@@ -78,7 +78,7 @@ class GameOver extends concepts.Event {
     }
 
     *animation(){ // TEMPORARY ANIMATION
-        editor.setCentralText("GAME OVER! - RELOAD TO RESTART");
+        editor.set_central_text("GAME OVER! - RELOAD TO RESTART");
         while(true) yield;
     }
 }
@@ -112,7 +112,7 @@ class PlayerExitLevel extends concepts.Event {
 
     *animation(){ // TEMPORARY ANIMATION
         let time_left = 4000;
-        editor.setCentralText("YOU WIN THIS LEVEL! - LOADING NEXT LEVEL ...");
+        editor.set_central_text("YOU WIN THIS LEVEL! - LOADING NEXT LEVEL ...");
         while(time_left > 0){
             const delta_time = yield;
             time_left -= delta_time;

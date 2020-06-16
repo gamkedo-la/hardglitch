@@ -10,6 +10,7 @@ export {
   draw_text,
   draw_rectangle,
   canvas_center_position,
+  canvas_rect,
   draw_grid_lines,
   from_grid_to_graphic_position,
   from_graphic_to_grid_position,
@@ -469,6 +470,10 @@ function canvas_center_position(){
     x: canvas.width / 2,
     y: canvas.height / 2
   };
+}
+
+function canvas_rect(){
+  return new spatial.Rectangle({ x: 0, y:0, width:canvas.width, height:canvas.height});
 }
 
 function draw_grid_lines(width, height, square_size, start_position={x:0, y:0}){

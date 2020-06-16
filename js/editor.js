@@ -2,7 +2,7 @@
 
 export {
     is_enabled, is_editing,
-    setText, setCentralText,
+    set_text, set_central_text,
     update, display,
 };
 
@@ -15,17 +15,19 @@ import { current_game_view, current_game } from "./main.js";
 let is_enabled = false; // TURN THIS ON TO SEE THE EDITOR, see the update() function below
 let is_editing = false; // True if we are doing an edition manipulation and no other input should be handled.
 
+let display_mouse_info = false;
+
 let text_to_display = "READY";
 let central_text = null;
 
-function setText(text){ // TODO: add a text display in the Canvas to display this
+function set_text(text){ // TODO: add a text display in the Canvas to display this
     console.log(text); // TEMPORARY: just log for now.
     text_to_display = text;
 }
 
-function setCentralText(text){ // TODO: add a text display in the Canvas to display this
+function set_central_text(text){ // TODO: add a text display in the Canvas to display this
     console.log(text); // TEMPORARY: just log for now.
-    text_to_display = text;
+    central_text = text;
 }
 
 let dragging = undefined;
@@ -36,20 +38,20 @@ let lmb_down_frames = 0;
 function display_mouse_position(){
     if(!current_game_view)
         return;
-    let line = 4;
+    let line = 100;
     function next_line(){
         return line += 30;
     }
 
-    const center = graphics.canvas_center_position();
+    const display_x = 50;
     const mouse_grid_pos = mouse_grid_position();
     const mouse_game_pos = mouse_game_position();
-    graphics.draw_text(`MOUSE STATE:`, {x: center.x, y: next_line() });
-    graphics.draw_text(`SCREEN X = ${input.mouse.position.x}\tY = ${input.mouse.position.y}`, {x: center.x, y: next_line() });
-    graphics.draw_text(`GAME SPACE: X = ${mouse_game_pos.x}\tY = ${mouse_game_pos.y}`, {x: center.x, y: next_line() });
-    graphics.draw_text(`GAME GRID: X = ${mouse_grid_pos.x}\tY = ${mouse_grid_pos.y}`, {x: center.x, y: next_line() });
+    graphics.draw_text(`MOUSE STATE:`, {x: display_x, y: next_line() });
+    graphics.draw_text(`SCREEN X = ${input.mouse.position.x}\tY = ${input.mouse.position.y}`, {x: display_x, y: next_line() });
+    graphics.draw_text(`GAME SPACE: X = ${mouse_game_pos.x}\tY = ${mouse_game_pos.y}`, {x: display_x, y: next_line() });
+    graphics.draw_text(`GAME GRID: X = ${mouse_grid_pos.x}\tY = ${mouse_grid_pos.y}`, {x: display_x, y: next_line() });
 
-    graphics.draw_text(`Buttons: LEFT: ${input.mouse.buttons.is_down(0)}\t\tRIGHT: ${input.mouse.buttons.is_down(2)}`, {x: center.x, y: next_line() });
+    graphics.draw_text(`Buttons: LEFT: ${input.mouse.buttons.is_down(0)}\t\tRIGHT: ${input.mouse.buttons.is_down(2)}`, {x: display_x, y: next_line() });
 
     if(input.mouse.is_dragging)
         dragging_display_time = 100;
@@ -59,18 +61,18 @@ function display_mouse_position(){
         const drag_pos = input.mouse.dragging_positions;
         if(drag_pos.begin != undefined)
             dragging = drag_pos;
-        graphics.draw_text(`Dragging: FROM: ${JSON.stringify(dragging.begin)}\t\tTO: ${JSON.stringify(dragging.end)}`, {x: center.x, y: next_line() });
+        graphics.draw_text(`Dragging: FROM: ${JSON.stringify(dragging.begin)}\t\tTO: ${JSON.stringify(dragging.end)}`, {x: display_x, y: next_line() });
     }
 
     if(input.mouse.buttons.is_just_down(input.MOUSE_BUTTON.LEFT)){
-        graphics.draw_text(`JUST DOWN: LEFT MOUSE BUTTON`, {x: center.x, y: next_line() });
+        graphics.draw_text(`JUST DOWN: LEFT MOUSE BUTTON`, {x: display_x, y: next_line() });
         lmb_down_frames++;
     }
     if(input.mouse.buttons.is_just_released(input.MOUSE_BUTTON.LEFT)){
-        graphics.draw_text(`JUST DOWN: LEFT MOUSE BUTTON`, {x: center.x, y: next_line() });
+        graphics.draw_text(`JUST DOWN: LEFT MOUSE BUTTON`, {x: display_x, y: next_line() });
     }
 
-    graphics.draw_text(`FRAMES LEFT MOUSE BUTTON ${lmb_down_frames}`, {x: center.x, y: next_line() });
+    graphics.draw_text(`FRAMES LEFT MOUSE BUTTON ${lmb_down_frames}`, {x: display_x, y: next_line() });
 }
 
 function update_world_edition(){
@@ -102,25 +104,77 @@ function update_world_edition(){
 
 }
 
+const help_text_x_from_right_side = 500;
+
+function display_help(){
+    const canvas_rect = graphics.canvas_rect();
+    const display_x = canvas_rect.bottom_right.x - help_text_x_from_right_side;
+
+    let line = 100;
+    function next_line(){
+        return line += 30;
+    }
+
+    graphics.draw_text("[ESC] - EDITOR MODE", {x: display_x, y: next_line() });
+    graphics.draw_text("[F9]  - MOUSE INFO", {x: display_x, y: next_line() });
+    graphics.draw_text("-----------------------", {x: display_x, y: next_line() });
+    graphics.draw_text("[M] - SHOW/HIDE GRID LINES", {x: display_x, y: next_line() });
+    graphics.draw_text("[P] - REMOVE ALL PLAYER CHARACTERS", {x: display_x, y: next_line() });
+    graphics.draw_text("-----------------------", {x: display_x, y: next_line() });
+    graphics.draw_text("[Arrow keys] - Move player character", {x: display_x, y: next_line() });
+    graphics.draw_text("[WASD] - Move Camera", {x: display_x, y: next_line() });
+    graphics.draw_text("-----------------------", {x: display_x, y: next_line() });
+    graphics.draw_text("Drag the screen to move the camera", {x: display_x, y: next_line() });
+    graphics.draw_text("Click on squares around PC to move or act", {x: display_x, y: next_line() });
+
+}
+
+function display_editor_help(){
+    const canvas_rect = graphics.canvas_rect();
+    const display_x = canvas_rect.bottom_right.x - help_text_x_from_right_side;
+
+    let line = 100;
+    function next_line(){
+        return line += 30;
+    }
+
+    graphics.draw_text("[ESC] - EXIT EDITOR MODE", {x: display_x, y: next_line() });
+    graphics.draw_text("[F9]  - MOUSE INFO", {x: display_x, y: next_line() });
+    graphics.draw_text("-----------------------", {x: display_x, y: next_line() });
+    graphics.draw_text("[M] - SHOW/HIDE GRID LINES", {x: display_x, y: next_line() });
+    graphics.draw_text("[P] - REMOVE ALL PLAYER CHARACTERS", {x: display_x, y: next_line() });
+    graphics.draw_text("-----------------------", {x: display_x, y: next_line() });
+    graphics.draw_text("[WASD] - Move Camera", {x: display_x, y: next_line() });
+    graphics.draw_text("-----------------------", {x: display_x, y: next_line() });
+    graphics.draw_text("[Number] + [LMB] - Change the pointed tile", {x: display_x, y: next_line() });
+    graphics.draw_text("(0: hole, 1: ground, 2: wall, 3: void", {x: display_x, y: next_line() });
+
+}
 
 function display(){
-    if(!is_enabled)
-        return;
 
     graphics.camera.begin_in_screen_rendering();
 
-    graphics.draw_text("EDITOR MODE", {x: 20, y: 40 });
-
     const center = graphics.canvas_center_position();
+    const canvas_rect = graphics.canvas_rect();
 
     if(text_to_display){
-        graphics.draw_text(text_to_display, {x: center.x, y: center.y + 20 });
+        graphics.draw_text(text_to_display, {x: center.x - 100, y: canvas_rect.height - 100 });
     }
     if(central_text){
-        graphics.draw_text(central_text, {x: center.x, y: center.y - 20 });
+        graphics.draw_text(central_text, {x: center.x - 200, y: center.y - 20 });
     }
 
-    display_mouse_position();
+    if(display_mouse_info)
+        display_mouse_position();
+
+    if(is_enabled){ // Specific to editor mode.
+        graphics.draw_text("---====::::  EDITOR MODE  ::::====---", {x: center.x - 200, y: 40 });
+        display_editor_help();
+    } else {
+        display_help();
+
+    }
 
     graphics.camera.end_in_screen_rendering();
 }
@@ -131,18 +185,13 @@ function update(){
         current_game_view.tile_grid.enable_tile_sprites = !current_game_view.tile_grid.enable_tile_sprites;
     }
 
-
-    if(!is_enabled){
-        if(input.keyboard.is_just_down(KEY.ESCAPE))
-            is_enabled = true;
-        return; // Skip this frame, whatever the case.
+    if(input.keyboard.is_just_down(KEY.F9)){
+        display_mouse_info = !display_mouse_info;
     }
 
     if(input.keyboard.is_just_down(KEY.ESCAPE)){
-        is_enabled = false;
-        return;
+        is_enabled = !is_enabled;
     }
-
 
     update_world_edition();
 }

@@ -37,6 +37,18 @@ const KEY = {
     NUMBER_2: 50,
     NUMBER_3: 51,
     NUMBER_4: 52,
+    F1: 112,
+    F2: 113,
+    F3: 114,
+    F4: 115,
+    F5: 116,
+    F6: 117,
+    F7: 118,
+    F8: 119,
+    F9: 120,
+    F10: 121,
+    F11: 122,
+    F12: 123,
 };
 
 // Returns the pixel position inside the game space (taking into acount the camera).

@@ -74,7 +74,7 @@ class GameView {
         if(this.current_animations.length != 0 || this.animation_queue.length > 0){
             if(this.is_time_for_player_to_chose_action){
                 this.is_time_for_player_to_chose_action = false;
-                editor.setText("PROCESSING NPC TURNS...");
+                editor.set_text("PROCESSING NPC TURNS...");
             }
 
             const delay_between_animations_ms = 33; // we'll try to keep a little delay between each beginning of parallel animation.
@@ -110,7 +110,7 @@ class GameView {
 
             if(this.current_animations.length == 0 && this.animation_queue.length == 0){
                 this.is_time_for_player_to_chose_action = true;
-                editor.setText("PLAYER'S TURN!");
+                editor.set_text("PLAYER'S TURN!");
             }
         }
 
