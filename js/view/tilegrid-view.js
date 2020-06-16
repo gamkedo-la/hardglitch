@@ -19,11 +19,11 @@ class TileGridView {
     enable_overlay = true;
     enable_tile_sprites = true;
 
-    constructor(position, size, ground_tile_grid){
-        this.reset(position, size, ground_tile_grid);
+    constructor(position, size, ground_tile_grid, surface_tile_grid){
+        this.reset(position, size, ground_tile_grid, surface_tile_grid);
     }
 
-    reset(position, size, ground_tile_grid){
+    reset(position, size, ground_tile_grid, surface_tile_grid){
         console.assert(position instanceof Vector2);
         console.assert(size instanceof Vector2 && size.x > 2 && size.y > 2);
         this.position = position;
@@ -61,6 +61,7 @@ class TileGridView {
             this.ground_tile_grid = new graphics.TileGrid(position, dsize, PIXELS_PER_HALF_SIDE, tiledefs.sprite_defs, bg_grid.elements);
             this.mid_tile_grid = new graphics.TileGrid(position, size, PIXELS_PER_TILES_SIDE, tiledefs.sprite_defs, midData);
             this.surface_tile_grid = new graphics.TileGrid(position, dsize, PIXELS_PER_HALF_SIDE, tiledefs.sprite_defs, fg_grid.elements);
+            this.floor_top_tile_grid = new graphics.TileGrid(position, size, PIXELS_PER_TILES_SIDE, tiledefs.sprite_defs, surface_tile_grid.elements);
         } else {
             this.ground_tile_grid = new graphics.TileGrid(position, size, PIXELS_PER_TILES_SIDE, tiledefs.sprite_defs, ground_tile_grid.elements);
             this.surface_tile_grid = new graphics.TileGrid(position, size, PIXELS_PER_TILES_SIDE, tiledefs.sprite_defs, ground_tile_grid.elements);
@@ -77,6 +78,7 @@ class TileGridView {
             this.mid_tile_grid.update(delta_time);
         }
         this.surface_tile_grid.update(delta_time);
+        this.floor_top_tile_grid.update(delta_time);
     }
 
     draw_floor(){
@@ -86,6 +88,7 @@ class TileGridView {
         if(this.enable_grid_lines){
             graphics.draw_grid_lines(this.size.x, this.size.y, PIXELS_PER_TILES_SIDE, this.position);
         }
+        this.floor_top_tile_grid.draw();
     }
 
     draw_surface(){

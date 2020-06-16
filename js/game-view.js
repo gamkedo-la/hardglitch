@@ -138,17 +138,18 @@ class GameView {
     reset(){
         console.assert(this._requires_reset);
 
+        const world = this.game.world;
+        console.assert(world);
+
         if(this.tile_grid)
-            this.tile_grid.reset(new Vector2(), new Vector2({ x: this.game.world.width, y: this.game.world.height }), this.game.world._floor_tile_grid);
+            this.tile_grid.reset(new Vector2(), new Vector2({ x: world.width, y: world.height }), world._floor_tile_grid, world._surface_tile_grid);
         else
-        this.tile_grid = new TileGridView(new Vector2(), new Vector2({ x: this.game.world.width, y: this.game.world.height }), this.game.world._floor_tile_grid);
-        this.tile_grid.update(0);
+            this.tile_grid = new TileGridView(new Vector2(), new Vector2({ x: world.width, y: world.height }), world._floor_tile_grid, world._surface_tile_grid);
 
         this.body_views = {};
         this.game.world.bodies.forEach(body => {
             const body_view = new CharacterView(body.position, body.assets);
             this.body_views[body.body_id] = body_view;
-            body_view.update(0);
         });
 
         this._requires_reset = false;
