@@ -24,7 +24,7 @@ const game_assets = { // Description of the assets to load.
         void : "./images/world_void.png",
         key : "./images/world_key.png",
         wall : "./images/world_wall.png",
-        tileset_entry_exit : "./images/tileset_entry_exit.png",
+        tileset_entry_exit : "./images/portalinout.png",
         bgtemplate : "./images/bgtemplate.png",
         tiletemplate : "./images/tiletemplate.png",
         g2w_template : "./images/groundToWall.png",
