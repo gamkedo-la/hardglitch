@@ -35,6 +35,7 @@ const game_assets = { // Description of the assets to load.
         w2h_template : "./images/wallToHole.png",
         w2g_template : "./images/wallToGround.png",
         test_button : "./images/test_button.png",
+        highlights : "./images/highlights.png",
     }
 };
 
@@ -119,7 +120,37 @@ const sprite_defs = {
             { x:100, y:0, width:50, height:50 },
             { x:150, y:0, width:50, height:50 },
         ]
-    }
+    },
+    highlight_purple : {
+        image: "higlights",
+        frames: [
+            { x:0, y:0, width:64, height:64 }
+         ]
+    },
+    highlight_green : {
+        image: "higlights",
+        frames: [
+            { x:64, y:0, width:64, height:64 }
+         ]
+    },
+    highlight_red : {
+        image: "higlights",
+        frames: [
+            { x:128, y:0, width:64, height:64 }
+         ]
+    },
+    highlight_yellow : {
+        image: "higlights",
+        frames: [
+            { x:192, y:0, width:64, height:64 }
+         ]
+    },
+    highlight_blue : {
+        image: "higlights",
+        frames: [
+            { x:256, y:0, width:64, height:64 }
+         ]
+    },
 
 };
 
