@@ -1,6 +1,7 @@
 export {
     rotate_array,
     random_sample,
+    random_float,
     random_int,
     is_number,
     index_from_position,
@@ -29,6 +30,11 @@ function random_sample(array){
     if(array.length == 0)
         return null;
     return array[ Math.floor( Math.random() * array.length ) ];
+}
+
+// pick a float between min/max
+function random_float(min, max) {
+    return Math.random() * (max-min) + min;
 }
 
 // Get a random integer between [min, max] (both inclusive)

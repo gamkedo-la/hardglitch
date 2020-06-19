@@ -11,7 +11,11 @@ import { SeamSelector, genFloorOverlay, genFgOverlay } from "./tile-select.js";
 import * as graphics from "../system/graphics.js";
 import { Vector2 } from "../system/spatial.js";
 import { PIXELS_PER_TILES_SIDE, PIXELS_PER_HALF_SIDE } from "./common-view.js";
+import { ParticleSystem, ParticleEmitter, FadeLineParticle, FadeParticle, Color } from "../system/particles.js";
+import { random_float, position_from_index } from "../system/utility.js";
 
+let canvas = document.getElementById('gameCanvas');
+let canvasContext = canvas.getContext('2d');
 
 // Display tiles.
 class TileGridView {
@@ -23,7 +27,32 @@ class TileGridView {
         this.reset(position, size, ground_tile_grid, surface_tile_grid);
     }
 
+    addExitParticles(ctx, x, y) {
+
+        this.particles.add(new ParticleEmitter(this.particles, () => {
+            let xoff = random_float(-25,25);
+            let yoff = random_float(-25,25);
+            let velocity = random_float(1,3);
+            let ticks = random_float(10,60);
+            let len = random_float(10,50);
+            let width = random_float(1,5);
+            return new FadeLineParticle(ctx, x+xoff, y+yoff, 0, -velocity, new Color(0,255,0), ticks, len, width, 0, 1);
+        }, 10));
+
+        this.particles.add(new ParticleEmitter(this.particles, () => {
+            let xoff = random_float(-15,15);
+            let yoff = random_float(-15,15);
+            let velocity = random_float(1,3);
+            let size = random_float(1,4);
+            let ticks = random_float(10,50);
+            return new FadeParticle(ctx, x+xoff, y+yoff, 0, -velocity, size, new Color(0,255,255), ticks);
+        }, 10));
+
+    }
+
     reset(position, size, ground_tile_grid, surface_tile_grid){
+        // initialize particle system
+        this.particles = new ParticleSystem();
         console.assert(position instanceof Vector2);
         console.assert(size instanceof Vector2 && size.x > 2 && size.y > 2);
         this.position = position;
@@ -52,6 +81,12 @@ class TileGridView {
             if (surface_element == tiledefs.ID.WALL) continue;
             if (surface_element == tiledefs.ID.GROUND) continue;
             midData[i] = surface_element;
+        }
+        for (let i=0; i<surface_tile_grid.elements.length; i++) {
+            if (surface_tile_grid.elements[i] == tiledefs.ID.EXIT) {
+                let pos = position_from_index(size.x, size.y, i);
+                this.addExitParticles(canvasContext, pos.x*PIXELS_PER_TILES_SIDE + PIXELS_PER_HALF_SIDE, pos.y*PIXELS_PER_TILES_SIDE + PIXELS_PER_HALF_SIDE);
+            }
         }
 
         const dsize = new Vector2({x: size.x*2, y: size.y*2});
@@ -99,6 +134,8 @@ class TileGridView {
             }
 
             this.surface_tile_grid.draw();
+            // particles
+            this.particles.update();
         }
 
     }

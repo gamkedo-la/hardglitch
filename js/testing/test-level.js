@@ -90,6 +90,13 @@ function make_test_world(){ // The game assets must have been initialized first.
         set_surface_tile(random_position(), tiles.ID.EXIT);
     }
 
+    /*
+    set_surface_tile(new concepts.Position(5,5), tiles.ID.EXIT);
+    set_floor_tile(new concepts.Position(5, 5), tiles.ID.GROUND);
+    set_surface_tile(new concepts.Position(8,8), tiles.ID.ENTRY);
+    set_floor_tile(new concepts.Position(8, 8), tiles.ID.GROUND);
+    */
+
     const world = new concepts.World( test_world_size.width, test_world_size.height, floor_tile_grid, surface_tile_grid );
 
     world.set_rules(...default_rules);
