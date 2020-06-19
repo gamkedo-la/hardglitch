@@ -22,6 +22,7 @@ class ParticleEmitter {
         this.genFcn = genFcn;
         this.ticks = ticks;
         this.currentTick = 0;
+        this.done = false;
     }
 
     update() {
@@ -36,29 +37,35 @@ class ParticleEmitter {
 
 class ParticleSystem {
     constructor() {
-        this.particles = [];
+        this.items = [];
     }
 
+    /**
+     * Add a tracked particle or emitter
+     * @param {*} p 
+     */
     add(p) {
-        this.particles.push(p);
+        this.items.push(p);
     }
 
     remove(p) {
-        let idx = this.particles.indexOf(p);
+        let idx = this.items.indexOf(p);
         if (idx >= 0) {
-            this.particles.splice(idx, 1);
+            this.items.splice(idx, 1);
         }
     }
 
     update() {
-        for (let i=this.particles.length-1; i>=0; i--) {
+        // iterate through tracked items
+        for (let i=this.items.length-1; i>=0; i--) {
             // update each particle
-            this.particles[i].update();
-            // if any particles are done, remove them
-            if (this.particles[i].done) {
-                this.particles.splice(i, 1);
+            this.items[i].update();
+            // if any items are done, remove them
+            if (this.items[i].done) {
+                this.items.splice(i, 1);
             }
         }
+
     }
 }
 
@@ -238,13 +245,12 @@ class Env {
         this.STEP = this.INTERVAL / 1000 // second
         // setup environment
         this.ps = new ParticleSystem();
-        this.emitters = [];
         let ctx = this.ctx;
 
         let p = new FadeLineParticle(this.ctx, 300, 300, 0, -2.5, new Color(0,255,0), 20, 50, 3, .1, 1);
         this.ps.add(p);
 
-        this.emitters.push(new ParticleEmitter(this.ps, () => {
+        this.ps.add(new ParticleEmitter(this.ps, () => {
             let xoff = pickRange(-15,15);
             let yoff = pickRange(-15,15);
             let velocity = pickRange(1,3);
@@ -253,7 +259,7 @@ class Env {
             return new FadeParticle(ctx, 300+xoff, 300+yoff, 0, -velocity, size, new Color(0,255,255), ticks);
         }, 10));
 
-        this.emitters.push(new ParticleEmitter(this.ps, () => {
+        this.ps.add(new ParticleEmitter(this.ps, () => {
             let xoff = pickRange(-15,15);
             let yoff = pickRange(-15,15);
             let velocity = pickRange(1,3);
@@ -262,7 +268,7 @@ class Env {
             return new FadeParticle(ctx, 300+xoff, 300+yoff, 0, -velocity, size, new Color(255,255,0), ticks);
         }, 10));
 
-        this.emitters.push(new ParticleEmitter(this.ps, () => {
+        this.ps.add(new ParticleEmitter(this.ps, () => {
             let xoff = pickRange(-15,15);
             let yoff = pickRange(-15,15);
             let velocity = pickRange(1,3);
@@ -276,12 +282,8 @@ class Env {
 
     loop() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        // update particles
+        // run particle system update
         this.ps.update();
-        // update emitters
-        for (const e of this.emitters) {
-            e.update();
-        }
     }
 
     setup() {
