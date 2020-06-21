@@ -223,6 +223,7 @@ class FadeLineParticle extends Particle {
     }
 
     draw() {
+        this.ctx.save();
         this.ctx.strokeStyle = this.getGradient();
         this.ctx.lineWidth = this.width;
         this.ctx.lineCap = "round";
@@ -230,6 +231,7 @@ class FadeLineParticle extends Particle {
         this.ctx.moveTo(this.x, this.y);
         this.ctx.lineTo(this.endX, this.endY);
         this.ctx.stroke();
+        this.ctx.restore();
     }
 
     update() {
@@ -283,10 +285,12 @@ class FadeParticle extends Particle {
     }
 
     draw() {
+        this.ctx.save();
         this.ctx.beginPath();
         this.ctx.arc(this.x, this.y, this.size, 0, Math.PI*2, false);
         this.ctx.fillStyle = this.color.toString();
         this.ctx.fill();
+        this.ctx.restore();
     }
 
     update() {
