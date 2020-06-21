@@ -64,13 +64,17 @@ function mouse_game_position(){
 }
 
 // Returns the position of the mouse on the grid if pointing it,
-// returns {} if the mouse isn't pointing on the grid.
+// returns undefined if the mouse isn't pointing on the grid.
 function mouse_grid_position(){
     return current_game_view.grid_position(mouse_game_position());
 }
 
 function mouse_is_pointing_walkable_position(){
-    return current_game.is_walkable(mouse_grid_position());
+    const mouse_grid_pos = mouse_grid_position();
+    if(mouse_grid_pos)
+        return current_game.is_walkable(mouse_grid_pos);
+    else
+        return false;
 }
 
 function select_player_action(){

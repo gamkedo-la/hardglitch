@@ -20,14 +20,34 @@ import { GameInterface } from "./game-ui.js";
 import { mouse_grid_position, mouse_is_pointing_walkable_position } from "./game-input.js";
 import { sprite_defs } from "./game-assets.js";
 import { mouse } from "./system/input.js";
+import { Move } from "./rules/rules-movement.js";
 
+class Highlight{
+    // Reuse a sprite for highlighting.
+    constructor(position, sprite){
+        console.assert(Number.isInteger(position.x) && Number.isInteger(position.y));
+        console.assert(sprite instanceof graphics.Sprite);
+        this._position = position;
+        this._sprite = sprite;
+    }
+
+    set position(new_pos) {
+        console.assert(Number.isInteger(new_pos.x) && Number.isInteger(new_pos.y));
+        this._position = new_pos;
+    }
+
+    draw(canvas_context){
+        this._sprite.position = graphic_position(this._position);
+        this._sprite.draw(canvas_context);
+    }
+};
 
 class GameView {
     body_views = {};
     is_time_for_player_to_chose_action = true;
     animation_queue = []; // Must contain only js generators + parallel: (true||false). // TODO: make the animation system separately to be used anywhere there are animations to play.
     current_animations = []; // Must be a set of js generators, each one an animation that can be played together.
-    highlights = [];
+    player_actions_highlights = []; // Must contain Highlight objects for the currently playable actions.
 
     ui = new GameInterface();
 
@@ -35,15 +55,25 @@ class GameView {
         console.assert(game instanceof Game);
         this.game = game;
         this._requires_reset = true;
-        this._pointed_highlight = new graphics.Sprite(sprite_defs.highlight_blue);
+
+        this._highlight_sprites = {
+            neutral: new graphics.Sprite(sprite_defs.highlight_blue),
+            movement: new graphics.Sprite(sprite_defs.highlight_green),
+            action: new graphics.Sprite(sprite_defs.highlight_yellow),
+            edit: new graphics.Sprite(sprite_defs.highlight_purple),
+        };
+
+        this._pointed_highlight = new Highlight({x:0, y:0}, this._highlight_sprites.neutral);
+        this._pointed_highlight_edit = new Highlight({x:0, y:0}, this._highlight_sprites.edit);
+
         this.reset();
     }
 
     interpret_turn_events() {
         console.assert(this.animation_queue.length == 0);
 
-        let events = this.game.last_turn_info.events; // turns.PlayerTurn
-        events.forEach(event => {
+        const events = this.game.last_turn_info.events; // turns.PlayerTurn
+        for(const event of events){
             if(event.body_id == 0){ // 0 means it's a World event.
                 // Launch the event's animation, if any.
                 this.animation_queue.push({
@@ -62,7 +92,24 @@ class GameView {
                     });
                 }
             }
-        });
+        }
+
+        this.highlight_available_actions();
+    }
+
+    // Setup highlights for actions that are known with a target position.
+    highlight_available_actions(){
+        this.player_actions_highlights = [];
+        const add_highlight = (position, sprite)=>{
+            this.player_actions_highlights.push(new Highlight(position, sprite));
+        };
+
+        const available_actions = this.game.last_turn_info.possible_actions;
+        for(const action of Object.values(available_actions)){
+            if(action instanceof Move){
+                add_highlight(action.target_position, this._highlight_sprites.movement);
+            }
+        }
     }
 
     update(delta_time){
@@ -139,12 +186,16 @@ class GameView {
 
 
     _update_highlights(delat_time){
-        const mouse_grid_pos = mouse_grid_position();
-        this._pointed_highlight.position = graphic_position(mouse_grid_pos);
-        this._pointed_highlight.update(delat_time);
+        const mouse_pos = mouse_grid_position();
+        if(mouse_pos){
+            if(editor.is_enabled)
+                this._pointed_highlight_edit.position = mouse_pos;
+            else
+                this._pointed_highlight.position = mouse_pos;
+        }
 
-        for(const highlight of this.highlights){
-            highlight.update(delat_time);
+        for(const highlight_sprite of Object.values(this._highlight_sprites)){
+            highlight_sprite.update(delat_time);
         }
     }
 
@@ -165,12 +216,18 @@ class GameView {
 
     _render_highlights(){
         if(!mouse.is_dragging){
-            for(const highlight of this.highlights){
-                highlight.draw();
+
+            if(!editor.is_enabled && this.is_time_for_player_to_chose_action){
+                for(const highlight of this.player_actions_highlights){
+                    highlight.draw();
+                }
             }
 
-            if(editor.is_enabled || mouse_is_pointing_walkable_position()){
-                this._pointed_highlight.draw();
+            if(editor.is_enabled){
+                this._pointed_highlight_edit.draw();
+            } else {
+                if(mouse_is_pointing_walkable_position())
+                    this._pointed_highlight.draw();
             }
         }
     }
@@ -184,7 +241,7 @@ class GameView {
 
         this._reset_tilegrid(world);
         this._reset_characters(world);
-        // this.update_actions_highlights(this.game.last_turn_info);
+        this.highlight_available_actions();
 
         this._requires_reset = false;
     }
@@ -220,14 +277,14 @@ class GameView {
     }
 
     // Returns the position on the grid of a graphic position in the game space (not taking into account the camera scrolling).
-    // returns {} if the positing isn't on the grid.
+    // returns undefined if the positing isn't on the grid.
     grid_position(game_position){
         const grid_pos = graphics.from_graphic_to_grid_position(game_position, PIXELS_PER_TILES_SIDE, this.tile_grid.position);
 
         if(grid_pos.x < 0 || grid_pos.x >= this.tile_grid.width
         || grid_pos.y < 0 || grid_pos.y >= this.tile_grid.height
         ){
-            return {};
+            return undefined;
         }
 
         return grid_pos;
