@@ -140,7 +140,6 @@ function display_help(){
     graphics.draw_text("[F9]  - MOUSE INFO", {x: display_x, y: next_line() });
     graphics.draw_text("-----------------------", {x: display_x, y: next_line() });
     graphics.draw_text("[M] - SHOW/HIDE GRID LINES", {x: display_x, y: next_line() });
-    graphics.draw_text("[P] - REMOVE ALL PLAYER CHARACTERS", {x: display_x, y: next_line() });
     graphics.draw_text("-----------------------", {x: display_x, y: next_line() });
     graphics.draw_text("[Arrow keys] - Move player character", {x: display_x, y: next_line() });
     graphics.draw_text("[WASD] - Move Camera", {x: display_x, y: next_line() });
@@ -164,7 +163,6 @@ function display_editor_help(){
     graphics.draw_text("-----------------------", {x: display_x, y: next_line() });
     graphics.draw_text("[M] - SHOW/HIDE GRID LINES", {x: display_x, y: next_line() });
     graphics.draw_text("[LCTRL][C] - ADD PLAYER CHARACTER", {x: display_x, y: next_line() });
-    graphics.draw_text("[P] - REMOVE ALL PLAYER CHARACTERS", {x: display_x, y: next_line() });
     graphics.draw_text("-----------------------", {x: display_x, y: next_line() });
     graphics.draw_text("[WASD] - Move Camera", {x: display_x, y: next_line() });
     graphics.draw_text("-----------------------", {x: display_x, y: next_line() });
@@ -201,16 +199,6 @@ function display(){
     graphics.camera.end_in_screen_rendering();
 }
 
-// TEMPORARY: This is only useful to text that the Game Over state is detected.
-function remove_all_players(){ // THIS IS A HACK, DON'T DO THIS AT HOME
-    const world = current_game.world;
-    const player_characters = world.player_characters;
-    for(const character_body of player_characters){
-        world.remove_body(character_body.body_id); // THIS IS A HACK, DON'T DO THIS AT HOME
-        current_game_view.remove_view(character_body.body_id); // THIS IS A HACK, DON'T DO THIS AT HOME
-    }
-}
-
 function update(){
 
     if(input.keyboard.is_just_down(KEY.N)){
@@ -223,11 +211,6 @@ function update(){
 
     if(input.keyboard.is_just_down(KEY.ESCAPE)){
         is_enabled = !is_enabled;
-    }
-
-    if(input.keyboard.is_just_down(KEY.P)) {
-        remove_all_players();
-        return;
     }
 
     update_world_edition();
