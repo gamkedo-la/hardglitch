@@ -163,6 +163,7 @@ function display_editor_help(){
     graphics.draw_text("[F9]  - MOUSE INFO", {x: display_x, y: next_line() });
     graphics.draw_text("-----------------------", {x: display_x, y: next_line() });
     graphics.draw_text("[M] - SHOW/HIDE GRID LINES", {x: display_x, y: next_line() });
+    graphics.draw_text("[LCTRL][C] - ADD PLAYER CHARACTER", {x: display_x, y: next_line() });
     graphics.draw_text("[P] - REMOVE ALL PLAYER CHARACTERS", {x: display_x, y: next_line() });
     graphics.draw_text("-----------------------", {x: display_x, y: next_line() });
     graphics.draw_text("[WASD] - Move Camera", {x: display_x, y: next_line() });
