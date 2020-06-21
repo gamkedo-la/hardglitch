@@ -122,31 +122,31 @@ const sprite_defs = {
         ]
     },
     highlight_purple : {
-        image: "higlights",
+        image: "highlights",
         frames: [
             { x:0, y:0, width:64, height:64 }
          ]
     },
     highlight_green : {
-        image: "higlights",
+        image: "highlights",
         frames: [
             { x:64, y:0, width:64, height:64 }
          ]
     },
     highlight_red : {
-        image: "higlights",
+        image: "highlights",
         frames: [
             { x:128, y:0, width:64, height:64 }
          ]
     },
     highlight_yellow : {
-        image: "higlights",
+        image: "highlights",
         frames: [
             { x:192, y:0, width:64, height:64 }
          ]
     },
     highlight_blue : {
-        image: "higlights",
+        image: "highlights",
         frames: [
             { x:256, y:0, width:64, height:64 }
          ]
