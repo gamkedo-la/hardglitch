@@ -77,7 +77,7 @@ class GameView {
                 editor.set_text("PROCESSING NPC TURNS...");
             }
 
-            const delay_between_animations_ms = 33; // we'll try to keep a little delay between each beginning of parallel animation.
+            const delay_between_animations_ms = 0; // we'll try to keep a little delay between each beginning of parallel animation.
 
             if(this.current_animations.length == 0){
                 // Get the next animations that are allowed to happen in parallel.
