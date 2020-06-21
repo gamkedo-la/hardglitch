@@ -61,10 +61,12 @@ class GameView {
             movement: new graphics.Sprite(sprite_defs.highlight_green),
             action: new graphics.Sprite(sprite_defs.highlight_yellow),
             edit: new graphics.Sprite(sprite_defs.highlight_purple),
+            turn: new graphics.Sprite(sprite_defs.highlight_purple),
         };
 
         this._pointed_highlight = new Highlight({x:0, y:0}, this._highlight_sprites.neutral);
         this._pointed_highlight_edit = new Highlight({x:0, y:0}, this._highlight_sprites.edit);
+        this._character_turns_highlight = new Highlight({x:0, y:0}, this._highlight_sprites.turn);
 
         this.reset();
     }
@@ -110,6 +112,8 @@ class GameView {
                 add_highlight(action.target_position, this._highlight_sprites.movement);
             }
         }
+
+        this._character_turns_highlight.position = this.game.last_turn_info.player_body.position;
     }
 
     update(delta_time){
@@ -203,11 +207,12 @@ class GameView {
     render_graphics(){
         this.tile_grid.draw_floor();
 
+        this._render_highlights();
+
         for(const body_view of Object.values(this.body_views)){
             body_view.render_graphics();
         };
 
-        this._render_highlights();
 
         this.tile_grid.draw_surface();
 
@@ -215,6 +220,9 @@ class GameView {
     }
 
     _render_highlights(){
+        if(this.is_time_for_player_to_chose_action)
+            this._character_turns_highlight.draw();
+
         if(!mouse.is_dragging){
 
             if(!editor.is_enabled && this.is_time_for_player_to_chose_action){
@@ -230,6 +238,10 @@ class GameView {
                     this._pointed_highlight.draw();
             }
         }
+    }
+
+    _change_character_turn(character_pos){
+        this._character_turns_highlight.position = character_pos;
     }
 
     // Re-interpret the game's state from scratch.
