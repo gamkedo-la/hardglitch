@@ -53,7 +53,7 @@ function make_test_world(){ // The game assets must have been initialized first.
         while(true){
             const position = { x:random_int(0, test_world_size.width - 1 ), y:random_int(0, test_world_size.height - 1 )};
             if(is_walkable(position))
-                return new concepts.Position(position.x, position.y);
+                return new concepts.Position(position);
         }
     }
 
@@ -76,7 +76,7 @@ function make_test_world(){ // The game assets must have been initialized first.
                 tileID = tiles.ID.GROUND;
             }
             // hole/ground/wall tiles get assigned to floor layer (wall gets assigned to both surface/floor)
-            set_floor_tile(new concepts.Position(i, j), tileID);
+            set_floor_tile(new concepts.Position({x:i, y:j}), tileID);
         }
     }
 

@@ -137,18 +137,24 @@ class Rule {
 // We assume that the world is made of 2D grids.
 // This position is one square of that grid, so all the values are integers, not floats.
 class Position {
-    constructor(x = 0, y = 0){
-        console.assert(is_number(x));
-        console.assert(is_number(y));
-        this.x = x;
-        this.y = y;
+    constructor(position){
+        if(position){
+            console.assert(is_number(position.x));
+            console.assert(is_number(position.y));
+            this.x = position.x;
+            this.y = position.y;
+        } else {
+            this.x = 0;
+            this.y = 0;
+        }
+
     }
     // TODO: add useful constants and functions here.
 
-    get west() { return new Position( this.x - 1, this.y ); }
-    get east() { return new Position( this.x + 1, this.y ); }
-    get north() { return new Position( this.x, this.y - 1 ); }
-    get south() { return new Position( this.x, this.y + 1 ); }
+    get west() { return new Position({ x: this.x - 1, y: this.y }); }
+    get east() { return new Position({ x: this.x + 1, y: this.y }); }
+    get north() { return new Position({ x: this.x, y: this.y - 1 }); }
+    get south() { return new Position({ x: this.x, y: this.y + 1 }); }
 
     equals(other_position){
         return other_position.x == this.x && other_position.y == this.y;
@@ -163,7 +169,7 @@ class Element {
     _position = new Position();
     get position() { return this._position; }
     set position(new_pos){
-        this._position = new Position(new_pos.x, new_pos.y);
+        this._position = new Position(new_pos);
     }
 };
 
