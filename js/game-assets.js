@@ -122,34 +122,85 @@ const sprite_defs = {
         ]
     },
     highlight_purple : {
-        image: "higlights",
+        image: "highlights",
         frames: [
-            { x:0, y:0, width:64, height:64 }
-         ]
+            { x:0, y:0, width:64, height:64 },
+            { x:0, y:64, width:64, height:64 },
+
+        ],
+        animations: {
+            idle: {
+                    loop: true,
+                    timeline: [
+                                { frame: 0, duration: 333 },
+                                { frame: 1, duration: 333 }
+                              ],
+                  },
+        },
     },
     highlight_green : {
-        image: "higlights",
+        image: "highlights",
         frames: [
-            { x:64, y:0, width:64, height:64 }
-         ]
+            { x:64, y:0, width:64, height:64 },
+            { x:64, y:64, width:64, height:64 },
+        ],
+        animations: {
+            idle: {
+                    loop: true,
+                    timeline: [
+                                { frame: 0, duration: 333 },
+                                { frame: 1, duration: 333 }
+                              ],
+                  },
+        },
     },
     highlight_red : {
-        image: "higlights",
+        image: "highlights",
         frames: [
-            { x:128, y:0, width:64, height:64 }
-         ]
+            { x:128, y:0, width:64, height:64 },
+            { x:128, y:0, width:64, height:64 },
+        ],
+        animations: {
+            idle: {
+                    loop: true,
+                    timeline: [
+                                { frame: 0, duration: 333 },
+                                { frame: 1, duration: 333 }
+                              ],
+                  },
+        },
     },
     highlight_yellow : {
-        image: "higlights",
+        image: "highlights",
         frames: [
-            { x:192, y:0, width:64, height:64 }
-         ]
+            { x:192, y:0, width:64, height:64 },
+            { x:192, y:64, width:64, height:64 },
+        ],
+        animations: {
+            idle: {
+                    loop: true,
+                    timeline: [
+                                { frame: 0, duration: 333 },
+                                { frame: 1, duration: 333 }
+                              ],
+                  },
+        },
     },
     highlight_blue : {
-        image: "higlights",
+        image: "highlights",
         frames: [
-            { x:256, y:0, width:64, height:64 }
-         ]
+            { x:256, y:0, width:64, height:64 },
+            { x:256, y:64, width:64, height:64 },
+        ],
+        animations: {
+            idle: {
+                    loop: true,
+                    timeline: [
+                                { frame: 0, duration: 333 },
+                                { frame: 1, duration: 333 }
+                              ],
+                  },
+        },
     },
 
 };

@@ -6,6 +6,7 @@ export {
     game_position_from_graphic_position,
     mouse_game_position,
     mouse_grid_position,
+    mouse_is_pointing_walkable_position,
 }
 
 import * as input from "./system/input.js";
@@ -32,6 +33,7 @@ const KEY = {
     P: 80,
     M: 77,
     N: 78,
+    C: 67,
     NUMBER_0: 48,
     NUMBER_1: 49,
     NUMBER_2: 50,
@@ -63,9 +65,19 @@ function mouse_game_position(){
 }
 
 // Returns the position of the mouse on the grid if pointing it,
-// returns {} if the mouse isn't pointing on the grid.
+// returns undefined if the mouse isn't pointing on the grid.
 function mouse_grid_position(){
+    if(!current_game_view)
+        return undefined;
     return current_game_view.grid_position(mouse_game_position());
+}
+
+function mouse_is_pointing_walkable_position(){
+    const mouse_grid_pos = mouse_grid_position();
+    if(mouse_grid_pos)
+        return current_game.is_walkable(mouse_grid_pos);
+    else
+        return false;
 }
 
 function select_player_action(){
@@ -84,23 +96,6 @@ function select_player_action(){
             if(action.target_position && action.target_position.equals(mouse_grid_position()))
                 return action;
         }
-    }
-
-    // EDITOR STYLE HACKS FOLLOWS:
-    if(keyboard.is_just_down(KEY.P))
-    {
-        remove_all_players();
-        return possible_actions.wait;
-    }
-}
-
-// TEMPORARY: This is only useful to text that the Game Over state is detected.
-function remove_all_players(){ // THIS IS A HACK, DON'T DO THIS AT HOME
-    const world = current_game.world;
-    const player_characters = world.player_characters;
-    for(const character_body of player_characters){
-        world.remove_body(character_body.body_id); // THIS IS A HACK, DON'T DO THIS AT HOME
-        current_game_view.remove_view(character_body.body_id); // THIS IS A HACK, DON'T DO THIS AT HOME
     }
 }
 

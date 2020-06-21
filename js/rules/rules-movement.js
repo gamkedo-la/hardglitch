@@ -12,6 +12,9 @@ import { is_walkable } from "../definitions-tiles.js";
 
 class Moved extends concepts.Event {
     constructor(body, from_pos, to_pos) {
+        console.assert(body instanceof concepts.Body);
+        console.assert(from_pos instanceof concepts.Position);
+        console.assert(to_pos instanceof concepts.Position);
         super(body.body_id, {
             allow_parallel_animation: true,
         });
@@ -28,18 +31,14 @@ class Moved extends concepts.Event {
 class Move extends concepts.Action {
 
     constructor(move_name, new_position){
-        console.assert(new_position);
-        super(move_name, `Move to ${JSON.stringify(new_position)} (${move_name})`);
-        this.new_position = new_position;
+        super(move_name, new_position, `Move to ${JSON.stringify(new_position)} (${move_name})`);
     }
-
-    get target_position(){ return this.new_position; }
 
     execute(world, body) {
         console.assert(body instanceof concepts.Body);
         const initial_pos = body.position;
-        body.position = this.new_position;
-        return [ new Moved(body, initial_pos, this.new_position) ];
+        body.position = this.target_position;
+        return [ new Moved(body, initial_pos, this.target_position) ];
     }
 };
 

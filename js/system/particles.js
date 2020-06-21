@@ -1,9 +1,9 @@
-export { 
-    Color, 
-    ParticleEmitter, 
+export {
+    Color,
+    ParticleEmitter,
     ParticleGroup,
-    ParticleSystem, 
-    FadeLineParticle, 
+    ParticleSystem,
+    FadeLineParticle,
     FadeParticle,
     BlipParticle,
 }
@@ -14,10 +14,10 @@ export {
 class Color {
     /**
      * Create a new color
-     * @param {*} r 
-     * @param {*} g 
-     * @param {*} b 
-     * @param {*} a 
+     * @param {*} r
+     * @param {*} g
+     * @param {*} b
+     * @param {*} a
      */
     constructor(r, g, b, a=1) {
         this.r = r;
@@ -37,7 +37,7 @@ class Color {
      * convert to string compatable w/ fillStyle/strokeStyle
      */
     toString() {
-        return("rgba(" + this.r + "," + this.g + "," + this.b + "," + this.a + ")");
+        return("rgba(" + this.r + "," + this.g + "," + this.b + "," + this.a + ")"); // TODO: cache this for optimization.
     }
 }
 
@@ -54,7 +54,7 @@ class ParticleSystem {
 
     /**
      * Add a tracked particle or emitter
-     * @param {*} p 
+     * @param {*} p
      */
     add(p) {
         this.items.push(p);
@@ -62,7 +62,7 @@ class ParticleSystem {
 
     /**
      * Remove a particle or emitter from tracked list
-     * @param {*} p 
+     * @param {*} p
      */
     remove(p) {
         let idx = this.items.indexOf(p);
@@ -228,9 +228,9 @@ class ParticleEmitter {
 class Particle {
     /**
      * Create a new particle
-     * @param {*} ctx 
-     * @param {*} x 
-     * @param {*} y 
+     * @param {*} ctx
+     * @param {*} x
+     * @param {*} y
      */
     constructor(ctx, x, y) {
         this.ctx = ctx;
@@ -320,6 +320,7 @@ class FadeLineParticle extends Particle {
     }
 
     draw() {
+        this.ctx.save();
         this.ctx.strokeStyle = this.getGradient();
         this.ctx.lineWidth = this.width;
         this.ctx.lineCap = "round";
@@ -327,6 +328,7 @@ class FadeLineParticle extends Particle {
         this.ctx.moveTo(this.x, this.y);
         this.ctx.lineTo(this.endX, this.endY);
         this.ctx.stroke();
+        this.ctx.restore();
     }
 
     update() {
@@ -380,10 +382,12 @@ class FadeParticle extends Particle {
     }
 
     draw() {
+        this.ctx.save();
         this.ctx.beginPath();
         this.ctx.arc(this.x, this.y, this.size, 0, Math.PI*2, false);
         this.ctx.fillStyle = this.color.toString();
         this.ctx.fill();
+        this.ctx.restore();
     }
 
     update() {

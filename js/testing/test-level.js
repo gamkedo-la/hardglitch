@@ -26,18 +26,26 @@ function make_test_world(){ // The game assets must have been initialized first.
 
     function set_floor_tile(position, tile_id){
         floor_tile_grid[index(position)] = tile_id;
+        return position;
     };
 
     function set_surface_tile(position, tile_id){
         surface_tile_grid[index(position)] = tile_id;
+        return position;
     };
 
     function floor_tile_id(position){
         return floor_tile_grid[index(position)];
     }
 
+    function surface_tile_id(position){
+        return surface_tile_grid[index(position)];
+    }
+
     function is_walkable(position){
         const tile_id = floor_tile_id(position);
+        if(tile_id === undefined)
+            return false;
         return tiles.defs[tile_id].is_walkable;
     }
 
@@ -45,7 +53,7 @@ function make_test_world(){ // The game assets must have been initialized first.
         while(true){
             const position = { x:random_int(0, test_world_size.width - 1 ), y:random_int(0, test_world_size.height - 1 )};
             if(is_walkable(position))
-                return new concepts.Position(position.x, position.y);
+                return new concepts.Position(position);
         }
     }
 
@@ -68,36 +76,22 @@ function make_test_world(){ // The game assets must have been initialized first.
                 tileID = tiles.ID.GROUND;
             }
             // hole/ground/wall tiles get assigned to floor layer (wall gets assigned to both surface/floor)
-            set_floor_tile(new concepts.Position(i, j), tileID);
+            set_floor_tile(new concepts.Position({x:i, y:j}), tileID);
         }
     }
 
-    /*
-    for(let i = 0; i < grid_size / 0.8; ++ i){
-        set_floor_tile(random_position(), tiles.ID.GROUND);
-    }
-
-    for(let i = 0; i < grid_size / 5; ++ i){
-        set_surface_tile(random_position(), tiles.ID.WALL);
-    }
-    */
-
-    for(let i = 0; i < grid_size / 200; ++i){
-        set_surface_tile(random_position(), tiles.ID.ENTRY);
-    }
+    const entry_point_position = set_surface_tile(random_position(), tiles.ID.ENTRY);
+    console.assert(is_walkable(entry_point_position));
 
     for(let i = 0; i < grid_size / 500; ++i){
-        set_surface_tile(random_position(), tiles.ID.EXIT);
+        const exit_pos = random_position();
+        if(surface_tile_id(exit_pos) != tiles.ID.ENTRY) // Don't overwrite entries!
+            set_surface_tile(exit_pos, tiles.ID.EXIT);
     }
 
-    /*
-    set_surface_tile(new concepts.Position(5,5), tiles.ID.EXIT);
-    set_floor_tile(new concepts.Position(5, 5), tiles.ID.GROUND);
-    set_surface_tile(new concepts.Position(8,8), tiles.ID.ENTRY);
-    set_floor_tile(new concepts.Position(8, 8), tiles.ID.GROUND);
-    */
 
     const world = new concepts.World( test_world_size.width, test_world_size.height, floor_tile_grid, surface_tile_grid );
+    console.assert(world._surface_tile_grid.matching_positions(tileid=> tileid == tiles.ID.ENTRY).length > 0);
 
     world.set_rules(...default_rules);
 
