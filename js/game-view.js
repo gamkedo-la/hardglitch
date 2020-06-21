@@ -17,12 +17,17 @@ import { graphic_position, PIXELS_PER_TILES_SIDE, square_half_unit_vector } from
 import { TileGridView } from "./view/tilegrid-view.js";
 import { CharacterView } from "./view/character-view.js";
 import { GameInterface } from "./game-ui.js";
+import { mouse_grid_position } from "./game-input.js";
+import { sprite_defs } from "./game-assets.js";
+import { mouse } from "./system/input.js";
+
 
 class GameView {
     body_views = {};
     is_time_for_player_to_chose_action = true;
     animation_queue = []; // Must contain only js generators + parallel: (true||false). // TODO: make the animation system separately to be used anywhere there are animations to play.
     current_animations = []; // Must be a set of js generators, each one an animation that can be played together.
+    highlights = [];
 
     ui = new GameInterface();
 
@@ -30,6 +35,8 @@ class GameView {
         console.assert(game instanceof Game);
         this.game = game;
         this._requires_reset = true;
+        this.pointed_highlight = new graphics.Sprite(sprite_defs.highlight_blue);
+        this.highlights.push(this.pointed_highlight);
         this.reset();
     }
 
@@ -61,6 +68,8 @@ class GameView {
 
     update(delta_time){
 
+        this._update_highlights(delta_time);
+
         if(editor.is_enabled){
             if(this._requires_reset){
                 this.reset();
@@ -70,6 +79,13 @@ class GameView {
 
         this.tile_grid.update(delta_time);
 
+        this._update_animations(delta_time);
+        this._update_characters(delta_time);
+
+        this.ui.update(delta_time);
+    }
+
+    _update_animations(delta_time){
         // Update the current animation, if any, or switch to the next one, until there isn't any left.
         if(this.current_animations.length != 0 || this.animation_queue.length > 0){
             if(this.is_time_for_player_to_chose_action){
@@ -113,14 +129,26 @@ class GameView {
                 editor.set_text("PLAYER'S TURN!");
             }
         }
+    }
 
+    _update_characters(delta_time){
         // Update all body-views.
         for(const body_view of Object.values(this.body_views)){
             body_view.update(delta_time);
         };
-
-        this.ui.update(delta_time);
     }
+
+
+    _update_highlights(delat_time){
+        const mouse_grid_pos = mouse_grid_position();
+        this.pointed_highlight.position = graphic_position(mouse_grid_pos);
+
+        for(const highlight of this.highlights){
+            highlight.update(delat_time);
+        }
+    }
+
+
 
     render_graphics(){
         this.tile_grid.draw_floor();
@@ -128,6 +156,12 @@ class GameView {
         for(const body_view of Object.values(this.body_views)){
             body_view.render_graphics();
         };
+
+        if(!mouse.is_dragging){
+            for(const highlight of this.highlights){
+                highlight.draw();
+            }
+        }
 
         this.tile_grid.draw_surface();
 
@@ -141,22 +175,31 @@ class GameView {
         const world = this.game.world;
         console.assert(world);
 
+        this._reset_tilegrid(world);
+        this._reset_characters(world);
+        // this.update_actions_highlights(this.game.last_turn_info);
+
+        this._requires_reset = false;
+    }
+
+    _reset_tilegrid(world){
         if(this.tile_grid)
             this.tile_grid.reset(new Vector2(), new Vector2({ x: world.width, y: world.height }), world._floor_tile_grid, world._surface_tile_grid);
         else
             this.tile_grid = new TileGridView(new Vector2(), new Vector2({ x: world.width, y: world.height }), world._floor_tile_grid, world._surface_tile_grid);
 
         this.tile_grid.update(0);
+    }
 
+    _reset_characters(world){
         this.body_views = {};
         this.game.world.bodies.forEach(body => {
             const body_view = new CharacterView(body.position, body.assets);
             this.body_views[body.body_id] = body_view;
             body_view.update(0);
         });
-
-        this._requires_reset = false;
     }
+
 
     // Called by the editor code when editing the game in a way the require re-interpreting the game's state.
     notify_edition(){
