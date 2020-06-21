@@ -33,6 +33,7 @@ const KEY = {
     P: 80,
     M: 77,
     N: 78,
+    C: 67,
     NUMBER_0: 48,
     NUMBER_1: 49,
     NUMBER_2: 50,

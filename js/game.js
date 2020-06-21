@@ -73,6 +73,11 @@ class Game {
         const entry_points = this.all_entry_points_positions;
         console.assert(entry_points);
         const position = random_sample(entry_points);
+        this.add_player_character(position);
+    }
+
+    add_player_character(position){
+        console.assert(this.is_walkable(position));
         const player = new Player();
         player.position = position;
         this.world.add(player);

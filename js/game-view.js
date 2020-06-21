@@ -116,7 +116,8 @@ class GameView {
             }
         }
 
-        this._change_character_focus(this.game.last_turn_info.player_body.position);
+        if(this.game.last_turn_info.player_body)
+            this._change_character_focus(this.game.last_turn_info.player_body.position);
     }
 
     update(delta_time){
@@ -260,8 +261,6 @@ class GameView {
         this._reset_characters(world);
         this.highlight_available_actions();
 
-        this.update(0);
-
         this._requires_reset = false;
     }
 
@@ -270,6 +269,8 @@ class GameView {
             this.tile_grid.reset(new Vector2(), new Vector2({ x: world.width, y: world.height }), world._floor_tile_grid, world._surface_tile_grid);
         else
             this.tile_grid = new TileGridView(new Vector2(), new Vector2({ x: world.width, y: world.height }), world._floor_tile_grid, world._surface_tile_grid);
+
+        this.tile_grid.update(0);
     }
 
     _reset_characters(world){
@@ -277,6 +278,7 @@ class GameView {
         this.game.world.bodies.forEach(body => {
             const body_view = new CharacterView(body.position, body.assets);
             this.body_views[body.body_id] = body_view;
+            body_view.update(0);
         });
     }
 
