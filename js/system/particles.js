@@ -1,8 +1,8 @@
-export { 
-    Color, 
-    ParticleEmitter, 
-    ParticleSystem, 
-    FadeLineParticle, 
+export {
+    Color,
+    ParticleEmitter,
+    ParticleSystem,
+    FadeLineParticle,
     FadeParticle,
 }
 
@@ -12,10 +12,10 @@ export {
 class Color {
     /**
      * Create a new color
-     * @param {*} r 
-     * @param {*} g 
-     * @param {*} b 
-     * @param {*} a 
+     * @param {*} r
+     * @param {*} g
+     * @param {*} b
+     * @param {*} a
      */
     constructor(r, g, b, a=1) {
         this.r = r;
@@ -35,7 +35,7 @@ class Color {
      * convert to string compatable w/ fillStyle/strokeStyle
      */
     toString() {
-        return("rgba(" + this.r + "," + this.g + "," + this.b + "," + this.a + ")");
+        return("rgba(" + this.r + "," + this.g + "," + this.b + "," + this.a + ")"); // TODO: cache this for optimization.
     }
 }
 
@@ -52,7 +52,7 @@ class ParticleSystem {
 
     /**
      * Add a tracked particle or emitter
-     * @param {*} p 
+     * @param {*} p
      */
     add(p) {
         this.items.push(p);
@@ -60,7 +60,7 @@ class ParticleSystem {
 
     /**
      * Remove a particle or emitter from tracked list
-     * @param {*} p 
+     * @param {*} p
      */
     remove(p) {
         let idx = this.items.indexOf(p);
@@ -94,8 +94,8 @@ class ParticleEmitter {
     /**
      * Create a new particle emitter
      * @param {*} psys - link to the parent particle system
-     * @param {*} genFcn 
-     * @param {*} ticks 
+     * @param {*} genFcn
+     * @param {*} ticks
      */
     constructor(psys, genFcn, ticks) {
         this.psys = psys;
@@ -131,9 +131,9 @@ class ParticleEmitter {
 class Particle {
     /**
      * Create a new particle
-     * @param {*} ctx 
-     * @param {*} x 
-     * @param {*} y 
+     * @param {*} ctx
+     * @param {*} x
+     * @param {*} y
      */
     constructor(ctx, x, y) {
         this.ctx = ctx;
