@@ -8,7 +8,7 @@ export {
 import * as graphics from "../system/graphics.js";
 import * as concepts from "../core/concepts.js";
 import { tween } from "../system/tweening.js";
-import { graphic_position } from "./common-view.js";
+import { graphic_position, game_position_from_graphic_po } from "./common-view.js";
 
 // Representation of a character's body.
 class CharacterView {
@@ -33,6 +33,8 @@ class CharacterView {
     set game_position(new_game_position){
         this.position = graphic_position(new_game_position);
     }
+
+    get game_position() { return game_position_from_graphic_po(this.position); }
 
     get position(){
         return this.sprite.position;

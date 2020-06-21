@@ -66,6 +66,8 @@ function mouse_game_position(){
 // Returns the position of the mouse on the grid if pointing it,
 // returns undefined if the mouse isn't pointing on the grid.
 function mouse_grid_position(){
+    if(!current_game_view)
+        return undefined;
     return current_game_view.grid_position(mouse_game_position());
 }
 

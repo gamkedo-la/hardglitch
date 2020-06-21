@@ -21,6 +21,7 @@ import { mouse_grid_position, mouse_is_pointing_walkable_position } from "./game
 import { sprite_defs } from "./game-assets.js";
 import { mouse } from "./system/input.js";
 import { Move } from "./rules/rules-movement.js";
+import { Position } from "./core/concepts.js";
 
 class Highlight{
     // Reuse a sprite for highlighting.
@@ -32,11 +33,12 @@ class Highlight{
     }
 
     set position(new_pos) {
-        console.assert(Number.isInteger(new_pos.x) && Number.isInteger(new_pos.y));
         this._position = new_pos;
     }
 
     draw(canvas_context){
+        if(!this._position)
+            return;
         this._sprite.position = graphic_position(this._position);
         this._sprite.draw(canvas_context);
     }
@@ -66,7 +68,7 @@ class GameView {
 
         this._pointed_highlight = new Highlight({x:0, y:0}, this._highlight_sprites.neutral);
         this._pointed_highlight_edit = new Highlight({x:0, y:0}, this._highlight_sprites.edit);
-        this._character_turns_highlight = new Highlight({x:0, y:0}, this._highlight_sprites.turn);
+        this._character_focus_highlight = new Highlight({x:0, y:0}, this._highlight_sprites.turn);
 
         this.reset();
     }
@@ -91,6 +93,7 @@ class GameView {
                     this.animation_queue.push({
                         animation: body_view.animate_event(event),
                         parallel: event.allow_parallel_animation,
+                        focus_position: new Position(body_view.game_position),
                     });
                 }
             }
@@ -113,7 +116,7 @@ class GameView {
             }
         }
 
-        this._character_turns_highlight.position = this.game.last_turn_info.player_body.position;
+        this._change_character_focus(this.game.last_turn_info.player_body.position);
     }
 
     update(delta_time){
@@ -153,6 +156,8 @@ class GameView {
                     const animation_state = animation.animation.next(); // Get to the first step of the animation
                     if(animation_state.done) // Skip when there was actually no animation.
                         continue;
+                    // Start the animation:
+                    this._change_character_focus(animation.focus_position);
                     animation.delay = delay_for_next_animation;
                     delay_for_next_animation += delay_between_animations_ms;
                     this.current_animations.push(animation);
@@ -176,6 +181,7 @@ class GameView {
 
             if(this.current_animations.length == 0 && this.animation_queue.length == 0){
                 this.is_time_for_player_to_chose_action = true;
+                this._change_character_focus(this.game.last_turn_info.player_body.position);
                 editor.set_text("PLAYER'S TURN!");
             }
         }
@@ -220,8 +226,7 @@ class GameView {
     }
 
     _render_highlights(){
-        if(this.is_time_for_player_to_chose_action)
-            this._character_turns_highlight.draw();
+        this._character_focus_highlight.draw();
 
         if(!mouse.is_dragging){
 
@@ -240,8 +245,8 @@ class GameView {
         }
     }
 
-    _change_character_turn(character_pos){
-        this._character_turns_highlight.position = character_pos;
+    _change_character_focus(character_pos){
+        this._character_focus_highlight.position = character_pos;
     }
 
     // Re-interpret the game's state from scratch.
@@ -255,6 +260,8 @@ class GameView {
         this._reset_characters(world);
         this.highlight_available_actions();
 
+        this.update(0);
+
         this._requires_reset = false;
     }
 
@@ -263,8 +270,6 @@ class GameView {
             this.tile_grid.reset(new Vector2(), new Vector2({ x: world.width, y: world.height }), world._floor_tile_grid, world._surface_tile_grid);
         else
             this.tile_grid = new TileGridView(new Vector2(), new Vector2({ x: world.width, y: world.height }), world._floor_tile_grid, world._surface_tile_grid);
-
-        this.tile_grid.update(0);
     }
 
     _reset_characters(world){
@@ -272,7 +277,6 @@ class GameView {
         this.game.world.bodies.forEach(body => {
             const body_view = new CharacterView(body.position, body.assets);
             this.body_views[body.body_id] = body_view;
-            body_view.update(0);
         });
     }
 
