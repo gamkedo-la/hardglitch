@@ -8,7 +8,7 @@ import * as turns from "./core/action-turn.js";
 import { Wait } from "./rules/rules-basic.js";
 import { random_sample } from "./system/utility.js";
 import * as tiles from "./definitions-tiles.js";
-import { sprite_defs } from "./game-assets.js";
+import { sprite_defs, tile_defs } from "./game-assets.js";
 
 class Player extends concepts.Body {
     assets = {
@@ -84,6 +84,10 @@ class Game {
 
     get player_characters(){
         return this.world.bodies.filter(body=>body.is_player_actor);
+    }
+
+    is_walkable(game_position){
+        return !this.world.is_blocked_position(game_position, tiles.is_walkable);
     }
 
 };

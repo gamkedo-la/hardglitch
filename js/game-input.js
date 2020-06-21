@@ -6,6 +6,7 @@ export {
     game_position_from_graphic_position,
     mouse_game_position,
     mouse_grid_position,
+    mouse_is_pointing_walkable_position,
 }
 
 import * as input from "./system/input.js";
@@ -66,6 +67,10 @@ function mouse_game_position(){
 // returns {} if the mouse isn't pointing on the grid.
 function mouse_grid_position(){
     return current_game_view.grid_position(mouse_game_position());
+}
+
+function mouse_is_pointing_walkable_position(){
+    return current_game.is_walkable(mouse_grid_position());
 }
 
 function select_player_action(){

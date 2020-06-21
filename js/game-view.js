@@ -17,7 +17,7 @@ import { graphic_position, PIXELS_PER_TILES_SIDE, square_half_unit_vector } from
 import { TileGridView } from "./view/tilegrid-view.js";
 import { CharacterView } from "./view/character-view.js";
 import { GameInterface } from "./game-ui.js";
-import { mouse_grid_position } from "./game-input.js";
+import { mouse_grid_position, mouse_is_pointing_walkable_position } from "./game-input.js";
 import { sprite_defs } from "./game-assets.js";
 import { mouse } from "./system/input.js";
 
@@ -35,8 +35,7 @@ class GameView {
         console.assert(game instanceof Game);
         this.game = game;
         this._requires_reset = true;
-        this.pointed_highlight = new graphics.Sprite(sprite_defs.highlight_blue);
-        this.highlights.push(this.pointed_highlight);
+        this._pointed_highlight = new graphics.Sprite(sprite_defs.highlight_blue);
         this.reset();
     }
 
@@ -141,13 +140,13 @@ class GameView {
 
     _update_highlights(delat_time){
         const mouse_grid_pos = mouse_grid_position();
-        this.pointed_highlight.position = graphic_position(mouse_grid_pos);
+        this._pointed_highlight.position = graphic_position(mouse_grid_pos);
+        this._pointed_highlight.update(delat_time);
 
         for(const highlight of this.highlights){
             highlight.update(delat_time);
         }
     }
-
 
 
     render_graphics(){
@@ -157,15 +156,23 @@ class GameView {
             body_view.render_graphics();
         };
 
-        if(!mouse.is_dragging){
-            for(const highlight of this.highlights){
-                highlight.draw();
-            }
-        }
+        this._render_highlights();
 
         this.tile_grid.draw_surface();
 
         this.ui.display();
+    }
+
+    _render_highlights(){
+        if(!mouse.is_dragging){
+            for(const highlight of this.highlights){
+                highlight.draw();
+            }
+
+            if(editor.is_enabled || mouse_is_pointing_walkable_position()){
+                this._pointed_highlight.draw();
+            }
+        }
     }
 
     // Re-interpret the game's state from scratch.
