@@ -37,11 +37,13 @@ function new_actor_id(){
 // An action is when an Actor changes something (using it's Body) in the world, following the
 // world's rules.
 class Action {
-    constructor(id, name, description = "MISSING ACTION DESCRIPTION"){
+    constructor(id, target_position, name, description = "MISSING ACTION DESCRIPTION"){
         console.assert(typeof id === 'string');
+        console.assert(target_position instanceof Position);
         console.assert(typeof name === 'string');
         console.assert(typeof description === 'string');
         this.id = id;                       // Used internally to identify this Action in some special code (for example to identify special moves to bind to keyboard keys)
+        this.target_position = target_position; // Position of the target of this action. Could refer to the acting character, another character, an item or a tile at that position.
         this.name = name,                   // Name that will be displayed to the player.
         this.description = description;     // Description that will be displayed to the player.
     }
