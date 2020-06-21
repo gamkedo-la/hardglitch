@@ -72,30 +72,12 @@ function make_test_world(){ // The game assets must have been initialized first.
         }
     }
 
-    /*
-    for(let i = 0; i < grid_size / 0.8; ++ i){
-        set_floor_tile(random_position(), tiles.ID.GROUND);
-    }
-
-    for(let i = 0; i < grid_size / 5; ++ i){
-        set_surface_tile(random_position(), tiles.ID.WALL);
-    }
-    */
-
-    for(let i = 0; i < grid_size / 200; ++i){
-        set_surface_tile(random_position(), tiles.ID.ENTRY);
-    }
+    set_surface_tile(random_position(), tiles.ID.ENTRY);
 
     for(let i = 0; i < grid_size / 500; ++i){
         set_surface_tile(random_position(), tiles.ID.EXIT);
     }
 
-    /*
-    set_surface_tile(new concepts.Position(5,5), tiles.ID.EXIT);
-    set_floor_tile(new concepts.Position(5, 5), tiles.ID.GROUND);
-    set_surface_tile(new concepts.Position(8,8), tiles.ID.ENTRY);
-    set_floor_tile(new concepts.Position(8, 8), tiles.ID.GROUND);
-    */
 
     const world = new concepts.World( test_world_size.width, test_world_size.height, floor_tile_grid, surface_tile_grid );
 
