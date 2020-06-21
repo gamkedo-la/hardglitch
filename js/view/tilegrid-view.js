@@ -37,7 +37,7 @@ class TileGridView {
             let len = random_float(10,50);
             let width = random_float(1,5);
             return new FadeLineParticle(ctx, x+xoff, y+yoff, 0, -velocity, new Color(0,255,0), ticks, len, width, 0, 1);
-        }, 10));
+        }, .3, 25));
 
         this.particles.add(new ParticleEmitter(this.particles, () => {
             let xoff = random_float(-15,15);
@@ -46,7 +46,7 @@ class TileGridView {
             let size = random_float(1,4);
             let ticks = random_float(10,50);
             return new FadeParticle(ctx, x+xoff, y+yoff, 0, -velocity, size, new Color(0,255,255), ticks);
-        }, 10));
+        }, .3, 25));
 
     }
 
@@ -114,6 +114,8 @@ class TileGridView {
         }
         this.surface_tile_grid.update(delta_time);
         this.floor_top_tile_grid.update(delta_time);
+        // particles
+        this.particles.update(delta_time);
     }
 
     draw_floor(){
@@ -135,7 +137,7 @@ class TileGridView {
 
             this.surface_tile_grid.draw();
             // particles
-            this.particles.update();
+            this.particles.draw();
         }
 
     }

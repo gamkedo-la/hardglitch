@@ -1,8 +1,10 @@
-import { Color, ParticleSystem, ParticleEmitter, FadeLineParticle, FadeParticle } from "../system/particles.js";
+import { Color, ParticleSystem, ParticleEmitter, FadeLineParticle, FadeParticle, BlipParticle, ParticleGroup } from "../system/particles.js";
 
 function pickRange(min, max) {
     return Math.random() * (max-min) + min;
 }
+
+let last_update_time = Date.now();
 
 class Env {
     constructor() {
@@ -15,9 +17,29 @@ class Env {
         this.ps = new ParticleSystem();
         let ctx = this.ctx;
 
-        let p = new FadeLineParticle(this.ctx, 300, 300, 0, -2.5, new Color(0,255,0), 20, 50, 3, .1, 1);
-        this.ps.add(p);
+        let g = new ParticleGroup();
+        this.ps.add(g);
 
+        this.ps.add(new ParticleEmitter(this.ps, () => {
+            let xoff = pickRange(-15,15);
+            let yoff = pickRange(-15,15);
+            let velocity = pickRange(30,60);
+            let ttl = pickRange(.3, 1.5);
+            return new BlipParticle(ctx, 300+xoff, 300+yoff, g, 0, -velocity, ttl, 10);
+        }, .2, 25));
+
+        /*
+        this.ps.add(new ParticleEmitter(this.ps, () => {
+            let xoff = pickRange(-15,15);
+            let yoff = pickRange(-15,15);
+            let velocity = pickRange(1,3);
+            let size = pickRange(1,4);
+            let ticks = pickRange(10,50);
+            return new FadeParticle(ctx, 300+xoff, 300+yoff, 0, -velocity, size, new Color(0,255,255), ticks);
+        }, .2, 25));
+        */
+
+        /*
         this.ps.add(new ParticleEmitter(this.ps, () => {
             let xoff = pickRange(-15,15);
             let yoff = pickRange(-15,15);
@@ -26,7 +48,9 @@ class Env {
             let ticks = pickRange(10,50);
             return new FadeParticle(ctx, 300+xoff, 300+yoff, 0, -velocity, size, new Color(0,255,255), ticks);
         }, 10));
+        */
 
+        /*
         this.ps.add(new ParticleEmitter(this.ps, () => {
             let xoff = pickRange(-15,15);
             let yoff = pickRange(-15,15);
@@ -45,13 +69,18 @@ class Env {
             let width = pickRange(1,5);
             return new FadeLineParticle(ctx, 300+xoff, 300+yoff, 0, -velocity, new Color(0,255,0), ticks, len, width, 0, 1);
         }, 10));
+        */
 
     }
 
     loop() {
+        const now = Date.now();
+        const delta_time = now - last_update_time;
+        last_update_time = now;
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         // run particle system update
-        this.ps.update();
+        this.ps.update(delta_time);
+        this.ps.draw();
     }
 
     setup() {
