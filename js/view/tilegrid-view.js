@@ -11,7 +11,7 @@ import { SeamSelector, genFloorOverlay, genFgOverlay } from "./tile-select.js";
 import * as graphics from "../system/graphics.js";
 import { Vector2 } from "../system/spatial.js";
 import { PIXELS_PER_TILES_SIDE, PIXELS_PER_HALF_SIDE } from "./common-view.js";
-import { ParticleSystem, ParticleEmitter, FadeLineParticle, FadeParticle, Color } from "../system/particles.js";
+import { ParticleGroup, ParticleSystem, ParticleEmitter, FadeLineParticle, BlipParticle, Color } from "../system/particles.js";
 import { random_float, position_from_index } from "../system/utility.js";
 
 let canvas = document.getElementById('gameCanvas');
@@ -29,24 +29,36 @@ class TileGridView {
 
     addExitParticles(ctx, x, y) {
 
+        let g = new ParticleGroup();
+        this.particles.add(g);
         this.particles.add(new ParticleEmitter(this.particles, () => {
             let xoff = random_float(-25,25);
             let yoff = random_float(-25,25);
-            let velocity = random_float(1,3);
-            let ticks = random_float(10,60);
+            let velocity = random_float(30,60);
+            let ttl = random_float(.3, 1.5);
+            return new BlipParticle(ctx, x+xoff, y+yoff, g, 0, -velocity, ttl, 10);
+        }, .2, 25));
+
+        this.particles.add(new ParticleEmitter(this.particles, () => {
+            let xoff = random_float(-25,25);
+            let yoff = random_float(-25,25);
+            let velocity = random_float(30,90);
+            let ttl = random_float(.3,1);
             let len = random_float(10,50);
             let width = random_float(1,5);
-            return new FadeLineParticle(ctx, x+xoff, y+yoff, 0, -velocity, new Color(0,255,0), ticks, len, width, 0, 1);
+            return new FadeLineParticle(ctx, x+xoff, y+yoff, 0, -velocity, new Color(0,255,0), ttl, len, width, 0, 1);
         }, .3, 25));
 
+        /*
         this.particles.add(new ParticleEmitter(this.particles, () => {
             let xoff = random_float(-15,15);
             let yoff = random_float(-15,15);
-            let velocity = random_float(1,3);
+            let velocity = random_float(30,90);
             let size = random_float(1,4);
-            let ticks = random_float(10,50);
-            return new FadeParticle(ctx, x+xoff, y+yoff, 0, -velocity, size, new Color(0,255,255), ticks);
+            let ttl = random_float(.3,1.6);
+            return new FadeParticle(ctx, x+xoff, y+yoff, 0, -velocity, size, new Color(0,255,255), ttl);
         }, .3, 25));
+        */
 
     }
 

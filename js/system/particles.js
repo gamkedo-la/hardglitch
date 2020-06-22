@@ -252,29 +252,42 @@ class Particle {
  * A particle for a line that fades in/out
  */
 class FadeLineParticle extends Particle {
-    constructor(ctx, x, y, dx, dy, color, ticks, length, width, minOpacity, maxOpacity) {
+    /**
+     * Create a new fade line particle.
+     * @param {*} ctx - 2d canvas context to draw particle onto
+     * @param {*} x - starting x position of particle
+     * @param {*} y - starting y position of particle
+     * @param {*} dx - delta x in pixels per second, speed of particle
+     * @param {*} dy - delta y in pixels per second, speed of particle
+     * @param {*} color  - color for particle
+     * @param {*} lifetime - lifetime of particle, in seconds
+     * @param {*} length - length of line,in pixels
+     * @param {*} width - width of line,in pixels
+     * @param {*} minOpacity - minimum opacity of line (opacity of line at beginning/end of particle loop)
+     * @param {*} maxOpacity - max opacity of line (opacity of line at midpoint of animation)
+     */
+    constructor(ctx, x, y, dx, dy, color, lifetime, length, width, minOpacity, maxOpacity) {
         super(ctx, x, y);
         this.dx = dx;
         this.dy = dy;
         // base color
         this.color = color;
-        this.ticks = ticks;
+        this.lifetime = lifetime;
         this.maxlen = length;
         this.width = width;
-        // min opacity is the opacity of the line at the beginning and end of particle loop
         this.minOpacity = minOpacity;
-        // max opacity is the opacity of the line at the midpoint of animation
         this.maxOpacity = maxOpacity;
         this.len = 0;
-        this.emergeticks = 0;
-        // compute x/y percents of total length
+        this.emergettl = 0;
+        this.ttl = lifetime;
+        // compute x/y percents of total velocity
         this.ticklen = Math.sqrt(dx*dx + dy*dy);
         this.px = dx/this.ticklen;
         this.py = dy/this.ticklen;
         // compute center of animation
-        this.centerx = this.x + dx*ticks*.5 + this.px*length*.5;
-        this.centery = this.y + dy*ticks*.5 + this.py*length*.5;
-        this.centerlen = this.ticklen*ticks*.5 + length*.5;
+        this.centerx = this.x + dx*lifetime*.5 + this.px*length*.5;
+        this.centery = this.y + dy*lifetime*.5 + this.py*length*.5;
+        this.centerlen = this.ticklen*lifetime*.5 + length*.5;
     }
 
     // endpoint of line
@@ -331,13 +344,18 @@ class FadeLineParticle extends Particle {
         this.ctx.restore();
     }
 
-    update() {
+    update(delta_time) {
         if (this.done) return;
+        // convert delta time to seconds
+        delta_time *= .001;
         // stage 1: emerge
         // - starting w/ line at x,y and zero length, run until length is maxlen
         if (this.len < this.maxlen) {
-            this.len += this.ticklen;
-            this.emergeticks++;
+            let ddx = this.dx * delta_time;
+            let ddy = this.dy * delta_time;
+            let dlen = Math.sqrt(ddx*ddx + ddy*ddy);
+            this.len += dlen;
+            this.emergettl += delta_time;
             if (this.len > this.maxlen) {
                 let delta = this.len - this.maxlen;
                 this.len = this.maxlen;
@@ -346,22 +364,20 @@ class FadeLineParticle extends Particle {
             }
         // stage 2: traverse
         // - run until ticks have expired
-        } else if (this.ticks > 0) {
-            this.x += this.dx;
-            this.y += this.dy;
-            this.ticks--;
+        } else if (this.ttl > 0) {
+            this.x += (this.dx * delta_time);
+            this.y += (this.dy * delta_time);
+            this.ttl -= delta_time;
         // stage 3: dissolve
         // - run until we run down emerge ticks
-        } else if (this.emergeticks > 0) {
-            this.x += this.dx;
-            this.y += this.dy;
-            this.emergeticks--;
+        } else if (this.emergettl > 0) {
+            this.x += (this.dx * delta_time);
+            this.y += (this.dy * delta_time);
+            this.emergettl -= delta_time;
         // stage 4: done
         } else {
             this._done = true;
         }
-        // draw
-        this.draw();
     }
 
 }
@@ -370,15 +386,26 @@ class FadeLineParticle extends Particle {
  * A particle for a circle that starts at a given position then slowly fades out
  */
 class FadeParticle extends Particle {
-    constructor(ctx, x, y, dirX, dirY, size, color, ticks) {
+    /**
+     * Create a new fade particle
+     * @param {*} ctx - 2d canvas context to draw particle onto
+     * @param {*} x - starting x position of particle
+     * @param {*} y - starting y position of particle
+     * @param {*} dx - delta x in pixels per second, speed of particle
+     * @param {*} dy - delta y in pixels per second, speed of particle
+     * @param {*} size - size of particle (radius in pixels)
+     * @param {*} color  - color for particle
+     * @param {*} lifetime - lifetime of particle, in seconds
+     */
+    constructor(ctx, x, y, dx, dy, size, color, lifetime) {
         super(ctx, x, y);
-        this.dirX = dirX;
-        this.dirY = dirY;
+        this.dx = dx;
+        this.dy = dy;
         this.size = size;
         this.color = color;
-        this.ticks = ticks;
-        this.fadePerTick = 1/ticks;
+        this.lifetime = lifetime;
         this.fade = 1;
+        this.ttl = lifetime;
     }
 
     draw() {
@@ -390,19 +417,21 @@ class FadeParticle extends Particle {
         this.ctx.restore();
     }
 
-    update() {
+    update(delta_time) {
         if (this.done) return;
+        // convert delta time to seconds
+        delta_time *= .001;
         // update position
-        this.x += this.dirX;
-        this.y += this.dirY;
-        // fade
-        this.fade -= this.fadePerTick;
+        this.x += (this.dx * delta_time);
+        this.y += (this.dy * delta_time);
+        // fade... slowly fade to nothing
+        this.fade -= (delta_time/this.lifetime);
         this.color.a = this.fade;
-        if (this.fade <= 0) {
+        // time-to-live
+        this.ttl -= delta_time;
+        if (this.ttl <= 0) {
             this._done = true;
         }
-        // draw
-        this.draw();
     }
 
 }
@@ -416,14 +445,14 @@ sparkMaxImg.src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAVCAYAAACpF
 
 class BlipParticle extends Particle {
     /**
-     * Creates a new blip particle
+     * Create a new blip particle
      * @param {*} ctx - 2d canvas context to draw particle onto
      * @param {*} x - starting x position of particle
      * @param {*} y - starting y position of particle
      * @param {*} group - Particle group used to determine sparking interactions
      * @param {*} dx - delta x in pixels per second, speed of particle
      * @param {*} dy - delta y in pixels per second, speed of particle
-     * @param {*} liftime - lifetime of particle, in seconds
+     * @param {*} lifetime - lifetime of particle, in seconds
      * @param {*} sparkRange - range in which to start spark effect in pixels
      */
     constructor(ctx, x, y, group, dx, dy, lifetime, sparkRange) {
