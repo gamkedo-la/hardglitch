@@ -37,7 +37,7 @@ function new_actor_id(){
 // An action is when an Actor changes something (using it's Body) in the world, following the
 // world's rules.
 class Action {
-    constructor(id, target_position, name, description = "MISSING ACTION DESCRIPTION"){
+    constructor(id, name, target_position, description = "MISSING ACTION DESCRIPTION"){
         console.assert(typeof id === 'string');
         console.assert(target_position instanceof Position);
         console.assert(typeof name === 'string');

@@ -31,7 +31,7 @@ class Moved extends concepts.Event {
 class Move extends concepts.Action {
 
     constructor(move_name, new_position){
-        super(move_name, new_position, `Move to ${JSON.stringify(new_position)} (${move_name})`);
+        super(move_name, `Move to ${JSON.stringify(new_position)} (${move_name})`, new_position);
     }
 
     execute(world, body) {
