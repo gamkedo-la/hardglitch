@@ -92,9 +92,12 @@ function select_player_action(){
     if(keyboard.is_down(KEY.LEFT_ARROW)) return possible_actions.move_west;
 
     if(mouse.buttons.is_just_released(input.MOUSE_BUTTON.LEFT)){ // Select an action which targets the square under the mouse.
-        for(const action of Object.values(possible_actions)){
-            if(action.target_position && action.target_position.equals(mouse_grid_position()))
-                return action;
+        const clicked_position = mouse_grid_position();
+        if(clicked_position) {
+            for(const action of Object.values(possible_actions)){
+                if(action.target_position && action.target_position.equals(clicked_position))
+                    return action;
+            }
         }
     }
 }
