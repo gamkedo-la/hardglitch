@@ -42,11 +42,10 @@ class Game {
     }
 
     update_until_player_turn(next_player_action) {
-        this.world.set_next_player_action(next_player_action); // The player action will be used in solving turns.
         console.log(`Player Action: ${next_player_action.name}`);
 
         console.log(`SOLVING TURNS ...`);
-        const turn_iter = this.__turn_sequence.next();
+        const turn_iter = this.__turn_sequence.next(next_player_action);
         console.assert(turn_iter.done == false); // We should never be able to end.
 
         this.last_turn_info = turn_iter.value;

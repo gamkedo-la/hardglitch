@@ -236,7 +236,6 @@ class World
     _items = {};     // Items that are in the space of the world, not in other elements (not owned by Bodies).
     _bodies = {};    // Bodies are always in the space of the world. They can be controlled by Actors.
     _rules = [];     // Rules that will be applied through this game.
-    _player_action = null; // TODO: try to find a better way to "pass" the player action to the turn solver.
     is_finished = false; // True if this world is in a finished state, in which case it should not be updated anymore. TODO: protect against manipulations
 
     constructor(width, height, floor_tiles, surface_tiles){
@@ -274,20 +273,6 @@ class World
         console.assert(rules instanceof Array);
         console.assert(rules.every(rule => rule instanceof Rule));
         this._rules = rules;
-    }
-
-    // Returns the action decided by the player and unreference it.
-    acquire_player_action() {
-        const action = this._player_action;
-        this._player_action = null;
-        return action;
-    }
-
-    // Set the next action for player's turn. Called when the player decided the action, set it and then run the turn solver.
-    set_next_player_action(action){
-        console.assert(action instanceof Action);
-        // TODO: add some checks?
-        this._player_action = action;
     }
 
     // Returns a set of possible actions according to the current rules, for the specified body.
