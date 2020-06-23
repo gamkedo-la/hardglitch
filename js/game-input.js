@@ -7,6 +7,7 @@ export {
     mouse_game_position,
     mouse_grid_position,
     mouse_is_pointing_walkable_position,
+    play_action,
 }
 
 import * as input from "./system/input.js";
@@ -14,6 +15,7 @@ import * as graphics from "./system/graphics.js";
 import * as editor from "./editor.js";
 import { current_game, current_game_view } from "./main.js";
 import { Vector2_unit_x, Vector2_unit_y, Vector2 } from "./system/spatial.js";
+import * as concepts from "./core/concepts.js";
 
 // TODO: add the system that changes the mouse icons here
 
@@ -133,6 +135,14 @@ function update_camera_control(delta_time){
     }
 }
 
+function play_action(player_action){
+    console.assert(player_action instanceof concepts.Action);
+    console.assert(Object.values(current_game.last_turn_info.possible_actions).includes(player_action)); // The action MUST come from the possible actions.
+
+    current_game.update_until_player_turn(player_action);
+    current_game_view.interpret_turn_events(); // Starts showing each event one by one until it's player's turn.
+}
+
 function update(delta_time){
     input.update(delta_time);
 
@@ -149,8 +159,7 @@ function update(delta_time){
 
             if(player_action) // Player just selected an action
             {
-                current_game.update_until_player_turn(player_action);
-                current_game_view.interpret_turn_events(); // Starts showing each event one by one until it's player's turn.
+                play_action(player_action);
             }
         }
     }

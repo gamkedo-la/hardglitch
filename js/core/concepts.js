@@ -39,7 +39,7 @@ function new_actor_id(){
 class Action {
     constructor(id, name, target_position, description = "MISSING ACTION DESCRIPTION"){
         console.assert(typeof id === 'string');
-        console.assert(target_position instanceof Position);
+        console.assert(target_position === undefined || target_position instanceof Position);
         console.assert(typeof name === 'string');
         console.assert(typeof description === 'string');
         this.id = id;                       // Used internally to identify this Action in some special code (for example to identify special moves to bind to keyboard keys)

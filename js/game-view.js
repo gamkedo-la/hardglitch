@@ -99,11 +99,12 @@ class GameView {
             }
         }
 
-        this.highlight_available_actions();
+        this.highlight_available_basic_actions();
+        this.ui.show_action_buttons(Object.values(this.game.last_turn_info.possible_actions));
     }
 
     // Setup highlights for actions that are known with a target position.
-    highlight_available_actions(){
+    highlight_available_basic_actions(){
         this.player_actions_highlights = [];
         const add_highlight = (position, sprite)=>{
             this.player_actions_highlights.push(new Highlight(position, sprite));
@@ -183,6 +184,7 @@ class GameView {
             if(this.current_animations.length == 0 && this.animation_queue.length == 0){
                 this.is_time_for_player_to_chose_action = true;
                 this._change_character_focus(this.game.last_turn_info.player_body.position);
+                this.ui.unlock_actions();
                 editor.set_text("PLAYER'S TURN!");
             }
         }
@@ -259,7 +261,8 @@ class GameView {
 
         this._reset_tilegrid(world);
         this._reset_characters(world);
-        this.highlight_available_actions();
+        this.highlight_available_basic_actions();
+        this.ui.show_action_buttons(Object.values(this.game.last_turn_info.possible_actions));
 
         this._requires_reset = false;
     }

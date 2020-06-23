@@ -31,7 +31,7 @@ class Waited extends concepts.Event {
 // Action: Wait. Do Nothing. Almost like sleep but not quite.
 class Wait extends concepts.Action {
     constructor(){
-        super("wait", "Wait", new concepts.Position());
+        super("wait", "Wait");
     }
 
     execute(world, body) {
