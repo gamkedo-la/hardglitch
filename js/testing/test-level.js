@@ -89,16 +89,21 @@ function make_test_world(){ // The game assets must have been initialized first.
             set_surface_tile(exit_pos, tiles.ID.EXIT);
     }
 
-
     const world = new concepts.World( test_world_size.width, test_world_size.height, floor_tile_grid, surface_tile_grid );
     console.assert(world._surface_tile_grid.matching_positions(tileid=> tileid == tiles.ID.ENTRY).length > 0);
 
     world.set_rules(...default_rules);
 
-    for(let i = 0; i < 20; ++i){
+    let ennemy_count = 20;
+    while(ennemy_count > 0){
+        const position = random_position();
+        if(position.equals(entry_point_position)) // Don't place enemies on the entry point!
+            continue;
+
         const enemy = new RandomActionEnemy();
-        enemy.position = random_position();
+        enemy.position = position;
         world.add(enemy);
+        --ennemy_count;
     }
 
     return world;
