@@ -4,16 +4,20 @@
 // We interpret events to animate the view of the world.
 // The code here is just the skeleton to build over the actual representation.
 
-export { GameView, CharacterView as BodyView, graphic_position };
+export { GameView, CharacterView, graphic_position };
 
 import * as graphics from "./system/graphics.js";
 
 import { Game } from "./game.js";
 import { Vector2 } from "./system/spatial.js";
 
+import * as concepts from "./core/concepts.js";
 import * as editor from "./editor.js";
 
-import { graphic_position, PIXELS_PER_TILES_SIDE, square_half_unit_vector } from "./view/common-view.js";
+import {
+    graphic_position, PIXELS_PER_TILES_SIDE, square_half_unit_vector,
+    EntityView,
+} from "./view/common-view.js";
 import { TileGridView } from "./view/tilegrid-view.js";
 import { CharacterView } from "./view/character-view.js";
 import { GameInterface } from "./game-ui.js";
@@ -21,7 +25,7 @@ import { mouse_grid_position, mouse_is_pointing_walkable_position } from "./game
 import { sprite_defs } from "./game-assets.js";
 import { mouse } from "./system/input.js";
 import { Move } from "./rules/rules-movement.js";
-import { Position } from "./core/concepts.js";
+import { ItemView } from "./view/item-view.js";
 
 class Highlight{
     // Reuse a sprite for highlighting.
@@ -45,7 +49,8 @@ class Highlight{
 };
 
 class GameView {
-    body_views = {};
+    character_views = {};
+    item_views = {};
     is_time_for_player_to_chose_action = true;
     animation_queue = []; // Must contain only js generators + parallel: (true||false). // TODO: make the animation system separately to be used anywhere there are animations to play.
     current_animations = []; // Must be a set of js generators, each one an animation that can be played together.
@@ -86,14 +91,14 @@ class GameView {
                 });
 
             } else { // If it's not a World event, it's a character-related event.
-                const body_view = this.body_views[event.body_id];
+                const character_view = this.character_views[event.body_id];
                 // TODO: handle the case where a new one appeared
-                if(body_view){
+                if(character_view){
                     // Add the animation to do to represent the event, for the player to see, if any.
                     this.animation_queue.push({
-                        animation: body_view.animate_event(event),
+                        animation: character_view.animate_event(event),
                         parallel: event.allow_parallel_animation,
-                        focus_position: new Position(body_view.game_position),
+                        focus_position: new concepts.Position(character_view.game_position),
                     });
                 }
             }
@@ -135,7 +140,8 @@ class GameView {
         this.tile_grid.update(delta_time);
 
         this._update_animations(delta_time);
-        this._update_characters(delta_time);
+        this._update_entities(delta_time, this.item_views);
+        this._update_entities(delta_time, this.character_views);
 
         this.ui.update(delta_time);
     }
@@ -190,13 +196,24 @@ class GameView {
         }
     }
 
-    _update_characters(delta_time){
-        // Update all body-views.
-        for(const body_view of Object.values(this.body_views)){
-            body_view.update(delta_time);
+    _update_entities(delta_time, entity_id_map){
+        const entities = Object.values(entity_id_map);
+        console.assert(Number.isInteger(delta_time));
+        console.assert(entities instanceof Array);
+        for(const entity_view of entities){
+            console.assert(entity_view instanceof EntityView);
+            entity_view.update(delta_time);
         };
     }
 
+    _render_entities(entity_id_map){
+        const entities = Object.values(entity_id_map);
+        console.assert(entities instanceof Array);
+        for(const entity_view of entities){
+            console.assert(entity_view instanceof EntityView);
+            entity_view.render_graphics();
+        };
+    }
 
     _update_highlights(delat_time){
         const mouse_pos = mouse_grid_position();
@@ -218,10 +235,8 @@ class GameView {
 
         this._render_highlights();
 
-        for(const body_view of Object.values(this.body_views)){
-            body_view.render_graphics();
-        };
-
+        this._render_entities(this.character_views);
+        this._render_entities(this.item_views);
 
         this.tile_grid.draw_surface();
 
@@ -260,7 +275,8 @@ class GameView {
         console.assert(world);
 
         this._reset_tilegrid(world);
-        this._reset_characters(world);
+        this.item_views = this._create_entity_views(this.game.world.items, ItemView);
+        this.character_views = this._create_entity_views(this.game.world.bodies, CharacterView);
         this.highlight_available_basic_actions();
         this.ui.show_action_buttons(Object.values(this.game.last_turn_info.possible_actions));
 
@@ -276,25 +292,22 @@ class GameView {
         this.tile_grid.update(0);
     }
 
-    _reset_characters(world){
-        this.body_views = {};
-        this.game.world.bodies.forEach(body => {
-            const body_view = new CharacterView(body.position, body.assets);
-            this.body_views[body.body_id] = body_view;
-            body_view.update(0);
+    _create_entity_views(entities, view_type){
+        console.assert(entities instanceof Array);
+        console.assert(EntityView.isPrototypeOf(view_type));
+        const entity_views = {};
+        entities.forEach(entity => {
+            console.assert(entity instanceof concepts.Entity);
+            const entity_view = new view_type(entity);
+            entity_views[entity.id] = entity_view;
+            entity_view.update(0);
         });
+        return entity_views;
     }
-
 
     // Called by the editor code when editing the game in a way the require re-interpreting the game's state.
     notify_edition(){
         this._requires_reset = true;
-    }
-
-    remove_view(...body_ids){
-        for(const body_id of body_ids){
-            delete this.body_views[body_id];
-        }
     }
 
     // Returns the position on the grid of a graphic position in the game space (not taking into account the camera scrolling).
