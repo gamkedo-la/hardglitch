@@ -110,10 +110,14 @@ function make_test_world(){ // The game assets must have been initialized first.
 
     world.set_rules(...default_rules);
 
+    function can_insert_something_there(position){
+        return !position.equals(entry_point_position) && world.is_blocked_position(position, tiles.is_walkable);
+    }
+
     let ennemy_count = 20;
     while(ennemy_count > 0){
         const position = random_position();
-        if(position.equals(entry_point_position)) // Don't place enemies on the entry point!
+        if(can_insert_something_there(entry_point_position))
             continue;
 
         const enemy = new RandomActionEnemy();
@@ -125,7 +129,7 @@ function make_test_world(){ // The game assets must have been initialized first.
     let file_count = 4;
     while(file_count > 0){
         const position = random_position();
-        if(world.is_blocked_position(position, tiles.is_walkable))
+        if(can_insert_something_there(position))
             continue;
 
         const file = new CryptoFile();
@@ -137,7 +141,7 @@ function make_test_world(){ // The game assets must have been initialized first.
     let key_count = 4;
     while(key_count > 0){
         const position = random_position();
-        if(world.is_blocked_position(position, tiles.is_walkable))
+        if(can_insert_something_there(position))
             continue;
 
         const key = new CryptoKey();
