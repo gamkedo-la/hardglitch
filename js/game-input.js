@@ -114,6 +114,7 @@ function update_camera_control(delta_time){
     const drag_pos = input.mouse.dragging_positions;
     if(input.mouse.is_dragging
     && !current_game_view.ui.is_under(drag_pos.begin) // Don't drag the camera if we are manipulating UI
+    && !current_game_view.ui.is_selecting_action_target // Don't drag when the player clicked an action button and is selecting a target.
     && !editor.is_editing // Don't drag when we are editing the world with the editor
     ){
         // Map dragging
@@ -153,6 +154,7 @@ function update(delta_time){
         if(!input.mouse.is_dragging
         && current_game_view.is_time_for_player_to_chose_action
         && !current_game_view.ui.is_mouse_over
+        && !current_game_view.ui.is_selecting_action_target
         && !editor.is_enabled
         ){
             const player_action = select_player_action();

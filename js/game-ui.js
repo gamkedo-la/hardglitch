@@ -10,7 +10,9 @@ import * as graphics from "./system/graphics.js";
 import * as ui from "./system/ui.js";
 import { sprite_defs } from "./game-assets.js";
 import * as concepts from "./core/concepts.js";
-import { play_action } from "./game-input.js";
+import { play_action, mouse_game_position } from "./game-input.js";
+import { mouse, MOUSE_BUTTON } from "./system/input.js";
+import { set_text } from "./editor.js";
 
 // The interface used by the player when inside the game.
 // NOTE: it's a class instead of just globals because we need to initialize and destroy it
@@ -72,8 +74,13 @@ class GameInterface {
         return this.elements.some(element => element.is_mouse_over);
     }
 
+    get is_selecting_action_target(){
+        return this._selected_action !== undefined;
+    }
+
     update(delta_time){
         this.elements.map(element => element.update(delta_time));
+        this._handle_action_target_selection();
     }
 
     display() {
@@ -105,14 +112,18 @@ class GameInterface {
                 sprite_def: sprite_defs.test_button,
                 frames: { up: 0, down: 1, over: 2, disabled: 3 },
                 action: ()=>{
-                    console.log(`ACTION SELECTED: ${action_name}`);
+                    set_text(`ACTION SELECTED: ${action_name}`);
                     // TODO: highlight the possible targets
                     if(actions.length == 1){
                         const action = actions[0];
                         if(action.target === undefined) // No need for targets
-                        play_action(action);
+                            play_action(action); // Play the action immediately
+                    } else {
+                        // Need to select an highlited target!
+                        // TODO: setup the target highlights here.
+                        this._selected_action = { action_name, actions };
                     }
-                    this.lock_actions(); // temporary
+                    this.lock_actions(); // Can be unlocked by clicking somewhere there is no action target.
                 }
             });
             this._action_buttons.push(action_button);
@@ -125,6 +136,30 @@ class GameInterface {
 
     unlock_actions(){
         this._action_buttons.forEach(button => button.enabled = true);
+    }
+
+    _handle_action_target_selection(){
+        if(this.is_selecting_action_target && mouse.buttons.is_just_down(MOUSE_BUTTON.LEFT)){
+            const cancel_selection = ()=> this.unlock_actions();
+
+            if(!this.is_mouse_over){
+                const target_position = mouse_game_position();
+                if(target_position) {
+                    // TODO: push the action relative to that position
+                    const selected_action = this._selected_action.actions.find(action=>action.target_position.equals(target_position));
+                    if(selected_action){
+                        set_text(`ACTION TARGET SELECTED: ${JSON.stringify(target_position)}`);
+                        play_action(selected_action);
+                    } else {
+                        cancel_selection();
+                    }
+                }
+                else
+                    cancel_selection();
+
+                this._selected_action = undefined; // Whatever happened, we are not in target selection anymore.
+            } // do nothing if we clicked on the UI
+        }
     }
 
 };

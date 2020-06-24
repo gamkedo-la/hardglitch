@@ -21,12 +21,12 @@ let text_to_display = "READY";
 let central_text = null;
 
 function set_text(text){ // TODO: add a text display in the Canvas to display this
-    console.log(text); // TEMPORARY: just log for now.
+    console.log(text);
     text_to_display = text;
 }
 
 function set_central_text(text){ // TODO: add a text display in the Canvas to display this
-    console.log(text); // TEMPORARY: just log for now.
+    console.log(text);
     central_text = text;
 }
 
