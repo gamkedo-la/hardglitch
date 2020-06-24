@@ -36,6 +36,8 @@ const game_assets = { // Description of the assets to load.
         w2g_template : "./images/wallToGround.png",
         test_button : "./images/test_button.png",
         highlights : "./images/highlights.png",
+        crypto_file_dummy: "./images/filelockedcircle.png",
+        crypto_key_dummy: "./images/crypto-key circle.png",
     }
 };
 
@@ -110,6 +112,18 @@ const sprite_defs = {
         image: "tileset_entry_exit",
         frames: [
             { x:64, y:0, width:64, height:64 }
+         ]
+    },
+    crypto_file : {
+        image: "crypto_file_dummy",
+        frames: [
+            { x:0, y:0, width:64, height:64 }
+         ]
+    },
+    crypto_key : {
+        image: "crypto_key_dummy",
+        frames: [
+            { x:0, y:0, width:64, height:64 }
          ]
     },
     test_button: {

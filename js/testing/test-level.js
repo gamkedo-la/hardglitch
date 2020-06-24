@@ -8,9 +8,25 @@ import { RandomActionEnemy } from "../enemies/test-enemy.js";
 
 import * as tiles from "../definitions-tiles.js";
 import { world_grid, default_rules } from "../definitions-world.js";
+import { sprite_defs } from "../game-assets.js";
 
+class CryptoFile extends concepts.Item {
+    assets = {
+        graphics : {
+            sprite_def : sprite_defs.crypto_file,
+        }
+    };
 
+};
 
+class CryptoKey extends concepts.Item {
+    assets = {
+        graphics : {
+            sprite_def : sprite_defs.crypto_key,
+        }
+    };
+
+};
 
 
 function make_test_world(){ // The game assets must have been initialized first.
@@ -104,6 +120,30 @@ function make_test_world(){ // The game assets must have been initialized first.
         enemy.position = position;
         world.add(enemy);
         --ennemy_count;
+    }
+
+    let file_count = 4;
+    while(file_count > 0){
+        const position = random_position();
+        if(world.is_blocked_position(position, tiles.is_walkable))
+            continue;
+
+        const file = new CryptoFile();
+        file.position = position;
+        world.add(file);
+        --file_count;
+    }
+
+    let key_count = 4;
+    while(key_count > 0){
+        const position = random_position();
+        if(world.is_blocked_position(position, tiles.is_walkable))
+            continue;
+
+        const key = new CryptoKey();
+        key.position = position;
+        world.add(key);
+        --key_count;
     }
 
     return world;

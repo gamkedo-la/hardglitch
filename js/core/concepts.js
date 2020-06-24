@@ -18,6 +18,7 @@ export {
     Player,
     Rule,
     Entity,
+    Item,
     Body,
     Position,
     perform_action,
@@ -364,7 +365,7 @@ class World
     item_at(position){
         // TODO: optimize this if necessary
         for(const item of this.items){
-            if(items.position.equals(position))
+            if(item.position.equals(position))
                 return item;
         }
         return null;
