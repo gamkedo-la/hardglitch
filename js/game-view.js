@@ -56,17 +56,18 @@ class GameView {
     current_animations = []; // Must be a set of js generators, each one an animation that can be played together.
     player_actions_highlights = []; // Must contain Highlight objects for the currently playable actions.
 
-    ui = new GameInterface();
 
     constructor(game){
         console.assert(game instanceof Game);
         this.game = game;
         this._requires_reset = true;
 
+        this.ui = new GameInterface((...args)=>this.on_action_selection_begin(...args), (...args)=>this.on_action_selection_end(...args));
+
         this._highlight_sprites = {
             neutral: new graphics.Sprite(sprite_defs.highlight_blue),
             movement: new graphics.Sprite(sprite_defs.highlight_green),
-            action: new graphics.Sprite(sprite_defs.highlight_yellow),
+            action: new graphics.Sprite(sprite_defs.highlight_red),
             edit: new graphics.Sprite(sprite_defs.highlight_purple),
             turn: new graphics.Sprite(sprite_defs.highlight_purple),
         };
@@ -108,22 +109,42 @@ class GameView {
         this.ui.show_action_buttons(Object.values(this.game.last_turn_info.possible_actions));
     }
 
+    _add_highlight(position, sprite){
+        this.player_actions_highlights.push(new Highlight(position, sprite));
+    }
+
     // Setup highlights for actions that are known with a target position.
     highlight_available_basic_actions(){
-        this.player_actions_highlights = [];
-        const add_highlight = (position, sprite)=>{
-            this.player_actions_highlights.push(new Highlight(position, sprite));
-        };
+        this.player_actions_highlights = []; // Clear previous highlighting
 
         const available_actions = this.game.last_turn_info.possible_actions;
         for(const action of Object.values(available_actions)){
             if(action instanceof Move){
-                add_highlight(action.target_position, this._highlight_sprites.movement);
+                this._add_highlight(action.target_position, this._highlight_sprites.movement);
             }
         }
 
         if(this.game.last_turn_info.player_body)
             this._change_character_focus(this.game.last_turn_info.player_body.position);
+    }
+
+    highlight_selected_action_targets(action_info){
+        this.player_actions_highlights = []; // Clear previous highlighting
+
+        for(const action of action_info.actions){
+            if(action.target_position)
+                this._add_highlight(action.target_position, this._highlight_sprites.action);
+        }
+    }
+
+    on_action_selection_begin(action_info){
+        this.highlight_selected_action_targets(action_info);
+    }
+
+    on_action_selection_end(action){
+        if(!action){ // Action selection was cancelled.
+            this.highlight_available_basic_actions();
+        }
     }
 
     update(delta_time){

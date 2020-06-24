@@ -56,8 +56,12 @@ class GameInterface {
         }
     });
 
-    constructor(){
+    constructor(on_action_selection_begin, on_action_selection_end){
+        console.assert(on_action_selection_begin);
+        console.assert(on_action_selection_end);
         this._action_buttons = [];
+        this.on_action_selection_begin = on_action_selection_begin;
+        this.on_action_selection_end = on_action_selection_end;
     }
 
     get elements(){
@@ -120,8 +124,7 @@ class GameInterface {
                             play_action(action); // Play the action immediately
                     } else {
                         // Need to select an highlited target!
-                        // TODO: setup the target highlights here.
-                        this._selected_action = { action_name, actions };
+                        this._begin_target_selection(action_name, actions);
                     }
                     this.lock_actions(); // Can be unlocked by clicking somewhere there is no action target.
                 }
@@ -138,27 +141,39 @@ class GameInterface {
         this._action_buttons.forEach(button => button.enabled = true);
     }
 
+    get selected_action() { return this._selected_action; }
+
+    _begin_target_selection(action_name, actions){
+        this._selected_action = { action_name, actions };
+        this.on_action_selection_begin(this._selected_action);
+    }
+
+    _end_target_selection(action){
+        console.assert(!action || action instanceof concepts.Action);
+        this._selected_action = undefined;
+        this.on_action_selection_end(action);
+    }
+
     _handle_action_target_selection(){
         if(this.is_selecting_action_target && mouse.buttons.is_just_down(MOUSE_BUTTON.LEFT)){
-            const cancel_selection = ()=> this.unlock_actions();
-
-            if(!this.is_mouse_over){
+            if(!this.is_mouse_over){ // Ignore if we cliked on the UI.
                 const target_position = mouse_game_position();
                 if(target_position) {
                     // TODO: push the action relative to that position
-                    const selected_action = this._selected_action.actions.find(action=>action.target_position.equals(target_position));
-                    if(selected_action){
+                    const selected_action_with_target = this.selected_action.actions.find(action=>action.target_position.equals(target_position));
+                    if(selected_action_with_target){
+                        console.assert(selected_action_with_target instanceof concepts.Action);
                         set_text(`ACTION TARGET SELECTED: ${JSON.stringify(target_position)}`);
-                        play_action(selected_action);
-                    } else {
-                        cancel_selection();
+                        this._end_target_selection(selected_action_with_target);
+                        play_action(selected_action_with_target);
+                        return;
                     }
                 }
-                else
-                    cancel_selection();
 
-                this._selected_action = undefined; // Whatever happened, we are not in target selection anymore.
-            } // do nothing if we clicked on the UI
+                // Cancel selection.
+                this.unlock_actions();
+                this._end_target_selection();
+            }
         }
     }
 
