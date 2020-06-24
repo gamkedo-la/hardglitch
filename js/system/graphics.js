@@ -107,6 +107,7 @@ class Sprite {
   transform = new spatial.Transform();
   animation_time = 0.0;
   animation_keyframe_idx = 0;
+  origin = new spatial.Vector2(); // Point in the sprite that corresponds to the origin
 
   _frame_changed_since_update = false;
 
@@ -116,7 +117,7 @@ class Sprite {
   //    sprite_def = {
   //      image: some_image_object_used_as_spritesheet,
   //      frames: [ // Here we define 2 frames inside the image.
-  //                { x:0, y:0 , width:image.width / 2, height:image.height },
+  //                { x:0, y:0 , width:image.width / 2, height:image.height, origin: { x: 0, y: 64 } },
   //                { x:image.width / 2, y:0, width:image.width / 2, height:image.height },
   //              ],
   //      animations: { // One object per animation
@@ -146,8 +147,8 @@ class Sprite {
     }
   }
 
-  get position() { return this.transform.position; }
-  set position(new_position) { this.transform.position = new_position; }
+  get position() { return new spatial.Vector2(this.transform.position); }
+  set position(new_position) { this.transform.position = new spatial.Vector2(new_position); }
 
   get did_frame_change_since_last_update(){
     return this._frame_changed_since_update;
@@ -157,6 +158,11 @@ class Sprite {
     console.assert(is_number(frame_idx));
     console.assert(frame_idx >= 0 && frame_idx < this.frames.length);
     this._current_frame = this.frames[frame_idx];
+    if(this._current_frame.origin){
+      this.origin = new spatial.Vector2(this._current_frame.origin);
+    } else {
+      this.origin = new spatial.Vector2();
+    }
     this._frame_changed_since_update = true;
   }
 
@@ -189,7 +195,8 @@ class Sprite {
     if(this.source_image){
 
       canvas_context.save(); // TODO : this should be done by the caller? probably
-      canvas_context.translate(this.transform.position.x, this.transform.position.y);
+      const position = this.transform.position.translate(this.origin.inverse);
+      canvas_context.translate(position.x, position.y);
       canvas_context.rotate(this.transform.orientation.degrees); // TODO: check if t's radian or degrees
       if(this._current_frame)
       {
@@ -210,7 +217,7 @@ class Sprite {
       // We don't have an image so we draw a colored rectangle instead.
       // TODO: handle scaling and other deformations
       const empty_sprite_color = "#ff00ff";
-      draw_rectangle(new spatial.Rectangle( { position: this.position, size: size } ), empty_sprite_color);
+      draw_rectangle(new spatial.Rectangle( { position: this.position.translate(this.origin.inverse), size: size } ), empty_sprite_color);
     }
   }
 
