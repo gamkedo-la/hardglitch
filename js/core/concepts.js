@@ -1,6 +1,6 @@
 // This file describes the core concepts that exist in the game mechanics.
 // This is not a modelisation of these concept, just rules of how things
-// work in the game system. For example, we can say what an "element" is,
+// work in the game system. For example, we can say what an "entity" is,
 // what rules can be applied on it and what interface it should have to work
 // in our system.
 // Think about it this way: code here could be reused to make another similar
@@ -17,7 +17,7 @@ export {
     Actor,
     Player,
     Rule,
-    Element,
+    Entity,
     Body,
     Position,
     perform_action,
@@ -90,7 +90,7 @@ class Actor {
 
     // Decides what to do for this turn for a specific body, returns an Action or null if players must decide.
     // `possible_actions` is a map of { "action_id" : action_object } possibles.
-    // Therefore the Action element can be used directory (for example: `possible_actions.move.execute(...)`).
+    // Therefore the Action object can be used directly (for example: `possible_actions.move.execute(...)`).
     decide_next_action(body, possible_actions){
         throw "decide_next_action not implemented";
     }
@@ -163,9 +163,9 @@ class Position {
 
 
 
-// Elements are things that have a "physical" existence, that is it can be located in the space of the game (it have a position).
+// Entities are things that have a "physical" existence, that is it can be located in the space of the game (it have a position).
 // For example a body, a pen in a bag, a software in a computer in a bag.
-class Element {
+class Entity {
     _position = new Position();
     get position() { return this._position; }
     set position(new_pos){
@@ -173,19 +173,19 @@ class Element {
     }
 };
 
-// Items are elements that cannot ever move by themselves.
-// However, they can be owned by bodies and have a position in the world (like all elements).
+// Items are entities that cannot ever move by themselves.
+// However, they can be owned by bodies and have a position in the world (like all entities).
 // They provide Actions and modifiers for the body stats that equip them.
-class Item extends Element {
+class Item extends Entity {
     actions = [];
     // TODO: Action mechanisms here.
 };
 
 
 // Bodies are special entities that have "physical" existence and can perform action,
-// like elements, but they can move by themselves.
+// like entities, but they can move by themselves.
 // Each Body owns an Actor that will decide what Actions to do when it's the Body's turn.
-class Body extends Element {
+class Body extends Entity {
     body_id = new_body_id();
     actor = null; // Actor that controls this body. If null, this body cannot take decisions.
     items = []; // Items owned by this body. They don't appear in the World's list unless they are put back in the World (not owned anymore).
@@ -217,7 +217,7 @@ class Body extends Element {
     // Describe the possible positions relative to the current ones that could be reached in one step,
     // assuming there is no obstacles.
     // Should be overloaded by bodies that have limited sets of movements.
-    // Returns an element: { move_id: target_position, another_move_name: another_position }
+    // Returns an object: { move_id: target_position, another_move_name: another_position }
     allowed_moves(){ // By default: can go on the next square on north, south, east and west.
         return {
             move_east: this.position.east,
@@ -233,7 +233,7 @@ class Body extends Element {
 class World
 {
     // BEWARE: Avoid using these members directly, prefer using the functions below, if you can (sometime yuo can't).
-    _items = {};     // Items that are in the space of the world, not in other elements (not owned by Bodies).
+    _items = {};     // Items that are in the space of the world, not in other entities (not owned by Bodies).
     _bodies = {};    // Bodies are always in the space of the world. They can be controlled by Actors.
     _rules = [];     // Rules that will be applied through this game.
     is_finished = false; // True if this world is in a finished state, in which case it should not be updated anymore. TODO: protect against manipulations
@@ -250,15 +250,15 @@ class World
     get bodies() { return Object.values(this._bodies); }
     get items() { return Object.values(this._items); }
 
-    // Adds an element to the world (a Body or an Item), setup the necessary spatial information.
-    add(element){
-        console.assert(element instanceof Element);
-        console.assert(element.position);
-        if(element instanceof Body)
-            this._bodies[element.body_id] = element;
-        else if(element instanceof Item)
-            this._items[element.item_id] = element;
-        else throw "Tried to add to the World an unknown type of Element";
+    // Adds an entity to the world (a Body or an Item), setup the necessary spatial information.
+    add(entity){
+        console.assert(entity instanceof Entity);
+        console.assert(entity.position);
+        if(entity instanceof Body)
+            this._bodies[entity.body_id] = entity;
+        else if(entity instanceof Item)
+            this._items[entity.item_id] = entity;
+        else throw "Tried to add to the World an unknown type of Entity";
         // TODO: add the necessary info in the system that handles space partitionning
     }
 
@@ -307,7 +307,7 @@ class World
         return events;
     }
 
-    // Returns true if the position given is blocked by an element (Body or Item) or a tile that blocks (wall).
+    // Returns true if the position given is blocked by an entity (Body or Item) or a tile that blocks (wall).
     is_blocked_position(position, predicate_tile_is_walkable){
 
         if(position.x >= this.width || position.x < 0
