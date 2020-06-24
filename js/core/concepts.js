@@ -23,9 +23,9 @@ export {
     perform_action,
 };
 
-let next_body_id = 0;
-function new_body_id(){
-    return ++next_body_id;
+let next_entity_id = 0;
+function new_entity_id(){
+    return ++next_entity_id;
 }
 
 let next_actor_id = 0;
@@ -171,6 +171,12 @@ class Entity {
     set position(new_pos){
         this._position = new Position(new_pos);
     }
+
+    constructor(){
+        this._entity_id = new_entity_id();
+    }
+
+    get id() { return this._entity_id; }
 };
 
 // Items are entities that cannot ever move by themselves.
@@ -179,6 +185,8 @@ class Entity {
 class Item extends Entity {
     actions = [];
     // TODO: Action mechanisms here.
+
+    get item_id() { return this.id; }
 };
 
 
@@ -186,7 +194,6 @@ class Item extends Entity {
 // like entities, but they can move by themselves.
 // Each Body owns an Actor that will decide what Actions to do when it's the Body's turn.
 class Body extends Entity {
-    body_id = new_body_id();
     actor = null; // Actor that controls this body. If null, this body cannot take decisions.
     items = []; // Items owned by this body. They don't appear in the World's list unless they are put back in the World (not owned anymore).
 
@@ -198,6 +205,8 @@ class Body extends Entity {
     // TODO: replace the following functions implementations with action point system!
     // BEWARE, this is a hack to simulate being able to act once per turn.
     acted_this_turn = false;
+
+    get body_id() { return this.id; }
 
     // True if the control of this body is to the player, false otherwise.
     // Note that a non-player actor can also decide to let the player chose their action
