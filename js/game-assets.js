@@ -61,8 +61,8 @@ const sprite_defs = {
     player : {
         image: "player",
         frames: [
-                    { x: 0, y: 0, width: 64, height: 64 },
-                    { x: 64, y: 0, width: 64, height: 64 },
+                    { x: 0, y: 0, width: 64, height: 128, origin: { x: 0, y: 64 } },
+                    { x: 64, y: 0, width: 64, height: 128, origin: { x: 0, y: 64 } },
                 ],
         animations: {
             idle: {
