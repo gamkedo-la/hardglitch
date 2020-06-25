@@ -10,7 +10,7 @@ import * as graphics from "./system/graphics.js";
 import * as ui from "./system/ui.js";
 import { sprite_defs } from "./game-assets.js";
 import * as concepts from "./core/concepts.js";
-import { play_action, mouse_game_position } from "./game-input.js";
+import { play_action, mouse_grid_position } from "./game-input.js";
 import { mouse, MOUSE_BUTTON } from "./system/input.js";
 import { set_text } from "./editor.js";
 
@@ -118,10 +118,9 @@ class GameInterface {
                 action: ()=>{
                     set_text(`ACTION SELECTED: ${action_name}`);
                     // TODO: highlight the possible targets
-                    if(actions.length == 1){
-                        const action = actions[0];
-                        if(action.target === undefined) // No need for targets
-                            play_action(action); // Play the action immediately
+                    const first_action = actions[0];
+                    if(actions.length == 1 && first_action.target_position === undefined){ // No need for targets
+                        play_action(action); // Play the action immediately
                     } else {
                         // Need to select an highlited target!
                         this._begin_target_selection(action_name, actions);
@@ -157,7 +156,7 @@ class GameInterface {
     _handle_action_target_selection(){
         if(this.is_selecting_action_target && mouse.buttons.is_just_down(MOUSE_BUTTON.LEFT)){
             if(!this.is_mouse_over){ // Ignore if we cliked on the UI.
-                const target_position = mouse_game_position();
+                const target_position = mouse_grid_position();
                 if(target_position) {
                     // TODO: push the action relative to that position
                     const selected_action_with_target = this.selected_action.actions.find(action=>action.target_position.equals(target_position));
