@@ -9,6 +9,7 @@
 
 import { is_number } from "../system/utility.js";
 import { Grid } from "../system/grid.js";
+import { Vector2 } from "../system/spatial.js";
 
 export {
     World,
@@ -63,22 +64,22 @@ function perform_action(action, body, world){
     body.disable_further_actions(); // TEMPORARY/TODO: REPLACE THIS BY PROPER ACTION POINT SPENDING
 
     // Then execute the action:
-    return action.execute(action, body);
+    return action.execute(world, body);
 }
 
 // Represents the record of something that happened in the past.
 class Event{
     allow_parallel_animation = false; // Will be played in parallel with other parallel animations if true, will be animated alone otherwise.
 
-    constructor(body_id, options){
-        console.assert(Number.isInteger(body_id)); // 0 means it's a world event
-        this.body_id = body_id;
+    constructor(entity_id, options){
+        console.assert(Number.isInteger(entity_id)); // 0 means it's a world event
+        this.entity_id = entity_id;
         if(options && options.allow_parallel_animation)
             this.allow_parallel_animation = options.allow_parallel_animation;
     }
 
     // Animation to perform when viewing this event.
-    *animation(body_view){} // Do nothing by default
+    *animation(entity_view){} // Do nothing by default
 };
 
 
@@ -168,16 +169,16 @@ class Position {
 // For example a body, a pen in a bag, a software in a computer in a bag.
 class Entity {
     _position = new Position();
+    _entity_id = new_entity_id();
+
     get position() { return this._position; }
     set position(new_pos){
         this._position = new Position(new_pos);
     }
-
-    constructor(){
-        this._entity_id = new_entity_id();
+    get id() {
+        console.assert(this._entity_id);
+        return this._entity_id;
     }
-
-    get id() { return this._entity_id; }
 };
 
 // Items are entities that cannot ever move by themselves.
@@ -265,15 +266,15 @@ class World
         console.assert(entity instanceof Entity);
         console.assert(entity.position);
         if(entity instanceof Body)
-            this._bodies[entity.body_id] = entity;
+            this._bodies[entity.id] = entity;
         else if(entity instanceof Item)
-            this._items[entity.item_id] = entity;
+            this._items[entity.id] = entity;
         else throw "Tried to add to the World an unknown type of Entity";
         // TODO: add the necessary info in the system that handles space partitionning
     }
 
-    remove_body(...body_ids){
-        for(const body_id of body_ids){
+    remove_body(...ids){
+        for(const body_id of ids){
             delete this._bodies[body_id];
         }
     }
@@ -369,6 +370,14 @@ class World
                 return item;
         }
         return null;
+    }
+
+    entity_at(position){
+        const body = this.body_at(position);
+        if(body)
+            return body;
+        const item = this.item_at(position);
+        return item;
     }
 
     everything_at(position){

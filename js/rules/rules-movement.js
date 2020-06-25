@@ -11,11 +11,11 @@ import { CharacterView } from "../game-view.js";
 import { is_walkable } from "../definitions-tiles.js";
 
 class Moved extends concepts.Event {
-    constructor(body, from_pos, to_pos) {
-        console.assert(body instanceof concepts.Body);
+    constructor(entity, from_pos, to_pos) {
+        console.assert(entity instanceof concepts.Entity);
         console.assert(from_pos instanceof concepts.Position);
         console.assert(to_pos instanceof concepts.Position);
-        super(body.body_id, {
+        super(entity.id, {
             allow_parallel_animation: true,
         });
         this.from_pos = from_pos;

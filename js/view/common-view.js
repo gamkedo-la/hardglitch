@@ -8,6 +8,8 @@ export {
 
 import { Vector2 } from "../system/spatial.js";
 import * as graphics from "../system/graphics.js";
+import * as concepts from "../core/concepts.js";
+import { tween } from "../system/tweening.js";
 
 const PIXELS_PER_TILES_SIDE = 64;
 const PIXELS_PER_HALF_SIDE = 32;
@@ -62,6 +64,18 @@ class EntityView {
         this.is_performing_animation = true;
         yield* event.animation(this); // Let the event describe how to do it!
         this.is_performing_animation = false;
+    }
+
+
+    *move_animation(target_game_position){
+        console.assert(target_game_position instanceof concepts.Position);
+
+        const move_duration = 200;
+        const target_gfx_pos = graphic_position(target_game_position);
+
+        yield* tween(this.position, {x:target_gfx_pos.x, y:target_gfx_pos.y}, move_duration,
+            (updated_position)=>{ this.position = updated_position; });
+        this.game_position = target_game_position;
     }
 
 };

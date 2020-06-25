@@ -18,16 +18,6 @@ class CharacterView extends EntityView {
         super(body.position, body.assets);
     }
 
-    *move_animation(target_game_position){
-        console.assert(target_game_position instanceof concepts.Position);
-
-        const move_duration = 200;
-        const target_gfx_pos = graphic_position(target_game_position);
-
-        yield* tween(this.position, {x:target_gfx_pos.x, y:target_gfx_pos.y}, move_duration,
-            (updated_position)=>{ this.position = updated_position; });
-        this.game_position = target_game_position;
-    }
 
 };
 

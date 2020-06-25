@@ -84,22 +84,24 @@ class GameView {
 
         const events = this.game.last_turn_info.events; // turns.PlayerTurn
         for(const event of events){
-            if(event.body_id == 0){ // 0 means it's a World event.
+            if(event.entity_id === 0){ // 0 means it's a World event.
                 // Launch the event's animation, if any.
                 this.animation_queue.push({
                     animation:event.animation(),
                     parallel: event.allow_parallel_animation,
                 });
 
-            } else { // If it's not a World event, it's a character-related event.
-                const character_view = this.character_views[event.body_id];
+            } else { // If it's not a World event, it's a entity-related event.
+                console.assert(event.entity_id);
+                const entity_view = this._find_entity_view(event.entity_id);
                 // TODO: handle the case where a new one appeared
-                if(character_view){
+                if(entity_view){
+                    console.assert(entity_view instanceof EntityView);
                     // Add the animation to do to represent the event, for the player to see, if any.
                     this.animation_queue.push({
-                        animation: character_view.animate_event(event),
+                        animation: entity_view.animate_event(event),
                         parallel: event.allow_parallel_animation,
-                        focus_position: new concepts.Position(character_view.game_position),
+                        focus_position: new concepts.Position(entity_view.game_position),
                     });
                 }
             }
@@ -107,6 +109,14 @@ class GameView {
 
         this.highlight_available_basic_actions();
         this.ui.show_action_buttons(Object.values(this.game.last_turn_info.possible_actions));
+    }
+
+    _find_entity_view(entity_id){
+        const view = this.character_views[entity_id];
+        if(view !== undefined){
+            return view;
+        }
+        return this.item_views[entity_id];
     }
 
     _add_highlight(position, sprite){
