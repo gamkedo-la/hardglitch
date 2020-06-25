@@ -58,7 +58,7 @@ class Game {
         }
         console.log(`Events Since Last Turn: `);
         for(const event of this.last_turn_info.events){
-            console.log(` - ${event.constructor.name} { character: ${event.entity_id} }`);
+            console.log(` - ${event.constructor.name} { entity: ${event.entity_id} }`);
         }
         console.log(`Possible Actions: `);
         for(const action_id in this.last_turn_info.possible_actions){
