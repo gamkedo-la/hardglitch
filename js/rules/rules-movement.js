@@ -32,6 +32,7 @@ class Move extends concepts.Action {
 
     constructor(move_name, new_position){
         super(move_name, `Move to ${JSON.stringify(new_position)} (${move_name})`, new_position);
+        this.is_basic = true;
     }
 
     execute(world, body) {

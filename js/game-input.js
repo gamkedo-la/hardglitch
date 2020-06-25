@@ -97,7 +97,7 @@ function select_player_action(){
         const clicked_position = mouse_grid_position();
         if(clicked_position) {
             for(const action of Object.values(possible_actions)){
-                if(action.target_position && action.target_position.equals(clicked_position))
+                if(action.is_basic && action.target_position && action.target_position.equals(clicked_position))
                     return action;
             }
         }

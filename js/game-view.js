@@ -67,6 +67,7 @@ class GameView {
         this._highlight_sprites = {
             neutral: new graphics.Sprite(sprite_defs.highlight_blue),
             movement: new graphics.Sprite(sprite_defs.highlight_green),
+            basic_action: new graphics.Sprite(sprite_defs.highlight_yellow),
             action: new graphics.Sprite(sprite_defs.highlight_red),
             edit: new graphics.Sprite(sprite_defs.highlight_purple),
             turn: new graphics.Sprite(sprite_defs.highlight_purple),
@@ -129,8 +130,11 @@ class GameView {
 
         const available_actions = this.game.last_turn_info.possible_actions;
         for(const action of Object.values(available_actions)){
-            if(action instanceof Move){
-                this._add_highlight(action.target_position, this._highlight_sprites.movement);
+            if(action.is_basic){
+                if(action instanceof Move)
+                    this._add_highlight(action.target_position, this._highlight_sprites.movement);
+                else
+                    this._add_highlight(action.target_position, this._highlight_sprites.basic_action);
             }
         }
 

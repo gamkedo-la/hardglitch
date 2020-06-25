@@ -48,6 +48,7 @@ class Action {
         this.target_position = target_position; // Position of the target of this action. Could refer to the acting character, another character, an item or a tile at that position.
         this.name = name,                   // Name that will be displayed to the player.
         this.description = description;     // Description that will be displayed to the player.
+        this.is_basic = false;              // Basic actions are visible directly in the game.
     }
 
     // Apply the action, transform the world.
