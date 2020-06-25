@@ -7,11 +7,14 @@ export {
 }
 
 import * as concepts from "../core/concepts.js";
-import { BodyView, graphic_position } from "../game-view.js";
+import { CharacterView } from "../game-view.js";
 import { is_walkable } from "../definitions-tiles.js";
 
 class Moved extends concepts.Event {
     constructor(body, from_pos, to_pos) {
+        console.assert(body instanceof concepts.Body);
+        console.assert(from_pos instanceof concepts.Position);
+        console.assert(to_pos instanceof concepts.Position);
         super(body.body_id, {
             allow_parallel_animation: true,
         });
@@ -28,18 +31,14 @@ class Moved extends concepts.Event {
 class Move extends concepts.Action {
 
     constructor(move_name, new_position){
-        console.assert(new_position);
-        super(move_name, `Move to ${JSON.stringify(new_position)} (${move_name})`);
-        this.new_position = new_position;
+        super(move_name, `Move to ${JSON.stringify(new_position)} (${move_name})`, new_position);
     }
-
-    get target_position(){ return this.new_position; }
 
     execute(world, body) {
         console.assert(body instanceof concepts.Body);
         const initial_pos = body.position;
-        body.position = this.new_position;
-        return [ new Moved(body, initial_pos, this.new_position) ];
+        body.position = this.target_position;
+        return [ new Moved(body, initial_pos, this.target_position) ];
     }
 };
 
@@ -71,8 +70,8 @@ class Rule_Movements extends concepts.Rule {
 };
 
 
-function* animation_move_event(body_view, new_position){
-    console.assert(body_view instanceof BodyView);
+function* animation_move_event(character_view, new_position){
+    console.assert(character_view instanceof CharacterView);
     console.assert(new_position instanceof concepts.Position);
-    yield* body_view.move_animation(new_position);
+    yield* character_view.move_animation(new_position);
 }

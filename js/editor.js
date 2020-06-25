@@ -21,12 +21,12 @@ let text_to_display = "READY";
 let central_text = null;
 
 function set_text(text){ // TODO: add a text display in the Canvas to display this
-    console.log(text); // TEMPORARY: just log for now.
+    console.log(text);
     text_to_display = text;
 }
 
 function set_central_text(text){ // TODO: add a text display in the Canvas to display this
-    console.log(text); // TEMPORARY: just log for now.
+    console.log(text);
     central_text = text;
 }
 
@@ -81,27 +81,48 @@ function update_world_edition(){
         return;
 
     const mouse_grid_pos = mouse_grid_position();
+    if(!mouse_grid_pos)
+        return;
 
-    if(input.mouse.buttons.is_down(input.MOUSE_BUTTON.LEFT)){
+    function change_pointed_tile_if_key_down(key_code, tile_id){
+        if(input.keyboard.is_down(key_code)
+        && current_game.world._floor_tile_grid.get_at(mouse_grid_pos) != tile_id){
+            current_game.world._floor_tile_grid.set_at(tile_id, mouse_grid_pos);
+            return true;
+        }
+        return false;
+    };
 
-        function change_pointed_tile_if_key_down(key_code, tile_id){
-            if(input.keyboard.is_down(key_code)
-            && current_game.world._floor_tile_grid.get_at(mouse_grid_pos) != tile_id){
-                current_game.world._floor_tile_grid.set_at(tile_id, mouse_grid_pos);
+    function add_player_character_if_ctrl_keys(key_code){
+        const key_pattern = [
+            { key_code: KEY.LEFT_CTRL, states: [input.KEY_STATE.DOWN, input.KEY_STATE.HOLD] },
+            { key_code: key_code, states: [input.KEY_STATE.DOWN] },
+        ];
+
+        if(input.keyboard.keys_matches_pattern(...key_pattern)){
+            if(current_game.is_walkable(mouse_grid_pos)){
+                current_game.add_player_character(mouse_grid_pos);
                 return true;
             }
-            return false;
-        };
-
-        let tiles_changed = false;
-        tiles_changed = tiles_changed || change_pointed_tile_if_key_down(KEY.NUMBER_0, undefined);
-        tiles_changed = tiles_changed || change_pointed_tile_if_key_down(KEY.NUMBER_1, tiles.ID.GROUND);
-        tiles_changed = tiles_changed || change_pointed_tile_if_key_down(KEY.NUMBER_2, tiles.ID.WALL);
-        tiles_changed = tiles_changed || change_pointed_tile_if_key_down(KEY.NUMBER_3, tiles.ID.VOID);
-        if(tiles_changed)
-            current_game_view.notify_edition();
+        }
+        return false;
     }
 
+    let world_was_edited = false;
+
+    // EDIT TILES
+    if(input.mouse.buttons.is_down(input.MOUSE_BUTTON.LEFT)){
+        world_was_edited = world_was_edited || change_pointed_tile_if_key_down(KEY.NUMBER_0, undefined);
+        world_was_edited = world_was_edited || change_pointed_tile_if_key_down(KEY.NUMBER_1, tiles.ID.GROUND);
+        world_was_edited = world_was_edited || change_pointed_tile_if_key_down(KEY.NUMBER_2, tiles.ID.WALL);
+        world_was_edited = world_was_edited || change_pointed_tile_if_key_down(KEY.NUMBER_3, tiles.ID.VOID);
+    }
+
+    // EDIT CHARACTERS
+    world_was_edited = world_was_edited || add_player_character_if_ctrl_keys(KEY.C);
+
+    if(world_was_edited)
+        current_game_view.notify_edition();
 }
 
 const help_text_x_from_right_side = 500;
@@ -119,7 +140,6 @@ function display_help(){
     graphics.draw_text("[F9]  - MOUSE INFO", {x: display_x, y: next_line() });
     graphics.draw_text("-----------------------", {x: display_x, y: next_line() });
     graphics.draw_text("[M] - SHOW/HIDE GRID LINES", {x: display_x, y: next_line() });
-    graphics.draw_text("[P] - REMOVE ALL PLAYER CHARACTERS", {x: display_x, y: next_line() });
     graphics.draw_text("-----------------------", {x: display_x, y: next_line() });
     graphics.draw_text("[Arrow keys] - Move player character", {x: display_x, y: next_line() });
     graphics.draw_text("[WASD] - Move Camera", {x: display_x, y: next_line() });
@@ -142,7 +162,7 @@ function display_editor_help(){
     graphics.draw_text("[F9]  - MOUSE INFO", {x: display_x, y: next_line() });
     graphics.draw_text("-----------------------", {x: display_x, y: next_line() });
     graphics.draw_text("[M] - SHOW/HIDE GRID LINES", {x: display_x, y: next_line() });
-    graphics.draw_text("[P] - REMOVE ALL PLAYER CHARACTERS", {x: display_x, y: next_line() });
+    graphics.draw_text("[LCTRL][C] - ADD PLAYER CHARACTER", {x: display_x, y: next_line() });
     graphics.draw_text("-----------------------", {x: display_x, y: next_line() });
     graphics.draw_text("[WASD] - Move Camera", {x: display_x, y: next_line() });
     graphics.draw_text("-----------------------", {x: display_x, y: next_line() });

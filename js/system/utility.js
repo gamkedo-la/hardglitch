@@ -1,6 +1,7 @@
 export {
     rotate_array,
     random_sample,
+    random_float,
     random_int,
     is_number,
     index_from_position,
@@ -9,6 +10,7 @@ export {
     remove_all_array_items,
     duration,
     is_valid_duration,
+    group_per_type,
 }
 
 
@@ -29,6 +31,11 @@ function random_sample(array){
     if(array.length == 0)
         return null;
     return array[ Math.floor( Math.random() * array.length ) ];
+}
+
+// pick a float between min/max
+function random_float(min, max) {
+    return Math.random() * (max-min) + min;
 }
 
 // Get a random integer between [min, max] (both inclusive)
@@ -95,3 +102,18 @@ function is_valid_duration(value){
     return is_number(value)
         && value > 0;
 }
+
+// Returns an object which members corresponds to each type of the list of objects provided, each value being objects of that type.
+function group_per_type(objects){
+    const typed_groups = {};
+    for(const object of objects){
+        const type_name = typeof(object) == "object" ? object.constructor.name : typeof(object);
+        if(typed_groups[type_name] === undefined){
+            typed_groups[type_name] = [];
+        }
+        typed_groups[type_name].push(object);
+    }
+    return typed_groups;
+}
+
+

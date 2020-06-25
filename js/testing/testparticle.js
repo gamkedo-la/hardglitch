@@ -1,115 +1,7 @@
+import { Color, ParticleSystem, ParticleEmitter, FadeLineParticle, FadeParticle, BlipParticle, ParticleGroup } from "../system/particles.js";
+import { random_float } from "../system/utility.js";
 
-class Color {
-    constructor(r, g, b, a=1) {
-        this.r = r;
-        this.g = g;
-        this.b = b;
-        this.a = a;
-    }
-
-    toString() {
-        return("rgba(" + this.r + "," + this.g + "," + this.b + "," + this.a + ")");
-    }
-}
-
-class ParticleEmitter {
-    constructor(psys, genFcn, ticks) {
-        this.psys = psys;
-        this.genFcn = genFcn;
-        this.ticks = ticks;
-        this.currentTick = 0;
-    }
-
-    update() {
-        this.currentTick++;
-        if (this.currentTick >= this.ticks) {
-            this.currentTick = 0;
-            let p = this.genFcn();
-            this.psys.add(p);
-        }
-    }
-}
-
-class ParticleSystem {
-    constructor() {
-        this.particles = [];
-    }
-
-    add(p) {
-        this.particles.push(p);
-    }
-
-    remove(p) {
-        let idx = this.particles.indexOf(p);
-        if (idx >= 0) {
-            this.particles.splice(idx, 1);
-        }
-    }
-
-    update() {
-        for (let i=this.particles.length-1; i>=0; i--) {
-            // update each particle
-            this.particles[i].update();
-            // if any particles are done, remove them
-            if (this.particles[i].done) {
-                this.particles.splice(i, 1);
-            }
-        }
-    }
-}
-
-class Particle {
-    constructor(ctx, x, y) {
-        this.ctx = ctx;
-        this.x = x;
-        this.y = y;
-        this._done = false;
-    }
-
-    get done() {
-        return this._done;
-    }
-
-}
-
-class FadeParticle extends Particle {
-    constructor(ctx, x, y, dirX, dirY, size, color, ticks) {
-        super(ctx, x, y);
-        this.dirX = dirX;
-        this.dirY = dirY;
-        this.size = size;
-        this.color = color;
-        // ctx.strokeStyle = 'rgba(r,g,b,a)';
-        this.ticks = ticks;
-        this.fadePerTick = 1/ticks;
-        this.fade = 1;
-    }
-
-    draw() {
-        this.ctx.beginPath();
-        this.ctx.arc(this.x, this.y, this.size, 0, Math.PI*2, false);
-        this.ctx.fillStyle = this.color.toString();
-        //this.ctx.fillStyle = "#8c5523";
-        //this.ctx.fillStyle = 'rgba(255,0,0,1)';
-        this.ctx.fill();
-    }
-
-    update() {
-        if (this.done) return;
-        // update position
-        this.x += this.dirX;
-        this.y += this.dirY;
-        // fade
-        this.fade -= this.fadePerTick;
-        this.color.a = this.fade;
-        if (this.fade <= 0) {
-            this._done = true;
-        }
-        // draw
-        this.draw();
-    }
-
-}
+let last_update_time = Date.now();
 
 class Env {
     constructor() {
@@ -119,33 +11,49 @@ class Env {
         this.INTERVAL = 1000 / this.FPS; // milliseconds
         this.STEP = this.INTERVAL / 1000 // second
         // setup environment
-        this.ps = new ParticleSystem();
+        this.particles = new ParticleSystem();
         let ctx = this.ctx;
 
-        this.pe = new ParticleEmitter(this.ps, () => {
-            let o = (Math.random() * 10) - 5;
-            let v = (Math.random() * -2);
-            let s = (Math.random() * 4);
-            let t = (Math.random() * 40);
-            return new FadeParticle(ctx, 100+o, 100, 0, -1+v, 1+s, new Color(0,255,255), 10+t);
-        }, 10);
+        let g = new ParticleGroup();
+        this.particles.add(g);
 
-        this.pe2 = new ParticleEmitter(this.ps, () => {
-            let o = (Math.random() * 10) - 5;
-            let v = (Math.random() * -2);
-            let s = (Math.random() * 4);
-            let t = (Math.random() * 40);
-            return new FadeParticle(ctx, 100+o, 100, 0, -1+v, 1+s, new Color(255,255,0), 10+t);
-        }, 10);
+        this.particles.add(new ParticleEmitter(this.particles, () => {
+            let xoff = random_float(-15,15);
+            let yoff = random_float(-15,15);
+            let velocity = random_float(30,60);
+            let ttl = random_float(.3, 1.5);
+            return new BlipParticle(ctx, 100+xoff, 300+yoff, g, 0, -velocity, ttl, 10);
+        }, .2, 25));
 
-        //this.ps.add(p);
+        this.particles.add(new ParticleEmitter(this.particles, () => {
+            let xoff = random_float(-15,15);
+            let yoff = random_float(-15,15);
+            let velocity = random_float(30,90);
+            let size = random_float(1,4);
+            let ttl = random_float(.3,1.6);
+            return new FadeParticle(ctx, 200+xoff, 300+yoff, 0, -velocity, size, new Color(0,255,255), ttl);
+        }, .2, 25));
+
+        this.particles.add(new ParticleEmitter(this.particles, () => {
+            let xoff = random_float(-15,15);
+            let yoff = random_float(-15,15);
+            let velocity = random_float(30,90);
+            let ttl = random_float(.3,1);
+            let len = random_float(10,50);
+            let width = random_float(1,5);
+            return new FadeLineParticle(ctx, 300+xoff, 300+yoff, 0, -velocity, new Color(0,255,0), ttl, len, width, 0, 1);
+        }, .3, 25));
+
     }
 
     loop() {
+        const now = Date.now();
+        const delta_time = now - last_update_time;
+        last_update_time = now;
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.ps.update();
-        this.pe.update();
-        this.pe2.update();
+        // run particle system update
+        this.particles.update(delta_time);
+        this.particles.draw();
     }
 
     setup() {

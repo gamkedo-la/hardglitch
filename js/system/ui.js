@@ -8,7 +8,7 @@ export {
 };
 
 import { Vector2, Rectangle, is_intersection } from "./spatial.js";
-import { Sprite, draw_rectangle } from "./graphics.js";
+import { Sprite, draw_rectangle, canvas_rect } from "./graphics.js";
 import { mouse, MOUSE_BUTTON } from "./input.js";
 import { is_number } from "./utility.js";
 
@@ -17,7 +17,8 @@ class UIElement {
 
     // UI Element definition:
     // {
-    //   position: { x: 0, y: 0 } // Equivalent to Vector2
+    //   parent: null, // Canvas if null
+    //   position: { x: 0, y: 0 } // Position relative to the parent
     //   width: 20,
     //   height: 20,
     //   visible: true, // Is it visible from the beginning? Visibility imply being able to interrect. True by default.
@@ -32,6 +33,8 @@ class UIElement {
             position: def.position, width: def.width, height: def.height,
         });
     }
+
+    get parent_area(){ return this.parent ? this.parent.area : canvas_rect(); }
 
     get visible() { return this._visible; }
     set visible(new_visible){
@@ -63,6 +66,7 @@ class UIElement {
 
     get width() { return this._area.width; }
     get height() { return this._area.height; }
+    get area () { return new Rectangle(this._area); }
 
     is_under(position){
         console.assert(position.x != undefined && position.y != undefined );
@@ -104,6 +108,22 @@ class UIElement {
     _on_disabled(){  }
 
 };
+
+// Group of UI elements that must work together.
+// We assume that the members which inherits from UIElement are the elements of the group.
+class UIElementGroup extends UIElement {
+
+    get all_ui_elements() { return Object.values(this).filter(element => element instanceof UIElement); }
+
+    _on_update(delta_time){
+        this.all_ui_elements.map(element => element.update(delta_time));
+    }
+
+    _on_draw(){
+        this.all_ui_elements.map(element => element.draw());
+    }
+};
+
 
 const ButtonState = {
     UP: 0, DOWN: 1
@@ -236,5 +256,16 @@ class Label extends UIElement {
 
 };
 
+class Pannel extends UIElement {
 
+    constructor(panel_def){
+
+    }
+}
+
+// Window with a background, can contain
+class Window extends UIElement {
+    background = new Pannel();
+
+};
 

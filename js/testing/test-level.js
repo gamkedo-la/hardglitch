@@ -8,9 +8,25 @@ import { RandomActionEnemy } from "../enemies/test-enemy.js";
 
 import * as tiles from "../definitions-tiles.js";
 import { world_grid, default_rules } from "../definitions-world.js";
+import { sprite_defs } from "../game-assets.js";
 
+class CryptoFile extends concepts.Item {
+    assets = {
+        graphics : {
+            sprite_def : sprite_defs.crypto_file,
+        }
+    };
 
+};
 
+class CryptoKey extends concepts.Item {
+    assets = {
+        graphics : {
+            sprite_def : sprite_defs.crypto_key,
+        }
+    };
+
+};
 
 
 function make_test_world(){ // The game assets must have been initialized first.
@@ -26,18 +42,26 @@ function make_test_world(){ // The game assets must have been initialized first.
 
     function set_floor_tile(position, tile_id){
         floor_tile_grid[index(position)] = tile_id;
+        return position;
     };
 
     function set_surface_tile(position, tile_id){
         surface_tile_grid[index(position)] = tile_id;
+        return position;
     };
 
     function floor_tile_id(position){
         return floor_tile_grid[index(position)];
     }
 
+    function surface_tile_id(position){
+        return surface_tile_grid[index(position)];
+    }
+
     function is_walkable(position){
         const tile_id = floor_tile_id(position);
+        if(tile_id === undefined)
+            return false;
         return tiles.defs[tile_id].is_walkable;
     }
 
@@ -45,7 +69,7 @@ function make_test_world(){ // The game assets must have been initialized first.
         while(true){
             const position = { x:random_int(0, test_world_size.width - 1 ), y:random_int(0, test_world_size.height - 1 )};
             if(is_walkable(position))
-                return new concepts.Position(position.x, position.y);
+                return new concepts.Position(position);
         }
     }
 
@@ -68,36 +92,62 @@ function make_test_world(){ // The game assets must have been initialized first.
                 tileID = tiles.ID.GROUND;
             }
             // hole/ground/wall tiles get assigned to floor layer (wall gets assigned to both surface/floor)
-            set_floor_tile(new concepts.Position(i, j), tileID);
+            set_floor_tile(new concepts.Position({x:i, y:j}), tileID);
         }
     }
 
-    /*
-    for(let i = 0; i < grid_size / 0.8; ++ i){
-        set_floor_tile(random_position(), tiles.ID.GROUND);
-    }
-
-    for(let i = 0; i < grid_size / 5; ++ i){
-        set_surface_tile(random_position(), tiles.ID.WALL);
-    }
-    */
-
-    for(let i = 0; i < grid_size / 200; ++i){
-        set_surface_tile(random_position(), tiles.ID.ENTRY);
-    }
+    const entry_point_position = set_surface_tile(random_position(), tiles.ID.ENTRY);
+    console.assert(is_walkable(entry_point_position));
 
     for(let i = 0; i < grid_size / 500; ++i){
-        set_surface_tile(random_position(), tiles.ID.EXIT);
+        const exit_pos = random_position();
+        if(surface_tile_id(exit_pos) != tiles.ID.ENTRY) // Don't overwrite entries!
+            set_surface_tile(exit_pos, tiles.ID.EXIT);
     }
 
     const world = new concepts.World( test_world_size.width, test_world_size.height, floor_tile_grid, surface_tile_grid );
+    console.assert(world._surface_tile_grid.matching_positions(tileid=> tileid == tiles.ID.ENTRY).length > 0);
 
     world.set_rules(...default_rules);
 
-    for(let i = 0; i < 20; ++i){
+    function can_insert_something_there(position){
+        return !position.equals(entry_point_position) && world.is_blocked_position(position, tiles.is_walkable);
+    }
+
+    let ennemy_count = 20;
+    while(ennemy_count > 0){
+        const position = random_position();
+        if(can_insert_something_there(entry_point_position))
+            continue;
+
         const enemy = new RandomActionEnemy();
-        enemy.position = random_position();
+        enemy.position = position;
         world.add(enemy);
+        --ennemy_count;
+    }
+
+    let file_count = 4;
+    while(file_count > 0){
+        const position = random_position();
+        if(can_insert_something_there(position))
+            continue;
+
+        const file = new CryptoFile();
+        file.position = position;
+        world.add(file);
+        --file_count;
+    }
+
+    let key_count = 4;
+    while(key_count > 0){
+        const position = random_position();
+        if(can_insert_something_there(position))
+            continue;
+
+        const key = new CryptoKey();
+        key.position = position;
+        world.add(key);
+        --key_count;
     }
 
     return world;

@@ -42,11 +42,10 @@ class Game {
     }
 
     update_until_player_turn(next_player_action) {
-        this.world.set_next_player_action(next_player_action); // The player action will be used in solving turns.
         console.log(`Player Action: ${next_player_action.name}`);
 
         console.log(`SOLVING TURNS ...`);
-        const turn_iter = this.__turn_sequence.next();
+        const turn_iter = this.__turn_sequence.next(next_player_action);
         console.assert(turn_iter.done == false); // We should never be able to end.
 
         this.last_turn_info = turn_iter.value;
@@ -73,6 +72,11 @@ class Game {
         const entry_points = this.all_entry_points_positions;
         console.assert(entry_points);
         const position = random_sample(entry_points);
+        this.add_player_character(position);
+    }
+
+    add_player_character(position){
+        console.assert(this.is_walkable(position));
         const player = new Player();
         player.position = position;
         this.world.add(player);
@@ -84,6 +88,10 @@ class Game {
 
     get player_characters(){
         return this.world.bodies.filter(body=>body.is_player_actor);
+    }
+
+    is_walkable(game_position){
+        return !this.world.is_blocked_position(game_position, tiles.is_walkable);
     }
 
 };

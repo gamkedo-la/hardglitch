@@ -11,7 +11,11 @@ import { SeamSelector, genFloorOverlay, genFgOverlay } from "./tile-select.js";
 import * as graphics from "../system/graphics.js";
 import { Vector2 } from "../system/spatial.js";
 import { PIXELS_PER_TILES_SIDE, PIXELS_PER_HALF_SIDE } from "./common-view.js";
+import { ParticleGroup, ParticleSystem, ParticleEmitter, FadeLineParticle, BlipParticle, Color } from "../system/particles.js";
+import { random_float, position_from_index } from "../system/utility.js";
 
+let canvas = document.getElementById('gameCanvas');
+let canvasContext = canvas.getContext('2d');
 
 // Display tiles.
 class TileGridView {
@@ -23,7 +27,44 @@ class TileGridView {
         this.reset(position, size, ground_tile_grid, surface_tile_grid);
     }
 
+    addExitParticles(ctx, x, y) {
+
+        let g = new ParticleGroup();
+        this.particles.add(g);
+        this.particles.add(new ParticleEmitter(this.particles, () => {
+            let xoff = random_float(-25,25);
+            let yoff = random_float(-25,25);
+            let velocity = random_float(30,60);
+            let ttl = random_float(.3, 1.5);
+            return new BlipParticle(ctx, x+xoff, y+yoff, g, 0, -velocity, ttl, 10);
+        }, .2, 25));
+
+        this.particles.add(new ParticleEmitter(this.particles, () => {
+            let xoff = random_float(-25,25);
+            let yoff = random_float(-25,25);
+            let velocity = random_float(30,90);
+            let ttl = random_float(.3,1);
+            let len = random_float(10,50);
+            let width = random_float(1,5);
+            return new FadeLineParticle(ctx, x+xoff, y+yoff, 0, -velocity, new Color(0,255,0), ttl, len, width, 0, 1);
+        }, .3, 25));
+
+        /*
+        this.particles.add(new ParticleEmitter(this.particles, () => {
+            let xoff = random_float(-15,15);
+            let yoff = random_float(-15,15);
+            let velocity = random_float(30,90);
+            let size = random_float(1,4);
+            let ttl = random_float(.3,1.6);
+            return new FadeParticle(ctx, x+xoff, y+yoff, 0, -velocity, size, new Color(0,255,255), ttl);
+        }, .3, 25));
+        */
+
+    }
+
     reset(position, size, ground_tile_grid, surface_tile_grid){
+        // initialize particle system
+        this.particles = new ParticleSystem();
         console.assert(position instanceof Vector2);
         console.assert(size instanceof Vector2 && size.x > 2 && size.y > 2);
         this.position = position;
@@ -53,6 +94,12 @@ class TileGridView {
             if (surface_element == tiledefs.ID.GROUND) continue;
             midData[i] = surface_element;
         }
+        for (let i=0; i<surface_tile_grid.elements.length; i++) {
+            if (surface_tile_grid.elements[i] == tiledefs.ID.EXIT) {
+                let pos = position_from_index(size.x, size.y, i);
+                this.addExitParticles(canvasContext, pos.x*PIXELS_PER_TILES_SIDE + PIXELS_PER_HALF_SIDE, pos.y*PIXELS_PER_TILES_SIDE + PIXELS_PER_HALF_SIDE);
+            }
+        }
 
         const dsize = new Vector2({x: size.x*2, y: size.y*2});
         // TODO: replace this by just tiles we use, not all tiles in the world
@@ -79,6 +126,8 @@ class TileGridView {
         }
         this.surface_tile_grid.update(delta_time);
         this.floor_top_tile_grid.update(delta_time);
+        // particles
+        this.particles.update(delta_time);
     }
 
     draw_floor(){
@@ -99,6 +148,8 @@ class TileGridView {
             }
 
             this.surface_tile_grid.draw();
+            // particles
+            this.particles.draw();
         }
 
     }

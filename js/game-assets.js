@@ -35,6 +35,9 @@ const game_assets = { // Description of the assets to load.
         w2h_template : "./images/wallToHole.png",
         w2g_template : "./images/wallToGround.png",
         test_button : "./images/test_button.png",
+        highlights : "./images/highlights.png",
+        crypto_file_dummy: "./images/filelockedcircle.png",
+        crypto_key_dummy: "./images/crypto-key circle.png",
     }
 };
 
@@ -111,6 +114,18 @@ const sprite_defs = {
             { x:64, y:0, width:64, height:64 }
          ]
     },
+    crypto_file : {
+        image: "crypto_file_dummy",
+        frames: [
+            { x:0, y:0, width:64, height:64 }
+         ]
+    },
+    crypto_key : {
+        image: "crypto_key_dummy",
+        frames: [
+            { x:0, y:0, width:64, height:64 }
+         ]
+    },
     test_button: {
         image: "test_button",
         frames: [
@@ -119,7 +134,88 @@ const sprite_defs = {
             { x:100, y:0, width:50, height:50 },
             { x:150, y:0, width:50, height:50 },
         ]
-    }
+    },
+    highlight_purple : {
+        image: "highlights",
+        frames: [
+            { x:0, y:0, width:64, height:64 },
+            { x:0, y:64, width:64, height:64 },
+
+        ],
+        animations: {
+            idle: {
+                    loop: true,
+                    timeline: [
+                                { frame: 0, duration: 333 },
+                                { frame: 1, duration: 333 }
+                              ],
+                  },
+        },
+    },
+    highlight_green : {
+        image: "highlights",
+        frames: [
+            { x:64, y:0, width:64, height:64 },
+            { x:64, y:64, width:64, height:64 },
+        ],
+        animations: {
+            idle: {
+                    loop: true,
+                    timeline: [
+                                { frame: 0, duration: 333 },
+                                { frame: 1, duration: 333 }
+                              ],
+                  },
+        },
+    },
+    highlight_red : {
+        image: "highlights",
+        frames: [
+            { x:128, y:0, width:64, height:64 },
+            { x:128, y:0, width:64, height:64 },
+        ],
+        animations: {
+            idle: {
+                    loop: true,
+                    timeline: [
+                                { frame: 0, duration: 333 },
+                                { frame: 1, duration: 333 }
+                              ],
+                  },
+        },
+    },
+    highlight_yellow : {
+        image: "highlights",
+        frames: [
+            { x:192, y:0, width:64, height:64 },
+            { x:192, y:64, width:64, height:64 },
+        ],
+        animations: {
+            idle: {
+                    loop: true,
+                    timeline: [
+                                { frame: 0, duration: 333 },
+                                { frame: 1, duration: 333 }
+                              ],
+                  },
+        },
+    },
+    highlight_blue : {
+        image: "highlights",
+        frames: [
+            { x:256, y:0, width:64, height:64 },
+            { x:256, y:64, width:64, height:64 },
+        ],
+        animations: {
+            idle: {
+                    loop: true,
+                    timeline: [
+                                { frame: 0, duration: 333 },
+                                { frame: 1, duration: 333 }
+                              ],
+                  },
+        },
+    },
 
 };
 

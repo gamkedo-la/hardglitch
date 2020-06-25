@@ -5,6 +5,46 @@ tileImg.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXH
 const tile2Img = new Image();
 tile2Img.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAy9JREFUeJztWktrE1EU/pKZyWPyQlvbhhYL2oWIiHbRhQgFBVE3SruQbkRc9xfoyt/gptSlSFcu3HQRsaDWgqsuRBAqBm1r8zDJhLzbpLpoU9rm3mRezRkz8y1z7rnny8dkvnPPjevxs3d/YWO4qQlQwxGAmgA1HAGoCVDDEYCaADUcAagJUMMRgJoANRwBqAlQwxGAmgA1xNW3S9QcSGH7J8ARgJoANRwBqAlQQzSSvDkzgIYsQCg3MLyQMotTV6FbgMRUP3LXItiJiBBzFdTLXkS2PGZyMwW+zSokpQGhtMuM6xYgNx7ATmQvvb6RQFkoIjt7We92J4bIchrR13/gL7HjugUIf62gelYGvsThXv0BbyEE+eErvdudCCITk4jPjkCYj2EU48w1ugUYXkhhLBPHRi4AV24Qp78LAKcIFRQVawy9BCuxAPoAAIKRbUhhexu0vQBtfwLUPt+N+lwBzPJ5UanDm9yGlG9oyjOjfmnM35kfL3Dc57PT55DVVH4P4ZU0zsRqkPLa8moDkil9hrz4rW2cK8Bxnw99SEP4vKapuHT/BpJTUYhzMYQ1WqTYfGJM6DOGfJeAKqcOL8kMn1d+a3vsza5/AM6XBzq8BKl9vhv1bW+DthfgRPuA0nk/+t4rEGZuA4x86j4DAMTiBZkZKF6UW3x49E1N9cYsHz+cb5V5grj2ZJQZ8P0qt/gwIKnemDUvOJxvls8bhdj/4CUz4H50t+W8r0UA1rzgcL6ZPm8ErqvXn3L/Keq/Vdr34ca+D2tDp3yj+5uBtgLYAba3QdsL0NP3Amr4/ff3Ap71EqTiLqRCZ36sPka3AFbx8dDHLYQW4xgsnDryeac+pAndAljBx8Xpm0jdi0J6sQTgqACd+pCDPfQWt8K9gLJe58bY/FrR0/cCPzNBFK8EIX9KAmCfeXreBvOTI23jPS2ARwgCAHzhQe4aQ/MAq/cBTTTdgAXd8wAr9AFq5v4AsN0vQZkIMWO65wFW6QPazf09mTpCKwmk7gxx1+ieB1ihD2iCN/eXsjvwPl+GNOfi5hqaB1jhPG8Uhu4FrN4HqEFP26AaOAJQE6CG7QX4B0fd1+tZBWifAAAAAElFTkSuQmCC";
 
+const blipImg = new Image();
+blipImg.src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAAXNSR0IArs4c6QAAAGpJREFUCJljYGBgYGC4t4R377fnfgz3lvAyMDAwMDLcW8IbxiU3e9W3R0qhXHL3Vn97lMq0V8LZ8f2/X3pzhM1NP/z7pbdXwtmRyfnF3v28jCwXU96ePCnAxHbJ+cXe/QwwMw98e+ELMxMAdOgpmvYoUogAAAAASUVORK5CYII=";
+const sparkMinImg = new Image();
+sparkMinImg.src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAAAXNSR0IArs4c6QAAAKJJREFUGJVjYCAShL44xANj8BJQWIQukIVDIVZxhtAXh1Yw3FvCu/fbcz/rpzvdQ18cWoEsz4LMWf3tUWool9xs5xd7lUK55O79+f9vObI8EzJnr4Sz44d/v/TOSnqYfvj3Sy+HX/0/TsWTP95k4GVkuWj8fMdJASa2S84v9u7HqZiVkSnq5b+f8w9IuLTCnITLc8SFBkY4YmrghTF48ClEBgC2gUsgQpNFAwAAAABJRU5ErkJggg==";
+
+const sparkMaxImg = new Image();
+sparkMaxImg.src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAVCAYAAACpF6WWAAAAAXNSR0IArs4c6QAAAiFJREFUOI21lE9oE0EUxt9MN2mMNjYVapvdS7EYKIV46EXdpro1JJqDYhC8Sy7mIHgRL3rx4kla8VKvIr0UD2JxSAiNDQ3qRUGiAREPkz/GpsYNSbPbZKanQtnuJm2N3/F78/3mvYF5IFPigP8hmZJQjzj9RkPpKXBX4VAdy5S4uh2I+SkZPQBw2ugho+GnRGIAV+0Iv7QBFog4+9sMpuTjJ3TOJtJScNVYw0bjnRSkdoQX2wC3BYRa14or48Yz4UJyECEUsiP8xezCPVAAgD5A+Bjqe+bEQny9rQ1HyxkfAECklPLKlEw7sZB3AF5OioE/Zvk94+/q5tRftuW5NzixOK/mHh3Htpra3jofHRi/NafmLqSl4JpVtqMipZQ3XEjGfuq1X/DjxYdvzerm5WJyYafzQ+t6MXUjUEhk83qdBwqJ7MPKpwfdMqZvuqNoOePbYJo0PzQ1JtJX758OTY2tNdfrkVLK2yln+aYAADIl5+64vCsLte/3z/S7bR+1ihYbOP14Ts3NurCtsuxRsgeChgtJtxMLtNjaDJ0UHOWlkZlctJzxfdXVo6PCkXiDtUSNM5wQL20Ys6bjK/m4uwnsSoO1xLQUXF0amckBADwfPvvZje3VBmtJdWjfZcBNmzKF6pxNcs7fvvEoVWPttediVuMMYQ5PdM5u7utLm/1lK/kpkWRKYt2AnbeNdc58u1nuw/2DFaPxT0BLcK8kU+LYBsfT5A44S06zAAAAAElFTkSuQmCC";
+
+class Blip {
+    constructor(ctx, x, y) {
+        this.ctx = ctx;
+        this.x = x;
+        this.y = y;
+    }
+
+    update() {
+        // start w/ outer ring
+        /*
+        this.ctx.beginPath();
+        this.ctx.fillStyle = 'rgba(0,222,164,.25)';
+        this.ctx.arc(this.x+2.5, this.y+2.5, 2, 0, Math.PI*2);
+        this.ctx.fill();
+        */
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.x, this.y+2.5);
+        this.ctx.lineTo(this.x+5, this.y+2.5);
+        this.ctx.moveTo(this.x+2.5, this.y);
+        this.ctx.lineTo(this.x+2.5, this.y+5);
+        this.ctx.strokeStyle = 'rgba(189,246,231,.3)';
+        this.ctx.lineWidth = 1;
+        this.ctx.stroke();
+        // inner ring
+        this.ctx.fillStyle = 'rgba(86,232,194,.66)';
+        this.ctx.fillRect(this.x+1, this.y+1, 3, 3);
+        // inner dot
+        this.ctx.fillStyle = 'rgba(156,241,219,1)';
+        this.ctx.fillRect(this.x+2, this.y+2, 1, 1);
+    }
+}
+
 class Game {
     constructor() {
         this.objs = [];
@@ -13,10 +53,18 @@ class Game {
         this.FPS = 30;
         this.INTERVAL = 1000 / this.FPS; // milliseconds
         this.STEP = this.INTERVAL / 1000 // second
+        this.blip = new Blip(this.ctx, 100, 260);
     }
 
     loop() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.ctx.drawImage(blipImg, 100, 250);
+        this.ctx.drawImage(sparkMinImg, 150, 250);
+        this.ctx.drawImage(sparkMaxImg, 200, 250);
+
+        this.blip.update();
+
         this.ctx.drawImage(tileImg, 128, 128);
         for (let i=0; i<8; i++) {
             this.ctx.drawImage(tile2Img, 192+64*i, 128);
@@ -28,6 +76,7 @@ class Game {
 
 
     play() {
+
 
         // left angled board
         let board = new Board({x:128, y:128}, [

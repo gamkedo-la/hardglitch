@@ -6,6 +6,8 @@ export {
     game_position_from_graphic_position,
     mouse_game_position,
     mouse_grid_position,
+    mouse_is_pointing_walkable_position,
+    play_action,
 }
 
 import * as input from "./system/input.js";
@@ -13,6 +15,7 @@ import * as graphics from "./system/graphics.js";
 import * as editor from "./editor.js";
 import { current_game, current_game_view } from "./main.js";
 import { Vector2_unit_x, Vector2_unit_y, Vector2 } from "./system/spatial.js";
+import * as concepts from "./core/concepts.js";
 
 // TODO: add the system that changes the mouse icons here
 
@@ -32,6 +35,7 @@ const KEY = {
     P: 80,
     M: 77,
     N: 78,
+    C: 67,
     NUMBER_0: 48,
     NUMBER_1: 49,
     NUMBER_2: 50,
@@ -63,9 +67,19 @@ function mouse_game_position(){
 }
 
 // Returns the position of the mouse on the grid if pointing it,
-// returns {} if the mouse isn't pointing on the grid.
+// returns undefined if the mouse isn't pointing on the grid.
 function mouse_grid_position(){
+    if(!current_game_view)
+        return undefined;
     return current_game_view.grid_position(mouse_game_position());
+}
+
+function mouse_is_pointing_walkable_position(){
+    const mouse_grid_pos = mouse_grid_position();
+    if(mouse_grid_pos)
+        return current_game.is_walkable(mouse_grid_pos);
+    else
+        return false;
 }
 
 function select_player_action(){
@@ -80,27 +94,13 @@ function select_player_action(){
     if(keyboard.is_down(KEY.LEFT_ARROW)) return possible_actions.move_west;
 
     if(mouse.buttons.is_just_released(input.MOUSE_BUTTON.LEFT)){ // Select an action which targets the square under the mouse.
-        for(const action of Object.values(possible_actions)){
-            if(action.target_position && action.target_position.equals(mouse_grid_position()))
-                return action;
+        const clicked_position = mouse_grid_position();
+        if(clicked_position) {
+            for(const action of Object.values(possible_actions)){
+                if(action.target_position && action.target_position.equals(clicked_position))
+                    return action;
+            }
         }
-    }
-
-    // EDITOR STYLE HACKS FOLLOWS:
-    if(keyboard.is_just_down(KEY.P))
-    {
-        remove_all_players();
-        return possible_actions.wait;
-    }
-}
-
-// TEMPORARY: This is only useful to text that the Game Over state is detected.
-function remove_all_players(){ // THIS IS A HACK, DON'T DO THIS AT HOME
-    const world = current_game.world;
-    const player_characters = world.player_characters;
-    for(const character_body of player_characters){
-        world.remove_body(character_body.body_id); // THIS IS A HACK, DON'T DO THIS AT HOME
-        current_game_view.remove_view(character_body.body_id); // THIS IS A HACK, DON'T DO THIS AT HOME
     }
 }
 
@@ -114,6 +114,7 @@ function update_camera_control(delta_time){
     const drag_pos = input.mouse.dragging_positions;
     if(input.mouse.is_dragging
     && !current_game_view.ui.is_under(drag_pos.begin) // Don't drag the camera if we are manipulating UI
+    && !current_game_view.ui.is_selecting_action_target // Don't drag when the player clicked an action button and is selecting a target.
     && !editor.is_editing // Don't drag when we are editing the world with the editor
     ){
         // Map dragging
@@ -135,6 +136,14 @@ function update_camera_control(delta_time){
     }
 }
 
+function play_action(player_action){
+    console.assert(player_action instanceof concepts.Action);
+    console.assert(Object.values(current_game.last_turn_info.possible_actions).includes(player_action)); // The action MUST come from the possible actions.
+
+    current_game.update_until_player_turn(player_action);
+    current_game_view.interpret_turn_events(); // Starts showing each event one by one until it's player's turn.
+}
+
 function update(delta_time){
     input.update(delta_time);
 
@@ -145,14 +154,14 @@ function update(delta_time){
         if(!input.mouse.is_dragging
         && current_game_view.is_time_for_player_to_chose_action
         && !current_game_view.ui.is_mouse_over
+        && !current_game_view.ui.is_selecting_action_target
         && !editor.is_enabled
         ){
             const player_action = select_player_action();
 
             if(player_action) // Player just selected an action
             {
-                current_game.update_until_player_turn(player_action);
-                current_game_view.interpret_turn_events(); // Starts showing each event one by one until it's player's turn.
+                play_action(player_action);
             }
         }
     }

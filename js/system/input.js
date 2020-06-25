@@ -227,7 +227,7 @@ class Keyboard {
       const key_state = this.get_key_state(pattern.key_code);
       if(!pattern.states.some(state_to_match => key_state.state == state_to_match))
         return false; // The current keystate doesn't match any of the potential states to match.
-      if(pattern.min_duration != undefined){
+      if(pattern.min_duration !== undefined){
         const key_state_duration = this.key_state_duration(key_state);
         if(key_state_duration < pattern.min_duration)
           return false; // The key have not been in this state long enough to be matching.

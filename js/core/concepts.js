@@ -1,6 +1,6 @@
 // This file describes the core concepts that exist in the game mechanics.
 // This is not a modelisation of these concept, just rules of how things
-// work in the game system. For example, we can say what an "element" is,
+// work in the game system. For example, we can say what an "entity" is,
 // what rules can be applied on it and what interface it should have to work
 // in our system.
 // Think about it this way: code here could be reused to make another similar
@@ -17,15 +17,16 @@ export {
     Actor,
     Player,
     Rule,
-    Element,
+    Entity,
+    Item,
     Body,
     Position,
     perform_action,
 };
 
-let next_body_id = 0;
-function new_body_id(){
-    return ++next_body_id;
+let next_entity_id = 0;
+function new_entity_id(){
+    return ++next_entity_id;
 }
 
 let next_actor_id = 0;
@@ -37,11 +38,13 @@ function new_actor_id(){
 // An action is when an Actor changes something (using it's Body) in the world, following the
 // world's rules.
 class Action {
-    constructor(id, name, description = "MISSING ACTION DESCRIPTION"){
+    constructor(id, name, target_position, description = "MISSING ACTION DESCRIPTION"){
         console.assert(typeof id === 'string');
+        console.assert(target_position === undefined || target_position instanceof Position);
         console.assert(typeof name === 'string');
         console.assert(typeof description === 'string');
         this.id = id;                       // Used internally to identify this Action in some special code (for example to identify special moves to bind to keyboard keys)
+        this.target_position = target_position; // Position of the target of this action. Could refer to the acting character, another character, an item or a tile at that position.
         this.name = name,                   // Name that will be displayed to the player.
         this.description = description;     // Description that will be displayed to the player.
     }
@@ -88,7 +91,7 @@ class Actor {
 
     // Decides what to do for this turn for a specific body, returns an Action or null if players must decide.
     // `possible_actions` is a map of { "action_id" : action_object } possibles.
-    // Therefore the Action element can be used directory (for example: `possible_actions.move.execute(...)`).
+    // Therefore the Action object can be used directly (for example: `possible_actions.move.execute(...)`).
     decide_next_action(body, possible_actions){
         throw "decide_next_action not implemented";
     }
@@ -135,18 +138,24 @@ class Rule {
 // We assume that the world is made of 2D grids.
 // This position is one square of that grid, so all the values are integers, not floats.
 class Position {
-    constructor(x = 0, y = 0){
-        console.assert(is_number(x));
-        console.assert(is_number(y));
-        this.x = x;
-        this.y = y;
+    constructor(position){
+        if(position){
+            console.assert(is_number(position.x));
+            console.assert(is_number(position.y));
+            this.x = position.x;
+            this.y = position.y;
+        } else {
+            this.x = 0;
+            this.y = 0;
+        }
+
     }
     // TODO: add useful constants and functions here.
 
-    get west() { return new Position( this.x - 1, this.y ); }
-    get east() { return new Position( this.x + 1, this.y ); }
-    get north() { return new Position( this.x, this.y - 1 ); }
-    get south() { return new Position( this.x, this.y + 1 ); }
+    get west() { return new Position({ x: this.x - 1, y: this.y }); }
+    get east() { return new Position({ x: this.x + 1, y: this.y }); }
+    get north() { return new Position({ x: this.x, y: this.y - 1 }); }
+    get south() { return new Position({ x: this.x, y: this.y + 1 }); }
 
     equals(other_position){
         return other_position.x == this.x && other_position.y == this.y;
@@ -155,30 +164,37 @@ class Position {
 
 
 
-// Elements are things that have a "physical" existence, that is it can be located in the space of the game (it have a position).
+// Entities are things that have a "physical" existence, that is it can be located in the space of the game (it have a position).
 // For example a body, a pen in a bag, a software in a computer in a bag.
-class Element {
+class Entity {
     _position = new Position();
     get position() { return this._position; }
     set position(new_pos){
-        this._position = new Position(new_pos.x, new_pos.y);
+        this._position = new Position(new_pos);
     }
+
+    constructor(){
+        this._entity_id = new_entity_id();
+    }
+
+    get id() { return this._entity_id; }
 };
 
-// Items are elements that cannot ever move by themselves.
-// However, they can be owned by bodies and have a position in the world (like all elements).
+// Items are entities that cannot ever move by themselves.
+// However, they can be owned by bodies and have a position in the world (like all entities).
 // They provide Actions and modifiers for the body stats that equip them.
-class Item extends Element {
+class Item extends Entity {
     actions = [];
     // TODO: Action mechanisms here.
+
+    get item_id() { return this.id; }
 };
 
 
 // Bodies are special entities that have "physical" existence and can perform action,
-// like elements, but they can move by themselves.
+// like entities, but they can move by themselves.
 // Each Body owns an Actor that will decide what Actions to do when it's the Body's turn.
-class Body extends Element {
-    body_id = new_body_id();
+class Body extends Entity {
     actor = null; // Actor that controls this body. If null, this body cannot take decisions.
     items = []; // Items owned by this body. They don't appear in the World's list unless they are put back in the World (not owned anymore).
 
@@ -190,6 +206,8 @@ class Body extends Element {
     // TODO: replace the following functions implementations with action point system!
     // BEWARE, this is a hack to simulate being able to act once per turn.
     acted_this_turn = false;
+
+    get body_id() { return this.id; }
 
     // True if the control of this body is to the player, false otherwise.
     // Note that a non-player actor can also decide to let the player chose their action
@@ -209,7 +227,7 @@ class Body extends Element {
     // Describe the possible positions relative to the current ones that could be reached in one step,
     // assuming there is no obstacles.
     // Should be overloaded by bodies that have limited sets of movements.
-    // Returns an element: { move_id: target_position, another_move_name: another_position }
+    // Returns an object: { move_id: target_position, another_move_name: another_position }
     allowed_moves(){ // By default: can go on the next square on north, south, east and west.
         return {
             move_east: this.position.east,
@@ -225,10 +243,9 @@ class Body extends Element {
 class World
 {
     // BEWARE: Avoid using these members directly, prefer using the functions below, if you can (sometime yuo can't).
-    _items = {};     // Items that are in the space of the world, not in other elements (not owned by Bodies).
+    _items = {};     // Items that are in the space of the world, not in other entities (not owned by Bodies).
     _bodies = {};    // Bodies are always in the space of the world. They can be controlled by Actors.
     _rules = [];     // Rules that will be applied through this game.
-    _player_action = null; // TODO: try to find a better way to "pass" the player action to the turn solver.
     is_finished = false; // True if this world is in a finished state, in which case it should not be updated anymore. TODO: protect against manipulations
 
     constructor(width, height, floor_tiles, surface_tiles){
@@ -243,15 +260,15 @@ class World
     get bodies() { return Object.values(this._bodies); }
     get items() { return Object.values(this._items); }
 
-    // Adds an element to the world (a Body or an Item), setup the necessary spatial information.
-    add(element){
-        console.assert(element instanceof Element);
-        console.assert(element.position);
-        if(element instanceof Body)
-            this._bodies[element.body_id] = element;
-        else if(element instanceof Item)
-            this._items[element.item_id] = element;
-        else throw "Tried to add to the World an unknown type of Element";
+    // Adds an entity to the world (a Body or an Item), setup the necessary spatial information.
+    add(entity){
+        console.assert(entity instanceof Entity);
+        console.assert(entity.position);
+        if(entity instanceof Body)
+            this._bodies[entity.body_id] = entity;
+        else if(entity instanceof Item)
+            this._items[entity.item_id] = entity;
+        else throw "Tried to add to the World an unknown type of Entity";
         // TODO: add the necessary info in the system that handles space partitionning
     }
 
@@ -266,20 +283,6 @@ class World
         console.assert(rules instanceof Array);
         console.assert(rules.every(rule => rule instanceof Rule));
         this._rules = rules;
-    }
-
-    // Returns the action decided by the player and unreference it.
-    acquire_player_action() {
-        const action = this._player_action;
-        this._player_action = null;
-        return action;
-    }
-
-    // Set the next action for player's turn. Called when the player decided the action, set it and then run the turn solver.
-    set_next_player_action(action){
-        console.assert(action instanceof Action);
-        // TODO: add some checks?
-        this._player_action = action;
     }
 
     // Returns a set of possible actions according to the current rules, for the specified body.
@@ -314,7 +317,7 @@ class World
         return events;
     }
 
-    // Returns true if the position given is blocked by an element (Body or Item) or a tile that blocks (wall).
+    // Returns true if the position given is blocked by an entity (Body or Item) or a tile that blocks (wall).
     is_blocked_position(position, predicate_tile_is_walkable){
 
         if(position.x >= this.width || position.x < 0
@@ -362,7 +365,7 @@ class World
     item_at(position){
         // TODO: optimize this if necessary
         for(const item of this.items){
-            if(items.position.equals(position))
+            if(item.position.equals(position))
                 return item;
         }
         return null;
