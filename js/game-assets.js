@@ -15,7 +15,7 @@ import * as asset_system from "./system/assets.js";
 const game_assets = { // Description of the assets to load.
     images : { // group "images"
         asset_loader : asset_system.image_loader, // This is the function that will be used to convert the following data into usable objects.
-        player: "./images/player.png",
+        player: "./images/virus.png",
         test_enemy: "./images/test_enemy.png",
         warrior: "./images/warrior.png",
         door : "./images/world_door.png",
@@ -62,17 +62,17 @@ const sprite_defs = {
         image: "player",
         frames: [
                     { x: 0, y: 0, width: 64, height: 64 },
-                    { x: 64, y: 0, width: 64, height: 64 },
+                    // { x: 64, y: 0, width: 64, height: 64 },
                 ],
-        animations: {
-            idle: {
-                    loop: true,
-                    timeline: [
-                                { frame: 0, duration: 1000 },
-                                { frame: 1, duration: 1000 }
-                              ],
-                  },
-        },
+        // animations: {
+        //     idle: {
+        //             loop: true,
+        //             timeline: [
+        //                         { frame: 0, duration: 1000 },
+        //                         { frame: 1, duration: 1000 }
+        //                       ],
+        //           },
+        // },
     },
     test_enemy: {
         image: "test_enemy",
