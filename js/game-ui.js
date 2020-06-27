@@ -13,7 +13,28 @@ import * as concepts from "./core/concepts.js";
 import { play_action, mouse_grid_position, KEY } from "./game-input.js";
 import { keyboard, mouse, MOUSE_BUTTON } from "./system/input.js";
 import { set_text } from "./editor.js";
-import { Vector2 } from "./system/spatial.js";
+import { Vector2, center_in_rectangle } from "./system/spatial.js";
+
+const action_button_size = 50;
+
+class ActionButton extends ui.Button {
+    constructor(position, icon_def, on_clicked){
+        super({ // TODO: add a way to identify the action visually, text + icon
+            position: position,
+            width: action_button_size, height: action_button_size,
+            sprite_def: sprite_defs.button_select_action,
+            frames: { up: 0, down: 1, over: 2, disabled: 3 },
+            action: on_clicked
+        });
+
+        if(icon_def){
+            this.icon = new graphics.Sprite(icon_def);
+            this.icon.position = center_in_rectangle(this.icon,
+                { position: this.position, width: action_button_size, height:action_button_size}).position;
+        }
+    }
+};
+
 
 // The interface used by the player when inside the game.
 // NOTE: it's a class instead of just globals because we need to initialize and destroy it
@@ -59,8 +80,8 @@ class GameInterface {
 
     button_cancel_action_selection = new ui.Button({
         position: { x: 200, y: 700 },
-        width: 50, height: 50,
-        sprite_def: sprite_defs.test_button,
+        width: action_button_size, height: action_button_size,
+        sprite_def: sprite_defs.button_cancel_action_target_selection,
         frames: { up: 0, down: 1, over: 2, disabled: 3 },
         visible: false,
         action: ()=>{
@@ -118,32 +139,27 @@ class GameInterface {
         const actions_per_types = group_per_type(possible_actions);
 
         // ... then we build the buttons with the associated informations.
-        const button_size = 50;
+
         const line_y = graphics.canvas_rect().bottom_right.y - 100; // TODO: handle changing the canvas size
         let line_x = 40;
-        const next_x = ()=> line_x += (button_size + 5);
+        const next_x = ()=> line_x += (action_button_size + 5);
 
         for(const [action_name, actions] of Object.entries(actions_per_types)){
             const position = { x: next_x(), y: line_y };
-            const action_button = new ui.Button({ // TODO: add a way to identify the action visually, text + icon
-                position: position,
-                width: button_size, height: button_size,
-                sprite_def: sprite_defs.test_button,
-                frames: { up: 0, down: 1, over: 2, disabled: 3 },
-                action: ()=>{
+            const first_action = actions[0];
+            console.assert(first_action instanceof concepts.Action);
+            const action_button = new ActionButton(position, first_action.icon_def, ()=>{
                     set_text(`ACTION SELECTED: ${action_name}`);
                     // TODO: highlight the possible targets
-                    const first_action = actions[0];
                     if(actions.length == 1 && first_action.target_position === undefined){ // No need for targets
                         play_action(first_action); // Play the action immediately
                     } else {
                         // Need to select an highlited target!
-                        this.button_cancel_action_selection.position = new Vector2(position).translate({ x:0, y:-button_size });
+                        this.button_cancel_action_selection.position = new Vector2(position).translate({ x:0, y:-action_button_size });
                         this._begin_target_selection(action_name, actions);
                     }
                     this.lock_actions(); // Can be unlocked by clicking somewhere there is no action target.
-                }
-            });
+                });
             this._action_buttons.push(action_button);
         }
 

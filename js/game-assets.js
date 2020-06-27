@@ -38,6 +38,18 @@ const game_assets = { // Description of the assets to load.
         highlights : "./images/highlights.png",
         crypto_file: "./images/allcryptofiles.png",
         crypto_key: "./images/crypto-key circle.png",
+
+        // TODO: merge icons into one image
+        icon_corrupt: "./images/iconcorrupt.png",
+        icon_delete: "./images/icondelete.png",
+        icon_merge: "./images/iconmerge.png",
+        icon_move: "./images/iconmove.png",
+        icon_pull: "./images/iconpull.png",
+        icon_push: "./images/iconpush.png",
+        icon_repair: "./images/iconrepair.png",
+        icon_restore: "./images/iconrestore.png",
+        icon_swap: "./images/iconswap.png",
+        icon_wait: "./images/wait.png",
     }
 };
 
@@ -53,6 +65,36 @@ async function load_all_assets(){
     console.log(`ASSETS: ${JSON.stringify(loaded_assets)}`);
     return loaded_assets;
 }
+
+//////////////////////////////////////////////////////////////////////////////////////
+// Some tools...
+const test_button ={
+    image: "test_button",
+    frames: [
+        { x:0, y:0, width:50, height:50 },
+        { x:50, y:0, width:50, height:50 },
+        { x:100, y:0, width:50, height:50 },
+        { x:150, y:0, width:50, height:50 },
+    ]
+};
+
+const highlight_animations = {
+    idle: {
+            loop: true,
+            timeline: [
+                        { frame: 0, duration: 333 },
+                        { frame: 1, duration: 333 }
+                      ],
+          },
+};
+
+function icon_def_from_image(image){
+    return {
+        image: image,
+        frames: [ { x: 0, y: 0, width: 32, height: 32 } ],
+    };
+}
+
 
 //////////////////////////////////////////////////////////////////////////////////////
 // Sprite descriptions here.
@@ -92,15 +134,12 @@ const sprite_defs = {
     },
     ground : {
         image: "ground",
-        // frames: [],
     },
     wall : {
         image: "wall",
-        // frames: [],
     },
     void : {
         image: "void",
-        // frames: [],
     },
     entry : {
         image: "tileset_entry_exit",
@@ -126,15 +165,21 @@ const sprite_defs = {
             { x:0, y:0, width:64, height:64 }
          ]
     },
-    test_button: {
-        image: "test_button",
-        frames: [
-            { x:0, y:0, width:50, height:50 },
-            { x:50, y:0, width:50, height:50 },
-            { x:100, y:0, width:50, height:50 },
-            { x:150, y:0, width:50, height:50 },
-        ]
-    },
+
+    button_cancel_action_target_selection: test_button,
+    button_select_action: test_button,
+
+    icon_action_corrupt: icon_def_from_image("icon_corrupt"),
+    icon_action_delete: icon_def_from_image("icon_delete"),
+    icon_action_merge: icon_def_from_image("icon_merge"),
+    icon_action_move: icon_def_from_image("icon_move"),
+    icon_action_pull: icon_def_from_image("icon_pull"),
+    icon_action_push: icon_def_from_image("icon_push"),
+    icon_action_repair: icon_def_from_image("icon_repair"),
+    icon_action_restore: icon_def_from_image("icon_restore"),
+    icon_action_swap: icon_def_from_image("icon_swap"),
+    icon_action_wait: icon_def_from_image("icon_wait"),
+
     highlight_purple : {
         image: "highlights",
         frames: [
@@ -142,15 +187,7 @@ const sprite_defs = {
             { x:0, y:64, width:64, height:64 },
 
         ],
-        animations: {
-            idle: {
-                    loop: true,
-                    timeline: [
-                                { frame: 0, duration: 333 },
-                                { frame: 1, duration: 333 }
-                              ],
-                  },
-        },
+        animations: highlight_animations,
     },
     highlight_green : {
         image: "highlights",
@@ -158,15 +195,7 @@ const sprite_defs = {
             { x:64, y:0, width:64, height:64 },
             { x:64, y:64, width:64, height:64 },
         ],
-        animations: {
-            idle: {
-                    loop: true,
-                    timeline: [
-                                { frame: 0, duration: 333 },
-                                { frame: 1, duration: 333 }
-                              ],
-                  },
-        },
+        animations: highlight_animations,
     },
     highlight_red : {
         image: "highlights",
@@ -174,15 +203,7 @@ const sprite_defs = {
             { x:128, y:0, width:64, height:64 },
             { x:128, y:0, width:64, height:64 },
         ],
-        animations: {
-            idle: {
-                    loop: true,
-                    timeline: [
-                                { frame: 0, duration: 333 },
-                                { frame: 1, duration: 333 }
-                              ],
-                  },
-        },
+        animations: highlight_animations,
     },
     highlight_yellow : {
         image: "highlights",
@@ -190,15 +211,7 @@ const sprite_defs = {
             { x:192, y:0, width:64, height:64 },
             { x:192, y:64, width:64, height:64 },
         ],
-        animations: {
-            idle: {
-                    loop: true,
-                    timeline: [
-                                { frame: 0, duration: 333 },
-                                { frame: 1, duration: 333 }
-                              ],
-                  },
-        },
+        animations: highlight_animations,
     },
     highlight_blue : {
         image: "highlights",
@@ -206,15 +219,7 @@ const sprite_defs = {
             { x:256, y:0, width:64, height:64 },
             { x:256, y:64, width:64, height:64 },
         ],
-        animations: {
-            idle: {
-                    loop: true,
-                    timeline: [
-                                { frame: 0, duration: 333 },
-                                { frame: 1, duration: 333 }
-                              ],
-                  },
-        },
+        animations: highlight_animations,
     },
 
 };

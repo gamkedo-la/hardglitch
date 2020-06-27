@@ -5,6 +5,7 @@ export {
     Angle,
     Rectangle,
     is_intersection,
+    center_in_rectangle,
 };
 
 /////////////////////////////////////////////
@@ -147,3 +148,18 @@ class Rectangle {
     get bottom_right() { return new Vector2({x: this.position.x + this.width, y: this.position.y + this.height}); }
 };
 
+// Returns the re-positionned inner rectangle which should be centerred in the outter rectangle.
+function center_in_rectangle(inner_rectangle, outter_rectangle){
+    inner_rectangle = inner_rectangle instanceof Rectangle ? inner_rectangle : new Rectangle(inner_rectangle);
+    outter_rectangle = outter_rectangle instanceof Rectangle ? outter_rectangle : new Rectangle(outter_rectangle);
+    const half_outter_width = outter_rectangle.width / 2;
+    const half_outter_height = outter_rectangle.height / 2;
+    const half_inner_width = inner_rectangle.width / 2;
+    const half_inner_height = inner_rectangle.height / 2;
+    const margin_horizontal = half_outter_width - half_inner_width;
+    const margin_vertical = half_outter_height - half_inner_height;
+    return new Rectangle({
+        position: outter_rectangle.position.translate({ x: margin_horizontal, y: margin_vertical }),
+        size: inner_rectangle.size,
+    });
+}

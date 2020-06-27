@@ -1,6 +1,6 @@
 import * as concepts from "../core/concepts.js";
 import * as tiles from "../definitions-tiles.js";
-import * as graphics from "../system/graphics.js";
+import { sprite_defs } from "../game-assets.js";
 
 import * as editor from "../editor.js";
 
@@ -30,6 +30,8 @@ class Waited extends concepts.Event {
 
 // Action: Wait. Do Nothing. Almost like sleep but not quite.
 class Wait extends concepts.Action {
+    icon_def = sprite_defs.icon_action_wait;
+
     constructor(){
         super("wait", "Wait");
     }
