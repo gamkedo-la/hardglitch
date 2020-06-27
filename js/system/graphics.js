@@ -471,6 +471,8 @@ function clear(){
 function draw_text(text, position, font="24px arial", color="black"){
   screen_canvas_context.font = font; // TODO: replace this by proper font handling.
   screen_canvas_context.fillStyle = color;
+  screen_canvas_context.textAlign = "left";
+  screen_canvas_context.textBaseline = "top";
   screen_canvas_context.fillText(text, position.x, position.y);
 }
 
