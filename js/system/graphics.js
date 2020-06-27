@@ -20,7 +20,7 @@ export {
 import * as spatial from "./spatial.js"
 import { is_number, index_from_position } from "./utility.js";
 
-var canvas, canvasContext, loaded_assets;
+var canvas, screen_canvas_context, loaded_assets;
 
 
 // Return a vector in the graphic-world by interpreting a fixed-size grid position.
@@ -49,9 +49,9 @@ class Camera{
   set position(new_pos) {
     console.assert(new_pos instanceof spatial.Vector2);
     this.transform.position = new_pos;
-    canvasContext.resetTransform();
+    screen_canvas_context.resetTransform();
     const translation = new_pos.inverse;
-    canvasContext.translate(translation.x, translation.y);
+    screen_canvas_context.translate(translation.x, translation.y);
   }
 
   center(position_at_center){
@@ -64,7 +64,7 @@ class Camera{
     console.assert(translation instanceof spatial.Vector2);
     this.transform.position = this.transform.position.translate(translation);
     translation = translation.inverse;
-    canvasContext.translate(translation.x, translation.y);
+    screen_canvas_context.translate(translation.x, translation.y);
   }
 
   get rectangle() { return new spatial.Rectangle({ position: this.position, width: canvas.width, height: canvas.height }); }
@@ -84,15 +84,15 @@ class Camera{
   begin_in_screen_rendering(){
     console.assert(!this._in_screen_rendering);
     this._in_screen_rendering = true;
-    canvasContext.save();
-    canvasContext.resetTransform();
+    screen_canvas_context.save();
+    screen_canvas_context.resetTransform();
   }
 
   // Back to in-world space rendering (any draw after calling this function will be relative to the position of the camera)
   // BEWARE: will only work if you called begin_in_screen_rendering() first before!!!
   end_in_screen_rendering(){
     console.assert(this._in_screen_rendering);
-    canvasContext.restore();
+    screen_canvas_context.restore();
     this._in_screen_rendering = false;
   }
 
@@ -188,7 +188,7 @@ class Sprite {
 
   draw(canvas_context){
     if(!canvas_context)
-      canvas_context = canvasContext;
+      canvas_context = screen_canvas_context;
 
     const size = this.size;
 
@@ -398,10 +398,10 @@ class TileGrid
 
   draw_tiles(){
     this._handle_rendering_requests();
-    canvasContext.drawImage(this._offscreen_canvas, 0, 0);
+    screen_canvas_context.drawImage(this._offscreen_canvas, 0, 0);
   }
 
-  draw(){ // TODO: take a camera into account
+  draw(){
     if(this.enable_draw_background){
       this.draw_background();
     }
@@ -415,14 +415,14 @@ class TileGrid
 function initialize(assets){
   console.assert(assets);
   console.assert(assets.images);
-  if(canvasContext || canvas || loaded_assets)
+  if(screen_canvas_context || canvas || loaded_assets)
     throw "Graphic system already initialized.";
 
   loaded_assets = assets;
 
   canvas = document.getElementById('gameCanvas');
-  canvasContext = canvas.getContext('2d');
-  canvasContext.imageSmoothingEnabled = false;
+  screen_canvas_context = canvas.getContext('2d');
+  screen_canvas_context.imageSmoothingEnabled = false;
 
   canvas_resize_to_window();
   window.addEventListener('resize', on_window_resized);
@@ -441,37 +441,37 @@ function on_window_resized(){
 }
 
 function draw_rectangle(rectangle, fillColor) {
-  canvasContext.fillStyle = fillColor;
-  canvasContext.fillRect(rectangle.position.x, rectangle.position.y,
+  screen_canvas_context.fillStyle = fillColor;
+  screen_canvas_context.fillRect(rectangle.position.x, rectangle.position.y,
     rectangle.width, rectangle.height);
 }
 
 function draw_circle(centerX, centerY, radius, fillColor) {
-  canvasContext.fillStyle = fillColor;
-  canvasContext.beginPath();
-  canvasContext.arc(centerX, centerY, radius, 0, Math.PI*2, true);
-  canvasContext.fill();
+  screen_canvas_context.fillStyle = fillColor;
+  screen_canvas_context.beginPath();
+  screen_canvas_context.arc(centerX, centerY, radius, 0, Math.PI*2, true);
+  screen_canvas_context.fill();
 }
 
 function drawBitmapCenteredAtLocationWithRotation(graphic, atX, atY,withAngle) {
-  canvasContext.save(); // allows us to undo translate movement and rotate spin
-  canvasContext.translate(atX,atY); // sets the point where our graphic will go
-  canvasContext.rotate(withAngle); // sets the rotation
-  canvasContext.drawImage(graphic,-graphic.width/2,-graphic.height/2); // center, draw
-  canvasContext.restore(); // undo the translation movement and rotation since save()
+  screen_canvas_context.save(); // allows us to undo translate movement and rotate spin
+  screen_canvas_context.translate(atX,atY); // sets the point where our graphic will go
+  screen_canvas_context.rotate(withAngle); // sets the rotation
+  screen_canvas_context.drawImage(graphic,-graphic.width/2,-graphic.height/2); // center, draw
+  screen_canvas_context.restore(); // undo the translation movement and rotation since save()
 }
 
 function clear(){
-  canvasContext.save();
-  canvasContext.resetTransform();
-  canvasContext.clearRect(0, 0, canvas.width, canvas.height);
-  canvasContext.restore();
+  screen_canvas_context.save();
+  screen_canvas_context.resetTransform();
+  screen_canvas_context.clearRect(0, 0, canvas.width, canvas.height);
+  screen_canvas_context.restore();
 }
 
 function draw_text(text, position, font="24px arial", color="black"){
-  canvasContext.font = font; // TODO: replace this by proper font handling.
-  canvasContext.fillStyle = color;
-  canvasContext.fillText(text, position.x, position.y);
+  screen_canvas_context.font = font; // TODO: replace this by proper font handling.
+  screen_canvas_context.fillStyle = color;
+  screen_canvas_context.fillText(text, position.x, position.y);
 }
 
 function canvas_center_position(){
@@ -487,21 +487,21 @@ function canvas_rect(){
 
 function draw_grid_lines(width, height, square_size, start_position={x:0, y:0}){
   const grid_line_color = "#aa00aa";
-  canvasContext.strokeStyle = grid_line_color;
+  screen_canvas_context.strokeStyle = grid_line_color;
   const graphic_width = width * square_size;
   const graphic_height = height * square_size;
   for(let x = start_position.x; x <= graphic_width; x += square_size){
-    canvasContext.beginPath();
-    canvasContext.moveTo(x, start_position.y);
-    canvasContext.lineTo(x, graphic_height - start_position.y);
-    canvasContext.stroke();
+    screen_canvas_context.beginPath();
+    screen_canvas_context.moveTo(x, start_position.y);
+    screen_canvas_context.lineTo(x, graphic_height - start_position.y);
+    screen_canvas_context.stroke();
   }
 
   for(let y = start_position.y; y <= graphic_height; y += square_size){
-    canvasContext.beginPath();
-    canvasContext.moveTo(start_position.x, y);
-    canvasContext.lineTo(graphic_width - start_position.x, y);
-    canvasContext.stroke();
+    screen_canvas_context.beginPath();
+    screen_canvas_context.moveTo(start_position.x, y);
+    screen_canvas_context.lineTo(graphic_width - start_position.x, y);
+    screen_canvas_context.stroke();
   }
 
 }

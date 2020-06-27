@@ -273,8 +273,7 @@ class GameView {
 
         this._render_highlights();
 
-        this._render_entities(this.character_views);
-        this._render_entities(this.item_views);
+        this._render_entities();
 
         this.tile_grid.draw_surface();
 
