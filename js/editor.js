@@ -213,5 +213,6 @@ function update(){
         is_enabled = !is_enabled;
     }
 
-    update_world_edition();
+    if(is_enabled)
+        update_world_edition();
 }
