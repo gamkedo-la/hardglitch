@@ -422,6 +422,8 @@ function initialize(assets){
 
   canvas = document.getElementById('gameCanvas');
   canvasContext = canvas.getContext('2d');
+  canvasContext.imageSmoothingEnabled = false;
+
   canvas_resize_to_window();
   window.addEventListener('resize', on_window_resized);
 
