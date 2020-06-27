@@ -117,7 +117,7 @@ const sprite_defs = {
     crypto_file : {
         image: "crypto_file",
         frames: [
-            { x:0, y:0, width:64, height:64 }
+            { x:14, y:10, width:64, height:64 }
          ]
     },
     crypto_key : {
