@@ -9,6 +9,7 @@ export {
 import * as concepts from "../core/concepts.js";
 import { CharacterView } from "../game-view.js";
 import { is_walkable } from "../definitions-tiles.js";
+import { sprite_defs } from "../game-assets.js";
 
 class Moved extends concepts.Event {
     constructor(entity, from_pos, to_pos) {
@@ -29,6 +30,7 @@ class Moved extends concepts.Event {
 };
 
 class Move extends concepts.Action {
+    icon_def = sprite_defs.icon_action_move;
 
     constructor(move_name, new_position){
         super(move_name, `Move to ${JSON.stringify(new_position)} (${move_name})`, new_position);

@@ -9,8 +9,11 @@ import * as tiles from "../definitions-tiles.js";
 import * as concepts from "../core/concepts.js";
 import { Move, Moved } from "../rules/rules-movement.js";
 import { Vector2 } from "../system/spatial.js";
+import { sprite_defs } from "../game-assets.js";
 
 class Jump extends concepts.Action {
+    icon_def = sprite_defs.icon_action_move;
+
     constructor(target){
         super("jump", `Jump tp ${JSON.stringify(target)}`, target); // TODO: do it properly
     }
@@ -64,6 +67,8 @@ class Pushed extends concepts.Event {
 };
 
 class Push extends concepts.Action {
+    icon_def = sprite_defs.icon_action_push;
+
     constructor(target){
         super("push", "Push", target); // TODO: do it properly
     }
