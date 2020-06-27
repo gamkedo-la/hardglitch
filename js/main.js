@@ -45,8 +45,10 @@ function update_everything() {
   const delta_time = now - last_update_time;
   last_update_time = now;
   game_input.update(delta_time);
+  const ongoing_target_selection = current_game_view.ui.is_selecting_action_target;
   current_game_view.update(delta_time);
-  editor.update(delta_time);
+  if(!ongoing_target_selection) // TODO: REPLACE THIS MECHANISM BY A FINITE STATE MACHINE: MENU <-> GAME <-> EDITOR MODE
+    editor.update(delta_time);
 }
 
 function draw_everything() {
