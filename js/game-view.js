@@ -224,6 +224,7 @@ class GameView {
 
             if(this.current_animations.length == 0 && this.animation_queue.length == 0){
                 this.is_time_for_player_to_chose_action = true;
+                console.assert(this.game.last_turn_info.player_body);
                 this._change_character_focus(this.game.last_turn_info.player_body.position);
                 this.ui.unlock_actions();
                 editor.set_text("PLAYER'S TURN!");
