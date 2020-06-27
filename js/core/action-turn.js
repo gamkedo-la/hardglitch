@@ -100,15 +100,20 @@ function* execute_turns_until_players_turn(world) {
             const actor = character_body.actor;
             console.assert(actor instanceof concepts.Actor); // At this point we have to have a decision maker.
 
-            const possible_actions = world.gather_possible_actions_from_rules(character_body);
-            let action = actor.decide_next_action(possible_actions);
+            let action = null;
+            while(!action){ // Update the current possible actions and request an action from the character
+                            // until we obtain a usable action.
+                const possible_actions = world.gather_possible_actions_from_rules(character_body);
+                action = actor.decide_next_action(possible_actions);
 
-            if(action == null){ // No decision taken? Only players can hesitate!!!!
-                // This is a player: let the player decide what to do (they will store the action in the world state).
-                action = yield* request_player_action(character_body, possible_actions); // Give back the control and the list of events done since last turn.
+                if(action == null){ // No decision taken? Only players can hesitate!!!!
+                    // This is a player: let the player decide what to do (they will store the action in the world state).
+                    action = yield* request_player_action(character_body, possible_actions); // Give back the control and the list of events done since last turn.
+                }
             }
 
-            console.assert(action); // Ath this point, an action MUST have been defined (even if it's just Wait)
+            console.assert(action instanceof concepts.Action);// Ath this point, an action MUST have been defined (even if it's just Wait)
+
             // Apply the selected action.
             const action_events = concepts.perform_action(action, character_body, world);
             events_since_last_player_action.push(...action_events);

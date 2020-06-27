@@ -9,7 +9,7 @@ export {
 import * as graphics from "./system/graphics.js";
 import * as input from "./system/input.js";
 import * as tiles from "./definitions-tiles.js";
-import { mouse_grid_position, mouse_game_position, KEY } from "./game-input.js";
+import { mouse_grid_position, mouse_game_position, KEY, play_action } from "./game-input.js";
 import { current_game_view, current_game } from "./main.js";
 
 let is_enabled = false; // TURN THIS ON TO SEE THE EDITOR, see the update() function below
@@ -211,6 +211,12 @@ function update(){
 
     if(input.keyboard.is_just_down(KEY.ESCAPE)){
         is_enabled = !is_enabled;
+        if(!is_enabled){
+            // Just exited the editor mode.
+            // Make sure the changes are taken into account:
+            play_action();
+        }
+
     }
 
     if(is_enabled)

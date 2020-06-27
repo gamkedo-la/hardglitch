@@ -136,13 +136,17 @@ function update_camera_control(delta_time){
     }
 }
 
+// Play an action from the actions possible for the current player character.
+// Once the action is played we proceed to execute each character turns until we reach a player's turn again.
+// If the action is null or undefined, we simply update the possible actions and don't progress turns.
 function play_action(player_action){
-    console.assert(player_action instanceof concepts.Action);
-    console.assert(Object.values(current_game.last_turn_info.possible_actions).includes(player_action)); // The action MUST come from the possible actions.
+    console.assert(!player_action || player_action instanceof concepts.Action);
+    console.assert(!player_action || Object.values(current_game.last_turn_info.possible_actions).includes(player_action)); // The action MUST come from the possible actions.
 
     current_game.update_until_player_turn(player_action);
     current_game_view.interpret_turn_events(); // Starts showing each event one by one until it's player's turn.
 }
+
 
 function update(delta_time){
     input.update(delta_time);

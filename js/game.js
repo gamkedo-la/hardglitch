@@ -28,7 +28,6 @@ class Player extends concepts.Body {
 // Make it visible using a GameView.
 class Game {
     last_turn_info = null;
-    player_turn_count = 0;
 
     constructor(world){
         console.assert(world instanceof concepts.World);
@@ -37,21 +36,27 @@ class Game {
         // Prepare the game turns to be ready to play (player's turn)
         this.add_player_character_at_random_entry_point();
         this.__turn_sequence = turns.execute_turns_until_players_turn(this.world);
-        this.update_until_player_turn(new Wait());
+        this.update_until_player_turn();
         this.last_turn_info.clear_events(); // Remove previous events, we don't really want to know what happened before the first turn.
     }
 
+    // Updates the turns until we reach the next player's turn (whateve the character player controlled by the player).
+    // next_player_action must either be an Action that have been selected by the player to play,
+    // or null (or undefined) in which case:
+    // - if we were not at a player's turn, the turns will be processed until we do;
+    // - if we were already at a player's turn, no turn will proceed but the possible actions will be re-evaluated.
+    // So calling this function with no argument is useful when we change the world and want the rules to update what the new state.
     update_until_player_turn(next_player_action) {
-        console.log(`Player Action: ${next_player_action.name}`);
+        if(next_player_action)
+            console.log(`Player Action: ${next_player_action.name}`);
 
         console.log(`SOLVING TURNS ...`);
         const turn_iter = this.__turn_sequence.next(next_player_action);
         console.assert(turn_iter.done == false); // We should never be able to end.
 
         this.last_turn_info = turn_iter.value;
-        ++this.player_turn_count;
 
-        console.log(`NEW PLAYER TURN: ${this.player_turn_count}`);
+        console.log(`NEW PLAYER TURN`);
         console.log(`Characters Positions: `);
         for(const body of this.world.bodies){
             console.log(` - ${body.id}: ${JSON.stringify(body.position)}`);
