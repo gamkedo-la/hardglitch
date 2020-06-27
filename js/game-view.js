@@ -242,13 +242,14 @@ class GameView {
         };
     }
 
-    _render_entities(entity_id_map){
-        const entities = Object.values(entity_id_map);
-        console.assert(entities instanceof Array);
-        for(const entity_view of entities){
-            console.assert(entity_view instanceof EntityView);
-            entity_view.render_graphics();
-        };
+    get _all_entity_views() { return [ ...Object.values(this.character_views), ...Object.values(this.item_views) ]; }
+
+    _render_entities(){
+        // We need to render the entities in order of verticality so that things souther
+        // than other things can be drawn over, allowing to display higher sprites.
+        const entity_views = this._all_entity_views;
+        entity_views.sort((left_view, right_view) => left_view.position.y - right_view.position.y);
+        entity_views.map(view => view.render_graphics());
     }
 
     _update_highlights(delat_time){
