@@ -79,17 +79,27 @@ class UIElement {
 
     get is_mouse_over(){ return this.is_under(mouse.position); }
 
+    get all_ui_elements() { return Object.values(this).filter(element => element instanceof UIElement || element instanceof Sprite); }
+
     // Called each frame to update the state of the UI element.
     // _on_update() Must be implemented by child classes.
     update(delta_time) {
+        if(!this.visible || !this.enabled)
+            return;
         this._on_update(delta_time);
-
+        this.all_ui_elements.map(element => element.update(delta_time));
     }
+
 
     // Called by graphic systems to display this UI element.
     // Must be implemented by child classes.
     draw() {
+        if(!this.visible)
+            return; // TODO: this is not optimal, a better way would be for the thing owning this to have visible elements in an array and non-visible in another array, and only call draw on the visible ones.
+
         this._on_draw();
+        this.all_ui_elements.map(element => element.draw());
+
         if(this.draw_debug){
             draw_rectangle(this._area, "#ff00ff");
         }
@@ -122,6 +132,14 @@ class UIElementGroup extends UIElement {
     _on_draw(){
         this.all_ui_elements.map(element => element.draw());
     }
+
+    _on_visible(){  }
+
+    _on_hidden(){  }
+
+    _on_enabled(){  }
+
+    _on_disabled(){  }
 };
 
 
@@ -168,9 +186,6 @@ class Button extends UIElement {
     get state() { return this._state; }
 
     _on_update(delta_time){
-        if(!this.visible || !this.enabled)
-            return;
-
         const mouse_is_over_now = this.is_mouse_over;
 
         switch(this.state){
@@ -205,9 +220,6 @@ class Button extends UIElement {
     }
 
     _on_draw(){
-        if(!this.visible)
-            return; // TODO: this is not optimal, a better way would be for the thing owning this to have visible elements in an array and non-visible in another array, and only call draw on the visible ones.
-
         this._sprite.draw();
     }
 
@@ -252,8 +264,14 @@ class Button extends UIElement {
 };
 
 // Displays some text with a background.
-class Label extends UIElement {
+class Text extends UIElement {
+    constructor(text, font, color){
+        super()
+    }
 
+    _on_draw(){
+
+    }
 };
 
 class Pannel extends UIElement {
