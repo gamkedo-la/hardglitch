@@ -47,6 +47,7 @@ function apply_directional_force(world, target_pos, direction, force_action){
     console.assert(target_pos instanceof concepts.Position);
     target_pos = new Vector2(target_pos); // convert Position to Vector2
     console.assert(direction instanceof Vector2);
+    console.assert(direction.length > 0);
 
     const events = [];
 
@@ -88,8 +89,9 @@ class Push extends concepts.Action {
         console.assert(world instanceof concepts.World);
         console.assert(body instanceof concepts.Body);
         const push_translation = new Vector2(body.position).substract(this.target_position).normalize().inverse;
-        push_translation.x = Math.ceil(push_translation.x);
-        push_translation.y = Math.ceil(push_translation.y);
+        push_translation.x = Math.floor(push_translation.x);
+        push_translation.y = Math.floor(push_translation.y);
+        console.assert(push_translation.length > 0);
         return apply_directional_force(world, this.target_position, push_translation, Pushed);
     }
 }
@@ -105,10 +107,11 @@ class Pull extends concepts.Action {
     execute(world, body){
         console.assert(world instanceof concepts.World);
         console.assert(body instanceof concepts.Body);
-        const push_translation = new Vector2(body.position).substract(this.target_position).normalize();
-        push_translation.x = Math.ceil(push_translation.x);
-        push_translation.y = Math.ceil(push_translation.y);
-        return apply_directional_force(world, this.target_position, push_translation, Pulled);
+        const pull_translation = new Vector2(body.position).substract(this.target_position).normalize();
+        pull_translation.x = Math.floor(pull_translation.x);
+        pull_translation.y = Math.floor(pull_translation.y);
+        console.assert(pull_translation.length > 0);
+        return apply_directional_force(world, this.target_position, pull_translation, Pulled);
     }
 }
 
