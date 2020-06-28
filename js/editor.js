@@ -11,6 +11,7 @@ import * as input from "./system/input.js";
 import * as tiles from "./definitions-tiles.js";
 import { mouse_grid_position, mouse_game_position, KEY, play_action } from "./game-input.js";
 import { current_game_view, current_game } from "./main.js";
+import * as items from "./definitions-items.js";
 
 let is_enabled = false; // TURN THIS ON TO SEE THE EDITOR, see the update() function below
 let is_editing = false; // True if we are doing an edition manipulation and no other input should be handled.
@@ -76,6 +77,8 @@ function display_mouse_position(){
 }
 
 function update_world_edition(){
+    // TODO: use a map of input pattern => action
+
     is_editing = input.keyboard.is_any_key_down();
     if(!is_editing)
         return;
@@ -108,6 +111,24 @@ function update_world_edition(){
         return false;
     }
 
+
+    function add_cryptofile_if_ctrl_keys(key_code){
+        const key_pattern = [
+            { key_code: KEY.LEFT_CTRL, states: [input.KEY_STATE.DOWN, input.KEY_STATE.HOLD] },
+            { key_code: key_code, states: [input.KEY_STATE.DOWN] },
+        ];
+
+        if(input.keyboard.keys_matches_pattern(...key_pattern)){
+            if(current_game.is_walkable(mouse_grid_pos)){
+                const file = new items.CryptoFile();
+                file.position = mouse_grid_pos;
+                current_game.world.add(file);
+                return true;
+            }
+        }
+        return false;
+    }
+
     let world_was_edited = false;
 
     // EDIT TILES
@@ -120,6 +141,10 @@ function update_world_edition(){
 
     // EDIT CHARACTERS
     world_was_edited = world_was_edited || add_player_character_if_ctrl_keys(KEY.C);
+
+    // EDIT ITEMS
+    world_was_edited = world_was_edited || add_cryptofile_if_ctrl_keys(KEY.X);
+
 
     if(world_was_edited)
         current_game_view.notify_edition();

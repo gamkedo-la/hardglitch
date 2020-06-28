@@ -8,26 +8,7 @@ import { RandomActionEnemy } from "../enemies/test-enemy.js";
 
 import * as tiles from "../definitions-tiles.js";
 import { world_grid, default_rules } from "../definitions-world.js";
-import { sprite_defs } from "../game-assets.js";
-
-class CryptoFile extends concepts.Item {
-    assets = {
-        graphics : {
-            sprite_def : sprite_defs.crypto_file,
-        }
-    };
-
-};
-
-class CryptoKey extends concepts.Item {
-    assets = {
-        graphics : {
-            sprite_def : sprite_defs.crypto_key,
-        }
-    };
-
-};
-
+import { CryptoFile, CryptoKey } from "../definitions-items.js";
 
 function make_test_world(){ // The game assets must have been initialized first.
     const test_world_size = world_grid;
