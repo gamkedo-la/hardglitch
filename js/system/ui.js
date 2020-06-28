@@ -5,13 +5,22 @@
 export {
     UIElement,
     Button,
-    Text,
+    Text, HelpText,
 };
 
 import { Vector2, Rectangle, is_intersection } from "./spatial.js";
 import { Sprite, draw_rectangle, canvas_rect, draw_text, measure_text } from "./graphics.js";
 import { mouse, MOUSE_BUTTON } from "./input.js";
 import { is_number } from "./utility.js";
+
+function is_point_under(position, area){
+    console.assert(position.x != undefined && position.y != undefined );
+    return is_intersection(area, { position:position, width:0, height:0 });
+}
+
+function is_mouse_pointing(area){
+    return is_point_under(mouse.position, area);
+}
 
 class UIElement {
     draw_debug = false;
@@ -69,24 +78,21 @@ class UIElement {
     get height() { return this._area.height; }
     get area () { return new Rectangle(this._area); }
 
-    is_under(position){
-        console.assert(position.x != undefined && position.y != undefined );
-        return is_intersection(this._area, { position:position, width:0, height:0 });
-    }
-
     is_intersecting(rect){
         return is_intersection(this._area, rect);
     }
 
-    get is_mouse_over(){ return this.is_under(mouse.position); }
+    is_under(position){
+        return is_point_under(position, this._area);
+    }
+
+    get is_mouse_over(){ return is_mouse_pointing(this._area); }
 
     get all_ui_elements() { return Object.values(this).filter(element => element instanceof UIElement || element instanceof Sprite); }
 
     // Called each frame to update the state of the UI element.
     // _on_update() Must be implemented by child classes.
     update(delta_time) {
-        if(!this.visible || !this.enabled)
-            return;
         this._on_update(delta_time);
         this.all_ui_elements.map(element => element.update(delta_time));
     }
@@ -163,6 +169,9 @@ class Button extends UIElement {
     get state() { return this._state; }
 
     _on_update(delta_time){
+        if(!this.visible || !this.enabled)
+            return;
+
         const mouse_is_over_now = this.is_mouse_over;
 
         switch(this.state){
@@ -252,20 +261,20 @@ class Text extends UIElement {
         console.assert(typeof(text_def.text)==="string");
 
         super(text_def);
-        this.text = text_def.text;
-        this.font = text_def.font;
-        this.color = text_def.color;
-        this.margin_horizontal = text_def.margin_horizontal ? text_def.margin_horizontal : 4;
-        this.margin_vertical = text_def.margin_vertical ? text_def.margin_vertical : 4;
-        this.background_color = text_def.background_color ? text_def.background_color : "#ffffffaa";
+        this._text = text_def.text;
+        this._font = text_def.font;
+        this._color = text_def.color;
+        this._margin_horizontal = text_def.margin_horizontal ? text_def.margin_horizontal : 4;
+        this._margin_vertical = text_def.margin_vertical ? text_def.margin_vertical : 4;
+        this._background_color = text_def.background_color ? text_def.background_color : "#ffffffaa";
 
         // Force resize to the actual size of the text graphically.
-        const text_metrics = measure_text(this.text, this.font, this.color);
+        const text_metrics = measure_text(this._text, this._font, this._color);
         const actual_width = Math.abs(text_metrics.actualBoundingBoxLeft) + Math.abs(text_metrics.actualBoundingBoxRight);
         const actual_height = Math.abs(text_metrics.actualBoundingBoxAscent ) + Math.abs(text_metrics.actualBoundingBoxDescent);
         this._area.size = new Vector2({
-            x: actual_width + (this.margin_horizontal * 2),
-            y: actual_height + (this.margin_vertical * 2)
+            x: actual_width + (this._margin_horizontal * 2),
+            y: actual_height + (this._margin_vertical * 2)
         });
 
     }
@@ -275,10 +284,39 @@ class Text extends UIElement {
     }
 
     _on_draw(){
-        draw_rectangle(this.area, this.background_color);
-        draw_text(this.text, this.position.translate({x:this.margin_horizontal, y:this.margin_vertical}), this.font, this.color);
+        draw_rectangle(this.area, this._background_color);
+        draw_text(this._text, this.position.translate({x:this._margin_horizontal, y:this._margin_vertical}), this._font, this._color);
     }
 };
+
+// Text that appear only when the parent is pointed.
+class HelpText extends Text {
+
+    // See Text, plus:
+    // { area_to_help: rectangle }
+    constructor(text_def){
+        console.assert(text_def.area_to_help instanceof Rectangle);
+        super(text_def);
+        this.visible = false;
+        this.area_to_help = text_def.area_to_help;
+    }
+
+    get is_mouse_over_area_to_help(){
+        return is_mouse_pointing(this.area_to_help);
+    }
+
+    _on_update(delta_time){
+        super._on_update(delta_time);
+        if(this.visible){
+            if(!this.is_mouse_over_area_to_help)
+                this.visible = false;
+        } else {
+            if(this.is_mouse_over_area_to_help)
+                this.visible = true;
+        }
+    }
+};
+
 
 class Pannel extends UIElement {
 

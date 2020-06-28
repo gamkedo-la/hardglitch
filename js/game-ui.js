@@ -17,6 +17,7 @@ import { Vector2, center_in_rectangle } from "./system/spatial.js";
 
 const action_button_size = 50;
 
+
 class ActionButton extends ui.Button {
     constructor(position, icon_def, action_name, on_clicked){
         super({ // TODO: add a way to identify the action visually, text + icon
@@ -31,24 +32,15 @@ class ActionButton extends ui.Button {
         this.icon.position = center_in_rectangle(this.icon,
             { position: this.position, width: action_button_size, height:action_button_size}).position;
 
-        this.help_text = new ui.Text({
-            height: 20, width: 60,
-            text: action_name
-        });
-        this.help_text.position = this.position.translate({x:0, y: -this.help_text.height - 4 })
-        this.help_text.visible = false;
+        this.help_text = new ui.HelpText({
+            area_to_help: this.area,
+            width: action_button_size, height: action_button_size,
+            text: action_name,
+        })
+        this.help_text.position = this.position.translate({x:0, y: -this.help_text.height - 4 });
     }
 
-    _on_update(delta_time){
-        super._on_update(delta_time);
-        if(this.help_text.visible){
-            if(!this.is_mouse_over)
-                this.help_text.visible = false;
-        } else {
-            if(this.is_mouse_over)
-                this.help_text.visible = true;
-        }
-    }
+
 };
 
 
@@ -85,11 +77,11 @@ class GameInterface {
     }
 
     is_under(position){
-        return this.elements.some(element => element.is_under(position));
+        return this.elements.some(element => element.visible && element.is_under(position));
     }
 
     get is_mouse_over(){
-        return this.elements.some(element => element.is_mouse_over);
+        return this.elements.some(element => element.visible && element.is_mouse_over);
     }
 
     get is_selecting_action_target(){
