@@ -57,43 +57,6 @@ class ActionButton extends ui.Button {
 //       at specific times in the life of the game, and it's easier to do if its just an object.
 class GameInterface {
 
-    // Define the UI elements here:
-    // test_button = new ui.Button({
-    //     position: { x: 200, y: 500 },
-    //     width: 50, height: 50,
-    //     sprite_def: sprite_defs.test_button,
-    //     frames: { up: 0, down: 1, over: 2, disabled: 3 },
-    //     action: function(){
-    //         console.log("TEST BUTTON ACTION");
-    //     }
-    // });
-
-    // another_test_button = new ui.Button({
-    //     position: { x: 200, y: 600 },
-    //     width: 50, height: 50,
-    //     sprite_def: sprite_defs.test_button,
-    //     frames: { up: 0, down: 1, over: 2, disabled: 3 },
-    //     is_action_on_up: true,
-    //     action: ()=>{
-    //         console.log("ANOTHER TEST BUTTON ACTION");
-    //         this.another_test_button.enabled = false;
-    //         this.third_test_button.visible = true;
-    //     }
-    // });
-
-    // third_test_button = new ui.Button({
-    //     position: { x: 200, y: 700 },
-    //     width: 50, height: 50,
-    //     sprite_def: sprite_defs.test_button,
-    //     frames: { up: 0, down: 1, over: 2, disabled: 3 },
-    //     visible: false,
-    //     action: ()=>{
-    //         console.log("THIRD TEST BUTTON ACTION");
-    //         this.another_test_button.enabled = true;
-    //         this.third_test_button.visible = false;
-    //     }
-    // });
-
     button_cancel_action_selection = new ui.Button({
         position: { x: 200, y: 700 },
         width: action_button_size, height: action_button_size,
