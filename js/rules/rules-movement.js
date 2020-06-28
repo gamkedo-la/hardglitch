@@ -2,6 +2,7 @@
 
 export {
     Rule_Movements,
+    Rule_Jump,
     Move,
     Moved
 }
@@ -11,6 +12,8 @@ import { CharacterView } from "../game-view.js";
 import { is_walkable } from "../definitions-tiles.js";
 import { sprite_defs } from "../game-assets.js";
 import * as animations from "../game-animations.js";
+import * as tiles from "../definitions-tiles.js";
+
 
 class Moved extends concepts.Event {
     constructor(entity, from_pos, to_pos) {
@@ -74,3 +77,46 @@ class Rule_Movements extends concepts.Rule {
     }
 
 };
+
+
+
+class Jump extends concepts.Action {
+    icon_def = sprite_defs.icon_action_move;
+
+    constructor(target){
+        super("jump", `Jump tp ${JSON.stringify(target)}`, target); // TODO: do it properly
+    }
+
+    execute(world, body){
+        console.assert(body instanceof concepts.Body);
+        const initial_pos = body.position;
+        body.position = this.target_position;
+        return [new Moved(body, initial_pos, this.target_position)]; // TODO: implement a different event, with a different animation
+    }
+}
+
+class Rule_Jump extends concepts.Rule {
+
+    get_actions_for(body, world){
+        if(!body.is_player_actor) // TODO: temporary
+            return {};
+
+        const possible_jumps = {
+            rotate_ne : new Jump(body.position.north.east),
+            rotate_se : new Jump(body.position.south.east),
+            rotate_sw : new Jump(body.position.south.west),
+            rotate_nw : new Jump(body.position.north.west),
+            rotate_nene : new Jump(body.position.north.east.north.east),
+            rotate_sese : new Jump(body.position.south.east.south.east),
+            rotate_swsw : new Jump(body.position.south.west.south.west),
+            rotate_nwnw : new Jump(body.position.north.west.north.west),
+        };
+        for(const [name, rotate] of Object.entries(possible_jumps)){
+            if(world.is_blocked_position(rotate.target_position, tiles.is_walkable)){
+                delete possible_jumps[name];
+            }
+        }
+        return possible_jumps;
+    }
+};
+

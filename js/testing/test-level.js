@@ -9,7 +9,6 @@ import { RandomActionEnemy } from "../enemies/test-enemy.js";
 import * as tiles from "../definitions-tiles.js";
 import { world_grid, default_rules } from "../definitions-world.js";
 import { sprite_defs } from "../game-assets.js";
-import { Rule_Jump, Rule_Push } from "./test-rules.js";
 
 class CryptoFile extends concepts.Item {
     assets = {
@@ -110,8 +109,7 @@ function make_test_world(){ // The game assets must have been initialized first.
     console.assert(world._surface_tile_grid.matching_positions(tileid=> tileid == tiles.ID.ENTRY).length > 0);
 
     const test_rules = [
-        new Rule_Jump(),
-        new Rule_Push()
+
     ];
     world.set_rules(...default_rules, ...test_rules);
 
