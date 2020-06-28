@@ -10,6 +10,7 @@ import * as concepts from "../core/concepts.js";
 import { Move, Moved } from "../rules/rules-movement.js";
 import { Vector2 } from "../system/spatial.js";
 import { sprite_defs } from "../game-assets.js";
+import * as animations from "../game-animations.js";
 
 class Jump extends concepts.Action {
     icon_def = sprite_defs.icon_action_move;
@@ -62,7 +63,7 @@ class Pushed extends concepts.Event {
     }
 
     *animation(entity_view){
-        yield* entity_view.move_animation(this.to_pos);
+        yield* animations.move(entity_view, this.to_pos);
     }
 };
 

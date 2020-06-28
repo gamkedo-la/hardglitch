@@ -10,6 +10,7 @@ import * as concepts from "../core/concepts.js";
 import { CharacterView } from "../game-view.js";
 import { is_walkable } from "../definitions-tiles.js";
 import { sprite_defs } from "../game-assets.js";
+import * as animations from "../game-animations.js";
 
 class Moved extends concepts.Event {
     constructor(entity, from_pos, to_pos) {
@@ -23,8 +24,10 @@ class Moved extends concepts.Event {
         this.to_pos = to_pos;
     }
 
-    *animation(body_view){
-        yield* animation_move_event(body_view, this.to_pos);
+    *animation(character_view){
+        console.assert(character_view instanceof CharacterView);
+        console.assert(this.to_pos instanceof concepts.Position);
+        yield* animations.move(character_view, this.to_pos);
     }
 
 };
@@ -71,10 +74,3 @@ class Rule_Movements extends concepts.Rule {
     }
 
 };
-
-
-function* animation_move_event(character_view, new_position){
-    console.assert(character_view instanceof CharacterView);
-    console.assert(new_position instanceof concepts.Position);
-    yield* character_view.move_animation(new_position);
-}
