@@ -5,10 +5,11 @@
 export {
     UIElement,
     Button,
+    Text,
 };
 
 import { Vector2, Rectangle, is_intersection } from "./spatial.js";
-import { Sprite, draw_rectangle, canvas_rect } from "./graphics.js";
+import { Sprite, draw_rectangle, canvas_rect, draw_text, measure_text } from "./graphics.js";
 import { mouse, MOUSE_BUTTON } from "./input.js";
 import { is_number } from "./utility.js";
 
@@ -118,30 +119,6 @@ class UIElement {
     _on_disabled(){  }
 
 };
-
-// Group of UI elements that must work together.
-// We assume that the members which inherits from UIElement are the elements of the group.
-class UIElementGroup extends UIElement {
-
-    get all_ui_elements() { return Object.values(this).filter(element => element instanceof UIElement); }
-
-    _on_update(delta_time){
-        this.all_ui_elements.map(element => element.update(delta_time));
-    }
-
-    _on_draw(){
-        this.all_ui_elements.map(element => element.draw());
-    }
-
-    _on_visible(){  }
-
-    _on_hidden(){  }
-
-    _on_enabled(){  }
-
-    _on_disabled(){  }
-};
-
 
 const ButtonState = {
     UP: 0, DOWN: 1
@@ -265,12 +242,41 @@ class Button extends UIElement {
 
 // Displays some text with a background.
 class Text extends UIElement {
-    constructor(text, font, color){
-        super()
+    //
+    //{
+    //    text:"Blah blah", font: "Arial 16pt", color:"#000000AA",
+    //    background_color: "#11111111",
+    //    margin_horizontal: 4, margin_vertical: 4
+    //}
+    constructor(text_def){
+        console.assert(typeof(text_def.text)==="string");
+
+        super(text_def);
+        this.text = text_def.text;
+        this.font = text_def.font;
+        this.color = text_def.color;
+        this.margin_horizontal = text_def.margin_horizontal ? text_def.margin_horizontal : 4;
+        this.margin_vertical = text_def.margin_vertical ? text_def.margin_vertical : 4;
+        this.background_color = text_def.background_color ? text_def.background_color : "#ffffffaa";
+
+        // Force resize to the actual size of the text graphically.
+        const text_metrics = measure_text(this.text, this.font, this.color);
+        const actual_width = Math.abs(text_metrics.actualBoundingBoxLeft) + Math.abs(text_metrics.actualBoundingBoxRight);
+        const actual_height = Math.abs(text_metrics.actualBoundingBoxAscent ) + Math.abs(text_metrics.actualBoundingBoxDescent);
+        this._area.size = new Vector2({
+            x: actual_width + (this.margin_horizontal * 2),
+            y: actual_height + (this.margin_vertical * 2)
+        });
+
+    }
+
+    _on_update(delta_time){
+
     }
 
     _on_draw(){
-
+        draw_rectangle(this.area, this.background_color);
+        draw_text(this.text, this.position.translate({x:this.margin_horizontal, y:this.margin_vertical}), this.font, this.color);
     }
 };
 

@@ -8,6 +8,7 @@ export {
   Sprite,
   TileGrid,
   draw_text,
+  measure_text,
   draw_rectangle,
   canvas_center_position,
   canvas_rect,
@@ -468,12 +469,33 @@ function clear(){
   screen_canvas_context.restore();
 }
 
-function draw_text(text, position, font="24px arial", color="black"){
-  screen_canvas_context.font = font; // TODO: replace this by proper font handling.
+
+const text_defaults = {
+  text_align: "left", text_baseline: "top",
+  font: "24px arial", color: "black",
+};
+
+function text_operation(font, color, operation){
+  screen_canvas_context.save();
+  screen_canvas_context.font = font;
   screen_canvas_context.fillStyle = color;
-  screen_canvas_context.textAlign = "left";
-  screen_canvas_context.textBaseline = "top";
-  screen_canvas_context.fillText(text, position.x, position.y);
+  screen_canvas_context.textAlign = text_defaults.text_align;
+  screen_canvas_context.textBaseline = text_defaults.text_baseline;
+  const result = operation();
+  screen_canvas_context.restore();
+  return result;
+}
+
+function measure_text(text, font=text_defaults.font, color=text_defaults.color){
+  return text_operation(font, color, ()=>{
+    return screen_canvas_context.measureText(text);
+  });
+}
+
+function draw_text(text, position, font=text_defaults.font, color=text_defaults.color){
+  return text_operation(font, color, ()=>{
+    screen_canvas_context.fillText(text, position.x, position.y);
+  });
 }
 
 function canvas_center_position(){

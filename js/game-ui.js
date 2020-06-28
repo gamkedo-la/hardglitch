@@ -18,7 +18,7 @@ import { Vector2, center_in_rectangle } from "./system/spatial.js";
 const action_button_size = 50;
 
 class ActionButton extends ui.Button {
-    constructor(position, icon_def, on_clicked){
+    constructor(position, icon_def, action_name, on_clicked){
         super({ // TODO: add a way to identify the action visually, text + icon
             position: position,
             width: action_button_size, height: action_button_size,
@@ -27,10 +27,26 @@ class ActionButton extends ui.Button {
             action: on_clicked
         });
 
-        if(icon_def){
-            this.icon = new graphics.Sprite(icon_def);
-            this.icon.position = center_in_rectangle(this.icon,
-                { position: this.position, width: action_button_size, height:action_button_size}).position;
+        this.icon = new graphics.Sprite(icon_def);
+        this.icon.position = center_in_rectangle(this.icon,
+            { position: this.position, width: action_button_size, height:action_button_size}).position;
+
+        this.help_text = new ui.Text({
+            height: 20, width: 60,
+            text: action_name
+        });
+        this.help_text.position = this.position.translate({x:0, y: -this.help_text.height - 4 })
+        this.help_text.visible = false;
+    }
+
+    _on_update(delta_time){
+        super._on_update(delta_time);
+        if(this.help_text.visible){
+            if(!this.is_mouse_over)
+                this.help_text.visible = false;
+        } else {
+            if(this.is_mouse_over)
+                this.help_text.visible = true;
         }
     }
 };
@@ -148,7 +164,7 @@ class GameInterface {
             const position = { x: next_x(), y: line_y };
             const first_action = actions[0];
             console.assert(first_action instanceof concepts.Action);
-            const action_button = new ActionButton(position, first_action.icon_def, ()=>{
+            const action_button = new ActionButton(position, first_action.icon_def, action_name, ()=>{
                     set_text(`ACTION SELECTED: ${action_name}`);
                     // TODO: highlight the possible targets
                     if(actions.length == 1 && first_action.target_position === undefined){ // No need for targets
