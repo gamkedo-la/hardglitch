@@ -1,6 +1,7 @@
 
 export {
     Rule_Push,
+    Rule_Pull,
 }
 
 import * as concepts from "../core/concepts.js";
@@ -23,6 +24,8 @@ class Pushed extends concepts.Event {
         yield* animations.move(entity_view, this.to_pos);
     }
 };
+
+const Pulled = Pushed; // For now, pulling is just pushing in reverse, don't tell anyone until this needs to be changed XD
 
 class Bounced extends concepts.Event {
     constructor(entity, from, to){
@@ -77,7 +80,8 @@ class Push extends concepts.Action {
     icon_def = sprite_defs.icon_action_push;
 
     constructor(target){
-        super("push", "Push", target); // TODO: do it properly
+        const action_id = `push_${target.x}_${target.y}`;
+        super(action_id, `Push ${JSON.stringify(target)}`, target);
     }
 
     execute(world, body){
@@ -90,6 +94,26 @@ class Push extends concepts.Action {
     }
 }
 
+class Pull extends concepts.Action {
+    icon_def = sprite_defs.icon_action_pull;
+
+    constructor(target){
+        const action_id = `pull_${target.x}_${target.y}`;
+        super(action_id, `Pull ${JSON.stringify(target)}`, target);
+    }
+
+    execute(world, body){
+        console.assert(world instanceof concepts.World);
+        console.assert(body instanceof concepts.Body);
+        const push_translation = new Vector2(body.position).substract(this.target_position).normalize();
+        push_translation.x = Math.ceil(push_translation.x);
+        push_translation.y = Math.ceil(push_translation.y);
+        return apply_directional_force(world, this.target_position, push_translation, Pulled);
+    }
+}
+
+
+// TODO: factorize code common between Pull and Push rules!
 class Rule_Push extends concepts.Rule {
 
     get_actions_for(body, world){
@@ -112,6 +136,32 @@ class Rule_Push extends concepts.Rule {
             }
         }
         return push_actions;
+    }
+};
+
+
+class Rule_Pull extends concepts.Rule {
+
+    get_actions_for(body, world){
+        if(!body.is_player_actor) // TODO: temporary (otherwise the player will be bushed lol)
+            return {};
+
+        const pull_actions = {};
+        const range = 5; // TODO: make different kinds of pull actions that have different ranges
+        const center_pos = body.position;
+        for(let y = -range; y < range; ++y){
+            for(let x = -range; x < range; ++x){
+                if((x == 0 && y == 0)  // Skip the character pulling
+                // || (x != 0 && y != 0) // Skip any position not aligned with axes
+                )
+                    continue;
+                const target = new concepts.Position(new Vector2(center_pos).translate({x, y}));
+                if(world.entity_at(target)){
+                    pull_actions[`pull_${x}_${y}`] = new Pull(target);
+                }
+            }
+        }
+        return pull_actions;
     }
 };
 
