@@ -7,6 +7,7 @@ import * as concepts from "../core/concepts.js";
 import { Vector2 } from "../system/spatial.js";
 import { sprite_defs } from "../game-assets.js";
 import * as animations from "../game-animations.js";
+import * as tiles from "../definitions-tiles.js";
 
 class Pushed extends concepts.Event {
     constructor(entity, from, to){
@@ -38,6 +39,40 @@ class Bounced extends concepts.Event {
     }
 }
 
+function apply_directional_force(world, target_pos, direction, force_action){
+    console.assert(world instanceof concepts.World);
+    console.assert(target_pos instanceof concepts.Position);
+    target_pos = new Vector2(target_pos); // convert Position to Vector2
+    console.assert(direction instanceof Vector2);
+
+    const events = [];
+
+    // from here, recursively/propagate the force!  AND prevent applying force if there is a wall preventing it
+    let target_entity = world.entity_at(target_pos);
+    while(target_entity){
+        console.assert(target_entity instanceof concepts.Entity);
+
+        const next_pos = target_pos.translate(direction);
+        if(world.is_blocked_position(next_pos, tiles.is_walkable)){ // Something is behind, we'll bounce against it.
+            // TODO: only bounce IFF the kind of entity will not moved if second-pushed XD
+            const next_entity = world.entity_at(next_pos);
+            console.assert(!next_entity || next_entity instanceof concepts.Entity);
+            events.push(new Bounced(target_entity, target_entity.position, next_pos));
+            target_entity = next_entity;
+            target_pos = next_pos;
+        } else {
+            // Nothing behind, just move there.
+            const new_position = new Vector2(target_entity.position).translate(direction);
+            const initial_position = target_entity.position;
+            target_entity.position = new_position;
+            events.push(new force_action(target_entity, initial_position, new concepts.Position(next_pos)));
+            target_entity = null; // Don't propagate anymore.
+        }
+    }
+
+    return events;
+}
+
 class Push extends concepts.Action {
     icon_def = sprite_defs.icon_action_push;
 
@@ -48,22 +83,10 @@ class Push extends concepts.Action {
     execute(world, body){
         console.assert(world instanceof concepts.World);
         console.assert(body instanceof concepts.Body);
-        const target_entity = world.entity_at(this.target_position);
-        console.assert(target_entity instanceof concepts.Entity);
-
-        if(target_entity){
-            const initial_pos = target_entity.position;
-            const push_translation = new Vector2(body.position).substract(target_entity.position).normalize().inverse;
-            push_translation.x = Math.floor(push_translation.x);
-            push_translation.y = Math.floor(push_translation.y);
-            const new_position = new Vector2(target_entity.position).translate(push_translation); // TODO: from here, recursively/propagate push! (in the event?) AND prevent applying push if there is a wall preventing it
-            if(new_position.length != 0){
-                target_entity.position = new_position;
-                return [new Pushed(target_entity, initial_pos, target_entity.position)]; // TODO: use a specific Event instead
-            }
-        }
-
-        return [];
+        const push_translation = new Vector2(body.position).substract(this.target_position).normalize().inverse;
+        push_translation.x = Math.ceil(push_translation.x);
+        push_translation.y = Math.ceil(push_translation.y);
+        return apply_directional_force(world, this.target_position, push_translation, Pushed);
     }
 }
 
@@ -78,7 +101,9 @@ class Rule_Push extends concepts.Rule {
         const center_pos = body.position;
         for(let y = -range; y < range; ++y){
             for(let x = -range; x < range; ++x){
-                if(x == 0 && y == 0)  // Skip the character pushing
+                if((x == 0 && y == 0)  // Skip the character pushing
+                // || (x != 0 && y != 0) // Skip any position not aligned with axes
+                )
                     continue;
                 const target = new concepts.Position(new Vector2(center_pos).translate({x, y}));
                 if(world.entity_at(target)){
