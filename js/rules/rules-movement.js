@@ -8,11 +8,11 @@ export {
 }
 
 import * as concepts from "../core/concepts.js";
-import { CharacterView } from "../game-view.js";
 import { is_walkable } from "../definitions-tiles.js";
 import { sprite_defs } from "../game-assets.js";
 import * as animations from "../game-animations.js";
 import * as tiles from "../definitions-tiles.js";
+import { EntityView } from "../view/common-view.js";
 
 
 class Moved extends concepts.Event {
@@ -20,17 +20,20 @@ class Moved extends concepts.Event {
         console.assert(entity instanceof concepts.Entity);
         console.assert(from_pos instanceof concepts.Position);
         console.assert(to_pos instanceof concepts.Position);
-        super(entity.id, {
+        super({
             allow_parallel_animation: true,
+            description: `Entity ${entity.id} Moved from ${JSON.stringify(from_pos)} to ${JSON.stringify(to_pos)}`
         });
+        this.entity_id = entity.id;
         this.from_pos = from_pos;
         this.to_pos = to_pos;
     }
 
-    *animation(character_view){
-        console.assert(character_view instanceof CharacterView);
+    *animation(entity_views){
+        const entity_view = entity_views[this.entity_id];
+        console.assert(entity_view instanceof EntityView);
         console.assert(this.to_pos instanceof concepts.Position);
-        yield* animations.move(character_view, this.to_pos);
+        yield* animations.move(entity_view, this.to_pos);
     }
 
 };
@@ -84,7 +87,7 @@ class Jump extends concepts.Action {
     icon_def = sprite_defs.icon_action_move;
 
     constructor(target){
-        super(`jump_${target.x}_${target.y}`, `Jump to ${JSON.stringify(target)}`, target); // TODO: do it properly
+        super(`jump_${target.x}_${target.y}`, `Jump to ${JSON.stringify(target)}`, target);
     }
 
     execute(world, body){

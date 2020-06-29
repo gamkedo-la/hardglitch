@@ -72,15 +72,19 @@ function perform_action(action, body, world){
 class Event{
     allow_parallel_animation = false; // Will be played in parallel with other parallel animations if true, will be animated alone otherwise.
 
-    constructor(entity_id, options){
-        console.assert(Number.isInteger(entity_id)); // 0 means it's a world event
-        this.entity_id = entity_id;
-        if(options && options.allow_parallel_animation)
+    constructor(options){
+        if(options){
             this.allow_parallel_animation = options.allow_parallel_animation;
+            this._desc = options.description;
+        }
     }
 
+    get description(){ return this._desc || `${this.constructor.name}`; }
+
     // Animation to perform when viewing this event.
-    *animation(entity_view){} // Do nothing by default
+    // entity_views: All the available entity views we might need to manipulate to do the animation.
+    // focus_on_square: A function taking a Position, called when we need the view to focus on that position.
+    *animation(entity_views, focus_on_position){} // Do nothing by default
 };
 
 
@@ -238,6 +242,7 @@ class Body extends Entity {
             move_south: this.position.south
         };
     }
+
 };
 
 // This is the world as known by the game.

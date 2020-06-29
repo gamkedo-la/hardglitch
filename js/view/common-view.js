@@ -29,8 +29,6 @@ function game_position_from_graphic_po(vec2){
 
 // Common parts used by both body/character and items views.
 class EntityView {
-    is_performing_animation = false;
-
     constructor(game_position, assets){
         console.assert(game_position);
         console.assert(assets);
@@ -59,14 +57,6 @@ class EntityView {
     set position(new_position){
         this.sprite.position = new_position;
     }
-
-    *animate_event(event){
-        this.is_performing_animation = true;
-        yield* event.animation(this); // Let the event describe how to do it!
-        this.is_performing_animation = false;
-    }
-
-
 
 };
 

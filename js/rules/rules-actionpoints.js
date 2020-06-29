@@ -8,7 +8,9 @@ import * as concepts from "../core/concepts.js";
 
 class Event_ActionPointsRestored extends concepts.Event {
     constructor(body, restored_points){
-        super(body.body_id);
+        super({
+            description: `Restored AP of entity ${body.id}`
+        });
         this.restored_points = restored_points;
     }
 

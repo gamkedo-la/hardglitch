@@ -49,8 +49,7 @@ class Highlight{
 };
 
 class GameView {
-    character_views = {};
-    item_views = {};
+    entity_views = {};
     is_time_for_player_to_chose_action = true;
     animation_queue = []; // Must contain only js generators + parallel: (true||false). // TODO: make the animation system separately to be used anywhere there are animations to play.
     current_animations = []; // Must be a set of js generators, each one an animation that can be played together.
@@ -83,42 +82,23 @@ class GameView {
     interpret_turn_events() {
         console.assert(this.animation_queue.length == 0);
 
-        const events = this.game.last_turn_info.events; // turns.PlayerTurn
+        const events = this.game.last_turn_info.events;
         for(const event of events){
-            if(event.entity_id === 0){ // 0 means it's a World event.
-                // Launch the event's animation, if any.
-                this.animation_queue.push({
-                    animation:event.animation(),
-                    parallel: event.allow_parallel_animation,
-                });
-
-            } else { // If it's not a World event, it's a entity-related event.
-                console.assert(event.entity_id);
-                const entity_view = this._find_entity_view(event.entity_id);
-                // TODO: handle the case where a new one appeared
-                if(entity_view){
-                    console.assert(entity_view instanceof EntityView);
-                    // Add the animation to do to represent the event, for the player to see, if any.
-                    this.animation_queue.push({
-                        animation: entity_view.animate_event(event),
-                        parallel: event.allow_parallel_animation,
-                        focus_position: new concepts.Position(entity_view.game_position),
-                    });
-                }
-            }
+            console.assert(event instanceof concepts.Event);
+            this.animation_queue.push({
+                start_animation: ()=> this._start_event_animation(event),
+                parallel: event.allow_parallel_animation,
+            });
         }
 
         this.highlight_available_basic_actions();
         this.ui.show_action_buttons(Object.values(this.game.last_turn_info.possible_actions));
     }
 
-    _find_entity_view(entity_id){
-        const view = this.character_views[entity_id];
-        if(view !== undefined){
-            return view;
-        }
-        return this.item_views[entity_id];
-    }
+    *_start_event_animation(event){
+        const focus_on_position = (position)=> this._change_character_focus(position);
+        yield* event.animation(this.entity_views, focus_on_position);
+    };
 
     _add_highlight(position, sprite){
         this.player_actions_highlights.push(new Highlight(position, sprite));
@@ -175,8 +155,7 @@ class GameView {
         this.tile_grid.update(delta_time);
 
         this._update_animations(delta_time);
-        this._update_entities(delta_time, this.item_views);
-        this._update_entities(delta_time, this.character_views);
+        this._update_entities(delta_time);
 
         this.ui.update(delta_time);
     }
@@ -196,11 +175,11 @@ class GameView {
                 let delay_for_next_animation = 0;
                 while(this.animation_queue.length > 0){
                     const animation = this.animation_queue.shift(); // pop!
-                    const animation_state = animation.animation.next(); // Get to the first step of the animation
+                    animation.iterator = animation.start_animation();
+                    const animation_state = animation.iterator.next(); // Get to the first step of the animation
                     if(animation_state.done) // Skip when there was actually no animation.
                         continue;
                     // Start the animation:
-                    this._change_character_focus(animation.focus_position);
                     animation.delay = delay_for_next_animation;
                     delay_for_next_animation += delay_between_animations_ms;
                     this.current_animations.push(animation);
@@ -211,7 +190,7 @@ class GameView {
 
             for(const animation of this.current_animations){
                 if(animation.delay <= 0){
-                    const animation_state = animation.animation.next(delta_time); // Updates the animation.
+                    const animation_state = animation.iterator.next(delta_time); // Updates the animation.
                     animation.done = animation_state.done;
                 } else {
                     animation.done = false;
@@ -233,22 +212,22 @@ class GameView {
         }
     }
 
-    _update_entities(delta_time, entity_id_map){
-        const entities = Object.values(entity_id_map);
+    _update_entities(delta_time){
+        const entity_views = this.list_entity_views;
         console.assert(Number.isInteger(delta_time));
-        console.assert(entities instanceof Array);
-        for(const entity_view of entities){
+        console.assert(entity_views instanceof Array);
+        for(const entity_view of entity_views){
             console.assert(entity_view instanceof EntityView);
             entity_view.update(delta_time);
         };
     }
 
-    get _all_entity_views() { return [ ...Object.values(this.character_views), ...Object.values(this.item_views) ]; }
+    get list_entity_views() { return Object.values(this.entity_views); }
 
     _render_entities(){
         // We need to render the entities in order of verticality so that things souther
         // than other things can be drawn over, allowing to display higher sprites.
-        const entity_views = this._all_entity_views;
+        const entity_views = this.list_entity_views;
         entity_views.sort((left_view, right_view) => left_view.position.y - right_view.position.y);
         entity_views.map(view => view.render_graphics());
     }
@@ -272,7 +251,6 @@ class GameView {
         this.tile_grid.draw_floor();
 
         this._render_highlights();
-
         this._render_entities();
 
         this.tile_grid.draw_surface();
@@ -312,8 +290,8 @@ class GameView {
         console.assert(world);
 
         this._reset_tilegrid(world);
-        this.item_views = this._create_entity_views(this.game.world.items, ItemView);
-        this.character_views = this._create_entity_views(this.game.world.bodies, CharacterView);
+        this.entity_views = Object.assign({}, this._create_entity_views(this.game.world.items, ItemView)
+                                            , this._create_entity_views(this.game.world.bodies, CharacterView));
         this.highlight_available_basic_actions();
         this.ui.show_action_buttons(Object.values(this.game.last_turn_info.possible_actions));
 

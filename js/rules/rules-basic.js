@@ -3,6 +3,7 @@ import * as tiles from "../definitions-tiles.js";
 import { sprite_defs } from "../game-assets.js";
 
 import * as editor from "../editor.js";
+import { CharacterView } from "../view/character-view.js";
 
 export {
     Rule_GameOver,
@@ -12,19 +13,33 @@ export {
     Waited,
     GameOver,
     PlayerExitLevel,
-    animation_wait_event
 };
+
+
+function* animation_wait_event() { // TODO: make a proper aniumation and move that in game-animation.js
+    const start_time = Date.now();
+    const duration_ms = 333;
+    const target_time = start_time + duration_ms;
+    while(Date.now() < target_time){
+        yield;
+    }
+}
 
 // That actor decided to take a pause.
 class Waited extends concepts.Event {
     constructor(body){
-        super(body.body_id, {
+        console.assert(body instanceof concepts.Body);
+        super({
             allow_parallel_animation: true,
+            description: `Entity ${body.id} Waited`,
         });
+        this.character_id = body.id;
     }
 
-    *animation(body_view){
-        yield* animation_wait_event(body_view);
+    *animation(entity_views){
+        const character_view = entity_views[this.character_id];
+        console.assert(character_view instanceof CharacterView);
+        yield* animation_wait_event();
     }
 };
 
@@ -51,15 +66,6 @@ class Rule_BasicActions extends concepts.Rule {
     }
 };
 
-// Animates the view for this event
-function* animation_wait_event(body_view) {
-    const start_time = Date.now();
-    const duration_ms = 333;
-    const target_time = start_time + duration_ms;
-    while(Date.now() < target_time){
-        yield;
-    }
-}
 
 // Check if that world is in a state where the game is over.
 function is_game_over(world){
@@ -76,7 +82,9 @@ function is_game_over(world){
 
 class GameOver extends concepts.Event {
     constructor(){
-        super(0); // body_id==0 means "the world"
+        super({
+            description: "Game Over condition detected"
+        });
     }
 
     *animation(){ // TEMPORARY ANIMATION
@@ -109,7 +117,9 @@ class Rule_GameOver extends concepts.Rule {
 
 class PlayerExitLevel extends concepts.Event {
     constructor(){
-        super(0);
+        super({
+            description: "Player character exited the level!"
+        });
     }
 
     *animation(){ // TEMPORARY ANIMATION

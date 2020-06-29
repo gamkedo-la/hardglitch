@@ -9,18 +9,22 @@ import { Vector2 } from "../system/spatial.js";
 import { sprite_defs } from "../game-assets.js";
 import * as animations from "../game-animations.js";
 import * as tiles from "../definitions-tiles.js";
+import { EntityView } from "../view/common-view.js";
 
 class Pushed extends concepts.Event {
     constructor(entity, from, to){
-        super(entity.id, {
-             allow_parallel_animation: false
+        super({
+            allow_parallel_animation: false,
+            description: `Entity ${entity.id} was Pushed from ${JSON.stringify(from)} to ${JSON.stringify(to)}`
         });
-        this.target_entity = entity;
+        this.target_entity_id = entity.id;
         this.from_pos = from;
         this.to_pos = to;
     }
 
-    *animation(entity_view){
+    *animation(entity_views){
+        const entity_view = entity_views[this.target_entity_id];
+        console.assert(entity_view instanceof EntityView);
         yield* animations.move(entity_view, this.to_pos);
     }
 };
@@ -29,15 +33,18 @@ const Pulled = Pushed; // For now, pulling is just pushing in reverse, don't tel
 
 class Bounced extends concepts.Event {
     constructor(entity, from, to){
-        super(entity.id, {
-             allow_parallel_animation: false
+        super({
+            allow_parallel_animation: false,
+            description: `Entity ${entity.id} Bounced from ${JSON.stringify(from)} against ${JSON.stringify(to)}`
         });
-        this.target_entity = entity;
+        this.target_entity_id = entity.id;
         this.from_pos = from;
         this.to_pos = to;
     }
 
-    *animation(entity_view){
+    *animation(entity_views){
+        const entity_view = entity_views[this.target_entity_id];
+        console.assert(entity_view instanceof EntityView);
         yield* animations.bounce(entity_view, this.to_pos);
     }
 }

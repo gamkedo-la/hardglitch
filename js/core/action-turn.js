@@ -1,7 +1,10 @@
 // This file contains the action system and how actions are "solved".
 //
 
-export { execute_turns_until_players_turn, PlayerTurn };
+export {
+    execute_turns_until_players_turn,
+    PlayerTurn,
+};
 
 import * as concepts from "./concepts.js";
 
@@ -37,14 +40,29 @@ class PlayerTurn
 // Event: New game turn begins!
 class NewTurn extends concepts.Event {
     constructor(){
-        super(0); // Body_id 0 is used for the World events.
+        super();
     }
 };
 
 // Event: New turn phase begins!
 class NewTurnPhase extends concepts.Event {
     constructor(){
-        super(0); // Body_id 0 is used for the World events.
+        super();
+    }
+};
+
+// Event: A character's turn begins!
+class NewCharacterTurn extends concepts.Event {
+    constructor(character_id){
+        super({allow_parallel_animation:true});
+        this.allow_parallel_animation = true;
+        this.character_id = character_id;
+    }
+
+    *animation(entity_views, focus_on_positions){
+        const character_view = entity_views[this.character_id];
+        console.assert(character_view);
+        focus_on_positions(character_view.game_position);
     }
 };
 
@@ -81,12 +99,12 @@ function* execute_turns_until_players_turn(world) {
         // Apply the rules of the world that must happen at each Turn (before we begin doing characters turns).
         events_since_last_player_action.push(...world.apply_rules_beginning_of_game_turn());
 
-        let looping_character_sequence = loop_characters_until_end_of_turn(world); // This sequence includes turn phases, so one character with enough action points left can occur more than one time.
+        const looping_character_sequence = loop_characters_until_end_of_turn(world); // This sequence includes turn phases, so one character with enough action points left can occur more than one time.
 
         for(const body_or_event of looping_character_sequence){ // Bodies can act several times a turn, but once a phase.
                                                                  // There is a new turn phase if after cycling all bodies, some still have action points left.
 
-            if(body_or_event instanceof NewTurnPhase){ // Ok we are notified that a new Turn Phase starts now.
+            if(body_or_event instanceof concepts.Event){ // Ok we are notified that a new turn event starts now.
                 events_since_last_player_action.push(body_or_event); // Just keep track that this happened.
                 continue;
             }
@@ -148,6 +166,7 @@ function *loop_characters_until_end_of_turn(world){
         yield new NewTurnPhase();
         let some_characters_can_act = false;
         for(const character_body of characters_that_can_act_now(world)){
+            yield new NewCharacterTurn(character_body.id);
             yield character_body;
             some_characters_can_act = some_characters_can_act && character_body.can_perform_actions;
         }
