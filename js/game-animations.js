@@ -6,7 +6,7 @@ export {
 }
 
 import * as concepts from "./core/concepts.js";
-import { graphic_position, EntityView, PIXELS_PER_HALF_SIDE } from "./view/common-view.js";
+import { graphic_position, EntityView, PIXELS_PER_HALF_SIDE } from "./view/entity-view.js";
 import { tween } from "./system/tweening.js";
 
 const default_move_duration_ms = 200;

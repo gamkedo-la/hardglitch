@@ -5,7 +5,7 @@ export {
     ItemView,
 }
 
-import { EntityView } from "./common-view.js";
+import { EntityView } from "./entity-view.js";
 import * as concepts from "../core/concepts.js";
 
 

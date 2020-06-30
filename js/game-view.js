@@ -17,7 +17,7 @@ import * as editor from "./editor.js";
 import {
     graphic_position, PIXELS_PER_TILES_SIDE, square_half_unit_vector,
     EntityView,
-} from "./view/common-view.js";
+} from "./view/entity-view.js";
 import { TileGridView } from "./view/tilegrid-view.js";
 import { CharacterView } from "./view/character-view.js";
 import { GameInterface } from "./game-ui.js";
@@ -32,17 +32,21 @@ class Highlight{
     constructor(position, sprite){
         console.assert(Number.isInteger(position.x) && Number.isInteger(position.y));
         console.assert(sprite instanceof graphics.Sprite);
-        this._position = position;
+        this._position = new concepts.Position(position);
         this._sprite = sprite;
     }
 
     set position(new_pos) {
+        console.assert(new_pos instanceof concepts.Position);
         this._position = new_pos;
     }
 
+    get position(){
+        return this._position;
+    }
+
     draw(canvas_context){
-        if(!this._position)
-            return;
+        console.assert(this._position instanceof concepts.Position);
         this._sprite.position = graphic_position(this._position);
         this._sprite.draw(canvas_context);
     }
@@ -96,12 +100,18 @@ class GameView {
     }
 
     *_start_event_animation(event){
-        const focus_on_position = (position)=> this._change_character_focus(position);
-        yield* event.animation(this.entity_views, focus_on_position);
+        yield* event.animation(this);
     };
 
     _add_highlight(position, sprite){
         this.player_actions_highlights.push(new Highlight(position, sprite));
+    }
+
+    focus_on_entity(entity_id){
+        const entity_view = this.entity_views[entity_id];
+        console.assert(entity_view instanceof EntityView);
+        this.focus_on_position(entity_view.game_position);
+        return entity_view;
     }
 
     // Setup highlights for actions that are known with a target position.
@@ -119,7 +129,7 @@ class GameView {
         }
 
         if(this.game.last_turn_info.player_body)
-            this._change_character_focus(this.game.last_turn_info.player_body.position);
+            this.focus_on_position(this.game.last_turn_info.player_body.position);
     }
 
     highlight_selected_action_targets(action_info){
@@ -204,7 +214,7 @@ class GameView {
             if(this.current_animations.length == 0 && this.animation_queue.length == 0){
                 this.is_time_for_player_to_chose_action = true;
                 if(this.game.last_turn_info.player_body){
-                    this._change_character_focus(this.game.last_turn_info.player_body.position);
+                    this.focus_on_position(this.game.last_turn_info.player_body.position);
                     this.ui.unlock_actions();
                 }
                 editor.set_text("PLAYER'S TURN!");
@@ -278,8 +288,9 @@ class GameView {
         }
     }
 
-    _change_character_focus(character_pos){
-        this._character_focus_highlight.position = character_pos;
+    focus_on_position(position){
+        console.assert(position instanceof concepts.Position);
+        this._character_focus_highlight.position = position;
     }
 
     // Re-interpret the game's state from scratch.
@@ -336,7 +347,7 @@ class GameView {
             return undefined;
         }
 
-        return grid_pos;
+        return new concepts.Position(grid_pos);
     }
 
     center_on_player(){

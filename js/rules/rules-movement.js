@@ -12,7 +12,8 @@ import { is_walkable } from "../definitions-tiles.js";
 import { sprite_defs } from "../game-assets.js";
 import * as animations from "../game-animations.js";
 import * as tiles from "../definitions-tiles.js";
-import { EntityView } from "../view/common-view.js";
+import { EntityView } from "../view/entity-view.js";
+import { GameView } from "../game-view.js";
 
 
 class Moved extends concepts.Event {
@@ -29,10 +30,12 @@ class Moved extends concepts.Event {
         this.to_pos = to_pos;
     }
 
-    *animation(entity_views){
-        const entity_view = entity_views[this.entity_id];
+    *animation(game_view){
+        console.assert(game_view instanceof GameView);
+        const entity_view = game_view.focus_on_entity(this.entity_id);
         console.assert(entity_view instanceof EntityView);
         console.assert(this.to_pos instanceof concepts.Position);
+        game_view.focus_on_position(this.to_pos);
         yield* animations.move(entity_view, this.to_pos);
     }
 
@@ -123,3 +126,74 @@ class Rule_Jump extends concepts.Rule {
     }
 };
 
+
+
+// class Swaped extends concepts.Event {
+//     constructor(entity_a, entity_b) {
+//         console.assert(entity_a instanceof concepts.Entity);
+//         console.assert(entity_b instanceof concepts.Entity);
+//         console.assert(pos_a instanceof concepts.Position);
+//         console.assert(pos_b instanceof concepts.Position);
+//         super({
+//             allow_parallel_animation: true,
+//             description: `Entity ${entity_a.id} at ${JSON.stringify(entity_a.position)} and Entity ${entity_b.id} at ${JSON.stringify(entity_b.position)} exchanged position`
+//         });
+//         this.entity_a_id = entity_a.id;
+//         this.entity_b_id = entity_b.id;
+//     }
+
+//     *animation(game_view){
+//         console.assert(game_view instanceof GameView);
+//         const entity_a_view = game_view.entity_views[this.entity_a_id];
+//         console.assert(entity_a_view instanceof EntityView);
+//         const entity_b_view = game_view.entity_views[this.entity_b_id];
+//         console.assert(entity_b_view instanceof EntityView);
+//         game_view.focus_on_position(entity_a_view.position);
+//         yield* animations.swap(entity_a_view, entity_a_view);
+//         game_view.focus_on_position(entity_a_view.position);
+//     }
+
+// };
+
+// class Swap extends concepts.Action {
+//     icon_def = sprite_defs.icon_action_move;
+
+//     constructor(target){
+//         super(`swap_${target.x}_${target.y}`, `Swap with ${JSON.stringify(target)}`, target);
+//     }
+
+//     execute(world, body){
+//         console.assert(body instanceof concepts.Body);
+//         const initial_pos = body.position;
+//         body.position = this.target_position;
+//         return [
+//             new Swaped(body, initial_pos, this.target_position)
+//         ];
+//     }
+// }
+
+
+// class Rule_Swap extends concepts.Rule {
+
+//     get_actions_for(body, world){
+//         if(!body.is_player_actor) // TODO: temporary
+//             return {};
+
+//         const possible_swaps = {};
+//         const range = 4; // TODO: make different kinds of actions that have different ranges
+//         const center_pos = body.position;
+//         for(let y = -range; y < range; ++y){
+//             for(let x = -range; x < range; ++x){
+//                 if((x == 0 && y == 0)  // Skip the character pushing
+//                 // || (x != 0 && y != 0) // Skip any position not aligned with axes
+//                 )
+//                     continue;
+//                 const target = new concepts.Position(new Vector2(center_pos).translate({x, y}));
+//                 if(world.entity_at(target)){
+//                     possible_swaps[`swap_${x}_${y}`] = new Swp(target);
+//                 }
+//             }
+//         }
+//         return possible_swaps;
+//     }
+// };

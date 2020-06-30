@@ -7,10 +7,6 @@
 // game, without being changed too much.
 // We will describe what kind of entities can exist here.
 
-import { is_number } from "../system/utility.js";
-import { Grid } from "../system/grid.js";
-import { Vector2 } from "../system/spatial.js";
-
 export {
     World,
     Event,
@@ -24,6 +20,10 @@ export {
     Position,
     perform_action,
 };
+
+import { is_number } from "../system/utility.js";
+import { Grid } from "../system/grid.js";
+
 
 let next_entity_id = 0;
 function new_entity_id(){
@@ -82,9 +82,8 @@ class Event{
     get description(){ return this._desc || `${this.constructor.name}`; }
 
     // Animation to perform when viewing this event.
-    // entity_views: All the available entity views we might need to manipulate to do the animation.
-    // focus_on_square: A function taking a Position, called when we need the view to focus on that position.
-    *animation(entity_views, focus_on_position){} // Do nothing by default
+    // view: object representing the view of the game to be manipulated by this event.
+    *animation(view){} // Do nothing by default
 };
 
 
@@ -397,4 +396,3 @@ class World
     }
 
 };
-

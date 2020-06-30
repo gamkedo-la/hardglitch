@@ -4,6 +4,7 @@ import { sprite_defs } from "../game-assets.js";
 
 import * as editor from "../editor.js";
 import { CharacterView } from "../view/character-view.js";
+import { GameView } from "../game-view.js";
 
 export {
     Rule_GameOver,
@@ -36,8 +37,9 @@ class Waited extends concepts.Event {
         this.character_id = body.id;
     }
 
-    *animation(entity_views){
-        const character_view = entity_views[this.character_id];
+    *animation(game_view){
+        console.assert(game_view instanceof GameView);
+        const character_view = game_view.focus_on_entity(this.character_id);
         console.assert(character_view instanceof CharacterView);
         yield* animation_wait_event();
     }
@@ -116,13 +118,21 @@ class Rule_GameOver extends concepts.Rule {
 
 
 class PlayerExitLevel extends concepts.Event {
-    constructor(){
+    constructor(body){
+        console.assert(body instanceof concepts.Body);
         super({
-            description: "Player character exited the level!"
+            description: `Player character ${body.id} exited the level!`
         });
+        this.character_id = body.id;
     }
 
-    *animation(){ // TEMPORARY ANIMATION
+    *animation(game_view){
+        console.assert(game_view instanceof GameView);
+        const character_view = game_view.focus_on_entity(this.character_id);
+        console.assert(character_view instanceof CharacterView);
+
+        ///////////////////////////////////////////////////////////////
+        // TEMPORARY ANIMATION
         let time_left = 4000;
         editor.set_central_text("YOU WIN THIS LEVEL! - LOADING NEXT LEVEL ...");
         while(time_left > 0){
@@ -141,7 +151,7 @@ class Rule_LevelExit extends concepts.Rule {
             const exit_positions = world._surface_tile_grid.matching_positions(tile_id => tile_id == tiles.ID.EXIT); // TODO: keep a cache until the world's tiles have changed?
             if(exit_positions.some(position => character_body.position.equals(position))){
                 world.is_finished = true;
-                return [ new PlayerExitLevel() ];
+                return [ new PlayerExitLevel(character_body) ];
             }
         }
         return [];

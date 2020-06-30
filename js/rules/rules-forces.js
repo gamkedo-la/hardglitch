@@ -9,7 +9,8 @@ import { Vector2 } from "../system/spatial.js";
 import { sprite_defs } from "../game-assets.js";
 import * as animations from "../game-animations.js";
 import * as tiles from "../definitions-tiles.js";
-import { EntityView } from "../view/common-view.js";
+import { EntityView } from "../view/entity-view.js";
+import { GameView } from "../game-view.js";
 
 class Pushed extends concepts.Event {
     constructor(entity, from, to){
@@ -22,8 +23,9 @@ class Pushed extends concepts.Event {
         this.to_pos = to;
     }
 
-    *animation(entity_views){
-        const entity_view = entity_views[this.target_entity_id];
+    *animation(game_view){
+        console.assert(game_view instanceof GameView);
+        const entity_view = game_view.focus_on_entity(this.target_entity_id);
         console.assert(entity_view instanceof EntityView);
         yield* animations.move(entity_view, this.to_pos);
     }
@@ -42,8 +44,9 @@ class Bounced extends concepts.Event {
         this.to_pos = to;
     }
 
-    *animation(entity_views){
-        const entity_view = entity_views[this.target_entity_id];
+    *animation(game_view){
+        console.assert(game_view instanceof GameView);
+        const entity_view = game_view.focus_on_entity(this.target_entity_id);
         console.assert(entity_view instanceof EntityView);
         yield* animations.bounce(entity_view, this.to_pos);
     }

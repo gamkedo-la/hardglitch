@@ -40,29 +40,18 @@ class PlayerTurn
 // Event: New game turn begins!
 class NewTurn extends concepts.Event {
     constructor(){
-        super();
+        super({
+            description: "======== New Game Turn ========"
+        });
     }
 };
 
 // Event: New turn phase begins!
 class NewTurnPhase extends concepts.Event {
     constructor(){
-        super();
-    }
-};
-
-// Event: A character's turn begins!
-class NewCharacterTurn extends concepts.Event {
-    constructor(character_id){
-        super({allow_parallel_animation:true});
-        this.allow_parallel_animation = true;
-        this.character_id = character_id;
-    }
-
-    *animation(entity_views, focus_on_positions){
-        const character_view = entity_views[this.character_id];
-        console.assert(character_view);
-        focus_on_positions(character_view.game_position);
+        super({
+            description: "---- New Turn Phase ----"
+        });
     }
 };
 
@@ -166,7 +155,6 @@ function *loop_characters_until_end_of_turn(world){
         yield new NewTurnPhase();
         let some_characters_can_act = false;
         for(const character_body of characters_that_can_act_now(world)){
-            yield new NewCharacterTurn(character_body.id);
             yield character_body;
             some_characters_can_act = some_characters_can_act && character_body.can_perform_actions;
         }

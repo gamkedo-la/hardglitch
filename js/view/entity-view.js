@@ -49,7 +49,7 @@ class EntityView {
         this.position = graphic_position(new_game_position);
     }
 
-    get game_position() { return game_position_from_graphic_po(this.position); }
+    get game_position() { return new concepts.Position(game_position_from_graphic_po(this.position)); }
 
     get position(){
         return this.sprite.position;

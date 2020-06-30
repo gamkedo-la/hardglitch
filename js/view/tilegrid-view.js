@@ -10,7 +10,7 @@ import { SeamSelector, genFloorOverlay, genFgOverlay } from "./tile-select.js";
 
 import * as graphics from "../system/graphics.js";
 import { Vector2 } from "../system/spatial.js";
-import { PIXELS_PER_TILES_SIDE, PIXELS_PER_HALF_SIDE } from "./common-view.js";
+import { PIXELS_PER_TILES_SIDE, PIXELS_PER_HALF_SIDE } from "./entity-view.js";
 import { ParticleGroup, ParticleSystem, ParticleEmitter, FadeLineParticle, BlipParticle, Color } from "../system/particles.js";
 import { random_float, position_from_index } from "../system/utility.js";
 
