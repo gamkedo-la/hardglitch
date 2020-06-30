@@ -175,6 +175,7 @@ class GameView {
         if(this.current_animations.length != 0 || this.animation_queue.length > 0){
             if(this.is_time_for_player_to_chose_action){
                 this.is_time_for_player_to_chose_action = false;
+                this.ui.lock_actions();
                 editor.set_text("PROCESSING NPC TURNS...");
             }
 
