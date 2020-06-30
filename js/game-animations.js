@@ -3,6 +3,7 @@
 export {
     move,
     bounce,
+    swap,
 }
 
 import * as concepts from "./core/concepts.js";
@@ -34,3 +35,27 @@ function *bounce(entity_view, target_game_position, duration_ms=default_move_dur
     yield* translate(entity_view, initial_gfx_pos, duration_ms / 2);
     entity_view.game_position = initial_position;
 }
+
+function *in_parallel(...animations){
+    while(animations.length > 0){
+        const delta_time = yield;
+        animations.map((animation, index)=>{
+            const state = animation.next(delta_time);
+            if(state.done)
+                animations.splice(index, 1);
+        });
+    }
+}
+
+function *swap(left_entity_view, right_entity_view, duration_ms=default_move_duration_ms){
+    console.assert(left_entity_view instanceof EntityView);
+    console.assert(right_entity_view instanceof EntityView);
+
+    const left_final_pos = right_entity_view.game_position;
+    const right_final_pos = left_entity_view.game_position;
+    yield* in_parallel(
+        move(left_entity_view, left_final_pos, duration_ms),
+        move(right_entity_view, right_final_pos, duration_ms)
+    );
+}
+

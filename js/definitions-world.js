@@ -4,7 +4,7 @@
 export { world_grid, default_rules };
 
 import * as basic_rules from "./rules/rules-basic.js";
-import { Rule_Movements, Rule_Jump } from "./rules/rules-movement.js";
+import { Rule_Movements, Rule_Jump, Rule_Swap } from "./rules/rules-movement.js";
 import { Rule_ActionPoints } from "./rules/rules-actionpoints.js";
 import { Rule_Push, Rule_Pull } from "./rules/rules-forces.js";
 
@@ -23,6 +23,7 @@ const default_rules = [ // BEWARE: rules will be applied in-order.
     new Rule_Jump(),
     new Rule_Push(),
     new Rule_Pull(),
+    new Rule_Swap(),
 ];
 
 
