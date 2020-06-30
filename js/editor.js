@@ -164,7 +164,10 @@ function display_help(){
     if(current_game_view.ui.is_selecting_action_target){
         graphics.draw_text("[ESC] - CANCEL TARGET SELECTION", {x: display_x, y: next_line() });
     } else {
-        graphics.draw_text("[ESC] - EDITOR MODE", {x: display_x, y: next_line() });
+        if(current_game_view.is_time_for_player_to_chose_action
+        && !input.mouse.is_dragging
+        )
+            graphics.draw_text("[ESC] - EDITOR MODE", {x: display_x, y: next_line() });
     }
     graphics.draw_text("[F9]  - MOUSE INFO", {x: display_x, y: next_line() });
     graphics.draw_text("-----------------------", {x: display_x, y: next_line() });
@@ -187,7 +190,8 @@ function display_editor_help(){
         return line += 30;
     }
 
-    graphics.draw_text("[ESC] - EXIT EDITOR MODE", {x: display_x, y: next_line() });
+    if(!input.mouse.is_dragging)
+        graphics.draw_text("[ESC] - EXIT EDITOR MODE", {x: display_x, y: next_line() });
     graphics.draw_text("[F9]  - MOUSE INFO", {x: display_x, y: next_line() });
     graphics.draw_text("-----------------------", {x: display_x, y: next_line() });
     graphics.draw_text("[M] - SHOW/HIDE GRID LINES", {x: display_x, y: next_line() });

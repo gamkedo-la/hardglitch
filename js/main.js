@@ -47,7 +47,11 @@ function update_everything() {
   game_input.update(delta_time);
   const ongoing_target_selection = current_game_view.ui.is_selecting_action_target;
   current_game_view.update(delta_time);
-  if(!ongoing_target_selection) // TODO: REPLACE THIS MECHANISM BY A FINITE STATE MACHINE: MENU <-> GAME <-> EDITOR MODE
+
+  if(!ongoing_target_selection  // TODO: REPLACE THIS MECHANISM BY A FINITE STATE MACHINE: MENU <-> GAME <-> EDITOR MODE
+  && current_game_view.is_time_for_player_to_chose_action
+  && !input.mouse.is_dragging
+  )
     editor.update(delta_time);
 }
 
