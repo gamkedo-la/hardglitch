@@ -76,9 +76,15 @@ update_id_defs("lvl1", "g2w");
 update_id_defs("lvl1", "g2h");
 update_id_defs("lvl1", "g2o");
 update_id_defs("lvl1", "h2w");
+update_id_defs("lvl1", "h2v");
 update_id_defs("lvl1", "h2g");
 update_id_defs("lvl1", "w2h");
+update_id_defs("lvl1", "w2v");
 update_id_defs("lvl1", "w2g");
+update_id_defs("lvl1", "v2g");
+update_id_defs("lvl1", "v2h");
+update_id_defs("lvl1", "v2w");
+update_id_defs("lvl1", "g2v");
 
 
 // All the tile sprites definitions (as described by tiles definitions).

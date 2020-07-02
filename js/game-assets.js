@@ -31,9 +31,15 @@ const game_assets = { // Description of the assets to load.
         g2h_template : "./images/groundToHole.png",
         g2o_template : "./images/groundToOther.png",
         h2w_template : "./images/holeToWall.png",
+        h2v_template : "./images/holeToVoid.png",
         h2g_template : "./images/holeToGround.png",
         w2h_template : "./images/wallToHole.png",
+        w2v_template : "./images/wallToVoid.png",
         w2g_template : "./images/wallToGround.png",
+        g2v_template : "./images/groundToVoid.png",
+        v2g_template : "./images/voidToGround.png",
+        v2h_template : "./images/voidToHole.png",
+        v2w_template : "./images/voidToWall.png",
         test_button : "./images/test_button.png",
         highlights : "./images/highlights.png",
         crypto_file: "./images/allcryptofiles.png",
@@ -339,10 +345,20 @@ function update_sprite_defs(imgname, lvl, layer, tilesize) {
 
 update_sprite_defs("bgtemplate", "lvl1", "bg", 32);
 update_sprite_defs("tiletemplate", "lvl1", "fg", 32);
+
 update_sprite_defs("g2w_template", "lvl1", "g2w", 32);
 update_sprite_defs("g2h_template", "lvl1", "g2h", 32);
 update_sprite_defs("g2o_template", "lvl1", "g2o", 32);
+update_sprite_defs("g2v_template", "lvl1", "g2v", 32);
+
 update_sprite_defs("h2w_template", "lvl1", "h2w", 32);
+update_sprite_defs("h2v_template", "lvl1", "h2v", 32);
 update_sprite_defs("h2g_template", "lvl1", "h2g", 32);
+
 update_sprite_defs("w2h_template", "lvl1", "w2h", 32);
+update_sprite_defs("w2v_template", "lvl1", "w2v", 32);
 update_sprite_defs("w2g_template", "lvl1", "w2g", 32);
+
+update_sprite_defs("v2g_template", "lvl1", "v2g", 32);
+update_sprite_defs("v2h_template", "lvl1", "v2h", 32);
+update_sprite_defs("v2w_template", "lvl1", "v2w", 32);

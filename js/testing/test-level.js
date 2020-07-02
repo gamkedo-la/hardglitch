@@ -57,6 +57,7 @@ function make_test_world(){ // The game assets must have been initialized first.
     // set floor/walls/holes
     let wallPct = .2;
     let holePct = .1;
+    let voidPct = .05;
     for (let j=0; j<test_world_size.height; j++) {
         for (let i=0; i<test_world_size.width; i++) {
             // pick a random number
@@ -68,6 +69,9 @@ function make_test_world(){ // The game assets must have been initialized first.
             // check hole pct
             } else if ( choice <= wallPct+holePct) {
                 tileID = tiles.ID.HOLE;
+            // check void pct
+            } else if ( choice <= wallPct+holePct+voidPct) {
+                tileID = tiles.ID.VOID;
             // otherwise ground
             } else {
                 tileID = tiles.ID.GROUND;

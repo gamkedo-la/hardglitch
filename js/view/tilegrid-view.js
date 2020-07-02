@@ -75,13 +75,20 @@ class TileGridView {
         const fg_grid = new Grid(size.x*2, size.y*2);
         let selectors = [
             new SeamSelector("w2h", (fg) => (fg==tiledefs.ID.WALL), (bg) => (bg == tiledefs.ID.HOLE)),
+            new SeamSelector("w2v", (fg) => (fg==tiledefs.ID.WALL), (bg) => (bg == tiledefs.ID.VOID)),
+            new SeamSelector("w2g", (fg) => (fg==tiledefs.ID.WALL), (bg) => (bg != tiledefs.ID.WALL)),
             new SeamSelector("h2w", (fg) => (fg==tiledefs.ID.HOLE), (bg) => (bg == tiledefs.ID.WALL)),
+            new SeamSelector("h2v", (fg) => (fg==tiledefs.ID.HOLE), (bg) => (bg == tiledefs.ID.VOID)),
+            new SeamSelector("h2g", (fg) => (fg==tiledefs.ID.HOLE), (bg) => (bg != tiledefs.ID.HOLE)),
+            new SeamSelector("v2h", (fg) => (fg==tiledefs.ID.VOID), (bg) => (bg == tiledefs.ID.HOLE)),
+            new SeamSelector("v2w", (fg) => (fg==tiledefs.ID.VOID), (bg) => (bg == tiledefs.ID.WALL)),
+            new SeamSelector("v2g", (fg) => (fg==tiledefs.ID.VOID), (bg) => (bg != tiledefs.ID.VOID)),
             new SeamSelector("g2w", (fg) => (fg==tiledefs.ID.GROUND), (bg) => (bg == tiledefs.ID.WALL)),
             new SeamSelector("g2h", (fg) => (fg==tiledefs.ID.GROUND), (bg) => (bg == tiledefs.ID.HOLE)),
-            new SeamSelector("w2g", (fg) => (fg==tiledefs.ID.WALL), (bg) => (bg != tiledefs.ID.WALL)),
-            new SeamSelector("h2g", (fg) => (fg==tiledefs.ID.HOLE), (bg) => (bg != tiledefs.ID.HOLE)),
+            new SeamSelector("g2v", (fg) => (fg==tiledefs.ID.GROUND), (bg) => (bg == tiledefs.ID.VOID)),
             new SeamSelector("g2o", (fg) => (fg==tiledefs.ID.GROUND), (bg) => (bg != tiledefs.ID.GROUND)),
         ];
+
         // handle floor transitions
         genFloorOverlay("lvl1", ground_tile_grid, bg_grid, selectors);
         // handle surface transitions
@@ -92,6 +99,7 @@ class TileGridView {
             const surface_element = ground_tile_grid.elements[i];
             if (surface_element == tiledefs.ID.WALL) continue;
             if (surface_element == tiledefs.ID.GROUND) continue;
+            if (surface_element == tiledefs.ID.VOID) continue;
             midData[i] = surface_element;
         }
         for (let i=0; i<surface_tile_grid.elements.length; i++) {
