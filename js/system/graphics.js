@@ -188,6 +188,19 @@ class Sprite {
       return { width: 64, height: 64, x: 64, y: 64 };
   }
 
+  // Change the origin point to the and translate to compensate.
+  move_origin_to(origin_translation){
+    this.position = this.position.translate(origin_translation);
+    this.origin = origin_translation;
+  }
+
+  // Change the origin point to the current center and translate to compensate.
+  move_origin_to_center(){
+    const size = new spatial.Vector2(this.size);
+    const origin_translation = this._draw_translation_from_origin();
+    const center = size.translate(origin_translation).multiply(0.5);
+    this.move_origin_to(center);
+  }
 
   _draw_translation_from_origin() {
     if(this._current_frame){
