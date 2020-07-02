@@ -343,6 +343,49 @@ function update_sprite_defs(imgname, lvl, layer, tilesize) {
     }
 }
 
+/**
+ * split up a sprite sheet representing animated tiles
+ * @param {*} imgname - template tilesheet reference
+ * @param {*} lvl - level associated w/ tilesheet
+ * @param {*} layer - layer associated w/ tilesheet
+ * @param {*} tilesize - base size of a single tile
+ * @param {*} templatesize - base size of the template
+ * @param {*} frames - number of frames
+ * @param {*} duration - duration to apply for each frame
+ */
+function update_anim_defs(imgname, lvl, layer, tilesize, templatesize, frames, duration) {
+    // build animation
+    const anim = {
+        idle: {
+            loop: true,
+            timeline: []
+        },
+    }
+    for (let i=0; i<frames; i++) {
+        anim.idle.timeline.push( { frame: i, duration: duration } );
+    }
+
+    // for each possible tile definition from template, build out asset
+    for (const k of Object.keys(tile_defs)) {
+        let p = tile_defs[k];
+        let def = {
+            image: imgname,
+            frames: [],
+            animations: anim,
+        }
+        for (let i=0; i<frames; i++) {
+            def.frames.push({
+                x: p.i*tilesize + i*templatesize,
+                y: p.j*tilesize,
+                width: tilesize,
+                height: tilesize
+            });
+        }
+        let id = tile_id(lvl, layer, k);
+        sprite_defs[id] = def;
+    }
+}
+
 update_sprite_defs("bgtemplate", "lvl1", "bg", 32);
 update_sprite_defs("tiletemplate", "lvl1", "fg", 32);
 
@@ -359,6 +402,9 @@ update_sprite_defs("w2h_template", "lvl1", "w2h", 32);
 update_sprite_defs("w2v_template", "lvl1", "w2v", 32);
 update_sprite_defs("w2g_template", "lvl1", "w2g", 32);
 
-update_sprite_defs("v2g_template", "lvl1", "v2g", 32);
+// FIXME: testing of tile animations... replace update_anim_defs w/ commented line below to fix performance
+//update_sprite_defs("v2g_template", "lvl1", "v2g", 32);
+update_anim_defs("v2g_template", "lvl1", "v2g", 32, 512, 8, 100);
+
 update_sprite_defs("v2h_template", "lvl1", "v2h", 32);
 update_sprite_defs("v2w_template", "lvl1", "v2w", 32);
