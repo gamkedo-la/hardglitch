@@ -10,6 +10,8 @@ import * as tiles from "../definitions-tiles.js";
 import { world_grid, default_rules } from "../definitions-world.js";
 import { CryptoFile, CryptoKey } from "../definitions-items.js";
 
+import { test_rules } from "./test-rules.js";
+
 function make_test_world(){ // The game assets must have been initialized first.
     const test_world_size = world_grid;
     const grid_size = test_world_size.height * test_world_size.width;
@@ -93,9 +95,6 @@ function make_test_world(){ // The game assets must have been initialized first.
     const world = new concepts.World( test_world_size.width, test_world_size.height, floor_tile_grid, surface_tile_grid );
     console.assert(world._surface_tile_grid.matching_positions(tileid=> tileid == tiles.ID.ENTRY).length > 0);
 
-    const test_rules = [
-
-    ];
     world.set_rules(...default_rules, ...test_rules);
 
     function can_insert_something_there(position){

@@ -4,13 +4,15 @@ export {
     move,
     bounce,
     swap,
+    destroyed,
 }
 
-import * as concepts from "./core/concepts.js";
 import { graphic_position, EntityView, PIXELS_PER_HALF_SIDE } from "./view/entity-view.js";
-import { tween } from "./system/tweening.js";
+import { tween, easing } from "./system/tweening.js";
+import { Vector2 } from "./system/spatial.js";
 
 const default_move_duration_ms = 200;
+const default_destruction_duration_ms = 666;
 
 function *translate(entity_view, target_gfx_pos, duration_ms){
     console.assert(entity_view instanceof EntityView);
@@ -59,3 +61,25 @@ function *swap(left_entity_view, right_entity_view, duration_ms=default_move_dur
     );
 }
 
+function *destroyed(entity_view, duration_ms=default_destruction_duration_ms){
+    console.assert(entity_view instanceof EntityView);
+    // Center the sprite so that the rotation origin is in the center of it.
+    entity_view.sprite.move_origin_to_center();
+    // WwhwhhiiiiiiiiiIIIIIIIIIiiiizzzzzzzzzzZZZZZZZZZZZZZ
+    yield* tween( {
+                scale_x: entity_view.scale.x,
+                scale_y: entity_view.scale.y,
+                orientation: entity_view.orientation,
+            }, {
+                scale_x: 0,
+                scale_y: 0,
+                orientation: entity_view.orientation + 360,
+            },
+            duration_ms,
+            (values) => {
+                entity_view.scale = { x: values.scale_x, y: values.scale_y };
+                entity_view.orientation = values.orientation;
+            },
+            easing.linear
+    );
+}

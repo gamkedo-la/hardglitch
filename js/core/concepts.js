@@ -278,9 +278,10 @@ class World
         // TODO: add the necessary info in the system that handles space partitionning
     }
 
-    remove_body(...ids){
-        for(const body_id of ids){
-            delete this._bodies[body_id];
+    remove_entity(...ids){
+        for(const entity_id of ids){
+            delete this._bodies[entity_id];
+            delete this._items[entity_id];
         }
     }
 

@@ -332,6 +332,10 @@ class GameView {
         return entity_views;
     }
 
+    remove_entity_view(entity_id){
+        delete this.entity_views[entity_id];
+    }
+
     // Called by the editor code when editing the game in a way the require re-interpreting the game's state.
     notify_edition(){
         this._requires_reset = true;

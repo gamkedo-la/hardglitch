@@ -58,6 +58,22 @@ class EntityView {
         this.sprite.position = new_position;
     }
 
+    set scale(new_scale){
+        this.sprite.transform.scale = new Vector2(new_scale);
+    }
+
+    get scale() {
+        return new Vector2(this.sprite.transform.scale);
+    }
+
+    set orientation(angle){
+        this.sprite.transform.orientation.degrees = angle;
+    }
+
+    get orientation(){
+        return this.sprite.transform.orientation.degrees;
+    }
+
 };
 
 
