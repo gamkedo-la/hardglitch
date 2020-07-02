@@ -125,8 +125,8 @@ const sprite_defs = {
     test_enemy: {
         image: "test_enemy",
         frames: [
-                    { x: 0, y: 0, width: 64, height: 96 },
-                    { x: 64, y: 0, width: 64, height: 96 },
+                    { x: 0, y: 0, width: 64, height: 64 },
+                    { x: 64, y: 0, width: 64, height: 64 },
                 ],
         animations: {
             idle: {
