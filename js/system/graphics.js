@@ -209,7 +209,7 @@ class Sprite {
       const origin_translation = this._draw_translation_from_origin();
       const position = this.transform.position;
       canvas_context.translate(position.x, position.y);
-      canvas_context.rotate(this.transform.orientation.degrees); // TODO: check if t's radian or degrees
+      canvas_context.rotate(this.transform.orientation.radian);
       canvas_context.scale(this.transform.scale.x, this.transform.scale.y);
       if(this._current_frame)
       {
