@@ -111,6 +111,7 @@ class Sprite {
   origin = new spatial.Vector2(); // Point in the sprite that corresponds to the origin
 
   _frame_changed_since_update = false;
+  _frame_origin = new spatial.Vector2();
 
   // Setup the sprite using a sprite definition if provided.
   // A sprite definition looks like this:
@@ -159,12 +160,12 @@ class Sprite {
     console.assert(is_number(frame_idx));
     console.assert(frame_idx >= 0 && frame_idx < this.frames.length);
     this._current_frame = this.frames[frame_idx];
-    if(this._current_frame.origin){
-      this.origin = new spatial.Vector2(this._current_frame.origin);
-    } else {
-      this.origin = new spatial.Vector2();
-    }
     this._frame_changed_since_update = true;
+    if(this._current_frame.origin){
+      this._frame_origin = new spatial.Vector2(this._current_frame.origin);
+    } else {
+      this._frame_origin = new spatial.Vector2();
+    }
   }
 
   start_animation(animation_id){
@@ -187,6 +188,15 @@ class Sprite {
       return { width: 64, height: 64, x: 64, y: 64 };
   }
 
+
+  _draw_translation_from_origin() {
+    if(this._current_frame){
+      return this.origin.translate(this._frame_origin).inverse;
+    } else {
+      return this.origin.inverse;
+    }
+  }
+
   draw(canvas_context){
     if(!canvas_context)
       canvas_context = screen_canvas_context;
@@ -194,9 +204,10 @@ class Sprite {
     const size = this.size;
 
     if(this.source_image){
+      canvas_context.save();
 
-      canvas_context.save(); // TODO : this should be done by the caller? probably
-      const position = this.transform.position.translate(this.origin.inverse);
+      const origin_translation = this._draw_translation_from_origin();
+      const position = this.transform.position;
       canvas_context.translate(position.x, position.y);
       canvas_context.rotate(this.transform.orientation.degrees); // TODO: check if t's radian or degrees
       canvas_context.scale(this.transform.scale.x, this.transform.scale.y);
@@ -204,14 +215,15 @@ class Sprite {
       {
         canvas_context.drawImage(this.source_image,
           this._current_frame.x, this._current_frame.y, size.width, size.height, // source
-          0, 0, size.width, size.height, // destination
+          origin_translation.x, origin_translation.y, size.width, size.height, // destination
         );
       }
       else
       {
         // No frame, use the whole image.
-        canvas_context.drawImage(this.source_image, 0, 0, size.width, size.height);
+        canvas_context.drawImage(this.source_image, origin_translation.x, origin_translation.y, size.width, size.height);
       }
+
       canvas_context.restore();
     } else {
       // We don't have an image so we draw a colored rectangle instead.
