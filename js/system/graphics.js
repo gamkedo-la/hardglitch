@@ -199,9 +199,9 @@ class Sprite {
       const position = this.transform.position.translate(this.origin.inverse);
       canvas_context.translate(position.x, position.y);
       canvas_context.rotate(this.transform.orientation.degrees); // TODO: check if t's radian or degrees
+      canvas_context.scale(this.transform.scale.x, this.transform.scale.y);
       if(this._current_frame)
       {
-        // TODO: handle scaling and other deformations
         canvas_context.drawImage(this.source_image,
           this._current_frame.x, this._current_frame.y, size.width, size.height, // source
           0, 0, size.width, size.height, // destination
@@ -210,7 +210,6 @@ class Sprite {
       else
       {
         // No frame, use the whole image.
-        // TODO: handle scaling and other deformations
         canvas_context.drawImage(this.source_image, 0, 0, size.width, size.height);
       }
       canvas_context.restore();

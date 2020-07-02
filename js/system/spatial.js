@@ -116,7 +116,7 @@ class Angle {
 
 class Transform {
     position = new Vector2();
-    scale = new Vector2();
+    scale = Vector2_unit;
     orientation = new Angle();
 };
 
