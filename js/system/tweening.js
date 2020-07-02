@@ -4,16 +4,20 @@ import { is_number } from "./utility.js";
 
 export { Tweening, tween, easing }
 
+// Inspired by https://gist.github.com/gre/1650294
 const easing = {
-    linear: function(begin_value, end_value, ratio){
-        // TODO: I feel like there is something wrong here, feel free to reduce this code to remove that if.
-        const diff = Math.abs(begin_value - end_value);
-        if(begin_value <= end_value)
-            return begin_value + (diff * ratio);
-        else
-            return begin_value - (diff * ratio);
-    }
+    linear: ratio => ratio,
+    in_out_quad: ratio => ratio < .5 ? 2 * ratio * ratio : -1 + ( 4 - 2 * ratio ) * ratio,
+
 };
+
+function value_from_ratio(begin_value, end_value, ratio){
+    const diff = Math.abs(begin_value - end_value);
+    if(begin_value <= end_value)
+        return begin_value + (diff * ratio);
+    else
+        return begin_value - (diff * ratio);
+}
 
 class AnimatedValue {
     constructor(initial_value, target_value, easing_func){
@@ -23,7 +27,7 @@ class AnimatedValue {
     }
 
     get_value(ratio){
-        return this.easing_func(this.initial_value, this.target_value, ratio);
+        return value_from_ratio(this.initial_value, this.target_value, this.easing_func(ratio));
     }
 
 };

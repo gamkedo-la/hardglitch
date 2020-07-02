@@ -80,6 +80,6 @@ function *destroyed(entity_view, duration_ms=default_destruction_duration_ms){
                 entity_view.scale = { x: values.scale_x, y: values.scale_y };
                 entity_view.orientation = values.orientation;
             },
-            easing.linear
+            easing.in_out_quad
     );
 }
