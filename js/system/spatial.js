@@ -101,17 +101,26 @@ const Vector2_unit_x = new Vector2({ x: 1.0 });
 const Vector2_unit_y = new Vector2({ y: 1.0 });
 const Vector2_unit = new Vector2({ x: 1.0, y: 1.0 });
 
+function degrees_to_radian(degrees) {
+    return degrees * (Math.PI / 180);
+};
+
+function radian_to_degrees(rad) {
+    return rad / (Math.PI / 180);
+};
 
 class Angle {
     angle_radian = 0.0;
 
     constructor(degrees){
         if(degrees)
-            this.angle_radian = Math.radian(degrees);
+            this.angle_radian = radian_to_degrees(degrees);
     }
 
-    get degrees() { return Math.degrees(this.angle_radian); }
+    get degrees() { return radian_to_degrees(this.angle_radian); }
+    set degrees(value) { this.angle_radian = degrees_to_radian(value); }
     get radian() { return this.angle_radian; }
+    set radian(value) { this.angle_radian = value; }
 };
 
 class Transform {
