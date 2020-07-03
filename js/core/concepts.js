@@ -265,6 +265,7 @@ class World
 
     get bodies() { return Object.values(this._bodies); }
     get items() { return Object.values(this._items); }
+    get entities() { return [ ...this.bodies, ...this.items ]; }
 
     // Adds an entity to the world (a Body or an Item), setup the necessary spatial information.
     add(entity){
@@ -384,6 +385,14 @@ class World
             return body;
         const item = this.item_at(position);
         return item;
+    }
+
+    tiles_at(position){
+        const things = [
+            this._surface_tile_grid.get_at(position),
+            this._floor_tile_grid.get_at(position),
+        ];
+        return things.filter(thing => thing != undefined);
     }
 
     everything_at(position){

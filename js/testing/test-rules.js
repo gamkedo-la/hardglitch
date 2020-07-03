@@ -1,37 +1,11 @@
 // This file contain just rules for testing.
 
-export {
-    test_rules
-}
+export { test_rules }
 
 import * as concepts from "../core/concepts.js";
 import { Vector2 } from "../system/spatial.js";
-import { GameView } from "../game-view.js";
-import { EntityView } from "../view/entity-view.js";
-import { destroyed } from "../game-animations.js";
 import { sprite_defs } from "../game-assets.js";
-
-class Destroyed extends concepts.Event {
-    constructor(entity){
-        console.assert(entity instanceof concepts.Entity);
-        super({
-            description: `Entity ${entity.id} was DESTROYED!!!!!`
-        });
-
-        this.entity_id = entity.id;
-    }
-
-
-    *animation(game_view){
-        console.assert(game_view instanceof GameView);
-        const entity_view = game_view.focus_on_entity(this.entity_id);
-        console.assert(entity_view instanceof EntityView);
-        yield* destroyed(entity_view);
-        game_view.remove_entity_view(this.entity_id);
-    }
-
-}
-
+import { destroy_at } from "../rules/destruction.js";
 
 class Destroy extends concepts.Action {
     icon_def = sprite_defs.icon_action_delete;
@@ -43,13 +17,7 @@ class Destroy extends concepts.Action {
     }
 
     execute(world){
-        const entity = world.entity_at(this.target_position);
-        if(entity){
-            world.remove_entity(entity.id);
-            return [ new Destroyed(entity) ];
-        } else {
-            return [];
-        }
+        return destroy_at(this.target_position , world);
     }
 };
 
