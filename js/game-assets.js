@@ -403,7 +403,7 @@ update_sprite_defs("w2g_template", "lvl1", "w2g", 32);
 
 // FIXME: testing of tile animations... replace update_anim_defs w/ commented line below to fix performance
 //update_sprite_defs("v2g_template", "lvl1", "v2g", 32);
-update_anim_defs("v2g_template", "lvl1", "v2g", 32, 512, 8, 100);
+update_anim_defs("v2g_template", "lvl1", "v2g", 32, 512, 8, 2000);
 
 update_sprite_defs("v2h_template", "lvl1", "v2h", 32);
 update_sprite_defs("v2w_template", "lvl1", "v2w", 32);
