@@ -366,8 +366,7 @@ function update_anim_defs(imgname, lvl, layer, tilesize, templatesize, frames, d
     }
 
     // for each possible tile definition from template, build out asset
-    for (const k of Object.keys(tile_defs)) {
-        let p = tile_defs[k];
+    for (const [k, p] of Object.entries(tile_defs)) {
         let def = {
             image: imgname,
             frames: [],
