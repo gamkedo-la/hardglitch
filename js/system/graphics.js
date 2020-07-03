@@ -306,8 +306,11 @@ class TileGrid
     this.square_size = square_size;
     this.tile_id_grid = tile_id_grid;
     this.sprites = {};
-    for(const sprite_id in sprite_defs){
-      this.set_tile_type(sprite_id, sprite_defs[sprite_id]);
+    for(const sprite_id of tile_id_grid){
+      const sprite_def = sprite_defs[sprite_id];
+
+      if(sprite_def && this.sprites[sprite_id] === undefined)
+        this.set_tile_type(sprite_id, sprite_def);
     }
 
 
@@ -323,7 +326,7 @@ class TileGrid
   // Adds a sprite that can be used for tiles,
   set_tile_type(tile_id, sprite_def){
     //console.log("set_tile_type: " + tile_id + " sprite_def: " + sprite_def);
-    console.assert(tile_id);
+    console.assert(tile_id !== undefined);
     console.assert(sprite_def);
     const sprite = new Sprite(sprite_def);
     this.sprites[tile_id] = sprite;
@@ -422,10 +425,14 @@ class TileGrid
   index(position){ return index_from_position(this.size.x, this.size.y, position); }
 
   update(delta_time){
+    let any_sprite_changed = false;
     for(const [tile_id, sprite] of Object.entries(this.sprites)){
       sprite.update(delta_time);
       if(sprite.did_frame_change_since_last_update)
-        this._request_redraw_tiles_with_sprite(tile_id);
+        any_sprite_changed = true;
+    }
+    if(any_sprite_changed){
+      this.request_redraw({});
     }
   }
 
