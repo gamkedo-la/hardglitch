@@ -3,7 +3,7 @@
 
 export {
     ID, defs, tile_sprite_defs as sprite_defs,
-    is_walkable,
+    is_walkable, is_safely_walkable, is_safe,
 }
 
 import { sprite_defs, tile_id, tile_defs } from "./game-assets.js";
@@ -26,7 +26,7 @@ const defs = {
     [ID.GROUND] : {
         sprite_def: sprite_defs.ground,
         is_walkable: true,
-        // TODO: add other information here
+        is_safe: true,
     },
     [ID.WALL] : {
         sprite_def: sprite_defs.wall,
@@ -39,15 +39,17 @@ const defs = {
     [ID.VOID] : {
         sprite_def: sprite_defs.void,
         is_walkable: true,
+        is_safe: false,
     },
     [ID.ENTRY] : {
         sprite_def: sprite_defs.entry,
         is_walkable: true,
-        // TODO: add other information here
+        is_safe: true,
     },
     [ID.EXIT] : {
         sprite_def: sprite_defs.exit,
         is_walkable: true,
+        is_safe: true,
     },
 };
 
@@ -94,9 +96,21 @@ for(const tile_id of Object.values(ID)){
 }
 
 
+function is_safely_walkable(tile_id){
+    const tile_def = defs[tile_id];
+    console.assert(tile_def);
+    return tile_def.is_walkable && tile_def.is_safe;
+}
+
 function is_walkable(tile_id){
-    console.assert(tile_id);
     const tile_def = defs[tile_id];
     console.assert(tile_def);
     return tile_def.is_walkable;
 }
+
+function is_safe(tile_id){
+    const tile_def = defs[tile_id];
+    console.assert(tile_def);
+    return tile_def.is_safe;
+}
+

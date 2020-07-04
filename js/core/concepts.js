@@ -49,6 +49,7 @@ class Action {
         this.name = name,                   // Name that will be displayed to the player.
         this.description = description;     // Description that will be displayed to the player.
         this.is_basic = false;              // Basic actions are visible directly in the game.
+        this.is_safe = true;                // If false, means that this action should not be available unless explicitely attempted.
     }
 
     // Apply the action, transform the world.
