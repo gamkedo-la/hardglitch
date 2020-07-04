@@ -57,6 +57,7 @@ class Move extends concepts.Action {
         const initial_pos = character.position;
         character.position = this.target_position;
         const move_event = new Moved(character, initial_pos, this.target_position);
+        move_event.allow_parallel_animation = this.is_safe; // If that move is not safe, make it more noticeable when done.
         return [ move_event ];
     }
 };
@@ -106,6 +107,7 @@ class Jump extends concepts.Action {
         const initial_pos = character.position;
         character.position = this.target_position;
         const move_event = new Moved(character, initial_pos, this.target_position);
+        move_event.allow_parallel_animation = this.is_safe;
         return [move_event]; // TODO: implement a different event, with a different animation
     }
 }
@@ -117,18 +119,21 @@ class Rule_Jump extends concepts.Rule {
             return {};
 
         const possible_jumps = {
-            rotate_ne : new Jump(body.position.north.east),
-            rotate_se : new Jump(body.position.south.east),
-            rotate_sw : new Jump(body.position.south.west),
-            rotate_nw : new Jump(body.position.north.west),
-            rotate_nene : new Jump(body.position.north.east.north.east),
-            rotate_sese : new Jump(body.position.south.east.south.east),
-            rotate_swsw : new Jump(body.position.south.west.south.west),
-            rotate_nwnw : new Jump(body.position.north.west.north.west),
+            jump_ne : new Jump(body.position.north.east),
+            jump_se : new Jump(body.position.south.east),
+            jump_sw : new Jump(body.position.south.west),
+            jump_nw : new Jump(body.position.north.west),
+            jump_nene : new Jump(body.position.north.east.north.east),
+            jump_sese : new Jump(body.position.south.east.south.east),
+            jump_swsw : new Jump(body.position.south.west.south.west),
+            jump_nwnw : new Jump(body.position.north.west.north.west),
         };
-        for(const [name, rotate] of Object.entries(possible_jumps)){
-            if(world.is_blocked_position(rotate.target_position, tiles.is_walkable)){
+        for(const [name, jump] of Object.entries(possible_jumps)){
+            if(world.is_blocked_position(jump.target_position, tiles.is_walkable)){
                 delete possible_jumps[name];
+            } else {
+                const tiles_to_jump_on = world.tiles_at(jump.target_position);
+                jump.is_safe = tiles_to_jump_on.some(tiles.is_safe);
             }
         }
         return possible_jumps;
