@@ -9,10 +9,9 @@ export {
 }
 
 import * as concepts from "../core/concepts.js";
-import { is_walkable } from "../definitions-tiles.js";
+import * as tiles from "../definitions-tiles.js";
 import { sprite_defs } from "../game-assets.js";
 import * as animations from "../game-animations.js";
-import * as tiles from "../definitions-tiles.js";
 import { EntityView } from "../view/entity-view.js";
 import { GameView } from "../game-view.js";
 import { Vector2 } from "../system/spatial.js";
@@ -78,8 +77,12 @@ class Rule_Movements extends concepts.Rule {
         const allowed_moves = body.allowed_moves();
         for(const move_id in allowed_moves){
             const move_target = allowed_moves[move_id];
-            if(!world.is_blocked_position(move_target, is_walkable))
-                actions[move_id] = new Move(move_id, move_target);
+            if(!world.is_blocked_position(move_target, tileid => tiles.is_walkable(tileid)) ){
+                const move = new Move(move_id, move_target);
+                actions[move_id] = move;
+                const tiles_on_moved = world.tiles_at(move_target);
+                move.is_safe = tiles_on_moved.some(tiles.is_safe);
+            }
         }
 
         return actions;
