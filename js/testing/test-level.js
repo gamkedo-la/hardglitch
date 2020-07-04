@@ -84,7 +84,7 @@ function make_test_world(){ // The game assets must have been initialized first.
     const entry_point_position = set_surface_tile(random_position(), tiles.ID.ENTRY);
     console.assert(is_floor_walkable(entry_point_position));
 
-    let exit_count = 12;
+    let exit_count = 30;
     while(exit_count > 0){
         const exit_pos = random_position();
         const tileid = surface_tile_id(exit_pos);
@@ -106,7 +106,7 @@ function make_test_world(){ // The game assets must have been initialized first.
             && ( world.tiles_at(position).length == 0 || !world.is_blocked_position(position, tiles.is_safely_walkable) );
     }
 
-    let ennemy_count = 20;
+    let ennemy_count = 60;
     while(ennemy_count > 0){
         const position = random_position();
         if(can_insert_something_there(position)){
