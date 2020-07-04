@@ -33,7 +33,7 @@ class Rule_TestDestruction extends concepts.Rule {
         for(let y = -range; y < range; ++y){
             for(let x = -range; x < range; ++x){
                 const target = new concepts.Position(new Vector2(center_pos).translate({x, y}));
-                if(world.entity_at(target)){
+                if(world.is_valid_position(target) && world.entity_at(target)){
                     actions[`destroy_${x}_${y}`] = new Destroy(target);
                 }
             }

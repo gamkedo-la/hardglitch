@@ -218,7 +218,7 @@ class Rule_Swap extends concepts.Rule {
                 )
                     continue;
                 const target = new concepts.Position(new Vector2(center_pos).translate({x, y}));
-                if(world.entity_at(target)){
+                if(world.is_valid_position(target) && world.entity_at(target)){
                     possible_swaps[`swap_${x}_${y}`] = new Swap(target);
                 }
             }

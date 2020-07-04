@@ -11,6 +11,7 @@ import { world_grid, default_rules } from "../definitions-world.js";
 import { CryptoFile, CryptoKey } from "../definitions-items.js";
 
 import { test_rules } from "./test-rules.js";
+import * as visibility from "../rules/visibility.js";
 
 function make_test_world(){ // The game assets must have been initialized first.
     const test_world_size = world_grid;
@@ -138,6 +139,43 @@ function make_test_world(){ // The game assets must have been initialized first.
             --key_count;
         }
     }
+
+    //////////////////////////////////////////////////////////////
+    // Testing range view:
+    const inner_range = { begin: 1, end: 4 };
+    const space_between_inner_outter = 1;
+    const outter_begin  = inner_range.end + space_between_inner_outter;
+    const outter_range = { begin: outter_begin, end: outter_begin + 3 };
+    const clean_range = { begin: 1, end: outter_range.end + 1 };
+    const test_shape = visibility.Range_Cross_Star;
+
+    const clean_shape = new visibility.Range_Square(clean_range.begin, clean_range.end);
+    const inner_shape = new test_shape(inner_range.begin, inner_range.end);
+    const outter_shape = new test_shape(outter_range.begin, outter_range.end);
+    const valid_positions_filter = pos => world.is_valid_position(pos);
+
+    // cleanup
+    visibility.positions_in_range(entry_point_position, clean_shape, valid_positions_filter)
+        .forEach(position=>{
+            set_floor_tile(position, tiles.ID.GROUND);
+            set_surface_tile(position, undefined);
+            world.remove_entity_at(position);
+        });
+
+    // closer stuffs
+    visibility.positions_in_range(entry_point_position, inner_shape, valid_positions_filter)
+        .forEach(position=>{
+            const file = new CryptoFile();
+            file.position = position;
+            world.add(file);
+        });
+
+    // farther voids
+    visibility.positions_in_range(entry_point_position, outter_shape, valid_positions_filter)
+        .forEach(position=>{
+            set_floor_tile(position, tiles.ID.VOID);
+        });
+
 
     return world;
 }

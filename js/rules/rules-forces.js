@@ -12,6 +12,7 @@ import * as tiles from "../definitions-tiles.js";
 import { EntityView } from "../view/entity-view.js";
 import { GameView } from "../game-view.js";
 import { Character } from "../core/character.js";
+import * as visibility from "./visibility.js";
 
 class Pushed extends concepts.Event {
     constructor(entity, from, to){
@@ -129,24 +130,19 @@ class Pull extends concepts.Action {
 
 // TODO: factorize code common between Pull and Push rules!
 class Rule_Push extends concepts.Rule {
+    range = new visibility.Range_Circle(1, 4);
 
     get_actions_for(body, world){
         if(!body.is_player_actor) // TODO: temporary (otherwise the player will be bushed lol)
             return {};
 
         const push_actions = {};
-        const range = 4; // TODO: make different kinds of push actions that have different ranges
-        const center_pos = body.position;
-        for(let y = -range; y < range; ++y){
-            for(let x = -range; x < range; ++x){
-                if((x == 0 && y == 0)  // Skip the character pushing
-                // || (x != 0 && y != 0) // Skip any position not aligned with axes
-                )
-                    continue;
-                const target = new concepts.Position(new Vector2(center_pos).translate({x, y}));
-                if(world.entity_at(target)){
-                    push_actions[`push_${x}_${y}`] = new Push(target);
-                }
+        const possible_targets = visibility.positions_in_range(body.position, this.range, pos => world.is_valid_position(pos));
+
+        for(const target of possible_targets){
+            const entity = world.entity_at(target);
+            if(entity){
+                push_actions[`push_${target.x}_${target.y}`] = new Push(target);
             }
         }
         return push_actions;
@@ -170,7 +166,7 @@ class Rule_Pull extends concepts.Rule {
                 )
                     continue;
                 const target = new concepts.Position(new Vector2(center_pos).translate({x, y}));
-                if(world.entity_at(target)){
+                if(world.is_valid_position(target) && world.entity_at(target)){
                     pull_actions[`pull_${x}_${y}`] = new Pull(target);
                 }
             }

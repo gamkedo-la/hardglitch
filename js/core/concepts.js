@@ -164,7 +164,27 @@ class Position {
     get south() { return new Position({ x: this.x, y: this.y + 1 }); }
 
     equals(other_position){
-        return other_position.x == this.x && other_position.y == this.y;
+        console.assert(Number.isInteger(other_position.x) && Number.isInteger(other_position.y));
+        return other_position.x === this.x && other_position.y === this.y;
+    }
+
+    distance(other_position){
+        console.assert(Number.isInteger(other_position.x) && Number.isInteger(other_position.y));
+        return Math.abs(this.x - other_position.x) + Math.abs(this.y - other_position.y);
+    }
+
+    translate(translation){
+        console.assert(Number.isInteger(translation.x) && Number.isInteger(translation.y));
+        return new Position({ x: this.x + translation.x, y: this.y + translation.y });
+    }
+
+    substract(other_position){
+        console.assert(Number.isInteger(other_position.x) && Number.isInteger(other_position.y));
+        return new Position({ x: this.x - other_position.x, y: this.y - other_position.y });
+    }
+
+    absolute(){
+        return new Position({x: Math.abs(this.x), y: Math.abs(this.y) })
     }
 };
 
@@ -255,6 +275,16 @@ class World
         }
     }
 
+    remove_entity_at(...positions){
+        const entity_ids_to_remove = [];
+        for(const position of positions){
+            const entity = this.entity_at(position);
+            if(entity)
+                entity_ids_to_remove.push(entity.id);
+        }
+        this.remove_entity(...entity_ids_to_remove);
+    }
+
     // Set a list of rules that should be ordered as they should be applied.
     set_rules(...rules){
         console.assert(rules instanceof Array);
@@ -294,24 +324,26 @@ class World
         return events;
     }
 
-    // Returns true if the position given is blocked by an entity (Body or Item) or a tile that blocks (wall).
-    is_blocked_position(position, predicate_tile_is_walkable){
+    is_valid_position(position){
+        return position.x >= 0 && position.x < this.width
+            && position.y >= 0 && position.y < this.height
+            ;
+    }
 
-        if(position.x >= this.width || position.x < 0
-        || position.y >= this.height || position.y < 0
-        ){
+    // Returns true if the position given is blocked by an entity (Body or Item) or a tile that blocks (wall).
+    // The meaning of "blocking" depends on the provided predicate.
+    is_blocked_position(position, predicate_tile_is_blocking){
+
+        if(!this.is_valid_position(position))
             return true;
-        }
 
         const floor_tile = this._floor_tile_grid.get_at(position);
-        if(!floor_tile || !predicate_tile_is_walkable(floor_tile)){
+        if(!floor_tile || !predicate_tile_is_blocking(floor_tile))
             return true;
-        }
 
         const surface_tile = this._surface_tile_grid.get_at(position);
-        if(surface_tile && !predicate_tile_is_walkable(surface_tile)){
+        if(surface_tile && !predicate_tile_is_blocking(surface_tile))
             return true;
-        }
 
         if(this.body_at(position))
             return true;
@@ -331,6 +363,7 @@ class World
     }
 
     body_at(position){
+        console.assert(this.is_valid_position(position));
         // TODO: optimize this if necessary
         for(const body of this.bodies){
             if(body.position.equals(position))
@@ -340,6 +373,7 @@ class World
     }
 
     item_at(position){
+        console.assert(this.is_valid_position(position));
         // TODO: optimize this if necessary
         for(const item of this.items){
             if(item.position.equals(position))
@@ -349,6 +383,7 @@ class World
     }
 
     entity_at(position){
+        console.assert(this.is_valid_position(position));
         const body = this.body_at(position);
         if(body)
             return body;
@@ -357,6 +392,7 @@ class World
     }
 
     tiles_at(position){
+        console.assert(this.is_valid_position(position));
         const things = [
             this._surface_tile_grid.get_at(position),
             this._floor_tile_grid.get_at(position),
@@ -365,6 +401,7 @@ class World
     }
 
     everything_at(position){
+        console.assert(this.is_valid_position(position));
         const things = [
             this._surface_tile_grid.get_at(position),
             this._floor_tile_grid.get_at(position),
