@@ -120,7 +120,7 @@ class GameView {
 
         const available_actions = this.game.last_turn_info.possible_actions;
         for(const action of Object.values(available_actions)){
-            if(action.is_basic){
+            if(action.is_basic && action.is_safe){
                 if(action instanceof Move)
                     this._add_highlight(action.target_position, this._highlight_sprites.movement);
                 else
