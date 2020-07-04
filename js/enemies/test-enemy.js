@@ -10,12 +10,17 @@ class RandomActionSelector extends concepts.Actor {
 
     decide_next_action(possible_actions) {
         // Just picking a random action is a perfectly valid strategy, lol
-        let random_action = random_sample(Object.values(possible_actions));
-        if(random_action == null) { // no action found.
-            // In this case just wait:
-            return new Wait();
+        while(true){
+            let random_action = random_sample(Object.values(possible_actions));
+            if(!random_action.is_safe) // Only select ations that seem safe for the character.
+                continue;
+            if(random_action == null) { // no action found.
+                // In this case just wait:
+                return new Wait();
+            }
+            return random_action;
         }
-        return random_action;
+
     }
 };
 
