@@ -41,17 +41,15 @@ function make_test_world(){ // The game assets must have been initialized first.
         return surface_tile_grid[index(position)];
     }
 
-    function is_walkable(position){
+    function is_floor_walkable(position){
         const tile_id = floor_tile_id(position);
-        if(tile_id === undefined)
-            return false;
-        return tiles.defs[tile_id].is_walkable;
+        return tiles.is_safely_walkable(tile_id);
     }
 
     function random_position(){
         while(true){
             const position = { x:random_int(0, test_world_size.width - 1 ), y:random_int(0, test_world_size.height - 1 )};
-            if(is_walkable(position))
+            if(is_floor_walkable(position))
                 return new concepts.Position(position);
         }
     }
@@ -84,12 +82,18 @@ function make_test_world(){ // The game assets must have been initialized first.
     }
 
     const entry_point_position = set_surface_tile(random_position(), tiles.ID.ENTRY);
-    console.assert(is_walkable(entry_point_position));
+    console.assert(is_floor_walkable(entry_point_position));
 
-    for(let i = 0; i < grid_size / 500; ++i){
+    let exit_count = 12;
+    while(exit_count > 0){
         const exit_pos = random_position();
-        if(surface_tile_id(exit_pos) != tiles.ID.ENTRY) // Don't overwrite entries!
+        const tileid = surface_tile_id(exit_pos);
+        if(tileid !== tiles.ID.EXIT  // Don't overwrite other exits!
+        && tileid !== tiles.ID.ENTRY // Don't overwrite entries!
+        && is_floor_walkable(exit_pos)) {
             set_surface_tile(exit_pos, tiles.ID.EXIT);
+            --exit_count;
+        }
     }
 
     const world = new concepts.World( test_world_size.width, test_world_size.height, floor_tile_grid, surface_tile_grid );
@@ -98,43 +102,41 @@ function make_test_world(){ // The game assets must have been initialized first.
     world.set_rules(...default_rules, ...test_rules);
 
     function can_insert_something_there(position){
-        return !position.equals(entry_point_position) && world.is_blocked_position(position, tiles.is_walkable);
+        return !position.equals(entry_point_position)
+            && ( world.tiles_at(position).length == 0 || !world.is_blocked_position(position, tiles.is_safely_walkable) );
     }
 
     let ennemy_count = 20;
     while(ennemy_count > 0){
         const position = random_position();
-        if(can_insert_something_there(entry_point_position))
-            continue;
-
-        const enemy = new RandomActionEnemy();
-        enemy.position = position;
-        world.add(enemy);
-        --ennemy_count;
+        if(can_insert_something_there(position)){
+            const enemy = new RandomActionEnemy();
+            enemy.position = position;
+            world.add(enemy);
+            --ennemy_count;
+        }
     }
 
     let file_count = 4;
     while(file_count > 0){
         const position = random_position();
-        if(can_insert_something_there(position))
-            continue;
-
-        const file = new CryptoFile();
-        file.position = position;
-        world.add(file);
-        --file_count;
+        if(can_insert_something_there(position)){
+            const file = new CryptoFile();
+            file.position = position;
+            world.add(file);
+            --file_count;
+        }
     }
 
     let key_count = 4;
     while(key_count > 0){
         const position = random_position();
-        if(can_insert_something_there(position))
-            continue;
-
-        const key = new CryptoKey();
-        key.position = position;
-        world.add(key);
-        --key_count;
+        if(can_insert_something_there(position)){
+            const key = new CryptoKey();
+            key.position = position;
+            world.add(key);
+            --key_count;
+        }
     }
 
     return world;

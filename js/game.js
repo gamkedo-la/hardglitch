@@ -81,7 +81,7 @@ class Game {
     }
 
     add_player_character(position){
-        console.assert(this.is_walkable(position));
+        console.assert(this.is_safely_walkable(position));
         const player = new Player();
         player.position = position;
         this.world.add(player);
@@ -97,6 +97,10 @@ class Game {
 
     is_walkable(game_position){
         return !this.world.is_blocked_position(game_position, tiles.is_walkable);
+    }
+
+    is_safely_walkable(game_position){
+        return !this.world.is_blocked_position(game_position, tiles.is_safely_walkable);
     }
 
 };
