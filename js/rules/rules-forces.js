@@ -130,7 +130,7 @@ class Pull extends concepts.Action {
 
 // TODO: factorize code common between Pull and Push rules!
 class Rule_Push extends concepts.Rule {
-    range = new visibility.Range_Circle(1, 4);
+    range = new visibility.Range_Square(1, 5);
 
     get_actions_for(body, world){
         if(!body.is_player_actor) // TODO: temporary (otherwise the player will be bushed lol)

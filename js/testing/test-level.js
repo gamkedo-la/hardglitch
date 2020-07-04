@@ -142,12 +142,12 @@ function make_test_world(){ // The game assets must have been initialized first.
 
     //////////////////////////////////////////////////////////////
     // Testing range view:
-    const inner_range = { begin: 1, end: 4 };
+    const inner_range = { begin: 1, end: 6 };
     const space_between_inner_outter = 1;
     const outter_begin  = inner_range.end + space_between_inner_outter;
     const outter_range = { begin: outter_begin, end: outter_begin + 3 };
     const clean_range = { begin: 1, end: outter_range.end + 1 };
-    const test_shape = visibility.Range_Cross_Star;
+    const test_shape = visibility.Range_Square;
 
     const clean_shape = new visibility.Range_Square(clean_range.begin, clean_range.end);
     const inner_shape = new test_shape(inner_range.begin, inner_range.end);
