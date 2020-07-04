@@ -128,8 +128,8 @@ class GameView {
             }
         }
 
-        if(this.game.last_turn_info.player_body)
-            this.focus_on_position(this.game.last_turn_info.player_body.position);
+        if(this.game.last_turn_info.player_character)
+            this.focus_on_position(this.game.last_turn_info.player_character.position);
     }
 
     highlight_selected_action_targets(action_info){
@@ -214,8 +214,8 @@ class GameView {
 
             if(this.current_animations.length == 0 && this.animation_queue.length == 0){
                 this.is_time_for_player_to_chose_action = true;
-                if(this.game.last_turn_info.player_body){
-                    this.focus_on_position(this.game.last_turn_info.player_body.position);
+                if(this.game.last_turn_info.player_character){
+                    this.focus_on_position(this.game.last_turn_info.player_character.position);
                     this.ui.unlock_actions();
                 }
                 editor.set_text("PLAYER'S TURN!");

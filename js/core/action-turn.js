@@ -7,16 +7,17 @@ export {
 };
 
 import * as concepts from "./concepts.js";
+import { Character } from "./character.js";
 
 // Data needed for the player (or the "view" part of the game code) to:
 // - know what happened since last player turn;
 // - know what that player actor can and cannot do for this turn;
 class PlayerTurn
 {
-    constructor(world, events, player_body, possible_actions){
+    constructor(world, events, player_character, possible_actions){
         this.world = world;                         // The world we need an action for.
         this.events = events;                       // Passed events since last time we needed a player action.
-        this.player_body = player_body;             // Body controlled by the player for this turn.
+        this.player_character = player_character;        // Character controlled by the player for this turn.
         this.possible_actions = possible_actions;   // Actions that the player could take.
     }
 
@@ -28,7 +29,7 @@ class PlayerTurn
 
 //////////////////////////////////////////////////////
 // NOTES about the Turn System:
-// - Each game's "Turn", we go through all the bodies and ask their actors to take decitions on actions to perform with that body.
+// - Each game's "Turn", we go through all the bodies and ask their actors to take decitions on actions to perform with that character.
 // - A "Turn Phase" is when we go through all bodie's bodies once, and if they can act (if they have enough action points),
 //   we ask them to perform one action each.
 // - A "Turn" finishes when all characters (bodies) cannot act anymore (no more action points)
@@ -64,8 +65,8 @@ function* execute_turns_until_players_turn(world) {
 
     let events_since_last_player_action = []; // Events accumulated since last player's turn.
 
-    function* request_player_action(body, possible_actions) { // Give back control to the player, request them to set an action in the World object.
-        const player_action = yield new PlayerTurn(world, events_since_last_player_action, body, possible_actions);
+    function* request_player_action(character, possible_actions) { // Give back control to the player, request them to set an action in the World object.
+        const player_action = yield new PlayerTurn(world, events_since_last_player_action, character, possible_actions);
         events_since_last_player_action = []; // Start a new sequence of events until we reach next character's turn.
         return player_action;
     }
@@ -90,44 +91,44 @@ function* execute_turns_until_players_turn(world) {
 
         const looping_character_sequence = loop_characters_until_end_of_turn(world); // This sequence includes turn phases, so one character with enough action points left can occur more than one time.
 
-        for(const body_or_event of looping_character_sequence){ // Bodies can act several times a turn, but once a phase.
+        for(const character_or_event of looping_character_sequence){ // Bodies can act several times a turn, but once a phase.
                                                                  // There is a new turn phase if after cycling all bodies, some still have action points left.
 
-            if(body_or_event instanceof concepts.Event){ // Ok we are notified that a new turn event starts now.
-                events_since_last_player_action.push(body_or_event); // Just keep track that this happened.
+            if(character_or_event instanceof concepts.Event){ // Ok we are notified that a new turn event starts now.
+                events_since_last_player_action.push(character_or_event); // Just keep track that this happened.
                 continue;
             }
 
-            const character_body = body_or_event; // Now we know it have to be a character's body.
-            console.assert(character_body instanceof concepts.Body);
+            const character = character_or_event; // Now we know it have to be a character.
+            console.assert(character instanceof Character);
             /////////////////////////////////////////////////////////////
             // NEW CHARACTER TURN PHASE START HERE: CHOSE ONE ACTION!
             /////////////////////////////////////////////////////////////
 
-            const actor = character_body.actor;
+            const actor = character.actor;
             console.assert(actor instanceof concepts.Actor); // At this point we have to have a decision maker.
 
             let action = null;
             while(!action){ // Update the current possible actions and request an action from the character
                             // until we obtain a usable action.
-                const possible_actions = world.gather_possible_actions_from_rules(character_body);
+                const possible_actions = world.gather_possible_actions_from_rules(character);
                 action = actor.decide_next_action(possible_actions);
 
                 if(action == null){ // No decision taken? Only players can hesitate!!!!
                     // This is a player: let the player decide what to do (they will store the action in the world state).
-                    action = yield* request_player_action(character_body, possible_actions); // Give back the control and the list of events done since last turn.
+                    action = yield* request_player_action(character, possible_actions); // Give back the control and the list of events done since last turn.
                 }
             }
 
             console.assert(action instanceof concepts.Action);// Ath this point, an action MUST have been defined (even if it's just Wait)
 
             // Apply the selected action.
-            const action_events = concepts.perform_action(action, character_body, world);
+            const action_events = concepts.perform_action(action, character, world);
             events_since_last_player_action.push(...action_events);
 
             // In all cases:
             // Update the world according to it's rules.
-            const rules_events = world.apply_rules_end_of_characters_turn(character_body);
+            const rules_events = world.apply_rules_end_of_characters_turn(character);
             events_since_last_player_action.push(...rules_events);
         }
     }
@@ -139,9 +140,10 @@ function* execute_turns_until_players_turn(world) {
 // TODO: specify an order! maybe depending on stats? initiative points?
 function *characters_that_can_act_now(world){
     console.assert(world instanceof concepts.World);
-    for(const body of world.bodies){
-        if (body.can_perform_actions) {
-            yield body;
+    for(const character_body of world.bodies){
+        console.assert(character_body instanceof Character);
+        if (character_body.can_perform_actions) {
+            yield character_body;
         }
     };
 }
@@ -154,9 +156,9 @@ function *loop_characters_until_end_of_turn(world){
         // New Turn Phase (if any actor can act)
         yield new NewTurnPhase();
         let some_characters_can_act = false;
-        for(const character_body of characters_that_can_act_now(world)){
-            yield character_body;
-            some_characters_can_act = some_characters_can_act && character_body.can_perform_actions;
+        for(const character of characters_that_can_act_now(world)){
+            yield character;
+            some_characters_can_act = some_characters_can_act && character.can_perform_actions;
         }
         if(!some_characters_can_act) // No character could act last phase cycle.
             break;

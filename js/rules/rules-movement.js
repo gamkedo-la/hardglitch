@@ -15,6 +15,7 @@ import * as animations from "../game-animations.js";
 import { EntityView } from "../view/entity-view.js";
 import { GameView } from "../game-view.js";
 import { Vector2 } from "../system/spatial.js";
+import { Character } from "../core/character.js";
 
 
 class Moved extends concepts.Event {
@@ -51,11 +52,12 @@ class Move extends concepts.Action {
         this.is_basic = true;
     }
 
-    execute(world, body) {
-        console.assert(body instanceof concepts.Body);
-        const initial_pos = body.position;
-        body.position = this.target_position;
-        return [ new Moved(body, initial_pos, this.target_position) ];
+    execute(world, character) {
+        console.assert(character instanceof Character);
+        const initial_pos = character.position;
+        character.position = this.target_position;
+        const move_event = new Moved(character, initial_pos, this.target_position);
+        return [ move_event ];
     }
 };
 
@@ -99,11 +101,12 @@ class Jump extends concepts.Action {
         super(`jump_${target.x}_${target.y}`, `Jump to ${JSON.stringify(target)}`, target);
     }
 
-    execute(world, body){
-        console.assert(body instanceof concepts.Body);
-        const initial_pos = body.position;
-        body.position = this.target_position;
-        return [new Moved(body, initial_pos, this.target_position)]; // TODO: implement a different event, with a different animation
+    execute(world, character){
+        console.assert(character instanceof Character);
+        const initial_pos = character.position;
+        character.position = this.target_position;
+        const move_event = new Moved(character, initial_pos, this.target_position);
+        return [move_event]; // TODO: implement a different event, with a different animation
     }
 }
 
@@ -175,20 +178,20 @@ class Swap extends concepts.Action {
         this.target = target
     }
 
-    execute(world, character_body){
+    execute(world, character){
         console.assert(world instanceof concepts.World);
-        console.assert(character_body instanceof concepts.Body);
+        console.assert(character instanceof Character);
         const target_entity = world.entity_at(this.target);
         console.assert(target_entity instanceof concepts.Entity);
 
-        const pos_a = character_body.position;
+        const pos_a = character.position;
         const pos_b = target_entity.position;
 
-        character_body.position = pos_b;
+        character.position = pos_b;
         target_entity.position = pos_a;
 
         return [
-            new Swaped(character_body.id, target_entity.id, pos_a, pos_b)
+            new Swaped(character.id, target_entity.id, pos_a, pos_b)
         ];
     }
 }

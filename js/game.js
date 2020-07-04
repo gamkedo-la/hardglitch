@@ -9,8 +9,9 @@ import { Wait } from "./rules/rules-basic.js";
 import { random_sample } from "./system/utility.js";
 import * as tiles from "./definitions-tiles.js";
 import { sprite_defs } from "./game-assets.js";
+import { Character } from "./core/character.js";
 
-class Player extends concepts.Body {
+class Player extends Character {
     assets = {
         graphics : {
             sprite_def : sprite_defs.player,

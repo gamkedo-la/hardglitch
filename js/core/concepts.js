@@ -204,44 +204,12 @@ class Body extends Entity {
     actor = null; // Actor that controls this body. If null, this body cannot take decisions.
     items = []; // Items owned by this body. They don't appear in the World's list unless they are put back in the World (not owned anymore).
 
-    ////////////////////////////////
-    // Action Point System here.
-    action_points_left = 0;
-    max_action_points = 0;
-
-    // TODO: replace the following functions implementations with action point system!
-    // BEWARE, this is a hack to simulate being able to act once per turn.
-    acted_this_turn = false;
-
     get body_id() { return this.id; }
 
     // True if the control of this body is to the player, false otherwise.
     // Note that a non-player actor can also decide to let the player chose their action
     // by returning null.
     get is_player_actor() { return this.actor instanceof Player; }
-
-    // True if this body can perform actions (have an actor for decisions and have enough action points).
-    get can_perform_actions(){ // TODO: use actual action points
-        // Cannot perform actions if we don't have an actor to decide which action to perform.
-        return this.actor && !this.acted_this_turn;
-    }
-
-    disable_further_actions(){
-        this.acted_this_turn = true;
-    }
-
-    // Describe the possible positions relative to the current ones that could be reached in one step,
-    // assuming there is no obstacles.
-    // Should be overloaded by bodies that have limited sets of movements.
-    // Returns an object: { move_id: target_position, another_move_name: another_position }
-    allowed_moves(){ // By default: can go on the next square on north, south, east and west.
-        return {
-            move_east: this.position.east,
-            move_west: this.position.west,
-            move_north: this.position.north,
-            move_south: this.position.south
-        };
-    }
 
 };
 

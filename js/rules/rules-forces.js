@@ -11,6 +11,7 @@ import * as animations from "../game-animations.js";
 import * as tiles from "../definitions-tiles.js";
 import { EntityView } from "../view/entity-view.js";
 import { GameView } from "../game-view.js";
+import { Character } from "../core/character.js";
 
 class Pushed extends concepts.Event {
     constructor(entity, from, to){
@@ -95,10 +96,10 @@ class Push extends concepts.Action {
         super(action_id, `Push ${JSON.stringify(target)}`, target);
     }
 
-    execute(world, body){
+    execute(world, character){
         console.assert(world instanceof concepts.World);
-        console.assert(body instanceof concepts.Body);
-        const push_translation = new Vector2(body.position).substract(this.target_position).normalize().inverse;
+        console.assert(character instanceof Character);
+        const push_translation = new Vector2(character.position).substract(this.target_position).normalize().inverse;
         push_translation.x = Math.floor(push_translation.x);
         push_translation.y = Math.floor(push_translation.y);
         console.assert(push_translation.length > 0);
@@ -114,10 +115,10 @@ class Pull extends concepts.Action {
         super(action_id, `Pull ${JSON.stringify(target)}`, target);
     }
 
-    execute(world, body){
+    execute(world, character){
         console.assert(world instanceof concepts.World);
-        console.assert(body instanceof concepts.Body);
-        const pull_translation = new Vector2(body.position).substract(this.target_position).normalize();
+        console.assert(character instanceof Character);
+        const pull_translation = new Vector2(character.position).substract(this.target_position).normalize();
         pull_translation.x = Math.floor(pull_translation.x);
         pull_translation.y = Math.floor(pull_translation.y);
         console.assert(pull_translation.length > 0);

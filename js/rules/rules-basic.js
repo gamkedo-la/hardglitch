@@ -5,6 +5,7 @@ import { sprite_defs } from "../game-assets.js";
 import * as editor from "../editor.js";
 import { CharacterView } from "../view/character-view.js";
 import { GameView } from "../game-view.js";
+import { Character } from "../core/character.js";
 
 export {
     Rule_GameOver,
@@ -28,13 +29,13 @@ function* animation_wait_event() { // TODO: make a proper aniumation and move th
 
 // That actor decided to take a pause.
 class Waited extends concepts.Event {
-    constructor(body){
-        console.assert(body instanceof concepts.Body);
+    constructor(character){
+        console.assert(character instanceof Character);
         super({
             allow_parallel_animation: true,
-            description: `Entity ${body.id} Waited`,
+            description: `Entity ${character.id} Waited`,
         });
-        this.character_id = body.id;
+        this.character_id = character.id;
     }
 
     *animation(game_view){
@@ -74,9 +75,9 @@ function is_game_over(world){
     // Currently, Game Over is when there is no player characters in game anymore.
     // Note that this is different from characters controlled by the player (Actor.decide_next_action() returns null)
     // but not being the player.
-    for(const character_body of world.bodies){
-        console.assert(character_body instanceof concepts.Body);
-        if(character_body.is_player_actor) // found a player character: not game over
+    for(const character of world.bodies){
+        console.assert(character instanceof Character);
+        if(character.is_player_actor) // found a player character: not game over
             return false;
     }
     return true; // didn't found any player character: game over
@@ -118,12 +119,12 @@ class Rule_GameOver extends concepts.Rule {
 
 
 class PlayerExitLevel extends concepts.Event {
-    constructor(body){
-        console.assert(body instanceof concepts.Body);
+    constructor(character){
+        console.assert(character instanceof Character);
         super({
-            description: `Player character ${body.id} exited the level!`
+            description: `Player character ${character.id} exited the level!`
         });
-        this.character_id = body.id;
+        this.character_id = character.id;
     }
 
     *animation(game_view){
