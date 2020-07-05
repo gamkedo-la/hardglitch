@@ -142,7 +142,7 @@ function make_test_world(){ // The game assets must have been initialized first.
 
     //////////////////////////////////////////////////////////////
     // Testing range view:
-    const inner_range = { begin: 1, end: 4 };
+    const inner_range = { begin: 1, end: 2 };
     const space_between_inner_outter = 1;
     const outter_begin  = inner_range.end + space_between_inner_outter;
     const outter_range = { begin: outter_begin, end: outter_begin + 2 };
@@ -165,9 +165,9 @@ function make_test_world(){ // The game assets must have been initialized first.
     // closer stuffs
     visibility.positions_in_range(entry_point_position, inner_shape, valid_positions_filter)
         .forEach(position=>{
-            // const file = new CryptoFile();
-            // file.position = position;
-            // world.add(file);
+            const file = new CryptoFile();
+            file.position = position;
+            world.add(file);
         });
 
     // farther voids
