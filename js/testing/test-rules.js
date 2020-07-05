@@ -5,7 +5,7 @@ export { test_rules }
 import * as concepts from "../core/concepts.js";
 import { sprite_defs } from "../game-assets.js";
 import { destroy_at } from "../rules/destruction.js";
-import * as visibility from "../rules/visibility.js";
+import * as visibility from "../core/visibility.js";
 
 class Destroy extends concepts.Action {
     icon_def = sprite_defs.icon_action_delete;

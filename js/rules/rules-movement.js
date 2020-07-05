@@ -15,8 +15,8 @@ import * as animations from "../game-animations.js";
 import { EntityView } from "../view/entity-view.js";
 import { GameView } from "../game-view.js";
 import { Vector2 } from "../system/spatial.js";
-import { Character } from "../character.js";
-import * as visibility from "./visibility.js";
+import { Character } from "../core/character.js";
+import * as visibility from "../core/visibility.js";
 
 // Set the action as unsafe if the target tile is unsafe.
 function safe_if_safe_arrival(move_action, world){
@@ -127,7 +127,7 @@ class Rule_Jump extends concepts.Rule {
             return {};
 
         const possible_jumps = {};
-        visibility.valid_move_positions(world, character.position, this.range)
+        visibility.valid_move_positions(world, character.position, this.range, tiles.is_walkable)
             .forEach( (target)=>{
                 const jump = new Jump(target);
                 safe_if_safe_arrival(jump, world);

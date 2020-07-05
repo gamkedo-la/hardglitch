@@ -28,7 +28,7 @@ import { Move } from "./rules/rules-movement.js";
 import { ItemView } from "./view/item-view.js";
 import * as ui from "./system/ui.js";
 import * as tiles from "./definitions-tiles.js";
-import * as visibility from "./rules/visibility.js";
+import * as visibility from "./core/visibility.js";
 import { FogOfWar } from "./view/fogofwar.js";
 
 class Highlight{

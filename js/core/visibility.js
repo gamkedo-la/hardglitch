@@ -14,8 +14,7 @@ export {
     Range_Cross_Star,
 }
 
-import * as concepts from "../core/concepts.js";
-import * as tiles from "../definitions-tiles.js";
+import * as concepts from "./concepts.js";
 import { Vector2 } from "../system/spatial.js";
 
 class RangeShape {
@@ -172,12 +171,9 @@ function find_visible_positions(world, center, view_distance){
     // }
 
     // return visible_positions;
-    return [
-        center,
-        center.east, center.north, center.south, center.west,
-        center.east.north, center.north.west, center.west.south, center.south.east,
-        center.east.east, center.north.north, center.south.south, center.west.west,
-    ];
+
+    const test_shape = new Range_Circle(0, view_distance + 1);
+    return positions_in_range(center, test_shape);
 }
 
 function valid_target_positions(world, center, action_range_shape){
@@ -185,9 +181,9 @@ function valid_target_positions(world, center, action_range_shape){
             .filter(pos => world.entity_at(pos));
 }
 
-function valid_move_positions(world, center, action_range_shape){
+function valid_move_positions(world, center, action_range_shape, tile_filter){
     return positions_in_range(center, action_range_shape, pos => world.is_valid_position(pos))
-            .filter(pos => !world.is_blocked_position(pos, tiles.is_walkable));
+            .filter(pos => !world.is_blocked_position(pos, tile_filter));
 }
 
 class FieldOfView {

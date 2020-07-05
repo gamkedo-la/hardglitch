@@ -3,7 +3,7 @@ export {
     FogOfWar,
 }
 
-import * as visibility from "../rules/visibility.js";
+import * as visibility from "../core/visibility.js";
 import * as graphics from "../system/graphics.js";
 import { Vector2, Vector2_origin } from "../system/spatial.js";
 import { PIXELS_PER_TILES_SIDE } from "./entity-view.js";

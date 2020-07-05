@@ -11,7 +11,7 @@ import { world_grid, default_rules } from "../definitions-world.js";
 import { CryptoFile, CryptoKey } from "../definitions-items.js";
 
 import { test_rules } from "./test-rules.js";
-import * as visibility from "../rules/visibility.js";
+import * as visibility from "../core/visibility.js";
 
 function make_test_world(){ // The game assets must have been initialized first.
     const test_world_size = world_grid;

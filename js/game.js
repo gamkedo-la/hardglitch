@@ -9,7 +9,7 @@ import { Wait } from "./rules/rules-basic.js";
 import { random_sample } from "./system/utility.js";
 import * as tiles from "./definitions-tiles.js";
 import { sprite_defs } from "./game-assets.js";
-import { Character } from "./character.js";
+import { Character } from "./core/character.js";
 
 class Player extends Character {
     assets = {

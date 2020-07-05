@@ -3,8 +3,8 @@ export {
     Character,
 }
 
-import * as concepts from "./core/concepts.js";
-import { FieldOfView } from "./rules/visibility.js";
+import * as concepts from "./concepts.js";
+import { FieldOfView } from "./visibility.js";
 
 const default_view_distance = 8;
 
