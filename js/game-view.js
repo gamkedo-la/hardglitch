@@ -394,7 +394,8 @@ class GameView {
 
             if(!editor.is_enabled && this.is_time_for_player_to_chose_action){
 
-                this.player_actions_highlights.filter(highlight=>this.fog_of_war.is_visible(highlight.position))
+                this.player_actions_highlights
+                    .filter(highlight=> !this.enable_fog_of_war || this.fog_of_war.is_visible(highlight.position))
                     .forEach(highlight => highlight.draw());
 
                 this.action_range_highlights.forEach(highlight => highlight.draw());
