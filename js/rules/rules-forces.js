@@ -11,7 +11,7 @@ import * as animations from "../game-animations.js";
 import * as tiles from "../definitions-tiles.js";
 import { EntityView } from "../view/entity-view.js";
 import { GameView } from "../game-view.js";
-import { Character } from "../core/character.js";
+import { Character } from "../character.js";
 import * as visibility from "./visibility.js";
 
 class Pushed extends concepts.Event {

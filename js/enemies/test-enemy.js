@@ -5,7 +5,7 @@ import * as concepts from "../core/concepts.js";
 import {random_sample} from "../system/utility.js";
 import { Wait } from "../rules/rules-basic.js";
 import { sprite_defs } from "../game-assets.js";
-import { Character } from "../core/character.js"
+import { Character } from "../character.js"
 
 class RandomActionSelector extends concepts.Actor {
 

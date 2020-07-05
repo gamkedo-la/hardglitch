@@ -5,7 +5,7 @@ import { sprite_defs } from "../game-assets.js";
 import * as editor from "../editor.js";
 import { CharacterView } from "../view/character-view.js";
 import { GameView } from "../game-view.js";
-import { Character } from "../core/character.js";
+import { Character } from "../character.js";
 
 export {
     Rule_GameOver,

@@ -7,7 +7,7 @@ export {
 };
 
 import * as concepts from "./concepts.js";
-import { Character } from "./character.js";
+import { Body as Character } from "./concepts.js";
 
 // Data needed for the player (or the "view" part of the game code) to:
 // - know what happened since last player turn;

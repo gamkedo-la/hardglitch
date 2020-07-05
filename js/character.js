@@ -3,7 +3,10 @@ export {
     Character,
 }
 
-import * as concepts from "./concepts.js";
+import * as concepts from "./core/concepts.js";
+import { FieldOfView } from "./rules/visibility.js";
+
+const default_view_distance = 8;
 
 // All characters types from the game must derive from this type.
 // Provides everything common to all characters.
@@ -11,7 +14,18 @@ import * as concepts from "./concepts.js";
 class Character extends concepts.Body {
 
     constructor(name){
-       super(name);
+        super(name);
+        this.field_of_view = new FieldOfView(this.position, default_view_distance);
+    }
+
+    get position() { return super.position; }
+    set position(new_pos) {
+        super.position = new_pos;
+        this.field_of_view.position = this.position;
+    }
+
+    update_view(world){
+        this.field_of_view.update(world);
     }
 
     ////////////////////////////////

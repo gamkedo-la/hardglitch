@@ -21,7 +21,7 @@ export {
     perform_action,
 };
 
-import { is_number } from "../system/utility.js";
+import { is_number, clamp } from "../system/utility.js";
 import { Grid } from "../system/grid.js";
 
 
@@ -188,7 +188,11 @@ class Position {
     }
 
     normalize(){
-        return new Position({ x: Math.ceil(Math.clamp(this.x, -1, 1)), y: Math.ceil(Math.clamp(this.y, -1, 1)) });
+        return new Position({ x: Math.ceil(clamp(this.x, -1, 1)), y: Math.ceil(clamp(this.y, -1, 1)) });
+    }
+
+    get inverse() {
+        return new Position({x: -this.x, y: -this.y });
     }
 };
 

@@ -176,6 +176,10 @@ function update(delta_time){
     if(input.keyboard.is_just_down(KEY.M)){
         current_game_view.tile_grid.enable_grid_lines = !current_game_view.tile_grid.enable_grid_lines;
     }
+
+    if(input.keyboard.is_just_down(KEY.F8)){
+        current_game_view.enable_fog_of_war = !current_game_view.enable_fog_of_war;
+    }
 }
 
 

@@ -15,7 +15,7 @@ import * as animations from "../game-animations.js";
 import { EntityView } from "../view/entity-view.js";
 import { GameView } from "../game-view.js";
 import { Vector2 } from "../system/spatial.js";
-import { Character } from "../core/character.js";
+import { Character } from "../character.js";
 import * as visibility from "./visibility.js";
 
 // Set the action as unsafe if the target tile is unsafe.

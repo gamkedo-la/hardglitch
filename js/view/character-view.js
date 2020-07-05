@@ -5,7 +5,7 @@ export {
 }
 
 import { EntityView } from "./entity-view.js";
-import { Character } from "../core/character.js";
+import { Character } from "../character.js";
 
 // Representation of a character's body.
 class CharacterView extends EntityView {

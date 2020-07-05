@@ -29,6 +29,7 @@ import { ItemView } from "./view/item-view.js";
 import * as ui from "./system/ui.js";
 import * as tiles from "./definitions-tiles.js";
 import * as visibility from "./rules/visibility.js";
+import { FogOfWar } from "./view/fogofwar.js";
 
 class Highlight{
     // Reuse a sprite for highlighting.
@@ -106,7 +107,7 @@ class GameView {
     current_animations = []; // Must be a set of js generators, each one an animation that can be played together.
     player_actions_highlights = []; // Must contain Highlight objects for the currently playable actions.
     action_range_highlights = []; // Must contain Highlight objects for the currently pointed action's range.
-
+    enable_fog_of_war = false;
 
     constructor(game){
         console.assert(game instanceof Game);
@@ -179,8 +180,10 @@ class GameView {
             }
         }
 
-        if(this.game.last_turn_info.player_character)
+        if(this.game.last_turn_info.player_character){
+            this.fog_of_war.position = this.game.last_turn_info.player_character.position;
             this.focus_on_position(this.game.last_turn_info.player_character.position);
+        }
     }
 
     highlight_selected_action_targets(action_info){
@@ -236,6 +239,8 @@ class GameView {
         this._update_animations(delta_time);
         this._update_entities(delta_time);
 
+        this.fog_of_war.update(delta_time);
+
         this.ui.update(delta_time);
     }
 
@@ -284,7 +289,9 @@ class GameView {
             if(this.current_animations.length == 0 && this.animation_queue.length == 0){
                 this.is_time_for_player_to_chose_action = true;
                 if(this.game.last_turn_info.player_character){
-                    this.focus_on_position(this.game.last_turn_info.player_character.position);
+                    const player_position = this.game.last_turn_info.player_character.position;
+                    this.fog_of_war.change_viewer_position(player_position)
+                    this.focus_on_position(player_position);
                     this.ui.unlock_actions();
                     this.highlight_available_basic_actions();
                 }
@@ -349,41 +356,52 @@ class GameView {
     render_graphics(){
         this.tile_grid.draw_floor();
 
-        this._render_highlights();
+        this._render_ground_highlights();
         this._render_entities();
 
         this.tile_grid.draw_surface();
+
+        if(this.enable_fog_of_war)
+            this.fog_of_war.display();
+
+        this._render_top_highlights();
 
         if(!editor.is_enabled)
             this.ui.display();
         this._render_help(); // TODO: replace this by highlights being UI elements?
     }
 
-    _render_highlights(){
+    _render_ground_highlights(){
         if(!this.player_actions_highlights.some(highlight=> this._character_focus_highlight.position.equals(highlight.position)))
             this._character_focus_highlight.draw();
+
+        if(!mouse.is_dragging
+        && !editor.is_enabled
+        && !this.ui.is_selecting_action_target
+        && !this.ui.is_mouse_over
+        && !this._pointed_highlight.position.equals(this._character_focus_highlight.position)
+        && !this.player_actions_highlights.some(highlight=> this._pointed_highlight.position.equals(highlight.position))
+        ){
+            if(!this.enable_fog_of_war
+            || this.fog_of_war.is_visible(this._pointed_highlight.position))
+                this._pointed_highlight.draw();
+        }
+    }
+
+    _render_top_highlights(){
 
         if(!mouse.is_dragging){
 
             if(!editor.is_enabled && this.is_time_for_player_to_chose_action){
-                for(const highlight of this.player_actions_highlights){
-                    highlight.draw();
-                }
-                for(const highlight of this.action_range_highlights){
-                    highlight.draw();
-                }
+
+                this.player_actions_highlights.filter(highlight=>this.fog_of_war.is_visible(highlight.position))
+                    .forEach(highlight => highlight.draw());
+
+                this.action_range_highlights.forEach(highlight => highlight.draw());
             }
 
             if(editor.is_enabled){
                 this._pointed_highlight_edit.draw();
-            } else {
-                if(!this.ui.is_selecting_action_target
-                && !this.ui.is_mouse_over
-                && !this._pointed_highlight.position.equals(this._character_focus_highlight.position)
-                && !this.player_actions_highlights.some(highlight=> this._pointed_highlight.position.equals(highlight.position))
-                ){
-                    this._pointed_highlight.draw();
-                }
             }
         }
     }
@@ -430,8 +448,12 @@ class GameView {
         console.assert(world);
 
         this._reset_tilegrid(world);
+
         this.entity_views = Object.assign({}, this._create_entity_views(this.game.world.items, ItemView)
                                             , this._create_entity_views(this.game.world.bodies, CharacterView));
+
+        this.fog_of_war = new FogOfWar(world, this.game.last_turn_info.player_character.field_of_view);
+
         this.highlight_available_basic_actions();
         this.ui.show_action_buttons(Object.values(this.game.last_turn_info.possible_actions));
 
