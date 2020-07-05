@@ -40,7 +40,8 @@ class Highlight{
             this._help_text = new ui.HelpText({
                 text: text,
                 area_to_help: new Rectangle(), // will be updated when we set the position.
-                in_screenspace: false // We will display the text in the game space.
+                in_screenspace: false, // We will display the text in the game space.
+                delay_ms: 666,
             });
         }
         this.position = position;
@@ -288,10 +289,13 @@ class GameView {
     _update_highlights(delta_time){
         const mouse_pos = mouse_grid_position();
         if(mouse_pos){
-            if(editor.is_enabled)
-                this._change_highlight_position(this._pointed_highlight_edit, mouse_pos);
-            else
-                this._change_highlight_position(this._pointed_highlight, mouse_pos);
+            if(!this._last_mouse_grid_pos || !mouse_pos.equals(this._last_mouse_grid_pos)){
+                this._last_mouse_grid_pos = mouse_pos;
+                if(editor.is_enabled)
+                    this._change_highlight_position(this._pointed_highlight_edit, mouse_pos);
+                else
+                    this._change_highlight_position(this._pointed_highlight, mouse_pos);
+            }
         }
 
         for(const highlight_sprite of Object.values(this._highlight_sprites)){

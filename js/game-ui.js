@@ -35,6 +35,7 @@ class ActionButton extends ui.Button {
             width: action_button_size, height: action_button_size,
             area_to_help: this.area,
             text: action_name,
+            delay_ms: 0, // Display the help text immediately when pointed.
         });
         this.help_text.position = this.position.translate({x:0, y: -this.help_text.height - 4 });
     }

@@ -317,12 +317,18 @@ class Text extends UIElement {
 class HelpText extends Text {
 
     // See Text, plus:
-    // { area_to_help: rectangle }
+    // {
+    //   area_to_help: rectangle  // The area that will display the helptext if pointed at
+    //   delay_ms: 1000            // Time (default 1sec) before displaying the help-text once the area is being pointed.
+    // }
     constructor(text_def){
         console.assert(text_def.area_to_help instanceof Rectangle);
+        console.assert(text_def.delay_ms === undefined || Number.isInteger(text_def.delay_ms));
         super(text_def);
         this.visible = false;
         this._area_to_help = text_def.area_to_help;
+        this._delay_ms = text_def.delay_ms !== undefined ? text_def.delay_ms : 1000;
+        this._time_since_pointed = 0;
     }
 
     get is_mouse_over_area_to_help(){
@@ -332,16 +338,24 @@ class HelpText extends Text {
     set area_to_help(new_area){
         console.assert(new_area instanceof Rectangle);
         this._area_to_help = new_area;
+        this._time_since_pointed = 0;
     }
 
     _on_update(delta_time){
         super._on_update(delta_time);
         if(this.visible){
-            if(!this.is_mouse_over_area_to_help)
+            if(!this.is_mouse_over_area_to_help || this._time_since_pointed < this._delay_ms){
                 this.visible = false;
+            }
         } else {
-            if(this.is_mouse_over_area_to_help)
-                this.visible = true;
+            if(this.is_mouse_over_area_to_help){
+                if(this._time_since_pointed >= this._delay_ms)
+                    this.visible = true;
+                else
+                    this._time_since_pointed += delta_time;
+            } else {
+                this._time_since_pointed = 0;
+            }
         }
     }
 };
