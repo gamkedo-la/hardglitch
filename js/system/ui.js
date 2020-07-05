@@ -8,18 +8,23 @@ export {
     Text, HelpText,
 };
 
-import { Vector2, Rectangle, is_intersection } from "./spatial.js";
-import { Sprite, draw_rectangle, canvas_rect, draw_text, measure_text } from "./graphics.js";
+import { Vector2, Rectangle, is_intersection, Vector2_origin } from "./spatial.js";
+import { Sprite, draw_rectangle, canvas_rect, draw_text, measure_text, camera } from "./graphics.js";
 import { mouse, MOUSE_BUTTON } from "./input.js";
 import { is_number } from "./utility.js";
 
-function is_point_under(position, area){
+function is_point_under(position, area, origin){
     console.assert(position.x != undefined && position.y != undefined );
-    return is_intersection(area, { position:position, width:0, height:0 });
+    console.assert(area);
+    console.assert(origin);
+    const real_position = (new Vector2(position)).translate(origin);
+    return is_intersection(area, { position: real_position, width:0, height:0 });
 }
 
-function is_mouse_pointing(area){
-    return is_point_under(mouse.position, area);
+function is_mouse_pointing(area, origin){
+    console.assert(area);
+    console.assert(origin);
+    return is_point_under(mouse.position, area, origin);
 }
 
 class UIElement {
@@ -33,12 +38,14 @@ class UIElement {
     //   height: 20,
     //   visible: true, // Is it visible from the beginning? Visibility imply being able to interrect. True by default.
     //   enabled: true, // Is it enabled from the beginning? If not and visible, it cannot be interracted with but is visible. True by default.
+    //   in_screenspace: true // Handle the element as if in screen space if true (default), in the game's space otherwise.
     // }
     constructor(def){
         console.assert(is_number(def.height));
         console.assert(is_number(def.width));
         this._visible = def.visible == undefined ? true : def.visible;
         this._enabled = def.enabled == undefined ? true : def.enabled;
+        this._in_screenspace = def.in_screenspace == undefined ? true : def.in_screenspace;
         this._area = new Rectangle({
             position: def.position, width: def.width, height: def.height,
         });
@@ -78,15 +85,20 @@ class UIElement {
     get height() { return this._area.height; }
     get area () { return new Rectangle(this._area); }
 
+    get in_screenspace() { return this._in_screenspace; }
+    set in_screenspace(is_it) { this._in_screenspace = is_it; }
+
+    get _space_origin() { return this.in_screenspace ? Vector2_origin : camera.position; }
+
     is_intersecting(rect){
-        return is_intersection(this._area, rect);
+        return is_intersection(this._area, rect, this._space_origin);
     }
 
     is_under(position){
-        return is_point_under(position, this._area);
+        return is_point_under(position, this._area, this._space_origin);
     }
 
-    get is_mouse_over(){ return is_mouse_pointing(this._area); }
+    get is_mouse_over(){ return is_mouse_pointing(this._area, this._space_origin); }
 
     get all_ui_elements() { return Object.values(this).filter(element => element instanceof UIElement || element instanceof Sprite); }
 
@@ -260,7 +272,9 @@ class Text extends UIElement {
     constructor(text_def){
         console.assert(typeof(text_def.text)==="string");
 
-        super(text_def);
+        super(Object.assign(text_def, {
+            width:1, height:1, // Width and height will be recalculated based on the real size of the text.
+        }));
         this._text = text_def.text;
         this._font = text_def.font;
         this._color = text_def.color;
@@ -268,6 +282,17 @@ class Text extends UIElement {
         this._margin_vertical = text_def.margin_vertical ? text_def.margin_vertical : 4;
         this._background_color = text_def.background_color ? text_def.background_color : "#ffffffaa";
 
+        this._reset();
+    }
+
+    get text(){ this._text; }
+    set text(new_text){
+        console.assert(typeof new_text === 'string');
+        this._text = text_def.text;
+        this._reset();
+    }
+
+    _reset(){
         // Force resize to the actual size of the text graphically.
         const text_metrics = measure_text(this._text, this._font, this._color);
         const actual_width = Math.abs(text_metrics.actualBoundingBoxLeft) + Math.abs(text_metrics.actualBoundingBoxRight);
@@ -276,7 +301,6 @@ class Text extends UIElement {
             x: actual_width + (this._margin_horizontal * 2),
             y: actual_height + (this._margin_vertical * 2)
         });
-
     }
 
     _on_update(delta_time){
@@ -298,11 +322,16 @@ class HelpText extends Text {
         console.assert(text_def.area_to_help instanceof Rectangle);
         super(text_def);
         this.visible = false;
-        this.area_to_help = text_def.area_to_help;
+        this._area_to_help = text_def.area_to_help;
     }
 
     get is_mouse_over_area_to_help(){
-        return is_mouse_pointing(this.area_to_help);
+        return is_mouse_pointing(this._area_to_help, this._space_origin);
+    }
+
+    set area_to_help(new_area){
+        console.assert(new_area instanceof Rectangle);
+        this._area_to_help = new_area;
     }
 
     _on_update(delta_time){

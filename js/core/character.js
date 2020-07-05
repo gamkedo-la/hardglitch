@@ -10,6 +10,8 @@ import * as concepts from "./concepts.js";
 // Some rules will rely on properties provided there.
 class Character extends concepts.Body {
 
+    name = "Character";
+
     ////////////////////////////////
     // Action Point System here.
     action_points_left = 0;

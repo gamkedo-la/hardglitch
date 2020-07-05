@@ -71,7 +71,7 @@ class Camera{
   get rectangle() { return new spatial.Rectangle({ position: this.position, width: canvas.width, height: canvas.height }); }
 
   can_see(rect){
-    if(this._in_screen_rendering == true)
+    if(this._in_screen_rendering)
       return spatial.is_intersection(rect, { position: {x:0, y:0}, width: canvas.width, height: canvas.height });
     else
       return spatial.is_intersection(rect, this.rectangle);
@@ -186,6 +186,12 @@ class Sprite {
                 x: this.source_image.width, y: this.source_image.height };
     else
       return { width: 64, height: 64, x: 64, y: 64 };
+  }
+
+  get area(){
+    return new spatial.Rectangle({ x: this.transform.position.x, y: this.transform.position.y,
+                                   width: this.size.width, height: this.size.height,
+                                 });
   }
 
   // Change the origin point to the and translate to compensate.

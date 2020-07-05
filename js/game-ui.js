@@ -17,7 +17,6 @@ import { Vector2, center_in_rectangle } from "./system/spatial.js";
 
 const action_button_size = 50;
 
-
 class ActionButton extends ui.Button {
     constructor(position, icon_def, action_name, on_clicked){
         super({ // TODO: add a way to identify the action visually, text + icon
@@ -33,13 +32,43 @@ class ActionButton extends ui.Button {
             { position: this.position, width: action_button_size, height:action_button_size}).position;
 
         this.help_text = new ui.HelpText({
-            area_to_help: this.area,
             width: action_button_size, height: action_button_size,
+            area_to_help: this.area,
             text: action_name,
-        })
+        });
         this.help_text.position = this.position.translate({x:0, y: -this.help_text.height - 4 });
     }
 
+
+};
+
+
+class CancelActionButton extends ui.Button {
+    constructor(action){
+        super({ // TODO: add a way to identify the action visually, text + icon
+            position: { x: 0, y: 0 },
+            width: action_button_size, height: action_button_size,
+            sprite_def: sprite_defs.button_cancel_action_target_selection,
+            frames: { up: 0, down: 1, over: 2, disabled: 3 },
+            visible: false,
+            action: action,
+        });
+
+        this.help_text = new ui.HelpText({
+            width: action_button_size, height: action_button_size,
+            area_to_help: this.area,
+            text: "CANCEL ACTION",
+        });
+
+    }
+
+    set position(new_pos){
+        super.position = new_pos;
+        this.help_text.position = super.position.translate({x:0, y: -this.help_text.height - 4 });
+        this.help_text.area_to_help = this.area;
+    }
+
+    get position() { return super.position; }
 
 };
 
@@ -49,17 +78,10 @@ class ActionButton extends ui.Button {
 //       at specific times in the life of the game, and it's easier to do if its just an object.
 class GameInterface {
 
-    button_cancel_action_selection = new ui.Button({
-        position: { x: 200, y: 700 },
-        width: action_button_size, height: action_button_size,
-        sprite_def: sprite_defs.button_cancel_action_target_selection,
-        frames: { up: 0, down: 1, over: 2, disabled: 3 },
-        visible: false,
-        action: ()=>{
+    button_cancel_action_selection = new CancelActionButton(()=>{
             console.log("CANCEL ACTION BUTTON");
             this.cancel_action_target_selection();
             this.button_cancel_action_selection.visible = false;
-        }
     });
 
     constructor(on_action_selection_begin, on_action_selection_end){
@@ -68,6 +90,7 @@ class GameInterface {
         this._action_buttons = [];
         this.on_action_selection_begin = on_action_selection_begin;
         this.on_action_selection_end = on_action_selection_end;
+
     }
 
     get elements(){
@@ -90,7 +113,7 @@ class GameInterface {
 
     update(delta_time){
         this.elements.map(element => element.update(delta_time));
-        this._handle_action_target_selection();
+        this._handle_action_target_selection(delta_time);
     }
 
     display() {
@@ -159,11 +182,13 @@ class GameInterface {
         this.button_cancel_action_selection.visible = false;
     }
 
-    _handle_action_target_selection(){
+    _handle_action_target_selection(delta_time){
         if(keyboard.is_just_down(KEY.ESCAPE) && this.is_selecting_action_target){
             this.cancel_action_target_selection();
             return;
         }
+
+        this.button_cancel_action_selection.update(delta_time);
 
         if(this.is_selecting_action_target
          && mouse.buttons.is_just_down(MOUSE_BUTTON.LEFT)

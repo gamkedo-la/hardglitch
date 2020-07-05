@@ -9,7 +9,7 @@ export { GameView, CharacterView, graphic_position };
 import * as graphics from "./system/graphics.js";
 
 import { Game } from "./game.js";
-import { Vector2 } from "./system/spatial.js";
+import { Vector2, Rectangle } from "./system/spatial.js";
 
 import * as concepts from "./core/concepts.js";
 import * as editor from "./editor.js";
@@ -17,38 +17,77 @@ import * as editor from "./editor.js";
 import {
     graphic_position, PIXELS_PER_TILES_SIDE, square_half_unit_vector,
     EntityView,
+    game_position_from_graphic_po,
 } from "./view/entity-view.js";
 import { TileGridView } from "./view/tilegrid-view.js";
 import { CharacterView } from "./view/character-view.js";
 import { GameInterface } from "./game-ui.js";
-import { mouse_grid_position, mouse_is_pointing_walkable_position } from "./game-input.js";
+import { mouse_grid_position, mouse_is_pointing_walkable_position, mouse_game_position, game_position_from_graphic_position } from "./game-input.js";
 import { sprite_defs } from "./game-assets.js";
 import { mouse } from "./system/input.js";
 import { Move } from "./rules/rules-movement.js";
 import { ItemView } from "./view/item-view.js";
+import * as ui from "./system/ui.js";
 
 class Highlight{
     // Reuse a sprite for highlighting.
-    constructor(position, sprite){
+    constructor(position, sprite, text){
         console.assert(Number.isInteger(position.x) && Number.isInteger(position.y));
         console.assert(sprite instanceof graphics.Sprite);
-        this._position = new concepts.Position(position);
+        console.assert(text === undefined || typeof text === 'string');
         this._sprite = sprite;
+        if(text){
+            this._help_text = new ui.HelpText({
+                text: text,
+                area_to_help: new Rectangle(), // will be updated when we set the position.
+                in_screenspace: false // We will display the text in the game space.
+            });
+        }
+        this.position = position;
     }
 
     set position(new_pos) {
-        console.assert(new_pos instanceof concepts.Position);
-        this._position = new_pos;
+        this._position = new concepts.Position(new_pos);
+
+        this._sprite.position = graphic_position(this._position);
+        this._help_text.area_to_help = new Rectangle(this._sprite.area);
     }
 
     get position(){
-        return this._position;
+        return new concepts.Position(this._position);
+    }
+
+    update(delta_time){
+        this._drawn_since_last_update = false;
+        // BEWARE: We must re-calculate the sprite position on rendering because it is dependent on the camera position.
+        if(this._help_text){
+            this._help_text.update(delta_time);
+            if(this._help_text.visible){
+                const text_pos = mouse_game_position().translate({x:0, y:-50}); // TODO: something less arbitrary?
+                if(text_pos.x > graphics.camera.rectangle.bottom_right.x - 60)
+                    text_pos.x = text_pos.x - 100;
+                if(text_pos.y < graphics.camera.rectangle.top_left.y + 60)
+                    text_pos.y = text_pos.y + 100;
+                this._help_text.position = text_pos;
+            }
+        }
     }
 
     draw(canvas_context){
-        console.assert(this._position instanceof concepts.Position);
-        this._sprite.position = graphic_position(this._position);
+        // if(!graphics.camera.can_see(this._sprite.area)) // TODO: this is buggy, check why
+        //     return;
+        console.assert(!graphics.camera.is_rendering_in_screen);
+
+        this._sprite.position = graphic_position(this._position); // BEWARE: We share the sprite with other highlights so we need to reposition it before each redraw.
         this._sprite.draw(canvas_context);
+        this._drawn_since_last_update = true;
+    }
+
+    draw_help(){
+        console.assert(!graphics.camera.is_rendering_in_screen);
+        if(this._help_text && this._drawn_since_last_update){
+            this._help_text.draw();
+        }
     }
 };
 
@@ -76,9 +115,9 @@ class GameView {
             turn: new graphics.Sprite(sprite_defs.highlight_purple),
         };
 
-        this._pointed_highlight = new Highlight({x:0, y:0}, this._highlight_sprites.neutral);
-        this._pointed_highlight_edit = new Highlight({x:0, y:0}, this._highlight_sprites.edit);
-        this._character_focus_highlight = new Highlight({x:0, y:0}, this._highlight_sprites.turn);
+        this._pointed_highlight = new Highlight({x:0, y:0}, this._highlight_sprites.neutral, "Tile");
+        this._pointed_highlight_edit = new Highlight({x:0, y:0}, this._highlight_sprites.edit, "EDITOR");
+        this._character_focus_highlight = new Highlight({x:0, y:0}, this._highlight_sprites.turn, "Character");
 
         this.reset();
     }
@@ -94,8 +133,6 @@ class GameView {
                 parallel: event.allow_parallel_animation,
             });
         }
-
-        this.highlight_available_basic_actions();
         this.ui.show_action_buttons(Object.values(this.game.last_turn_info.possible_actions));
     }
 
@@ -103,8 +140,8 @@ class GameView {
         yield* event.animation(this);
     };
 
-    _add_highlight(position, sprite){
-        this.player_actions_highlights.push(new Highlight(position, sprite));
+    _add_highlight(position, sprite, text){
+        this.player_actions_highlights.push(new Highlight(position, sprite, text));
     }
 
     focus_on_entity(entity_id){
@@ -122,9 +159,9 @@ class GameView {
         for(const action of Object.values(available_actions)){
             if(action.is_basic && action.is_safe){
                 if(action instanceof Move)
-                    this._add_highlight(action.target_position, this._highlight_sprites.movement);
+                    this._add_highlight(action.target_position, this._highlight_sprites.movement, action.name);
                 else
-                    this._add_highlight(action.target_position, this._highlight_sprites.basic_action);
+                    this._add_highlight(action.target_position, this._highlight_sprites.basic_action, action.name);
             }
         }
 
@@ -137,7 +174,7 @@ class GameView {
 
         for(const action of action_info.actions){
             if(action.target_position)
-                this._add_highlight(action.target_position, this._highlight_sprites.action);
+                this._add_highlight(action.target_position, this._highlight_sprites.action, action.name);
         }
     }
 
@@ -217,6 +254,7 @@ class GameView {
                 if(this.game.last_turn_info.player_character){
                     this.focus_on_position(this.game.last_turn_info.player_character.position);
                     this.ui.unlock_actions();
+                    this.highlight_available_basic_actions();
                 }
                 editor.set_text("PLAYER'S TURN!");
             }
@@ -243,7 +281,7 @@ class GameView {
         entity_views.map(view => view.render_graphics());
     }
 
-    _update_highlights(delat_time){
+    _update_highlights(delta_time){
         const mouse_pos = mouse_grid_position();
         if(mouse_pos){
             if(editor.is_enabled)
@@ -253,8 +291,15 @@ class GameView {
         }
 
         for(const highlight_sprite of Object.values(this._highlight_sprites)){
-            highlight_sprite.update(delat_time);
+            highlight_sprite.update(delta_time);
         }
+
+        for(const highlight of this.player_actions_highlights){
+            highlight.update(delta_time);
+        }
+        this._pointed_highlight.update(delta_time);
+        this._pointed_highlight_edit.update(delta_time);
+        this._character_focus_highlight.update(delta_time);
     }
 
 
@@ -267,6 +312,7 @@ class GameView {
         this.tile_grid.draw_surface();
 
         this.ui.display();
+        this._render_help(); // TODO: replace this by highlights being UI elements?
     }
 
     _render_highlights(){
@@ -285,8 +331,16 @@ class GameView {
             } else {
                 if(mouse_is_pointing_walkable_position() && !this.ui.is_selecting_action_target)
                     this._pointed_highlight.draw();
+                }
             }
         }
+    }
+
+    _render_help(){
+        this.player_actions_highlights.forEach(highlight => highlight.draw_help());
+        this._pointed_highlight.draw_help();
+        this._character_focus_highlight.draw_help();
+        this._pointed_highlight_edit.draw_help();
     }
 
     focus_on_position(position){
