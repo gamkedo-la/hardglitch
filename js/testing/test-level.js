@@ -165,9 +165,9 @@ function make_test_world(){ // The game assets must have been initialized first.
     // closer stuffs
     visibility.positions_in_range(entry_point_position, inner_shape, valid_positions_filter)
         .forEach(position=>{
-            const file = new CryptoFile();
-            file.position = position;
-            world.add(file);
+            // const file = new CryptoFile();
+            // file.position = position;
+            // world.add(file);
         });
 
     // farther voids
