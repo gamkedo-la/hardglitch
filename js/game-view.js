@@ -311,6 +311,7 @@ class GameView {
 
         this.tile_grid.draw_surface();
 
+        if(!editor.is_enabled)
         this.ui.display();
         this._render_help(); // TODO: replace this by highlights being UI elements?
     }
