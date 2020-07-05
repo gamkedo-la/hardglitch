@@ -145,7 +145,7 @@ function make_test_world(){ // The game assets must have been initialized first.
     const inner_range = { begin: 1, end: 6 };
     const space_between_inner_outter = 1;
     const outter_begin  = inner_range.end + space_between_inner_outter;
-    const outter_range = { begin: outter_begin, end: outter_begin + 3 };
+    const outter_range = { begin: outter_begin, end: outter_begin + 2 };
     const clean_range = { begin: 1, end: outter_range.end + 1 };
     const test_shape = visibility.Range_Square;
 
