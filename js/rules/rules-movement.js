@@ -105,6 +105,7 @@ class Jump extends concepts.Action {
 
     constructor(target){
         super(`jump_${target.x}_${target.y}`, `Jump to ${JSON.stringify(target)}`, target);
+        this.is_basic = true;
     }
 
     execute(world, character){
@@ -118,7 +119,7 @@ class Jump extends concepts.Action {
 }
 
 class Rule_Jump extends concepts.Rule {
-    range = new visibility.Range_Cross_Star(2, 4);
+    range = new visibility.Range_Cross_Star(3, 4);
 
     get_actions_for(character, world){
         if(!character.is_player_actor) // TODO: temporary
