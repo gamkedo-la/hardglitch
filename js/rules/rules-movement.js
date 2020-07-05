@@ -26,7 +26,7 @@ function safe_if_safe_arrival(move_action, world){
 
 
 class Moved extends concepts.Event {
-    constructor(entity, from_pos, to_pos) {
+    constructor(entity, from_pos, to_pos, duration) {
         console.assert(entity instanceof concepts.Entity);
         console.assert(from_pos instanceof concepts.Position);
         console.assert(to_pos instanceof concepts.Position);
@@ -37,6 +37,7 @@ class Moved extends concepts.Event {
         this.entity_id = entity.id;
         this.from_pos = from_pos;
         this.to_pos = to_pos;
+        this.duration = duration;
     }
 
     *animation(game_view){
@@ -46,7 +47,7 @@ class Moved extends concepts.Event {
         console.assert(this.to_pos instanceof concepts.Position);
         // TODO: insert a very small pause here
         game_view.focus_on_position(this.to_pos);
-        yield* animations.move(entity_view, this.to_pos);
+        yield* animations.move(entity_view, this.to_pos, this.duration);
     }
 
 };
@@ -113,7 +114,7 @@ class Jump extends concepts.Action {
         console.assert(character instanceof Character);
         const initial_pos = character.position;
         character.position = this.target_position;
-        const move_event = new Moved(character, initial_pos, this.target_position);
+        const move_event = new Moved(character, initial_pos, this.target_position, 666);
         move_event.allow_parallel_animation = this.is_safe;
         return [move_event]; // TODO: implement a different event, with a different animation
     }
