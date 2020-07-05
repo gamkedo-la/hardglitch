@@ -360,7 +360,8 @@ class GameView {
     }
 
     _render_highlights(){
-        this._character_focus_highlight.draw();
+        if(!this.player_actions_highlights.some(highlight=> this._character_focus_highlight.position.equals(highlight.position)))
+            this._character_focus_highlight.draw();
 
         if(!mouse.is_dragging){
 
@@ -378,7 +379,9 @@ class GameView {
             } else {
                 if(!this.ui.is_selecting_action_target
                 && !this.ui.is_mouse_over
-                && !this._pointed_highlight.position.equals(this._character_focus_highlight.position)){
+                && !this._pointed_highlight.position.equals(this._character_focus_highlight.position)
+                && !this.player_actions_highlights.some(highlight=> this._pointed_highlight.position.equals(highlight.position))
+                ){
                     this._pointed_highlight.draw();
                 }
             }
