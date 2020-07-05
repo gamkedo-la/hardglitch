@@ -142,7 +142,7 @@ function make_test_world(){ // The game assets must have been initialized first.
 
     //////////////////////////////////////////////////////////////
     // Testing range view:
-    const inner_range = { begin: 1, end: 6 };
+    const inner_range = { begin: 1, end: 3 };
     const space_between_inner_outter = 1;
     const outter_begin  = inner_range.end + space_between_inner_outter;
     const outter_range = { begin: outter_begin, end: outter_begin + 2 };
