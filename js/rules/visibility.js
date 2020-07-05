@@ -142,14 +142,32 @@ function positions_in_range(center_position, range_shape, valid_position_predica
     return matching_positions;
 }
 
-// The range of view of characters (assuming all characters have the same view range). // TODO: decide if that's the only way to view around.
-const view_range_shape = new Range_Circle(1, 10);
 
 // Provides all the positions that are currently "visible" by a character at the provided center position in the world.
-function find_visible_positions(world, center){
-    const visible_positions = positions_in_range(center, view_range_shape)
-        // Note that here a character can hide another one
-        .filter(position => world.is_blocked_position(position, tiles.is_blocking_view));
+function find_visible_positions(world, center, view_distance){
+    console.assert(world instanceof World);
+    console.assert(center instanceof Position);
+    console.assert(Number.isInteger(view_distance) && view_distance >= 0);
+    // The range of view of characters (assuming all characters have the same view range). // TODO: decide if that's the only way to view around.
+    const view_limit_shape = new Range_Circle(view_distance, view_distance + 1);
+    const tile_visibility_predicate = pos => tiles.is_blocking_view(pos);
+
+    // For each position at the border, we do the equivalent of a raycast from the center, but on the grid.
+    const visible_positions = [];
+    for(const limit_pos of view_limit_shape){
+        const step_vector = center.substract(limit_pos).normalize();
+        let position = center.translate(step_vector);
+        while(limit_pos.distance(position) != 0){
+            if(world.is_blocked_position(limit_pos, tile_visibility_predicate)){ // Here we assume that characters block each other's view. // TODO: consider if it's a good idea or not.
+                // This position is blocking the view: we dont'go farther in that direction.
+                break;
+            }
+
+            visible_positions.push(position);
+            position = center.translate(step_vector);
+        }
+    }
+
     return visible_positions;
 }
 
@@ -165,15 +183,17 @@ function valid_move_positions(world, center, action_range_shape){
 
 class FieldOfView {
 
-    constructor(world, position, max_distance){
+    constructor(world, position, view_distance){
         console.assert(world instanceof concepts.World);
         console.assert(position instanceof concepts.Position);
-        console.assert(Number.isInteger(max_distance) && max_distance >= 0);
+        console.assert(Number.isInteger(view_distance) && view_distance >= 0);
         this._center = position;
         this._world = world;
-        this._max_distance = max_distance;
+        this._view_distance = view_distance;
         this.update();
     }
+
+    get view_distance(){ return this._view_distance; }
 
     set position(new_position) {
         console.assert(new_position instanceof concepts.Position);
@@ -185,11 +205,18 @@ class FieldOfView {
     get visible_positions() { return [ ...this._visible_positions ]; } // We return a copy.
 
     update(){
-        this._visible_positions = find_visible_positions(this._world, this._center);
+        this._visible_positions = find_visible_positions(this._world, this._center, this._view_distance);
     }
 
     is_visible(...positions){ // TODO: probably optimizable
         return positions.every(position => {
+            console.assert(position instanceof concepts.Position);
+            return this._visible_positions.some(visible_pos => position.equals(visible_pos));
+        });
+    }
+
+    filter_visible(...positions){ // TODO: probably optimizable
+        return positions.filter(position => {
             console.assert(position instanceof concepts.Position);
             return this._visible_positions.some(visible_pos => position.equals(visible_pos));
         });
