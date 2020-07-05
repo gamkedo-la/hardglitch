@@ -6,6 +6,8 @@ export {
     ParticleSystem,
     FadeLineParticle,
     FadeParticle,
+    OffsetGlitchParticle,
+    ColorGlitchParticle,
     BlipParticle,
 }
 
@@ -444,6 +446,82 @@ class FadeParticle extends Particle {
         }
     }
 
+}
+
+class OffsetGlitchParticle extends Particle {
+    constructor(ctx, x, y, width, height, dx, dy, ttl, fillColor) {
+        super(ctx, x, y);
+        this.width = width;
+        this.height = height;
+        this.dx = dx;
+        this.dy = dy;
+        this.ttl = ttl;
+        this.fillColor = fillColor;
+    }
+
+    draw() {
+        this.ctx.save();
+        let data = this.ctx.getImageData(this.x, this.y, this.width, this.height);
+        this.ctx.fillStyle = this.fillColor.toString();
+        this.ctx.fillRect(this.x, this.y, this.width, this.height);
+        //this.ctx.putImageData(data, this.x, this.y, Math.max(0, this.dx), Math.max(0,this.dy), this.width-this.dx, this.height-this.dy);
+        //this.ctx.putImageData(data, this.x+this.dx, this.y+this.dy, Math.max(0, this.dx), Math.max(0,this.dy), this.width-this.dx, this.height-this.dy);
+        this.ctx.putImageData(data, this.x+this.dx, this.y+this.dy);
+        this.ctx.restore();
+    }
+
+    update(delta_time) {
+        if (this.done) return;
+        // convert delta time to seconds
+        delta_time *= .001;
+        // time-to-live
+        this.ttl -= delta_time;
+        if (this.ttl <= 0) {
+            this._done = true;
+        }
+    }
+
+}
+
+class ColorGlitchParticle extends Particle {
+    constructor(ctx, x, y, width, height, roff, goff, boff, ttl) {
+        super(ctx, x, y);
+        this.width = width;
+        this.height = height;
+        this.roff = roff;
+        this.goff = goff;
+        this.boff = boff;
+        this.ttl = ttl;
+    }
+
+    draw() {
+        this.ctx.save();
+        // pull area
+        let idata = this.ctx.getImageData(this.x, this.y, this.width, this.height);
+        let data = idata.data;
+        // transform data
+        for(var i = 0; i < data.length; i += 4) {
+          // red
+          data[i] = (data[i] + this.roff) % 255;
+          // green
+          data[i + 1] = (data[i + 1] + this.goff) % 255;
+          // blue
+          data[i + 2] = (data[i + 2] + this.goff) % 255;
+        }
+        this.ctx.putImageData(idata, this.x, this.y);
+        this.ctx.restore();
+    }
+
+    update(delta_time) {
+        if (this.done) return;
+        // convert delta time to seconds
+        delta_time *= .001;
+        // time-to-live
+        this.ttl -= delta_time;
+        if (this.ttl <= 0) {
+            this._done = true;
+        }
+    }
 }
 
 const blipImg = new Image();
