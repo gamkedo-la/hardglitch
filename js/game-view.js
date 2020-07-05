@@ -283,7 +283,7 @@ class GameView {
             if(editor.is_enabled){
                 this._pointed_highlight_edit.draw();
             } else {
-                if(mouse_is_pointing_walkable_position())
+                if(mouse_is_pointing_walkable_position() && !this.ui.is_selecting_action_target)
                     this._pointed_highlight.draw();
             }
         }
