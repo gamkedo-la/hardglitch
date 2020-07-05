@@ -377,15 +377,24 @@ class GameView {
 
         if(!mouse.is_dragging
         && !editor.is_enabled
-        && !this.ui.is_selecting_action_target
-        && !this.ui.is_mouse_over
-        && !this._pointed_highlight.position.equals(this._character_focus_highlight.position)
-        && !this.player_actions_highlights.some(highlight=> this._pointed_highlight.position.equals(highlight.position))
         ){
-            if(!this.enable_fog_of_war
-            || this.fog_of_war.is_visible(this._pointed_highlight.position))
-                this._pointed_highlight.draw();
+            if(this.is_time_for_player_to_chose_action){
+                this.player_actions_highlights
+                    .filter(highlight=> !this.enable_fog_of_war || this.fog_of_war.is_visible(highlight.position))
+                    .forEach(highlight => highlight.draw());
+            }
+
+            if(!this.ui.is_selecting_action_target
+                && !this.ui.is_mouse_over
+                && !this._pointed_highlight.position.equals(this._character_focus_highlight.position)
+                && !this.player_actions_highlights.some(highlight=> this._pointed_highlight.position.equals(highlight.position))
+                ){
+                    if(!this.enable_fog_of_war
+                    || this.fog_of_war.is_visible(this._pointed_highlight.position))
+                        this._pointed_highlight.draw();
+                }
         }
+
     }
 
     _render_top_highlights(){
@@ -393,11 +402,6 @@ class GameView {
         if(!mouse.is_dragging){
 
             if(!editor.is_enabled && this.is_time_for_player_to_chose_action){
-
-                this.player_actions_highlights
-                    .filter(highlight=> !this.enable_fog_of_war || this.fog_of_war.is_visible(highlight.position))
-                    .forEach(highlight => highlight.draw());
-
                 this.action_range_highlights.forEach(highlight => highlight.draw());
             }
 
