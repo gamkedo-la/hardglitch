@@ -5,6 +5,7 @@ export {
     positions_in_range,
     valid_target_positions,
     valid_move_positions,
+    RangeShape,
     Range_Diamond,
     Range_Circle,
     Range_Square,

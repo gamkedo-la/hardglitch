@@ -18,7 +18,7 @@ import { Vector2, center_in_rectangle } from "./system/spatial.js";
 const action_button_size = 50;
 
 class ActionButton extends ui.Button {
-    constructor(position, icon_def, action_name, on_clicked){
+    constructor(position, icon_def, action_name, on_clicked, on_begin_mouse_over, on_end_mouse_over){
         super({ // TODO: add a way to identify the action visually, text + icon
             position: position,
             width: action_button_size, height: action_button_size,
@@ -26,6 +26,11 @@ class ActionButton extends ui.Button {
             frames: { up: 0, down: 1, over: 2, disabled: 3 },
             action: on_clicked
         });
+
+        console.assert(on_begin_mouse_over instanceof Function);
+        console.assert(on_end_mouse_over instanceof Function);
+        this.on_begin_mouse_over = on_begin_mouse_over;
+        this.on_end_mouse_over = on_end_mouse_over;
 
         this.icon = new graphics.Sprite(icon_def);
         this.icon.position = center_in_rectangle(this.icon,
@@ -40,7 +45,15 @@ class ActionButton extends ui.Button {
         this.help_text.position = this.position.translate({x:0, y: -this.help_text.height - 4 });
     }
 
+    _on_begin_over(){
+        super._on_begin_over();
+        this.on_begin_mouse_over();
+    }
 
+    _on_end_over(){
+        super._on_end_over();
+        this.on_end_mouse_over();
+    }
 };
 
 
@@ -85,13 +98,16 @@ class GameInterface {
             this.button_cancel_action_selection.visible = false;
     });
 
-    constructor(on_action_selection_begin, on_action_selection_end){
-        console.assert(on_action_selection_begin);
-        console.assert(on_action_selection_end);
+    constructor(on_action_selection_begin, on_action_selection_end, on_action_pointed_begin, on_action_pointed_end){
+        console.assert(on_action_selection_begin instanceof Function);
+        console.assert(on_action_selection_end instanceof Function);
+        console.assert(on_action_pointed_begin instanceof Function);
+        console.assert(on_action_pointed_end instanceof Function);
         this._action_buttons = [];
         this.on_action_selection_begin = on_action_selection_begin;
         this.on_action_selection_end = on_action_selection_end;
-
+        this.on_action_pointed_begin = on_action_pointed_begin;
+        this.on_action_pointed_end = on_action_pointed_end;
     }
 
     get elements(){
@@ -142,8 +158,10 @@ class GameInterface {
         for(const [action_name, actions] of Object.entries(actions_per_types)){
             const position = { x: next_x(), y: line_y };
             const first_action = actions[0];
+            const action_range = first_action.range;
             console.assert(first_action instanceof concepts.Action);
-            const action_button = new ActionButton(position, first_action.icon_def, action_name, ()=>{
+            const action_button = new ActionButton(position, first_action.icon_def, action_name,
+                ()=>{ // on clicked
                     set_text(`ACTION SELECTED: ${action_name}`);
                     // TODO: highlight the possible targets
                     if(actions.length == 1 && first_action.target_position === undefined){ // No need for targets
@@ -154,6 +172,11 @@ class GameInterface {
                         this._begin_target_selection(action_name, actions);
                     }
                     this.lock_actions(); // Can be unlocked by clicking somewhere there is no action target.
+                },
+                ()=> this.on_action_pointed_begin(action_range),
+                ()=> {
+                    if(!this.is_mouse_over)
+                        this.on_action_pointed_end();
                 });
             this._action_buttons.push(action_button);
         }

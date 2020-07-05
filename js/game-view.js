@@ -28,6 +28,7 @@ import { Move } from "./rules/rules-movement.js";
 import { ItemView } from "./view/item-view.js";
 import * as ui from "./system/ui.js";
 import * as tiles from "./definitions-tiles.js";
+import * as visibility from "./rules/visibility.js";
 
 class Highlight{
     // Reuse a sprite for highlighting.
@@ -51,7 +52,8 @@ class Highlight{
         this._position = new concepts.Position(new_pos);
 
         this._sprite.position = graphic_position(this._position);
-        this._help_text.area_to_help = new Rectangle(this._sprite.area);
+        if(this._help_text)
+            this._help_text.area_to_help = new Rectangle(this._sprite.area);
     }
 
     get position(){
@@ -59,7 +61,8 @@ class Highlight{
     }
 
     set text(new_text) {
-        this._help_text.text = new_text;
+        if(this._help_text.text)
+            this._help_text.text = new_text;
     }
 
     update(delta_time){
@@ -102,6 +105,7 @@ class GameView {
     animation_queue = []; // Must contain only js generators + parallel: (true||false). // TODO: make the animation system separately to be used anywhere there are animations to play.
     current_animations = []; // Must be a set of js generators, each one an animation that can be played together.
     player_actions_highlights = []; // Must contain Highlight objects for the currently playable actions.
+    action_range_highlights = []; // Must contain Highlight objects for the currently pointed action's range.
 
 
     constructor(game){
@@ -109,12 +113,17 @@ class GameView {
         this.game = game;
         this._requires_reset = true;
 
-        this.ui = new GameInterface((...args)=>this.on_action_selection_begin(...args), (...args)=>this.on_action_selection_end(...args));
+        this.ui = new GameInterface((...args)=>this.on_action_selection_begin(...args), // On action selection begin.
+            (...args)=>this.on_action_selection_end(...args),   // On action selection end.
+            (...args)=>this.highlight_action_range(...args),    // On action pointed begin.
+            (...args)=>{ this.clear_action_range_highlight(...args) }, // On action pointed end.
+            );
 
         this._highlight_sprites = {
             neutral: new graphics.Sprite(sprite_defs.highlight_blue),
             movement: new graphics.Sprite(sprite_defs.highlight_green),
             basic_action: new graphics.Sprite(sprite_defs.highlight_yellow),
+            action_range: new graphics.Sprite(sprite_defs.highlight_yellow),
             action: new graphics.Sprite(sprite_defs.highlight_red),
             edit: new graphics.Sprite(sprite_defs.highlight_purple),
             turn: new graphics.Sprite(sprite_defs.highlight_purple),
@@ -183,8 +192,26 @@ class GameView {
         }
     }
 
+    highlight_action_range(action_range){
+        this.clear_action_range_highlight();
+        if(action_range instanceof visibility.RangeShape){
+            const possible_targets = visibility.positions_in_range(this._character_focus_highlight.position,
+                action_range,
+                (pos)=>this.game.world.is_valid_position(pos));
+            for(const target of possible_targets){
+                const highlight_sprite = this.game.world.entity_at(target) ? this._highlight_sprites.action : this._highlight_sprites.action_range;
+                this.action_range_highlights.push(new Highlight(target, highlight_sprite));
+            }
+        }
+    }
+
+    clear_action_range_highlight(){
+        this.action_range_highlights = [];
+    }
+
     on_action_selection_begin(action_info){
         this.highlight_selected_action_targets(action_info);
+        this.clear_action_range_highlight();
     }
 
     on_action_selection_end(action){
@@ -302,6 +329,10 @@ class GameView {
             highlight_sprite.update(delta_time);
         }
 
+        for(const highlight of this.action_range_highlights){
+            highlight.update(delta_time);
+        }
+
         for(const highlight of this.player_actions_highlights){
             highlight.update(delta_time);
         }
@@ -335,6 +366,9 @@ class GameView {
 
             if(!editor.is_enabled && this.is_time_for_player_to_chose_action){
                 for(const highlight of this.player_actions_highlights){
+                    highlight.draw();
+                }
+                for(const highlight of this.action_range_highlights){
                     highlight.draw();
                 }
             }

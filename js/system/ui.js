@@ -285,7 +285,7 @@ class Text extends UIElement {
         this._reset();
     }
 
-    get text(){ this._text; }
+    get text(){ return this._text; }
     set text(new_text){
         console.assert(typeof new_text === 'string');
         this._text = new_text;

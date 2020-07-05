@@ -3,9 +3,9 @@
 export { test_rules }
 
 import * as concepts from "../core/concepts.js";
-import { Vector2 } from "../system/spatial.js";
 import { sprite_defs } from "../game-assets.js";
 import { destroy_at } from "../rules/destruction.js";
+import * as visibility from "../rules/visibility.js";
 
 class Destroy extends concepts.Action {
     icon_def = sprite_defs.icon_action_delete;
@@ -23,21 +23,19 @@ class Destroy extends concepts.Action {
 
 
 class Rule_TestDestruction extends concepts.Rule {
+    range = new visibility.Range_Diamond(0,7);
+
     get_actions_for(body, world){
         if(!body.is_player_actor) // TODO: temporary (otherwise the player will be bushed lol)
             return {};
 
         const actions = {};
-        const range = 6;
-        const center_pos = body.position;
-        for(let y = -range; y < range; ++y){
-            for(let x = -range; x < range; ++x){
-                const target = new concepts.Position(new Vector2(center_pos).translate({x, y}));
-                if(world.is_valid_position(target) && world.entity_at(target)){
-                    actions[`destroy_${x}_${y}`] = new Destroy(target);
-                }
-            }
-        }
+        visibility.valid_target_positions(world, body.position, this.range)
+            .forEach((target)=>{
+                    const destroy = new Destroy(target);
+                    destroy.range = this.range;
+                    actions[`destroy_${target.x}_${target.y}`] = destroy;
+                });
         return actions;
     }
 };

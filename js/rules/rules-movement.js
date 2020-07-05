@@ -89,6 +89,7 @@ class Rule_Movements extends concepts.Rule {
             if(!world.is_blocked_position(move_target, tileid => tiles.is_walkable(tileid)) ){
                 const move = new Move(move_id, move_target);
                 safe_if_safe_arrival(move, world);
+                move.range = this.range;
                 actions[move_id] = move;
             }
         }
@@ -130,6 +131,7 @@ class Rule_Jump extends concepts.Rule {
             .forEach( (target)=>{
                 const jump = new Jump(target);
                 safe_if_safe_arrival(jump, world);
+                jump.range = this.range;
                 possible_jumps[jump.id] = jump;
             });
         return possible_jumps;
@@ -207,7 +209,11 @@ class Rule_Swap extends concepts.Rule {
 
         const possible_swaps = {};
         visibility.valid_target_positions(world, character.position, this.range)
-            .forEach(target => possible_swaps[`swap_${target.x}_${target.y}`] = new Swap(target));
+            .forEach(target => {
+                const swap = new Swap(target);
+                swap.range = this.range;
+                possible_swaps[`swap_${target.x}_${target.y}`] = swap;
+            });
         return possible_swaps;
     }
 };

@@ -138,7 +138,11 @@ class Rule_Push extends concepts.Rule {
 
         const push_actions = {};
         visibility.valid_target_positions(world, character.position, this.range)
-            .forEach(target => push_actions[`push_${target.x}_${target.y}`] = new Push(target));
+            .forEach(target => {
+                const push = new Push(target);
+                push.range = this.range;
+                push_actions[`push_${target.x}_${target.y}`] = push;
+            });
         return push_actions;
     }
 };
@@ -153,7 +157,11 @@ class Rule_Pull extends concepts.Rule {
 
         const pull_actions = {};
         visibility.valid_target_positions(world, character.position, this.range)
-            .forEach(target => pull_actions[`pull_${target.x}_${target.y}`] = new Pull(target));
+            .forEach(target => {
+                const pull = new Pull(target);
+                pull.range = this.range;
+                pull_actions[`pull_${target.x}_${target.y}`] = pull;
+            });
         return pull_actions;
     }
 };
