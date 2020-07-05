@@ -1,3 +1,4 @@
+
 export {
     Color,
     ParticleEmitter,
@@ -7,6 +8,9 @@ export {
     FadeParticle,
     BlipParticle,
 }
+
+import { camera } from "./graphics.js";
+import { Rectangle } from "./spatial.js";
 
 /**
  * class representing a color used in particles and consisting of red, blue, green, and alpha channels
@@ -90,7 +94,13 @@ class ParticleSystem {
         // iterate through tracked items
         for (let i=this.items.length-1; i>=0; i--) {
             // draw each tracked particle (skip drawing for emitters)
-            if (this.items[i].draw) this.items[i].draw();
+            const item = this.items[i];
+            if (item.draw && camera.can_see(new Rectangle({
+                x: item.x, y: item.y,
+                width: 64, height: 64 // TODO: find a better way to specify this size
+            }))){
+                item.draw();
+            }
         }
     }
 
@@ -115,7 +125,7 @@ class ParticleGroup {
 
     /**
      * Add a tracked particle or emitter
-     * @param {*} p 
+     * @param {*} p
      */
     add(p) {
         this.items.push(p);
@@ -123,7 +133,7 @@ class ParticleGroup {
 
     /**
      * Remove a particle or emitter from tracked list
-     * @param {*} p 
+     * @param {*} p
      */
     remove(p) {
         let idx = this.items.indexOf(p);
