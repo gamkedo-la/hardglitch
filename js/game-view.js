@@ -312,7 +312,7 @@ class GameView {
         this.tile_grid.draw_surface();
 
         if(!editor.is_enabled)
-        this.ui.display();
+            this.ui.display();
         this._render_help(); // TODO: replace this by highlights being UI elements?
     }
 
@@ -330,7 +330,9 @@ class GameView {
             if(editor.is_enabled){
                 this._pointed_highlight_edit.draw();
             } else {
-                if(mouse_is_pointing_walkable_position() && !this.ui.is_selecting_action_target)
+                if(!this.ui.is_selecting_action_target
+                && !this.ui.is_mouse_over
+                && !this._pointed_highlight.position.equals(this._character_focus_highlight.position)){
                     this._pointed_highlight.draw();
                 }
             }
