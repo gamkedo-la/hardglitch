@@ -6,7 +6,7 @@ export {
 import * as concepts from "./concepts.js";
 import { FieldOfView } from "./visibility.js";
 
-const default_view_distance = 8;
+const default_view_distance = 7;
 
 // All characters types from the game must derive from this type.
 // Provides everything common to all characters.
