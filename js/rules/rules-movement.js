@@ -16,6 +16,13 @@ import { EntityView } from "../view/entity-view.js";
 import { GameView } from "../game-view.js";
 import { Vector2 } from "../system/spatial.js";
 import { Character } from "../core/character.js";
+import * as visibility from "./visibility.js";
+
+// Set the action as unsafe if the target tile is unsafe.
+function safe_if_safe_arrival(move_action, world){
+    const tiles_under_target = world.tiles_at(move_action.target_position);
+    move_action.is_safe = tiles_under_target.some(tiles.is_safe);
+}
 
 
 class Moved extends concepts.Event {
@@ -67,24 +74,22 @@ class Move extends concepts.Action {
 // Movement can be done only 1 square per turn.
 class Rule_Movements extends concepts.Rule {
 
-    get_actions_for(body, world) {
-        console.assert(body);
+    get_actions_for(character, world) {
+        console.assert(character);
         console.assert(world);
 
-        // TODO: change the rule below to make the possible moves dependent on the BODY characteristics
         const actions = {};
 
-        const current_pos = body.position;
+        const current_pos = character.position;
         console.assert(current_pos);
 
-        const allowed_moves = body.allowed_moves();
+        const allowed_moves = character.allowed_moves(); // TODO: filter to what's visible
         for(const move_id in allowed_moves){
             const move_target = allowed_moves[move_id];
             if(!world.is_blocked_position(move_target, tileid => tiles.is_walkable(tileid)) ){
                 const move = new Move(move_id, move_target);
+                safe_if_safe_arrival(move, world);
                 actions[move_id] = move;
-                const tiles_on_moved = world.tiles_at(move_target);
-                move.is_safe = tiles_on_moved.some(tiles.is_safe);
             }
         }
 
@@ -113,29 +118,19 @@ class Jump extends concepts.Action {
 }
 
 class Rule_Jump extends concepts.Rule {
+    range = new visibility.Range_Cross_Star(2, 4);
 
-    get_actions_for(body, world){
-        if(!body.is_player_actor) // TODO: temporary
+    get_actions_for(character, world){
+        if(!character.is_player_actor) // TODO: temporary
             return {};
 
-        const possible_jumps = {
-            jump_ne : new Jump(body.position.north.east),
-            jump_se : new Jump(body.position.south.east),
-            jump_sw : new Jump(body.position.south.west),
-            jump_nw : new Jump(body.position.north.west),
-            jump_nene : new Jump(body.position.north.east.north.east),
-            jump_sese : new Jump(body.position.south.east.south.east),
-            jump_swsw : new Jump(body.position.south.west.south.west),
-            jump_nwnw : new Jump(body.position.north.west.north.west),
-        };
-        for(const [name, jump] of Object.entries(possible_jumps)){
-            if(world.is_blocked_position(jump.target_position, tiles.is_walkable)){
-                delete possible_jumps[name];
-            } else {
-                const tiles_to_jump_on = world.tiles_at(jump.target_position);
-                jump.is_safe = tiles_to_jump_on.some(tiles.is_safe);
-            }
-        }
+        const possible_jumps = {};
+        visibility.valid_move_positions(world, character.position, this.range)
+            .forEach( (target)=>{
+                const jump = new Jump(target);
+                safe_if_safe_arrival(jump, world);
+                possible_jumps[jump.id] = jump;
+            });
         return possible_jumps;
     }
 };
@@ -203,26 +198,15 @@ class Swap extends concepts.Action {
 
 
 class Rule_Swap extends concepts.Rule {
+    range = new visibility.Range_Diamond(1, 4);
 
-    get_actions_for(body, world){
-        if(!body.is_player_actor) // TODO: temporary
+    get_actions_for(character, world){
+        if(!character.is_player_actor) // TODO: temporary
             return {};
 
         const possible_swaps = {};
-        const range = 4; // TODO: make different kinds of actions that have different ranges
-        const center_pos = body.position;
-        for(let y = -range; y < range; ++y){
-            for(let x = -range; x < range; ++x){
-                if((x == 0 && y == 0)  // Skip the character pushing
-                // || (x != 0 && y != 0) // Skip any position not aligned with axes
-                )
-                    continue;
-                const target = new concepts.Position(new Vector2(center_pos).translate({x, y}));
-                if(world.is_valid_position(target) && world.entity_at(target)){
-                    possible_swaps[`swap_${x}_${y}`] = new Swap(target);
-                }
-            }
-        }
+        visibility.valid_target_positions(world, character.position, this.range)
+            .forEach(target => possible_swaps[`swap_${target.x}_${target.y}`] = new Swap(target));
         return possible_swaps;
     }
 };

@@ -184,7 +184,11 @@ class Position {
     }
 
     absolute(){
-        return new Position({x: Math.abs(this.x), y: Math.abs(this.y) })
+        return new Position({ x: Math.abs(this.x), y: Math.abs(this.y) })
+    }
+
+    normalize(){
+        return new Position({ x: Math.ceil(Math.clamp(this.x, -1, 1)), y: Math.ceil(Math.clamp(this.y, -1, 1)) });
     }
 };
 

@@ -132,45 +132,28 @@ class Pull extends concepts.Action {
 class Rule_Push extends concepts.Rule {
     range = new visibility.Range_Square(1, 5);
 
-    get_actions_for(body, world){
-        if(!body.is_player_actor) // TODO: temporary (otherwise the player will be bushed lol)
+    get_actions_for(character, world){
+        if(!character.is_player_actor) // TODO: temporary (otherwise the player will be bushed lol)
             return {};
 
         const push_actions = {};
-        const possible_targets = visibility.positions_in_range(body.position, this.range, pos => world.is_valid_position(pos));
-
-        for(const target of possible_targets){
-            const entity = world.entity_at(target);
-            if(entity){
-                push_actions[`push_${target.x}_${target.y}`] = new Push(target);
-            }
-        }
+        visibility.valid_target_positions(world, character.position, this.range)
+            .forEach(target => push_actions[`push_${target.x}_${target.y}`] = new Push(target));
         return push_actions;
     }
 };
 
 
 class Rule_Pull extends concepts.Rule {
+    range = new visibility.Range_Square(1, 5);
 
-    get_actions_for(body, world){
-        if(!body.is_player_actor) // TODO: temporary (otherwise the player will be bushed lol)
+    get_actions_for(character, world){
+        if(!character.is_player_actor) // TODO: temporary (otherwise the player will be bushed lol)
             return {};
 
         const pull_actions = {};
-        const range = 5; // TODO: make different kinds of pull actions that have different ranges
-        const center_pos = body.position;
-        for(let y = -range; y < range; ++y){
-            for(let x = -range; x < range; ++x){
-                if((x == 0 && y == 0)  // Skip the character pulling
-                // || (x != 0 && y != 0) // Skip any position not aligned with axes
-                )
-                    continue;
-                const target = new concepts.Position(new Vector2(center_pos).translate({x, y}));
-                if(world.is_valid_position(target) && world.entity_at(target)){
-                    pull_actions[`pull_${x}_${y}`] = new Pull(target);
-                }
-            }
-        }
+        visibility.valid_target_positions(world, character.position, this.range)
+            .forEach(target => pull_actions[`pull_${target.x}_${target.y}`] = new Pull(target));
         return pull_actions;
     }
 };

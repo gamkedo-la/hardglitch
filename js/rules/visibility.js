@@ -3,6 +3,8 @@
 export {
     FieldOfView,
     positions_in_range,
+    valid_target_positions,
+    valid_move_positions,
     Range_Diamond,
     Range_Circle,
     Range_Square,
@@ -149,6 +151,16 @@ function find_visible_positions(world, center){
         // Note that here a character can hide another one
         .filter(position => world.is_blocked_position(position, tiles.is_blocking_view));
     return visible_positions;
+}
+
+function valid_target_positions(world, center, action_range_shape){
+    return positions_in_range(center, action_range_shape, pos => world.is_valid_position(pos))
+            .filter(pos => world.entity_at(pos));
+}
+
+function valid_move_positions(world, center, action_range_shape){
+    return positions_in_range(center, action_range_shape, pos => world.is_valid_position(pos))
+            .filter(pos => !world.is_blocked_position(pos, tiles.is_walkable));
 }
 
 class FieldOfView {
