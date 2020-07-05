@@ -41,7 +41,8 @@ class EntityView {
     }
 
     render_graphics(){
-        this.sprite.draw();
+        if(graphics.camera.can_see(this.sprite.area))
+            this.sprite.draw();
     }
 
     // This is used in animations to set the graphics at specific squares of the grid.
