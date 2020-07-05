@@ -17,6 +17,10 @@ class CryptoFile extends concepts.Item {
         }
     };
 
+    constructor(){
+        super("Crypto File");
+    }
+
 };
 
 class CryptoKey extends concepts.Item {
@@ -25,6 +29,11 @@ class CryptoKey extends concepts.Item {
             sprite_def : sprite_defs.crypto_key,
         }
     };
+
+
+    constructor(){
+        super("Crypto Key");
+    }
 
 };
 

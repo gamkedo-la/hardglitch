@@ -19,7 +19,7 @@ class Player extends Character {
     };
 
     constructor(){
-        super();
+        super("\"Glitch\"");
         this.actor = new concepts.Player();
     }
 }

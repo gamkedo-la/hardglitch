@@ -200,6 +200,13 @@ class Entity {
     _position = new Position();
     _entity_id = new_entity_id();
 
+    constructor(name, description = ""){
+        console.assert(typeof name === 'string');
+        console.assert(typeof description === 'string');
+        this.name = name;
+        this.description = description;
+    }
+
     get position() { return this._position; }
     set position(new_pos){
         this._position = new Position(new_pos);

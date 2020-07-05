@@ -17,17 +17,17 @@ import * as editor from "./editor.js";
 import {
     graphic_position, PIXELS_PER_TILES_SIDE, square_half_unit_vector,
     EntityView,
-    game_position_from_graphic_po,
 } from "./view/entity-view.js";
 import { TileGridView } from "./view/tilegrid-view.js";
 import { CharacterView } from "./view/character-view.js";
 import { GameInterface } from "./game-ui.js";
-import { mouse_grid_position, mouse_is_pointing_walkable_position, mouse_game_position, game_position_from_graphic_position } from "./game-input.js";
+import { mouse_grid_position, mouse_game_position, } from "./game-input.js";
 import { sprite_defs } from "./game-assets.js";
 import { mouse } from "./system/input.js";
 import { Move } from "./rules/rules-movement.js";
 import { ItemView } from "./view/item-view.js";
 import * as ui from "./system/ui.js";
+import * as tiles from "./definitions-tiles.js";
 
 class Highlight{
     // Reuse a sprite for highlighting.
@@ -55,6 +55,10 @@ class Highlight{
 
     get position(){
         return new concepts.Position(this._position);
+    }
+
+    set text(new_text) {
+        this._help_text.text = new_text;
     }
 
     update(delta_time){
@@ -285,9 +289,9 @@ class GameView {
         const mouse_pos = mouse_grid_position();
         if(mouse_pos){
             if(editor.is_enabled)
-                this._pointed_highlight_edit.position = mouse_pos;
+                this._change_highlight_position(this._pointed_highlight_edit, mouse_pos);
             else
-                this._pointed_highlight.position = mouse_pos;
+                this._change_highlight_position(this._pointed_highlight, mouse_pos);
         }
 
         for(const highlight_sprite of Object.values(this._highlight_sprites)){
@@ -302,6 +306,10 @@ class GameView {
         this._character_focus_highlight.update(delta_time);
     }
 
+    _change_highlight_position(highlight, new_pos){
+        highlight.position = new_pos;
+        highlight.text = this.help_text_at(new_pos);
+    }
 
     render_graphics(){
         this.tile_grid.draw_floor();
@@ -348,7 +356,29 @@ class GameView {
 
     focus_on_position(position){
         console.assert(position instanceof concepts.Position);
-        this._character_focus_highlight.position = position;
+        this._change_highlight_position(this._character_focus_highlight, position);
+    }
+
+    help_text_at(position){
+        // TODO: consider displaying more than just the thing pointed on top.
+        let help_text = "Hole"; // FIXMIE: This is a hack while "HOLE" have an undefined id.
+        const things_found = this.game.world.everything_at(position);
+        while(things_found.length){
+            const entity_or_tileid = things_found.pop();
+            if(entity_or_tileid instanceof concepts.Entity){
+                const entity = entity_or_tileid;
+                if(entity instanceof concepts.Body && entity.is_player_actor){
+                    help_text = `${entity.name} (player)`;
+                } else {
+                    help_text = entity.name;
+                }
+                break;
+            } else {
+                const tile_id = entity_or_tileid;
+                help_text = tiles.info_text(tile_id);
+            }
+        }
+        return help_text;
     }
 
     // Re-interpret the game's state from scratch.

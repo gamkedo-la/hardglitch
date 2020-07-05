@@ -33,7 +33,7 @@ class RandomActionEnemy extends Character {
     };
 
     constructor(){
-        super();
+        super("Test Man");
         this.actor = new RandomActionSelector();
     }
 };

@@ -10,7 +10,9 @@ import * as concepts from "./concepts.js";
 // Some rules will rely on properties provided there.
 class Character extends concepts.Body {
 
-    name = "Character";
+    constructor(name){
+       super(name);
+    }
 
     ////////////////////////////////
     // Action Point System here.

@@ -3,7 +3,7 @@
 
 export {
     ID, defs, tile_sprite_defs as sprite_defs,
-    is_walkable, is_safely_walkable, is_safe, is_blocking_view
+    is_walkable, is_safely_walkable, is_safe, is_blocking_view, info_text,
 }
 
 import { sprite_defs, tile_id, tile_defs } from "./game-assets.js";
@@ -28,34 +28,40 @@ const defs = {
         is_walkable: true,
         is_safe: true,
         is_view_blocking: false,
+        description: "Walkable ground.",
     },
     [ID.WALL] : {
         sprite_def: sprite_defs.wall,
         is_walkable: false,
         is_view_blocking: true,
+        description: "Wall",
     },
     [ID.HOLE] : {
         sprite_def: sprite_defs.void,
         is_walkable: false,
         is_view_blocking: false,
+        description: "Hole",
     },
     [ID.VOID] : {
         sprite_def: sprite_defs.void,
         is_walkable: true,
         is_safe: false,
         is_view_blocking: true,
+        description: "Void",
     },
     [ID.ENTRY] : {
         sprite_def: sprite_defs.entry,
         is_walkable: true,
         is_safe: true,
         is_view_blocking: false,
+        description: "Entry",
     },
     [ID.EXIT] : {
         sprite_def: sprite_defs.exit,
         is_walkable: true,
         is_safe: true,
         is_view_blocking: false,
+        description: "Exit",
     },
 };
 
@@ -124,4 +130,10 @@ function is_blocking_view(tile_id){
     const tile_def = defs[tile_id];
     console.assert(tile_def);
     return tile_def.is_view_blocking;
+}
+
+function info_text(tile_id){
+    const tile_def = defs[tile_id];
+    console.assert(tile_def);
+    return tile_def.description;
 }
