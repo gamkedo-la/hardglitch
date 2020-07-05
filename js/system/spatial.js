@@ -94,6 +94,10 @@ class Vector2{
     distance(other_vec2){
         return this.substract(other_vec2).length;
     }
+
+    toString() {
+        return "(" + this.x + "," + this.y + ")";
+    }
 };
 
 const Vector2_origin = new Vector2();
