@@ -42,6 +42,8 @@ const KEY = {
     NUMBER_2: 50,
     NUMBER_3: 51,
     NUMBER_4: 52,
+    RIGHT_BRACKET: 221,
+    LEFT_BRACKET: 219,
     F1: 112,
     F2: 113,
     F3: 114,
@@ -179,6 +181,16 @@ function update(delta_time){
 
     if(input.keyboard.is_just_down(KEY.F8)){
         current_game_view.enable_fog_of_war = !current_game_view.enable_fog_of_war;
+    }
+
+    if(input.keyboard.is_just_down(KEY.RIGHT_BRACKET)){
+        current_game.last_turn_info.player_character.view_distance = current_game.last_turn_info.player_character.view_distance + 1;
+        current_game_view.fog_of_war._refresh();
+    }
+
+    if(input.keyboard.is_just_down(KEY.LEFT_BRACKET)){
+        current_game.last_turn_info.player_character.view_distance = current_game.last_turn_info.player_character.view_distance - 1;
+        current_game_view.fog_of_war._refresh();
     }
 }
 

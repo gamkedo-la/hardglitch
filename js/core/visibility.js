@@ -197,8 +197,8 @@ class FieldOfView {
 
     get view_distance(){ return this._view_distance; }
     set view_distance(new_distance){
-        console.assert(Number.isInteger(view_distance) && view_distance >= 0);
-        this._view_distance;
+        console.assert(Number.isInteger(new_distance) && new_distance >= 0);
+        this._view_distance = new_distance;
     }
 
     get position() { return this._center; }

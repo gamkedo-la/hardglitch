@@ -24,6 +24,12 @@ class Character extends concepts.Body {
         this.field_of_view.position = this.position;
     }
 
+    get view_distance(){ return this.field_of_view.view_distance; }
+    set view_distance(new_distance){
+        console.assert(Number.isInteger(new_distance));
+        this.field_of_view.view_distance = new_distance;
+    }
+
     update_view(world){
         this.field_of_view.update(world);
     }
