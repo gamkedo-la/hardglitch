@@ -17,15 +17,42 @@
 	.action{
 	cursor:url("/images/mousecursor_action.png"), auto;
 	}
+	.moveblackbg{
+	cursor:url("/images/mousecursor_move_blackbg.png"), auto;
+	}
+	.actionblackbg{
+	cursor:url("/images/mousecursor_action_blackbg.png"), auto;
+	}
 	
+	img {
+			border-radius: 10%;
+			}
+	body {
+	background-color: lightgrey;
+	}
+	.column {
+	  float: left;
+	  width: 50.0%;
+	  padding: 5px;
+	  	}
+	.row::after {
+	  content: "";
+	  clear: both;
+	  display: table;
+	}
 	</style>
+	 
+
 	<body>
-        
-        
-		 <img class="move" src="/images/bgtemplate.png">
-		 <img class="action" src="/images/groundToOther.png">
-		 
-		
-		
+        <div class="row">
+         
+		 <img class="move" src="/images/screenshot_check_icon_visibiilty.png">
+		    
+		 <img class="action" src="/images/screenshot_check_icon_visibiilty.png">
+		</div>
+		<div class="row">
+		 <img class="moveblackbg" src="/images/screenshot_check_icon_visibiilty.png"> 
+		 <img class="actionblackbg" src="/images/screenshot_check_icon_visibiilty.png">
+			</div>
 	</body>
 </HTML>
