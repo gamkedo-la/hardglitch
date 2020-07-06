@@ -207,7 +207,7 @@ const sprite_defs = {
         image: "highlights",
         frames: [
             { x:128, y:0, width:64, height:64 },
-            { x:128, y:0, width:64, height:64 },
+            { x:128, y:64, width:64, height:64 },
         ],
         animations: highlight_animations,
     },
