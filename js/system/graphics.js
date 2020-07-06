@@ -182,8 +182,8 @@ class Sprite {
       return { width: this._current_frame.width, height: this._current_frame.height,
                x: this._current_frame.width, y: this._current_frame.height };
     else if(this.source_image)
-      return { width: this.source_image.width, height: this.source_image.height,
-                x: this.source_image.width, y: this.source_image.height };
+      return { width: this.source_image.naturalWidth, height: this.source_image.naturalHeight,
+                x: this.source_image.naturalWidth, y: this.source_image.naturalHeight };
     else
       return { width: 64, height: 64, x: 64, y: 64 };
   }
@@ -224,6 +224,7 @@ class Sprite {
 
     if(this.source_image){
       canvas_context.save();
+      canvas_context.imageSmoothingEnabled = false;
 
       const origin_translation = this._draw_translation_from_origin();
       const position = this.transform.position;
@@ -372,6 +373,7 @@ class TileGrid
     if(with_clear){
       this._offscreen_canvas_context.fillStyle = "#00000000";
       this._offscreen_canvas_context.fillRect(render.x, render.y, render.width, render.height);
+      this._offscreen_canvas_context.imageSmoothingEnabled = false;
     }
 
     for(let y = grid.y; y < grid.height; ++y){
@@ -561,6 +563,7 @@ function canvas_rect(){
 }
 
 function draw_grid_lines(width, height, square_size, start_position={x:0, y:0}){
+  screen_canvas_context.save();
   const grid_line_color = "#aa00aa";
   screen_canvas_context.strokeStyle = grid_line_color;
   const graphic_width = width * square_size;
@@ -578,7 +581,7 @@ function draw_grid_lines(width, height, square_size, start_position={x:0, y:0}){
     screen_canvas_context.lineTo(graphic_width - start_position.x, y);
     screen_canvas_context.stroke();
   }
-
+  screen_canvas_context.restore();
 }
 
 
