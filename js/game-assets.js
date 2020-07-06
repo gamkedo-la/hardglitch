@@ -43,7 +43,7 @@ const game_assets = { // Description of the assets to load.
         test_button : "./images/test_button.png",
         highlights : "./images/highlights.png",
         crypto_file: "./images/allcryptofiles.png",
-        crypto_key: "./images/crypto-key circle.png",
+        crypto_key: "./images/cryptokeycircle2.png",
 
         // TODO: merge icons into one image
         icon_corrupt: "./images/iconcorrupt.png",
