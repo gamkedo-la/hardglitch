@@ -55,6 +55,7 @@ class Env {
             return new FadeLineParticle(ctx, 300+xoff, 300+yoff, 0, -velocity, new Color(0,255,0), ttl, len, width, 0, 1);
         }, .3, 25));
 
+        /*
         this.particles.add(new ParticleEmitter(this.particles, () => {
             let xoff = random_float(4,60);
             let yoff = random_float(4,60);
@@ -65,6 +66,17 @@ class Env {
             let dy = random_float(-(yoff+10),74-(yoff+height));
             return new OffsetGlitchParticle(ctx, 400+xoff, 236+yoff, width, height, dx, dy, ttl, new Color(255,0,0));
         }, .3, 25));
+        */
+        this.particles.add(new ParticleEmitter(this.particles, () => {
+            let xoff = random_float(4,60);
+            let yoff = random_float(4,60);
+            let ttl = random_float(.1,5);
+            let width = random_float(1,10);
+            let height = random_float(1,10);
+            let dx = random_float(-4,4);
+            let dy = random_float(-4,4);
+            return new OffsetGlitchParticle(ctx, 400+xoff, 236+yoff, width, height, dx, dy, ttl);
+        }, .1, 25));
 
         this.particles.add(new ParticleEmitter(this.particles, () => {
             let xoff = random_float(4,60);

@@ -462,7 +462,7 @@ class OffsetGlitchParticle extends Particle {
     draw() {
         this.ctx.save();
         let data = this.ctx.getImageData(this.x, this.y, this.width, this.height);
-        this.ctx.fillStyle = this.fillColor.toString();
+        if (this.fillColor) this.ctx.fillStyle = this.fillColor.toString();
         this.ctx.fillRect(this.x, this.y, this.width, this.height);
         //this.ctx.putImageData(data, this.x, this.y, Math.max(0, this.dx), Math.max(0,this.dy), this.width-this.dx, this.height-this.dy);
         //this.ctx.putImageData(data, this.x+this.dx, this.y+this.dy, Math.max(0, this.dx), Math.max(0,this.dy), this.width-this.dx, this.height-this.dy);
