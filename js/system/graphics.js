@@ -17,7 +17,7 @@ export {
   from_graphic_to_grid_position,
   camera,
 };
-
+2
 import * as spatial from "./spatial.js"
 import { is_number, index_from_position } from "./utility.js";
 
@@ -485,8 +485,10 @@ function initialize(assets){
 }
 
 function canvas_resize_to_window(){
-  canvas.width  = window.innerWidth;
-  canvas.height = window.innerHeight;
+  console.assert(Number.isInteger(window.innerWidth));
+  console.assert(Number.isInteger(window.innerHeight));
+  canvas.width  = window.innerWidth % 2 === 0 ? window.innerWidth : window.innerWidth - 1;
+  canvas.height = window.innerHeight % 2 === 0 ? window.innerHeight : window.innerHeight - 1;
 }
 
 function on_window_resized(){
