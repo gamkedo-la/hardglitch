@@ -86,7 +86,7 @@ class Env {
             let roff = random_float(0,255);
             let goff = random_float(0,255);
             let boff = random_float(0,255);
-            let ttl = random_float(.1,.5);
+            let ttl = random_float(.1,1);
             return new ColorGlitchParticle(ctx, 400+xoff, 236+yoff, width, height, roff, goff, boff, ttl);
         }, .3, 25));
 
