@@ -162,7 +162,8 @@ class TileGridView {
         // handle floor transitions
         genFloorOverlay("lvl1", ground_tile_grid, bg_grid, selectors);
         // handle surface transitions
-        genFgOverlay("lvl1", "fg", ground_tile_grid, fg_grid);
+        genFgOverlay("lvl1", "fg", ground_tile_grid, fg_grid, (v) => (v == tiledefs.ID.WALL) ? 1 : 0);
+        genFgOverlay("lvl1", "laser", ground_tile_grid, fg_grid, (v) => (v == tiledefs.ID.HOLE) ? 1 : 0);
         // filter out all wall/ground tiles from fg
         const midData = new Array(size.x * size.y);
         for (let i=0; i<midData.length; i++) {

@@ -42,6 +42,7 @@ const game_assets = { // Description of the assets to load.
         v2w_template : "./images/voidToWall.png",
         test_button : "./images/test_button.png",
         highlights : "./images/highlights.png",
+        laserwalltemplate : "./images/laserwall.png",
         crypto_file: "./images/allcryptofiles.png",
         crypto_key: "./images/cryptokeycircle2.png",
 
@@ -387,6 +388,7 @@ function update_anim_defs(imgname, lvl, layer, tilesize, templatesize, frames, d
 
 update_sprite_defs("bgtemplate", "lvl1", "bg", 32);
 update_sprite_defs("tiletemplate", "lvl1", "fg", 32);
+update_sprite_defs("laserwalltemplate", "lvl1", "laser", 32);
 
 update_sprite_defs("g2w_template", "lvl1", "g2w", 32);
 update_sprite_defs("g2h_template", "lvl1", "g2h", 32);

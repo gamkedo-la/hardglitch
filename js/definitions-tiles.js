@@ -86,6 +86,7 @@ function update_id_defs(lvl, layer) {
 // update ID/defs for level 1 tiles
 update_id_defs("lvl1", "fg");
 update_id_defs("lvl1", "bg");
+update_id_defs("lvl1", "laser");
 update_id_defs("lvl1", "g2w");
 update_id_defs("lvl1", "g2h");
 update_id_defs("lvl1", "g2o");
