@@ -391,7 +391,7 @@ class GameView {
                 && !this.player_actions_highlights.some(highlight=> this._pointed_highlight.position.equals(highlight.position))
                 ){
                     if(!this.enable_fog_of_war
-                    || this.fog_of_war.is_visible(this._pointed_highlight.position))
+                    || this.fog_of_war.was_visible(this._pointed_highlight.position))
                         this._pointed_highlight.draw();
                 }
         }
@@ -431,6 +431,10 @@ class GameView {
         while(things_found.length){
             const entity_or_tileid = things_found.pop();
             if(entity_or_tileid instanceof concepts.Entity){
+
+                if(!this.fog_of_war.is_visible(position)) // Skip entities if we are pointing somwewhere that is currently not visible.
+                    continue;
+
                 const entity = entity_or_tileid;
                 if(entity instanceof concepts.Body && entity.is_player_actor){
                     help_text = `${entity.name} (player)`;
