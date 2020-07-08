@@ -218,9 +218,7 @@ class Sprite {
     }
   }
 
-  draw(canvas_context){
-    if(!canvas_context)
-      canvas_context = screen_canvas_context;
+  draw(canvas_context = screen_canvas_context){
 
     const size = this.size;
 
