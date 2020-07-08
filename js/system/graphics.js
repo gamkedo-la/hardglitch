@@ -47,11 +47,14 @@ function from_graphic_to_grid_position(vec2, square_size, graphics_origin = {x:0
 class Camera{
   transform = new spatial.Transform();
   _in_screen_rendering = false;
+  _rectangle = new spatial.Rectangle({ position: this.transform.position, width: 0, height: 0 });
 
   get position() { return new spatial.Vector2(this.transform.position); }
   set position(new_pos) {
     console.assert(new_pos instanceof spatial.Vector2);
     this.transform.position = new_pos;
+    this._rectangle.position = new_pos;
+    this._rectangle.size = { x:canvas.width, y:canvas.height };
     screen_canvas_context.resetTransform();
     const translation = new_pos.inverse;
     screen_canvas_context.translate(translation.x, translation.y);
@@ -62,7 +65,6 @@ class Camera{
     this.position = position_at_center.translate({ x: -(canvas.width / 2), y: -(canvas.height / 2) });
   }
 
-
   translate(translation){
     console.assert(translation instanceof spatial.Vector2);
     this.transform.position = this.transform.position.translate(translation);
@@ -70,7 +72,7 @@ class Camera{
     screen_canvas_context.translate(translation.x, translation.y);
   }
 
-  get rectangle() { return new spatial.Rectangle({ position: this.position, width: canvas.width, height: canvas.height }); }
+  get rectangle() { return this._rectangle; }
 
   can_see(rect){
     if(this._in_screen_rendering)
