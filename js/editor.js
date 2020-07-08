@@ -16,6 +16,8 @@ import * as items from "./definitions-items.js";
 let is_enabled = false; // TURN THIS ON TO SEE THE EDITOR, see the update() function below
 let is_editing = false; // True if we are doing an edition manipulation and no other input should be handled.
 
+let was_fog_of_war_activated = true;
+
 let display_mouse_info = false;
 
 let text_to_display = "READY";
@@ -244,10 +246,15 @@ function update(){
 
     if(input.keyboard.is_just_down(KEY.ESCAPE)){
         is_enabled = !is_enabled;
-        if(!is_enabled){
+        if(is_enabled){
+            // Just entered the editor!
+            was_fog_of_war_activated = current_game_view.enable_fog_of_war;
+            current_game_view.enable_fog_of_war = false;
+        } else {
             // Just exited the editor mode.
             // Make sure the changes are taken into account:
             play_action();
+            current_game_view.enable_fog_of_war = was_fog_of_war_activated;
         }
     }
 
