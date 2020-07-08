@@ -19,12 +19,41 @@ let canvasContext = canvas.getContext('2d');
 
 // Display tiles.
 class TileGridView {
-    enable_grid_lines = false;
-    enable_overlay = true;
-    enable_tile_sprites = true;
+    _enable_grid_lines = false;
+    _enable_overlay = true;
+    _enable_tile_sprites = true;
 
     constructor(position, size, ground_tile_grid, surface_tile_grid){
         this.reset(position, size, ground_tile_grid, surface_tile_grid);
+    }
+
+    get enable_grid_lines() { return this._enable_grid_lines; }
+    set enable_grid_lines(enabled) {
+        console.assert(typeof enabled === "boolean");
+        if(this._enable_grid_lines !== enabled){
+            this._redraw_floor_requested = true;
+            this._enable_grid_lines = enabled;
+        }
+    }
+
+    get enable_overlay() { return this._enable_overlay; }
+    set enable_overlay(enabled) {
+        console.assert(typeof enabled === "boolean");
+        if(this._enable_overlay !== enabled){
+            this._redraw_floor_requested = true;
+            this._redraw_surface_requested = true;
+            this._enable_overlay = enabled;
+        }
+    }
+
+    get enable_tile_sprites() { return this._enable_tile_sprites; }
+    set enable_tile_sprites(enabled) {
+        console.assert(typeof enabled === "boolean");
+        if(this._enable_tile_sprites !== enabled){
+            this._redraw_floor_requested = true;
+            this._redraw_surface_requested = true;
+            this._enable_tile_sprites = enabled;
+        }
     }
 
     addExitParticles(ctx, x, y) {
@@ -186,7 +215,7 @@ class TileGridView {
         const dsize = new Vector2({x: size.x*2, y: size.y*2});
         // TODO: replace this by just tiles we use, not all tiles in the world
         // FIXME: for now, enable_overlay is the switch between the old tile display and the new tile display
-        if (this.enable_overlay) {
+        if (this._enable_overlay) {
             this.ground_tile_grid = new graphics.TileGrid(position, dsize, PIXELS_PER_HALF_SIDE, tiledefs.sprite_defs, bg_grid.elements);
             this.mid_tile_grid = new graphics.TileGrid(position, size, PIXELS_PER_TILES_SIDE, tiledefs.sprite_defs, midData);
             this.surface_tile_grid = new graphics.TileGrid(position, dsize, PIXELS_PER_HALF_SIDE, tiledefs.sprite_defs, fg_grid.elements);
@@ -200,7 +229,8 @@ class TileGridView {
         this._offscreen_floor_canvas_context = this._create_offscreen_canvas_context();
         this._offscreen_surface_canvas_context = this._create_offscreen_canvas_context();
         this._offscreen_canvas_context = this._create_offscreen_canvas_context();
-        this._redraw_requested = true;
+        this._redraw_floor_requested = true;
+        this._redraw_surface_requested = true;
     }
 
     _create_offscreen_canvas_context(){
@@ -214,16 +244,19 @@ class TileGridView {
 
     update(delta_time){
         this.ground_tile_grid.update(delta_time);
-        if (this.enable_overlay) {
+        if (this._enable_overlay) {
             this.mid_tile_grid.update(delta_time);
         }
         this.surface_tile_grid.update(delta_time);
         this.floor_top_tile_grid.update(delta_time);
 
-        this._redraw_requested = this.ground_tile_grid.redraw_requested
+        this._redraw_floor_requested = this._redraw_floor_requested
+                              || this.ground_tile_grid.redraw_requested
+                              || this.floor_top_tile_grid.redraw_requested
+                              ;
+        this._redraw_surface_requested = this._redraw_surface_requested
                               || this.mid_tile_grid.redraw_requested
                               || this.surface_tile_grid.redraw_requested
-                              || this.floor_top_tile_grid.redraw_requested
                               ;
 
         // particles
@@ -232,13 +265,13 @@ class TileGridView {
     }
 
     draw_floor(canvas_context){
-        if(this._redraw_requested)
+        if(this._redraw_floor_requested)
             this._render_floor(this._offscreen_floor_canvas_context);
         this._draw_offscreen_canvas(canvas_context, this._offscreen_floor_canvas_context);
     }
 
     draw_surface(canvas_context){
-        if(this._redraw_requested)
+        if(this._redraw_surface_requested)
             this._render_surface(this._offscreen_surface_canvas_context);
         this._draw_offscreen_canvas(canvas_context, this._offscreen_surface_canvas_context);
         // particles
@@ -257,23 +290,27 @@ class TileGridView {
     _render_floor(canvas_context){
         this._clear_canvas(canvas_context);
 
-        if(this.enable_tile_sprites)
+        if(this._enable_tile_sprites)
             canvas_context =this.ground_tile_grid.draw(canvas_context);
 
         if(this.enable_grid_lines){
             graphics.draw_grid_lines(this.size.x, this.size.y, PIXELS_PER_TILES_SIDE, this.position, canvas_context); // TODO: make this relative to canvas context
         }
         canvas_context = this.floor_top_tile_grid.draw(canvas_context);
+
+        this._redraw_floor_requested = false;
     }
 
     _render_surface(canvas_context){
-        if(this.enable_tile_sprites){
-            if (this.enable_overlay) {
+        if(this._enable_tile_sprites){
+            if (this._enable_overlay) {
                 canvas_context = this.mid_tile_grid.draw(canvas_context);
             }
 
             canvas_context = this.surface_tile_grid.draw(canvas_context);
         }
+
+        this._redraw_surface_requested = false;
     }
 
 };
