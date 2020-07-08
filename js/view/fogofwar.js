@@ -9,6 +9,7 @@ import { PIXELS_PER_TILES_SIDE, graphic_position } from "./entity-view.js";
 import { index_from_position, position_from_index } from "../system/utility.js";
 import * as assets from "../game-assets.js";
 import * as concepts from "../core/concepts.js";
+import * as utility from "../system/utility.js";
 
 const visibility_sprites_defs = {
     [false] : assets.sprite_defs.void,  // When we cannot see there
@@ -96,8 +97,10 @@ class FogOfWar {
 
     _render_dark_unknown(){
         this._dark_canvas_context.fillStyle = this.fog_color;
-        this._dark_canvas_context.shadowBlur = 32;
-        this._dark_canvas_context.shadowColor = this.fog_color;
+        // this._dark_canvas_context.shadowBlur = 16;
+        // this._dark_canvas_context.shadowColor = this.fog_color;
+        this._dark_canvas_context.lineWidth = 18;
+        this._dark_canvas_context.lineCap = "round";
 
         this._dark_canvas_context.clearRect(0, 0, this.graphic_width, this.graphic_height);
         for(let idx = 0; idx < this.viewed_at_least_once_grid.length; ++idx){
@@ -107,6 +110,37 @@ class FogOfWar {
                 this._dark_canvas_context.fillRect(gfx_position.x, gfx_position.y, PIXELS_PER_TILES_SIDE, PIXELS_PER_TILES_SIDE);
             }
         }
+
+        // this.field_of_view.invisible_border_positions
+        //     .forEach(position => {
+        //         const gfx_position = graphic_position(position);
+        //         if(position.x > this.field_of_view.position.x){
+        //             this._dark_canvas_context.beginPath();
+        //             this._dark_canvas_context.moveTo(gfx_position.x, gfx_position.y);
+        //             this._dark_canvas_context.lineTo(gfx_position.x, gfx_position.y + PIXELS_PER_TILES_SIDE);
+        //             this._dark_canvas_context.stroke();
+        //         } else {
+        //             this._dark_canvas_context.beginPath();
+        //             this._dark_canvas_context.moveTo(gfx_position.x + PIXELS_PER_TILES_SIDE, gfx_position.y);
+        //             this._dark_canvas_context.lineTo(gfx_position.x + PIXELS_PER_TILES_SIDE, gfx_position.y + PIXELS_PER_TILES_SIDE);
+        //             this._dark_canvas_context.stroke();
+        //         }
+        //         if(position.y > this.field_of_view.position.y){
+        //             this._dark_canvas_context.beginPath();
+        //             this._dark_canvas_context.moveTo(gfx_position.x, gfx_position.y);
+        //             this._dark_canvas_context.lineTo(gfx_position.x + PIXELS_PER_TILES_SIDE, gfx_position.y);
+        //             this._dark_canvas_context.stroke();
+        //         } else {
+        //             this._dark_canvas_context.beginPath();
+        //             this._dark_canvas_context.moveTo(gfx_position.x, gfx_position.y + PIXELS_PER_TILES_SIDE);
+        //             this._dark_canvas_context.lineTo(gfx_position.x + PIXELS_PER_TILES_SIDE, gfx_position.y + PIXELS_PER_TILES_SIDE);
+        //             this._dark_canvas_context.stroke();
+        //         }
+
+
+        //         // this._dark_canvas_context.fillRect(gfx_position.x, gfx_position.y, PIXELS_PER_TILES_SIDE, PIXELS_PER_TILES_SIDE);
+        //         // utility.draw_round_rectangle(this._dark_canvas_context, gfx_position.x, gfx_position.y, PIXELS_PER_TILES_SIDE, PIXELS_PER_TILES_SIDE, 5, true, false);
+        //     });
     }
 
     draw_last_visible_squares(canvas_context){

@@ -144,6 +144,26 @@ function positions_in_range(center_position, range_shape, valid_position_predica
 
 
 // Provides all the positions that are currently "visible" by a character at the provided center position in the world.
+function find_visible_limit_positions(world, center, view_distance){
+    console.assert(world instanceof concepts.World);
+    console.assert(center instanceof concepts.Position);
+    console.assert(Number.isInteger(view_distance) && view_distance >= 0);
+
+    const test_shape = new Range_Circle(view_distance, view_distance + 1); // TODO: replace this
+    return positions_in_range(center, test_shape, position => world.is_valid_position(position));
+}
+
+// Provides all the positions that are currently "visible" by a character at the provided center position in the world.
+function find_invisible_limit_positions(world, center, view_distance){
+    console.assert(world instanceof concepts.World);
+    console.assert(center instanceof concepts.Position);
+    console.assert(Number.isInteger(view_distance) && view_distance >= 0);
+
+    const test_shape = new Range_Circle(view_distance + 1 , view_distance + 2); // TODO: replace this
+    return positions_in_range(center, test_shape, position => world.is_valid_position(position));
+}
+
+// Provides all the positions that are currently "visible" by a character at the provided center position in the world.
 function find_visible_positions(world, center, view_distance){
     console.assert(world instanceof concepts.World);
     console.assert(center instanceof concepts.Position);
@@ -173,7 +193,7 @@ function find_visible_positions(world, center, view_distance){
     // return visible_positions;
 
     const test_shape = new Range_Circle(0, view_distance + 1);
-    return positions_in_range(center, test_shape);
+    return positions_in_range(center, test_shape, position => world.is_valid_position(position));
 }
 
 function valid_target_positions(world, center, action_range_shape){
@@ -208,10 +228,14 @@ class FieldOfView {
     }
 
     get visible_positions() { return [ ...this._visible_positions ]; } // We return a copy.
+    get visible_border_positions() { return [ ...this._visible_border_positions ]; } // We return a copy.
+    get invisible_border_positions() { return [ ...this._invisible_border_positions ]; } // We return a copy.
 
     update(world){
         console.assert(world instanceof concepts.World);
         this._visible_positions = find_visible_positions(world, this._center, this._view_distance);
+        this._visible_border_positions  = find_visible_limit_positions(world, this._center, this.view_distance);
+        this._invisible_border_positions  = find_invisible_limit_positions(world, this._center, this.view_distance);
     }
 
     is_visible(...positions){ // TODO: probably optimizable
