@@ -145,6 +145,7 @@ function update_camera_control(delta_time){
 // Once the action is played we proceed to execute each character turns until we reach a player's turn again.
 // If the action is null or undefined, we simply update the possible actions and don't progress turns.
 function play_action(player_action){
+    console.assert(current_game_view.is_time_for_player_to_chose_action === true);
     console.assert(!player_action || player_action instanceof concepts.Action);
     console.assert(!player_action || Object.values(current_game.last_turn_info.possible_actions).includes(player_action)); // The action MUST come from the possible actions.
 

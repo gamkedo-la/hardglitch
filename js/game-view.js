@@ -107,7 +107,7 @@ class GameView {
     current_animations = []; // Must be a set of js generators, each one an animation that can be played together.
     player_actions_highlights = []; // Must contain Highlight objects for the currently playable actions.
     action_range_highlights = []; // Must contain Highlight objects for the currently pointed action's range.
-    enable_fog_of_war = false;
+    enable_fog_of_war = true;
 
     constructor(game){
         console.assert(game instanceof Game);
