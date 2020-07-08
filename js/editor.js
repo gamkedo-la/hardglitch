@@ -171,12 +171,14 @@ function display_help(){
         )
             graphics.draw_text("[ESC] - EDITOR MODE", {x: display_x, y: next_line() });
     }
+    graphics.draw_text("[F8]  - SHOW/HIDE FOV", {x: display_x, y: next_line() });
     graphics.draw_text("[F9]  - MOUSE INFO", {x: display_x, y: next_line() });
     graphics.draw_text("-----------------------", {x: display_x, y: next_line() });
     graphics.draw_text("[M] - SHOW/HIDE GRID LINES", {x: display_x, y: next_line() });
     graphics.draw_text("-----------------------", {x: display_x, y: next_line() });
-    graphics.draw_text("[Arrow keys] - Move player character", {x: display_x, y: next_line() });
-    graphics.draw_text("[WASD] - Move Camera", {x: display_x, y: next_line() });
+    graphics.draw_text("[WASD][Arrow keys] - Move player character", {x: display_x, y: next_line() });
+    graphics.draw_text("[IJKL] - Move Camera", {x: display_x, y: next_line() });
+    graphics.draw_text(" `[` and `]` keys  - Lower/Increase View distance", {x: display_x, y: next_line() });
     graphics.draw_text("-----------------------", {x: display_x, y: next_line() });
     graphics.draw_text("Drag the screen to move the camera", {x: display_x, y: next_line() });
     graphics.draw_text("Click on squares around PC to move or act", {x: display_x, y: next_line() });
@@ -194,12 +196,15 @@ function display_editor_help(){
 
     if(!input.mouse.is_dragging)
         graphics.draw_text("[ESC] - EXIT EDITOR MODE", {x: display_x, y: next_line() });
+
+    graphics.draw_text("[F8]  - SHOW/HIDE FOV", {x: display_x, y: next_line() });
     graphics.draw_text("[F9]  - MOUSE INFO", {x: display_x, y: next_line() });
     graphics.draw_text("-----------------------", {x: display_x, y: next_line() });
     graphics.draw_text("[M] - SHOW/HIDE GRID LINES", {x: display_x, y: next_line() });
     graphics.draw_text("[LCTRL][C] - ADD PLAYER CHARACTER", {x: display_x, y: next_line() });
     graphics.draw_text("-----------------------", {x: display_x, y: next_line() });
-    graphics.draw_text("[WASD] - Move Camera", {x: display_x, y: next_line() });
+    graphics.draw_text("[IJKL] - Move Camera", {x: display_x, y: next_line() });
+    graphics.draw_text(" `[` and `]` keys  - Lower/Increase View distance", {x: display_x, y: next_line() });
     graphics.draw_text("-----------------------", {x: display_x, y: next_line() });
     graphics.draw_text("[Number] + [LMB] - Change the pointed tile", {x: display_x, y: next_line() });
     graphics.draw_text("(0: hole, 1: ground, 2: wall, 3: void", {x: display_x, y: next_line() });
@@ -236,12 +241,26 @@ function display(){
 
 function update(){
 
-    if(input.keyboard.is_just_down(KEY.N)){
-        current_game_view.tile_grid.enable_tile_sprites = !current_game_view.tile_grid.enable_tile_sprites;
-    }
-
     if(input.keyboard.is_just_down(KEY.F9)){
         display_mouse_info = !display_mouse_info;
+    }
+
+    if(input.keyboard.is_just_down(KEY.M)){
+        current_game_view.tile_grid.enable_grid_lines = !current_game_view.tile_grid.enable_grid_lines;
+    }
+
+    if(input.keyboard.is_just_down(KEY.F8)){
+        current_game_view.enable_fog_of_war = !current_game_view.enable_fog_of_war;
+    }
+
+    if(input.keyboard.is_just_down(KEY.RIGHT_BRACKET)){
+        current_game.last_turn_info.player_character.view_distance = current_game.last_turn_info.player_character.view_distance + 1;
+        current_game_view.fog_of_war._refresh();
+    }
+
+    if(input.keyboard.is_just_down(KEY.LEFT_BRACKET)){
+        current_game.last_turn_info.player_character.view_distance = current_game.last_turn_info.player_character.view_distance - 1;
+        current_game_view.fog_of_war._refresh();
     }
 
     if(input.keyboard.is_just_down(KEY.ESCAPE)){

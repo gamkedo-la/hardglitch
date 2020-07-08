@@ -37,6 +37,10 @@ const KEY = {
     N: 78,
     C: 67,
     X: 88,
+    I: 73,
+    K: 75,
+    J: 74,
+    L: 76,
     NUMBER_0: 48,
     NUMBER_1: 49,
     NUMBER_2: 50,
@@ -93,10 +97,10 @@ function select_player_action(){
     const possible_actions = current_game.last_turn_info.possible_actions;
 
     if(keyboard.is_just_down(KEY.SPACE)) return possible_actions.wait;
-    if(keyboard.is_down(KEY.UP_ARROW)) return possible_actions.move_north;
-    if(keyboard.is_down(KEY.DOWN_ARROW)) return possible_actions.move_south;
-    if(keyboard.is_down(KEY.RIGHT_ARROW)) return possible_actions.move_east;
-    if(keyboard.is_down(KEY.LEFT_ARROW)) return possible_actions.move_west;
+    if(keyboard.is_down(KEY.W) || keyboard.is_down(KEY.UP_ARROW)) return possible_actions.move_north;
+    if(keyboard.is_down(KEY.S) || keyboard.is_down(KEY.DOWN_ARROW)) return possible_actions.move_south;
+    if(keyboard.is_down(KEY.D) || keyboard.is_down(KEY.RIGHT_ARROW)) return possible_actions.move_east;
+    if(keyboard.is_down(KEY.A) || keyboard.is_down(KEY.LEFT_ARROW)) return possible_actions.move_west;
 
     if(mouse.buttons.is_just_released(input.MOUSE_BUTTON.LEFT) && !mouse_was_dragging_last_update){ // Select an action which targets the square under the mouse.
         const clicked_position = mouse_grid_position();
@@ -136,13 +140,13 @@ function update_camera_control(delta_time){
     } else {
         draggin_start_camera_position = undefined;
 
-        if(keyboard.is_down(KEY.A))
+        if(keyboard.is_down(KEY.J))
             graphics.camera.translate(Vector2_unit_x.multiply(-current_speed));
-        if(keyboard.is_down(KEY.D))
+        if(keyboard.is_down(KEY.L))
             graphics.camera.translate(Vector2_unit_x.multiply(current_speed));
-        if(keyboard.is_down(KEY.W))
+        if(keyboard.is_down(KEY.I))
             graphics.camera.translate(Vector2_unit_y.multiply(-current_speed));
-        if(keyboard.is_down(KEY.S))
+        if(keyboard.is_down(KEY.K))
             graphics.camera.translate(Vector2_unit_y.multiply(current_speed));
     }
 }
@@ -179,24 +183,6 @@ function update(delta_time){
                 play_action(player_action);
             }
         }
-    }
-
-    if(input.keyboard.is_just_down(KEY.M)){
-        current_game_view.tile_grid.enable_grid_lines = !current_game_view.tile_grid.enable_grid_lines;
-    }
-
-    if(input.keyboard.is_just_down(KEY.F8)){
-        current_game_view.enable_fog_of_war = !current_game_view.enable_fog_of_war;
-    }
-
-    if(input.keyboard.is_just_down(KEY.RIGHT_BRACKET)){
-        current_game.last_turn_info.player_character.view_distance = current_game.last_turn_info.player_character.view_distance + 1;
-        current_game_view.fog_of_war._refresh();
-    }
-
-    if(input.keyboard.is_just_down(KEY.LEFT_BRACKET)){
-        current_game.last_turn_info.player_character.view_distance = current_game.last_turn_info.player_character.view_distance - 1;
-        current_game_view.fog_of_war._refresh();
     }
 }
 
