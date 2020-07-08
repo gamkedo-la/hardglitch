@@ -97,50 +97,15 @@ class FogOfWar {
 
     _render_dark_unknown(){
         this._dark_canvas_context.fillStyle = this.fog_color;
-        this._dark_canvas_context.shadowBlur = 16;
-        this._dark_canvas_context.shadowColor = this.fog_color;
-        this._dark_canvas_context.lineWidth = 18;
-        this._dark_canvas_context.lineCap = "round";
+        this._dark_canvas_context.globalCompositeOperation  = "source-over";
 
-        this._dark_canvas_context.clearRect(0, 0, this.graphic_width, this.graphic_height);
-        for(let idx = 0; idx < this.viewed_at_least_once_grid.length; ++idx){
-            if(this.current_visibility_grid[idx] !== undefined){ // Currently visible.
-                const position = this.position_from_index(idx);
-                const gfx_position = graphic_position(position);
-                this._dark_canvas_context.fillRect(gfx_position.x, gfx_position.y, PIXELS_PER_TILES_SIDE, PIXELS_PER_TILES_SIDE);
-            }
-        }
-
-        // this.field_of_view.invisible_border_positions
-        //     .forEach(position => {
-        //         const gfx_position = graphic_position(position);
-        //         if(position.x > this.field_of_view.position.x){
-        //             this._dark_canvas_context.beginPath();
-        //             this._dark_canvas_context.moveTo(gfx_position.x, gfx_position.y);
-        //             this._dark_canvas_context.lineTo(gfx_position.x, gfx_position.y + PIXELS_PER_TILES_SIDE);
-        //             this._dark_canvas_context.stroke();
-        //         } else {
-        //             this._dark_canvas_context.beginPath();
-        //             this._dark_canvas_context.moveTo(gfx_position.x + PIXELS_PER_TILES_SIDE, gfx_position.y);
-        //             this._dark_canvas_context.lineTo(gfx_position.x + PIXELS_PER_TILES_SIDE, gfx_position.y + PIXELS_PER_TILES_SIDE);
-        //             this._dark_canvas_context.stroke();
-        //         }
-        //         if(position.y > this.field_of_view.position.y){
-        //             this._dark_canvas_context.beginPath();
-        //             this._dark_canvas_context.moveTo(gfx_position.x, gfx_position.y);
-        //             this._dark_canvas_context.lineTo(gfx_position.x + PIXELS_PER_TILES_SIDE, gfx_position.y);
-        //             this._dark_canvas_context.stroke();
-        //         } else {
-        //             this._dark_canvas_context.beginPath();
-        //             this._dark_canvas_context.moveTo(gfx_position.x, gfx_position.y + PIXELS_PER_TILES_SIDE);
-        //             this._dark_canvas_context.lineTo(gfx_position.x + PIXELS_PER_TILES_SIDE, gfx_position.y + PIXELS_PER_TILES_SIDE);
-        //             this._dark_canvas_context.stroke();
-        //         }
-
-
-        //         // this._dark_canvas_context.fillRect(gfx_position.x, gfx_position.y, PIXELS_PER_TILES_SIDE, PIXELS_PER_TILES_SIDE);
-        //         // utility.draw_round_rectangle(this._dark_canvas_context, gfx_position.x, gfx_position.y, PIXELS_PER_TILES_SIDE, PIXELS_PER_TILES_SIDE, 5, true, false);
-        //     });
+        this._dark_canvas_context.fillRect(0, 0, this.graphic_width, this.graphic_height);
+        this._dark_canvas_context.fillStyle = "#ffffffff";
+        this._dark_canvas_context.globalCompositeOperation = "destination-out";
+        this.field_of_view.visible_positions.forEach(position => {
+            const gfx_position = graphic_position(position);
+            this._dark_canvas_context.fillRect(gfx_position.x, gfx_position.y, PIXELS_PER_TILES_SIDE, PIXELS_PER_TILES_SIDE);
+        });
     }
 
     draw_last_visible_squares(canvas_context){
