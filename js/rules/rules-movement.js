@@ -115,7 +115,7 @@ class Jump extends concepts.Action {
         const initial_pos = character.position;
         character.position = this.target_position;
         const move_event = new Moved(character, initial_pos, this.target_position, 666);
-        move_event.allow_parallel_animation = this.is_safe;
+        move_event.allow_parallel_animation = false; // Never mix a jump animation with other moves.
         return [move_event]; // TODO: implement a different event, with a different animation
     }
 }
