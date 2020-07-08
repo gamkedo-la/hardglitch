@@ -260,8 +260,8 @@ function genFgOverlay(lvl, layer, grid, overlay, wallCmp) {
             switch (neighbors) {
                 case 0: // none
                     if (wallCmp(v)) { // wall
-                        tl = "ltbs";
-                        tr = "btre";
+                        tl = "ltbsc";
+                        tr = "btrec";
                         bl = "ltb";
                         br = "btr";
                     }
