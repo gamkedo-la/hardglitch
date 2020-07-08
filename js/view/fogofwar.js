@@ -23,6 +23,8 @@ class FogOfWar {
         this.field_of_view = field_of_view;
         this.world = world;
 
+        this.tile_id_grid = new Array(this.world.size).fill(false);
+
         this._refresh();
     }
 
@@ -33,19 +35,16 @@ class FogOfWar {
     _refresh(){
         this.field_of_view.update(this.world);
 
-        const world_size = this.world.width * this.world.height;
-        const tile_id_grid = new Array(world_size).fill(false);
-
         this.field_of_view.visible_positions
             .filter(position => this.world.is_valid_position(position))
             .forEach(position =>{
-                tile_id_grid[this.index(position)] = undefined;
+                this.tile_id_grid[this.index(position)] = undefined;
             });
 
         this.tilegrid = new graphics.TileGrid(Vector2_origin,
             new Vector2({ x: this.world.width, y: this.world.height }),
             PIXELS_PER_TILES_SIDE,
-            fog_sprites_defs, tile_id_grid);
+            fog_sprites_defs, this.tile_id_grid);
         this.tilegrid.enable_draw_background = false;
     }
 

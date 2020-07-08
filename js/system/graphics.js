@@ -447,7 +447,8 @@ class TileGrid
   draw_background(){
     // TODO: consider allowing an image as a background
     const background_size = from_grid_to_graphic_position({ x:this.size.x, y:this.size.y }, this.square_size); // TODO: calculate that only when necessary
-    draw_rectangle(new spatial.Rectangle({ position: this.position, size: background_size }), this.background_color);
+    screen_canvas_context.fillStyle = this.background_color;
+    screen_canvas_context.fillRect(this.position.x, this.position.y, background_size.x, background_size.y);
   }
 
   draw_tiles(){
@@ -456,11 +457,13 @@ class TileGrid
   }
 
   draw(){
+    screen_canvas_context.save();
     if(this.enable_draw_background){
       this.draw_background();
     }
 
     this.draw_tiles();
+    screen_canvas_context.restore();
   }
 
 };

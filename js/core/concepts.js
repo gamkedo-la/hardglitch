@@ -263,6 +263,7 @@ class World
         console.assert(Number.isInteger(height) && height > 2);
         this.width = width;
         this.height = height;
+        this.size = this.width * this.height;
         this._floor_tile_grid = new Grid(width, height, floor_tiles); // Tiles on the floor layer.
         this._surface_tile_grid = new Grid(width, height, surface_tiles); // Tiles over the floor, including "walls".
     }
