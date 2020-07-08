@@ -97,8 +97,8 @@ class FogOfWar {
 
     _render_dark_unknown(){
         this._dark_canvas_context.fillStyle = this.fog_color;
-        // this._dark_canvas_context.shadowBlur = 16;
-        // this._dark_canvas_context.shadowColor = this.fog_color;
+        this._dark_canvas_context.shadowBlur = 16;
+        this._dark_canvas_context.shadowColor = this.fog_color;
         this._dark_canvas_context.lineWidth = 18;
         this._dark_canvas_context.lineCap = "round";
 
