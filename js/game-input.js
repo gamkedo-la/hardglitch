@@ -85,6 +85,8 @@ function mouse_is_pointing_walkable_position(){
         return false;
 }
 
+let mouse_was_dragging_last_update = true;
+
 function select_player_action(){
     const keyboard = input.keyboard;
     const mouse = input.mouse;
@@ -96,7 +98,7 @@ function select_player_action(){
     if(keyboard.is_down(KEY.RIGHT_ARROW)) return possible_actions.move_east;
     if(keyboard.is_down(KEY.LEFT_ARROW)) return possible_actions.move_west;
 
-    if(mouse.buttons.is_just_released(input.MOUSE_BUTTON.LEFT)){ // Select an action which targets the square under the mouse.
+    if(mouse.buttons.is_just_released(input.MOUSE_BUTTON.LEFT) && !mouse_was_dragging_last_update){ // Select an action which targets the square under the mouse.
         const clicked_position = mouse_grid_position();
         if(clicked_position) {
             for(const action of Object.values(possible_actions)){
@@ -108,6 +110,8 @@ function select_player_action(){
             }
         }
     }
+
+    mouse_was_dragging_last_update = false;
 }
 
 let draggin_start_camera_position = undefined;
@@ -123,8 +127,10 @@ function update_camera_control(delta_time){
     && !editor.is_editing // Don't drag when we are editing the world with the editor
     ){
         // Map dragging
-        if(!draggin_start_camera_position)
+        if(!draggin_start_camera_position){
             draggin_start_camera_position = graphics.camera.position;
+            mouse_was_dragging_last_update = true;
+        }
         graphics.camera.position = draggin_start_camera_position.translate(game_position_from_graphic_position(drag_pos.begin).substract(mouse_game_position()));
 
     } else {
