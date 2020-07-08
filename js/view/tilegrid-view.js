@@ -177,7 +177,7 @@ class TileGridView {
             if (surface_tile_grid.elements[i] == tiledefs.ID.EXIT) {
                 let pos = position_from_index(size.x, size.y, i);
                 this.addExitParticles(canvasContext, pos.x*PIXELS_PER_TILES_SIDE + PIXELS_PER_HALF_SIDE, pos.y*PIXELS_PER_TILES_SIDE + PIXELS_PER_HALF_SIDE);
-            } 
+            }
             if (ground_tile_grid.elements[i] == tiledefs.ID.VOID) {
                 this.addVoidParticles(canvasContext, size, i, bg_grid);
             }
@@ -196,7 +196,18 @@ class TileGridView {
             this.surface_tile_grid = new graphics.TileGrid(position, size, PIXELS_PER_TILES_SIDE, tiledefs.sprite_defs, ground_tile_grid.elements);
         }
         this.ground_tile_grid.enable_draw_background = true; // display the background
+
+        this._offscreen_floor_canvas_context = this._create_offscreen_canvas_context();
+        this._offscreen_surface_canvas_context = this._create_offscreen_canvas_context();
+        this._offscreen_canvas_context = this._create_offscreen_canvas_context();
+        this._redraw_requested = true;
     }
+
+    _create_offscreen_canvas_context(){
+        return graphics.create_canvas_context(this.size.x * PIXELS_PER_TILES_SIDE, this.size.y * PIXELS_PER_TILES_SIDE);
+    }
+
+    get canvas_context() { return this._offscreen_canvas_context; }
 
     get width() { return this.size.x; }
     get height() { return this.size.y; }
@@ -208,32 +219,61 @@ class TileGridView {
         }
         this.surface_tile_grid.update(delta_time);
         this.floor_top_tile_grid.update(delta_time);
+
+        this._redraw_requested = this.ground_tile_grid.redraw_requested
+                              || this.mid_tile_grid.redraw_requested
+                              || this.surface_tile_grid.redraw_requested
+                              || this.floor_top_tile_grid.redraw_requested
+                              ;
+
         // particles
         this.particles.update(delta_time);
+
     }
 
-    draw_floor(){
+    draw_floor(canvas_context){
+        if(this._redraw_requested)
+            this._render_floor(this._offscreen_floor_canvas_context);
+        this._draw_offscreen_canvas(canvas_context, this._offscreen_floor_canvas_context);
+    }
+
+    draw_surface(canvas_context){
+        if(this._redraw_requested)
+            this._render_surface(this._offscreen_surface_canvas_context);
+        this._draw_offscreen_canvas(canvas_context, this._offscreen_surface_canvas_context);
+        // particles
+        this.particles.draw(canvas_context);
+    }
+
+    _draw_offscreen_canvas(canvas_context, offscreen_canvas_context){
+        canvas_context.drawImage(offscreen_canvas_context.canvas, 0, 0);
+        this._offscreen_canvas_context.drawImage(offscreen_canvas_context.canvas, 0, 0);
+    }
+
+    _clear_canvas(canvas_context){
+        canvas_context.clearRect(0, 0, canvas_context.width, canvas_context.height);
+    }
+
+    _render_floor(canvas_context){
+        this._clear_canvas(canvas_context);
+
         if(this.enable_tile_sprites)
-            this.ground_tile_grid.draw();
+            canvas_context =this.ground_tile_grid.draw(canvas_context);
 
         if(this.enable_grid_lines){
-            graphics.draw_grid_lines(this.size.x, this.size.y, PIXELS_PER_TILES_SIDE, this.position);
+            graphics.draw_grid_lines(this.size.x, this.size.y, PIXELS_PER_TILES_SIDE, this.position, canvas_context); // TODO: make this relative to canvas context
         }
-        this.floor_top_tile_grid.draw();
+        canvas_context = this.floor_top_tile_grid.draw(canvas_context);
     }
 
-    draw_surface(){
-
+    _render_surface(canvas_context){
         if(this.enable_tile_sprites){
             if (this.enable_overlay) {
-                this.mid_tile_grid.draw();
+                canvas_context = this.mid_tile_grid.draw(canvas_context);
             }
 
-            this.surface_tile_grid.draw();
-            // particles
-            this.particles.draw();
+            canvas_context = this.surface_tile_grid.draw(canvas_context);
         }
-
     }
 
 };

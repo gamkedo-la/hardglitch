@@ -6,12 +6,12 @@ export {
 import * as visibility from "../core/visibility.js";
 import * as graphics from "../system/graphics.js";
 import { Vector2, Vector2_origin } from "../system/spatial.js";
-import { PIXELS_PER_TILES_SIDE } from "./entity-view.js";
-import { index_from_position } from "../system/utility.js";
+import { PIXELS_PER_TILES_SIDE, graphic_position } from "./entity-view.js";
+import { index_from_position, position_from_index } from "../system/utility.js";
 import * as assets from "../game-assets.js";
 import * as concepts from "../core/concepts.js";
 
-const fog_sprites_defs = {
+const visibility_sprites_defs = {
     [false] : assets.sprite_defs.void,  // When we cannot see there
 };
 
@@ -22,8 +22,16 @@ class FogOfWar {
         console.assert(field_of_view instanceof visibility.FieldOfView);
         this.field_of_view = field_of_view;
         this.world = world;
+        this.graphic_width = this.world.width * PIXELS_PER_TILES_SIDE;
+        this.graphic_height = this.world.height * PIXELS_PER_TILES_SIDE;
 
-        this.tile_id_grid = new Array(this.world.size).fill(false);
+        this.viewed_at_least_once_grid = new Array(this.world.size).fill(false);
+
+        this._last_seen_canvas_context = graphics.create_canvas_context( this.graphic_width, this.graphic_height);
+        this._last_seen_canvas_context.filter = "grayscale(100%)";
+
+        this._fog_canvas_context = graphics.create_canvas_context( this.graphic_width, this.graphic_height);
+        this._fog_canvas_context.imageSmoothingEnabled = false;
 
         this._refresh();
     }
@@ -32,20 +40,32 @@ class FogOfWar {
         return index_from_position(this.world.width, this.world.height, position);
     }
 
+    position_from_index(idx){
+        return position_from_index(this.world.width, this.world.height, idx);
+    }
+
     _refresh(){
+        this.current_visibility_grid = new Array(this.world.size).fill(false);
+
         this.field_of_view.update(this.world);
 
         this.field_of_view.visible_positions
             .filter(position => this.world.is_valid_position(position))
             .forEach(position =>{
-                this.tile_id_grid[this.index(position)] = undefined;
+                const idx = this.index(position);
+                this.viewed_at_least_once_grid[idx] = true;
+                this.current_visibility_grid[idx] = undefined;
             });
 
         this.tilegrid = new graphics.TileGrid(Vector2_origin,
             new Vector2({ x: this.world.width, y: this.world.height }),
             PIXELS_PER_TILES_SIDE,
-            fog_sprites_defs, this.tile_id_grid);
+            visibility_sprites_defs, this.current_visibility_grid);
         this.tilegrid.enable_draw_background = false;
+
+
+        this.render_last_visible_squares();
+        this._need_last_seen_capture = true;
     }
 
     change_viewer_position(new_pos){
@@ -57,12 +77,50 @@ class FogOfWar {
         this.tilegrid.update(delta_time);
     }
 
-    display(){
-        this.tilegrid.draw();
+    display(canvas_context, complete_grid_canvas_context){
+        console.assert(canvas_context);
+        console.assert(complete_grid_canvas_context);
+        this.tilegrid.draw(canvas_context);
+        this.draw_last_visible_squares(canvas_context);
+        if(this._need_last_seen_capture){
+            this.capture_last_visible_squares(complete_grid_canvas_context);
+        }
     }
 
     is_visible(...positions){
-        return this.field_of_view.is_visible(...positions);
+        return positions.every(position => this.current_visibility_grid[this.index(position)] === undefined);
+    }
+
+    was_visible(...positions){
+        return positions.every(position => this.viewed_at_least_once_grid[this.index(position)] === true);
+    }
+
+    draw_last_visible_squares(canvas_context){
+        canvas_context.drawImage(this._fog_canvas_context.canvas, 0, 0);
+    }
+
+    render_last_visible_squares(){
+        this._fog_canvas_context.clearRect(0, 0, this.graphic_width, this.graphic_height);
+        for(let idx = 0; idx < this.viewed_at_least_once_grid.length; ++idx){
+            if(this.viewed_at_least_once_grid[idx] === true && this.current_visibility_grid[idx] === false){ // Not currently visible.
+                const position = this.position_from_index(idx);
+                const gfx_position = graphic_position(position);
+                this._fog_canvas_context.drawImage(this._last_seen_canvas_context.canvas,
+                        gfx_position.x, gfx_position.y, PIXELS_PER_TILES_SIDE, PIXELS_PER_TILES_SIDE, // source
+                        gfx_position.x, gfx_position.y, PIXELS_PER_TILES_SIDE, PIXELS_PER_TILES_SIDE, // destination
+                    );
+                // canvas_context.fillStyle = "blue";
+                // canvas_context.fillRect(gfx_position.x, gfx_position.y, PIXELS_PER_TILES_SIDE, PIXELS_PER_TILES_SIDE);
+                // graphics.draw_rectangle(new Rectangle({ position:gfx_position, width:PIXELS_PER_TILES_SIDE, height:PIXELS_PER_TILES_SIDE }), "blue");
+            }
+        }
+    }
+
+    capture_last_visible_squares(canvas_context){
+        this._last_seen_canvas_context.drawImage(canvas_context.canvas, 0, 0);
+        // this._last_seen_canvas_context.fillStyle = "red";
+        // this._last_seen_canvas_context.fillRect(0, 0, this.graphic_width, this.graphic_height);
+        this._need_last_seen_capture = false;
     }
 
 };

@@ -7,6 +7,7 @@ export {
   clear,
   Sprite,
   TileGrid,
+  create_canvas_context,
   draw_text,
   measure_text,
   draw_rectangle,
@@ -16,6 +17,7 @@ export {
   from_grid_to_graphic_position,
   from_graphic_to_grid_position,
   camera,
+  screen_canvas_context,
 };
 2
 import * as spatial from "./spatial.js"
@@ -292,6 +294,15 @@ class Sprite {
   }
 };
 
+function create_canvas_context(width, height){
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const canvas_context = canvas.getContext('2d');
+  canvas_context.imageSmoothingEnabled = false;
+  return canvas_context;
+}
+
 // 2D grid of sprites to display as one block.
 // Allows opportunities for optimization by generating one sprite
 // with the part of the grid we actually need to display.
@@ -321,11 +332,8 @@ class TileGrid
     }
 
 
-    this._offscreen_canvas = document.createElement('canvas');
-    this._offscreen_canvas_context = this._offscreen_canvas.getContext('2d');
+    this._offscreen_canvas_context = create_canvas_context(this.size.x * square_size, this.size.y * square_size);
     this._rendering_requests = [];
-    this._offscreen_canvas.width = this.size.x * square_size;
-    this._offscreen_canvas.height = this.size.y * square_size;
 
     this.request_redraw({});
   }
@@ -373,7 +381,6 @@ class TileGrid
     if(with_clear){
       this._offscreen_canvas_context.fillStyle = "#00000000";
       this._offscreen_canvas_context.fillRect(render.x, render.y, render.width, render.height);
-      this._offscreen_canvas_context.imageSmoothingEnabled = false;
     }
 
     for(let y = grid.y; y < grid.height; ++y){
@@ -411,6 +418,8 @@ class TileGrid
     this.request_redraw({ x_begin: position.x, y_begin: position.y, x_end: position.x+1, y_end: position.y+1, with_clear:false });
   }
 
+  get redraw_requested() { return this._rendering_requests.length > 0;}
+
   // Request to redraw all sprites
   _request_redraw_tiles_with_sprite(sprite_id) {
     const size = this.size;
@@ -444,26 +453,28 @@ class TileGrid
     }
   }
 
-  draw_background(){
+  draw_background(canvas_context){
     // TODO: consider allowing an image as a background
     const background_size = from_grid_to_graphic_position({ x:this.size.x, y:this.size.y }, this.square_size); // TODO: calculate that only when necessary
-    screen_canvas_context.fillStyle = this.background_color;
-    screen_canvas_context.fillRect(this.position.x, this.position.y, background_size.x, background_size.y);
+    canvas_context.fillStyle = this.background_color;
+    canvas_context.fillRect(this.position.x, this.position.y, background_size.x, background_size.y);
   }
 
-  draw_tiles(){
+  draw_tiles(canvas_context){
     this._handle_rendering_requests();
-    screen_canvas_context.drawImage(this._offscreen_canvas, 0, 0);
+    canvas_context.drawImage(this._offscreen_canvas_context.canvas, 0, 0);
   }
 
-  draw(){
-    screen_canvas_context.save();
+  draw(canvas_context = screen_canvas_context){
+    canvas_context.save();
     if(this.enable_draw_background){
-      this.draw_background();
+      this.draw_background(canvas_context);
     }
 
-    this.draw_tiles();
-    screen_canvas_context.restore();
+    this.draw_tiles(canvas_context);
+    canvas_context.restore();
+
+    return canvas_context;
   }
 
 };
@@ -567,26 +578,26 @@ function canvas_rect(){
   return new spatial.Rectangle({ x: 0, y:0, width:canvas.width, height:canvas.height});
 }
 
-function draw_grid_lines(width, height, square_size, start_position={x:0, y:0}){
-  screen_canvas_context.save();
+function draw_grid_lines(width, height, square_size, start_position={x:0, y:0}, context=screen_canvas_context){
+  context.save();
   const grid_line_color = "#aa00aa";
-  screen_canvas_context.strokeStyle = grid_line_color;
+  context.strokeStyle = grid_line_color;
   const graphic_width = width * square_size;
   const graphic_height = height * square_size;
   for(let x = start_position.x; x <= graphic_width; x += square_size){
-    screen_canvas_context.beginPath();
-    screen_canvas_context.moveTo(x, start_position.y);
-    screen_canvas_context.lineTo(x, graphic_height - start_position.y);
-    screen_canvas_context.stroke();
+    context.beginPath();
+    context.moveTo(x, start_position.y);
+    context.lineTo(x, graphic_height - start_position.y);
+    context.stroke();
   }
 
   for(let y = start_position.y; y <= graphic_height; y += square_size){
-    screen_canvas_context.beginPath();
-    screen_canvas_context.moveTo(start_position.x, y);
-    screen_canvas_context.lineTo(graphic_width - start_position.x, y);
-    screen_canvas_context.stroke();
+    context.beginPath();
+    context.moveTo(start_position.x, y);
+    context.lineTo(graphic_width - start_position.x, y);
+    context.stroke();
   }
-  screen_canvas_context.restore();
+  context.restore();
 }
 
 

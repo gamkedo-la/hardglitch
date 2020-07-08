@@ -138,7 +138,7 @@ class GameView {
     }
 
     interpret_turn_events() {
-        console.assert(this.animation_queue.length == 0);
+        console.assert(this.animation_queue.length === 0);
 
         const events = this.game.last_turn_info.events;
         for(const event of events){
@@ -354,15 +354,16 @@ class GameView {
     }
 
     render_graphics(){
-        this.tile_grid.draw_floor();
+        this.tile_grid.draw_floor(graphics.screen_canvas_context);
 
         this._render_ground_highlights();
         this._render_entities();
 
-        this.tile_grid.draw_surface();
+        this.tile_grid.draw_surface(graphics.screen_canvas_context);
 
-        if(this.enable_fog_of_war)
-            this.fog_of_war.display();
+        if(this.enable_fog_of_war){
+            this.fog_of_war.display(graphics.screen_canvas_context, this.tile_grid.canvas_context);
+        }
 
         this._render_top_highlights();
 
