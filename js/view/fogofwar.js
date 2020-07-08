@@ -96,6 +96,9 @@ class FogOfWar {
 
     _render_dark_unknown(){
         this._dark_canvas_context.fillStyle = this.fog_color;
+        this._dark_canvas_context.shadowBlur = 32;
+        this._dark_canvas_context.shadowColor = this.fog_color;
+
         this._dark_canvas_context.clearRect(0, 0, this.graphic_width, this.graphic_height);
         for(let idx = 0; idx < this.viewed_at_least_once_grid.length; ++idx){
             if(this.current_visibility_grid[idx] !== undefined){ // Currently visible.
