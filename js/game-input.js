@@ -168,8 +168,7 @@ function update(delta_time){
         ){
             const player_action = select_player_action();
 
-            if(player_action) // Player just selected an action
-            {
+            if(player_action && player_action.is_safe){ // Player just selected an action (only safe ones are considered)
                 play_action(player_action);
             }
         }
