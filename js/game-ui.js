@@ -68,10 +68,12 @@ class CancelActionButton extends ui.Button {
             action: action,
         });
 
+        this.icon = new graphics.Sprite(sprite_defs.icon_action_cancel);
+
         this.help_text = new ui.HelpText({
             width: action_button_size, height: action_button_size,
             area_to_help: this.area,
-            text: "CANCEL ACTION",
+            text: "Cancel",
         });
 
     }
@@ -80,6 +82,8 @@ class CancelActionButton extends ui.Button {
         super.position = new_pos;
         this.help_text.position = super.position.translate({x:0, y: -this.help_text.height - 4 });
         this.help_text.area_to_help = this.area;
+        this.icon.position = center_in_rectangle(this.icon,
+            { position: this.position, width: action_button_size, height:action_button_size}).position;
     }
 
     get position() { return super.position; }

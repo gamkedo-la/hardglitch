@@ -57,6 +57,7 @@ const game_assets = { // Description of the assets to load.
         icon_restore: "./images/iconrestore.png",
         icon_swap: "./images/iconswap.png",
         icon_wait: "./images/wait.png",
+        icon_cancel: "./images/iconcancel.png"
     }
 };
 
@@ -186,6 +187,7 @@ const sprite_defs = {
     icon_action_restore: icon_def_from_image("icon_restore"),
     icon_action_swap: icon_def_from_image("icon_swap"),
     icon_action_wait: icon_def_from_image("icon_wait"),
+    icon_action_cancel: icon_def_from_image("icon_cancel"),
 
     highlight_purple : {
         image: "highlights",
