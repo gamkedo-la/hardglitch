@@ -94,14 +94,18 @@ class ParticleSystem {
 
     draw() {
         // iterate through tracked items
+        const item_area = {
+            position: { x: 0, y: 0 },
+            width: 64, height: 64 // TODO: find a better way to specify this size
+        };
         for (let i=this.items.length-1; i>=0; i--) {
             // draw each tracked particle (skip drawing for emitters)
             const item = this.items[i];
-            if (item.draw && camera.can_see(new Rectangle({
-                x: item.x, y: item.y,
-                width: 64, height: 64 // TODO: find a better way to specify this size
-            }))){
-                item.draw();
+            if (item.draw){
+                item_area.position.x = item.x;
+                item_area.position.y = item.y;
+                if(camera.can_see(item_area))
+                    item.draw();
             }
         }
     }
