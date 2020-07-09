@@ -18,7 +18,7 @@ import { Vector2, center_in_rectangle } from "./system/spatial.js";
 const action_button_size = 50;
 
 class ActionButton extends ui.Button {
-    constructor(position, icon_def, action_name, on_clicked, on_begin_mouse_over, on_end_mouse_over){
+    constructor(position, icon_def, action_name, key_name, on_clicked, on_begin_mouse_over, on_end_mouse_over){
         super({ // TODO: add a way to identify the action visually, text + icon
             position: position,
             width: action_button_size, height: action_button_size,
@@ -35,6 +35,16 @@ class ActionButton extends ui.Button {
         this.icon = new graphics.Sprite(icon_def);
         this.icon.position = center_in_rectangle(this.icon,
             { position: this.position, width: action_button_size, height:action_button_size}).position;
+
+        if(key_name !== ""){
+            this.key_label = new ui.Text({
+                text: key_name,
+                font: "18px arial",
+                position: this.position.translate({x:action_button_size / 2, y:action_button_size + 4})
+            });
+            const adjust_x = this.key_label.width > action_button_size ? 3 * (this.key_label.width / 4) : this.key_label.width / 2;
+            this.key_label.position = this.key_label.position.translate({x:-adjust_x, y:0});
+        }
 
         this.help_text = new ui.HelpText({
             width: action_button_size, height: action_button_size,
@@ -159,12 +169,14 @@ class GameInterface {
         let line_x = 40;
         const next_x = ()=> line_x += (action_button_size + 5);
 
+        let key_number = 0;
         for(const [action_name, actions] of Object.entries(actions_per_types)){
             const position = { x: next_x(), y: line_y };
             const first_action = actions[0];
             const action_range = first_action.range;
             console.assert(first_action instanceof concepts.Action);
-            const action_button = new ActionButton(position, first_action.icon_def, action_name,
+            const key_name =  key_number <= 10 ? `[${key_number === 0 ? "SPACE" : key_number }] ` : "";
+            const action_button = new ActionButton(position, first_action.icon_def, action_name, key_name,
                 ()=>{ // on clicked
                     set_text(`ACTION SELECTED: ${action_name}`);
                     // TODO: highlight the possible targets
@@ -183,8 +195,18 @@ class GameInterface {
                         this.on_action_pointed_end();
                 });
             this._action_buttons.push(action_button);
+            ++key_number;
         }
 
+    }
+
+    play_action_button(action_key_number){
+        console.assert(Number.isInteger(action_key_number));
+        console.assert(!this.is_selecting_action_target);
+        const action = this._action_buttons[action_key_number];
+        if(action){
+            action.action();
+        }
     }
 
     lock_actions(){

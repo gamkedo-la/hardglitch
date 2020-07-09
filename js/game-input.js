@@ -46,6 +46,11 @@ const KEY = {
     NUMBER_2: 50,
     NUMBER_3: 51,
     NUMBER_4: 52,
+    NUMBER_5: 53,
+    NUMBER_6: 54,
+    NUMBER_7: 55,
+    NUMBER_8: 56,
+    NUMBER_9: 57,
     RIGHT_BRACKET: 221,
     LEFT_BRACKET: 219,
     F1: 112,
@@ -91,12 +96,33 @@ function mouse_is_pointing_walkable_position(){
 
 let mouse_was_dragging_last_update = true;
 
+// Keys mapped to action buttons
+const action_button_keys = [
+    KEY.SPACE,
+    KEY.NUMBER_1,
+    KEY.NUMBER_2,
+    KEY.NUMBER_3,
+    KEY.NUMBER_4,
+    KEY.NUMBER_5,
+    KEY.NUMBER_6,
+    KEY.NUMBER_7,
+    KEY.NUMBER_8,
+    KEY.NUMBER_9,
+    KEY.NUMBER_0,
+];
+
 function select_player_action(){
     const keyboard = input.keyboard;
     const mouse = input.mouse;
     const possible_actions = current_game.last_turn_info.possible_actions;
 
-    if(keyboard.is_just_down(KEY.SPACE)) return possible_actions.wait;
+    for(let key_num = 0; key_num < action_button_keys.length; ++key_num){
+        if(keyboard.is_just_down(action_button_keys[key_num])){
+            current_game_view.ui.play_action_button(key_num);
+            break; // Skip all the other action buttons keys
+        }
+    }
+
     if(keyboard.is_down(KEY.W) || keyboard.is_down(KEY.UP_ARROW)) return possible_actions.move_north;
     if(keyboard.is_down(KEY.S) || keyboard.is_down(KEY.DOWN_ARROW)) return possible_actions.move_south;
     if(keyboard.is_down(KEY.D) || keyboard.is_down(KEY.RIGHT_ARROW)) return possible_actions.move_east;
@@ -170,17 +196,23 @@ function update(delta_time){
     if(current_game_view){
         update_camera_control(delta_time);
 
-        // Only handle input from the player when it's "visible" that it's player's turn.
-        if(!input.mouse.is_dragging
-        && current_game_view.is_time_for_player_to_chose_action
-        && !current_game_view.ui.is_mouse_over
-        && !current_game_view.ui.is_selecting_action_target
-        && !editor.is_enabled
-        ){
-            const player_action = select_player_action();
+        if(current_game_view.ui.is_selecting_action_target){
+            // When we already are in action target selection mode, re-selecting an action through the keys is like a cancel.
+            if(action_button_keys.some(key => input.keyboard.is_just_down(key)))
+                current_game_view.ui.cancel_action_target_selection();
 
-            if(player_action && player_action.is_safe){ // Player just selected an action (only safe ones are considered)
-                play_action(player_action);
+        } else {
+            // Only handle input from the player when it's "visible" that it's player's turn.
+            if(!input.mouse.is_dragging
+            && current_game_view.is_time_for_player_to_chose_action
+            && !current_game_view.ui.is_mouse_over
+            && !editor.is_enabled
+            ){
+                const player_action = select_player_action();
+
+                if(player_action && player_action.is_safe){ // Player just selected an action (only safe ones are considered)
+                    play_action(player_action);
+                }
             }
         }
     }
