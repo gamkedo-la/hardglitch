@@ -501,6 +501,7 @@ function initialize(assets){
 function canvas_resize_to_window(){
   console.assert(Number.isInteger(window.innerWidth));
   console.assert(Number.isInteger(window.innerHeight));
+  // We want an even picture to avoid weird scaling issues making sprites display weirdly.
   canvas.width  = window.innerWidth % 2 === 0 ? window.innerWidth : window.innerWidth - 1;
   canvas.height = window.innerHeight % 2 === 0 ? window.innerHeight : window.innerHeight - 1;
 }

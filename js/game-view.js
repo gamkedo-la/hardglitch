@@ -135,6 +135,8 @@ class GameView {
         this._character_focus_highlight = new Highlight({x:0, y:0}, this._highlight_sprites.turn, "Character");
 
         this.reset();
+
+        window.addEventListener('resize', ()=> this.on_canvas_resized());
     }
 
     interpret_turn_events() {
@@ -227,12 +229,12 @@ class GameView {
 
         this._update_highlights(delta_time);
 
-        if(editor.is_enabled){
-            if(this._requires_reset){
-                this.reset();
-            }
-            return;
+        if(this._requires_reset){
+            this.reset();
+            if(editor.is_enabled)
+                return;
         }
+
 
         this.tile_grid.update(delta_time);
 
@@ -468,6 +470,11 @@ class GameView {
         this.ui.show_action_buttons(Object.values(this.game.last_turn_info.possible_actions));
 
         this._requires_reset = false;
+    }
+
+    on_canvas_resized(){
+        this.ui.cancel_action_target_selection();
+        this.notify_edition();
     }
 
     _reset_tilegrid(world){
