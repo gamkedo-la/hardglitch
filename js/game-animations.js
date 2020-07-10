@@ -9,7 +9,7 @@ export {
 
 import { graphic_position, EntityView, PIXELS_PER_HALF_SIDE } from "./view/entity-view.js";
 import { tween, easing } from "./system/tweening.js";
-import { Vector2 } from "./system/spatial.js";
+import { in_parallel } from "./system/animation.js";
 
 const default_move_duration_ms = 200;
 const default_destruction_duration_ms = 666;
@@ -36,17 +36,6 @@ function *bounce(entity_view, target_game_position, duration_ms=default_move_dur
     yield* translate(entity_view, bounce_limit_gfx_pos, duration_ms / 2);
     yield* translate(entity_view, initial_gfx_pos, duration_ms / 2);
     entity_view.game_position = initial_position;
-}
-
-function *in_parallel(...animations){
-    while(animations.length > 0){
-        const delta_time = yield;
-        animations.map((animation, index)=>{
-            const state = animation.next(delta_time);
-            if(state.done)
-                animations.splice(index, 1);
-        });
-    }
 }
 
 function *swap(left_entity_view, right_entity_view, duration_ms=default_move_duration_ms){

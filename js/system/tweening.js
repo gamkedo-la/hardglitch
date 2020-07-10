@@ -81,7 +81,7 @@ class Tweening{
 
     get ratio(){ return this.time_since_start / this.duration; };
     get values() { return this.get_values(this.ratio); }
-    get done() { return this.time_since_start == this.duration; }
+    get done() { return this.time_since_start === this.duration; }
 
     update(delta_time){
         console.assert(is_number(delta_time));
