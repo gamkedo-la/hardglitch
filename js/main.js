@@ -7,7 +7,7 @@ import * as graphics from "./system/graphics.js";
 import { load_all_assets } from "./game-assets.js";
 import { Game } from "./game.js";
 import { GameView } from "./game-view.js";
-import { state, GameState   } from "./GameState.js";
+import { state, GameState as StateMachine } from "./game-states.js";
 
 import * as input from "./system/input.js";
 import * as game_input from "./game-input.js";
@@ -18,7 +18,7 @@ import * as editor from "./editor.js";
 let current_game = null;
 let current_game_view = null;
 let last_update_time = Date.now();
-let gameState = new GameState(state.running);
+let gameState = new StateMachine(state.running);
 
 window.onload = async function() {
   const assets = await load_all_assets();
@@ -42,7 +42,7 @@ function start() {
   console.log("GAME READY - STARTED");
 }
 
-function getDeltaTime() {
+function get_delta_time() {
   const now = Date.now();
   const delta_time = now - last_update_time;
   last_update_time = now;
@@ -50,37 +50,37 @@ function getDeltaTime() {
 }
 
 function update_everything() {
-  const deltaTime = getDeltaTime();
+  const delta_time = get_delta_time();
 
-  switch(gameState.getState()) {
-    case state.menu:
-      break;
-    case state.running: {
-      runningUpdate(deltaTime)
-      break;
-    }
-    case state.editor:
-      runningUpdate(deltaTime)
-      editor.update(deltaTime); 
-      break;
-    default:
-      console.log(`Error Updating ${gameState.getState()}`);
+  // switch(gameState.getState()) {
+  //   case state.menu:
+  //     break;
+  //   case state.running: {
+  //     runningUpdate(delta_time);
+  //     break;
+  //   }
+  //   case state.editor:
+  //     runningUpdate(delta_time);
+  //     editor.update(delta_time);
+  //     break;
+  //   default:
+  //     console.log(`Error Updating ${gameState.getState()}`);
 
-  }
+  // }
 
-  function runningUpdate(time) {
-    game_input.update(time);
-    // const ongoing_target_selection = current_game_view.ui.is_selecting_action_target;
-    current_game_view.update(time);
-  }
+  // function runningUpdate(delta_time) {
+    game_input.update(delta_time);
+    const ongoing_target_selection = current_game_view.ui.is_selecting_action_target;
+    current_game_view.update(delta_time);
+  // }
 
-  /** 
+
   if(!ongoing_target_selection  // TODO: REPLACE THIS MECHANISM BY A FINITE STATE MACHINE: MENU <-> GAME <-> EDITOR MODE
   && current_game_view.is_time_for_player_to_chose_action
   && !input.mouse.is_dragging
   )
     editor.update(delta_time);
-    */
+
 }
 
 function draw_everything() {
@@ -90,6 +90,7 @@ function draw_everything() {
       break;
     case state.running:
       current_game_view.render_graphics();
+      editor.display();
       break;
     case state.editor: {
       current_game_view.render_graphics();
@@ -97,7 +98,7 @@ function draw_everything() {
       break;
     }
     default:
-      console.log(`Error Drawing ${gameState.getState()}`)
+      console.log(`Error Drawing ${gameState.getState()}`);
   }
 }
 
