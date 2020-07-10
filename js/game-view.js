@@ -17,11 +17,12 @@ import * as editor from "./editor.js";
 import {
     graphic_position, PIXELS_PER_TILES_SIDE, square_half_unit_vector,
     EntityView,
+    PIXELS_PER_HALF_SIDE,
 } from "./view/entity-view.js";
 import { TileGridView } from "./view/tilegrid-view.js";
 import { CharacterView } from "./view/character-view.js";
 import { GameInterface } from "./game-ui.js";
-import { mouse_grid_position, mouse_game_position, } from "./game-input.js";
+import { mouse_grid_position, mouse_game_position, game_position_from_graphic_position, } from "./game-input.js";
 import { sprite_defs } from "./game-assets.js";
 import { mouse } from "./system/input.js";
 import { Move } from "./rules/rules-movement.js";
@@ -30,6 +31,7 @@ import * as ui from "./system/ui.js";
 import * as tiles from "./definitions-tiles.js";
 import * as visibility from "./core/visibility.js";
 import { FogOfWar } from "./view/fogofwar.js";
+import { tween } from "./system/tweening.js";
 
 class Highlight{
     // Reuse a sprite for highlighting.
@@ -270,8 +272,9 @@ class GameView {
                     animation.delay = delay_for_next_animation;
                     delay_for_next_animation += delay_between_animations_ms;
                     this.current_animations.push(animation);
-                    if(animation.parallel === false)
+                    if(animation.parallel === false){
                         break; // We need to only play the animations that are next to each other and parallel.
+                    }
                 }
             }
 
@@ -292,8 +295,8 @@ class GameView {
                 this.is_time_for_player_to_chose_action = true;
                 if(this.game.last_turn_info.player_character){
                     const player_position = this.game.last_turn_info.player_character.position;
-                    this.fog_of_war.change_viewer_position(player_position)
                     this.focus_on_position(player_position);
+                    this.fog_of_war.change_viewer_position(player_position);
                     this.ui.unlock_actions();
                     this.highlight_available_basic_actions();
                 }
@@ -423,6 +426,7 @@ class GameView {
 
     focus_on_position(position){
         console.assert(position instanceof concepts.Position);
+        //this.center_on_position(player_position, 300);
         this._change_highlight_position(this._character_focus_highlight, position);
     }
 
@@ -513,9 +517,7 @@ class GameView {
     grid_position(game_position){
         const grid_pos = graphics.from_graphic_to_grid_position(game_position, PIXELS_PER_TILES_SIDE, this.tile_grid.position);
 
-        if(grid_pos.x < 0 || grid_pos.x >= this.tile_grid.width
-        || grid_pos.y < 0 || grid_pos.y >= this.tile_grid.height
-        ){
+        if(!this.game.world.is_valid_position(grid_pos)){
             return undefined;
         }
 
@@ -529,6 +531,22 @@ class GameView {
         const graphic_player_position = graphics.from_grid_to_graphic_position(player_position, PIXELS_PER_TILES_SIDE);
         const graphic_player_center_square_position = graphic_player_position.translate(square_half_unit_vector);
         graphics.camera.center(graphic_player_center_square_position);
+    }
+
+    center_on_position(grid_position, ms_to_center = 0){
+        console.assert(Number.isInteger(grid_position.x) && Number.isInteger(grid_position.y));
+        console.assert(Number.isInteger(ms_to_center) && ms_to_center >= 0);
+
+        const gfx_position = graphics.from_grid_to_graphic_position(grid_position, PIXELS_PER_TILES_SIDE)
+            .translate({ x: PIXELS_PER_HALF_SIDE, y: PIXELS_PER_HALF_SIDE }); // center in the square
+        const camera_move_animation = tween(graphics.camera.center_position, gfx_position, ms_to_center, (new_center)=>{
+            graphics.camera.center(new Vector2(new_center));
+        })
+
+        this.animation_queue.push({
+            start_animation: ()=> camera_move_animation,
+            parallel: false,
+        });
     }
 
 };

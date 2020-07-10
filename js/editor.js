@@ -12,6 +12,7 @@ import * as tiles from "./definitions-tiles.js";
 import { mouse_grid_position, mouse_game_position, KEY, play_action } from "./game-input.js";
 import { current_game_view, current_game } from "./main.js";
 import * as items from "./definitions-items.js";
+import * as ui from "./system/ui.js";
 
 let is_enabled = false; // TURN THIS ON TO SEE THE EDITOR, see the update() function below
 let is_editing = false; // True if we are doing an edition manipulation and no other input should be handled.
@@ -38,6 +39,18 @@ let dragging_display_time = 0;
 
 let lmb_down_frames = 0;
 
+let reused_text_line;
+
+function draw_text(text, position){
+    if(!reused_text_line)
+        reused_text_line = new ui.Text({ text: "" });
+
+    reused_text_line.position = position;
+    reused_text_line.text = text;
+    reused_text_line.update();
+    reused_text_line.draw();
+}
+
 function display_mouse_position(){
     if(!current_game_view)
         return;
@@ -49,12 +62,12 @@ function display_mouse_position(){
     const display_x = 50;
     const mouse_grid_pos = mouse_grid_position();
     const mouse_game_pos = mouse_game_position();
-    graphics.draw_text(`MOUSE STATE:`, {x: display_x, y: next_line() });
-    graphics.draw_text(`SCREEN X = ${input.mouse.position.x}\tY = ${input.mouse.position.y}`, {x: display_x, y: next_line() });
-    graphics.draw_text(`GAME SPACE: X = ${mouse_game_pos.x}\tY = ${mouse_game_pos.y}`, {x: display_x, y: next_line() });
-    graphics.draw_text(`GAME GRID: X = ${mouse_grid_pos.x}\tY = ${mouse_grid_pos.y}`, {x: display_x, y: next_line() });
+    draw_text(`MOUSE STATE:`, {x: display_x, y: next_line() });
+    draw_text(`SCREEN X = ${input.mouse.position.x}\tY = ${input.mouse.position.y}`, {x: display_x, y: next_line() });
+    draw_text(`GAME SPACE: X = ${mouse_game_pos.x}\tY = ${mouse_game_pos.y}`, {x: display_x, y: next_line() });
+    draw_text(`GAME GRID: X = ${mouse_grid_pos.x}\tY = ${mouse_grid_pos.y}`, {x: display_x, y: next_line() });
 
-    graphics.draw_text(`Buttons: LEFT: ${input.mouse.buttons.is_down(0)}\t\tRIGHT: ${input.mouse.buttons.is_down(2)}`, {x: display_x, y: next_line() });
+    draw_text(`Buttons: LEFT: ${input.mouse.buttons.is_down(0)}\t\tRIGHT: ${input.mouse.buttons.is_down(2)}`, {x: display_x, y: next_line() });
 
     if(input.mouse.is_dragging)
         dragging_display_time = 100;
@@ -64,18 +77,18 @@ function display_mouse_position(){
         const drag_pos = input.mouse.dragging_positions;
         if(drag_pos.begin != undefined)
             dragging = drag_pos;
-        graphics.draw_text(`Dragging: FROM: ${JSON.stringify(dragging.begin)}\t\tTO: ${JSON.stringify(dragging.end)}`, {x: display_x, y: next_line() });
+        draw_text(`Dragging: FROM: ${JSON.stringify(dragging.begin)}\t\tTO: ${JSON.stringify(dragging.end)}`, {x: display_x, y: next_line() });
     }
 
     if(input.mouse.buttons.is_just_down(input.MOUSE_BUTTON.LEFT)){
-        graphics.draw_text(`JUST DOWN: LEFT MOUSE BUTTON`, {x: display_x, y: next_line() });
+        draw_text(`JUST DOWN: LEFT MOUSE BUTTON`, {x: display_x, y: next_line() });
         lmb_down_frames++;
     }
     if(input.mouse.buttons.is_just_released(input.MOUSE_BUTTON.LEFT)){
-        graphics.draw_text(`JUST DOWN: LEFT MOUSE BUTTON`, {x: display_x, y: next_line() });
+        draw_text(`JUST DOWN: LEFT MOUSE BUTTON`, {x: display_x, y: next_line() });
     }
 
-    graphics.draw_text(`FRAMES LEFT MOUSE BUTTON ${lmb_down_frames}`, {x: display_x, y: next_line() });
+    draw_text(`FRAMES LEFT MOUSE BUTTON ${lmb_down_frames}`, {x: display_x, y: next_line() });
 }
 
 function update_world_edition(){
@@ -164,24 +177,24 @@ function display_help(){
     }
 
     if(current_game_view.ui.is_selecting_action_target){
-        graphics.draw_text("[ESC] - CANCEL TARGET SELECTION", {x: display_x, y: next_line() });
+        draw_text("[ESC] - CANCEL TARGET SELECTION", {x: display_x, y: next_line() });
     } else {
         if(current_game_view.is_time_for_player_to_chose_action
         && !input.mouse.is_dragging
         )
-            graphics.draw_text("[ESC] - EDITOR MODE", {x: display_x, y: next_line() });
+            draw_text("[ESC] - EDITOR MODE", {x: display_x, y: next_line() });
     }
-    graphics.draw_text("[F8]  - SHOW/HIDE FOV", {x: display_x, y: next_line() });
-    graphics.draw_text("[F9]  - MOUSE INFO", {x: display_x, y: next_line() });
-    graphics.draw_text("-----------------------", {x: display_x, y: next_line() });
-    graphics.draw_text("[M] - SHOW/HIDE GRID LINES", {x: display_x, y: next_line() });
-    graphics.draw_text("-----------------------", {x: display_x, y: next_line() });
-    graphics.draw_text("[WASD][Arrow keys] - Move player character", {x: display_x, y: next_line() });
-    graphics.draw_text("[IJKL] - Move Camera", {x: display_x, y: next_line() });
-    graphics.draw_text(" `[` and `]` keys  - Lower/Increase View distance", {x: display_x, y: next_line() });
-    graphics.draw_text("-----------------------", {x: display_x, y: next_line() });
-    graphics.draw_text("Drag the screen to move the camera", {x: display_x, y: next_line() });
-    graphics.draw_text("Click on squares around PC to move or act", {x: display_x, y: next_line() });
+    draw_text("[F8]  - SHOW/HIDE FOV", {x: display_x, y: next_line() });
+    draw_text("[F9]  - MOUSE INFO", {x: display_x, y: next_line() });
+    draw_text("-----------------------", {x: display_x, y: next_line() });
+    draw_text("[M] - SHOW/HIDE GRID LINES", {x: display_x, y: next_line() });
+    draw_text("-----------------------", {x: display_x, y: next_line() });
+    draw_text("[WASD][Arrow keys] - Move player character", {x: display_x, y: next_line() });
+    draw_text("[IJKL] - Move Camera", {x: display_x, y: next_line() });
+    draw_text(" `[` and `]` keys  - Lower/Increase View distance", {x: display_x, y: next_line() });
+    draw_text("-----------------------", {x: display_x, y: next_line() });
+    draw_text("Drag the screen to move the camera", {x: display_x, y: next_line() });
+    draw_text("Click on squares around PC to move or act", {x: display_x, y: next_line() });
 
 }
 
@@ -195,19 +208,19 @@ function display_editor_help(){
     }
 
     if(!input.mouse.is_dragging)
-        graphics.draw_text("[ESC] - EXIT EDITOR MODE", {x: display_x, y: next_line() });
+        draw_text("[ESC] - EXIT EDITOR MODE", {x: display_x, y: next_line() });
 
-    graphics.draw_text("[F8]  - SHOW/HIDE FOV", {x: display_x, y: next_line() });
-    graphics.draw_text("[F9]  - MOUSE INFO", {x: display_x, y: next_line() });
-    graphics.draw_text("-----------------------", {x: display_x, y: next_line() });
-    graphics.draw_text("[M] - SHOW/HIDE GRID LINES", {x: display_x, y: next_line() });
-    graphics.draw_text("[LCTRL][C] - ADD PLAYER CHARACTER", {x: display_x, y: next_line() });
-    graphics.draw_text("-----------------------", {x: display_x, y: next_line() });
-    graphics.draw_text("[IJKL] - Move Camera", {x: display_x, y: next_line() });
-    graphics.draw_text(" `[` and `]` keys  - Lower/Increase View distance", {x: display_x, y: next_line() });
-    graphics.draw_text("-----------------------", {x: display_x, y: next_line() });
-    graphics.draw_text("[Number] + [LMB] - Change the pointed tile", {x: display_x, y: next_line() });
-    graphics.draw_text("(0: hole, 1: ground, 2: wall, 3: void", {x: display_x, y: next_line() });
+    draw_text("[F8]  - SHOW/HIDE FOV", {x: display_x, y: next_line() });
+    draw_text("[F9]  - MOUSE INFO", {x: display_x, y: next_line() });
+    draw_text("-----------------------", {x: display_x, y: next_line() });
+    draw_text("[M] - SHOW/HIDE GRID LINES", {x: display_x, y: next_line() });
+    draw_text("[LCTRL][C] - ADD PLAYER CHARACTER", {x: display_x, y: next_line() });
+    draw_text("-----------------------", {x: display_x, y: next_line() });
+    draw_text("[IJKL] - Move Camera", {x: display_x, y: next_line() });
+    draw_text(" `[` and `]` keys  - Lower/Increase View distance", {x: display_x, y: next_line() });
+    draw_text("-----------------------", {x: display_x, y: next_line() });
+    draw_text("[Number] + [LMB] - Change the pointed tile", {x: display_x, y: next_line() });
+    draw_text("(0: hole, 1: ground, 2: wall, 3: void", {x: display_x, y: next_line() });
 
 }
 
@@ -219,17 +232,17 @@ function display(){
     const canvas_rect = graphics.canvas_rect();
 
     if(text_to_display){
-        graphics.draw_text(text_to_display, {x: center.x - 100, y: canvas_rect.height - 100 });
+        draw_text(text_to_display, {x: center.x - 100, y: canvas_rect.height - 100 });
     }
     if(central_text){
-        graphics.draw_text(central_text, {x: center.x - 200, y: center.y - 20 });
+        draw_text(central_text, {x: center.x - 200, y: center.y - 20 });
     }
 
     if(display_mouse_info)
         display_mouse_position();
 
     if(is_enabled){ // Specific to editor mode.
-        graphics.draw_text("---====::::  EDITOR MODE  ::::====---", {x: center.x - 200, y: 40 });
+        draw_text("---====::::  EDITOR MODE  ::::====---", {x: center.x - 200, y: 40 });
         display_editor_help();
     } else {
         display_help();
