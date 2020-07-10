@@ -18,7 +18,7 @@ import * as editor from "./editor.js";
 let current_game = null;
 let current_game_view = null;
 let last_update_time = Date.now();
-let gameState = new StateMachine(state.running);
+let game_state_machine = new StateMachine(state.running);
 
 window.onload = async function() {
   const assets = await load_all_assets();
@@ -85,7 +85,7 @@ function update_everything() {
 
 function draw_everything() {
   graphics.clear()
-  switch(gameState.getState()) {
+  switch(game_state_machine.getState()) {
     case state.menu:
       break;
     case state.running:
@@ -98,7 +98,7 @@ function draw_everything() {
       break;
     }
     default:
-      console.log(`Error Drawing ${gameState.getState()}`);
+      console.log(`Error Drawing ${game_state_machine.getState()}`);
   }
 }
 
