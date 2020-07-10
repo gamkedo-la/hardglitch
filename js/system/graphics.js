@@ -60,6 +60,8 @@ class Camera{
     screen_canvas_context.translate(translation.x, translation.y);
   }
 
+  get center_position() { return this.position.translate({ x: -(canvas.width / 2), y: -(canvas.height / 2) }); }
+
   center(position_at_center){
     console.assert(position_at_center instanceof spatial.Vector2);
     this.position = position_at_center.translate({ x: -(canvas.width / 2), y: -(canvas.height / 2) });
