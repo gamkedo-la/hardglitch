@@ -1,5 +1,5 @@
-import { Color, ParticleSystem, ParticleEmitter, FadeLineParticle, ColorGlitchParticle, OffsetGlitchParticle, FadeParticle, BlipParticle, ParticleGroup } from "../system/particles.js";
-import { random_float } from "../system/utility.js";
+import { Color, ParticleSystem, ParticleEmitter, FadeLineParticle, ColorGlitchParticle, OffsetGlitchParticle, FadeParticle, BlipParticle, ParticleGroup, SwirlParticle } from "../system/particles.js";
+import { random_int, random_float } from "../system/utility.js";
 import { initialize } from "../system/graphics.js";
 
 let last_update_time = Date.now();
@@ -55,18 +55,6 @@ class Env {
             return new FadeLineParticle(ctx, 300+xoff, 300+yoff, 0, -velocity, new Color(0,255,0), ttl, len, width, 0, 1);
         }, .3, 25));
 
-        /*
-        this.particles.add(new ParticleEmitter(this.particles, () => {
-            let xoff = random_float(4,60);
-            let yoff = random_float(4,60);
-            let ttl = random_float(.1,.5);
-            let width = random_float(10,Math.min(40,64-xoff));
-            let height = random_float(10,Math.min(40,64-yoff));
-            let dx = random_float(-(xoff+10),74-(xoff+width));
-            let dy = random_float(-(yoff+10),74-(yoff+height));
-            return new OffsetGlitchParticle(ctx, 400+xoff, 236+yoff, width, height, dx, dy, ttl, new Color(255,0,0));
-        }, .3, 25));
-        */
         this.particles.add(new ParticleEmitter(this.particles, () => {
             let xoff = random_float(4,60);
             let yoff = random_float(4,60);
@@ -75,7 +63,7 @@ class Env {
             let height = random_float(1,10);
             let dx = random_float(-4,4);
             let dy = random_float(-4,4);
-            return new OffsetGlitchParticle(ctx, 400+xoff, 236+yoff, width, height, dx, dy, ttl);
+            return new OffsetGlitchParticle(ctx, 368+xoff, 236+yoff, width, height, dx, dy, ttl);
         }, .1, 25));
 
         this.particles.add(new ParticleEmitter(this.particles, () => {
@@ -87,8 +75,19 @@ class Env {
             let goff = random_float(0,255);
             let boff = random_float(0,255);
             let ttl = random_float(.1,1);
-            return new ColorGlitchParticle(ctx, 400+xoff, 236+yoff, width, height, roff, goff, boff, ttl);
+            return new ColorGlitchParticle(ctx, 368+xoff, 236+yoff, width, height, roff, goff, boff, ttl);
         }, .3, 25));
+
+        let g2 = new ParticleGroup(1.5);
+        this.particles.add(g2);
+
+        this.particles.add(new ParticleEmitter(this.particles, () => {
+			let hue = random_int(150, 200);
+            let speed = random_int(25, 200);
+            let radius = random_float(50,55);
+            let ttl = random_float(1,3);
+            return new SwirlParticle(ctx, 500, 268, hue, speed, radius, 1, g2, ttl);
+        }, 1, 0, 1, 50));
 
     }
 
@@ -97,7 +96,7 @@ class Env {
         const delta_time = now - last_update_time;
         last_update_time = now;
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.ctx.drawImage(this.bgimg, 400, 236);
+        this.ctx.drawImage(this.bgimg, 368, 236);
         // run particle system update
         this.particles.update(delta_time);
         this.particles.draw();

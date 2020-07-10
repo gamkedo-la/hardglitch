@@ -9,6 +9,7 @@ export {
     OffsetGlitchParticle,
     ColorGlitchParticle,
     BlipParticle,
+    SwirlParticle,
 }
 
 import { camera } from "./graphics.js";
@@ -101,12 +102,16 @@ class ParticleSystem {
         for (let i=this.items.length-1; i>=0; i--) {
             // draw each tracked particle (skip drawing for emitters)
             const item = this.items[i];
+            // FIXME
             if (item.draw){
+            /*
                 item_area.position.x = item.x;
                 item_area.position.y = item.y;
                 if(camera.can_see(item_area))
+                */
                     item.draw();
             }
+
         }
     }
 
@@ -119,8 +124,17 @@ class ParticleGroup {
     /**
      * Create a new particle system
      */
-    constructor() {
+    constructor(ttl=0) {
         this.items = [];
+        this.ttl = ttl;
+        this._done = false;
+    }
+
+    /**
+     * Indicates if the emitter has completed its life-cycle (and can be discarded)
+     */
+    get done() {
+        return this._done;
     }
 
     *[Symbol.iterator]() {
@@ -149,14 +163,24 @@ class ParticleGroup {
     }
 
     /**
-     * Execute the main update thread for all emitters/particles
+     * Execute the group update thread to check if any particles have expired
      */
     update(delta_time) {
+        delta_time *= .001;
         // iterate through tracked items
         for (let i=this.items.length-1; i>=0; i--) {
             // if any items are done, remove them
             if (this.items[i].done) {
                 this.items.splice(i, 1);
+            }
+        }
+        if (this.done) return;
+        // time-to-live
+        if (this.ttl) {
+            this.ttl -= delta_time;
+            if (this.ttl <= 0) {
+                console.log("group is done");
+                this._done = true;
             }
         }
     }
@@ -175,12 +199,13 @@ class ParticleEmitter {
      * @param {*} jitter - (optional) percentage of interval to create a jitter between particle generation.  0 would indicate no jitter, 1 would indicate an interval between 0 and 2x interval.
      * @param {*} lifetime - (optional) emitter lifetime (in seconds), defaults to 0 which means no lifetime.
      */
-    constructor(psys, genFcn, interval, jitter=0, lifetime=0) {
+    constructor(psys, genFcn, interval, jitter=0, lifetime=0, count=1) {
         this.psys = psys;
         this.genFcn = genFcn;
         this.interval = interval;
         this.jitter = jitter/100;
         this.lifetime = lifetime;
+        this.count = count;
         this.currentTick = 0;
         this._done = false;
         // compute next time to emit
@@ -188,6 +213,7 @@ class ParticleEmitter {
         this.nextTTE();
         // keep track of particles emitter has generated
         this.particles = [];
+        this.once = true;
     }
 
     /**
@@ -210,10 +236,21 @@ class ParticleEmitter {
         return this._done;
     }
 
+    emit() {
+        for (let i=0; i<this.count; i++) {
+            let p = this.genFcn();
+            this.psys.add(p);
+        }
+    }
+
     /**
      * Update the particle emitter.  This is where new particles get generated based on the emitter schedule.
      */
     update(delta_time) {
+        if (this.once) {
+            this.once = false;
+            this.emit();
+        }
         // convert delta time to seconds
         delta_time *= .001;
         // don't update if emitter is done
@@ -230,8 +267,7 @@ class ParticleEmitter {
         this.tte -= delta_time;
         // run generator if tte is zero
         if (this.tte <= 0) {
-            let p = this.genFcn();
-            this.psys.add(p);
+            this.emit();
             // compute next tte
             this.nextTTE();
         }
@@ -613,5 +649,118 @@ class BlipParticle extends Particle {
         if (this.ttl <= 0) {
             this._done = true;
         }
+    }
+}	
+
+// FIXME
+var rand = function(rMi, rMa){return ~~((Math.random()*(rMa-rMi+1))+rMi);}
+
+class SwirlParticle extends Particle {
+    /*=============================================================================*/
+    /**
+     * 
+     * @param {*} ctx 
+     * @param {*} x 
+     * @param {*} y 
+     * @param {*} hue 
+     * @param {*} speed - particle speed (in pixels per second)
+     * @param {*} radius - radius of swirl (in pixels)
+     * @param {*} width - base particle width
+     */
+    constructor(ctx, x, y, hue, speed, radius, width, emerge, decay){
+        super(ctx, x, y);
+		this.hue = hue;
+        this.speed = speed;
+        this.radius = radius;
+        this.width = width;
+        if (typeof emerge === 'number') {
+            this.emerge = emerge;
+        } else {
+            // handle emerge as sentinel... emerge/run until sentinel object is done
+            this.sentinel = emerge;
+        }
+        this.ttl = decay;
+		this.coordLast = [
+			{x: x, y: y},
+			{x: x, y: y},
+			{x: x, y: y}
+        ];
+        // origin
+        this.ox = x;
+        this.oy = y;
+        this.length = 0;
+		this.angle = rand(0, 360);
+		this.brightness = rand(50, 80);
+		this.alpha = rand(40,100)/100;
+        if (decay) this.alphadecay = this.alpha/decay;
+        // counter-clockwise?
+        this.ccw = (rand(0, 1)) ? 1 : -1;
+        this.flickerDensity = 20;
+        this.collapsing = false;
+	};
+	
+	update(delta_time) {
+        // convert delta time to seconds
+        delta_time *= .001;
+        // distance from origin as percentage of radius
+        let odp = this.length/this.radius;
+        // radial speed (in/out of swirl) => applies to length
+        let rspeed = (!this.collapsing) ? this.speed * (1-Math.pow(odp, 3)) : -this.speed * (1-Math.pow(1-odp,3));
+        this.length += rspeed * delta_time;
+        // orbital speed (around swirl) => applies to angle
+        let ospeed = this.speed - rspeed;
+		var radians = this.angle * Math.PI / 180;
+		var vx = Math.cos(radians) * this.length;
+        var vy = Math.sin(radians) * this.length;
+		this.coordLast[2].x = this.coordLast[1].x;
+		this.coordLast[2].y = this.coordLast[1].y;
+		this.coordLast[1].x = this.coordLast[0].x;
+		this.coordLast[1].y = this.coordLast[0].y;
+		this.coordLast[0].x = this.x;
+		this.coordLast[0].y = this.y;
+		this.x = this.ox + vx;
+        this.y = this.oy + vy;
+        // orbital speed
+        let dangle = (ospeed*delta_time / (2*Math.PI*this.radius)) * 360 * this.ccw; 
+		this.angle += dangle;
+        // detect collapse
+        if (!this.collapsing) {
+            if (this.sentinel && this.sentinel.done) this.collapsing = true;
+            if (this.emerge) {
+                this.emerge -= delta_time;
+                if (this.emerge <= 0) {
+                    this.collapsing = true;
+                }
+            }
+        } else {
+            this.ttl -= delta_time;
+            this.alpha -= Math.min(this.alpha, this.alphadecay * delta_time);
+            if (this.ttl <= 0) {
+                this._done = true;
+            }
+        }
+	};
+
+	draw(){
+        var coordRand = (rand(1,3)-1);
+        this.ctx.save();
+		this.ctx.beginPath();								
+		this.ctx.moveTo(Math.round(this.coordLast[coordRand].x), Math.round(this.coordLast[coordRand].y));
+		this.ctx.lineTo(Math.round(this.x), Math.round(this.y));
+		this.ctx.closePath();				
+		this.ctx.strokeStyle = 'hsla('+this.hue+', 100%, '+this.brightness+'%, '+this.alpha+')';
+		this.ctx.stroke();				
+		if(this.flickerDensity > 0){
+			var inverseDensity = 50 - this.flickerDensity;					
+			if(rand(0, inverseDensity) === inverseDensity){
+				this.ctx.beginPath();
+				this.ctx.arc(Math.round(this.x), Math.round(this.y), rand(this.width,this.width+3)/2, 0, Math.PI*2, false)
+				this.ctx.closePath();
+				var randAlpha = rand(50,100)/100;
+				this.ctx.fillStyle = 'hsla('+this.hue+', 100%, '+this.brightness+'%, '+randAlpha+')';
+				this.ctx.fill();
+			}	
+		}
+        this.ctx.restore();
     }
 }
