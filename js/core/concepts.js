@@ -82,9 +82,15 @@ class Event{
 
     get description(){ return this._desc || `${this.constructor.name}`; }
 
+    // True if it's an event which is not tied to a particular set of entities.
+    get is_world_event() { return false; }
+
+    // Array of Position that are important for this event.
+    get focus_positions() { throw "focus_positions not implemented"; }
+
     // Animation to perform when viewing this event.
     // view: object representing the view of the game to be manipulated by this event.
-    *animation(view){} // Do nothing by default
+    *animation(view){ throw "animation not implemented"; }
 };
 
 

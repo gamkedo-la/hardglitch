@@ -7,7 +7,7 @@ import { CharacterView } from "../view/character-view.js";
 import { GameView } from "../game-view.js";
 import { Character } from "../core/character.js";
 import { current_game_view } from "../main.js";
-import * as animation from "../system/animation.js";
+import * as anim from "../system/animation.js";
 
 export {
     Rule_GameOver,
@@ -19,16 +19,6 @@ export {
     PlayerExitLevel,
 };
 
-
-function* animation_wait_event() { // TODO: make a proper aniumation and move that in game-animation.js
-    const start_time = Date.now();
-    const duration_ms = 333;
-    const target_time = start_time + duration_ms;
-    while(Date.now() < target_time){
-        yield;
-    }
-}
-
 // That actor decided to take a pause.
 class Waited extends concepts.Event {
     constructor(character){
@@ -38,13 +28,16 @@ class Waited extends concepts.Event {
             description: `Entity ${character.id} Waited`,
         });
         this.character_id = character.id;
+        this.character_position = character.position;
     }
+
+    get focus_positions() { return [ this.character_position ]; }
 
     *animation(game_view){
         console.assert(game_view instanceof GameView);
         const character_view = game_view.focus_on_entity(this.character_id);
         console.assert(character_view instanceof CharacterView);
-        yield* animation_wait_event();
+        yield* anim.wait(333);
     }
 };
 
@@ -91,6 +84,7 @@ class GameOver extends concepts.Event {
             description: "Game Over condition detected"
         });
     }
+    get is_world_event() { return true; }
 
     *animation(){ // TEMPORARY ANIMATION
         editor.set_central_text("GAME OVER! - RELOAD TO RESTART");
@@ -127,7 +121,12 @@ class PlayerExitLevel extends concepts.Event {
             description: `Player character ${character.id} exited the level!`
         });
         this.character_id = character.id;
+        this.exit_position = character.position;
     }
+
+    get is_world_event() { return true; }
+
+    get focus_positions() { return [ this.exit_position ]; }
 
     *animation(game_view){
         console.assert(game_view instanceof GameView);
@@ -138,7 +137,8 @@ class PlayerExitLevel extends concepts.Event {
         // TEMPORARY ANIMATION
         editor.set_central_text("YOU WIN THIS LEVEL! - LOADING NEXT LEVEL ...");
         current_game_view.clear_focus();
-        yield* animation.wait(4000);
+        yield current_game_view.center_on_position(character_view.game_position);
+        yield* anim.wait(4000);
         window.location.reload(); // TODO: replace by proper handling of the level exit
     }
 };

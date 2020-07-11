@@ -7,12 +7,15 @@ export {
 import * as concepts from "../core/concepts.js";
 
 class Event_ActionPointsRestored extends concepts.Event {
-    constructor(body, restored_points){
+    constructor(character, restored_points){
         super({
-            description: `Restored AP of entity ${body.id}`
+            description: `Restored AP of entity ${character.id}`
         });
         this.restored_points = restored_points;
+        this.character_position = character.position;
     }
+
+    get focus_positions() { return [ this.character_position ]; }
 
     *animation(){
         // TODO: display the restored points or something

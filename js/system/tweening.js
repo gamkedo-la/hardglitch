@@ -35,7 +35,7 @@ class AnimatedValue {
 class Tweening{
     constructor(initial_values, target_values, duration_ms, easing_funcs = easing.linear){
         console.assert(is_number(duration_ms));
-        console.assert(duration_ms > 0);
+        console.assert(duration_ms >= 0);
 
         this.duration = duration_ms;
         this.time_since_start = 0;

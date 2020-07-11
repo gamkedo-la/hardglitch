@@ -45,6 +45,12 @@ class NewTurn extends concepts.Event {
             description: "======== New Game Turn ========"
         });
     }
+
+    get focus_positions() { return []; }
+
+    get is_world_event() { return true; }
+
+    *animation(){}
 };
 
 // Event: New turn phase begins!
@@ -54,6 +60,12 @@ class NewTurnPhase extends concepts.Event {
             description: "---- New Turn Phase ----"
         });
     }
+
+    get focus_positions() { return []; }
+
+    get is_world_event() { return true; }
+
+    *animation(){}
 };
 
 

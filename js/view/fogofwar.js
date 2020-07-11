@@ -87,8 +87,16 @@ class FogOfWar {
         return positions.every(position => this.current_visibility_grid[this.index(position)] === undefined);
     }
 
+    is_any_visible(...positions){
+        return positions.some(position => this.current_visibility_grid[this.index(position)] === undefined);
+    }
+
     was_visible(...positions){
         return positions.every(position => this.viewed_at_least_once_grid[this.index(position)] === true);
+    }
+
+    was_any_visible(...positions){
+        return positions.some(position => this.viewed_at_least_once_grid[this.index(position)] === true);
     }
 
     draw_dark_unknown(canvas_context){

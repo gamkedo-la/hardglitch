@@ -40,6 +40,8 @@ class Moved extends concepts.Event {
         this.duration = duration;
     }
 
+    get focus_positions() { return [ this.from_pos, this.to_pos ]; }
+
     *animation(game_view){
         console.assert(game_view instanceof GameView);
         const entity_view = game_view.focus_on_entity(this.entity_id);

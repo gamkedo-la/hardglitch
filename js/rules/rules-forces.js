@@ -25,6 +25,8 @@ class Pushed extends concepts.Event {
         this.to_pos = to;
     }
 
+    get focus_positions() { return [ this.from_pos, this.to_pos ]; }
+
     *animation(game_view){
         console.assert(game_view instanceof GameView);
         const entity_view = game_view.focus_on_entity(this.target_entity_id);
@@ -45,6 +47,8 @@ class Bounced extends concepts.Event {
         this.from_pos = from;
         this.to_pos = to;
     }
+
+    get focus_positions() { return [ this.from_pos, this.to_pos ]; }
 
     *animation(game_view){
         console.assert(game_view instanceof GameView);

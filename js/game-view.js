@@ -114,10 +114,12 @@ class GameView {
     is_time_for_player_to_chose_action = true;
     animation_queue = []; // Must contain only js generators + parallel: (true||false). // TODO: make the animation system separately to be used anywhere there are animations to play.
     current_animations = new anim.AnimationGroup(); // Plays animations that have started.
+    skipped_animations = new anim.AnimationGroup(); // Plays animations that needs to be done in one update.
     camera_animations = new anim.AnimationGroup(); // Plays camera animations.
     player_actions_highlights = []; // Must contain Highlight objects for the currently playable actions.
     action_range_highlights = []; // Must contain Highlight objects for the currently pointed action's range.
     enable_fog_of_war = true;
+    delay_between_animations_ms = 100; // we'll try to keep a little delay between each beginning of parallel animation.
 
     constructor(game){
         console.assert(game instanceof Game);
@@ -155,15 +157,22 @@ class GameView {
         const events = this.game.last_turn_info.events;
         for(const event of events){
             console.assert(event instanceof concepts.Event);
-            this.animation_queue.push({
-                start_animation: ()=> this._start_event_animation(event),
-                parallel: event.allow_parallel_animation,
-            });
+            const is_visible_to_player = this.fog_of_war.is_any_visible(...event.focus_positions);
+            if(is_visible_to_player || event.is_world_event){
+                this.animation_queue.push({
+                    start_animation: ()=> this._start_event_animation(event, is_visible_to_player),
+                    parallel: event.allow_parallel_animation,
+                });
+            } else {
+                // No need to play the action in a visible way, just skip it.
+                this.skipped_animations.play(this._start_event_animation(event));
+            }
         }
         this.ui.show_action_buttons(Object.values(this.game.last_turn_info.possible_actions));
     }
 
     *_start_event_animation(event){
+        console.assert(event instanceof concepts.Event);
         yield* event.animation(this);
     };
 
@@ -192,10 +201,6 @@ class GameView {
             }
         }
 
-        if(this.game.last_turn_info.player_character){
-            this.fog_of_war.position = this.game.last_turn_info.player_character.position;
-            this.focus_on_position(this.game.last_turn_info.player_character.position);
-        }
     }
 
     clear_highlights_basic_actions(){
@@ -240,6 +245,7 @@ class GameView {
     }
 
     update(delta_time){
+        this.skipped_animations.update(99999999999999); // Any animation in this group should be iterated just once and be done.
         this.camera_animations.update(delta_time);
 
         this._update_highlights(delta_time);
@@ -270,8 +276,6 @@ class GameView {
                 editor.set_text("PROCESSING NPC TURNS...");
             }
 
-            const delay_between_animations_ms = 0; // we'll try to keep a little delay between each beginning of parallel animation.
-
             if(this.current_animations.animation_count == 0){
                 // Get the next animations that are allowed to happen in parallel.
                 let delay_for_next_animation = 0;
@@ -281,10 +285,10 @@ class GameView {
                     if(animation.iterator.next().done) // Skip non-animations.
                         continue;
                     // Start the animation:
-                    if(delay_between_animations_ms > 0){
+                    if(this.delay_between_animations_ms > 0){
                         if(delay_for_next_animation > 0)
                             animation.iterator = anim.delay(delay_for_next_animation, animation.start_animation());
-                        delay_for_next_animation += delay_between_animations_ms;
+                        delay_for_next_animation += this.delay_between_animations_ms;
                     }
                     this.current_animations.play(animation.iterator);
                     if(animation.parallel === false){
@@ -553,6 +557,7 @@ class GameView {
         const graphic_player_position = graphics.from_grid_to_graphic_position(player_position, PIXELS_PER_TILES_SIDE);
         const graphic_player_center_square_position = graphic_player_position.translate(square_half_unit_vector);
         graphics.camera.center(graphic_player_center_square_position);
+        this.focus_on_position(player_position);
     }
 
     center_on_position(grid_position, ms_to_center = 0){
