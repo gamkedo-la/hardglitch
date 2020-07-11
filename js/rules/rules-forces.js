@@ -75,11 +75,15 @@ function apply_directional_force(world, target_pos, direction, force_action){
         const next_pos = target_pos.translate(direction);
         if(world.is_blocked_position(next_pos, tiles.is_walkable)){ // Something is behind, we'll bounce against it.
             // TODO: only bounce IFF the kind of entity will not moved if second-pushed XD
-            const next_entity = world.entity_at(next_pos);
-            console.assert(!next_entity || next_entity instanceof concepts.Entity);
             events.push(new Bounced(target_entity, target_entity.position, next_pos));
-            target_entity = next_entity;
-            target_pos = next_pos;
+            if(world.is_valid_position(next_pos)){
+                const next_entity = world.entity_at(next_pos);
+                console.assert(!next_entity || next_entity instanceof concepts.Entity);
+                target_entity = next_entity;
+                target_pos = next_pos;
+            } else { // We reached the boundaries of the world.
+                target_entity = null; //
+            }
         } else {
             // Nothing behind, just move there.
             const new_position = new Vector2(target_entity.position).translate(direction);
@@ -93,6 +97,14 @@ function apply_directional_force(world, target_pos, direction, force_action){
     return events;
 }
 
+function compute_push_translation(origin, target){
+    const translation = new Vector2(target).substract(origin);
+    return new Vector2({
+        x: Math.abs(translation.x) > Math.abs(translation.y) ? Math.sign(translation.x) : 0,
+        y: Math.abs(translation.x) <= Math.abs(translation.y) ? Math.sign(translation.y) : 0,
+    });
+}
+
 class Push extends concepts.Action {
     icon_def = sprite_defs.icon_action_push;
 
@@ -104,10 +116,8 @@ class Push extends concepts.Action {
     execute(world, character){
         console.assert(world instanceof concepts.World);
         console.assert(character instanceof Character);
-        const push_translation = new Vector2(character.position).substract(this.target_position).normalize().inverse;
-        push_translation.x = Math.floor(push_translation.x);
-        push_translation.y = Math.floor(push_translation.y);
-        console.assert(push_translation.length > 0);
+        const push_translation = compute_push_translation(character.position, this.target_position);
+        console.assert(push_translation.length == 1);
         return apply_directional_force(world, this.target_position, push_translation, Pushed);
     }
 }
@@ -123,10 +133,8 @@ class Pull extends concepts.Action {
     execute(world, character){
         console.assert(world instanceof concepts.World);
         console.assert(character instanceof Character);
-        const pull_translation = new Vector2(character.position).substract(this.target_position).normalize();
-        pull_translation.x = Math.floor(pull_translation.x);
-        pull_translation.y = Math.floor(pull_translation.y);
-        console.assert(pull_translation.length > 0);
+        const pull_translation = compute_push_translation(character.position, this.target_position).inverse;
+        console.assert(pull_translation.length == 1);
         return apply_directional_force(world, this.target_position, pull_translation, Pulled);
     }
 }
