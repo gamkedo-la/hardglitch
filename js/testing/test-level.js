@@ -164,13 +164,13 @@ function make_test_world(){ // The game assets must have been initialized first.
         });
 
     // closer stuffs
-    visibility.positions_in_range(entry_point_position, inner_shape, valid_positions_filter)
-        .filter(position => world.is_valid_position(position))
-        .forEach(position=>{
-            const file = new CryptoFile();
-            file.position = position;
-            world.add(file);
-        });
+    // visibility.positions_in_range(entry_point_position, inner_shape, valid_positions_filter)
+    //     .filter(position => world.is_valid_position(position))
+    //     .forEach(position=>{
+    //         const file = new CryptoFile();
+    //         file.position = position;
+    //         world.add(file);
+    //     });
 
     // farther voids
     visibility.positions_in_range(entry_point_position, outter_shape, valid_positions_filter)
