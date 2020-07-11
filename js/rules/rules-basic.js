@@ -6,6 +6,8 @@ import * as editor from "../editor.js";
 import { CharacterView } from "../view/character-view.js";
 import { GameView } from "../game-view.js";
 import { Character } from "../core/character.js";
+import { current_game_view } from "../main.js";
+import * as animation from "../system/animation.js";
 
 export {
     Rule_GameOver,
@@ -134,12 +136,9 @@ class PlayerExitLevel extends concepts.Event {
 
         ///////////////////////////////////////////////////////////////
         // TEMPORARY ANIMATION
-        let time_left = 4000;
         editor.set_central_text("YOU WIN THIS LEVEL! - LOADING NEXT LEVEL ...");
-        while(time_left > 0){
-            const delta_time = yield;
-            time_left -= delta_time;
-        }
+        current_game_view.clear_focus();
+        yield* animation.wait(4000);
         window.location.reload(); // TODO: replace by proper handling of the level exit
     }
 };

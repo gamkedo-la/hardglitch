@@ -30,10 +30,13 @@ import { ItemView } from "./view/item-view.js";
 import * as ui from "./system/ui.js";
 import * as tiles from "./definitions-tiles.js";
 import * as visibility from "./core/visibility.js";
+import * as anim from "./system/animation.js";
 import { FogOfWar } from "./view/fogofwar.js";
 import { tween } from "./system/tweening.js";
 
 class Highlight{
+    enabled = true;
+
     // Reuse a sprite for highlighting.
     constructor(position, sprite, text){
         console.assert(Number.isInteger(position.x) && Number.isInteger(position.y));
@@ -70,6 +73,8 @@ class Highlight{
 
     update(delta_time){
         this._drawn_since_last_update = false;
+        if(!this.enabled)
+            return;
         // BEWARE: We must re-calculate the sprite position on rendering because it is dependent on the camera position.
         if(this._help_text){
             this._help_text.update(delta_time);
@@ -88,6 +93,8 @@ class Highlight{
         // if(!graphics.camera.can_see(this._sprite.area)) // TODO: this is buggy, check why
         //     return;
         console.assert(!graphics.camera.is_rendering_in_screen);
+        if(!this.enabled)
+            return;
 
         this._sprite.position = graphic_position(this._position); // BEWARE: We share the sprite with other highlights so we need to reposition it before each redraw.
         this._sprite.draw(canvas_context);
@@ -106,7 +113,7 @@ class GameView {
     entity_views = {};
     is_time_for_player_to_chose_action = true;
     animation_queue = []; // Must contain only js generators + parallel: (true||false). // TODO: make the animation system separately to be used anywhere there are animations to play.
-    current_animations = []; // Must be a set of js generators, each one an animation that can be played together.
+    current_animations = new anim.AnimationGroup(); // Plays animations that have started.
     player_actions_highlights = []; // Must contain Highlight objects for the currently playable actions.
     action_range_highlights = []; // Must contain Highlight objects for the currently pointed action's range.
     enable_fog_of_war = true;
@@ -250,7 +257,7 @@ class GameView {
 
     _update_animations(delta_time){
         // Update the current animation, if any, or switch to the next one, until there isn't any left.
-        if(this.current_animations.length != 0 || this.animation_queue.length > 0){
+        if(this.current_animations.animation_count != 0 || this.animation_queue.length > 0){
             if(this.is_time_for_player_to_chose_action){
                 this.is_time_for_player_to_chose_action = false;
                 this.ui.lock_actions();
@@ -259,39 +266,30 @@ class GameView {
 
             const delay_between_animations_ms = 0; // we'll try to keep a little delay between each beginning of parallel animation.
 
-            if(this.current_animations.length == 0){
+            if(this.current_animations.animation_count == 0){
                 // Get the next animations that are allowed to happen in parallel.
                 let delay_for_next_animation = 0;
                 while(this.animation_queue.length > 0){
                     const animation = this.animation_queue.shift(); // pop!
                     animation.iterator = animation.start_animation();
-                    const animation_state = animation.iterator.next(); // Get to the first step of the animation
-                    if(animation_state.done) // Skip when there was actually no animation.
+                    if(animation.iterator.next().done) // Skip non-animations.
                         continue;
                     // Start the animation:
-                    animation.delay = delay_for_next_animation;
-                    delay_for_next_animation += delay_between_animations_ms;
-                    this.current_animations.push(animation);
+                    if(delay_between_animations_ms > 0){
+                        if(delay_for_next_animation > 0)
+                            animation.iterator = anim.delay(delay_for_next_animation, animation.start_animation());
+                        delay_for_next_animation += delay_between_animations_ms;
+                    }
+                    this.current_animations.play(animation.iterator);
                     if(animation.parallel === false){
                         break; // We need to only play the animations that are next to each other and parallel.
                     }
                 }
             }
 
-            for(const animation of this.current_animations){
-                if(animation.delay <= 0){
-                    const animation_state = animation.iterator.next(delta_time); // Updates the animation.
-                    animation.done = animation_state.done;
-                } else {
-                    animation.done = false;
-                    animation.delay -= delta_time;
-                    if(animation.delay < 0)
-                        animation.delay = 0;
-                }
-            }
-            this.current_animations = this.current_animations.filter(animation => !animation.done);
+            this.current_animations.update(delta_time);
 
-            if(this.current_animations.length == 0 && this.animation_queue.length == 0){
+            if(this.current_animations.animation_count == 0 && this.animation_queue.length == 0){
                 this.is_time_for_player_to_chose_action = true;
                 if(this.game.last_turn_info.player_character){
                     const player_position = this.game.last_turn_info.player_character.position;
@@ -299,6 +297,9 @@ class GameView {
                     this.fog_of_war.change_viewer_position(player_position);
                     this.ui.unlock_actions();
                     this.highlight_available_basic_actions();
+                } else {
+                    this.clear_focus();
+                    this.lock_actions();
                 }
                 editor.set_text("PLAYER'S TURN!");
             }
@@ -427,7 +428,12 @@ class GameView {
     focus_on_position(position){
         console.assert(position instanceof concepts.Position);
         //this.center_on_position(player_position, 300);
+        this._character_focus_highlight.enabled = true;
         this._change_highlight_position(this._character_focus_highlight, position);
+    }
+
+    clear_focus(){
+        this._character_focus_highlight.enabled = false;
     }
 
     help_text_at(position){
