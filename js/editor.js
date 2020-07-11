@@ -43,7 +43,10 @@ let reused_text_line;
 
 function draw_text(text, position){
     if(!reused_text_line)
-        reused_text_line = new ui.Text({ text: "" });
+        reused_text_line = new ui.Text({
+            text: "",
+            font: "20px arial"
+        });
 
     reused_text_line.position = position;
     reused_text_line.text = text;
