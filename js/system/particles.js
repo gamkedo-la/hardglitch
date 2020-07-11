@@ -2,6 +2,7 @@
 export {
     Color,
     ParticleEmitter,
+    ParticleSequence,
     ParticleGroup,
     ParticleSystem,
     FadeLineParticle,
@@ -10,10 +11,12 @@ export {
     ColorGlitchParticle,
     BlipParticle,
     SwirlParticle,
+    SwirlPrefab,
 }
 
 import { camera } from "./graphics.js";
 import { Rectangle } from "./spatial.js";
+import { random_int, random_float } from "../system/utility.js";
 
 /**
  * class representing a color used in particles and consisting of red, blue, green, and alpha channels
@@ -179,7 +182,6 @@ class ParticleGroup {
         if (this.ttl) {
             this.ttl -= delta_time;
             if (this.ttl <= 0) {
-                console.log("group is done");
                 this._done = true;
             }
         }
@@ -236,6 +238,9 @@ class ParticleEmitter {
         return this._done;
     }
 
+    /**
+     * run generator to emit particle
+     */
     emit() {
         for (let i=0; i<this.count; i++) {
             let p = this.genFcn();
@@ -268,6 +273,88 @@ class ParticleEmitter {
         // run generator if tte is zero
         if (this.tte <= 0) {
             this.emit();
+            // compute next tte
+            this.nextTTE();
+        }
+    }
+}
+
+class ParticleSequence {
+    /**
+     * Create a new particle sequence
+     * @param {*} psys - link to the parent particle system
+     * @param {*} genFcns - emitter/particle generator functions
+     * @param {*} interval - interval (in seconds) between generation
+     * @param {*} jitter - (optional) percentage of interval to create a jitter between particle generation.  0 would indicate no jitter, 1 would indicate an interval between 0 and 2x interval.
+     * @param {*} iterations - (optional) number of iterations to run, zero indicates infinite loop
+     */
+    constructor(psys, genFcns, interval, jitter=0, iterations=1) {
+        this.psys = psys;
+        this.genFcns = genFcns;
+        this.interval = interval;
+        this.jitter = jitter/100;
+        this.iterations = iterations;
+        this.currentTick = 0;
+        this._done = false;
+        this.tte = 0;
+        this.pwait;             // current particle/emitter we are waiting on
+        this.genIdx = 0;        // current generator
+    }
+
+    /**
+     * computes new time to emit based on interval and jitter
+     */
+    nextTTE() {
+        this.tte = this.interval;
+        if (this.jitter) {
+            let ij = this.jitter * this.interval;
+            this.tte += ((Math.random() * ij * 2) - ij);
+        }
+        if (this.tte < .1) this.tte = .1; // minimum interval;
+    }
+
+    /**
+     * Indicates if the emitter has completed its life-cycle (and can be discarded)
+     */
+    get done() {
+        return this._done;
+    }
+
+    /**
+     * update processing... this is where the sequence logic is run
+     */
+    update(delta_time) {
+        delta_time *= .001;         // convert delta time to seconds
+        if (this.done) return;      // don't update if done
+        if (this.once) {
+            this.once = false;
+            this.emit();
+        }
+        // do we have a particle/emitter we are waiting for, check if we are done w/ sequence
+        if (this.pwait) {
+            // is it done?
+            if (this.pwait.done) {
+                this.pwait = null;
+                // advance to next generator
+                this.genIdx++;
+                if (this.genIdx >= this.genFcns.length) {
+                    if (this.iterations == 0 || this.iterations > 1) {
+                        this.genIdx = 0;
+                        if (this.iterations) this.iterations--;
+                    } else {
+                        this._done = true;
+                    }
+                }
+            } else {
+                return;
+            }
+        }
+        // update tte
+        this.tte -= delta_time;
+        // run generator if tte is zero
+        if (this.tte <= 0) {
+            this.pwait = this.genFcns[this.genIdx]();
+            this.psys.add(this.pwait);
             // compute next tte
             this.nextTTE();
         }
@@ -762,5 +849,56 @@ class SwirlParticle extends Particle {
 			}	
 		}
         this.ctx.restore();
+    }
+}
+
+class SwirlPrefab {
+    constructor(sys, ctx, ttl, x, y) {
+        // params for particles
+        let minHue = 150;
+        let maxHue = 150;
+        let minSpeed = 25;
+        let maxSpeed = 200;
+        let minRadius = 50;
+        let maxRadius = 55;
+        let minPttl = 1;
+        let maxPttl = 3;
+        let minWidth = 1;
+        let maxWidth = 3;
+        let pburst = 250;
+        let pstreamInterval = .1;
+        let pstreamVar = 25;
+        let pstream = 5;
+        // creates a sentinel object used to control prefab
+        this.sentinel = new ParticleGroup(ttl);
+        sys.add(this.sentinel);
+        // creates an object used to control collapse of all particles at the same time
+        let crush = new ParticleGroup(ttl*.5);
+        sys.add(crush);
+        // creates a burst of particles at beginning of animation
+        sys.add( new ParticleEmitter(sys, () => {
+                let hue = random_int(minHue, maxHue);
+                let speed = random_int(minSpeed, maxSpeed);
+                let radius = random_float(minRadius,maxRadius);
+                let width = random_int(minWidth, maxWidth);
+                return new SwirlParticle(ctx, x, y, hue, speed, radius, width, crush, ttl*.45);
+            }, 0, 0, 0.1, pburst));
+
+        // creates a slow stream of particles through rest of animation
+        sys.add( new ParticleEmitter(sys, () => {
+                let hue = random_int(minHue, maxHue);
+                let speed = random_int(minSpeed, maxSpeed);
+                let radius = random_float(minRadius,maxRadius);
+                let pttl = random_float(minPttl,maxPttl);
+                let width = random_int(minWidth, maxWidth);
+                return new SwirlParticle(ctx, x, y, hue, speed, radius, width, crush, pttl);
+            }, pstreamInterval, pstreamVar, pstream, ttl*.35));
+    }
+
+    update() {
+    }
+
+    get done() {
+        return this.sentinel.done;
     }
 }
