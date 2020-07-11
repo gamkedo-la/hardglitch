@@ -105,5 +105,4 @@ function draw_everything() {
 function new_game() {
   current_game = new Game(make_test_world());
   current_game_view = new GameView(current_game);
-  current_game_view.center_on_player();
 }

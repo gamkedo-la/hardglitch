@@ -118,8 +118,10 @@ class GameView {
     camera_animations = new anim.AnimationGroup(); // Plays camera animations.
     player_actions_highlights = []; // Must contain Highlight objects for the currently playable actions.
     action_range_highlights = []; // Must contain Highlight objects for the currently pointed action's range.
-    enable_fog_of_war = true;
     delay_between_animations_ms = 100; // we'll try to keep a little delay between each beginning of parallel animation.
+
+    enable_fog_of_war = true;
+    enable_auto_camera_center = true;
 
     constructor(game){
         console.assert(game instanceof Game);
@@ -146,9 +148,10 @@ class GameView {
         this._pointed_highlight_edit = new Highlight({x:0, y:0}, this._highlight_sprites.edit, "EDITOR");
         this._character_focus_highlight = new Highlight({x:0, y:0}, this._highlight_sprites.turn, "Character");
 
-        this.reset();
-
         window.addEventListener('resize', ()=> this.on_canvas_resized());
+
+        this.reset();
+        this.center_on_player();
     }
 
     interpret_turn_events() {
@@ -171,6 +174,10 @@ class GameView {
             }
         }
         this.ui.show_action_buttons(Object.values(this.game.last_turn_info.possible_actions));
+
+        if(this.enable_auto_camera_center){
+            this.center_on_limit_position_if_too_far(this.player_character.position, 500);
+        }
     }
 
     *_start_event_animation(event){
@@ -318,18 +325,19 @@ class GameView {
         }
     }
 
+    get player_character() {
+        return this.game.last_turn_info.player_character;
+    }
+
     _start_player_turn(){
         this.is_time_for_player_to_chose_action = true;
-        if(this.game.last_turn_info.player_character){
+        if(this.player_character){
             this.clear_highlights_basic_actions();
-            const player_position = this.game.last_turn_info.player_character.position;
-            this.center_on_position(player_position, 333)
-                .then(()=>{
-                    this.focus_on_position(player_position)
-                    this.fog_of_war.change_viewer_position(player_position);
-                    this.ui.unlock_actions();
-                    this.highlight_available_basic_actions();
-                });
+            const player_position = this.player_character.position;
+            this.focus_on_position(player_position)
+            this.fog_of_war.change_viewer_position(player_position);
+            this.ui.unlock_actions();
+            this.highlight_available_basic_actions();
         } else {
             this.clear_focus();
             this.lock_actions();
@@ -504,7 +512,7 @@ class GameView {
         this.entity_views = Object.assign({}, this._create_entity_views(this.game.world.items, ItemView)
                                             , this._create_entity_views(this.game.world.bodies, CharacterView));
 
-        this.fog_of_war = new FogOfWar(world, this.game.last_turn_info.player_character.field_of_view);
+        this.fog_of_war = new FogOfWar(world, this.player_character.field_of_view);
 
         this.highlight_available_basic_actions();
         this.ui.show_action_buttons(Object.values(this.game.last_turn_info.possible_actions));
@@ -561,13 +569,18 @@ class GameView {
     }
 
     center_on_player(){
-        const player_characters = this.game.player_characters;
-        const player = player_characters.shift();
+        const player = this.player_character
         const player_position = player.position;
         const graphic_player_position = graphics.from_grid_to_graphic_position(player_position, PIXELS_PER_TILES_SIDE);
         const graphic_player_center_square_position = graphic_player_position.translate(square_half_unit_vector);
-        graphics.camera.center(graphic_player_center_square_position);
-        this.focus_on_position(player_position);
+        // graphics.camera.center(graphic_player_center_square_position);
+        this.center_on_position(player_position);
+    }
+
+    center_on_player_if_too_far(){
+        const player = this.player_character;
+        console.assert(player);
+        this.center_on_limit_position_if_too_far(player.position, 500);
     }
 
     center_on_position(grid_position, ms_to_center = 0){
@@ -575,12 +588,29 @@ class GameView {
         console.assert(Number.isInteger(ms_to_center) && ms_to_center >= 0);
 
         const gfx_position = graphics.from_grid_to_graphic_position(grid_position, PIXELS_PER_TILES_SIDE)
-            .translate({ x: PIXELS_PER_HALF_SIDE, y: PIXELS_PER_HALF_SIDE }); // center in the square
+            .translate(square_half_unit_vector); // center in the square
         const camera_move_animation = tween(graphics.camera.center_position, gfx_position, ms_to_center, (new_center)=>{ // TODO: replace this by a steering behavior! Currently we are always moving even if we already are at the right place.
             graphics.camera.center(new Vector2(new_center));
         }, easing.in_out_quad);
 
         return this.camera_animations.play(camera_move_animation);
+    }
+
+    center_on_limit_position_if_too_far(grid_position, ms_to_center = 0){
+        const camera_grid_position = this.grid_position(graphics.camera.center_position);
+
+        if(!camera_grid_position){
+            return this.center_on_position(grid_position, ms_to_center);
+        }
+
+        const limit_distance = { x: 6, y: 5 };
+        if(Math.abs(camera_grid_position.x - grid_position.x) >= limit_distance.x
+        || Math.abs(camera_grid_position.y - grid_position.y) >= limit_distance.y
+        ) {
+            return this.center_on_position(grid_position, ms_to_center);
+        }
+
+        return Promise.resolve();
     }
 
 };

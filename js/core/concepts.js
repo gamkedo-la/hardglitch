@@ -189,6 +189,11 @@ class Position {
         return new Position({ x: this.x - other_position.x, y: this.y - other_position.y });
     }
 
+    multiply(scalar){
+        console.assert(Number.isInteger(scalar));
+        return new Position({ x: this.x * scalar, y: this.y * scalar });
+    }
+
     absolute(){
         return new Position({ x: Math.abs(this.x), y: Math.abs(this.y) })
     }

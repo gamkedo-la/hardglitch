@@ -64,6 +64,8 @@ class FogOfWar {
         this._need_last_seen_capture = true;
     }
 
+    get position() { return this.field_of_view.position; }
+
     change_viewer_position(new_pos){
         this.field_of_view.position = new_pos;
         this._refresh();
@@ -82,6 +84,7 @@ class FogOfWar {
             this.capture_last_visible_squares(complete_grid_canvas_context);
         }
     }
+
 
     is_visible(...positions){
         return positions.every(position => this.current_visibility_grid[this.index(position)] === undefined);

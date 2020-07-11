@@ -68,7 +68,8 @@ function display_mouse_position(){
     draw_text(`MOUSE STATE:`, {x: display_x, y: next_line() });
     draw_text(`SCREEN X = ${input.mouse.position.x}\tY = ${input.mouse.position.y}`, {x: display_x, y: next_line() });
     draw_text(`GAME SPACE: X = ${mouse_game_pos.x}\tY = ${mouse_game_pos.y}`, {x: display_x, y: next_line() });
-    draw_text(`GAME GRID: X = ${mouse_grid_pos.x}\tY = ${mouse_grid_pos.y}`, {x: display_x, y: next_line() });
+    if(mouse_grid_pos)
+        draw_text(`GAME GRID: X = ${mouse_grid_pos.x}\tY = ${mouse_grid_pos.y}`, {x: display_x, y: next_line() });
 
     draw_text(`Buttons: LEFT: ${input.mouse.buttons.is_down(0)}\t\tRIGHT: ${input.mouse.buttons.is_down(2)}`, {x: display_x, y: next_line() });
 
@@ -195,9 +196,13 @@ function display_help(){
     draw_text("[WASD][Arrow keys] - Move player character", {x: display_x, y: next_line() });
     draw_text("[IJKL] - Move Camera", {x: display_x, y: next_line() });
     draw_text(" `[` and `]` keys  - Lower/Increase View distance", {x: display_x, y: next_line() });
+    draw_text(" [P] - Enabled/Disable Automatic Camera Centering", {x: display_x, y: next_line() });
     draw_text("-----------------------", {x: display_x, y: next_line() });
     draw_text("Drag the screen to move the camera", {x: display_x, y: next_line() });
     draw_text("Click on squares around PC to move or act", {x: display_x, y: next_line() });
+    next_line();
+    draw_text(`AUTO CAMERA CENTER = ${current_game_view.enable_auto_camera_center ? "enabled" : "disabled"}`, {x: display_x, y: next_line() });
+
 
 }
 

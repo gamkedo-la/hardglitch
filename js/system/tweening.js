@@ -79,7 +79,7 @@ class Tweening{
         }
     }
 
-    get ratio(){ return this.time_since_start / this.duration; };
+    get ratio(){ return this.duration !== 0 ? this.time_since_start / this.duration : 1.0; };
     get values() { return this.get_values(this.ratio); }
     get done() { return this.time_since_start === this.duration; }
 
@@ -97,11 +97,12 @@ class Tweening{
     *run(update_callback){
         console.assert(update_callback);
         this.time_since_start = 0;
-        while(!this.done){
+        do {
             const delta_time = yield this.values;
             console.assert(Number.isInteger(delta_time));
             update_callback(this.update(delta_time));
         }
+        while(!this.done);
     }
 
 }

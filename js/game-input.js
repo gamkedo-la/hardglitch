@@ -151,6 +151,14 @@ function update_camera_control(delta_time){
     const current_speed = camera_speed * delta_time;
     const keyboard = input.keyboard;
 
+
+    if(keyboard.is_just_down(KEY.P)){
+        current_game_view.enable_auto_camera_center = !current_game_view.enable_auto_camera_center;
+        if(current_game_view.enable_auto_camera_center){
+            current_game_view.center_on_player_if_too_far();
+        }
+    }
+
     const drag_pos = input.mouse.dragging_positions;
     if(input.mouse.is_dragging
     && !current_game_view.ui.is_under(drag_pos.begin) // Don't drag the camera if we are manipulating UI
