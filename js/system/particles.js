@@ -855,8 +855,8 @@ class SwirlParticle extends Particle {
 class SwirlPrefab {
     constructor(sys, ctx, ttl, x, y) {
         // params for particles
-        let minHue = 150;
-        let maxHue = 150;
+        let minHue = 130;
+        let maxHue = 200;
         let minSpeed = 25;
         let maxSpeed = 200;
         let minRadius = 50;
