@@ -873,7 +873,7 @@ class SwirlPrefab {
         this.sentinel = new ParticleGroup(ttl);
         sys.add(this.sentinel);
         // creates an object used to control collapse of all particles at the same time
-        let crush = new ParticleGroup(ttl*.5);
+        let crush = new ParticleGroup(ttl*.65);
         sys.add(crush);
         // creates a burst of particles at beginning of animation
         sys.add( new ParticleEmitter(sys, () => {
@@ -881,7 +881,7 @@ class SwirlPrefab {
                 let speed = random_int(minSpeed, maxSpeed);
                 let radius = random_float(minRadius,maxRadius);
                 let width = random_int(minWidth, maxWidth);
-                return new SwirlParticle(ctx, x, y, hue, speed, radius, width, crush, ttl*.45);
+                return new SwirlParticle(ctx, x, y, hue, speed, radius, width, crush, ttl*.25);
             }, 0, 0, 0.1, pburst));
 
         // creates a slow stream of particles through rest of animation
@@ -892,7 +892,7 @@ class SwirlPrefab {
                 let pttl = random_float(minPttl,maxPttl);
                 let width = random_int(minWidth, maxWidth);
                 return new SwirlParticle(ctx, x, y, hue, speed, radius, width, crush, pttl);
-            }, pstreamInterval, pstreamVar, pstream, ttl*.35));
+            }, pstreamInterval, pstreamVar, pstream, ttl*.25));
     }
 
     update() {
