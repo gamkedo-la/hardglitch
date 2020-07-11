@@ -114,6 +114,7 @@ class GameView {
     is_time_for_player_to_chose_action = true;
     animation_queue = []; // Must contain only js generators + parallel: (true||false). // TODO: make the animation system separately to be used anywhere there are animations to play.
     current_animations = new anim.AnimationGroup(); // Plays animations that have started.
+    camera_animations = new anim.AnimationGroup(); // Plays camera animations.
     player_actions_highlights = []; // Must contain Highlight objects for the currently playable actions.
     action_range_highlights = []; // Must contain Highlight objects for the currently pointed action's range.
     enable_fog_of_war = true;
@@ -179,7 +180,7 @@ class GameView {
 
     // Setup highlights for actions that are known with a target position.
     highlight_available_basic_actions(){
-        this.player_actions_highlights = []; // Clear previous highlighting
+        this.clear_highlights_basic_actions(); // Clear previous highlighting
 
         const available_actions = this.game.last_turn_info.possible_actions;
         for(const action of Object.values(available_actions)){
@@ -195,6 +196,10 @@ class GameView {
             this.fog_of_war.position = this.game.last_turn_info.player_character.position;
             this.focus_on_position(this.game.last_turn_info.player_character.position);
         }
+    }
+
+    clear_highlights_basic_actions(){
+        this.player_actions_highlights = [];
     }
 
     highlight_selected_action_targets(action_info){
@@ -235,6 +240,7 @@ class GameView {
     }
 
     update(delta_time){
+        this.camera_animations.update(delta_time);
 
         this._update_highlights(delta_time);
 
@@ -289,21 +295,32 @@ class GameView {
 
             this.current_animations.update(delta_time);
 
-            if(this.current_animations.animation_count == 0 && this.animation_queue.length == 0){
-                this.is_time_for_player_to_chose_action = true;
-                if(this.game.last_turn_info.player_character){
-                    const player_position = this.game.last_turn_info.player_character.position;
-                    this.focus_on_position(player_position);
+            if(!this.is_time_for_player_to_chose_action
+            && this.current_animations.animation_count == 0
+            && this.animation_queue.length == 0
+            ){
+                this._start_player_turn();
+            }
+        }
+    }
+
+    _start_player_turn(){
+        this.is_time_for_player_to_chose_action = true;
+        if(this.game.last_turn_info.player_character){
+            this.clear_highlights_basic_actions();
+            const player_position = this.game.last_turn_info.player_character.position;
+            this.center_on_position(player_position, 333)
+                .then(()=>{
+                    this.focus_on_position(player_position)
                     this.fog_of_war.change_viewer_position(player_position);
                     this.ui.unlock_actions();
                     this.highlight_available_basic_actions();
-                } else {
-                    this.clear_focus();
-                    this.lock_actions();
-                }
-                editor.set_text("PLAYER'S TURN!");
-            }
+                });
+        } else {
+            this.clear_focus();
+            this.lock_actions();
         }
+        editor.set_text("PLAYER'S TURN!");
     }
 
     _update_entities(delta_time){
@@ -427,7 +444,6 @@ class GameView {
 
     focus_on_position(position){
         console.assert(position instanceof concepts.Position);
-        //this.center_on_position(player_position, 300);
         this._character_focus_highlight.enabled = true;
         this._change_highlight_position(this._character_focus_highlight, position);
     }
@@ -545,14 +561,11 @@ class GameView {
 
         const gfx_position = graphics.from_grid_to_graphic_position(grid_position, PIXELS_PER_TILES_SIDE)
             .translate({ x: PIXELS_PER_HALF_SIDE, y: PIXELS_PER_HALF_SIDE }); // center in the square
-        const camera_move_animation = tween(graphics.camera.center_position, gfx_position, ms_to_center, (new_center)=>{
+        const camera_move_animation = tween(graphics.camera.center_position, gfx_position, ms_to_center, (new_center)=>{ // TODO: replace this by a steering behavior! Currently we are always moving even if we already are at the right place.
             graphics.camera.center(new Vector2(new_center));
-        })
-
-        this.animation_queue.push({
-            start_animation: ()=> camera_move_animation,
-            parallel: false,
         });
+
+        return this.camera_animations.play(camera_move_animation);
     }
 
 };
