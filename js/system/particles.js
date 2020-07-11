@@ -107,11 +107,9 @@ class ParticleSystem {
             const item = this.items[i];
             // FIXME
             if (item.draw){
-            /*
                 item_area.position.x = item.x;
                 item_area.position.y = item.y;
                 if(camera.can_see(item_area))
-                */
                     item.draw();
             }
 
@@ -737,7 +735,7 @@ class BlipParticle extends Particle {
             this._done = true;
         }
     }
-}	
+}
 
 // FIXME
 var rand = function(rMi, rMa){return ~~((Math.random()*(rMa-rMi+1))+rMi);}
@@ -745,11 +743,11 @@ var rand = function(rMi, rMa){return ~~((Math.random()*(rMa-rMi+1))+rMi);}
 class SwirlParticle extends Particle {
     /*=============================================================================*/
     /**
-     * 
-     * @param {*} ctx 
-     * @param {*} x 
-     * @param {*} y 
-     * @param {*} hue 
+     *
+     * @param {*} ctx
+     * @param {*} x
+     * @param {*} y
+     * @param {*} hue
      * @param {*} speed - particle speed (in pixels per second)
      * @param {*} radius - radius of swirl (in pixels)
      * @param {*} width - base particle width
@@ -785,7 +783,7 @@ class SwirlParticle extends Particle {
         this.flickerDensity = 20;
         this.collapsing = false;
 	};
-	
+
 	update(delta_time) {
         // convert delta time to seconds
         delta_time *= .001;
@@ -808,7 +806,7 @@ class SwirlParticle extends Particle {
 		this.x = this.ox + vx;
         this.y = this.oy + vy;
         // orbital speed
-        let dangle = (ospeed*delta_time / (2*Math.PI*this.radius)) * 360 * this.ccw; 
+        let dangle = (ospeed*delta_time / (2*Math.PI*this.radius)) * 360 * this.ccw;
 		this.angle += dangle;
         // detect collapse
         if (!this.collapsing) {
@@ -831,14 +829,14 @@ class SwirlParticle extends Particle {
 	draw(){
         var coordRand = (rand(1,3)-1);
         this.ctx.save();
-		this.ctx.beginPath();								
+		this.ctx.beginPath();
 		this.ctx.moveTo(Math.round(this.coordLast[coordRand].x), Math.round(this.coordLast[coordRand].y));
 		this.ctx.lineTo(Math.round(this.x), Math.round(this.y));
-		this.ctx.closePath();				
+		this.ctx.closePath();
 		this.ctx.strokeStyle = 'hsla('+this.hue+', 100%, '+this.brightness+'%, '+this.alpha+')';
-		this.ctx.stroke();				
+		this.ctx.stroke();
 		if(this.flickerDensity > 0){
-			var inverseDensity = 50 - this.flickerDensity;					
+			var inverseDensity = 50 - this.flickerDensity;
 			if(rand(0, inverseDensity) === inverseDensity){
 				this.ctx.beginPath();
 				this.ctx.arc(Math.round(this.x), Math.round(this.y), rand(this.width,this.width+3)/2, 0, Math.PI*2, false)
@@ -846,7 +844,7 @@ class SwirlParticle extends Particle {
 				var randAlpha = rand(50,100)/100;
 				this.ctx.fillStyle = 'hsla('+this.hue+', 100%, '+this.brightness+'%, '+randAlpha+')';
 				this.ctx.fill();
-			}	
+			}
 		}
         this.ctx.restore();
     }
