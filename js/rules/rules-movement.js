@@ -44,11 +44,9 @@ class Moved extends concepts.Event {
 
     *animation(game_view){
         console.assert(game_view instanceof GameView);
-        const entity_view = game_view.focus_on_entity(this.entity_id);
+        const entity_view = game_view.get_entity_view(this.entity_id);
         console.assert(entity_view instanceof EntityView);
         console.assert(this.to_pos instanceof concepts.Position);
-        // TODO: insert a very small pause here
-        game_view.focus_on_position(this.to_pos);
         yield* animations.move(entity_view, this.to_pos, this.duration);
     }
 
@@ -168,9 +166,7 @@ class Swaped extends concepts.Event {
         console.assert(this.pos_a.equals(entity_a_view.game_position));
         console.assert(this.pos_b.equals(entity_b_view.game_position));
 
-        game_view.focus_on_position(this.pos_a);
         yield* animations.swap(entity_a_view, entity_b_view);
-        game_view.focus_on_position(this.pos_b);
     }
 
 };

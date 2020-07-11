@@ -154,6 +154,8 @@ class GameView {
     interpret_turn_events() {
         console.assert(this.animation_queue.length === 0);
 
+        this.clear_focus();
+
         const events = this.game.last_turn_info.events;
         for(const event of events){
             console.assert(event instanceof concepts.Event);
@@ -180,8 +182,15 @@ class GameView {
         this.player_actions_highlights.push(new Highlight(position, sprite, text));
     }
 
-    focus_on_entity(entity_id){
+    get_entity_view(entity_id){
+        console.assert(Number.isInteger(entity_id));
         const entity_view = this.entity_views[entity_id];
+        console.assert(entity_view instanceof EntityView);
+        return entity_view;
+    }
+
+    focus_on_entity(entity_id){
+        const entity_view = this.get_entity_view(entity_id);
         console.assert(entity_view instanceof EntityView);
         this.focus_on_position(entity_view.game_position);
         return entity_view;
@@ -219,7 +228,7 @@ class GameView {
     highlight_action_range(action_range){
         this.clear_action_range_highlight();
         if(action_range instanceof visibility.RangeShape){
-            const possible_targets = visibility.positions_in_range(this._character_focus_highlight.position,
+            const possible_targets = visibility.positions_in_range(this.fog_of_war.position,
                 action_range,
                 (pos)=>this.game.world.is_valid_position(pos));
             for(const target of possible_targets){
@@ -273,6 +282,7 @@ class GameView {
             if(this.is_time_for_player_to_chose_action){
                 this.is_time_for_player_to_chose_action = false;
                 this.ui.lock_actions();
+                this.clear_focus();
                 editor.set_text("PROCESSING NPC TURNS...");
             }
 

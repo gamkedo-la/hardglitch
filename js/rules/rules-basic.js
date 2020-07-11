@@ -35,7 +35,7 @@ class Waited extends concepts.Event {
 
     *animation(game_view){
         console.assert(game_view instanceof GameView);
-        const character_view = game_view.focus_on_entity(this.character_id);
+        const character_view = game_view.get_entity_view(this.character_id);
         console.assert(character_view instanceof CharacterView);
         yield* anim.wait(333);
     }
@@ -130,7 +130,7 @@ class PlayerExitLevel extends concepts.Event {
 
     *animation(game_view){
         console.assert(game_view instanceof GameView);
-        const character_view = game_view.focus_on_entity(this.character_id);
+        const character_view = game_view.get_entity_view(this.character_id);
         console.assert(character_view instanceof CharacterView);
 
         ///////////////////////////////////////////////////////////////
