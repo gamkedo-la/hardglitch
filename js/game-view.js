@@ -118,7 +118,7 @@ class GameView {
     camera_animations = new anim.AnimationGroup(); // Plays camera animations.
     player_actions_highlights = []; // Must contain Highlight objects for the currently playable actions.
     action_range_highlights = []; // Must contain Highlight objects for the currently pointed action's range.
-    delay_between_animations_ms = 100; // we'll try to keep a little delay between each beginning of parallel animation.
+    delay_between_animations_ms = 200; // we'll try to keep a little delay between each beginning of parallel animation.
 
     enable_fog_of_war = true;
     enable_auto_camera_center = true;
