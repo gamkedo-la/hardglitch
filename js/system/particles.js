@@ -60,6 +60,7 @@ class ParticleSystem {
      */
     constructor() {
         this.items = [];
+        this.dbg = false;
     }
 
     /**
@@ -109,7 +110,7 @@ class ParticleSystem {
             if (item.draw){
                 item_area.position.x = item.x;
                 item_area.position.y = item.y;
-                if(camera.can_see(item_area))
+                if(camera.can_see(item_area) || this.dbg)
                     item.draw();
             }
 

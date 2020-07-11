@@ -23,6 +23,7 @@ class Env {
         this.bgimg;
         // setup environment
         this.particles = new ParticleSystem();
+        this.particles.dbg = true;
         let ctx = this.ctx;
 
         let g = new ParticleGroup();
