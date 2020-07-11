@@ -32,7 +32,7 @@ import * as tiles from "./definitions-tiles.js";
 import * as visibility from "./core/visibility.js";
 import * as anim from "./system/animation.js";
 import { FogOfWar } from "./view/fogofwar.js";
-import { tween } from "./system/tweening.js";
+import { tween, easing } from "./system/tweening.js";
 
 class Highlight{
     enabled = true;
@@ -563,7 +563,7 @@ class GameView {
             .translate({ x: PIXELS_PER_HALF_SIDE, y: PIXELS_PER_HALF_SIDE }); // center in the square
         const camera_move_animation = tween(graphics.camera.center_position, gfx_position, ms_to_center, (new_center)=>{ // TODO: replace this by a steering behavior! Currently we are always moving even if we already are at the right place.
             graphics.camera.center(new Vector2(new_center));
-        });
+        }, easing.in_out_quad);
 
         return this.camera_animations.play(camera_move_animation);
     }
