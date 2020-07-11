@@ -157,6 +157,8 @@ class Swaped extends concepts.Event {
         this.pos_b = pos_b;
     }
 
+    get focus_positions() { return [ this.pos_a, this.pos_ ]; }
+
     *animation(game_view){
         console.assert(game_view instanceof GameView);
         const entity_a_view = game_view.entity_views[this.entity_a_id];

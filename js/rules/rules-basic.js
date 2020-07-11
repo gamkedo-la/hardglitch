@@ -84,6 +84,8 @@ class GameOver extends concepts.Event {
             description: "Game Over condition detected"
         });
     }
+
+    get focus_positions() { return []; }
     get is_world_event() { return true; }
 
     *animation(){ // TEMPORARY ANIMATION

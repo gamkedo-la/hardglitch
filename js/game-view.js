@@ -175,7 +175,7 @@ class GameView {
         }
         this.ui.show_action_buttons(Object.values(this.game.last_turn_info.possible_actions));
 
-        if(this.enable_auto_camera_center){
+        if(this.enable_auto_camera_center && this.player_character){
             this.center_on_limit_position_if_too_far(this.player_character.position, 500);
         }
     }

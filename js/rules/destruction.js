@@ -1,7 +1,7 @@
 
 export {
-    destroy_entity,
     destroy_at,
+    Destroyed,
 }
 
 import * as concepts from "../core/concepts.js";
@@ -11,14 +11,19 @@ import { destroyed } from "../game-animations.js";
 
 
 class Destroyed extends concepts.Event {
-    constructor(entity_id){
+    constructor(entity_id, entity_position){
         console.assert(Number.isInteger(entity_id));
+        console.assert(entity_position instanceof concepts.Position);
+
         super({
             description: `Entity ${entity_id} was DESTROYED!!!!!`
         });
 
         this.entity_id = entity_id;
+        this.entity_position = entity_position;
     }
+
+    get focus_positions() { return [ this.entity_position ]; }
 
     *animation(game_view){
         console.assert(game_view instanceof GameView);
@@ -30,19 +35,13 @@ class Destroyed extends concepts.Event {
 
 };
 
-
-function destroy_entity(entity_id, world){
-    console.assert(world instanceof concepts.World);
-    world.remove_entity(entity_id);
-    return [ new Destroyed(entity_id) ];
-}
-
 function destroy_at(position, world){
     console.assert(position);
     console.assert(world instanceof concepts.World);
     const entity = world.entity_at(position);
     if(entity){
-        return destroy_entity(entity.id, world);
+        world.remove_entity(entity.id);
+        return [ new Destroyed(entity.id, entity.position) ];
     } else {
         return [];
     }
