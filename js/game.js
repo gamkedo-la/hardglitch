@@ -9,7 +9,7 @@ import { Wait } from "./rules/rules-basic.js";
 import { random_sample } from "./system/utility.js";
 import * as tiles from "./definitions-tiles.js";
 import { sprite_defs } from "./game-assets.js";
-import { Character } from "./core/character.js";
+import { Character, CharacterStats } from "./core/character.js";
 
 class Player extends Character {
     assets = {
@@ -19,7 +19,7 @@ class Player extends Character {
     };
 
     constructor(){
-        super("\"Glitch\"");
+        super("\"Glitch\"", new CharacterStats());
         this.actor = new concepts.Player();
     }
 }

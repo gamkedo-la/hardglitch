@@ -5,7 +5,7 @@ import * as concepts from "../core/concepts.js";
 import {random_sample} from "../system/utility.js";
 import { Wait } from "../rules/rules-basic.js";
 import { sprite_defs } from "../game-assets.js";
-import { Character } from "../core/character.js"
+import { Character, CharacterStats } from "../core/character.js"
 
 class RandomActionSelector extends concepts.Actor {
 
@@ -33,7 +33,7 @@ class RandomActionEnemy extends Character {
     };
 
     constructor(){
-        super("Test Man");
+        super("Test Man", new CharacterStats());
         this.actor = new RandomActionSelector();
     }
 };
