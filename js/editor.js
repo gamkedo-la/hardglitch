@@ -205,6 +205,8 @@ function display_help(){
     draw_text("Click on squares around PC to move or act", {x: display_x, y: next_line() });
     next_line();
     draw_text(`AUTO CAMERA CENTER = ${current_game_view.enable_auto_camera_center ? "enabled" : "disabled"}`, {x: display_x, y: next_line() });
+    next_line();
+    draw_text(`TURN: ${current_game.last_turn_info.turn_id} PHASE: ${current_game.last_turn_info.turn_phase_id}`, {x: display_x, y: next_line() });
 
 
 }
