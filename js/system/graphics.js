@@ -214,6 +214,8 @@ class Sprite {
     this.move_origin_to(center);
   }
 
+  reset_origin(){ this._frame_origin = new spatial.Vector2(); }
+
   _draw_translation_from_origin() {
     if(this._current_frame){
       return this.origin.translate(this._frame_origin).inverse;

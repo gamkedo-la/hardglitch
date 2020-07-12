@@ -38,7 +38,7 @@ class Rule_Destroy extends concepts.Rule {
             .forEach((target)=>{
                     const destroy = new Destroy(target);
                     destroy.range = this.range;
-                    actions[`destroy_${target.x}_${target.y}`] = destroy;
+                    actions[destroy.id] = destroy;
                 });
         return actions;
     }

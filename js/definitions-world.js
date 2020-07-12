@@ -9,6 +9,7 @@ import { Rule_ActionPoints } from "./rules/rules-actionpoints.js";
 import { Rule_Push, Rule_Pull } from "./rules/rules-forces.js";
 import { Rule_Void } from "./rules/rules-void.js";
 import { Rule_Destroy } from "./rules/rules-destroy.js";
+import { Rule_Delete } from "./rules/rules-delete.js";
 
 const world_grid = {
     width: 64,
@@ -16,14 +17,9 @@ const world_grid = {
 };
 
 const default_rules = [ // BEWARE: rules will be applied in-order.
-    new basic_rules.Rule_Destroy_NoIntegrity(),
     new basic_rules.Rule_BasicActions(),
     new Rule_Movements(),
-    new basic_rules.Rule_GameOver(),
-    new Rule_ActionPoints(),
-    new basic_rules.Rule_LevelExit(),
 
-    new Rule_Void(),
 
     new Rule_Jump(),
     new Rule_Push(),
@@ -31,6 +27,14 @@ const default_rules = [ // BEWARE: rules will be applied in-order.
     new Rule_Swap(),
 
     new Rule_Destroy(),
+    new Rule_Delete(),
+
+    new Rule_Void(),
+    new basic_rules.Rule_Destroy_NoIntegrity(),
+    new basic_rules.Rule_GameOver(),
+    new Rule_ActionPoints(),
+    new basic_rules.Rule_LevelExit(),
+
 ];
 
 

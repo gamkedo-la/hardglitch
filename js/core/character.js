@@ -151,6 +151,9 @@ class Character extends concepts.Body {
         return action.execute(world, this);
     }
 
+    take_damage(damage_count){ // TODO: maybe handle some kind of armor
+        this.stats.integrity.decrease(damage_count);
+    }
 
 };
 

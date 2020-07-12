@@ -174,7 +174,7 @@ class Rule_Destroy_NoIntegrity extends concepts.Rule {
         world.bodies.forEach(character =>{
             console.assert(character instanceof Character);
             if(character.stats.integrity.value <= 0){
-                events.concat(destroy_entity(character, world));
+                events.push(...destroy_entity(character, world));
             }
         });
         return events;
