@@ -165,16 +165,12 @@ class GameView {
         const events = this.game.last_turn_info.events;
         for(const event of events){
             console.assert(event instanceof concepts.Event);
-            const is_visible_to_player = this.fog_of_war.is_any_visible(...event.focus_positions);
-            if(is_visible_to_player || event.is_world_event){
-                this.animation_queue.push({
-                    start_animation: ()=> this._start_event_animation(event, is_visible_to_player),
+            this.animation_queue.push({
+                    start_animation: ()=> this._start_event_animation(event),
                     parallel: event.allow_parallel_animation,
+                    focus_positions: event.focus_positions,
+                    is_world_event: event.is_world_event,
                 });
-            } else {
-                // No need to play the action in a visible way, just skip it.
-                this.skipped_animations.play(this._start_event_animation(event));
-            }
         }
         this.ui.show_action_buttons(Object.values(this.game.last_turn_info.possible_actions));
 
@@ -306,7 +302,15 @@ class GameView {
                     animation.iterator = animation.start_animation();
                     if(animation.iterator.next().done) // Skip non-animations.
                         continue;
-                    // Start the animation:
+
+                    const is_visible_to_player = this.fog_of_war.is_any_visible(...animation.focus_positions);
+                    if(!is_visible_to_player && !animation.is_world_event){
+                        // No need to play the action in a visible way, just skip it (but still play it).
+                        this.skipped_animations.play(animation.iterator)
+                        continue;
+                    }
+
+                    // Start the animation, delayed by the previous parallel one:
                     if(this.delay_between_animations_ms > 0){
                         if(delay_for_next_animation > 0)
                             animation.iterator = anim.delay(delay_for_next_animation, animation.start_animation());
