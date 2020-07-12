@@ -15,6 +15,7 @@ const world_grid = {
 };
 
 const default_rules = [ // BEWARE: rules will be applied in-order.
+    new basic_rules.Rule_Destroy_NoIntegrity(),
     new basic_rules.Rule_BasicActions(),
     new Rule_Movements(),
     new basic_rules.Rule_GameOver(),

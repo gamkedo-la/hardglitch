@@ -8,11 +8,13 @@ import { GameView } from "../game-view.js";
 import { Character } from "../core/character.js";
 import { current_game_view } from "../main.js";
 import * as anim from "../system/animation.js";
+import { destroy_entity } from "./destruction.js";
 
 export {
     Rule_GameOver,
     Rule_BasicActions,
     Rule_LevelExit,
+    Rule_Destroy_NoIntegrity,
     Wait,
     Waited,
     GameOver,
@@ -163,3 +165,28 @@ class Rule_LevelExit extends concepts.Rule {
 
 
 }
+
+
+class Rule_Destroy_NoIntegrity extends concepts.Rule {
+
+    destroy_characters_with_no_integrity(world){
+        const events = [];
+        world.bodies.forEach(character =>{
+            console.assert(character instanceof Character);
+            if(character.stats.integrity.value <= 0){
+                events.concat(destroy_entity(character, world));
+            }
+        });
+        return events;
+    }
+
+    // We check after each character's turn.
+    update_world_after_character_turn(world){
+        return this.destroy_characters_with_no_integrity(world);
+    }
+
+    // We also check at the beginning of each game turn.
+    update_world_at_the_beginning_of_game_turn(world){
+        return this.destroy_characters_with_no_integrity(world);
+    }
+};

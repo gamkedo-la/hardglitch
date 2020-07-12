@@ -1,5 +1,6 @@
 
 export {
+    destroy_entity,
     destroy_at,
     Destroyed,
 }
@@ -35,13 +36,19 @@ class Destroyed extends concepts.Event {
 
 };
 
+function destroy_entity(entity, world){
+    console.assert(entity instanceof concepts.Entity);
+    console.assert(world instanceof concepts.World);
+    world.remove_entity(entity.id);
+    return [ new Destroyed(entity.id, entity.position) ];
+}
+
 function destroy_at(position, world){
     console.assert(position);
     console.assert(world instanceof concepts.World);
     const entity = world.entity_at(position);
     if(entity){
-        world.remove_entity(entity.id);
-        return [ new Destroyed(entity.id, entity.position) ];
+        return destroy_entity(entity, world);
     } else {
         return [];
     }
