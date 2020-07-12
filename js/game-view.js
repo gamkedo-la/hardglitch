@@ -307,7 +307,9 @@ class GameView {
                             animation.iterator = anim.delay(delay_for_next_animation, animation.start_animation());
                         delay_for_next_animation += this.delay_between_animations_ms;
                     }
-                    this.current_animations.play(animation.iterator);
+                    this.current_animations.play(animation.iterator)
+                        .then(()=> this.fog_of_war.refresh()); // Refresh the FOW after each event, to make sure we always see the most up to date world.
+
                     if(animation.parallel === false){
                         break; // We need to only play the animations that are next to each other and parallel.
                     }
