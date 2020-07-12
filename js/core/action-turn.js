@@ -19,7 +19,7 @@ class PlayerTurn
         console.assert(Number.isInteger(phase_id) && phase_id > 0);
         console.assert(world instanceof concepts.World);
         console.assert(events instanceof Array);
-        console.assert(player_character instanceof Character && player_character.is_player_actor);
+        console.assert(!player_character || (player_character instanceof Character && player_character.is_player_actor));
         console.assert(possible_actions instanceof Object);
 
         this.turn_id = turn_id;                     // Number of world turns.

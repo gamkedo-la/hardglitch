@@ -8,6 +8,7 @@ import { Rule_Movements, Rule_Jump, Rule_Swap } from "./rules/rules-movement.js"
 import { Rule_ActionPoints } from "./rules/rules-actionpoints.js";
 import { Rule_Push, Rule_Pull } from "./rules/rules-forces.js";
 import { Rule_Void } from "./rules/rules-void.js";
+import { Rule_Destroy } from "./rules/rules-destroy.js";
 
 const world_grid = {
     width: 64,
@@ -29,6 +30,7 @@ const default_rules = [ // BEWARE: rules will be applied in-order.
     new Rule_Pull(),
     new Rule_Swap(),
 
+    new Rule_Destroy(),
 ];
 
 

@@ -19,7 +19,7 @@ class Destroyed extends concepts.Event {
         super({
             description: `Entity ${entity_id} was DESTROYED!!!!!`
         });
-
+        this.allow_parallel_animation = false;
         this.entity_id = entity_id;
         this.entity_position = entity_position;
     }
