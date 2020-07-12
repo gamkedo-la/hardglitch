@@ -196,7 +196,7 @@ function display_help(){
     draw_text("[WASD][Arrow keys] - Move player character", {x: display_x, y: next_line() });
     draw_text("[IJKL] - Move Camera", {x: display_x, y: next_line() });
     draw_text(" `[` and `]` keys  - Lower/Increase View distance", {x: display_x, y: next_line() });
-    draw_text(" [P] - Enabled/Disable Automatic Camera Centering", {x: display_x, y: next_line() });
+    draw_text(" [F] - Enabled/Disable Automatic Camera Centering", {x: display_x, y: next_line() });
     draw_text("-----------------------", {x: display_x, y: next_line() });
     draw_text("Drag the screen to move the camera", {x: display_x, y: next_line() });
     draw_text("Click on squares around PC to move or act", {x: display_x, y: next_line() });

@@ -32,6 +32,7 @@ const KEY = {
     A: 65,
     S: 83,
     D: 68,
+    F: 70,
     P: 80,
     M: 77,
     N: 78,
@@ -152,7 +153,7 @@ function update_camera_control(delta_time){
     const keyboard = input.keyboard;
 
 
-    if(keyboard.is_just_down(KEY.P)){
+    if(keyboard.is_just_down(KEY.F)){
         current_game_view.enable_auto_camera_center = !current_game_view.enable_auto_camera_center;
         if(current_game_view.enable_auto_camera_center){
             current_game_view.center_on_player_if_too_far();
