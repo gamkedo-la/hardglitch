@@ -13,6 +13,7 @@ import { mouse_grid_position, mouse_game_position, KEY, play_action } from "./ga
 import { current_game_view, current_game } from "./main.js";
 import * as items from "./definitions-items.js";
 import * as ui from "./system/ui.js";
+import { Character } from "./core/character.js";
 
 let is_enabled = false; // TURN THIS ON TO SEE THE EDITOR, see the update() function below
 let is_editing = false; // True if we are doing an edition manipulation and no other input should be handled.
@@ -20,6 +21,7 @@ let is_editing = false; // True if we are doing an edition manipulation and no o
 let was_fog_of_war_activated = true;
 
 let display_mouse_info = false;
+let display_character_info = false;
 
 let text_to_display = "READY";
 let central_text = null;
@@ -190,6 +192,7 @@ function display_help(){
     }
     draw_text("[F8]  - SHOW/HIDE FOV", {x: display_x, y: next_line() });
     draw_text("[F9]  - MOUSE INFO", {x: display_x, y: next_line() });
+    draw_text("[F10]  - CHARACTER INFO (pointed)", {x: display_x, y: next_line() });
     draw_text("-----------------------", {x: display_x, y: next_line() });
     draw_text("[M] - SHOW/HIDE GRID LINES", {x: display_x, y: next_line() });
     draw_text("-----------------------", {x: display_x, y: next_line() });
@@ -220,6 +223,7 @@ function display_editor_help(){
 
     draw_text("[F8]  - SHOW/HIDE FOV", {x: display_x, y: next_line() });
     draw_text("[F9]  - MOUSE INFO", {x: display_x, y: next_line() });
+    draw_text("[F10]  - CHARACTER INFO (pointed)", {x: display_x, y: next_line() });
     draw_text("-----------------------", {x: display_x, y: next_line() });
     draw_text("[M] - SHOW/HIDE GRID LINES", {x: display_x, y: next_line() });
     draw_text("[LCTRL][C] - ADD PLAYER CHARACTER", {x: display_x, y: next_line() });
@@ -229,6 +233,39 @@ function display_editor_help(){
     draw_text("-----------------------", {x: display_x, y: next_line() });
     draw_text("[Number] + [LMB] - Change the pointed tile", {x: display_x, y: next_line() });
     draw_text("(0: hole, 1: ground, 2: wall, 3: void", {x: display_x, y: next_line() });
+
+}
+
+function display_stats_of_pointed_character(){
+
+    const display_x = 50;
+    let line = graphics.canvas_center_position().y;
+    function next_line(){
+        return line += 30;
+    }
+
+    function jump_line(){
+        draw_text("", { x: display_x, y: next_line() });
+    }
+
+    draw_text("CHARACTER INFO:", { x: display_x, y: next_line() });
+    const mouse_grid_pos = mouse_grid_position();
+    if(!mouse_grid_pos)
+        return;
+
+    const character = current_game.world.body_at(mouse_grid_pos);
+    if(!(character instanceof Character)){
+        draw_text("No Character - Point square with character", { x: display_x, y: next_line() });
+        return;
+    }
+
+    draw_text(`NAME: ${character.name}`, { x: display_x, y: next_line() });
+    draw_text(`ACTOR: ${character.is_player_actor ? "PLAYER" : "AI"}`, { x: display_x, y: next_line() });
+    jump_line();
+    draw_text(`STATISTICS:`, { x: display_x, y: next_line() });
+    for(const [stat_name, stat] of Object.entries(character.stats)){
+        draw_text(` - ${stat_name} = ${stat.value}${stat.max ? ` / ${stat.max}` : ""} ${stat.accumulated_modifiers !== 0 ? `(real = ${stat.real_value}, mod = ${stat.accumulated_modifiers}")` : ""}${stat.min? ` [min = ${stat.min}]` : ""}`, { x: display_x, y: next_line() });
+    }
 
 }
 
@@ -249,6 +286,9 @@ function display(){
     if(display_mouse_info)
         display_mouse_position();
 
+    if(display_character_info)
+        display_stats_of_pointed_character();
+
     if(is_enabled){ // Specific to editor mode.
         draw_text("---====::::  EDITOR MODE  ::::====---", {x: center.x - 200, y: 40 });
         display_editor_help();
@@ -264,6 +304,10 @@ function update(){
 
     if(input.keyboard.is_just_down(KEY.F9)){
         display_mouse_info = !display_mouse_info;
+    }
+
+    if(input.keyboard.is_just_down(KEY.F10)){
+        display_character_info = !display_character_info;
     }
 
     if(input.keyboard.is_just_down(KEY.M)){
