@@ -246,10 +246,6 @@ function display_stats_of_pointed_character(){
         return line += 30;
     }
 
-    function jump_line(){
-        draw_text("", { x: display_x, y: next_line() });
-    }
-
     draw_text("CHARACTER INFO:", { x: display_x, y: next_line() });
     const mouse_grid_pos = mouse_grid_position();
     if(!mouse_grid_pos)
@@ -263,7 +259,7 @@ function display_stats_of_pointed_character(){
 
     draw_text(`NAME: ${character.name}`, { x: display_x, y: next_line() });
     draw_text(`ACTOR: ${character.is_player_actor ? "PLAYER" : "AI"}`, { x: display_x, y: next_line() });
-    jump_line();
+    next_line();
     draw_text(`STATISTICS:`, { x: display_x, y: next_line() });
     for(const [stat_name, stat] of Object.entries(character.stats)){
         draw_text(` - ${stat_name} = ${stat.value}${stat.max ? ` / ${stat.max}` : ""} ${stat.accumulated_modifiers !== 0 ? `(real = ${stat.real_value}, mod = ${stat.accumulated_modifiers}")` : ""}${stat.min? ` [min = ${stat.min}]` : ""}`, { x: display_x, y: next_line() });
