@@ -106,7 +106,7 @@ class Jump extends concepts.Action {
     icon_def = sprite_defs.icon_action_move;
 
     constructor(target){
-        super(`jump_${target.x}_${target.y}`, `Jump to ${JSON.stringify(target)}`, target, 20);
+        super(`jump_${target.x}_${target.y}`, `Jump to ${JSON.stringify(target)}`, target, 6);
         this.is_basic = true;
     }
 
