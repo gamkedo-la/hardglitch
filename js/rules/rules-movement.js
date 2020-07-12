@@ -168,7 +168,7 @@ class Swaped extends concepts.Event {
         console.assert(this.pos_a.equals(entity_a_view.game_position));
         console.assert(this.pos_b.equals(entity_b_view.game_position));
 
-        yield* animations.swap(entity_a_view, entity_b_view);
+        yield* animations.swap(entity_a_view, entity_b_view, animations.default_move_duration_ms * 2);
     }
 
 };

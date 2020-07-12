@@ -1,6 +1,8 @@
 // This file provide animations as coroutines to be used when effects are played.
 
 export {
+    default_move_duration_ms,
+    default_destruction_duration_ms,
     move,
     bounce,
     swap,
@@ -11,7 +13,7 @@ import { graphic_position, EntityView, PIXELS_PER_HALF_SIDE } from "./view/entit
 import { tween, easing } from "./system/tweening.js";
 import { in_parallel } from "./system/animation.js";
 
-const default_move_duration_ms = 200;
+const default_move_duration_ms = 250;
 const default_destruction_duration_ms = 666;
 
 function *translate(entity_view, target_gfx_pos, duration_ms){
