@@ -10,6 +10,7 @@ import { Rule_Push, Rule_Pull } from "./rules/rules-forces.js";
 import { Rule_Void } from "./rules/rules-void.js";
 import { Rule_Destroy } from "./rules/rules-destroy.js";
 import { Rule_Delete } from "./rules/rules-delete.js";
+import { Rule_Repair } from "./rules/rules-repair.js";
 
 const world_grid = {
     width: 64,
@@ -26,6 +27,7 @@ const default_rules = [ // BEWARE: rules will be applied in-order.
     new Rule_Pull(),
     new Rule_Swap(),
 
+    new Rule_Repair(),
     new Rule_Destroy(),
     new Rule_Delete(),
 

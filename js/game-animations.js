@@ -8,6 +8,7 @@ export {
     swap,
     destroyed,
     take_damage,
+    repaired,
 }
 
 import { graphic_position, EntityView, PIXELS_PER_HALF_SIDE } from "./view/entity-view.js";
@@ -90,3 +91,12 @@ function* take_damage(entity_view){ // FIXME - not real animation
     yield* translate(entity_view, initial_position, time_per_move);
 }
 
+function* repaired(entity_view){ // FIXME - not real animation
+    console.assert(entity_view instanceof EntityView);
+    // WwhwhhiiiiiiiiiIIIIIIIIIiiiizzzzzzzzzzZZZZZZZZZZZZZ
+    const intensity = 32;
+    const time_per_move = Math.round(500 / 2);
+    const initial_position = new Vector2(entity_view.position);
+    yield* translate(entity_view, initial_position.translate({ x: 0, y: -intensity}), time_per_move);
+    yield* translate(entity_view, initial_position, time_per_move);
+}

@@ -155,6 +155,10 @@ class Character extends concepts.Body {
         this.stats.integrity.decrease(damage_count);
     }
 
+    repair(integrity_amount){
+        this.stats.integrity.increase(integrity_amount);
+    }
+
 };
 
 
