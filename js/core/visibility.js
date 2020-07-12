@@ -144,53 +144,13 @@ function positions_in_range(center_position, range_shape, valid_position_predica
 
 
 // Provides all the positions that are currently "visible" by a character at the provided center position in the world.
-function find_visible_limit_positions(world, center, view_distance){
-    console.assert(world instanceof concepts.World);
-    console.assert(center instanceof concepts.Position);
-    console.assert(Number.isInteger(view_distance) && view_distance >= 0);
-
-    const test_shape = new Range_Circle(view_distance, view_distance + 1); // TODO: replace this
-    return positions_in_range(center, test_shape, position => world.is_valid_position(position));
-}
-
-// Provides all the positions that are currently "visible" by a character at the provided center position in the world.
-function find_invisible_limit_positions(world, center, view_distance){
-    console.assert(world instanceof concepts.World);
-    console.assert(center instanceof concepts.Position);
-    console.assert(Number.isInteger(view_distance) && view_distance >= 0);
-
-    const test_shape = new Range_Circle(view_distance + 1 , view_distance + 2); // TODO: replace this
-    return positions_in_range(center, test_shape, position => world.is_valid_position(position));
-}
-
-// Provides all the positions that are currently "visible" by a character at the provided center position in the world.
 function find_visible_positions(world, center, view_distance){
     console.assert(world instanceof concepts.World);
     console.assert(center instanceof concepts.Position);
     console.assert(Number.isInteger(view_distance) && view_distance >= 0);
-    // The range of view of characters (assuming all characters have the same view range). // TODO: decide if that's the only way to view around.
-    // const view_limit_shape = new Range_Circle(view_distance, view_distance + 1);
-    // const positions_at_limit = positions_in_range(center, view_limit_shape);
-    // const tile_visibility_predicate = pos => tiles.is_blocking_view(pos);
 
-    // // For each position at the border, we do the equivalent of a raycast from the center, but on the grid.
-    // const visible_positions = [];
-    // for(const limit_pos of positions_at_limit){
-    //     let step_vector = center.substract(limit_pos).inverse.normalize();
-    //     console.assert(step_vector.x !== 0 || step_vector.y !== 0);
-    //     let position = center.translate(step_vector);
-    //     while(limit_pos.distance(position) != 0){
-    //         if(world.is_blocked_position(limit_pos, tile_visibility_predicate)){ // Here we assume that characters block each other's view. // TODO: consider if it's a good idea or not.
-    //             // This position is blocking the view: we dont'go farther in that direction.
-    //             break;
-    //         }
+    // TODO: implement https://www.albertford.com/shadowcasting/
 
-    //         visible_positions.push(position);
-    //         position = center.translate(step_vector);
-    //     }
-    // }
-
-    // return visible_positions;
 
     const test_shape = new Range_Circle(0, view_distance + 1);
     return positions_in_range(center, test_shape, position => world.is_valid_position(position));
@@ -228,14 +188,10 @@ class FieldOfView {
     }
 
     get visible_positions() { return [ ...this._visible_positions ]; } // We return a copy.
-    get visible_border_positions() { return [ ...this._visible_border_positions ]; } // We return a copy.
-    get invisible_border_positions() { return [ ...this._invisible_border_positions ]; } // We return a copy.
 
     update(world){
         console.assert(world instanceof concepts.World);
         this._visible_positions = find_visible_positions(world, this._center, this._view_distance);
-        this._visible_border_positions  = find_visible_limit_positions(world, this._center, this.view_distance);
-        this._invisible_border_positions  = find_invisible_limit_positions(world, this._center, this.view_distance);
     }
 
     is_visible(...positions){ // TODO: probably optimizable
