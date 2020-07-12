@@ -277,8 +277,11 @@ class World
     add(entity){
         console.assert(entity instanceof Entity);
         console.assert(entity.position);
-        if(entity instanceof Body)
+        if(entity instanceof Body){
             this._bodies[entity.id] = entity;
+            if(entity.update_perception) // HACK! TODO: find a way to avoid this code to know that this function exits...
+                entity.update_perception(this);
+        }
         else if(entity instanceof Item)
             this._items[entity.id] = entity;
         else throw "Tried to add to the World an unknown type of Entity";

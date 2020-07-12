@@ -150,6 +150,9 @@ class GameView {
 
         window.addEventListener('resize', ()=> this.on_canvas_resized());
 
+
+        this.fog_of_war = new FogOfWar(this.game.world);
+
         this.reset();
         this.center_on_player();
     }
@@ -232,7 +235,7 @@ class GameView {
     highlight_action_range(action_range){
         this.clear_action_range_highlight();
         if(action_range instanceof visibility.RangeShape){
-            const possible_targets = visibility.positions_in_range(this.fog_of_war.position,
+            const possible_targets = visibility.positions_in_range(this.player_character.position,
                 action_range,
                 (pos)=>this.game.world.is_valid_position(pos));
             for(const target of possible_targets){
@@ -333,7 +336,7 @@ class GameView {
             const player_position = this.player_character.position;
             const setup = ()=>{
                 this.focus_on_position(player_position);
-                this.fog_of_war.change_viewer_position(player_position);
+                this.fog_of_war.refresh();
                 this.ui.unlock_actions();
                 this.highlight_available_basic_actions();
             };
@@ -515,10 +518,12 @@ class GameView {
 
         this._reset_tilegrid(world);
 
+        this.fog_of_war.clear_fovs();
+
         this.entity_views = Object.assign({}, this._create_entity_views(this.game.world.items, ItemView)
                                             , this._create_entity_views(this.game.world.bodies, CharacterView));
 
-        this.fog_of_war = new FogOfWar(world, this.player_character.field_of_view);
+        this.fog_of_war.refresh();
 
         this.highlight_available_basic_actions();
         this.ui.show_action_buttons(Object.values(this.game.last_turn_info.possible_actions));
@@ -549,12 +554,16 @@ class GameView {
             const entity_view = new view_type(entity);
             entity_views[entity.id] = entity_view;
             entity_view.update(0);
+            if(entity.is_player_actor){
+                this.fog_of_war.add_fov(entity.id, entity.field_of_vision);
+            }
         });
         return entity_views;
     }
 
     remove_entity_view(entity_id){
         delete this.entity_views[entity_id];
+        this.fog_of_war.remove_fov(entity_id);
     }
 
     // Called by the editor code when editing the game in a way the require re-interpreting the game's state.
@@ -575,11 +584,8 @@ class GameView {
     }
 
     center_on_player(){
-        const player = this.player_character
+        const player = this.player_character;
         const player_position = player.position;
-        const graphic_player_position = graphics.from_grid_to_graphic_position(player_position, PIXELS_PER_TILES_SIDE);
-        const graphic_player_center_square_position = graphic_player_position.translate(square_half_unit_vector);
-        // graphics.camera.center(graphic_player_center_square_position);
         this.center_on_position(player_position);
     }
 

@@ -9,7 +9,6 @@ import { PIXELS_PER_TILES_SIDE, graphic_position } from "./entity-view.js";
 import { index_from_position, position_from_index } from "../system/utility.js";
 import * as assets from "../game-assets.js";
 import * as concepts from "../core/concepts.js";
-import * as utility from "../system/utility.js";
 
 const visibility_sprites_defs = {
     [false] : assets.sprite_defs.void,  // When we cannot see there
@@ -18,11 +17,10 @@ const visibility_sprites_defs = {
 class FogOfWar {
 
     fog_color = "black";
+    fovs = {}; // { entity_id : FieldOfVision }...
 
-    constructor(world, field_of_view){
+    constructor(world){
         console.assert(world instanceof concepts.World);
-        console.assert(field_of_view instanceof visibility.FieldOfView);
-        this.field_of_view = field_of_view;
         this.world = world;
         this.graphic_width = this.world.width * PIXELS_PER_TILES_SIDE;
         this.graphic_height = this.world.height * PIXELS_PER_TILES_SIDE;
@@ -35,8 +33,26 @@ class FogOfWar {
         this._fog_canvas_context = graphics.create_canvas_context( this.graphic_width, this.graphic_height);
         this._dark_canvas_context = graphics.create_canvas_context( this.graphic_width, this.graphic_height);
 
-        this._refresh();
+        this.refresh();
     }
+
+    add_fov(entity_id, field_of_vision){
+        console.assert(Number.isInteger(entity_id));
+        console.assert(field_of_vision instanceof visibility.FieldOfVision);
+        this.fovs[entity_id] = field_of_vision;
+    }
+
+    remove_fov(entity_id){
+        console.assert(Number.isInteger(entity_id));
+        delete this.fovs[entity_id];
+    }
+
+    // Clears currently tracked fovs, but don't clear the memory of what have been seen so far.
+    clear_fovs(){
+        this.fovs = {};
+    }
+
+    get fov_list() { return Object.values(this.fovs); }
 
     index(position){
         return index_from_position(this.world.width, this.world.height, position);
@@ -46,29 +62,21 @@ class FogOfWar {
         return position_from_index(this.world.width, this.world.height, idx);
     }
 
-    _refresh(){
+    refresh(){
         this.current_visibility_grid = new Array(this.world.size).fill(false);
 
-        this.field_of_view.update(this.world);
-
-        this.field_of_view.visible_positions
-            .filter(position => this.world.is_valid_position(position))
-            .forEach(position =>{
-                const idx = this.index(position);
-                this.viewed_at_least_once_grid[idx] = true;
-                this.current_visibility_grid[idx] = undefined;
-            });
+        this.fov_list.forEach(fov => {
+            fov.visible_positions.filter(position => this.world.is_valid_position(position))
+                .forEach(position =>{
+                    const idx = this.index(position);
+                    this.viewed_at_least_once_grid[idx] = true;
+                    this.current_visibility_grid[idx] = undefined;
+                });
+        })
 
         this._render_dark_unknown();
         this._render_last_visible_squares();
         this._need_last_seen_capture = true;
-    }
-
-    get position() { return this.field_of_view.position; }
-
-    change_viewer_position(new_pos){
-        this.field_of_view.position = new_pos;
-        this._refresh();
     }
 
     update(delta_time){
@@ -113,7 +121,9 @@ class FogOfWar {
         this._dark_canvas_context.fillRect(0, 0, this.graphic_width, this.graphic_height);
         this._dark_canvas_context.fillStyle = "#ffffffff";
         this._dark_canvas_context.globalCompositeOperation = "destination-out";
-        this.field_of_view.visible_positions.forEach(position => {
+
+        const all_visible_positions = this.fov_list.flatMap(fov => fov.visible_positions);
+        all_visible_positions.forEach(position => {
             const gfx_position = graphic_position(position);
             this._dark_canvas_context.fillRect(gfx_position.x, gfx_position.y, PIXELS_PER_TILES_SIDE, PIXELS_PER_TILES_SIDE);
         });

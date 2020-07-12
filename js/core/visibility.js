@@ -1,7 +1,7 @@
 
 
 export {
-    FieldOfView,
+    FieldOfVision,
     positions_in_range,
     valid_target_positions,
     valid_move_positions,
@@ -166,13 +166,14 @@ function valid_move_positions(world, center, action_range_shape, tile_filter){
             .filter(pos => !world.is_blocked_position(pos, tile_filter));
 }
 
-class FieldOfView {
+class FieldOfVision {
 
     constructor(position, view_distance){
         console.assert(position instanceof concepts.Position);
         console.assert(Number.isInteger(view_distance) && view_distance >= 0);
         this._center = position;
         this._view_distance = view_distance;
+        this._visible_positions = [];
     }
 
     get view_distance(){ return this._view_distance; }

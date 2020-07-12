@@ -4,7 +4,7 @@ export {
 }
 
 import * as concepts from "./concepts.js";
-import { FieldOfView } from "./visibility.js";
+import { FieldOfVision } from "./visibility.js";
 
 const default_view_distance = 7;
 
@@ -21,17 +21,17 @@ class Character extends concepts.Body {
     get position() { return super.position; }
     set position(new_pos) {
         super.position = new_pos;
-        this.field_of_view.position = this.position;
+        this.field_of_vision.position = this.position;
     }
 
-    get view_distance(){ return this.field_of_view.view_distance; }
+    get view_distance(){ return this.field_of_vision.view_distance; }
     set view_distance(new_distance){
         console.assert(Number.isInteger(new_distance));
-        this.field_of_view.view_distance = new_distance;
+        this.field_of_vision.view_distance = new_distance;
     }
 
-    update_view(world){
-        this.field_of_view.update(world);
+    update_perception(world){
+        this.field_of_vision.update(world);
     }
 
     ////////////////////////////////
