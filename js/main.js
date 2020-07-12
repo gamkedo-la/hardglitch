@@ -19,6 +19,7 @@ let current_game = null;
 let current_game_view = null;
 let last_update_time = Date.now();
 let game_state_machine = new StateMachine(state.running);
+const max_delta_time = 100;
 
 window.onload = async function() {
   const assets = await load_all_assets();
@@ -44,7 +45,7 @@ function start() {
 
 function get_delta_time() {
   const now = Date.now();
-  const delta_time = now - last_update_time;
+  const delta_time = Math.min(max_delta_time, now - last_update_time);
   last_update_time = now;
   return delta_time;
 }

@@ -86,7 +86,7 @@ class Env {
 
     loop() {
         const now = Date.now();
-        const delta_time = now - last_update_time;
+        const delta_time = Math.min(100,now - last_update_time);
         last_update_time = now;
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.drawImage(this.bgimg, 368, 236);
