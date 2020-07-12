@@ -68,6 +68,17 @@ class Character extends concepts.Body {
     }
 
 
+    // Properly performs an action after having spent the action points from the body etc.
+    // Returns events resulting from performing the action.
+    perform_action(action, world){
+        // TODO: Spend the action points etc. HERE
+        this.disable_further_actions(); // TEMPORARY/TODO: REPLACE THIS BY PROPER ACTION POINT SPENDING
+
+        // Then execute the action:
+        return action.execute(world, this);
+    }
+
+
 };
 
 

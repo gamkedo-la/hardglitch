@@ -18,7 +18,6 @@ export {
     Item,
     Body,
     Position,
-    perform_action,
 };
 
 import { is_number, clamp } from "../system/utility.js";
@@ -59,15 +58,6 @@ class Action {
     }
 };
 
-// Properly performs an action after having spent the action points from the body etc.
-// Returns events resulting from performing the action.
-function perform_action(action, body, world){
-    // TODO: Spend the action points etc. HERE
-    body.disable_further_actions(); // TEMPORARY/TODO: REPLACE THIS BY PROPER ACTION POINT SPENDING
-
-    // Then execute the action:
-    return action.execute(world, body);
-}
 
 // Represents the record of something that happened in the past.
 class Event{

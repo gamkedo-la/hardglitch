@@ -135,7 +135,7 @@ function* execute_turns_until_players_turn(world) {
             console.assert(action instanceof concepts.Action);// Ath this point, an action MUST have been defined (even if it's just Wait)
 
             // Apply the selected action.
-            const action_events = concepts.perform_action(action, character, world);
+            const action_events = character.perform_action(action, world);
             events_since_last_player_action.push(...action_events);
 
             // In all cases:
