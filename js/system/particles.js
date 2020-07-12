@@ -12,6 +12,7 @@ export {
     BlipParticle,
     SwirlParticle,
     SwirlPrefab,
+    RingParticle,
 }
 
 import { camera } from "./graphics.js";
@@ -900,4 +901,71 @@ class SwirlPrefab {
     get done() {
         return this.sentinel.done;
     }
+}
+
+class RingParticle extends Particle {
+
+    constructor(ctx, x, y, radius, hue, fadeInTTL, collapseTTL) {
+        super(ctx, x, y);
+        this.radius = radius;
+        this.hue = hue;
+        this.brightness = rand(50, 80);
+        // convert to milliseconds
+        // fade in
+        this.fadeInTTL = fadeInTTL * 1000;      
+        this.fadeInFactor = 1/this.fadeInTTL;
+        // collapse
+        this.collapseTTL = collapseTTL * 1000;
+        this.collapseFactor = radius/this.collapseTTL;
+        this.alpha = 0;
+    }
+
+    update(delta_time) {
+        // fade in
+        if (this.fadeInTTL) {
+            this.fadeInTTL = Math.max(0, this.fadeInTTL - delta_time);
+            this.alpha = Math.min(1, this.alpha + this.fadeInFactor*delta_time);
+        // collapse
+        } else if (this.collapseTTL) {
+            this.collapseTTL = Math.max(0, this.collapseTTL - delta_time);
+            this.radius = Math.max(1, this.radius - this.collapseFactor*delta_time);
+        // done
+        } else {
+            this._done = true;
+        }
+    }
+
+    draw() {
+        this.ctx.save();
+        this.ctx.beginPath();
+        this.ctx.arc(Math.round(this.x), Math.round(this.y), this.radius, 0, Math.PI*2)
+        this.ctx.closePath();
+        this.ctx.strokeStyle = 'hsla('+this.hue+', 100%, '+this.brightness+'%, '+this.alpha+')';
+        this.ctx.stroke();
+
+        let halfAlpha = this.alpha *.5;
+        this.ctx.beginPath();
+        this.ctx.arc(Math.round(this.x), Math.round(this.y), this.radius+1, 0, Math.PI*2)
+        this.ctx.arc(Math.round(this.x), Math.round(this.y), this.radius-1, 0, Math.PI*2)
+        this.ctx.closePath();
+        this.ctx.strokeStyle = 'hsla('+this.hue+', 100%, '+this.brightness+'%, '+halfAlpha+')';
+        this.ctx.stroke();
+
+        this.ctx.restore();
+    }
+
+}
+
+class TrailParticle extends Particle {
+
+    constructor(ctx, x, y) {
+        super(ctx, x, y);
+    }
+
+    update(delta_time) {
+    }
+
+    draw() {
+    }
+
 }
