@@ -56,7 +56,7 @@ class Move extends concepts.Action {
     icon_def = sprite_defs.icon_action_move;
 
     constructor(move_name, new_position){
-        super(move_name, `Move to ${JSON.stringify(new_position)} (${move_name})`, new_position);
+        super(move_name, `Move to ${JSON.stringify(new_position)}`, new_position, 5);
         this.is_basic = true;
     }
 
@@ -106,7 +106,7 @@ class Jump extends concepts.Action {
     icon_def = sprite_defs.icon_action_move;
 
     constructor(target){
-        super(`jump_${target.x}_${target.y}`, `Jump to ${JSON.stringify(target)}`, target);
+        super(`jump_${target.x}_${target.y}`, `Jump to ${JSON.stringify(target)}`, target, 20);
         this.is_basic = true;
     }
 
@@ -178,7 +178,7 @@ class Swap extends concepts.Action {
 
     constructor(target){
         console.assert(target instanceof concepts.Position);
-        super(`swap_${target.x}_${target.y}`, `Swap with ${JSON.stringify(target)}`, target);
+        super(`swap_${target.x}_${target.y}`, `Swap with ${JSON.stringify(target)}`, target, 10);
         this.target = target
     }
 

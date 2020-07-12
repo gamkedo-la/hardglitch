@@ -45,8 +45,9 @@ class Waited extends concepts.Event {
 class Wait extends concepts.Action {
     icon_def = sprite_defs.icon_action_wait;
 
-    constructor(){
-        super("wait", "Wait");
+    constructor(character){
+        console.assert(character instanceof Character);
+        super("wait", "Wait", undefined, character.stats.action_points.value); // Costs the rest of the current AP of the character
     }
 
     execute(world, body) {
@@ -56,10 +57,11 @@ class Wait extends concepts.Action {
 
 // The most basic rules.
 class Rule_BasicActions extends concepts.Rule {
-    get_actions_for(body, world) {
+    get_actions_for(character, world) {
+        console.assert(character instanceof Character);
 
         return {
-            wait: new Wait() // Anyone can "wait".
+            wait: new Wait(character) // Anyone can "wait".
         };
     }
 };

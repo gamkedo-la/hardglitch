@@ -5,6 +5,7 @@ export {
  }
 
 import * as concepts from "../core/concepts.js";
+import { Character } from "../core/character.js";
 
 class Event_ActionPointsRestored extends concepts.Event {
     constructor(character, restored_points){
@@ -18,7 +19,7 @@ class Event_ActionPointsRestored extends concepts.Event {
     get focus_positions() { return [ this.character_position ]; }
 
     *animation(){
-        // TODO: display the restored points or something
+        // TODO: display the restored points or something?
     }
 };
 
@@ -31,9 +32,10 @@ class Rule_ActionPoints extends concepts.Rule {
 
 function restore_characters_action_points(world){
     const events = [];
-    for(const body of world.bodies){
-        body.acted_this_turn = false; // TODO: replace this by actual action point logic
-        events.push( new Event_ActionPointsRestored(body, 1) ); // TODO: set the real action points restored here.
+    for(const character of world.bodies){
+        console.assert(character instanceof Character);
+        character.stats.action_points.increase(character.stats.ap_recovery.value);
+        events.push( new Event_ActionPointsRestored(character, character.stats.ap_recovery.value) ); // TODO: set the real action points restored here.
     }
     return events;
 }

@@ -203,6 +203,11 @@ class GameView {
         return entity_view;
     }
 
+    _action_description(action){ // TODO: make a general function for this AND make it handle also more general description and action icons.
+        console.assert(action instanceof concepts.Action);
+        return `${action.name} -${action.cost} AP`;
+    }
+
     // Setup highlights for actions that are known with a target position.
     highlight_available_basic_actions(){
         this.clear_highlights_basic_actions(); // Clear previous highlighting
@@ -211,9 +216,9 @@ class GameView {
         for(const action of Object.values(available_actions)){
             if(action.is_basic && action.is_safe){
                 if(action instanceof Move)
-                    this._add_highlight(action.target_position, this._highlight_sprites.movement, action.name);
+                    this._add_highlight(action.target_position, this._highlight_sprites.movement, this._action_description(action));
                 else
-                    this._add_highlight(action.target_position, this._highlight_sprites.basic_action, action.name);
+                    this._add_highlight(action.target_position, this._highlight_sprites.basic_action, this._action_description(action));
             }
         }
 
@@ -224,11 +229,12 @@ class GameView {
     }
 
     highlight_selected_action_targets(action_info){
-        this.player_actions_highlights = []; // Clear previous highlighting
+        this.clear_highlights_basic_actions(); // Clear previous highlighting
 
         for(const action of action_info.actions){
-            if(action.target_position)
-                this._add_highlight(action.target_position, this._highlight_sprites.action, action.name);
+            if(action.target_position){
+                this._add_highlight(action.target_position, this._highlight_sprites.action, this._action_description(action));
+            }
         }
     }
 
@@ -290,7 +296,6 @@ class GameView {
                 this.is_time_for_player_to_chose_action = false;
                 this.ui.lock_actions();
                 this.clear_focus();
-                editor.set_text("PROCESSING NPC TURNS...");
             }
 
             if(this.current_animations.animation_count == 0){

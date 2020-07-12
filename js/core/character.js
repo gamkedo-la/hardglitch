@@ -45,10 +45,10 @@ class StatValue {
     set value(new_value) {
         console.assert(Number.isInteger(new_value) && new_value >= 0);
 
-        if(this.max){
+        if(this._max){
             console.assert(new_value <= this.max);
         }
-        if(this.min){
+        if(this._min){
             console.assert(new_value >= this.min);
         }
 
@@ -58,8 +58,8 @@ class StatValue {
     increase(value_to_add){
         console.assert(Number.isInteger(value_to_add) && value_to_add >= 0);
         const new_value = this.value + value_to_add;
-        if(this.max !== undefined)
-            this._value = Math.max(new_value, this.max);
+        if(this._max !== undefined)
+            this._value = Math.min(new_value, this._max);
         else
             this._value = new_value;
     }
@@ -67,8 +67,8 @@ class StatValue {
     decrease(value_to_sub){
         console.assert(Number.isInteger(value_to_sub) && value_to_sub >= 0);
         const new_value = this.value - value_to_sub;
-        if(this.min !== undefined)
-            this._value = Math.max(new_value, this.min);
+        if(this._min !== undefined)
+            this._value = Math.max(new_value, this._min);
         else
             this._value = new_value;
     }
@@ -112,24 +112,15 @@ class Character extends concepts.Body {
         this.field_of_vision.update(world);
     }
 
-    ////////////////////////////////
-    // Action Point System here.
-    action_points_left = 0;
-    max_action_points = 0;
-
-    // TODO: replace the following functions implementations with action point system!
-    // BEWARE, this is a hack to simulate being able to act once per turn.
-    acted_this_turn = false;
-
-
     // True if this body can perform actions (have an actor for decisions and have enough action points).
-    get can_perform_actions(){ // TODO: use actual action points
-        // Cannot perform actions if we don't have an actor to decide which action to perform.
-        return this.actor && !this.acted_this_turn;
+    get can_perform_actions(){
+        return this.actor // Cannot perform actions if we don't have an actor to decide which action to perform.
+            && this.stats.action_points.value > 0 // Perform actions until there is 0 points or less left.
+            ;
     }
 
     disable_further_actions(){
-        this.acted_this_turn = true;
+        this.action_points.value = 0;
     }
 
     // Describe the possible positions relative to the current ones that could be reached in one step,
@@ -149,8 +140,12 @@ class Character extends concepts.Body {
     // Properly performs an action after having spent the action points from the body etc.
     // Returns events resulting from performing the action.
     perform_action(action, world){
-        // TODO: Spend the action points etc. HERE
-        this.disable_further_actions(); // TEMPORARY/TODO: REPLACE THIS BY PROPER ACTION POINT SPENDING
+        console.assert(action instanceof concepts.Action);
+        console.assert(world instanceof concepts.World);
+
+        // Pay for this action
+        console.assert(Number.isInteger(action.cost) && action.cost >= 0);
+        this.stats.action_points.decrease(action.cost);
 
         // Then execute the action:
         return action.execute(world, this);
