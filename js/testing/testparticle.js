@@ -1,4 +1,4 @@
-import { Color, ParticleSystem, ParticleEmitter, ParticleSequence, FadeLineParticle, ColorGlitchParticle, OffsetGlitchParticle, FadeParticle, BlipParticle, ParticleGroup, SwirlPrefab, RingParticle } from "../system/particles.js";
+import { Color, ParticleSystem, ParticleEmitter, ParticleSequence, FadeLineParticle, ColorGlitchParticle, OffsetGlitchParticle, FadeParticle, BlipParticle, ParticleGroup, SwirlPrefab, RingParticle, ShootUpParticle, FlashParticle } from "../system/particles.js";
 import { random_int, random_float } from "../system/utility.js";
 import { initialize } from "../system/graphics.js";
 
@@ -87,11 +87,48 @@ class Env {
             let xoff = random_float(-15,15);
             let yoff = random_float(-15,15);
             let radius = random_int(5,10);
-            let fadeInTTL = random_float(.25,.5);
-            let collapseTTL = random_float(.5,1);
+            let ttl = random_float(.75,1.5);
             let hue = random_int(150, 250);
-            return new RingParticle(ctx, 600+xoff, 300+yoff, radius, hue, fadeInTTL, collapseTTL);
+            return new RingParticle(ctx, 600+xoff, 275+yoff, radius, hue, ttl, 25);
         }, .25, 25));
+
+        this.particles.add(new ParticleEmitter(this.particles, () => {
+            let xoff = random_int(-15,15);
+            let yoff = random_int(-15,15);
+            let speed = random_int(25,50);
+            let width = random_int(3,6);
+            let hue = random_int(150, 250);
+            let ttl = random_float(4,6);
+            let pathLen = 60;
+            return new ShootUpParticle(ctx, 700+xoff, 275+yoff, speed, width, hue, pathLen, ttl, 50);
+        }, .25, 25));
+
+        this.particles.add(new ParticleEmitter(this.particles, () => {
+            let xoff = random_int(-15,15);
+            let yoff = random_int(-15,15);
+            let width = random_int(20,30);
+            let hue = random_int(150, 250);
+            let ttl = .1;
+            return new FlashParticle(ctx, 800+xoff, 275+yoff, width, hue, ttl);
+        }, .1, 0, 0, 5));
+
+        this.particles.add(new ParticleEmitter(this.particles, () => {
+            let xoff = random_int(-15,15);
+            let yoff = random_int(-15,15);
+            let speed = random_int(100,200);
+            let radius = random_int(5,10);
+            let width = radius * .7;
+            let hue = random_int(150, 250);
+            let ringTTL = random_float(.5,.75);
+            let flashTTL = .1;
+            let shootTTL = random_float(.75,1.25);
+            let pathLen = 15;
+            return new ParticleSequence(this.particles, [
+                () => { return new RingParticle(ctx, 900+xoff, 275+yoff, radius, hue, ringTTL, 25); },
+                () => { return new FlashParticle(ctx, 900+xoff, 275+yoff, width*4, hue, flashTTL); },
+                () => { return new ShootUpParticle(ctx, 900+xoff, 275+yoff, speed, width, hue, pathLen, shootTTL, 50); },
+            ], .01);
+        }, .1, 25));
 
     }
 

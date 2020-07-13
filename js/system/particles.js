@@ -13,10 +13,11 @@ export {
     SwirlParticle,
     SwirlPrefab,
     RingParticle,
+    ShootUpParticle,
+    FlashParticle,
 }
 
 import { camera } from "./graphics.js";
-import { Rectangle } from "./spatial.js";
 import { random_int, random_float } from "../system/utility.js";
 
 /**
@@ -905,22 +906,24 @@ class SwirlPrefab {
 
 class RingParticle extends Particle {
 
-    constructor(ctx, x, y, radius, hue, fadeInTTL, collapseTTL) {
+    constructor(ctx, x, y, radius, hue, ttl, fadePct) {
         super(ctx, x, y);
         this.radius = radius;
         this.hue = hue;
         this.brightness = rand(50, 80);
         // convert to milliseconds
         // fade in
-        this.fadeInTTL = fadeInTTL * 1000;      
+        let totalTTL = ttl * 1000;
+        this.fadeInTTL = Math.min(totalTTL, totalTTL * fadePct/100);
         this.fadeInFactor = 1/this.fadeInTTL;
         // collapse
-        this.collapseTTL = collapseTTL * 1000;
+        this.collapseTTL = totalTTL - this.fadeInTTL;
         this.collapseFactor = radius/this.collapseTTL;
         this.alpha = 0;
     }
 
     update(delta_time) {
+        if (this.done) return;
         // fade in
         if (this.fadeInTTL) {
             this.fadeInTTL = Math.max(0, this.fadeInTTL - delta_time);
@@ -942,7 +945,6 @@ class RingParticle extends Particle {
         this.ctx.closePath();
         this.ctx.strokeStyle = 'hsla('+this.hue+', 100%, '+this.brightness+'%, '+this.alpha+')';
         this.ctx.stroke();
-
         let halfAlpha = this.alpha *.5;
         this.ctx.beginPath();
         this.ctx.arc(Math.round(this.x), Math.round(this.y), this.radius+1, 0, Math.PI*2)
@@ -950,22 +952,184 @@ class RingParticle extends Particle {
         this.ctx.closePath();
         this.ctx.strokeStyle = 'hsla('+this.hue+', 100%, '+this.brightness+'%, '+halfAlpha+')';
         this.ctx.stroke();
-
         this.ctx.restore();
     }
 
 }
 
-class TrailParticle extends Particle {
+class ShootUpParticle extends Particle {
 
-    constructor(ctx, x, y) {
+    constructor(ctx, x, y, speed, width, hue, pathLen, ttl, shootPct) {
         super(ctx, x, y);
+        this.speed = speed*.001;
+        this.width = width;
+        this.radius = 1;
+        this.radiusStep = 1/((width * .5)-1);
+        this.radiusMax = width * .5;
+        this.hue = hue;
+        let totalTTL = ttl * 1000;
+        this.shootTTL = Math.min(totalTTL, totalTTL * shootPct/100);
+        this.fadeTTL = (totalTTL - this.shootTTL) * .25;
+        this.finalTTL = (totalTTL - this.shootTTL) * .75;
+        this.brightness = rand(50, 80);
+        this.brightBoost = 100;
+        this.pathLen = pathLen;
+        this.headAlpha = 1;
+        this.tailAlpha = .65;
+        this.headAlphaStep = this.headAlpha/this.fadeTTL;
+        this.tailAlphaStep = this.tailAlpha/this.finalTTL;
+        this.endX = x;
+        this.endY = y;
     }
 
     update(delta_time) {
+        if (this.done) return;
+        let dy = this.speed * delta_time;
+        this.y -= dy;
+        // keep track of path
+        if (this.pathLen > 0) {
+            this.pathLen--;
+        } else {
+            this.endY -= dy;
+        }
+        // lifetimes
+        if (this.shootTTL) {
+            if (this.radius != this.radiusMax) {
+                this.radius = Math.min(this.radiusMax, this.radius + this.radiusStep);
+            }
+            this.shootTTL = Math.max(0, this.shootTTL - delta_time);
+            //if (this.shootTTL == 0) console.log("shoot is done");
+        } else if (this.fadeTTL) {
+            this.fadeTTL = Math.max(0, this.fadeTTL - delta_time);
+            this.headAlpha = Math.max(0, this.headAlpha - this.headAlphaStep*delta_time);
+            if (this.fadeTTL == 0) this.speed *= .75;
+        } else if (this.finalTTL) {
+            this.finalTTL = Math.max(0, this.finalTTL - delta_time);
+            if (this.finalTTL == 0) {
+                this._done = true;
+            }
+            this.tailAlpha = Math.max(0, this.tailAlpha - this.tailAlphaStep*delta_time);
+        }
+    }
+
+    getGradient(alpha) {
+        let gradient = this.ctx.createLinearGradient(this.x, this.y, this.endX, this.endY);
+        gradient.addColorStop(0, 'hsla('+this.hue+', 100%, '+this.brightness+'%, '+alpha+')');
+        gradient.addColorStop(1, 'hsla('+this.hue+', 100%, '+this.brightness+'%, 0)');
+        return gradient;
     }
 
     draw() {
+        this.ctx.save();
+        // head of "comet"
+        if (this.fadeTTL) {
+            let headBrightness = this.brightness + this.brightBoost;
+            if (this.brightBoost) this.brightBoost = Math.max(0,this.brightBoost - 20);
+            this.ctx.beginPath();
+            this.ctx.arc(Math.round(this.x), Math.round(this.y), this.radius, 0, Math.PI*2)
+            this.ctx.closePath();
+            this.ctx.fillStyle = 'hsla('+this.hue+', 100%, '+headBrightness+'%, '+this.headAlpha+')';
+            this.ctx.fill();
+        }
+        // tail
+        this.ctx.beginPath();
+        this.ctx.lineWidth = this.width;
+        this.ctx.lineCap = 'round';
+        this.ctx.moveTo(this.x, this.y);
+        this.ctx.lineTo(this.endX, this.endY);
+        this.ctx.strokeStyle = this.getGradient(this.tailAlpha * .65);
+        this.ctx.stroke();
+        this.ctx.closePath();
+        this.ctx.restore();
+    }
+}
+
+class FlashParticle extends Particle {
+
+    constructor(ctx, x, y, width, hue, ttl) {
+        super(ctx, x, y);
+        this.width = width;
+        this.hue = hue;
+        this.ttl = ttl * 1000;
+        this.maxTTL = this.ttl;
+        this.armBrightness = rand(50, 80);
+        this.centerBrightness = rand(150, 200);
+        this.radius = width *.125;
+        this.alpha = .1;
+        this.alphaStep = .9/(this.ttl/2);
+        this.angle1 = Math.random() * Math.PI;
+        this.angle2 = this.angle1 + (Math.PI * .5);
+        this.rotateStep = random_float(-1,1) / this.ttl;
+    }
+
+    update(delta_time) {
+        if (this.done) return;
+        // fade in
+        if (this.ttl > (this.maxTTL*.5)) {
+            this.alpha = Math.min(1, this.alpha + this.alphaStep*delta_time);
+        // fade out
+        } else {
+            this.alpha = Math.max(0, this.alpha - this.alphaStep*delta_time);
+        }
+        // rotation
+        this.angle1 += this.rotateStep * delta_time;
+        this.angle2 += this.rotateStep * delta_time;
+        // lifetimes
+        if (this.ttl) {
+            this.ttl = Math.max(0, this.ttl - delta_time);
+            if (this.ttl == 0) {
+                this._done = true;
+            }
+        }
+    }
+
+    getGradient(sx, sy, ex, ey, alpha) {
+        let gradient = this.ctx.createLinearGradient(sx, sy, ex, ey);
+        gradient.addColorStop(0, 'hsla('+this.hue+', 100%, '+this.armBrightness+'%, '+alpha*.25+')');
+        gradient.addColorStop(.5, 'hsla('+this.hue+', 100%, '+this.armBrightness+'%, '+alpha+')');
+        gradient.addColorStop(1, 'hsla('+this.hue+', 100%, '+this.armBrightness+'%, '+alpha*.25+')');
+        return gradient;
+    }
+
+    draw() {
+        this.ctx.save();
+
+        // arms
+        let sx1 = Math.cos(this.angle1) * this.width * .5;
+        let sy1 = Math.sin(this.angle1) * this.width * .5;
+        let ex1 = -sx1;
+        let ey1 = -sy1;
+        let sx2 = Math.cos(this.angle2) * this.width * .5;
+        let sy2 = Math.sin(this.angle2) * this.width * .5;
+        let ex2 = -sx2;
+        let ey2 = -sy2;
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.x+sx1, this.y+sy1);
+        this.ctx.lineTo(this.x+ex1, this.y+ey1);
+        this.ctx.lineWidth = 1.5;
+        this.ctx.strokeStyle = this.getGradient(this.x+sx1, this.y+sy1, this.x+ex1, this.y+ey1, this.alpha);
+        this.ctx.stroke();
+        this.ctx.closePath();
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.x+sx2, this.y+sy2);
+        this.ctx.lineTo(this.x+ex2, this.y+ey2);
+        this.ctx.lineWidth = 1.5;
+        this.ctx.strokeStyle = this.getGradient(this.x+sx2, this.y+sy2, this.x+ex2, this.y+ey2, this.alpha);
+        this.ctx.stroke();
+        this.ctx.closePath();
+        // center dot
+        this.ctx.beginPath();
+        this.ctx.arc(Math.round(this.x), Math.round(this.y), this.radius, 0, Math.PI*2)
+        this.ctx.fillStyle = 'hsla('+this.hue+', 100%, '+this.centerBrightness+'%, '+this.alpha*.5+')';
+        this.ctx.fill();
+        this.ctx.closePath();
+        this.ctx.beginPath();
+        this.ctx.arc(Math.round(this.x), Math.round(this.y), Math.max(1,this.radius-2), 0, Math.PI*2)
+        this.ctx.fillStyle = 'hsla('+this.hue+', 100%, '+this.centerBrightness+'%, '+this.alpha+')';
+        this.ctx.fill();
+        this.ctx.closePath();
+
+        this.ctx.restore();
     }
 
 }
