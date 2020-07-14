@@ -1,5 +1,6 @@
-import { Color, ParticleSystem, ParticleEmitter, ParticleSequence, FadeLineParticle, ColorGlitchParticle, OffsetGlitchParticle, FadeParticle, BlipParticle, ParticleGroup, SwirlPrefab, RingParticle, ShootUpParticle, FlashParticle } from "../system/particles.js";
+import { ParticleSystem, ParticleEmitter, ParticleSequence, FadeLineParticle, ColorGlitchParticle, OffsetGlitchParticle, FadeParticle, BlipParticle, ParticleGroup, SwirlPrefab, RingParticle, ShootUpParticle, FlashParticle } from "../system/particles.js";
 import { random_int, random_float } from "../system/utility.js";
+import { Color } from "../system/color.js";
 import { initialize } from "../system/graphics.js";
 
 let last_update_time = Date.now();

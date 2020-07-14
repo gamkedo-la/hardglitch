@@ -11,8 +11,9 @@ import { SeamSelector, genFloorOverlay, genFgOverlay } from "./tile-select.js";
 import * as graphics from "../system/graphics.js";
 import { Vector2 } from "../system/spatial.js";
 import { PIXELS_PER_TILES_SIDE, PIXELS_PER_HALF_SIDE } from "./entity-view.js";
-import { ParticleGroup, ParticleSystem, ParticleEmitter, FadeLineParticle, BlipParticle, FadeParticle, Color } from "../system/particles.js";
+import { ParticleGroup, ParticleSystem, ParticleEmitter, FadeLineParticle, BlipParticle, FadeParticle } from "../system/particles.js";
 import { random_float, position_from_index } from "../system/utility.js";
+import { Color } from "../system/color.js";
 
 let canvas = document.getElementById('gameCanvas');
 let canvasContext = canvas.getContext('2d');

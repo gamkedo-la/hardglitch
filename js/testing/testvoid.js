@@ -1,5 +1,6 @@
-import { Color, ParticleSystem, ParticleEmitter, FadeLineParticle, FadeParticle, BlipParticle, ParticleGroup } from "../system/particles.js";
+import { ParticleSystem, ParticleEmitter, FadeLineParticle, FadeParticle, BlipParticle, ParticleGroup } from "../system/particles.js";
 import { random_float } from "../system/utility.js";
+import { Color } from "../system/color.js";
 
 let last_update_time = Date.now();
 
