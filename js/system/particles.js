@@ -18,6 +18,7 @@ export {
 
 import { camera } from "./graphics.js";
 import { random_int, random_float } from "../system/utility.js";
+import { Color } from "../system/color.js";
 
 /**
  * A particle system intended to keep track of all active particles and emitters
@@ -706,24 +707,22 @@ class BlipParticle extends Particle {
     }
 }
 
-// FIXME
-var rand = function(rMi, rMa){return ~~((Math.random()*(rMa-rMi+1))+rMi);}
-
 class SwirlParticle extends Particle {
     /*=============================================================================*/
     /**
-     *
+     * Create a swirl particle
      * @param {*} ctx
      * @param {*} x
      * @param {*} y
-     * @param {*} hue
+     * @param {*} hue - H of HSL for color
      * @param {*} speed - particle speed (in pixels per second)
      * @param {*} radius - radius of swirl (in pixels)
      * @param {*} width - base particle width
+     * @param {*} emerge - emerge duration (either controlled via time or sentinel object)
+     * @param {*} decay - emerge duration in seconds
      */
     constructor(ctx, x, y, hue, speed, radius, width, emerge, decay){
         super(ctx, x, y);
-		this.hue = hue;
         this.speed = speed;
         this.radius = radius;
         this.width = width;
@@ -743,12 +742,13 @@ class SwirlParticle extends Particle {
         this.ox = x;
         this.oy = y;
         this.length = 0;
-		this.angle = rand(0, 360);
-		this.brightness = rand(50, 80);
-		this.alpha = rand(40,100)/100;
-        if (decay) this.alphadecay = this.alpha/decay;
+        this.angle = random_int(0, 360);
+        let brightness = random_int(50,80);
+        this.color = Color.fromHSL(hue, 100, brightness, random_float(.4,1));
+        this.flickerColor = Color.fromHSL(hue, 100, brightness, random_float(.5,1));
+        if (decay) this.alphadecay = this.color.a/decay;
         // counter-clockwise?
-        this.ccw = (rand(0, 1)) ? 1 : -1;
+        this.ccw = (random_int(0, 1)) ? 1 : -1;
         this.flickerDensity = 20;
         this.collapsing = false;
 	};
@@ -788,7 +788,7 @@ class SwirlParticle extends Particle {
             }
         } else {
             this.ttl -= delta_time;
-            this.alpha -= Math.min(this.alpha, this.alphadecay * delta_time);
+            this.color.a -= Math.min(this.color.a, this.alphadecay * delta_time);
             if (this.ttl <= 0) {
                 this._done = true;
             }
@@ -796,22 +796,22 @@ class SwirlParticle extends Particle {
 	};
 
 	draw(){
-        var coordRand = (rand(1,3)-1);
+        var coordRand = (random_int(1,3)-1);
         this.ctx.save();
 		this.ctx.beginPath();
 		this.ctx.moveTo(Math.round(this.coordLast[coordRand].x), Math.round(this.coordLast[coordRand].y));
 		this.ctx.lineTo(Math.round(this.x), Math.round(this.y));
 		this.ctx.closePath();
-		this.ctx.strokeStyle = 'hsla('+this.hue+', 100%, '+this.brightness+'%, '+this.alpha+')';
+        this.ctx.strokeStyle = this.color.asHSL();
 		this.ctx.stroke();
 		if(this.flickerDensity > 0){
 			var inverseDensity = 50 - this.flickerDensity;
-			if(rand(0, inverseDensity) === inverseDensity){
+			if(random_int(0, inverseDensity) === inverseDensity){
 				this.ctx.beginPath();
-				this.ctx.arc(Math.round(this.x), Math.round(this.y), rand(this.width,this.width+3)/2, 0, Math.PI*2, false)
-				this.ctx.closePath();
-				var randAlpha = rand(50,100)/100;
-				this.ctx.fillStyle = 'hsla('+this.hue+', 100%, '+this.brightness+'%, '+randAlpha+')';
+				this.ctx.arc(Math.round(this.x), Math.round(this.y), random_int(this.width,this.width+3)/2, 0, Math.PI*2, false)
+                this.ctx.closePath();
+                this.flickerColor.a = random_float(.5,1);
+                this.ctx.fillStyle = this.flickerColor.asHSL();
 				this.ctx.fill();
 			}
 		}
@@ -875,8 +875,8 @@ class RingParticle extends Particle {
     constructor(ctx, x, y, radius, hue, ttl, fadePct) {
         super(ctx, x, y);
         this.radius = radius;
-        this.hue = hue;
-        this.brightness = rand(50, 80);
+        this.color = Color.fromHSL(hue, 100, random_int(50,80), 0);
+        this.halfColor = this.color.copy();
         // convert to milliseconds
         // fade in
         let totalTTL = ttl * 1000;
@@ -885,7 +885,6 @@ class RingParticle extends Particle {
         // collapse
         this.collapseTTL = totalTTL - this.fadeInTTL;
         this.collapseFactor = radius/this.collapseTTL;
-        this.alpha = 0;
     }
 
     update(delta_time) {
@@ -893,7 +892,8 @@ class RingParticle extends Particle {
         // fade in
         if (this.fadeInTTL) {
             this.fadeInTTL = Math.max(0, this.fadeInTTL - delta_time);
-            this.alpha = Math.min(1, this.alpha + this.fadeInFactor*delta_time);
+            this.color.a = Math.min(1, this.color.a + this.fadeInFactor*delta_time);
+            this.halfColor.a = this.color.a * .5;
         // collapse
         } else if (this.collapseTTL) {
             this.collapseTTL = Math.max(0, this.collapseTTL - delta_time);
@@ -909,14 +909,13 @@ class RingParticle extends Particle {
         this.ctx.beginPath();
         this.ctx.arc(Math.round(this.x), Math.round(this.y), this.radius, 0, Math.PI*2)
         this.ctx.closePath();
-        this.ctx.strokeStyle = 'hsla('+this.hue+', 100%, '+this.brightness+'%, '+this.alpha+')';
+        this.ctx.strokeStyle = this.color.asHSL();
         this.ctx.stroke();
-        let halfAlpha = this.alpha *.5;
         this.ctx.beginPath();
         this.ctx.arc(Math.round(this.x), Math.round(this.y), this.radius+1, 0, Math.PI*2)
         this.ctx.arc(Math.round(this.x), Math.round(this.y), this.radius-1, 0, Math.PI*2)
         this.ctx.closePath();
-        this.ctx.strokeStyle = 'hsla('+this.hue+', 100%, '+this.brightness+'%, '+halfAlpha+')';
+        this.ctx.strokeStyle = this.halfColor.asHSL();
         this.ctx.stroke();
         this.ctx.restore();
     }
@@ -932,18 +931,18 @@ class ShootUpParticle extends Particle {
         this.radius = 1;
         this.radiusStep = 1/((width * .5)-1);
         this.radiusMax = width * .5;
-        this.hue = hue;
         let totalTTL = ttl * 1000;
         this.shootTTL = Math.min(totalTTL, totalTTL * shootPct/100);
         this.fadeTTL = (totalTTL - this.shootTTL) * .25;
         this.finalTTL = (totalTTL - this.shootTTL) * .75;
-        this.brightness = rand(50, 80);
-        this.brightBoost = 100;
+        let brightness = random_int(50, 80);
+        this.headColor = Color.fromHSL(hue, 100, brightness, 1);
+        this.tailColor = Color.fromHSL(hue, 100, brightness, .65);
+        this.invisColor = Color.fromHSL(hue, 100, brightness, 0);
+        this.brightBoost = 50;
         this.pathLen = pathLen;
-        this.headAlpha = 1;
-        this.tailAlpha = .65;
-        this.headAlphaStep = this.headAlpha/this.fadeTTL;
-        this.tailAlphaStep = this.tailAlpha/this.finalTTL;
+        this.headAlphaStep = this.headColor.a/this.fadeTTL;
+        this.tailAlphaStep = this.tailColor.a/this.finalTTL;
         this.endX = x;
         this.endY = y;
     }
@@ -967,21 +966,21 @@ class ShootUpParticle extends Particle {
             //if (this.shootTTL == 0) console.log("shoot is done");
         } else if (this.fadeTTL) {
             this.fadeTTL = Math.max(0, this.fadeTTL - delta_time);
-            this.headAlpha = Math.max(0, this.headAlpha - this.headAlphaStep*delta_time);
+            this.headColor.a = Math.max(0, this.headColor.a - this.headAlphaStep*delta_time);
             if (this.fadeTTL == 0) this.speed *= .75;
         } else if (this.finalTTL) {
             this.finalTTL = Math.max(0, this.finalTTL - delta_time);
             if (this.finalTTL == 0) {
                 this._done = true;
             }
-            this.tailAlpha = Math.max(0, this.tailAlpha - this.tailAlphaStep*delta_time);
+            this.tailColor.a = Math.max(0, this.tailColor.a - this.tailAlphaStep*delta_time);
         }
     }
 
-    getGradient(alpha) {
+    getGradient(color) {
         let gradient = this.ctx.createLinearGradient(this.x, this.y, this.endX, this.endY);
-        gradient.addColorStop(0, 'hsla('+this.hue+', 100%, '+this.brightness+'%, '+alpha+')');
-        gradient.addColorStop(1, 'hsla('+this.hue+', 100%, '+this.brightness+'%, 0)');
+        gradient.addColorStop(0, color.asHSL());
+        gradient.addColorStop(1, this.invisColor.asHSL());
         return gradient;
     }
 
@@ -994,7 +993,14 @@ class ShootUpParticle extends Particle {
             this.ctx.beginPath();
             this.ctx.arc(Math.round(this.x), Math.round(this.y), this.radius, 0, Math.PI*2)
             this.ctx.closePath();
-            this.ctx.fillStyle = 'hsla('+this.hue+', 100%, '+headBrightness+'%, '+this.headAlpha+')';
+            if (this.brightBoost) {
+                let c = this.headColor.copy();
+                c.l = Math.min(100,c.l + this.brightBoost);
+                this.ctx.fillStyle = c.asHSL();
+                this.brightBoost = Math.max(0,this.brightBoost - 10);
+            } else {
+                this.ctx.fillStyle = this.headColor.copy();
+            }
             this.ctx.fill();
         }
         // tail
@@ -1003,7 +1009,7 @@ class ShootUpParticle extends Particle {
         this.ctx.lineCap = 'round';
         this.ctx.moveTo(this.x, this.y);
         this.ctx.lineTo(this.endX, this.endY);
-        this.ctx.strokeStyle = this.getGradient(this.tailAlpha * .65);
+        this.ctx.strokeStyle = this.getGradient(this.tailColor);
         this.ctx.stroke();
         this.ctx.closePath();
         this.ctx.restore();
@@ -1018,10 +1024,9 @@ class FlashParticle extends Particle {
         this.hue = hue;
         this.ttl = ttl * 1000;
         this.maxTTL = this.ttl;
-        this.armBrightness = rand(50, 80);
-        this.centerBrightness = rand(150, 200);
+        this.armColor = Color.fromHSL(hue, 100, random_int(50,80), .1);
+        this.centerColor = Color.fromHSL(hue, 100, random_int(90,100), .1);
         this.radius = width *.125;
-        this.alpha = .1;
         this.alphaStep = .9/(this.ttl/2);
         this.angle1 = Math.random() * Math.PI;
         this.angle2 = this.angle1 + (Math.PI * .5);
@@ -1032,10 +1037,12 @@ class FlashParticle extends Particle {
         if (this.done) return;
         // fade in
         if (this.ttl > (this.maxTTL*.5)) {
-            this.alpha = Math.min(1, this.alpha + this.alphaStep*delta_time);
+            this.armColor.a = Math.min(1, this.armColor.a + this.alphaStep*delta_time);
+            this.centerColor.a = Math.min(1, this.centerColor.a + this.alphaStep*delta_time);
         // fade out
         } else {
-            this.alpha = Math.max(0, this.alpha - this.alphaStep*delta_time);
+            this.armColor.a = Math.max(0, this.armColor.a - this.alphaStep*delta_time);
+            this.centerColor.a = Math.max(0, this.centerColor.a - this.alphaStep*delta_time);
         }
         // rotation
         this.angle1 += this.rotateStep * delta_time;
@@ -1049,11 +1056,11 @@ class FlashParticle extends Particle {
         }
     }
 
-    getGradient(sx, sy, ex, ey, alpha) {
+    getGradient(sx, sy, ex, ey, color) {
         let gradient = this.ctx.createLinearGradient(sx, sy, ex, ey);
-        gradient.addColorStop(0, 'hsla('+this.hue+', 100%, '+this.armBrightness+'%, '+alpha*.25+')');
-        gradient.addColorStop(.5, 'hsla('+this.hue+', 100%, '+this.armBrightness+'%, '+alpha+')');
-        gradient.addColorStop(1, 'hsla('+this.hue+', 100%, '+this.armBrightness+'%, '+alpha*.25+')');
+        gradient.addColorStop(0, color.asHSL(color.a*.25));
+        gradient.addColorStop(.5, color.asHSL());
+        gradient.addColorStop(1, color.asHSL(color.a*.25));
         return gradient;
     }
 
@@ -1073,25 +1080,25 @@ class FlashParticle extends Particle {
         this.ctx.moveTo(this.x+sx1, this.y+sy1);
         this.ctx.lineTo(this.x+ex1, this.y+ey1);
         this.ctx.lineWidth = 1.5;
-        this.ctx.strokeStyle = this.getGradient(this.x+sx1, this.y+sy1, this.x+ex1, this.y+ey1, this.alpha);
+        this.ctx.strokeStyle = this.getGradient(this.x+sx1, this.y+sy1, this.x+ex1, this.y+ey1, this.armColor);
         this.ctx.stroke();
         this.ctx.closePath();
         this.ctx.beginPath();
         this.ctx.moveTo(this.x+sx2, this.y+sy2);
         this.ctx.lineTo(this.x+ex2, this.y+ey2);
         this.ctx.lineWidth = 1.5;
-        this.ctx.strokeStyle = this.getGradient(this.x+sx2, this.y+sy2, this.x+ex2, this.y+ey2, this.alpha);
+        this.ctx.strokeStyle = this.getGradient(this.x+sx2, this.y+sy2, this.x+ex2, this.y+ey2, this.armColor);
         this.ctx.stroke();
         this.ctx.closePath();
         // center dot
         this.ctx.beginPath();
         this.ctx.arc(Math.round(this.x), Math.round(this.y), this.radius, 0, Math.PI*2)
-        this.ctx.fillStyle = 'hsla('+this.hue+', 100%, '+this.centerBrightness+'%, '+this.alpha*.5+')';
+        this.ctx.fillStyle = this.centerColor.asHSL(this.centerColor.a*.5);
         this.ctx.fill();
         this.ctx.closePath();
         this.ctx.beginPath();
         this.ctx.arc(Math.round(this.x), Math.round(this.y), Math.max(1,this.radius-2), 0, Math.PI*2)
-        this.ctx.fillStyle = 'hsla('+this.hue+', 100%, '+this.centerBrightness+'%, '+this.alpha+')';
+        this.ctx.fillStyle = this.centerColor.asHSL();
         this.ctx.fill();
         this.ctx.closePath();
 

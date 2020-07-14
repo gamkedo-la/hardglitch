@@ -1,4 +1,4 @@
-import { ParticleSystem, ParticleEmitter, ParticleSequence, FadeLineParticle, ColorGlitchParticle, OffsetGlitchParticle, FadeParticle, BlipParticle, ParticleGroup, SwirlPrefab, RingParticle, ShootUpParticle, FlashParticle } from "../system/particles.js";
+import { ParticleSystem, ParticleEmitter, ParticleSequence, FadeLineParticle, ColorGlitchParticle, OffsetGlitchParticle, FadeParticle, BlipParticle, ParticleGroup, SwirlPrefab, SwirlParticle, RingParticle, ShootUpParticle, FlashParticle } from "../system/particles.js";
 import { random_int, random_float } from "../system/utility.js";
 import { Color } from "../system/color.js";
 import { initialize } from "../system/graphics.js";
@@ -79,6 +79,20 @@ class Env {
             let ttl = random_float(.1,1);
             return new ColorGlitchParticle(ctx, 368+xoff, 236+yoff, width, height, roff, goff, boff, ttl);
         }, .3, 25));
+
+        /*
+        this.particles.add(new ParticleEmitter(this.particles, () => {
+            let xoff = random_float(4,60);
+            let yoff = random_float(4,60);
+            let hue = 250;
+            let speed = 50;
+            let radius = 50;
+            let width = 2;
+            let crush = .5;
+            let ttl = 1;
+            return new SwirlParticle(ctx, 500+xoff, 268+yoff, hue, speed, radius, width, crush, ttl);
+        }, .1, 0));
+        */
 
         this.particles.add(
             new ParticleSequence(this.particles, [() => { return new SwirlPrefab(this.particles, ctx, 2.5, 500, 268)}], 3, 0, 0)

@@ -119,21 +119,21 @@ class Color {
     /**
      * convert to string compatable w/ fillStyle/strokeStyle using HSL values
      */
-    asHSL() {
-        return("hsla(" + this.h + "," + this.s + "," + this.l + "," + this.a + ")");
+    asHSL(ao) {
+        return "hsla(" + this.h + "," + this.s + "%," + this.l + "%," + ((ao == undefined) ? this.a : ao) + ")";
     }
 
     /**
      * convert to string compatable w/ fillStyle/strokeStyle using HSL values
      */
-    asRGB() {
-        return("rgba(" + this.r + "," + this.g + "," + this.b + "," + this.a + ")");
+    asRGB(ao) {
+        return "rgba(" + this.r + "," + this.g + "," + this.b + "," + ((ao == undefined) ? this.a : ao) + ")";
     }
 
     /**
      * convert to string compatable w/ fillStyle/strokeStyle
      */
     toString() {
-        return("rgba(" + this.r + "," + this.g + "," + this.b + "," + this.a + ")");
+        return "rgba(" + this.r + "," + this.g + "," + this.b + "," + this.a + ")";
     }
 }
