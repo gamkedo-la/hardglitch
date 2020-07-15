@@ -30,6 +30,8 @@ class CryptoKey extends concepts.Item {
         }
     };
 
+    get can_be_taken() { return true; }
+
 
     constructor(){
         super("Crypto Key");

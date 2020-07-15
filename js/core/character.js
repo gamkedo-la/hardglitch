@@ -11,6 +11,17 @@ const default_view_distance = 7;
 
 // Character's inventory, where to store Items.
 class Inventory {
+    _items_stored = [];
+    _equipped_items = [];
+
+    add(item){
+        console.assert(item instanceof concepts.Item);
+        this._items_stored.push(item);
+    }
+
+    get stored_items() { return this._items_stored; }
+
+    get is_full() { return false; } // TODO: add a limit to how many stuffs we can store in a character's body.
 
 };
 
@@ -97,7 +108,8 @@ class Character extends concepts.Body {
     constructor(name, stats){
         console.assert(stats instanceof CharacterStats);
         super(name);
-        this.stats = new CharacterStats();
+        this.stats = stats;
+        this.inventory = new Inventory();
         this.field_of_vision = new FieldOfVision(this.position, default_view_distance);
     }
 

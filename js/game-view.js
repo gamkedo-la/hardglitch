@@ -165,6 +165,7 @@ class GameView {
         const events = this.game.last_turn_info.events;
         for(const event of events){
             console.assert(event instanceof concepts.Event);
+            console.assert(event.focus_positions);
             this.animation_queue.push({
                     start_animation: ()=> this._start_event_animation(event),
                     parallel: event.allow_parallel_animation,

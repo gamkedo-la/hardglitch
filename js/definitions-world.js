@@ -11,6 +11,7 @@ import { Rule_Void } from "./rules/rules-void.js";
 import { Rule_Destroy } from "./rules/rules-destroy.js";
 import { Rule_Delete } from "./rules/rules-delete.js";
 import { Rule_Repair } from "./rules/rules-repair.js";
+import { Rule_TakeItem } from "./rules/rule-takeitem.js";
 
 const world_grid = {
     width: 64,
@@ -20,7 +21,7 @@ const world_grid = {
 const default_rules = [ // BEWARE: rules will be applied in-order.
     new basic_rules.Rule_BasicActions(),
     new Rule_Movements(),
-
+    new Rule_TakeItem(),
 
     new Rule_Jump(),
     new Rule_Push(),
