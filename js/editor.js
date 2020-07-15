@@ -240,32 +240,42 @@ function display_editor_help(){
 
 function display_stats_of_pointed_character(){
 
-    const display_x = 50;
+    const stats_x = 50;
     let line = graphics.canvas_center_position().y;
     function next_line(){
         return line += 30;
     }
 
-    draw_text("CHARACTER INFO:", { x: display_x, y: next_line() });
+    draw_text("CHARACTER INFO:", { x: stats_x, y: next_line() });
     const mouse_grid_pos = mouse_grid_position();
     if(!mouse_grid_pos)
         return;
 
     const character = current_game.world.body_at(mouse_grid_pos);
     if(!(character instanceof Character)){
-        draw_text("No Character - Point square with character", { x: display_x, y: next_line() });
+        draw_text("No Character - Point square with character", { x: stats_x, y: next_line() });
         return;
     }
 
-    draw_text(`NAME: ${character.name}`, { x: display_x, y: next_line() });
-    draw_text(`ACTOR: ${character.is_player_actor ? "PLAYER" : "AI"}`, { x: display_x, y: next_line() });
+    draw_text(`NAME: ${character.name}`, { x: stats_x, y: next_line() });
+    draw_text(`ACTOR: ${character.is_player_actor ? "PLAYER" : "AI"}`, { x: stats_x, y: next_line() });
     next_line();
-    draw_text(`STATISTICS:`, { x: display_x, y: next_line() });
+    const stats_line = next_line();
+    draw_text(`STATISTICS:`, { x: stats_x, y: stats_line });
     for(const [stat_name, stat] of Object.entries(character.stats)){
-        draw_text(` - ${stat_name} = ${stat.value}${stat.max ? ` / ${stat.max}` : ""} ${stat.accumulated_modifiers !== 0 ? `(real = ${stat.real_value}, mod = ${stat.accumulated_modifiers}")` : ""}${stat.min? ` [min = ${stat.min}]` : ""}`, { x: display_x, y: next_line() });
+        draw_text(` - ${stat_name} = ${stat.value}${stat.max ? ` / ${stat.max}` : ""} ${stat.accumulated_modifiers !== 0 ? `(real = ${stat.real_value}, mod = ${stat.accumulated_modifiers}")` : ""}${stat.min? ` [min = ${stat.min}]` : ""}`, { x: stats_x, y: next_line() });
+    }
+
+    line = stats_line;
+    const inventory_x = 400;
+    draw_text(`INVENTORY:`, { x: inventory_x, y: stats_line });
+    for(const item of character.inventory.stored_items){
+        draw_text(` - ${item.name}`, { x: inventory_x, y: next_line() });
     }
 
 }
+
+
 
 function display(){
 
