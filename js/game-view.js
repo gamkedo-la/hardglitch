@@ -33,6 +33,7 @@ import * as visibility from "./core/visibility.js";
 import * as anim from "./system/animation.js";
 import { FogOfWar } from "./view/fogofwar.js";
 import { tween, easing } from "./system/tweening.js";
+import { TakeItem } from "./rules/rule-takeitem.js";
 
 class Highlight{
     enabled = true;
@@ -137,6 +138,7 @@ class GameView {
         this._highlight_sprites = {
             neutral: new graphics.Sprite(sprite_defs.highlight_blue),
             movement: new graphics.Sprite(sprite_defs.highlight_green),
+            take: new graphics.Sprite(sprite_defs.highlight_green),
             basic_action: new graphics.Sprite(sprite_defs.highlight_yellow),
             action_range: new graphics.Sprite(sprite_defs.highlight_yellow),
             action: new graphics.Sprite(sprite_defs.highlight_red),
@@ -214,6 +216,8 @@ class GameView {
             if(action.is_basic && action.is_safe){
                 if(action instanceof Move)
                     this._add_highlight(action.target_position, this._highlight_sprites.movement, this._action_description(action));
+                else if(action instanceof TakeItem)
+                    this._add_highlight(action.target_position, this._highlight_sprites.take, this._action_description(action));
                 else
                     this._add_highlight(action.target_position, this._highlight_sprites.basic_action, this._action_description(action));
             }
