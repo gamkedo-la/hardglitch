@@ -1,4 +1,6 @@
 import { Board } from "./blip.js";
+import { initialize } from "../system/graphics.js";
+import { Color } from "../system/color.js";
 
 const tileImg = new Image();
 tileImg.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAABWFJREFUeJztmk1sFGUYx387O7MfbadbWrYtCNYiEpAUDUpBD2LEEEpiaIyBoJGInsQY49XEgx64ePAANl7QGDEaPxK4ehOQhGDgABgOFQLdQmndbku3+9Gd3fGwnbbb+d7dlu6s/9PuPO+8+8xvZ97n4x3fxp631JfeeJd6lQBw7tdvHrUfj0yC9qFeIQgLv9QjBGHxgXqDoAMA9QXBEADUDwRTAFAfECwBgPch2AIAb0NwBAC8C8ExAPAmBFcAwHsQXAMAb0EoCwB4B4KQ2dpa9slegODj1ml13SeXCN0YL2sCOfJElV1aXgmR/gFix3dSyZ1QyxKiajf1DEEAqGcIc1GgXiGUhMF6hKDLA6oJYfhwO3ffW8Pw4faK5llKiUYHo2o39A8QO3OMckPkyOurSbwYIRcRERNplFSQcGyGgL9JN7YgCQi5gnvvLaTNGYgrSOM5pIRiOM4QAFQOIdsukYsUp1diI6T8ScY/2uZqjmpIvjhC8MQF1kvPGdpNAUBlEMTJfPHDtdsIV28RnJJpOPKDc88rVD4sEOzfy2hfJ9LXPtNxlgCgfAiP/TjKxvhtYolGfIkOWgf9wHbHF1Cx0jDxT9p2mKNiqHRhXOXch98babvM7MWvTDmuBuch7CK7qWUpfVpWuSqHNQhDX7zgGQi2AOJHNxM/unnu+0II6R7rPKFm8wBN428+xdTLa1ELCko6ScdPMWB+YRw+c4zAyZjuPNXvI7smoMsDus5mXTk3E5WYWS2hyOZrSCCuID5UCIzlXM2tyRKA0hpEaQnCtXtkg6XOaxDGju0nuVffEwjdTenyAJBcOac0izx4VebhDvM7remPGKGB86wPPu9qbk2WAPzTxezJd3WQXFenzh5Vu5k4dZ7A6T9LjqsCSIf2kXm8oSQPcAtgpk3k4Y5Wmj7+mUC89B/OhwXyDX6SXx4kcKrszp41gLZvb7IlGefycJLckR6mzk0j/5UoGWNIvgAY5gHlyZ/K07U4h0jDRI9MsuxZi7JFN/rLGGtvNtJ0cIAHn+4i9YzzAqlaeYA/Xd06YaEc3TvSRJ7ObDfN/QPc+3wnqWfblsyh5Zarh6d9NgTe+6y3JiCoYrEGUC2u0vXqEV0AYbq3svherTxBu9DF8ikqAI179pieK2a2troudaNqNxz4ivtnPyBkkAfYqVp5gibtQs00s1piolc2tImx4zvLqvejbKDQf5KxD18juafL1blQnTzBToG4gnxxhNE+fQjXJEYqaHp0qE9y/7dztH7n7klymicUpPLjO4A0niN44oJ1P6DSzs+mZBkZmMM8odI2mZRQTDtBc78Bj64bvBL6Bf/vCyz8UmsQnMR5Oy3pvkC1ZBbnU10hwrEM0qF9hnYneYYhu5UGwSjOa/sO6XUhxnc1cOdA0NAe391iaNdkevOsNAiLldjeaJBHOLdrEpJDV0x/ZCVDaL4x2/LW8ojhjCu7JhEgOXSFpvXGPftqbJMthYz3HZzbNc09ArV4J9jlEXfiTUxuk5kRzWuMkjWgFiHYaXL3Oku7bhH0EgRtJzrU3GE6xjAKVAuCXRy2s2ureKWymsfU4nRh5PsRwkP6Zyz5dINlvW/0/kBkcHZHuTEMFOv4asiyH2B1ohMIk+/3EXu7W2e3q/eN4nRmh0zqldK5wmev488UIGTlqbGc9AN8nS1brNspYAoBYCL0r+Fx4Z39jPa1zcVheUpmw6X5f2H4cLvOLlz4u+iUNA9KyBbwpwusbem1c1On3CqRkdFLFCTzfoAjAGAOwepN0fDe6dk4nDcMVXb25ZBjAGAMoeZflXUz2Co61KpcV9Jeg1BWK8FLEMrupXgFwn/359I24GoygQAAAABJRU5ErkJggg==";
@@ -12,6 +14,29 @@ sparkMinImg.src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACpr
 
 const sparkMaxImg = new Image();
 sparkMaxImg.src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAVCAYAAACpF6WWAAAAAXNSR0IArs4c6QAAAiFJREFUOI21lE9oE0EUxt9MN2mMNjYVapvdS7EYKIV46EXdpro1JJqDYhC8Sy7mIHgRL3rx4kla8VKvIr0UD2JxSAiNDQ3qRUGiAREPkz/GpsYNSbPbZKanQtnuJm2N3/F78/3mvYF5IFPigP8hmZJQjzj9RkPpKXBX4VAdy5S4uh2I+SkZPQBw2ugho+GnRGIAV+0Iv7QBFog4+9sMpuTjJ3TOJtJScNVYw0bjnRSkdoQX2wC3BYRa14or48Yz4UJyECEUsiP8xezCPVAAgD5A+Bjqe+bEQny9rQ1HyxkfAECklPLKlEw7sZB3AF5OioE/Zvk94+/q5tRftuW5NzixOK/mHh3Htpra3jofHRi/NafmLqSl4JpVtqMipZQ3XEjGfuq1X/DjxYdvzerm5WJyYafzQ+t6MXUjUEhk83qdBwqJ7MPKpwfdMqZvuqNoOePbYJo0PzQ1JtJX758OTY2tNdfrkVLK2yln+aYAADIl5+64vCsLte/3z/S7bR+1ihYbOP14Ts3NurCtsuxRsgeChgtJtxMLtNjaDJ0UHOWlkZlctJzxfdXVo6PCkXiDtUSNM5wQL20Ys6bjK/m4uwnsSoO1xLQUXF0amckBADwfPvvZje3VBmtJdWjfZcBNmzKF6pxNcs7fvvEoVWPttediVuMMYQ5PdM5u7utLm/1lK/kpkWRKYt2AnbeNdc58u1nuw/2DFaPxT0BLcK8kU+LYBsfT5A44S06zAAAAAElFTkSuQmCC";
+
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.addEventListener("load", () => resolve(img));
+    img.addEventListener("error", err => reject(err));
+    img.src = src;
+  });
+}
+
+function ofmt(obj, name) {
+    if (!obj) return "";
+    let keys = Object.keys(obj);
+    let kvs = [];
+    for (const key of keys) {
+        kvs.push(key + ":" + obj[key])
+    }
+    if (name) {
+        return "[" + name + ":" + kvs.join(",") + "]";
+    } else {
+        return "[" + kvs.join(",") + "]";
+    }
+}
 
 class Blip {
     constructor(ctx, x, y) {
@@ -45,7 +70,177 @@ class Blip {
     }
 }
 
-class Game {
+class Graph {
+    constructor(width) {
+        this.verts = new Map();
+        this.width = width;
+        this.vertColor = Color.random();
+        this.edgeColor = Color.random();
+    }
+
+    vertKey(v) {
+        // create integer key
+        return Math.round(v.x) + Math.round(v.y)*this.width;
+    }
+
+    addVert(v) {
+        let key = this.vertKey(v);
+        if (this.verts.has(key)) {
+            return this.verts.get(key);
+        }
+        let vert = {v:v,e:[]};
+        this.verts.set(key, vert);
+        return vert;
+    }
+
+    addEdge(v1, v2) {
+        let vert1 = this.addVert(v1);
+        let vert2 = this.addVert(v2);
+        let k1 = this.vertKey(v1);
+        let k2 = this.vertKey(v2);
+        // add edges
+        if (-1 == vert1.e.indexOf(k2)) vert1.e.push(k2);
+        if (-1 == vert2.e.indexOf(k1)) vert1.e.push(k1);
+    }
+
+    getVert(v) {
+        let key = this.vertKey(v);
+        return this.verts.get(key);
+    }
+
+    merge(other) {
+        for (const key of other.verts.keys()) {
+            this.verts.set(key, other.verts.get(key));
+        }
+    }
+
+    draw(ctx) {
+        let visited = [];
+        for (const key of this.verts.keys()) {
+            visited.push(key);
+            let vert = this.verts.get(key);
+            if (!vert) continue;
+            ctx.beginPath();
+            ctx.fillStyle = this.vertColor;
+            ctx.arc(vert.v.x, vert.v.y, 2, 0, Math.PI*2);
+            ctx.fill();
+            ctx.closePath();
+            for (const ek of vert.e) {
+                //console.log("ek: " + ek);
+                if (-1 == visited.indexOf(ek)) {
+                    let vert2 = this.verts.get(ek);
+                    //console.log("vert2: " + vert2);
+                    if (vert2) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = this.edgeColor;
+                        ctx.lineWidth = 2;
+                        ctx.moveTo(vert.v.x, vert.v.y);
+                        ctx.lineTo(vert2.v.x, vert2.v.y);
+                        ctx.stroke();
+                        ctx.closePath();
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+class GraphBuilder {
+    constructor(width) {
+        this.width = width;
+        this.graphs = [];
+    }
+
+    getGraph(v) {
+        for (const g of this.graphs) {
+            if (g.getVert(v)) return g;
+        }
+        return undefined;
+    }
+
+    removeGraph(g) {
+        let idx = this.graphs.indexOf(g);
+        if (idx != -1) this.graphs.splice(idx, 1);
+    }
+
+    addEdge(v1, v2) {
+        // does any graph have either vertex?
+        let g1 = this.getGraph(v1);
+        let g2 = this.getGraph(v1);
+        console.log("adding edge: " + ofmt(v1) + "->" + ofmt(v2));
+        if (!g1 && !g2) {
+            let g = new Graph(this.width);
+            this.graphs.push(g);
+            g.addEdge(v1, v2);
+        } else if (g1 && !g2) {
+            g1.addEdge(v1, v2);
+        } else if (!g1 && g2) {
+            g2.addEdge(v1, v2);
+        } else if (g1 && g2) {
+            if (g1 != g2) {
+                g1.merge(g2);
+                this.removeGraph(g2);
+            }
+            g1.addEdge(v1, v2);
+        }
+    }
+
+    draw(ctx) {
+        for (const g of this.graphs) {
+            g.draw(ctx);
+        }
+    }
+}
+
+class TileGraphBuilder extends GraphBuilder {
+    edgeMap = {
+        "ltb": [
+            {x:0,y:0}, {x:0,y:16}, 
+            {x:0,y:16}, {x:16,y:31}, 
+            {x:16,y:31}, {x:32,y:31},
+            {x:16,y:0}, {x:16,y:31},
+            {x:16,y:0}, {x:32,y:0},
+        ],
+        "ltbe": [
+            {x:0,y:0}, {x:32,y:0}, 
+            {x:0,y:31}, {x:32,y:31}, 
+        ],
+        "b": [
+            {x:0,y:0}, {x:32,y:0}, 
+            {x:0,y:31}, {x:32,y:31}, 
+        ],
+        "btls": [
+            {x:0,y:0}, {x:16,y:0}, 
+            {x:16,y:0}, {x:16,y:31}, 
+            {x:16,y:0}, {x:32,y:15}, 
+            {x:0,y:31}, {x:16,y:31}, 
+        ],
+        "btl": [
+            {x:0,y:15}, {x:0,y:32}, 
+            {x:15,y:0}, {x:15,y:32}, 
+        ],
+    }
+
+    constructor(width) {
+        super(width);
+    }
+
+    addTile(x,y,id) {
+        //console.log("edgeMap: " + this.edgeMap);
+        let edgeInfo = this.edgeMap[id];
+        //console.log("edgeInfo: " + edgeInfo);
+        if (!edgeInfo) return;
+        for (let i=0; i<edgeInfo.length; i+=2) {
+            let v1 = edgeInfo[i];
+            let v2 = edgeInfo[i+1];
+            this.addEdge({x:v1.x+x, y:v1.y+y}, {x:v2.x+x, y:v2.y+y});
+        }
+    }
+
+}
+
+class Env {
     constructor() {
         this.objs = [];
         this.canvas = document.getElementById("gameCanvas");
@@ -54,30 +249,10 @@ class Game {
         this.INTERVAL = 1000 / this.FPS; // milliseconds
         this.STEP = this.INTERVAL / 1000 // second
         this.blip = new Blip(this.ctx, 100, 260);
+        this.gb = new TileGraphBuilder(1024);
     }
 
-    loop() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-        this.ctx.drawImage(blipImg, 100, 250);
-        this.ctx.drawImage(sparkMinImg, 150, 250);
-        this.ctx.drawImage(sparkMaxImg, 200, 250);
-
-        this.blip.update();
-
-        this.ctx.drawImage(tileImg, 128, 128);
-        for (let i=0; i<8; i++) {
-            this.ctx.drawImage(tile2Img, 192+64*i, 128);
-        }
-        for (const obj of this.objs) {
-            obj.draw(this.ctx, { x: 128, y: 128 });
-        }
-    }
-
-
-    play() {
-
-
+    setup() {
         // left angled board
         let board = new Board({x:128, y:128}, [
             [{x:3, y:3}, {x:7, y:3}, {x:7, y:5}, {x:9,y:5}],
@@ -106,22 +281,58 @@ class Game {
             this.objs.push(board);
         }
 
-        let runningId = -1;
-        if (runningId == -1) {
-            runningId = setInterval(() => {
-                this.loop();
-            }, this.INTERVAL);
-            console.log("play");
+        // build graph
+        this.gb.addTile(300+32, 300+32*10, "ltb");
+        this.gb.addTile(300+32*2, 300+32*10, "ltbe");
+        this.gb.addTile(300+32*3, 300+32*10, "b");
+        this.gb.addTile(300+32*4, 300+32*10, "btls");
+        this.gb.addTile(300+32*5, 300+32*10, "btl");
+        console.log("gb.graphs.length: " + this.gb.graphs.length);
+
+        return new Promise((resolve) => {
+            let promises = [];
+            let promise = loadImage("srcref/tiletemplate.png");
+            promise.then(img => this.bgimg = img);
+            promises.push(promise);
+            Promise.all(promises).then(() => {
+                console.log("setup complete");
+                resolve();
+            })
+        });
+    }
+
+    loop() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.drawImage(blipImg, 100, 250);
+        this.ctx.drawImage(sparkMinImg, 150, 250);
+        this.ctx.drawImage(sparkMaxImg, 200, 250);
+        this.ctx.drawImage(this.bgimg, 300, 300);
+
+        this.gb.draw(this.ctx);
+
+        this.blip.update();
+
+        this.ctx.drawImage(tileImg, 128, 128);
+        for (let i=0; i<8; i++) {
+            this.ctx.drawImage(tile2Img, 192+64*i, 128);
         }
+        for (const obj of this.objs) {
+            obj.draw(this.ctx, { x: 128, y: 128 });
+        }
+    }
+
+
+    start() {
+        console.log("env: starting loop...");
+        initialize({images:[]});
+        setInterval(() => { this.loop(); }, this.INTERVAL);
     }
 
 
 }
 
 window.onload = function() {
-    // create game
-    let game = new Game();
-
-    // play
-    game.play();
+    let env = new Env();
+    let promise = env.setup();
+    promise.then( () => env.start());
 }

@@ -172,13 +172,11 @@ class Env {
     }
 
     start() {
+        console.log("env: starting loop...");
         initialize({images:[]});
-        let runningId = -1;
-        if (runningId == -1) {
-            console.log("env: starting loop...");
-            runningId = setInterval(() => { this.loop(); }, this.INTERVAL);
-        }
+        setInterval(() => { this.loop(); }, this.INTERVAL);
     }
+
 }
 
 window.onload = function() {

@@ -1,4 +1,5 @@
 export { Color };
+import { random_int } from "../system/utility.js";
 
 // =========================================================================
 /**
@@ -30,6 +31,10 @@ class Color {
         c.a = a;
         c.calcRGB();
         return c;
+    }
+
+    static random(a=1) {
+        return new Color(random_int(0,255), random_int(0,255), random_int(0,255),a);
     }
 
     // PROPERTIES ----------------------------------------------------------
