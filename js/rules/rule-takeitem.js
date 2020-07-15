@@ -49,6 +49,7 @@ class TakeItem extends concepts.Action {
         super(`take_item_at_${target_position.x}_${target_position.y}`,
             "Take Item", target_position, 1
         );
+        this.is_basic = true; // Items occupy positions that cannot be moved into, so it's safe to assume that we will take them by default.
     }
 
     execute(world, character){
