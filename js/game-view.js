@@ -235,14 +235,14 @@ class GameView {
         }
     }
 
-    highlight_action_range(action_range){
+    highlight_action_range(action_range, action_targets){
         this.clear_action_range_highlight();
         if(action_range instanceof visibility.RangeShape){
             const possible_targets = visibility.positions_in_range(this.player_character.position,
                 action_range,
                 (pos)=>this.game.world.is_valid_position(pos));
             for(const target of possible_targets){
-                const highlight_sprite = this.game.world.entity_at(target) ? this._highlight_sprites.action : this._highlight_sprites.action_range;
+                const highlight_sprite = action_targets.some(action_target=> action_target.equals(target)) ? this._highlight_sprites.action : this._highlight_sprites.action_range;
                 this.action_range_highlights.push(new Highlight(target, highlight_sprite));
             }
         }

@@ -189,7 +189,7 @@ class GameInterface {
                     }
                     this.lock_actions(); // Can be unlocked by clicking somewhere there is no action target.
                 },
-                ()=> this.on_action_pointed_begin(action_range),
+                ()=> this.on_action_pointed_begin(action_range, actions.map(action=>action.target_position)),
                 ()=> {
                     if(!this.is_mouse_over)
                         this.on_action_pointed_end();
