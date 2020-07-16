@@ -337,8 +337,8 @@ function genFgOverlay(lvl, layer, grid, overlay, wallCmp) {
                         bl = (wallCmp(grid.dl(p))) ? "ltts" : "ttle";
                         br = (wallCmp(grid.dr(p))) ? "ttre": "rtts";
                     } else { // empty
-                        bl = (wallCmp(grid.dl(p))) ? "ot" : "ottls";
-                        br = (wallCmp(grid.dr(p))) ? "ot" : "ortte";
+                        bl = (wallCmp(grid.dl(p))) ? "ot" : "ottl";
+                        br = (wallCmp(grid.dr(p))) ? "ot" : "ortt";
                     }
                     break;
                 case 9: // down|right
@@ -349,8 +349,8 @@ function genFgOverlay(lvl, layer, grid, overlay, wallCmp) {
                         br = (wallCmp(grid.dr(p))) ? "m" : "rtb";
                     } else { // empty
                         tr = (wallCmp(grid.dr(p))) ? "oltts" : "";
-                        bl = (wallCmp(grid.dl(p))) ? "ot" : "ottls";
-                        br = (wallCmp(grid.dr(p))) ? "oltt" : "ortte";
+                        bl = (wallCmp(grid.dl(p))) ? "ot" : "ottl";
+                        br = (wallCmp(grid.dr(p))) ? "oltt" : "ortt";
                     }
                     break;
                 case 10: // top|down
@@ -360,8 +360,8 @@ function genFgOverlay(lvl, layer, grid, overlay, wallCmp) {
                         bl = (wallCmp(grid.dl(p))) ? "ltts": "l";
                         br = (wallCmp(grid.dr(p))) ? "ttre": "r";
                     } else {
-                        bl = (wallCmp(grid.dl(p))) ? "ot" : "ottls";
-                        br = (wallCmp(grid.dr(p))) ? "ot" : "ortte";
+                        bl = (wallCmp(grid.dl(p))) ? "ot" : "ottl";
+                        br = (wallCmp(grid.dr(p))) ? "ot" : "ortt";
                     }
                     break;
                 case 11: // top|down|right
@@ -373,8 +373,8 @@ function genFgOverlay(lvl, layer, grid, overlay, wallCmp) {
                     } else { // empty
                         // FIXME: conflict between oltts and obtl
                         tr = (wallCmp(grid.dr(p))) ? "oltts" : (wallCmp(grid.ur(p))) ? "obtl" : "";
-                        br = (wallCmp(grid.dr(p))) ? "oltt" : "ortte";
-                        bl = (wallCmp(grid.dl(p))) ? "ot" : "ottls";
+                        br = (wallCmp(grid.dr(p))) ? "oltt" : "ortt";
+                        bl = (wallCmp(grid.dl(p))) ? "ot" : "ottl";
                     }
                     break;
                 case 12: // down|left
@@ -385,8 +385,8 @@ function genFgOverlay(lvl, layer, grid, overlay, wallCmp) {
                         br = (wallCmp(grid.dr(p))) ? "ttre": "rtts";
                     } else { // empty
                         tl = (wallCmp(grid.dl(p))) ? "ottre" : "";
-                        bl = (wallCmp(grid.dl(p))) ? "ottr" : "ottls";
-                        br = (wallCmp(grid.dr(p))) ? "ot" : "ortte";
+                        bl = (wallCmp(grid.dl(p))) ? "ottr" : "ottl";
+                        br = (wallCmp(grid.dr(p))) ? "ot" : "ortt";
                     }
                     break;
                 case 13: // down|left|right
@@ -398,8 +398,8 @@ function genFgOverlay(lvl, layer, grid, overlay, wallCmp) {
                     } else { // empty
                         tl = (wallCmp(grid.dl(p))) ? "ottre" : "";
                         tr = (wallCmp(grid.dr(p))) ? "oltts" : "";
-                        bl = (wallCmp(grid.dl(p))) ? "ottr" : "ottls";
-                        br = (wallCmp(grid.dr(p))) ? "oltt" : "ortte";
+                        bl = (wallCmp(grid.dl(p))) ? "ottr" : "ottl";
+                        br = (wallCmp(grid.dr(p))) ? "oltt" : "ortt";
                     }
                     break;
                 case 14: // top|down|left
@@ -412,8 +412,8 @@ function genFgOverlay(lvl, layer, grid, overlay, wallCmp) {
                         // FIXME: conflict between ottre and ortb
                         tl = (wallCmp(grid.dl(p))) ? "ottre" : (wallCmp(grid.ul(p))) ? "ortb" : "";
                         //tl = (wallCmp(grid.ul(p))) ? "ortb" : "";
-                        bl = (wallCmp(grid.dl(p))) ? "ottr" : "ottls";
-                        br = (wallCmp(grid.dr(p))) ? "ot" : "ortte";
+                        bl = (wallCmp(grid.dl(p))) ? "ottr" : "ottl";
+                        br = (wallCmp(grid.dr(p))) ? "ot" : "ortt";
                     }
                     break;
                 case 15: // top|down|left|right
@@ -427,8 +427,8 @@ function genFgOverlay(lvl, layer, grid, overlay, wallCmp) {
                         // FIXME: conflict between oltts and obtl
                         tl = (wallCmp(grid.dl(p))) ? "ottre" : (wallCmp(grid.ul(p))) ? "ortb" : "";
                         tr = (wallCmp(grid.dr(p))) ? "oltts" : (wallCmp(grid.ur(p))) ? "obtl" : "";
-                        bl = (wallCmp(grid.dl(p))) ? "ottr" : "ottls";
-                        br = (wallCmp(grid.dr(p))) ? "oltt" : "ortte";
+                        bl = (wallCmp(grid.dl(p))) ? "ottr" : "ottl";
+                        br = (wallCmp(grid.dr(p))) ? "oltt" : "ortt";
                     }
                     break;
             }

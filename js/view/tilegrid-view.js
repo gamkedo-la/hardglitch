@@ -11,8 +11,9 @@ import { SeamSelector, genFloorOverlay, genFgOverlay } from "./tile-select.js";
 import * as graphics from "../system/graphics.js";
 import { Vector2 } from "../system/spatial.js";
 import { PIXELS_PER_TILES_SIDE, PIXELS_PER_HALF_SIDE } from "./entity-view.js";
-import { ParticleGroup, ParticleSystem, ParticleEmitter, FadeLineParticle, BlipParticle, FadeParticle } from "../system/particles.js";
-import { random_float, position_from_index } from "../system/utility.js";
+import { ParticleGroup, ParticleSystem, ParticleEmitter, FadeLineParticle, BlipParticle, FadeParticle, BlipEdgeParticle } from "../system/particles.js";
+import { TileGraphBuilder } from "./particle-graph.js";
+import { random_int, random_float, position_from_index } from "../system/utility.js";
 import { Color } from "../system/color.js";
 
 let canvas = document.getElementById('gameCanvas');
@@ -61,7 +62,7 @@ class TileGridView {
 
         let g = new ParticleGroup();
         this.particles.add(g);
-        this.particles.add(new ParticleEmitter(this.particles, () => {
+        this.particles.add(new ParticleEmitter(this.particles, x, y, () => {
             let xoff = random_float(-25,25);
             let yoff = random_float(-25,25);
             let velocity = random_float(30,60);
@@ -69,7 +70,7 @@ class TileGridView {
             return new BlipParticle(ctx, x+xoff, y+yoff, g, 0, -velocity, ttl, 10);
         }, .2, 25));
 
-        this.particles.add(new ParticleEmitter(this.particles, () => {
+        this.particles.add(new ParticleEmitter(this.particles, x, y, () => {
             let xoff = random_float(-25,25);
             let yoff = random_float(-25,25);
             let velocity = random_float(30,90);
@@ -113,6 +114,8 @@ class TileGridView {
         ttre:   [new Vector2({x:22,y:0}), new Vector2({x:22,y:22}), new Vector2({x:22,y:22}), new Vector2({x:31,y:31}), ],
     };
 
+    vemitterCount = 0;
+
     addVoidParticles(ctx, size, idx, floor_grid) {
         let coords = position_from_index(size.x, size.y, idx);
         // compute i,j indices from idx
@@ -144,7 +147,7 @@ class TileGridView {
                     let l12 = dir12.length;
                     // direction vector towards center
                     let dirc = new Vector2({x: dir12.y, y: -dir12.x});
-                    this.particles.add(new ParticleEmitter(this.particles, () => {
+                    this.particles.add(new ParticleEmitter(this.particles, pos.x, pos.y, () => {
                         // compute startpoint
                         let off = new Vector2(dir12);
                         off.length = random_float(0,l12);
@@ -157,9 +160,37 @@ class TileGridView {
                         let ttl = random_float(.3,1);
                         return new FadeParticle(ctx, sx, sy, -velocity.x, -velocity.y, size, new Color(0,222,0), ttl);
                     }, .3*seamsFactor, 25));
+                    this.vemitterCount++;
                 }
             }
         }
+    }
+
+    addBlip(ctx, x,y,tile) {
+        // add tile verts/edges to graph
+        let verts = this.gb.addTile(x, y, tile);
+        if (!verts) return;
+        // create one random blip per tile
+        let idx = random_int(0,(verts.length/2)-1)*2;
+        // lookup graph
+        let graph = this.gb.getGraph(verts[idx]);
+        let group = this.gb.getGroup(graph);
+        let blip;
+        //let speed = random_int(40,90);
+        let speed = 60;
+        let radius = 2;
+        let nextEdgeFcn = (v1, v2) => {
+            let g = this.gb.getGraph(v1);
+            if (g) return g.getRandEdge(v1, v2);
+            return undefined;
+        };
+        if (Math.random() > .5) {
+            blip = new BlipEdgeParticle(ctx, verts[idx], verts[idx+1], radius, speed, group, nextEdgeFcn);
+        } else {
+            blip = new BlipEdgeParticle(ctx, verts[idx+1], verts[idx], radius, speed, group, nextEdgeFcn);
+        }
+        if (group) group.add(blip);
+        this.particles.add(blip);
     }
 
     reset(position, size, ground_tile_grid, surface_tile_grid){
@@ -169,6 +200,7 @@ class TileGridView {
         console.assert(size instanceof Vector2 && size.x > 2 && size.y > 2);
         this.position = position;
         this.size = size;
+        this.gb = new TileGraphBuilder(size.x*PIXELS_PER_TILES_SIDE);
 
         // translate given grids to display grids
         const bg_grid = new Grid(size.x*2, size.y*2);
@@ -210,6 +242,18 @@ class TileGridView {
             }
             if (ground_tile_grid.elements[i] == tiledefs.ID.VOID) {
                 this.addVoidParticles(canvasContext, size, i, bg_grid);
+            }
+        }
+        console.log("void emitters: " + this.vemitterCount);
+        // iterate through fg grid
+        let addblip = true;
+        if (addblip) {
+            for (let i=0; i<fg_grid.elements.length; i++) {
+                let pos = position_from_index(size.x*2, size.y*2, i);
+                let id = fg_grid.elements[i];
+                if (!id) continue;
+                id = id.slice(8);
+                this.addBlip(canvasContext, pos.x*PIXELS_PER_HALF_SIDE, pos.y*PIXELS_PER_HALF_SIDE, id);
             }
         }
 

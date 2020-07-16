@@ -1,4 +1,3 @@
-
 export {
     Particle,
     ParticleEmitter,
@@ -15,11 +14,13 @@ export {
     RingParticle,
     ShootUpParticle,
     FlashParticle,
+    BlipEdgeParticle,
 }
 
 import { camera } from "./graphics.js";
 import { random_int, random_float } from "../system/utility.js";
 import { Color } from "../system/color.js";
+import { Vector2 } from "../system/spatial.js";
 
 /**
  * A particle system intended to keep track of all active particles and emitters
@@ -30,7 +31,10 @@ class ParticleSystem {
      */
     constructor() {
         this.items = [];
+        this.active = [];
+        this.alwaysActive = false;
         this.dbg = false;
+        this.dbgTimer = 0;
     }
 
     /**
@@ -52,38 +56,54 @@ class ParticleSystem {
         }
     }
 
+    isActive(obj) {
+        if (this.alwaysActive) return true;
+        if (obj.x === undefined || obj.y === undefined) return true;
+        const checkArea = {
+            position: { x: 0, y: 0 },
+            width: 64, height: 64 // TODO: find a better way to specify this size
+        };
+        checkArea.position.x = obj.x;
+        checkArea.position.y = obj.y;
+        return camera.can_see(checkArea);
+    }
+
     /**
      * Execute the main update thread for all emitters/particles
      */
     update(delta_time) {
         // iterate through tracked items
+        let inactive = 0;
         for (let i=this.items.length-1; i>=0; i--) {
-            // update each particle
+            // skip inactive items
+            if (!this.isActive(this.items[i])) {
+                inactive++;
+                continue;
+            }
+            // update each object
             this.items[i].update(delta_time);
             // if any items are done, remove them
             if (this.items[i].done) {
                 this.items.splice(i, 1);
             }
         }
+        if (this.dbg) {
+            this.dbgTimer += delta_time;
+            if (this.dbgTimer > 1000) {
+                this.dbgTimer = 0;
+                console.log("objs: " + this.items.length + " inactive: " + inactive);
+            }
+        }
     }
 
     draw() {
         // iterate through tracked items
-        const item_area = {
-            position: { x: 0, y: 0 },
-            width: 64, height: 64 // TODO: find a better way to specify this size
-        };
         for (let i=this.items.length-1; i>=0; i--) {
+            if (!this.isActive(this.items[i])) continue;
             // draw each tracked particle (skip drawing for emitters)
-            const item = this.items[i];
-            // FIXME
-            if (item.draw){
-                item_area.position.x = item.x;
-                item_area.position.y = item.y;
-                if(camera.can_see(item_area) || this.dbg)
-                    item.draw();
+            if (this.items[i].draw){
+                this.items[i].draw();
             }
-
         }
     }
 
@@ -170,8 +190,10 @@ class ParticleEmitter {
      * @param {*} jitter - (optional) percentage of interval to create a jitter between particle generation.  0 would indicate no jitter, 1 would indicate an interval between 0 and 2x interval.
      * @param {*} lifetime - (optional) emitter lifetime (in seconds), defaults to 0 which means no lifetime.
      */
-    constructor(psys, genFcn, interval, jitter=0, lifetime=0, count=1) {
+    constructor(psys, x, y, genFcn, interval, jitter=0, lifetime=0, count=1) {
         this.psys = psys;
+        this.x = x;
+        this.y = y;
         this.genFcn = genFcn;
         this.interval = interval;
         this.jitter = jitter/100;
@@ -844,7 +866,7 @@ class SwirlPrefab {
         let crush = new ParticleGroup(ttl*.65);
         sys.add(crush);
         // creates a burst of particles at beginning of animation
-        sys.add( new ParticleEmitter(sys, () => {
+        sys.add( new ParticleEmitter(sys, x, y, () => {
                 let hue = random_int(minHue, maxHue);
                 let speed = random_int(minSpeed, maxSpeed);
                 let radius = random_float(minRadius,maxRadius);
@@ -853,7 +875,7 @@ class SwirlPrefab {
             }, 0, 0, 0.1, pburst));
 
         // creates a slow stream of particles through rest of animation
-        sys.add( new ParticleEmitter(sys, () => {
+        sys.add( new ParticleEmitter(sys, x, y, () => {
                 let hue = random_int(minHue, maxHue);
                 let speed = random_int(minSpeed, maxSpeed);
                 let radius = random_float(minRadius,maxRadius);
@@ -1106,4 +1128,137 @@ class FlashParticle extends Particle {
         this.ctx.restore();
     }
 
+}
+
+class BlipEdgeParticle extends Particle {
+    constructor(ctx, v1, v2, radius, speed, group, nextEdgeFcn) {
+        super(ctx, v1.x, v1.y);
+        this.ctx = ctx;
+        this.v1 = v1
+        this.v2 = v2
+        this.radius = radius;
+        this.width = radius * 10;
+        this.speed = speed * .001;
+        this.group = group;
+        this.nextEdgeFcn = nextEdgeFcn;
+        this.velocity = new Vector2({x:v2.x-v1.x, y: v2.y-v1.y})
+        this.velocity.length = this.speed;
+        let hue = 127;
+        this.armColor = Color.fromHSL(hue, 100, random_int(50,80), 1);
+        this.centerColor = Color.fromHSL(hue, 100, random_int(90,100), 1);
+        this.angle1 = Math.random() * Math.PI;
+        this.angle2 = this.angle1 + (Math.PI * .5);
+        this.rotateStep = random_float(-2,2) * .001;
+        this.sparkIntensity = 0;
+        this.sparkRange = 10;
+    }
+
+    toString() {
+        return "[Blip:" + this.x + "," + this.y + "]";
+    }
+
+    getGradient(sx, sy, ex, ey, color) {
+        let gradient = this.ctx.createLinearGradient(sx, sy, ex, ey);
+        gradient.addColorStop(0, color.asHSL(color.a*.1));
+        gradient.addColorStop(.5, color.asHSL());
+        gradient.addColorStop(1, color.asHSL(color.a*.2));
+        return gradient;
+    }
+
+    /**
+     * determine the nearest range of other blips on the circuit
+     * @param {*} blip 
+     * @returns float - distance to nearest blip on the same circuit
+     */
+    nearestRange(group) {
+        let sqr = 1000;
+        for (const other of group) {
+            if (other === this) continue;
+            let dx = other.x - this.x;
+            let dy = other.y - this.y;
+            let or = dx*dx + dy*dy;
+            if (or < sqr) sqr = or;
+        }
+        return Math.sqrt(sqr);
+    }
+
+    update(delta_time) {
+        if (this.done) return;
+        let nr = (this.group) ? this.nearestRange(this.group) : 100;
+        this.sparkIntensity = 0;
+        if (nr < this.sparkRange) {
+            this.sparkIntensity = (this.sparkRange-nr)/this.sparkRange;
+        }
+        // check distance to next vertex vs. distance to travel this tick
+        let dtv2 = new Vector2({x:this.v2.x-this.x,y:this.v2.y-this.y}).length;
+        let dtt = this.speed * delta_time;
+        if (dtt >= dtv2) {
+            // get next edge
+            let nv2 = this.nextEdgeFcn(this.v2, this.v1);
+            if (!nv2) {
+                this._done = true;
+                console.log("can't find edge for " + ofmt(this.v2) + "->" + ofmt(this.v1) + " nv2: " + nv2);
+                return;
+            }
+            this.v1 = this.v2;
+            this.v2 = nv2;
+            // recompute velocity
+            this.velocity = new Vector2({x:this.v2.x-this.v1.x, y: this.v2.y-this.v1.y})
+            this.velocity.length = this.speed;
+            let offset = new Vector2({x: this.velocity.x, y:this.velocity.y});
+            offset.length = dtt-dtv2;
+            // compute new x/y
+            this.x = this.v1.x + offset.x;
+            this.y = this.v1.y + offset.y;
+        // otherwise, not close enough to endpoint - update position
+        } else {
+            this.x = this.x + this.velocity.x * delta_time;
+            this.y = this.y + this.velocity.y * delta_time;
+        }
+        // rotation
+        if (this.sparkIntensity) {
+            this.angle1 += this.rotateStep * delta_time;
+            this.angle2 += this.rotateStep * delta_time;
+            this.armColor.a = this.sparkIntensity;
+        }
+    }
+
+    draw() {
+        // spark
+        if (this.sparkIntensity) {
+            let sx1 = Math.cos(this.angle1) * this.width * .5;
+            let sy1 = Math.sin(this.angle1) * this.width * .5;
+            let ex1 = -sx1;
+            let ey1 = -sy1;
+            let sx2 = Math.cos(this.angle2) * this.width * .5;
+            let sy2 = Math.sin(this.angle2) * this.width * .5;
+            let ex2 = -sx2;
+            let ey2 = -sy2;
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.x+sx1, this.y+sy1);
+            this.ctx.lineTo(this.x+ex1, this.y+ey1);
+            this.ctx.lineWidth = 1.5;
+            this.ctx.strokeStyle = this.getGradient(this.x+sx1, this.y+sy1, this.x+ex1, this.y+ey1, this.armColor);
+            this.ctx.stroke();
+            this.ctx.closePath();
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.x+sx2, this.y+sy2);
+            this.ctx.lineTo(this.x+ex2, this.y+ey2);
+            this.ctx.lineWidth = 1.5;
+            this.ctx.strokeStyle = this.getGradient(this.x+sx2, this.y+sy2, this.x+ex2, this.y+ey2, this.armColor);
+            this.ctx.stroke();
+            this.ctx.closePath();
+        }
+        // center dot
+        this.ctx.beginPath();
+        this.ctx.arc(Math.round(this.x), Math.round(this.y), this.radius, 0, Math.PI*2)
+        this.ctx.fillStyle = this.centerColor.asHSL(this.centerColor.a*.5);
+        this.ctx.fill();
+        this.ctx.closePath();
+        this.ctx.beginPath();
+        this.ctx.arc(Math.round(this.x), Math.round(this.y), Math.max(1,this.radius-2), 0, Math.PI*2)
+        this.ctx.fillStyle = this.centerColor.asHSL();
+        this.ctx.fill();
+        this.ctx.closePath();
+    }
 }

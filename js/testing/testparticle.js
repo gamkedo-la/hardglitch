@@ -24,13 +24,13 @@ class Env {
         this.bgimg;
         // setup environment
         this.particles = new ParticleSystem();
-        this.particles.dbg = true;
+        this.particles.alwaysActive = true;
         let ctx = this.ctx;
 
         let g = new ParticleGroup();
         this.particles.add(g);
 
-        this.particles.add(new ParticleEmitter(this.particles, () => {
+        this.particles.add(new ParticleEmitter(this.particles, 0, 0, () => {
             let xoff = random_float(-15,15);
             let yoff = random_float(-15,15);
             let velocity = random_float(30,60);
@@ -38,7 +38,7 @@ class Env {
             return new BlipParticle(ctx, 100+xoff, 300+yoff, g, 0, -velocity, ttl, 10);
         }, .2, 25));
 
-        this.particles.add(new ParticleEmitter(this.particles, () => {
+        this.particles.add(new ParticleEmitter(this.particles, 0, 0, () => {
             let xoff = random_float(-15,15);
             let yoff = random_float(-15,15);
             let velocity = random_float(30,90);
@@ -47,7 +47,7 @@ class Env {
             return new FadeParticle(ctx, 200+xoff, 300+yoff, 0, -velocity, size, new Color(0,255,255), ttl);
         }, .2, 25));
 
-        this.particles.add(new ParticleEmitter(this.particles, () => {
+        this.particles.add(new ParticleEmitter(this.particles, 0, 0, () => {
             let xoff = random_float(-15,15);
             let yoff = random_float(-15,15);
             let velocity = random_float(30,90);
@@ -57,7 +57,7 @@ class Env {
             return new FadeLineParticle(ctx, 300+xoff, 300+yoff, 0, -velocity, new Color(0,255,0), ttl, len, width, 0, 1);
         }, .3, 25));
 
-        this.particles.add(new ParticleEmitter(this.particles, () => {
+        this.particles.add(new ParticleEmitter(this.particles, 0, 0, () => {
             let xoff = random_float(4,60);
             let yoff = random_float(4,60);
             let ttl = random_float(.1,5);
@@ -68,7 +68,7 @@ class Env {
             return new OffsetGlitchParticle(ctx, 368+xoff, 236+yoff, width, height, dx, dy, ttl);
         }, .1, 25));
 
-        this.particles.add(new ParticleEmitter(this.particles, () => {
+        this.particles.add(new ParticleEmitter(this.particles, 0, 0, () => {
             let xoff = random_float(4,60);
             let yoff = random_float(4,60);
             let width = random_float(20,Math.min(40,64-xoff));
@@ -81,7 +81,7 @@ class Env {
         }, .3, 25));
 
         /*
-        this.particles.add(new ParticleEmitter(this.particles, () => {
+        this.particles.add(new ParticleEmitter(this.particles, 0, 0, () => {
             let xoff = random_float(4,60);
             let yoff = random_float(4,60);
             let hue = 250;
@@ -98,7 +98,7 @@ class Env {
             new ParticleSequence(this.particles, [() => { return new SwirlPrefab(this.particles, ctx, 2.5, 500, 268)}], 3, 0, 0)
         );
 
-        this.particles.add(new ParticleEmitter(this.particles, () => {
+        this.particles.add(new ParticleEmitter(this.particles, 0, 0, () => {
             let xoff = random_float(-15,15);
             let yoff = random_float(-15,15);
             let radius = random_int(5,10);
@@ -107,7 +107,7 @@ class Env {
             return new RingParticle(ctx, 600+xoff, 275+yoff, radius, hue, ttl, 25);
         }, .25, 25));
 
-        this.particles.add(new ParticleEmitter(this.particles, () => {
+        this.particles.add(new ParticleEmitter(this.particles, 0, 0, () => {
             let xoff = random_int(-15,15);
             let yoff = random_int(-15,15);
             let speed = random_int(25,50);
@@ -118,7 +118,7 @@ class Env {
             return new ShootUpParticle(ctx, 700+xoff, 275+yoff, speed, width, hue, pathLen, ttl, 50);
         }, .25, 25));
 
-        this.particles.add(new ParticleEmitter(this.particles, () => {
+        this.particles.add(new ParticleEmitter(this.particles, 0, 0, () => {
             let xoff = random_int(-15,15);
             let yoff = random_int(-15,15);
             let width = random_int(20,30);
@@ -127,7 +127,7 @@ class Env {
             return new FlashParticle(ctx, 800+xoff, 275+yoff, width, hue, ttl);
         }, .1, 0, 0, 5));
 
-        this.particles.add(new ParticleEmitter(this.particles, () => {
+        this.particles.add(new ParticleEmitter(this.particles, 0, 0, () => {
             let xoff = random_int(-15,15);
             let yoff = random_int(-15,15);
             let speed = random_int(100,200);

@@ -13,6 +13,7 @@ export {
     group_per_type,
     clamp,
     roundRect as draw_round_rectangle,
+    ofmt,
 }
 
 
@@ -188,3 +189,17 @@ function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
     }
 
   }
+
+function ofmt(obj, name) {
+    if (!obj) return "";
+    let keys = Object.keys(obj);
+    let kvs = [];
+    for (const key of keys) {
+        kvs.push(key + ":" + obj[key])
+    }
+    if (name) {
+        return "[" + name + ":" + kvs.join(",") + "]";
+    } else {
+        return "[" + kvs.join(",") + "]";
+    }
+}
