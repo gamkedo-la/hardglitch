@@ -1,5 +1,6 @@
 
 export {
+    Particle,
     ParticleEmitter,
     ParticleSequence,
     ParticleGroup,

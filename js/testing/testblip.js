@@ -1,8 +1,9 @@
 import { Board } from "./blip.js";
 import { initialize } from "../system/graphics.js";
 import { Color } from "../system/color.js";
-import { random_int } from "../system/utility.js";
+import { random_int, random_float } from "../system/utility.js";
 import { Vector2 } from "../system/spatial.js";
+import { Particle, ParticleGroup } from "../system/particles.js";
 
 let last_update_time = Date.now();
 const tileImg = new Image();
@@ -41,23 +42,65 @@ function ofmt(obj, name) {
     }
 }
 
-class Blip {
-    constructor(ctx, v1, v2, speed, nextEdgeFcn) {
+class Blip extends Particle {
+    constructor(ctx, v1, v2, radius, speed, group, nextEdgeFcn) {
+        super(ctx, v1.x, v1.y);
         this.ctx = ctx;
         this.v1 = v1
         this.v2 = v2
+        this.radius = radius;
+        this.width = radius * 10;
         this.speed = speed * .001;
-        this.x = v1.x
-        this.y = v1.y;
-        console.log("blip: v1: " + ofmt(v1) + " v2: " + ofmt(v2));
-        console.log("blip: [" + this.x + "," + this.y + "]");
+        this.group = group;
+        this.nextEdgeFcn = nextEdgeFcn;
         this.velocity = new Vector2({x:v2.x-v1.x, y: v2.y-v1.y})
         this.velocity.length = this.speed;
-        console.log("velocity: " + this.velocity);
-        this.nextEdgeFcn = nextEdgeFcn;
+        let hue = 127;
+        this.armColor = Color.fromHSL(hue, 100, random_int(50,80), 1);
+        this.centerColor = Color.fromHSL(hue, 100, random_int(90,100), 1);
+        this.angle1 = Math.random() * Math.PI;
+        this.angle2 = this.angle1 + (Math.PI * .5);
+        this.rotateStep = random_float(-2,2) * .001;
+        this.sparkIntensity = 0;
+        this.sparkRange = 10;
+    }
+
+    toString() {
+        return "[Blip:" + this.x + "," + this.y + "]";
+    }
+
+    getGradient(sx, sy, ex, ey, color) {
+        let gradient = this.ctx.createLinearGradient(sx, sy, ex, ey);
+        gradient.addColorStop(0, color.asHSL(color.a*.1));
+        gradient.addColorStop(.5, color.asHSL());
+        gradient.addColorStop(1, color.asHSL(color.a*.2));
+        return gradient;
+    }
+
+    /**
+     * determine the nearest range of other blips on the circuit
+     * @param {*} blip 
+     * @returns float - distance to nearest blip on the same circuit
+     */
+    nearestRange(group) {
+        let sqr = 1000;
+        for (const other of group) {
+            if (other === this) continue;
+            let dx = other.x - this.x;
+            let dy = other.y - this.y;
+            let or = dx*dx + dy*dy;
+            if (or < sqr) sqr = or;
+        }
+        return Math.sqrt(sqr);
     }
 
     update(delta_time) {
+        if (this.done) return;
+        let nr = (this.group) ? this.nearestRange(this.group) : 100;
+        this.sparkIntensity = 0;
+        if (nr < this.sparkRange) {
+            this.sparkIntensity = (this.sparkRange-nr)/this.sparkRange;
+        }
         // check distance to next vertex vs. distance to travel this tick
         let dtv2 = new Vector2({x:this.v2.x-this.x,y:this.v2.y-this.y}).length;
         let dtt = this.speed * delta_time;
@@ -65,7 +108,11 @@ class Blip {
         if (dtt >= dtv2) {
             // get next edge
             let nv2 = this.nextEdgeFcn(this.v2, this.v1);
-            console.log("nv2: " + nv2);
+            if (!nv2) {
+                this._done = true;
+                console.log("can't find edge for " + ofmt(this.v2) + "->" + ofmt(this.v1) + " nv2: " + nv2);
+                //return;
+            }
             this.v1 = this.v2;
             this.v2 = nv2;
             // recompute velocity
@@ -82,23 +129,51 @@ class Blip {
             this.y = this.y + this.velocity.y * delta_time;
         }
         //console.log("blip: [" + this.x + "," + this.y + "]");
+        // rotation
+        if (this.sparkIntensity) {
+            this.angle1 += this.rotateStep * delta_time;
+            this.angle2 += this.rotateStep * delta_time;
+            this.armColor.a = this.sparkIntensity;
+        }
     }
 
     draw() {
+        // spark
+        if (this.sparkIntensity) {
+            let sx1 = Math.cos(this.angle1) * this.width * .5;
+            let sy1 = Math.sin(this.angle1) * this.width * .5;
+            let ex1 = -sx1;
+            let ey1 = -sy1;
+            let sx2 = Math.cos(this.angle2) * this.width * .5;
+            let sy2 = Math.sin(this.angle2) * this.width * .5;
+            let ex2 = -sx2;
+            let ey2 = -sy2;
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.x+sx1, this.y+sy1);
+            this.ctx.lineTo(this.x+ex1, this.y+ey1);
+            this.ctx.lineWidth = 1.5;
+            this.ctx.strokeStyle = this.getGradient(this.x+sx1, this.y+sy1, this.x+ex1, this.y+ey1, this.armColor);
+            this.ctx.stroke();
+            this.ctx.closePath();
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.x+sx2, this.y+sy2);
+            this.ctx.lineTo(this.x+ex2, this.y+ey2);
+            this.ctx.lineWidth = 1.5;
+            this.ctx.strokeStyle = this.getGradient(this.x+sx2, this.y+sy2, this.x+ex2, this.y+ey2, this.armColor);
+            this.ctx.stroke();
+            this.ctx.closePath();
+        }
+        // center dot
         this.ctx.beginPath();
-        this.ctx.moveTo(this.x, this.y+2.5);
-        this.ctx.lineTo(this.x+5, this.y+2.5);
-        this.ctx.moveTo(this.x+2.5, this.y);
-        this.ctx.lineTo(this.x+2.5, this.y+5);
-        this.ctx.strokeStyle = 'rgba(189,246,231,.3)';
-        this.ctx.lineWidth = 1;
-        this.ctx.stroke();
-        // inner ring
-        this.ctx.fillStyle = 'rgba(86,232,194,.66)';
-        this.ctx.fillRect(this.x+1, this.y+1, 3, 3);
-        // inner dot
-        this.ctx.fillStyle = 'rgba(156,241,219,1)';
-        this.ctx.fillRect(this.x+2, this.y+2, 1, 1);
+        this.ctx.arc(Math.round(this.x), Math.round(this.y), this.radius, 0, Math.PI*2)
+        this.ctx.fillStyle = this.centerColor.asHSL(this.centerColor.a*.5);
+        this.ctx.fill();
+        this.ctx.closePath();
+        this.ctx.beginPath();
+        this.ctx.arc(Math.round(this.x), Math.round(this.y), Math.max(1,this.radius-2), 0, Math.PI*2)
+        this.ctx.fillStyle = this.centerColor.asHSL();
+        this.ctx.fill();
+        this.ctx.closePath();
     }
 }
 
@@ -122,6 +197,7 @@ class Graph {
         }
         let vert = {v:v,e:[]};
         this.verts.set(key, vert);
+        console.log("adding vert: " + key);
         return vert;
     }
 
@@ -133,11 +209,11 @@ class Graph {
         // add edges
         if (-1 == vert1.e.indexOf(k2)) {
             vert1.e.push(k2);
-            console.log(" ... vert1: " + ofmt(vert1));
+            //console.log(" ... vert1: " + ofmt(vert1));
         }
         if (-1 == vert2.e.indexOf(k1)) {
             vert2.e.push(k1);
-            console.log(" ... vert2: " + ofmt(vert1));
+            //console.log(" ... vert2: " + ofmt(vert1));
         }
     }
 
@@ -161,26 +237,39 @@ class Graph {
     getRandEdge(v, lastv) {
         let vert = this.getVert(v);
         //console.log("get randEdge v: " + ofmt(v) + " lastv: " + ofmt(lastv) + " vert: " + ofmt(vert));
-        if (!vert) return undefined;
+        if (!vert) {
+            console.log("vert not found: " + ofmt(v));
+            return undefined;
+        }
+        //let dbg = (vert.v.x==475 && vert.v.y==620);
+        let dbg = true;
+        if (dbg) console.log("get randEdge v: " + ofmt(v) + " lastv: " + ofmt(lastv) + " vert: " + ofmt(vert));
         // randomly choose new edge (exclude lastv if given)
         if (lastv && vert.e.length != 1) {
             let lastvk = this.vertKey(lastv);
             let lastidx = vert.e.indexOf(lastvk);
-            //console.log("lastvk: " + lastvk);
-            //console.log("lastidx: " + lastidx);
+            if (dbg) console.log("lastvk: " + lastvk);
+            if (dbg) console.log("lastidx: " + lastidx);
             if (-1 != lastidx) {
                 let idx = random_int(0, vert.e.length-2);
                 if (idx >= lastidx) idx++;
-                //console.log("idx: " + idx);
+                if (dbg) console.log("idx: " + idx + " vert.e[idx]: " + vert.e[idx]);
                 let vert2 = this.verts.get(vert.e[idx]);
-                //console.log("vert2: " + ofmt(vert2));
-                return (vert2) ? vert2.v : undefined;
+                if (dbg) console.log("vert2: " + ofmt(vert2));
+                if (!vert2) {
+                    console.log("this.verts: " + Array.from(this.verts.keys()));
+                }
+                let rv = (vert2) ? vert2.v : undefined;
+                if (dbg) console.log("returning: " + ofmt(rv));
+                return rv;
             }
         }
         // otherwise (no exclusion)
         let key = vert.e[random_int(0, vert.e.length-1)];
         let vert2 = this.verts.get(key)
-        return (vert2) ? vert2.v : undefined;
+        let rv = (vert2) ? vert2.v : undefined;
+        if (dbg) console.log("returning: " + ofmt(rv));
+        return rv;
     }
 
     draw(ctx) {
@@ -219,6 +308,7 @@ class GraphBuilder {
     constructor(width) {
         this.width = width;
         this.graphs = [];
+        this.groups = [];
     }
 
     getGraph(v) {
@@ -228,9 +318,25 @@ class GraphBuilder {
         return undefined;
     }
 
+    getGroup(graph) {
+        let idx = this.graphs.indexOf(graph);
+        if (idx != -1) {
+            return this.groups[idx];
+        }
+        return undefined;
+    }
+
+    addGraph(g) {
+        this.graphs.push(g);
+        this.groups.push(new ParticleGroup());
+    }
+
     removeGraph(g) {
         let idx = this.graphs.indexOf(g);
-        if (idx != -1) this.graphs.splice(idx, 1);
+        if (idx != -1) {
+            this.graphs.splice(idx, 1);
+            this.groups.splice(idx, 1);
+        }
     }
 
     addEdge(v1, v2) {
@@ -240,7 +346,7 @@ class GraphBuilder {
         console.log("adding edge: " + ofmt(v1) + "->" + ofmt(v2));
         if (!g1 && !g2) {
             let g = new Graph(this.width);
-            this.graphs.push(g);
+            this.addGraph(g);
             g.addEdge(v1, v2);
         } else if (g1 && !g2) {
             g1.addEdge(v1, v2);
@@ -280,6 +386,10 @@ class TileGraphBuilder extends GraphBuilder {
             {x:0,y:0}, {x:32,y:0}, 
             {x:0,y:31}, {x:32,y:31}, 
         ],
+        "btrs": [
+            {x:0,y:0}, {x:32,y:0}, 
+            {x:0,y:31}, {x:32,y:31}, 
+        ],
         "btls": [
             {x:0,y:0}, {x:16,y:0}, 
             {x:16,y:0}, {x:16,y:31}, 
@@ -290,6 +400,64 @@ class TileGraphBuilder extends GraphBuilder {
             {x:0,y:15}, {x:0,y:32}, 
             {x:15,y:0}, {x:15,y:32}, 
         ],
+        "ltbs": [
+            {x:0,y:0}, {x:0,y:16}, 
+            {x:0,y:16}, {x:0,y:32}, 
+            {x:0,y:16}, {x:16,y:32}, 
+            {x:15,y:0}, {x:32,y:16}, 
+        ],
+        "ltbi": [
+            {x:0,y:16}, {x:32,y:16}, 
+        ],
+        "bi": [
+            {x:0,y:16}, {x:32,y:16}, 
+        ],
+        "btri": [
+            {x:0,y:16}, {x:32,y:16}, 
+        ],
+        "btlsi": [
+            {x:0,y:16}, {x:32,y:17}, 
+        ],
+        "btli": [
+            {x:0,y:17}, {x:15,y:32}, 
+        ],
+        "obtl": [
+            {x:16,y:-1}, {x:32,y:16}, 
+        ],
+        "btle": [
+            {x:0,y:0}, {x:0,y:16}, 
+            {x:0,y:16}, {x:0,y:32}, 
+            {x:15,y:0}, {x:15,y:32}, 
+        ],
+        "l": [
+            {x:0,y:0}, {x:0,y:32}, 
+            {x:15,y:0}, {x:15,y:32}, 
+        ],
+        "btre": [
+            {x:0,y:16}, {x:16,y:0}, 
+            {x:15,y:32}, {x:31,y:16}, 
+            {x:31,y:32}, {x:31,y:16}, 
+            {x:31,y:16}, {x:31,y:0}, 
+        ],
+        "btr": [
+            {x:0,y:0}, {x:15,y:0}, 
+            {x:15,y:0}, {x:15,y:31}, 
+            {x:0,y:31}, {x:15,y:31}, 
+            {x:15,y:31}, {x:31,y:16}, 
+            {x:31,y:16}, {x:31,y:0}, 
+        ],
+        "r": [
+            {x:16,y:0}, {x:16,y:32}, 
+            {x:31,y:0}, {x:31,y:32}, 
+        ],
+        "rtbs": [
+            {x:16,y:0}, {x:16,y:32}, 
+            {x:31,y:0}, {x:31,y:16}, 
+            {x:31,y:16}, {x:31,y:32}, 
+        ],
+        "ortb": [
+            {x:-1,y:16}, {x:15,y:-1}, 
+        ],
     }
 
     constructor(width) {
@@ -297,15 +465,16 @@ class TileGraphBuilder extends GraphBuilder {
     }
 
     addTile(x,y,id) {
-        //console.log("edgeMap: " + this.edgeMap);
         let edgeInfo = this.edgeMap[id];
-        //console.log("edgeInfo: " + edgeInfo);
         if (!edgeInfo) return;
+        let verts = [];
         for (let i=0; i<edgeInfo.length; i+=2) {
-            let v1 = edgeInfo[i];
-            let v2 = edgeInfo[i+1];
-            this.addEdge({x:v1.x+x, y:v1.y+y}, {x:v2.x+x, y:v2.y+y});
+            let v1 = {x: x+edgeInfo[i].x, y:y+edgeInfo[i].y};
+            let v2 = {x: x+edgeInfo[i+1].x, y:y+edgeInfo[i+1].y};
+            this.addEdge(v1, v2);
+            verts.push(v1, v2);
         }
+        return verts;
     }
 
 }
@@ -319,6 +488,31 @@ class Env {
         this.INTERVAL = 1000 / this.FPS; // milliseconds
         this.STEP = this.INTERVAL / 1000 // second
         this.gb = new TileGraphBuilder(1024);
+        this.blips = [];
+        this.groups = [];
+    }
+
+    addBlip(x,y,tile) {
+        // add tile verts/edges to graph
+        let verts = this.gb.addTile(x, y, tile);
+        if (!verts) return;
+        // create one random blip per tile
+        let idx = random_int(0,(verts.length/2)-1)*2;
+        // lookup graph
+        //console.log("verts: " + verts)
+        let graph = this.gb.getGraph(verts[idx]);
+        let group = this.gb.getGroup(graph);
+        let blip;
+        let speed = random_int(40,75);
+        let radius = 2;
+        if (Math.random() > .5) {
+            blip = new Blip(this.ctx, verts[idx], verts[idx+1], radius, speed, group, graph.getRandEdge.bind(graph));
+        } else {
+            blip = new Blip(this.ctx, verts[idx+1], verts[idx], radius, speed, group, graph.getRandEdge.bind(graph));
+        }
+        if (group) group.add(blip);
+        //console.log("blip: " + blip);
+        this.blips.push(blip);
     }
 
     setup() {
@@ -351,20 +545,41 @@ class Env {
         }
 
         // build graph
-        this.gb.addTile(300+32, 300+32*10, "ltb");
-        this.gb.addTile(300+32*2, 300+32*10, "ltbe");
-        this.gb.addTile(300+32*3, 300+32*10, "b");
-        this.gb.addTile(300+32*4, 300+32*10, "btls");
-        this.gb.addTile(300+32*5, 300+32*10, "btl");
-        console.log("gb.graphs.length: " + this.gb.graphs.length);
+        /*
+        this.addBlip(300+32*1, 300+32*9, "ltbs");
+        this.addBlip(300+32*2, 300+32*9, "ltbi");
+        this.addBlip(300+32*3, 300+32*9, "bi");
+        this.addBlip(300+32*4, 300+32*9, "btlsi");
+        this.addBlip(300+32*5, 300+32*9, "btli");
+        this.addBlip(300+32, 300+32*10, "ltb");
+        this.addBlip(300+32*2, 300+32*10, "ltbe");
+        this.addBlip(300+32*3, 300+32*10, "b");
+        this.addBlip(300+32*4, 300+32*10, "btls");
+        this.addBlip(300+32*5, 300+32*10, "btl");
+        this.addBlip(300+32*4, 300+32*11, "obtl");
+        this.addBlip(300+32*5, 300+32*11, "btle");
+        this.addBlip(300+32*5, 300+32*12, "l");
+        this.addBlip(300+32*5, 300+32*13, "ltbs");
+        this.addBlip(300+32*6, 300+32*13, "ltbi");
+        this.addBlip(300+32*7, 300+32*13, "bi");
+        this.addBlip(300+32*8, 300+32*13, "bi");
+        this.addBlip(300+32*9, 300+32*13, "btri");
+        this.addBlip(300+32*10, 300+32*13, "btre");
+        this.addBlip(300+32*5, 300+32*14, "ltb");
+        this.addBlip(300+32*6, 300+32*14, "ltbe");
+        this.addBlip(300+32*7, 300+32*14, "b");
+        this.addBlip(300+32*8, 300+32*14, "b");
+        this.addBlip(300+32*9, 300+32*14, "btrs");
+        this.addBlip(300+32*10, 300+32*14, "btr");
+        */
 
-        // pick graph
-        let graph = this.gb.graphs[0];
-        // pick vertex
-        let v1 = graph.getRandVert();
-        // pick edge
-        let v2 = graph.getRandEdge(v1);
-        this.blip = new Blip(this.ctx, v1, v2, 50, graph.getRandEdge.bind(graph));
+        this.addBlip(300+32*10, 300+32*12, "r");
+        this.addBlip(300+32*10, 300+32*11, "rtbs");
+        /*
+        this.addBlip(300+32*11, 300+32*11, "ortb");
+        */
+
+        console.log("gb.graphs.length: " + this.gb.graphs.length);
 
         return new Promise((resolve) => {
             let promises = [];
@@ -390,8 +605,10 @@ class Env {
 
         this.gb.draw(this.ctx);
 
-        this.blip.update(delta_time);
-        this.blip.draw();
+        for (let i=0; i<this.blips.length; i++) {
+            this.blips[i].update(delta_time);
+            this.blips[i].draw();
+        }
 
         this.ctx.drawImage(tileImg, 128, 128);
         for (let i=0; i<8; i++) {
