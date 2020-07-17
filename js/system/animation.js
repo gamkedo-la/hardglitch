@@ -26,7 +26,7 @@ function* wait(duration_ms){
     let time_since_start = 0;
     while(time_since_start < duration_ms){
         const delta_time = yield;
-        console.assert(Number.isInteger(delta_time));
+        console.assert(typeof(delta_time) === 'number');
         time_since_start += delta_time;
     }
     return time_since_start;

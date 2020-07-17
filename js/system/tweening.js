@@ -84,7 +84,7 @@ class Tweening{
     get done() { return this.time_since_start === this.duration; }
 
     update(delta_time){
-        console.assert(Number.isInteger(delta_time));
+        console.assert(typeof(delta_time) === 'number');
         this.time_since_start += delta_time;
 
         if(this.time_since_start > this.duration){
@@ -99,7 +99,7 @@ class Tweening{
         this.time_since_start = 0;
         do {
             const delta_time = yield this.values;
-            console.assert(Number.isInteger(delta_time));
+            console.assert(typeof(delta_time) === 'number');
             update_callback(this.update(delta_time));
         }
         while(!this.done);

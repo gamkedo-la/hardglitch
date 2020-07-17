@@ -372,7 +372,7 @@ class GameView {
 
     _update_entities(delta_time){
         const entity_views = this.list_entity_views;
-        console.assert(Number.isInteger(delta_time));
+        console.assert(typeof(delta_time) === 'number');
         console.assert(entity_views instanceof Array);
         for(const entity_view of entity_views){
             console.assert(entity_view instanceof EntityView);

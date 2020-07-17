@@ -17,7 +17,7 @@ import * as editor from "./editor.js";
 
 let current_game = null;
 let current_game_view = null;
-let last_update_time = Date.now();
+let last_update_time = performance.now();
 let game_state_machine = new StateMachine(state.running);
 const max_delta_time = 100;
 
@@ -31,27 +31,30 @@ window.onload = async function() {
   start();
 }
 
-function start() {
-  // these next few lines set up our game logic and render cycle.
-  var framesPerSecond = 60;
-  setInterval(function() {
-      update_everything();
-      draw_everything();
-    }, 1000/framesPerSecond);
-
-
-  console.log("GAME READY - STARTED");
-}
-
-function get_delta_time() {
-  const now = Date.now();
-  const delta_time = Math.min(max_delta_time, now - last_update_time);
-  last_update_time = now;
+function get_delta_time(timestamp_now) {
+  const delta_time = Math.min(max_delta_time, timestamp_now - last_update_time);
+  last_update_time = timestamp_now;
   return delta_time;
 }
 
-function update_everything() {
-  const delta_time = get_delta_time();
+function update_cycle(highres_timestamp){
+  console.assert(typeof(highres_timestamp) === 'number');
+  if(!highres_timestamp)
+    return;
+  const delta_time = get_delta_time(highres_timestamp);
+  update_everything(delta_time);
+  draw_everything();
+  window.requestAnimationFrame(update_cycle);
+}
+
+function start() {
+  window.requestAnimationFrame(update_cycle);
+  console.log("GAME READY - STARTED");
+}
+
+
+
+function update_everything(delta_time) {
 
   // switch(gameState.getState()) {
   //   case state.menu:
