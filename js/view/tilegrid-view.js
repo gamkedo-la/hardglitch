@@ -16,9 +16,6 @@ import { TileGraphBuilder } from "./particle-graph.js";
 import { random_int, random_float, position_from_index } from "../system/utility.js";
 import { Color } from "../system/color.js";
 
-let canvas = document.getElementById('gameCanvas');
-let canvasContext = canvas.getContext('2d');
-
 // Display tiles.
 class TileGridView {
     _enable_grid_lines = false;
@@ -58,7 +55,7 @@ class TileGridView {
         }
     }
 
-    addExitParticles(ctx, x, y) {
+    addExitParticles(x, y) {
 
         let g = new ParticleGroup();
         this.particles.add(g);
@@ -67,7 +64,7 @@ class TileGridView {
             let yoff = random_float(-25,25);
             let velocity = random_float(30,60);
             let ttl = random_float(.3, 1.5);
-            return new BlipParticle(ctx, x+xoff, y+yoff, g, 0, -velocity, ttl, 10);
+            return new BlipParticle(x+xoff, y+yoff, g, 0, -velocity, ttl, 10);
         }, .2, 25));
 
         this.particles.add(new ParticleEmitter(this.particles, x, y, () => {
@@ -77,7 +74,7 @@ class TileGridView {
             let ttl = random_float(.3,1);
             let len = random_float(10,50);
             let width = random_float(1,5);
-            return new FadeLineParticle(ctx, x+xoff, y+yoff, 0, -velocity, new Color(0,255,0), ttl, len, width, 0, 1);
+            return new FadeLineParticle(x+xoff, y+yoff, 0, -velocity, new Color(0,255,0), ttl, len, width, 0, 1);
         }, .3, 25));
 
     }
@@ -116,7 +113,7 @@ class TileGridView {
 
     vemitterCount = 0;
 
-    addVoidParticles(ctx, size, idx, floor_grid) {
+    addVoidParticles(size, idx, floor_grid) {
         let coords = position_from_index(size.x, size.y, idx);
         // compute i,j indices from idx
         let i = coords.x;
@@ -158,7 +155,7 @@ class TileGridView {
                         velocity.length = random_float(30,45);
                         let size = random_float(.5,1.5);
                         let ttl = random_float(.3,1);
-                        return new FadeParticle(ctx, sx, sy, -velocity.x, -velocity.y, size, new Color(0,222,0), ttl);
+                        return new FadeParticle(sx, sy, -velocity.x, -velocity.y, size, new Color(0,222,0), ttl);
                     }, .3*seamsFactor, 25));
                     this.vemitterCount++;
                 }
@@ -166,7 +163,7 @@ class TileGridView {
         }
     }
 
-    addBlip(ctx, x,y,tile) {
+    addBlip(x,y,tile) {
         // add tile verts/edges to graph
         let verts = this.gb.addTile(x, y, tile);
         if (!verts) return;
@@ -185,9 +182,9 @@ class TileGridView {
             return undefined;
         };
         if (Math.random() > .5) {
-            blip = new BlipEdgeParticle(ctx, verts[idx], verts[idx+1], radius, speed, group, nextEdgeFcn);
+            blip = new BlipEdgeParticle(verts[idx], verts[idx+1], radius, speed, group, nextEdgeFcn);
         } else {
-            blip = new BlipEdgeParticle(ctx, verts[idx+1], verts[idx], radius, speed, group, nextEdgeFcn);
+            blip = new BlipEdgeParticle(verts[idx+1], verts[idx], radius, speed, group, nextEdgeFcn);
         }
         if (group) group.add(blip);
         this.particles.add(blip);
@@ -238,10 +235,10 @@ class TileGridView {
         for (let i=0; i<surface_tile_grid.elements.length; i++) {
             if (surface_tile_grid.elements[i] == tiledefs.ID.EXIT) {
                 let pos = position_from_index(size.x, size.y, i);
-                this.addExitParticles(canvasContext, pos.x*PIXELS_PER_TILES_SIDE + PIXELS_PER_HALF_SIDE, pos.y*PIXELS_PER_TILES_SIDE + PIXELS_PER_HALF_SIDE);
+                this.addExitParticles(pos.x*PIXELS_PER_TILES_SIDE + PIXELS_PER_HALF_SIDE, pos.y*PIXELS_PER_TILES_SIDE + PIXELS_PER_HALF_SIDE);
             }
             if (ground_tile_grid.elements[i] == tiledefs.ID.VOID) {
-                this.addVoidParticles(canvasContext, size, i, bg_grid);
+                this.addVoidParticles(size, i, bg_grid);
             }
         }
         console.log("void emitters: " + this.vemitterCount);
@@ -253,7 +250,7 @@ class TileGridView {
                 let id = fg_grid.elements[i];
                 if (!id) continue;
                 id = id.slice(8);
-                this.addBlip(canvasContext, pos.x*PIXELS_PER_HALF_SIDE, pos.y*PIXELS_PER_HALF_SIDE, id);
+                this.addBlip(pos.x*PIXELS_PER_HALF_SIDE, pos.y*PIXELS_PER_HALF_SIDE, id);
             }
         }
 

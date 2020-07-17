@@ -22,6 +22,13 @@ import { random_int, random_float } from "../system/utility.js";
 import { Color } from "../system/color.js";
 import { Vector2 } from "../system/spatial.js";
 
+
+// This object is reused for optimization, do not move it into the functions using it.
+const checkArea = {
+    position: { x: 0, y: 0 },
+    width: 64, height: 64 // TODO: find a better way to specify this size
+};
+
 /**
  * A particle system intended to keep track of all active particles and emitters
  */
@@ -58,11 +65,7 @@ class ParticleSystem {
 
     isActive(obj) {
         if (this.alwaysActive) return true;
-        if (obj.x === undefined || obj.y === undefined) return true;
-        const checkArea = {
-            position: { x: 0, y: 0 },
-            width: 64, height: 64 // TODO: find a better way to specify this size
-        };
+        if (obj instanceof ParticleGroup) return true;
         checkArea.position.x = obj.x;
         checkArea.position.y = obj.y;
         return camera.can_see(checkArea);
@@ -75,15 +78,16 @@ class ParticleSystem {
         // iterate through tracked items
         let inactive = 0;
         for (let i=this.items.length-1; i>=0; i--) {
+            const item = this.items[i];
             // skip inactive items
-            if (!this.isActive(this.items[i])) {
+            if (!this.isActive(item)) {
                 inactive++;
                 continue;
             }
             // update each object
-            this.items[i].update(delta_time);
+            item.update(delta_time);
             // if any items are done, remove them
-            if (this.items[i].done) {
+            if (item.done) {
                 this.items.splice(i, 1);
             }
         }
@@ -96,15 +100,16 @@ class ParticleSystem {
         }
     }
 
-    draw() {
+    draw(canvas_context) {
+        // make sure they don't impact the rest of the drawing code
+        canvas_context.save();
         // iterate through tracked items
-        for (let i=this.items.length-1; i>=0; i--) {
-            if (!this.isActive(this.items[i])) continue;
-            // draw each tracked particle (skip drawing for emitters)
-            if (this.items[i].draw){
-                this.items[i].draw();
-            }
-        }
+        this.items.filter(item => item.draw && this.isActive(item)) // (skip drawing for emitters)
+            .forEach(item => {
+                // draw each tracked particle
+                item.draw(canvas_context);
+            });
+        canvas_context.restore();
     }
 
 }
@@ -362,8 +367,7 @@ class Particle {
      * @param {*} x
      * @param {*} y
      */
-    constructor(ctx, x, y) {
-        this.ctx = ctx;
+    constructor(x, y) {
         this.x = x;
         this.y = y;
         this._done = false;
@@ -396,8 +400,8 @@ class FadeLineParticle extends Particle {
      * @param {*} minOpacity - minimum opacity of line (opacity of line at beginning/end of particle loop)
      * @param {*} maxOpacity - max opacity of line (opacity of line at midpoint of animation)
      */
-    constructor(ctx, x, y, dx, dy, color, lifetime, length, width, minOpacity, maxOpacity) {
-        super(ctx, x, y);
+    constructor(x, y, dx, dy, color, lifetime, length, width, minOpacity, maxOpacity) {
+        super(x, y);
         this.dx = dx;
         this.dy = dy;
         // base color
@@ -454,24 +458,24 @@ class FadeLineParticle extends Particle {
         return c;
     }
 
-    getGradient() {
-        let gradient = this.ctx.createLinearGradient(this.x, this.y, this.endX, this.endY);
+    getGradient(canvas_context) {
+        let gradient = canvas_context.createLinearGradient(this.x, this.y, this.endX, this.endY);
         gradient.addColorStop(0, this.getColor(this.x, this.y, .1).toString());
         gradient.addColorStop(.5, this.getColor(this.midX, this.midY, 1).toString());
         gradient.addColorStop(1, this.getColor(this.endX, this.endY, .1).toString());
         return gradient;
     }
 
-    draw() {
-        this.ctx.save();
-        this.ctx.strokeStyle = this.getGradient();
-        this.ctx.lineWidth = this.width;
-        this.ctx.lineCap = "round";
-        this.ctx.beginPath();
-        this.ctx.moveTo(this.x, this.y);
-        this.ctx.lineTo(this.endX, this.endY);
-        this.ctx.stroke();
-        this.ctx.restore();
+    draw(canvas_context) {
+
+        canvas_context.strokeStyle = this.getGradient(canvas_context);
+        canvas_context.lineWidth = this.width;
+        canvas_context.lineCap = "round";
+        canvas_context.beginPath();
+        canvas_context.moveTo(this.x, this.y);
+        canvas_context.lineTo(this.endX, this.endY);
+        canvas_context.stroke();
+
     }
 
     update(delta_time) {
@@ -527,8 +531,8 @@ class FadeParticle extends Particle {
      * @param {*} color  - color for particle
      * @param {*} lifetime - lifetime of particle, in seconds
      */
-    constructor(ctx, x, y, dx, dy, size, color, lifetime) {
-        super(ctx, x, y);
+    constructor(x, y, dx, dy, size, color, lifetime) {
+        super(x, y);
         this.dx = dx;
         this.dy = dy;
         this.size = size;
@@ -538,13 +542,11 @@ class FadeParticle extends Particle {
         this.ttl = lifetime;
     }
 
-    draw() {
-        this.ctx.save();
-        this.ctx.beginPath();
-        this.ctx.arc(this.x, this.y, this.size, 0, Math.PI*2, false);
-        this.ctx.fillStyle = this.color.toString();
-        this.ctx.fill();
-        this.ctx.restore();
+    draw(canvas_context) {
+        canvas_context.beginPath();
+        canvas_context.arc(this.x, this.y, this.size, 0, Math.PI*2, false);
+        canvas_context.fillStyle = this.color.toString();
+        canvas_context.fill();
     }
 
     update(delta_time) {
@@ -567,8 +569,8 @@ class FadeParticle extends Particle {
 }
 
 class OffsetGlitchParticle extends Particle {
-    constructor(ctx, x, y, width, height, dx, dy, ttl, fillColor) {
-        super(ctx, x, y);
+    constructor(x, y, width, height, dx, dy, ttl, fillColor) {
+        super(x, y);
         this.width = width;
         this.height = height;
         this.dx = dx;
@@ -577,15 +579,13 @@ class OffsetGlitchParticle extends Particle {
         this.fillColor = fillColor;
     }
 
-    draw() {
-        this.ctx.save();
-        let data = this.ctx.getImageData(this.x, this.y, this.width, this.height);
-        if (this.fillColor) this.ctx.fillStyle = this.fillColor.toString();
-        this.ctx.fillRect(this.x, this.y, this.width, this.height);
-        //this.ctx.putImageData(data, this.x, this.y, Math.max(0, this.dx), Math.max(0,this.dy), this.width-this.dx, this.height-this.dy);
-        //this.ctx.putImageData(data, this.x+this.dx, this.y+this.dy, Math.max(0, this.dx), Math.max(0,this.dy), this.width-this.dx, this.height-this.dy);
-        this.ctx.putImageData(data, this.x+this.dx, this.y+this.dy);
-        this.ctx.restore();
+    draw(canvas_context) {
+        let data = canvas_context.getImageData(this.x, this.y, this.width, this.height);
+        if (this.fillColor) canvas_context.fillStyle = this.fillColor.toString();
+        canvas_context.fillRect(this.x, this.y, this.width, this.height);
+        //canvas_context.putImageData(data, this.x, this.y, Math.max(0, this.dx), Math.max(0,this.dy), this.width-this.dx, this.height-this.dy);
+        //canvas_context.putImageData(data, this.x+this.dx, this.y+this.dy, Math.max(0, this.dx), Math.max(0,this.dy), this.width-this.dx, this.height-this.dy);
+        canvas_context.putImageData(data, this.x+this.dx, this.y+this.dy);
     }
 
     update(delta_time) {
@@ -602,8 +602,8 @@ class OffsetGlitchParticle extends Particle {
 }
 
 class ColorGlitchParticle extends Particle {
-    constructor(ctx, x, y, width, height, roff, goff, boff, ttl) {
-        super(ctx, x, y);
+    constructor(x, y, width, height, roff, goff, boff, ttl) {
+        super(x, y);
         this.width = width;
         this.height = height;
         this.roff = roff;
@@ -612,10 +612,10 @@ class ColorGlitchParticle extends Particle {
         this.ttl = ttl;
     }
 
-    draw() {
-        this.ctx.save();
+    draw(canvas_context) {
+
         // pull area
-        let idata = this.ctx.getImageData(this.x, this.y, this.width, this.height);
+        let idata = canvas_context.getImageData(this.x, this.y, this.width, this.height);
         let data = idata.data;
         // transform data
         for(var i = 0; i < data.length; i += 4) {
@@ -626,8 +626,8 @@ class ColorGlitchParticle extends Particle {
           // blue
           data[i + 2] = (data[i + 2] + this.goff) % 255;
         }
-        this.ctx.putImageData(idata, this.x, this.y);
-        this.ctx.restore();
+        canvas_context.putImageData(idata, this.x, this.y);
+
     }
 
     update(delta_time) {
@@ -661,8 +661,8 @@ class BlipParticle extends Particle {
      * @param {*} lifetime - lifetime of particle, in seconds
      * @param {*} sparkRange - range in which to start spark effect in pixels
      */
-    constructor(ctx, x, y, group, dx, dy, lifetime, sparkRange) {
-        super(ctx, x, y);
+    constructor(x, y, group, dx, dy, lifetime, sparkRange) {
+        super(x, y);
         this.group = group;
         this.dx = dx;
         this.dy = dy;
@@ -694,7 +694,7 @@ class BlipParticle extends Particle {
         return Math.sqrt(sqr);
     }
 
-    draw() {
+    draw(canvas_context) {
         let nr = this.nearestRange(this);
         let img = this.blipImg;
         if (nr <= this.sparkRange && nr >= this.sparkRange*.5) {
@@ -706,10 +706,10 @@ class BlipParticle extends Particle {
         let y = this.y;
         x -= Math.floor((img.width)*.5);
         y -= Math.floor((img.height)*.5);
-        this.ctx.save();
-        this.ctx.globalAlpha = this.fade;
-        this.ctx.drawImage(img, x, y);
-        this.ctx.restore();
+
+        canvas_context.globalAlpha = this.fade;
+        canvas_context.drawImage(img, x, y);
+
     }
 
     update(delta_time) {
@@ -744,8 +744,8 @@ class SwirlParticle extends Particle {
      * @param {*} emerge - emerge duration (either controlled via time or sentinel object)
      * @param {*} decay - emerge duration in seconds
      */
-    constructor(ctx, x, y, hue, speed, radius, width, emerge, decay){
-        super(ctx, x, y);
+    constructor(x, y, hue, speed, radius, width, emerge, decay){
+        super(x, y);
         this.speed = speed;
         this.radius = radius;
         this.width = width;
@@ -818,32 +818,32 @@ class SwirlParticle extends Particle {
         }
 	};
 
-	draw(){
+	draw(canvas_context){
         var coordRand = (random_int(1,3)-1);
-        this.ctx.save();
-		this.ctx.beginPath();
-		this.ctx.moveTo(Math.round(this.coordLast[coordRand].x), Math.round(this.coordLast[coordRand].y));
-		this.ctx.lineTo(Math.round(this.x), Math.round(this.y));
-		this.ctx.closePath();
-        this.ctx.strokeStyle = this.color.asHSL();
-		this.ctx.stroke();
+
+		canvas_context.beginPath();
+		canvas_context.moveTo(Math.round(this.coordLast[coordRand].x), Math.round(this.coordLast[coordRand].y));
+		canvas_context.lineTo(Math.round(this.x), Math.round(this.y));
+		canvas_context.closePath();
+        canvas_context.strokeStyle = this.color.asHSL();
+		canvas_context.stroke();
 		if(this.flickerDensity > 0){
 			var inverseDensity = 50 - this.flickerDensity;
 			if(random_int(0, inverseDensity) === inverseDensity){
-				this.ctx.beginPath();
-				this.ctx.arc(Math.round(this.x), Math.round(this.y), random_int(this.width,this.width+3)/2, 0, Math.PI*2, false)
-                this.ctx.closePath();
+				canvas_context.beginPath();
+				canvas_context.arc(Math.round(this.x), Math.round(this.y), random_int(this.width,this.width+3)/2, 0, Math.PI*2, false)
+                canvas_context.closePath();
                 this.flickerColor.a = random_float(.5,1);
-                this.ctx.fillStyle = this.flickerColor.asHSL();
-				this.ctx.fill();
+                canvas_context.fillStyle = this.flickerColor.asHSL();
+				canvas_context.fill();
 			}
 		}
-        this.ctx.restore();
+
     }
 }
 
 class SwirlPrefab {
-    constructor(sys, ctx, ttl, x, y) {
+    constructor(sys, ttl, x, y) {
         // params for particles
         let minHue = 130;
         let maxHue = 200;
@@ -871,7 +871,7 @@ class SwirlPrefab {
                 let speed = random_int(minSpeed, maxSpeed);
                 let radius = random_float(minRadius,maxRadius);
                 let width = random_int(minWidth, maxWidth);
-                return new SwirlParticle(ctx, x, y, hue, speed, radius, width, crush, ttl*.25);
+                return new SwirlParticle(x, y, hue, speed, radius, width, crush, ttl*.25);
             }, 0, 0, 0.1, pburst));
 
         // creates a slow stream of particles through rest of animation
@@ -881,7 +881,7 @@ class SwirlPrefab {
                 let radius = random_float(minRadius,maxRadius);
                 let pttl = random_float(minPttl,maxPttl);
                 let width = random_int(minWidth, maxWidth);
-                return new SwirlParticle(ctx, x, y, hue, speed, radius, width, crush, pttl);
+                return new SwirlParticle(x, y, hue, speed, radius, width, crush, pttl);
             }, pstreamInterval, pstreamVar, pstream, ttl*.25));
     }
 
@@ -895,8 +895,8 @@ class SwirlPrefab {
 
 class RingParticle extends Particle {
 
-    constructor(ctx, x, y, radius, hue, ttl, fadePct) {
-        super(ctx, x, y);
+    constructor(x, y, radius, hue, ttl, fadePct) {
+        super(x, y);
         this.radius = radius;
         this.color = Color.fromHSL(hue, 100, random_int(50,80), 0);
         this.halfColor = this.color.copy();
@@ -927,28 +927,28 @@ class RingParticle extends Particle {
         }
     }
 
-    draw() {
-        this.ctx.save();
-        this.ctx.beginPath();
-        this.ctx.arc(Math.round(this.x), Math.round(this.y), this.radius, 0, Math.PI*2)
-        this.ctx.closePath();
-        this.ctx.strokeStyle = this.color.asHSL();
-        this.ctx.stroke();
-        this.ctx.beginPath();
-        this.ctx.arc(Math.round(this.x), Math.round(this.y), this.radius+1, 0, Math.PI*2)
-        this.ctx.arc(Math.round(this.x), Math.round(this.y), this.radius-1, 0, Math.PI*2)
-        this.ctx.closePath();
-        this.ctx.strokeStyle = this.halfColor.asHSL();
-        this.ctx.stroke();
-        this.ctx.restore();
+    draw(canvas_context) {
+
+        canvas_context.beginPath();
+        canvas_context.arc(Math.round(this.x), Math.round(this.y), this.radius, 0, Math.PI*2)
+        canvas_context.closePath();
+        canvas_context.strokeStyle = this.color.asHSL();
+        canvas_context.stroke();
+        canvas_context.beginPath();
+        canvas_context.arc(Math.round(this.x), Math.round(this.y), this.radius+1, 0, Math.PI*2)
+        canvas_context.arc(Math.round(this.x), Math.round(this.y), this.radius-1, 0, Math.PI*2)
+        canvas_context.closePath();
+        canvas_context.strokeStyle = this.halfColor.asHSL();
+        canvas_context.stroke();
+
     }
 
 }
 
 class ShootUpParticle extends Particle {
 
-    constructor(ctx, x, y, speed, width, hue, pathLen, ttl, shootPct) {
-        super(ctx, x, y);
+    constructor(x, y, speed, width, hue, pathLen, ttl, shootPct) {
+        super(x, y);
         this.speed = speed*.001;
         this.width = width;
         this.radius = 1;
@@ -1000,49 +1000,49 @@ class ShootUpParticle extends Particle {
         }
     }
 
-    getGradient(color) {
-        let gradient = this.ctx.createLinearGradient(this.x, this.y, this.endX, this.endY);
+    getGradient(color, canvas_context) {
+        let gradient = canvas_context.createLinearGradient(this.x, this.y, this.endX, this.endY);
         gradient.addColorStop(0, color.asHSL());
         gradient.addColorStop(1, this.invisColor.asHSL());
         return gradient;
     }
 
-    draw() {
-        this.ctx.save();
+    draw(canvas_context) {
+
         // head of "comet"
         if (this.fadeTTL) {
             let headBrightness = this.brightness + this.brightBoost;
             if (this.brightBoost) this.brightBoost = Math.max(0,this.brightBoost - 20);
-            this.ctx.beginPath();
-            this.ctx.arc(Math.round(this.x), Math.round(this.y), this.radius, 0, Math.PI*2)
-            this.ctx.closePath();
+            canvas_context.beginPath();
+            canvas_context.arc(Math.round(this.x), Math.round(this.y), this.radius, 0, Math.PI*2)
+            canvas_context.closePath();
             if (this.brightBoost) {
                 let c = this.headColor.copy();
                 c.l = Math.min(100,c.l + this.brightBoost);
-                this.ctx.fillStyle = c.asHSL();
+                canvas_context.fillStyle = c.asHSL();
                 this.brightBoost = Math.max(0,this.brightBoost - 10);
             } else {
-                this.ctx.fillStyle = this.headColor.copy();
+                canvas_context.fillStyle = this.headColor.copy();
             }
-            this.ctx.fill();
+            canvas_context.fill();
         }
         // tail
-        this.ctx.beginPath();
-        this.ctx.lineWidth = this.width;
-        this.ctx.lineCap = 'round';
-        this.ctx.moveTo(this.x, this.y);
-        this.ctx.lineTo(this.endX, this.endY);
-        this.ctx.strokeStyle = this.getGradient(this.tailColor);
-        this.ctx.stroke();
-        this.ctx.closePath();
-        this.ctx.restore();
+        canvas_context.beginPath();
+        canvas_context.lineWidth = this.width;
+        canvas_context.lineCap = 'round';
+        canvas_context.moveTo(this.x, this.y);
+        canvas_context.lineTo(this.endX, this.endY);
+        canvas_context.strokeStyle = this.getGradient(this.tailColor, canvas_context);
+        canvas_context.stroke();
+        canvas_context.closePath();
+
     }
 }
 
 class FlashParticle extends Particle {
 
-    constructor(ctx, x, y, width, hue, ttl) {
-        super(ctx, x, y);
+    constructor(x, y, width, hue, ttl) {
+        super(x, y);
         this.width = width;
         this.hue = hue;
         this.ttl = ttl * 1000;
@@ -1079,16 +1079,15 @@ class FlashParticle extends Particle {
         }
     }
 
-    getGradient(sx, sy, ex, ey, color) {
-        let gradient = this.ctx.createLinearGradient(sx, sy, ex, ey);
+    getGradient(canvas_context, sx, sy, ex, ey, color) {
+        let gradient = canvas_context.createLinearGradient(sx, sy, ex, ey);
         gradient.addColorStop(0, color.asHSL(color.a*.25));
         gradient.addColorStop(.5, color.asHSL());
         gradient.addColorStop(1, color.asHSL(color.a*.25));
         return gradient;
     }
 
-    draw() {
-        this.ctx.save();
+    draw(canvas_context) {
 
         // arms
         let sx1 = Math.cos(this.angle1) * this.width * .5;
@@ -1099,41 +1098,40 @@ class FlashParticle extends Particle {
         let sy2 = Math.sin(this.angle2) * this.width * .5;
         let ex2 = -sx2;
         let ey2 = -sy2;
-        this.ctx.beginPath();
-        this.ctx.moveTo(this.x+sx1, this.y+sy1);
-        this.ctx.lineTo(this.x+ex1, this.y+ey1);
-        this.ctx.lineWidth = 1.5;
-        this.ctx.strokeStyle = this.getGradient(this.x+sx1, this.y+sy1, this.x+ex1, this.y+ey1, this.armColor);
-        this.ctx.stroke();
-        this.ctx.closePath();
-        this.ctx.beginPath();
-        this.ctx.moveTo(this.x+sx2, this.y+sy2);
-        this.ctx.lineTo(this.x+ex2, this.y+ey2);
-        this.ctx.lineWidth = 1.5;
-        this.ctx.strokeStyle = this.getGradient(this.x+sx2, this.y+sy2, this.x+ex2, this.y+ey2, this.armColor);
-        this.ctx.stroke();
-        this.ctx.closePath();
+        canvas_context.beginPath();
+        canvas_context.moveTo(this.x+sx1, this.y+sy1);
+        canvas_context.lineTo(this.x+ex1, this.y+ey1);
+        canvas_context.lineWidth = 1.5;
+        canvas_context.strokeStyle = this.getGradient(canvas_context, this.x+sx1, this.y+sy1, this.x+ex1, this.y+ey1, this.armColor);
+        canvas_context.stroke();
+        canvas_context.closePath();
+        canvas_context.beginPath();
+        canvas_context.moveTo(this.x+sx2, this.y+sy2);
+        canvas_context.lineTo(this.x+ex2, this.y+ey2);
+        canvas_context.lineWidth = 1.5;
+        canvas_context.strokeStyle = this.getGradient(canvas_context, this.x+sx2, this.y+sy2, this.x+ex2, this.y+ey2, this.armColor);
+        canvas_context.stroke();
+        canvas_context.closePath();
         // center dot
-        this.ctx.beginPath();
-        this.ctx.arc(Math.round(this.x), Math.round(this.y), this.radius, 0, Math.PI*2)
-        this.ctx.fillStyle = this.centerColor.asHSL(this.centerColor.a*.5);
-        this.ctx.fill();
-        this.ctx.closePath();
-        this.ctx.beginPath();
-        this.ctx.arc(Math.round(this.x), Math.round(this.y), Math.max(1,this.radius-2), 0, Math.PI*2)
-        this.ctx.fillStyle = this.centerColor.asHSL();
-        this.ctx.fill();
-        this.ctx.closePath();
+        canvas_context.beginPath();
+        canvas_context.arc(Math.round(this.x), Math.round(this.y), this.radius, 0, Math.PI*2)
+        canvas_context.fillStyle = this.centerColor.asHSL(this.centerColor.a*.5);
+        canvas_context.fill();
+        canvas_context.closePath();
+        canvas_context.beginPath();
+        canvas_context.arc(Math.round(this.x), Math.round(this.y), Math.max(1,this.radius-2), 0, Math.PI*2)
+        canvas_context.fillStyle = this.centerColor.asHSL();
+        canvas_context.fill();
+        canvas_context.closePath();
 
-        this.ctx.restore();
+
     }
 
 }
 
 class BlipEdgeParticle extends Particle {
-    constructor(ctx, v1, v2, radius, speed, group, nextEdgeFcn) {
-        super(ctx, v1.x, v1.y);
-        this.ctx = ctx;
+    constructor(v1, v2, radius, speed, group, nextEdgeFcn) {
+        super(v1.x, v1.y);
         this.v1 = v1
         this.v2 = v2
         this.radius = radius;
@@ -1157,8 +1155,8 @@ class BlipEdgeParticle extends Particle {
         return "[Blip:" + this.x + "," + this.y + "]";
     }
 
-    getGradient(sx, sy, ex, ey, color) {
-        let gradient = this.ctx.createLinearGradient(sx, sy, ex, ey);
+    getGradient(canvas_context, sx, sy, ex, ey, color) {
+        let gradient = canvas_context.createLinearGradient(sx, sy, ex, ey);
         gradient.addColorStop(0, color.asHSL(color.a*.1));
         gradient.addColorStop(.5, color.asHSL());
         gradient.addColorStop(1, color.asHSL(color.a*.2));
@@ -1167,16 +1165,16 @@ class BlipEdgeParticle extends Particle {
 
     /**
      * determine the nearest range of other blips on the circuit
-     * @param {*} blip 
+     * @param {*} blip
      * @returns float - distance to nearest blip on the same circuit
      */
     nearestRange(group) {
         let sqr = 1000;
         for (const other of group) {
             if (other === this) continue;
-            let dx = other.x - this.x;
-            let dy = other.y - this.y;
-            let or = dx*dx + dy*dy;
+            const dx = other.x - this.x;
+            const dy = other.y - this.y;
+            const or = dx*dx + dy*dy;
             if (or < sqr) sqr = or;
         }
         return Math.sqrt(sqr);
@@ -1223,42 +1221,42 @@ class BlipEdgeParticle extends Particle {
         }
     }
 
-    draw() {
+    draw(canvas_context) {
         // spark
         if (this.sparkIntensity) {
-            let sx1 = Math.cos(this.angle1) * this.width * .5;
-            let sy1 = Math.sin(this.angle1) * this.width * .5;
-            let ex1 = -sx1;
-            let ey1 = -sy1;
-            let sx2 = Math.cos(this.angle2) * this.width * .5;
-            let sy2 = Math.sin(this.angle2) * this.width * .5;
-            let ex2 = -sx2;
-            let ey2 = -sy2;
-            this.ctx.beginPath();
-            this.ctx.moveTo(this.x+sx1, this.y+sy1);
-            this.ctx.lineTo(this.x+ex1, this.y+ey1);
-            this.ctx.lineWidth = 1.5;
-            this.ctx.strokeStyle = this.getGradient(this.x+sx1, this.y+sy1, this.x+ex1, this.y+ey1, this.armColor);
-            this.ctx.stroke();
-            this.ctx.closePath();
-            this.ctx.beginPath();
-            this.ctx.moveTo(this.x+sx2, this.y+sy2);
-            this.ctx.lineTo(this.x+ex2, this.y+ey2);
-            this.ctx.lineWidth = 1.5;
-            this.ctx.strokeStyle = this.getGradient(this.x+sx2, this.y+sy2, this.x+ex2, this.y+ey2, this.armColor);
-            this.ctx.stroke();
-            this.ctx.closePath();
+            const sx1 = Math.cos(this.angle1) * this.width * .5;
+            const sy1 = Math.sin(this.angle1) * this.width * .5;
+            const ex1 = -sx1;
+            const ey1 = -sy1;
+            const sx2 = Math.cos(this.angle2) * this.width * .5;
+            const sy2 = Math.sin(this.angle2) * this.width * .5;
+            const ex2 = -sx2;
+            const ey2 = -sy2;
+            canvas_context.beginPath();
+            canvas_context.moveTo(this.x+sx1, this.y+sy1);
+            canvas_context.lineTo(this.x+ex1, this.y+ey1);
+            canvas_context.lineWidth = 1.5;
+            canvas_context.strokeStyle = this.getGradient(canvas_context, this.x+sx1, this.y+sy1, this.x+ex1, this.y+ey1, this.armColor);
+            canvas_context.stroke();
+            canvas_context.closePath();
+            canvas_context.beginPath();
+            canvas_context.moveTo(this.x+sx2, this.y+sy2);
+            canvas_context.lineTo(this.x+ex2, this.y+ey2);
+            canvas_context.lineWidth = 1.5;
+            canvas_context.strokeStyle = this.getGradient(canvas_context, this.x+sx2, this.y+sy2, this.x+ex2, this.y+ey2, this.armColor);
+            canvas_context.stroke();
+            canvas_context.closePath();
         }
         // center dot
-        this.ctx.beginPath();
-        this.ctx.arc(Math.round(this.x), Math.round(this.y), this.radius, 0, Math.PI*2)
-        this.ctx.fillStyle = this.centerColor.asHSL(this.centerColor.a*.5);
-        this.ctx.fill();
-        this.ctx.closePath();
-        this.ctx.beginPath();
-        this.ctx.arc(Math.round(this.x), Math.round(this.y), Math.max(1,this.radius-2), 0, Math.PI*2)
-        this.ctx.fillStyle = this.centerColor.asHSL();
-        this.ctx.fill();
-        this.ctx.closePath();
+        canvas_context.beginPath();
+        canvas_context.arc(Math.round(this.x), Math.round(this.y), this.radius, 0, Math.PI*2)
+        canvas_context.fillStyle = this.centerColor.asHSL(this.centerColor.a*.5);
+        canvas_context.fill();
+        canvas_context.closePath();
+        canvas_context.beginPath();
+        canvas_context.arc(Math.round(this.x), Math.round(this.y), Math.max(1,this.radius-2), 0, Math.PI*2)
+        canvas_context.fillStyle = this.centerColor.asHSL();
+        canvas_context.fill();
+        canvas_context.closePath();
     }
 }
