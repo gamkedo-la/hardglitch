@@ -70,7 +70,7 @@ let loaded_assets = {}; // This object will be set with all the asset converted 
 
 async function load_all_assets(){
     loaded_assets = await asset_system.load_assets(game_assets);
-    console.log(`ASSETS: ${JSON.stringify(loaded_assets)}`);
+    // console.log(`ASSETS: ${JSON.stringify(loaded_assets)}`);
     return loaded_assets;
 }
 
