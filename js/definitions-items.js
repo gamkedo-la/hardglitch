@@ -19,6 +19,7 @@ class CryptoFile extends concepts.Item {
 
     constructor(){
         super("Crypto File");
+        this.is_blocking_vision = true;
     }
 
 };

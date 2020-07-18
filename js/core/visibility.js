@@ -18,6 +18,7 @@ import * as concepts from "./concepts.js";
 import { Vector2 } from "../system/spatial.js";
 import { compute_fov } from "../system/shadowcasting.js";
 import * as tiles from "../definitions-tiles.js";
+import { Character } from "./character.js";
 
 class RangeShape {
     // The range is [begin_distance, end_distance) , so end_distance is excluded.
@@ -149,9 +150,8 @@ function is_anything_blocking_view(world, position){
     const tiles_or_entities = world.everything_at(position);
     for(const thing of tiles_or_entities){
         if(thing instanceof concepts.Entity){
-            // Can entities hide what's behind them?
-            // TODO: decide
-            return false; // For now: if there is an entity, it means we can see what's on it.
+            if(thing.is_blocking_vision)
+                return true;
         } else {
             if(tiles.is_blocking_view(thing))
                 return true;
@@ -187,7 +187,7 @@ function find_visible_positions(world, center, view_distance){
 }
 
 function valid_target_positions(world, character, action_range_shape){
-    console.assert(world instanceof World);
+    console.assert(world instanceof concepts.World);
     console.assert(character instanceof Character);
     console.assert(action_range_shape instanceof RangeShape);
     return positions_in_range(character.position, action_range_shape, pos => world.is_valid_position(pos))
@@ -197,7 +197,7 @@ function valid_target_positions(world, character, action_range_shape){
 }
 
 function valid_move_positions(world, character, action_range_shape, tile_filter){
-    console.assert(world instanceof World);
+    console.assert(world instanceof concepts.World);
     console.assert(character instanceof Character);
     console.assert(action_range_shape instanceof RangeShape);
     console.assert(tile_filter instanceof Function);

@@ -220,6 +220,8 @@ class Entity {
         console.assert(this._entity_id);
         return this._entity_id;
     }
+
+    is_blocking_vision = false; // Some entities can block visibility, so don't.
 };
 
 // Items are entities that cannot ever move by themselves.
