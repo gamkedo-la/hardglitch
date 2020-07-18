@@ -19,7 +19,7 @@ let current_game = null;
 let current_game_view = null;
 let last_update_time = performance.now();
 let game_state_machine = new StateMachine(state.running);
-const max_delta_time = 100;
+const max_delta_time = 1000 / 26; // Always assume at worst that we are at 26fps
 
 window.onload = async function() {
   const assets = await load_all_assets();
