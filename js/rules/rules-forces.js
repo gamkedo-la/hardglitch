@@ -145,11 +145,12 @@ class Rule_Push extends concepts.Rule {
     range = new visibility.Range_Square(1, 5);
 
     get_actions_for(character, world){
+        console.assert(character instanceof Character);
         if(!character.is_player_actor) // TODO: temporary (otherwise the player will be bushed lol)
             return {};
 
         const push_actions = {};
-        visibility.valid_target_positions(world, character.position, this.range)
+        visibility.valid_target_positions(world, character, this.range)
             .forEach(target => {
                 const push = new Push(target);
                 push.range = this.range;
@@ -164,11 +165,12 @@ class Rule_Pull extends concepts.Rule {
     range = new visibility.Range_Square(1, 5);
 
     get_actions_for(character, world){
+        console.assert(character instanceof Character);
         if(!character.is_player_actor) // TODO: temporary (otherwise the player will be bushed lol)
             return {};
 
         const pull_actions = {};
-        visibility.valid_target_positions(world, character.position, this.range)
+        visibility.valid_target_positions(world, character, this.range)
             .forEach(target => {
                 const pull = new Pull(target);
                 pull.range = this.range;

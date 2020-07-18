@@ -186,14 +186,25 @@ function find_visible_positions(world, center, view_distance){
     return visible_positions;
 }
 
-function valid_target_positions(world, center, action_range_shape){
-    return positions_in_range(center, action_range_shape, pos => world.is_valid_position(pos))
-            .filter(pos => world.entity_at(pos));
+function valid_target_positions(world, character, action_range_shape){
+    console.assert(world instanceof World);
+    console.assert(character instanceof Character);
+    console.assert(action_range_shape instanceof RangeShape);
+    return positions_in_range(character.position, action_range_shape, pos => world.is_valid_position(pos))
+            .filter(pos => world.entity_at(pos))
+            .filter(pos=>character.can_see(pos))
+            ;
 }
 
-function valid_move_positions(world, center, action_range_shape, tile_filter){
-    return positions_in_range(center, action_range_shape, pos => world.is_valid_position(pos))
-            .filter(pos => !world.is_blocked_position(pos, tile_filter));
+function valid_move_positions(world, character, action_range_shape, tile_filter){
+    console.assert(world instanceof World);
+    console.assert(character instanceof Character);
+    console.assert(action_range_shape instanceof RangeShape);
+    console.assert(tile_filter instanceof Function);
+    return positions_in_range(character.position, action_range_shape, pos => world.is_valid_position(pos))
+            .filter(pos => !world.is_blocked_position(pos, tile_filter))
+            .filter(pos=>character.can_see(pos))
+            ;
 }
 
 class FieldOfVision {

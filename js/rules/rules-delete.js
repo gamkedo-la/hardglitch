@@ -40,12 +40,13 @@ class Delete extends concepts.Action {
 class Rule_Delete extends concepts.Rule {
     range = new visibility.Range_Diamond(0,7);
 
-    get_actions_for(body, world){
-        if(!body.is_player_actor) // TODO: temporary (otherwise the player will be bushed lol)
+    get_actions_for(character, world){
+        console.assert(character instanceof Character);
+        if(!character.is_player_actor) // TODO: temporary (otherwise the player will be bushed lol)
             return {};
 
         const actions = {};
-        visibility.valid_target_positions(world, body.position, this.range)
+        visibility.valid_target_positions(world, character, this.range)
             .forEach((target)=>{
                     const delete_action = new Delete(target);
                     delete_action.range = this.range;

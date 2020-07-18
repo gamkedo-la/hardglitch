@@ -75,7 +75,7 @@ class Rule_TakeItem extends concepts.Rule {
         // TODO: check that the character have enough space in the invent
 
         const actions = {};
-        visibility.valid_target_positions(world, character.position, this.range)
+        visibility.valid_target_positions(world, character, this.range)
             .filter(target=> { // Only if there is an item to take.
                 const item = world.item_at(target);
                 return item && item.can_be_taken === true;

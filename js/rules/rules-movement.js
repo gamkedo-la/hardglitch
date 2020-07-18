@@ -87,7 +87,9 @@ class Rule_Movements extends concepts.Rule {
         const allowed_moves = character.allowed_moves(); // TODO: filter to what's visible
         for(const move_id in allowed_moves){
             const move_target = allowed_moves[move_id];
-            if(!world.is_blocked_position(move_target, tileid => tiles.is_walkable(tileid)) ){
+            if(!world.is_blocked_position(move_target, tileid => tiles.is_walkable(tileid))
+            && character.can_see(move_target)
+            ){
                 const move = new Move(move_id, move_target);
                 safe_if_safe_arrival(move, world);
                 move.range = this.range;
@@ -124,11 +126,12 @@ class Rule_Jump extends concepts.Rule {
     range = new visibility.Range_Cross_Star(3, 4);
 
     get_actions_for(character, world){
+        console.assert(character instanceof Character);
         if(!character.is_player_actor) // TODO: temporary
             return {};
 
         const possible_jumps = {};
-        visibility.valid_move_positions(world, character.position, this.range, tiles.is_walkable)
+        visibility.valid_move_positions(world, character, this.range, tiles.is_walkable)
             .forEach( (target)=>{
                 const jump = new Jump(target);
                 safe_if_safe_arrival(jump, world);
@@ -205,11 +208,12 @@ class Rule_Swap extends concepts.Rule {
     range = new visibility.Range_Diamond(1, 4);
 
     get_actions_for(character, world){
+        console.assert(character instanceof Character);
         if(!character.is_player_actor) // TODO: temporary
             return {};
 
         const possible_swaps = {};
-        visibility.valid_target_positions(world, character.position, this.range)
+        visibility.valid_target_positions(world, character, this.range)
             .forEach(target => {
                 const swap = new Swap(target);
                 swap.range = this.range;
