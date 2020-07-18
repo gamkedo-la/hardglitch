@@ -46,7 +46,7 @@ const defs = {
         sprite_def: sprite_defs.void,
         is_walkable: true,
         is_safe: false,
-        is_view_blocking: true,
+        is_view_blocking: false,
         description: "Void",
     },
     [ID.ENTRY] : {
