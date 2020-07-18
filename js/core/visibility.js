@@ -16,6 +16,8 @@ export {
 
 import * as concepts from "./concepts.js";
 import { Vector2 } from "../system/spatial.js";
+import { compute_fov } from "../system/shadowcasting.js";
+import * as tiles from "../definitions-tiles.js";
 
 class RangeShape {
     // The range is [begin_distance, end_distance) , so end_distance is excluded.
@@ -142,6 +144,21 @@ function positions_in_range(center_position, range_shape, valid_position_predica
     return matching_positions;
 }
 
+// Decides wether the position in the world contains anything that should block the view.
+function is_anything_blocking_view(world, position){
+    const tiles_or_entities = world.everything_at(position);
+    for(const thing of tiles_or_entities){
+        if(thing instanceof concepts.Entity){
+            // Can entities hide what's behind them?
+            // TODO: decide
+            return false; // For now: if there is an entity, it means we can see what's on it.
+        } else {
+            if(tiles.is_blocking_view(thing))
+                return true;
+        }
+    }
+    return false;
+}
 
 // Provides all the positions that are currently "visible" by a character at the provided center position in the world.
 function find_visible_positions(world, center, view_distance){
@@ -149,11 +166,24 @@ function find_visible_positions(world, center, view_distance){
     console.assert(center instanceof concepts.Position);
     console.assert(Number.isInteger(view_distance) && view_distance >= 0);
 
-    // TODO: implement https://www.albertford.com/shadowcasting/
-
-
     const test_shape = new Range_Circle(0, view_distance + 1);
-    return positions_in_range(center, test_shape, position => world.is_valid_position(position));
+
+    const is_blocking_vision = (x, y)=>{
+        const position = new concepts.Position({x, y});
+        return !test_shape.is_inside(center, position)      // If it's outside the view range, this is blocking the view.
+            || !world.is_valid_position(position)           // If its outside the world grid, this is blocking the view.
+            || is_anything_blocking_view(world, position)   // If anything inside this position is blocking the view...this is blocking the view.
+            ;
+    };
+
+    const visible_positions = [];
+    const mark_visible = (x, y)=>{
+        visible_positions.push(new concepts.Position({x,y}));
+    };
+
+    compute_fov(center, is_blocking_vision, mark_visible);
+
+    return visible_positions;
 }
 
 function valid_target_positions(world, center, action_range_shape){

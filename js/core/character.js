@@ -116,10 +116,10 @@ class Character extends concepts.Body {
     get position() { return super.position; }
     set position(new_pos) {
         super.position = new_pos;
-        this.field_of_vision.position = this.position;
     }
 
     update_perception(world){
+        this.field_of_vision.position = this.position;
         this.field_of_vision.view_distance = this.stats.view_distance.value;
         this.field_of_vision.update(world);
     }
