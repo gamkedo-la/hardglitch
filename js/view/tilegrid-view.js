@@ -4,6 +4,8 @@ export {
     TileGridView,
 };
 
+import { config } from "../game-config.js";
+
 import { Grid } from "../system/grid.js";
 import * as tiledefs from "../definitions-tiles.js";
 import { SeamSelector, genFloorOverlay, genFgOverlay } from "./tile-select.js";
@@ -317,7 +319,8 @@ class TileGridView {
             this._render_surface(this._offscreen_surface_canvas_context);
         this._draw_offscreen_canvas(canvas_context, this._offscreen_surface_canvas_context);
         // particles
-        this.particles.draw(canvas_context);
+        if(config.enable_particles)
+            this.particles.draw(canvas_context);
     }
 
     _draw_offscreen_canvas(canvas_context, offscreen_canvas_context){

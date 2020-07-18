@@ -10,6 +10,7 @@ export {
     play_action,
 }
 
+import { config } from "./game-config.js";
 import * as input from "./system/input.js";
 import * as graphics from "./system/graphics.js";
 import * as editor from "./editor.js";
@@ -202,6 +203,9 @@ function play_action(player_action){
 
 function update(delta_time){
     input.update(delta_time);
+
+    if(input.keyboard.is_just_down(KEY.F7))
+        config.enable_particles = !config.enable_particles;
 
     if(current_game_view){
         update_camera_control(delta_time);
