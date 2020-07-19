@@ -12,6 +12,7 @@ import { Character } from "../core/character.js";
 import { GameView } from "../game-view.js";
 import { EntityView } from "../view/entity-view.js";
 import { CharacterView } from "../view/character-view.js";
+import { sprite_defs } from "../game-assets.js";
 
 
 class ItemTaken extends concepts.Event {
@@ -44,6 +45,8 @@ class ItemTaken extends concepts.Event {
 
 
 class TakeItem extends concepts.Action {
+    icon_def = sprite_defs.icon_action_take;
+
     constructor(target_position){
         console.assert(target_position instanceof concepts.Position);
         super(`take_item_at_${target_position.x}_${target_position.y}`,
