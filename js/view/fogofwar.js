@@ -28,7 +28,7 @@ class FogOfWar {
         this.viewed_at_least_once_grid = new Array(this.world.size).fill(false);
 
         this._last_seen_canvas_context = graphics.create_canvas_context( this.graphic_width, this.graphic_height);
-        this._last_seen_canvas_context.filter = "grayscale(100%)";
+        this._last_seen_canvas_context.filter = "sepia(60%) brightness(60%) contrast(60%)";
 
         this._fog_canvas_context = graphics.create_canvas_context( this.graphic_width, this.graphic_height);
         this._dark_canvas_context = graphics.create_canvas_context( this.graphic_width, this.graphic_height);
