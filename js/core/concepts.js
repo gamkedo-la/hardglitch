@@ -347,7 +347,7 @@ class World
     }
 
     is_valid_position(position){
-        return position.x >= 0 && position.x < this.width
+        return position && position.x >= 0 && position.x < this.width
             && position.y >= 0 && position.y < this.height
             ;
     }

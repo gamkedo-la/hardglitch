@@ -181,7 +181,7 @@ function make_test_world(){ // The game assets must have been initialized first.
         });
 
     //// Border of the world
-    const world_border_tile = tiles.ID.VOID;
+    const world_border_tile = undefined;
     for(let x = 0; x < world.width; ++x){
         set_floor_tile({x, y:0}, world_border_tile);
         set_floor_tile({x, y:world.height -1}, world_border_tile);
