@@ -49,7 +49,7 @@ function make_test_world(){ // The game assets must have been initialized first.
 
     function random_position(){
         while(true){
-            const position = { x:random_int(0, test_world_size.width - 1 ), y:random_int(0, test_world_size.height - 1 )};
+            const position = { x:random_int(0, test_world_size.width - 2 ), y:random_int(0, test_world_size.height - 2 )};
             if(is_floor_walkable(position))
                 return new concepts.Position(position);
         }
@@ -85,7 +85,7 @@ function make_test_world(){ // The game assets must have been initialized first.
     const entry_point_position = set_surface_tile(random_position(), tiles.ID.ENTRY);
     console.assert(is_floor_walkable(entry_point_position));
 
-    let exit_count = 30;
+    let exit_count = 10;
     while(exit_count > 0){
         const exit_pos = random_position();
         const tileid = surface_tile_id(exit_pos);
@@ -180,6 +180,16 @@ function make_test_world(){ // The game assets must have been initialized first.
             set_floor_tile(position, tiles.ID.VOID);
         });
 
+    //// Border of the world
+    const world_border_tile = tiles.ID.VOID;
+    for(let x = 0; x < world.width; ++x){
+        set_floor_tile({x, y:0}, world_border_tile);
+        set_floor_tile({x, y:world.height -1}, world_border_tile);
+    }
+    for(let y = 0; y < world.height; ++y){
+        set_floor_tile({x:0, y}, world_border_tile);
+        set_floor_tile({x: world.width - 1, y}, world_border_tile);
+    }
 
     return world;
 }
