@@ -137,11 +137,11 @@ function* execute_turns_until_players_turn(world) {
 
             const actor = character.actor;
             console.assert(actor instanceof concepts.Actor); // At this point we have to have a decision maker.
-            character.update_perception(world); // Make sure decisions are taken relative to an up to date view of the world.
 
             let action = null;
             while(!action){ // Update the current possible actions and request an action from the character
-                            // until we obtain a usable action.
+                // until we obtain a usable action.
+                character.update_perception(world); // Make sure decisions are taken relative to an up to date view of the world.
                 const possible_actions = world.gather_possible_actions_from_rules(character);
                 action = actor.decide_next_action(possible_actions);
 
