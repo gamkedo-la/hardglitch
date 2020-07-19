@@ -80,7 +80,7 @@ class FogOfWar {
     }
 
     update(delta_time){
-        // ¯\_(ツ)_/¯
+        // ¯\_(ツ)_/¯  No sprite to update nor other animation to animate.
     }
 
     display(canvas_context, complete_grid_canvas_context){

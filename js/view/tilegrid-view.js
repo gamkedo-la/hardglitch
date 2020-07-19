@@ -308,15 +308,15 @@ class TileGridView {
 
     }
 
-    draw_floor(canvas_context){
-        if(this._redraw_floor_requested)
-            this._render_floor(this._offscreen_floor_canvas_context);
+    draw_floor(canvas_context, position_predicate){
+        if(this._redraw_floor_requested || position_predicate)
+            this._render_floor(this._offscreen_floor_canvas_context, position_predicate);
         this._draw_offscreen_canvas(canvas_context, this._offscreen_floor_canvas_context);
     }
 
-    draw_surface(canvas_context){
-        if(this._redraw_surface_requested)
-            this._render_surface(this._offscreen_surface_canvas_context);
+    draw_surface(canvas_context, position_predicate){
+        if(this._redraw_surface_requested || position_predicate)
+            this._render_surface(this._offscreen_surface_canvas_context, position_predicate);
         this._draw_offscreen_canvas(canvas_context, this._offscreen_surface_canvas_context);
         // particles
         if(config.enable_particles)
@@ -332,27 +332,33 @@ class TileGridView {
         canvas_context.clearRect(0, 0, canvas_context.width, canvas_context.height);
     }
 
-    _render_floor(canvas_context){
+    _half_tile_predicate(position_predicate){
+        // The predicate assumes a tile grid normal but here we have tiles smaller by half, so we need to translate the position of the tile to the position it have in the real grid.
+        if(!position_predicate)
+            return undefined;
+        return (position)=> position_predicate({ x: Math.floor(position.x/2), y: Math.floor(position.y/2) });
+    }
+
+    _render_floor(canvas_context, position_predicate){
         this._clear_canvas(canvas_context);
 
         if(this._enable_tile_sprites)
-            canvas_context =this.ground_tile_grid.draw(canvas_context);
+            canvas_context =this.ground_tile_grid.draw(canvas_context, this._half_tile_predicate(position_predicate));
 
         if(this.enable_grid_lines){
-            graphics.draw_grid_lines(this.size.x, this.size.y, PIXELS_PER_TILES_SIDE, this.position, canvas_context); // TODO: make this relative to canvas context
+            graphics.draw_grid_lines(this.size.x, this.size.y, PIXELS_PER_TILES_SIDE, this.position, canvas_context);
         }
-        canvas_context = this.floor_top_tile_grid.draw(canvas_context);
+        canvas_context = this.floor_top_tile_grid.draw(canvas_context, position_predicate);
 
         this._redraw_floor_requested = false;
     }
 
-    _render_surface(canvas_context){
+    _render_surface(canvas_context, position_predicate){
         if(this._enable_tile_sprites){
             if (this._enable_overlay) {
-                canvas_context = this.mid_tile_grid.draw(canvas_context);
+                canvas_context = this.mid_tile_grid.draw(canvas_context, position_predicate);
             }
-
-            canvas_context = this.surface_tile_grid.draw(canvas_context);
+            canvas_context = this.surface_tile_grid.draw(canvas_context, this._half_tile_predicate(position_predicate));
         }
 
         this._redraw_surface_requested = false;

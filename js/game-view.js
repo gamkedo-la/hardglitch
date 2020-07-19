@@ -121,13 +121,21 @@ class GameView {
     action_range_highlights = []; // Must contain Highlight objects for the currently pointed action's range.
     delay_between_animations_ms = 200; // we'll try to keep a little delay between each beginning of parallel animation.
 
-    enable_fog_of_war = true;
+    get enable_fog_of_war() { return this._enable_fog_of_war; };
+    set enable_fog_of_war(new_value) {
+        console.assert(typeof(new_value) === "boolean");
+        this._enable_fog_of_war = new_value;
+        this._require_tiles_update = true;
+    };
+
     enable_auto_camera_center = true;
 
     constructor(game){
         console.assert(game instanceof Game);
         this.game = game;
         this._requires_reset = true;
+        this._require_tiles_update = true;
+        this._enable_fog_of_war = true;
 
         this.ui = new GameInterface((...args)=>this.on_action_selection_begin(...args), // On action selection begin.
             (...args)=>this.on_action_selection_end(...args),   // On action selection end.
@@ -322,7 +330,10 @@ class GameView {
                         delay_for_next_animation += this.delay_between_animations_ms;
                     }
                     this.current_animations.play(animation.iterator)
-                        .then(()=> this.fog_of_war.refresh()); // Refresh the FOW after each event, to make sure we always see the most up to date world.
+                        .then(()=> {
+                            this.fog_of_war.refresh();
+                            this._require_tiles_update = true;
+                        }); // Refresh the FOW after each event, to make sure we always see the most up to date world.
 
                     if(animation.parallel === false){
                         break; // We need to only play the animations that are next to each other and parallel.
@@ -353,6 +364,7 @@ class GameView {
             const setup = ()=>{
                 this.focus_on_position(player_position);
                 this.fog_of_war.refresh();
+                this._require_tiles_update = true;
                 this.ui.unlock_actions();
                 this.highlight_available_basic_actions();
             };
@@ -423,13 +435,24 @@ class GameView {
         highlight.text = this.help_text_at(new_pos);
     }
 
+    get _visibility_predicate(){
+        // Filter tiles to draw depending on the player's visibility.
+        if(!this._require_tiles_update)
+            return undefined; // No need to update tiles.
+
+        // With fog of war disabled, draw all tiles.
+        const predicate = this.enable_fog_of_war ? position => this.fog_of_war.is_visible(position) : position => true;
+        this._require_tiles_update = false;
+        return predicate;
+    }
+
     render_graphics(){
-        this.tile_grid.draw_floor(graphics.screen_canvas_context);
+        this.tile_grid.draw_floor(graphics.screen_canvas_context, this._visibility_predicate);
 
         this._render_ground_highlights();
         this._render_entities();
 
-        this.tile_grid.draw_surface(graphics.screen_canvas_context);
+        this.tile_grid.draw_surface(graphics.screen_canvas_context, this._visibility_predicate);
 
         if(this.enable_fog_of_war){
             this.fog_of_war.display(graphics.screen_canvas_context, this.tile_grid.canvas_context);
@@ -540,6 +563,7 @@ class GameView {
                                             , this._create_entity_views(this.game.world.bodies, CharacterView));
 
         this.fog_of_war.refresh();
+        this._require_tiles_update = true;
 
         this.highlight_available_basic_actions();
         this.ui.show_action_buttons(Object.values(this.game.last_turn_info.possible_actions));
@@ -572,6 +596,7 @@ class GameView {
             entity_view.update(0);
             if(entity.is_player_actor){
                 this.fog_of_war.add_fov(entity.id, entity.field_of_vision);
+                this._require_tiles_update = true;
             }
         });
         return entity_views;
@@ -580,6 +605,7 @@ class GameView {
     remove_entity_view(entity_id){
         delete this.entity_views[entity_id];
         this.fog_of_war.remove_fov(entity_id);
+        this._require_tiles_update = true;
     }
 
     // Called by the editor code when editing the game in a way the require re-interpreting the game's state.

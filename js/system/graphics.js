@@ -369,7 +369,7 @@ class TileGrid
     this.request_redraw_square(position);
   }
 
-  _render_offscreen(x_begin=0, x_end=this.size.x, y_begin=0, y_end=this.size.y, with_clear=true){
+  _render_offscreen(x_begin=0, x_end=this.size.x, y_begin=0, y_end=this.size.y, with_clear=true, position_predicate){
     const grid = {
       x: x_begin, y:y_begin,
       width: x_end - x_begin,
@@ -389,6 +389,9 @@ class TileGrid
 
     for(let y = grid.y; y < grid.height; ++y){
       for(let x = grid.x; x < grid.width; ++x){
+        if(position_predicate && !position_predicate({x, y}))
+          continue;
+
         const sprite_id = this.tile_sprite_id_at({x, y});
         if(sprite_id === undefined) // Undefined means we display no sprite.
           continue;
@@ -401,10 +404,10 @@ class TileGrid
     }
   }
 
-  _handle_rendering_requests(){
+  _handle_rendering_requests(position_predicate){
     while(this._rendering_requests.length != 0){
       const request = this._rendering_requests.shift();
-      this._render_offscreen(request.x_begin, request.y_begin, request.x_end, request.y_end, request.with_clear);
+      this._render_offscreen(request.x_begin, request.y_begin, request.x_end, request.y_end, request.with_clear, position_predicate);
     }
   }
 
@@ -457,25 +460,29 @@ class TileGrid
     }
   }
 
-  draw_background(canvas_context){
+  draw_background(canvas_context, position_predicate){
     // TODO: consider allowing an image as a background
     const background_size = from_grid_to_graphic_position({ x:this.size.x, y:this.size.y }, this.square_size); // TODO: calculate that only when necessary
     canvas_context.fillStyle = this.background_color;
     canvas_context.fillRect(this.position.x, this.position.y, background_size.x, background_size.y);
   }
 
-  draw_tiles(canvas_context){
-    this._handle_rendering_requests();
+  draw_tiles(canvas_context, position_predicate){
+    this._handle_rendering_requests(position_predicate);
     canvas_context.drawImage(this._offscreen_canvas_context.canvas, 0, 0);
   }
 
-  draw(canvas_context = screen_canvas_context){
+  draw(canvas_context = screen_canvas_context, position_predicate){
     canvas_context.save();
+
+    if(position_predicate)
+      this.request_redraw({});
+
     if(this.enable_draw_background){
-      this.draw_background(canvas_context);
+      this.draw_background(canvas_context, position_predicate);
     }
 
-    this.draw_tiles(canvas_context);
+    this.draw_tiles(canvas_context, position_predicate);
     canvas_context.restore();
 
     return canvas_context;
