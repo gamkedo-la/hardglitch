@@ -323,19 +323,33 @@ function update(){
     }
 
     if(input.keyboard.is_just_down(KEY.F8)){
-        current_game_view.enable_fog_of_war = !current_game_view.enable_fog_of_war;
+
+        if(current_game_view.enable_fog_of_war) {
+            current_game_view.enable_fog_of_war = false;
+            current_game_view.enable_tile_rendering_debug = true;
+        } else {
+            if(current_game_view.enable_tile_rendering_debug)
+                current_game_view.enable_tile_rendering_debug = false;
+            else {
+                current_game_view.enable_fog_of_war = true;
+                current_game_view.enable_tile_rendering_debug = false;
+            }
+        }
+
     }
 
     if(input.keyboard.is_just_down(KEY.RIGHT_BRACKET)){
         current_game.last_turn_info.player_character.stats.view_distance.increase(1);
         current_game.last_turn_info.player_character.update_perception(current_game.world);
         current_game_view.fog_of_war.refresh();
+        current_game_view._require_tiles_update = true;
     }
 
     if(input.keyboard.is_just_down(KEY.LEFT_BRACKET)){
         current_game.last_turn_info.player_character.stats.view_distance.decrease(1);
         current_game.last_turn_info.player_character.update_perception(current_game.world);
         current_game_view.fog_of_war.refresh();
+        current_game_view._require_tiles_update = true;
     }
 
     if(input.keyboard.is_just_down(KEY.ESCAPE)){

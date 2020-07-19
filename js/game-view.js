@@ -128,6 +128,15 @@ class GameView {
         this._require_tiles_update = true;
     };
 
+    get enable_tile_rendering_debug() { return this._enable_tile_rendering_debug; };
+    set enable_tile_rendering_debug(new_value) {
+        console.assert(typeof(new_value) === "boolean");
+        this._enable_tile_rendering_debug = new_value;
+        this._require_tiles_update = true;
+        if(this._enable_tile_rendering_debug === false)
+            this._requires_reset = true;
+    };
+
     enable_auto_camera_center = true;
 
     constructor(game){
@@ -136,6 +145,7 @@ class GameView {
         this._requires_reset = true;
         this._require_tiles_update = true;
         this._enable_fog_of_war = true;
+        this._enable_tile_rendering_debug = false;
 
         this.ui = new GameInterface((...args)=>this.on_action_selection_begin(...args), // On action selection begin.
             (...args)=>this.on_action_selection_end(...args),   // On action selection end.
@@ -440,6 +450,13 @@ class GameView {
         if(!this._require_tiles_update)
             return undefined; // No need to update tiles.
 
+        if(this.enable_tile_rendering_debug){ // Used for debugging the tiles rendering.
+            // Force the fog-of-war filter to "see" how the rendering is done, even if fog is disabled.
+            const predicate = position => this.fog_of_war.is_visible(position);
+            this._require_tiles_update = false;
+            return predicate;
+        }
+
         // With fog of war disabled, draw all tiles.
         const predicate = this.enable_fog_of_war ? position => this.fog_of_war.is_visible(position) : position => true;
         this._require_tiles_update = false;
@@ -447,16 +464,20 @@ class GameView {
     }
 
     render_graphics(){
-        this.tile_grid.draw_floor(graphics.screen_canvas_context, this._visibility_predicate);
+        const visibility_predicate = this._visibility_predicate;
+
+        this.tile_grid.draw_floor(graphics.screen_canvas_context, visibility_predicate);
 
         this._render_ground_highlights();
         this._render_entities();
 
-        this.tile_grid.draw_surface(graphics.screen_canvas_context, this._visibility_predicate);
+        this.tile_grid.draw_surface(graphics.screen_canvas_context, visibility_predicate);
+        this.tile_grid.draw_effects(graphics.screen_canvas_context, visibility_predicate);
 
         if(this.enable_fog_of_war){
             this.fog_of_war.display(graphics.screen_canvas_context, this.tile_grid.canvas_context);
         }
+
 
         this._render_top_highlights();
 

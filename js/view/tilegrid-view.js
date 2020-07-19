@@ -318,6 +318,9 @@ class TileGridView {
         if(this._redraw_surface_requested || position_predicate)
             this._render_surface(this._offscreen_surface_canvas_context, position_predicate);
         this._draw_offscreen_canvas(canvas_context, this._offscreen_surface_canvas_context);
+    }
+
+    draw_effects(canvas_context, position_predicate){
         // particles
         if(config.enable_particles)
             this.particles.draw(canvas_context);
@@ -338,6 +341,18 @@ class TileGridView {
             return undefined;
         return (position)=> position_predicate({ x: Math.floor(position.x/2), y: Math.floor(position.y/2) });
     }
+
+    // _top_half_tile_predicate(position_predicate){
+    //     // Here we try to display walls completely if their base is visible.
+    //     if(!position_predicate)
+    //         return undefined;
+    //     else return (position)=> {
+    //         const current_square = { x: Math.floor(position.x/2), y: Math.floor(position.y/2) };
+    //         const lower_square = { x: current_square.x, y: current_square.y + 1 };
+    //         return position_predicate(current_square)
+    //             || ( lower_square.y < this.height && position_predicate(lower_square) );
+    //     };
+    // }
 
     _render_floor(canvas_context, position_predicate){
         this._clear_canvas(canvas_context);

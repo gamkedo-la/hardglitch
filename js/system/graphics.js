@@ -382,14 +382,17 @@ class TileGrid
       height: grid.height * this.square_size,
     }
 
-    if(with_clear){
+    if(with_clear || position_predicate){
       this._offscreen_canvas_context.fillStyle = "#00000000";
       this._offscreen_canvas_context.fillRect(render.x, render.y, render.width, render.height);
     }
 
+    if(!position_predicate)
+      position_predicate = () => true;
+
     for(let y = grid.y; y < grid.height; ++y){
       for(let x = grid.x; x < grid.width; ++x){
-        if(position_predicate && !position_predicate({x, y}))
+        if(!position_predicate({x, y}))
           continue;
 
         const sprite_id = this.tile_sprite_id_at({x, y});
