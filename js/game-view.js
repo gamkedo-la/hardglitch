@@ -180,7 +180,6 @@ class GameView {
     interpret_turn_events() {
         console.assert(this.animation_queue.length === 0);
 
-        this.fog_of_war.refresh();
         this.clear_focus();
 
         const events = this.game.last_turn_info.events;
