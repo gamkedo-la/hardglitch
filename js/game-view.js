@@ -458,13 +458,23 @@ class GameView {
         }
 
         // With fog of war disabled, draw all tiles.
-        const predicate = this.enable_fog_of_war ? position => this.fog_of_war.is_visible(position) : position => true;
+        const predicate = this.enable_fog_of_war ? position => this.fog_of_war.is_visible(position) : () => true;
         this._require_tiles_update = false;
         return predicate;
     }
 
+    get _effects_visibility_predicate(){
+        // Effects are never displayed if not visible.
+        return (gfx_position)=>{
+            // Translate position of particles into position in the grid.
+            const position = this.grid_position(gfx_position);
+            return this.fog_of_war.is_visible(position);
+        };
+    }
+
     render_graphics(){
         const visibility_predicate = this._visibility_predicate;
+        const effect_visibility_predicate = this._effects_visibility_predicate;
 
         this.tile_grid.draw_floor(graphics.screen_canvas_context, visibility_predicate);
 
@@ -472,7 +482,7 @@ class GameView {
         this._render_entities();
 
         this.tile_grid.draw_surface(graphics.screen_canvas_context, visibility_predicate);
-        this.tile_grid.draw_effects(graphics.screen_canvas_context, visibility_predicate);
+        this.tile_grid.draw_effects(graphics.screen_canvas_context, effect_visibility_predicate);
 
         if(this.enable_fog_of_war){
             this.fog_of_war.display(graphics.screen_canvas_context, this.tile_grid.canvas_context);

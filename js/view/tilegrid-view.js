@@ -323,7 +323,7 @@ class TileGridView {
     draw_effects(canvas_context, position_predicate){
         // particles
         if(config.enable_particles)
-            this.particles.draw(canvas_context);
+            this.particles.draw(canvas_context, position_predicate);
     }
 
     _draw_offscreen_canvas(canvas_context, offscreen_canvas_context){

@@ -100,11 +100,13 @@ class ParticleSystem {
         }
     }
 
-    draw(canvas_context) {
+    draw(canvas_context, position_predicate = ()=>true) {
         // make sure they don't impact the rest of the drawing code
         canvas_context.save();
         // iterate through tracked items
-        this.items.filter(item => item.draw && this.isActive(item)) // (skip drawing for emitters)
+        this.items.filter(item => item.draw
+                                    && position_predicate(item)
+                                    && this.isActive(item)) // (skip drawing for emitters)
             .forEach(item => {
                 // draw each tracked particle
                 item.draw(canvas_context);
