@@ -107,7 +107,7 @@ function make_test_world(){ // The game assets must have been initialized first.
             && ( world.tiles_at(position).length == 0 || !world.is_blocked_position(position, tiles.is_safely_walkable) );
     }
 
-    let ennemy_count = 20;
+    let ennemy_count = 30;
     while(ennemy_count > 0){
         const position = random_position();
         if(can_insert_something_there(position)){
