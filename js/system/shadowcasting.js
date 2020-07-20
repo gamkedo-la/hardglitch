@@ -130,7 +130,32 @@ function compute_fov(origin, is_blocking, mark_visible){
             return !is_blocking(x, y);
         }
 
+        function scan_iterative(row){
+            console.assert(row instanceof Row);
+            console.assert(row.depth <= 100);
+            const rows = [row];
+            while(rows.length > 0){
+                const row = rows.pop();
+                let prev_tile;
+                for(const tile of row.tiles()){
+                    if(is_wall(tile) || is_symmetric(row, tile))
+                        reveal(tile);
+                    if(is_wall(prev_tile) && is_floor(tile))
+                        row.start_slope = slope(tile);
+                    if(is_floor(prev_tile) && is_wall(tile)){
+                        const next_row = row.next();
+                        next_row.end_slope = slope(tile);
+                        rows.push(next_row);
+                    }
+                    prev_tile = tile
+                }
+                if(is_floor(prev_tile))
+                    rows.push(row.next());
+            }
+        }
+
         const scan = (row)=>{
+            console.assert(row instanceof Row);
             console.assert(row.depth <= 100);
             let prev_tile;
             for(const tile of row.tiles()){
@@ -150,28 +175,8 @@ function compute_fov(origin, is_blocking, mark_visible){
         };
 
         const first_row = new Row(1, Fraction(-1), Fraction(1));
-        scan(first_row);
+        // scan(first_row);
+        scan_iterative(first_row);
     }
 }
 
-// function scan_iterative(row){
-//     console.assert(row instanceof Row);
-//     const rows = [row];
-//     while(rows.length > 0){
-//         const row = rows.pop();
-//         let prev_tile;
-//         for(const tile of row.tiles()){
-//             if is_wall(tile) or is_symmetric(row, tile):
-//                 reveal(tile)
-//             if is_wall(prev_tile) and is_floor(tile):
-//                 row.start_slope = slope(tile)
-//             if is_floor(prev_tile) and is_wall(tile):
-//                 next_row = row.next()
-//                 next_row.end_slope = slope(tile)
-//                 rows.append(next_row)
-//             prev_tile = tile
-//         }
-//         if is_floor(prev_tile)
-//             rows.append(row.next());
-//     }
-// }
