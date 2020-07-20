@@ -10,7 +10,9 @@ import * as tiles from "./definitions-tiles.js";
 import { sprite_defs } from "./game-assets.js";
 import { Character, CharacterStats } from "./core/character.js";
 
-class Player extends Character {
+const default_player_view_distance = 8;
+
+class GlitchyGlitchMacGlitchy extends Character {
     assets = {
         graphics : {
             sprite_def : sprite_defs.player,
@@ -20,6 +22,7 @@ class Player extends Character {
     constructor(){
         super("\"Glitch\"", new CharacterStats());
         this.actor = new concepts.Player();
+        this.stats.view_distance.value = default_player_view_distance;
     }
 }
 
@@ -92,7 +95,7 @@ class Game {
 
     add_player_character(position){
         console.assert(this.is_safely_walkable(position));
-        const player = new Player();
+        const player = new GlitchyGlitchMacGlitchy();
         player.position = position;
         this.world.add(player);
     }

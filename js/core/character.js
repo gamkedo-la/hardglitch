@@ -7,7 +7,7 @@ export {
 import * as concepts from "./concepts.js";
 import { FieldOfVision } from "./visibility.js";
 
-const default_view_distance = 7;
+const default_view_distance = 1;
 
 // Character's inventory, where to store Items.
 class Inventory {
