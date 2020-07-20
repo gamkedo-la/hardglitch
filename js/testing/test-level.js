@@ -49,7 +49,7 @@ function make_test_world(){ // The game assets must have been initialized first.
 
     function random_position(){
         while(true){
-            const position = { x:random_int(0, test_world_size.width - 2 ), y:random_int(0, test_world_size.height - 2 )};
+            const position = { x:random_int(1, test_world_size.width - 2 ), y:random_int(1, test_world_size.height - 2 )};
             if(is_floor_walkable(position))
                 return new concepts.Position(position);
         }
@@ -107,7 +107,7 @@ function make_test_world(){ // The game assets must have been initialized first.
             && ( world.tiles_at(position).length == 0 || !world.is_blocked_position(position, tiles.is_safely_walkable) );
     }
 
-    let ennemy_count = 60;
+    let ennemy_count = 10;
     while(ennemy_count > 0){
         const position = random_position();
         if(can_insert_something_there(position)){
