@@ -34,6 +34,8 @@ import { FogOfWar } from "./view/fogofwar.js";
 import { tween, easing } from "./system/tweening.js";
 import { TakeItem } from "./rules/rule-takeitem.js";
 
+const a_very_long_time = 99999999999999;
+
 class Highlight{
     enabled = true;
 
@@ -292,7 +294,8 @@ class GameView {
     }
 
     update(delta_time){
-        this.skipped_animations.update(99999999999999); // Any animation in this group should be iterated just once and be done.
+
+        this.skipped_animations.update(a_very_long_time); // Any animation in this group should be iterated just once and be done.
         this.camera_animations.update(delta_time);
 
         this._update_highlights(delta_time);
@@ -317,7 +320,7 @@ class GameView {
     _launch_next_animation_batch(){
         // Get the next animations that are allowed to happen in parallel.
         let delay_for_next_animation = 0;
-        const max_frame_time = 1000.0 / 60;
+        const max_frame_time = 1000.0 / 30.0;
         const begin_time = performance.now();
         while(performance.now() - begin_time < max_frame_time){ // timeout!
 

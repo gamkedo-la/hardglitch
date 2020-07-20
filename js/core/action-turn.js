@@ -75,6 +75,14 @@ class NewTurnPhase extends concepts.Event {
 };
 
 
+class VisionUpdate extends concepts.Event {
+    get focus_positions() { return []; }
+
+    get is_world_event() { return true; }
+
+    *animation(){}
+};
+
 // This is the function defining how each character's turn is processed. Basically, a "turn solver".
 // Returns a generator of the sequence of events since last time the player was requested to act,
 // produced through the turns/actions of the different bodies.
@@ -134,6 +142,7 @@ function* execute_turns(world) {
             while(!action){ // Update the current possible actions and request an action from the character
                 // until we obtain a usable action.
                 character.update_perception(world); // Make sure decisions are taken relative to an up to date view of the world.
+                yield new VisionUpdate();
                 const possible_actions = world.gather_possible_actions_from_rules(character);
                 action = actor.decide_next_action(possible_actions);
 
@@ -155,7 +164,10 @@ function* execute_turns(world) {
             yield* rules_events;
 
             // Keep the view of the world up to date after having performed the action and it's consequences.
-            character.update_perception(world);
+            if(action_events.length > 0 || rules_events.length > 0){
+                character.update_perception(world);
+                yield new VisionUpdate();
+            }
         }
     }
 }
