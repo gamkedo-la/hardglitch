@@ -54,7 +54,7 @@ class Range_Circle extends RangeShape {
     }
 
     _range_match(center, position){
-        const distance = Math.ceil((new Vector2(center)).distance(position));
+        const distance = Math.round((new Vector2(center)).distance(position));
         return distance < this.end_distance && distance >= this.begin_distance;
     }
 };
