@@ -21,11 +21,10 @@ class FogOfWar {
 
     constructor(world){
         console.assert(world instanceof concepts.World);
-        this.world = world;
-        this.graphic_width = this.world.width * PIXELS_PER_TILES_SIDE;
-        this.graphic_height = this.world.height * PIXELS_PER_TILES_SIDE;
+        this.graphic_width = world.width * PIXELS_PER_TILES_SIDE;
+        this.graphic_height = world.height * PIXELS_PER_TILES_SIDE;
 
-        this.viewed_at_least_once_grid = new Array(this.world.size).fill(false);
+        this.viewed_at_least_once_grid = new Array(world.size).fill(false);
 
         this._last_seen_canvas_context = graphics.create_canvas_context( this.graphic_width, this.graphic_height);
         this._last_seen_canvas_context.filter = "sepia(60%) brightness(60%) contrast(60%)";
@@ -33,7 +32,7 @@ class FogOfWar {
         this._fog_canvas_context = graphics.create_canvas_context( this.graphic_width, this.graphic_height);
         this._dark_canvas_context = graphics.create_canvas_context( this.graphic_width, this.graphic_height);
 
-        this.refresh();
+        this.refresh(world);
     }
 
     add_fov(entity_id, field_of_vision){
@@ -62,7 +61,9 @@ class FogOfWar {
         return position_from_index(this.world.width, this.world.height, idx);
     }
 
-    refresh(){
+    refresh(world){
+        console.assert(world instanceof concepts.World);
+        this.world = world;
         this.current_visibility_grid = new Array(this.world.size).fill(false);
 
         this.fov_list.forEach(fov => {

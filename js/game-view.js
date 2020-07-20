@@ -193,7 +193,7 @@ class GameView {
             console.assert(event.focus_positions);
             const animation = {
                     start_animation: ()=> this._start_event_animation(event),
-                    parallel: false, //event.allow_parallel_animation,
+                    parallel: event.allow_parallel_animation,
                     focus_positions: event.focus_positions,
                     is_world_event: event.is_world_event,
                 };
@@ -341,7 +341,7 @@ class GameView {
             }
             this.current_animations.play(animation.iterator)
                 .then(()=> {
-                    this.fog_of_war.refresh();
+                    this.fog_of_war.refresh(this.game.world);
                     this._require_tiles_update = true;
                 }); // Refresh the FOW after each event, to make sure we always see the most up to date world.
 
@@ -387,7 +387,7 @@ class GameView {
             const player_position = this.player_character.position;
             const setup = ()=>{
                 this.focus_on_position(player_position);
-                this.fog_of_war.refresh();
+                this.fog_of_war.refresh(this.game.world);
                 this._require_tiles_update = true;
                 this.ui.unlock_actions();
                 this.highlight_available_basic_actions();
@@ -607,7 +607,7 @@ class GameView {
         this.entity_views = Object.assign({}, this._create_entity_views(this.game.world.items, ItemView)
                                             , this._create_entity_views(this.game.world.bodies, CharacterView));
 
-        this.fog_of_war.refresh();
+        this.fog_of_war.refresh(world);
         this._require_tiles_update = true;
 
         this.highlight_available_basic_actions();

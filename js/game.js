@@ -31,7 +31,7 @@ class Game {
 
     constructor(world){
         console.assert(world instanceof concepts.World);
-        this.world = world ? world : new concepts.World();
+        this.world = world;
 
         // Prepare the game turns to be ready to play (player's turn)
         this.add_player_character_at_random_entry_point();
@@ -71,6 +71,8 @@ class Game {
                 throw "Something is wrong with the turn solver!";
             }
         }
+
+        this.world = this.turn_info.world;
 
         console.log(`NEW PLAYER TURN`);
         console.log(`Possible Actions: `);
