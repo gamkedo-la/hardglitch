@@ -117,7 +117,7 @@ class GameView {
     camera_animations = new anim.AnimationGroup(); // Plays camera animations.
     player_actions_highlights = []; // Must contain Highlight objects for the currently playable actions.
     action_range_highlights = []; // Must contain Highlight objects for the currently pointed action's range.
-    delay_between_animations_ms = 200; // we'll try to keep a little delay between each beginning of parallel animation.
+    delay_between_animations_ms = Math.round(1000 / 5); // we'll try to keep a little delay between each beginning of parallel animation.
 
     get enable_fog_of_war() { return this._enable_fog_of_war; };
     set enable_fog_of_war(new_value) {
@@ -317,7 +317,10 @@ class GameView {
     _launch_next_animation_batch(){
         // Get the next animations that are allowed to happen in parallel.
         let delay_for_next_animation = 0;
-        while(true){
+        const max_frame_time = 8.0;
+        const begin_time = performance.now();
+        while(performance.now() - begin_time < max_frame_time){ // timeout!
+
             const animation = this._pop_next_event_animation();
             if(!animation) // End of event/animation sequences.
                 break;
@@ -345,9 +348,9 @@ class GameView {
                     this._require_tiles_update = true;
                 }); // Refresh the FOW after each event, to make sure we always see the most up to date world.
 
-            if(animation.parallel === false){
+            if(animation.parallel === false)
                 break; // We need to only play the animations that are next to each other and parallel.
-            }
+
         }
     }
 
