@@ -17,7 +17,6 @@ import * as editor from "./editor.js";
 import {
     graphic_position, PIXELS_PER_TILES_SIDE, square_half_unit_vector,
     EntityView,
-    PIXELS_PER_HALF_SIDE,
 } from "./view/entity-view.js";
 import { TileGridView } from "./view/tilegrid-view.js";
 import { CharacterView } from "./view/character-view.js";
@@ -194,7 +193,7 @@ class GameView {
             console.assert(event.focus_positions);
             const animation = {
                     start_animation: ()=> this._start_event_animation(event),
-                    parallel: event.allow_parallel_animation,
+                    parallel: false, //event.allow_parallel_animation,
                     focus_positions: event.focus_positions,
                     is_world_event: event.is_world_event,
                 };
