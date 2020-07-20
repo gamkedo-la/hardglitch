@@ -182,7 +182,7 @@ class GameView {
 
         this.clear_focus();
 
-        const events = this.game.last_turn_info.events;
+        const events = this.game.turn_info.events;
         for(const event of events){
             console.assert(event instanceof concepts.Event);
             console.assert(event.focus_positions);
@@ -193,7 +193,7 @@ class GameView {
                     is_world_event: event.is_world_event,
                 });
         }
-        this.ui.show_action_buttons(Object.values(this.game.last_turn_info.possible_actions));
+        this.ui.show_action_buttons(Object.values(this.game.turn_info.possible_actions));
 
     }
 
@@ -229,7 +229,7 @@ class GameView {
     highlight_available_basic_actions(){
         this.clear_highlights_basic_actions(); // Clear previous highlighting
 
-        const available_actions = this.game.last_turn_info.possible_actions;
+        const available_actions = this.game.turn_info.possible_actions;
         for(const action of Object.values(available_actions)){
             if(action.is_basic && action.is_safe){
                 if(action instanceof Move)
@@ -363,7 +363,7 @@ class GameView {
     }
 
     get player_character() {
-        return this.game.last_turn_info.player_character;
+        return this.game.turn_info.player_character;
     }
 
     _start_player_turn(){
@@ -597,7 +597,7 @@ class GameView {
         this._require_tiles_update = true;
 
         this.highlight_available_basic_actions();
-        this.ui.show_action_buttons(Object.values(this.game.last_turn_info.possible_actions));
+        this.ui.show_action_buttons(Object.values(this.game.turn_info.possible_actions));
 
         this._requires_reset = false;
     }

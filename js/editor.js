@@ -206,7 +206,7 @@ function display_help(){
     next_line();
     draw_text(`AUTO CAMERA CENTER = ${current_game_view.enable_auto_camera_center ? "enabled" : "disabled"}`, {x: display_x, y: next_line() });
     next_line();
-    draw_text(`TURN: ${current_game.last_turn_info.turn_id} PHASE: ${current_game.last_turn_info.turn_phase_id}`, {x: display_x, y: next_line() });
+    draw_text(`TURN: ${current_game.turn_info.turn_id} PHASE: ${current_game.turn_info.turn_phase_id}`, {x: display_x, y: next_line() });
 
 
 }
@@ -339,15 +339,15 @@ function update(){
     }
 
     if(input.keyboard.is_just_down(KEY.RIGHT_BRACKET)){
-        current_game.last_turn_info.player_character.stats.view_distance.increase(1);
-        current_game.last_turn_info.player_character.update_perception(current_game.world);
+        current_game.turn_info.player_character.stats.view_distance.increase(1);
+        current_game.turn_info.player_character.update_perception(current_game.world);
         current_game_view.fog_of_war.refresh();
         current_game_view._require_tiles_update = true;
     }
 
     if(input.keyboard.is_just_down(KEY.LEFT_BRACKET)){
-        current_game.last_turn_info.player_character.stats.view_distance.decrease(1);
-        current_game.last_turn_info.player_character.update_perception(current_game.world);
+        current_game.turn_info.player_character.stats.view_distance.decrease(1);
+        current_game.turn_info.player_character.update_perception(current_game.world);
         current_game_view.fog_of_war.refresh();
         current_game_view._require_tiles_update = true;
     }

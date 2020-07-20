@@ -116,7 +116,7 @@ const action_button_keys = [
 function select_player_action(){
     const keyboard = input.keyboard;
     const mouse = input.mouse;
-    const possible_actions = current_game.last_turn_info.possible_actions;
+    const possible_actions = current_game.turn_info.possible_actions;
 
     for(let key_num = 0; key_num < action_button_keys.length; ++key_num){
         if(keyboard.is_just_down(action_button_keys[key_num])){
@@ -193,7 +193,7 @@ function update_camera_control(delta_time){
 function play_action(player_action){
     console.assert(current_game_view.is_time_for_player_to_chose_action === true);
     console.assert(!player_action || player_action instanceof concepts.Action);
-    console.assert(!player_action || Object.values(current_game.last_turn_info.possible_actions).includes(player_action)); // The action MUST come from the possible actions.
+    console.assert(!player_action || Object.values(current_game.turn_info.possible_actions).includes(player_action)); // The action MUST come from the possible actions.
 
     editor.set_text("PROCESSING TURNS...");
     current_game.update_until_player_turn(player_action);

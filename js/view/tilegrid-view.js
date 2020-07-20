@@ -243,7 +243,7 @@ class TileGridView {
                 this.addVoidParticles(size, i, bg_grid);
             }
         }
-        console.log("void emitters: " + this.vemitterCount);
+        // console.log("void emitters: " + this.vemitterCount);
         // iterate through fg grid
         let addblip = true;
         if (addblip) {

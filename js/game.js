@@ -5,7 +5,6 @@ export { Game }
 
 import * as concepts from "./core/concepts.js";
 import * as turns from "./core/action-turn.js";
-import { Wait } from "./rules/rules-basic.js";
 import { random_sample } from "./system/utility.js";
 import * as tiles from "./definitions-tiles.js";
 import { sprite_defs } from "./game-assets.js";
@@ -28,7 +27,7 @@ class Player extends Character {
 // Create this object for each new game.
 // Make it visible using a GameView.
 class Game {
-    last_turn_info = null;
+    turn_info = null;
 
     constructor(world){
         console.assert(world instanceof concepts.World);
@@ -36,9 +35,8 @@ class Game {
 
         // Prepare the game turns to be ready to play (player's turn)
         this.add_player_character_at_random_entry_point();
-        this.__turn_sequence = turns.execute_turns_until_players_turn(this.world);
+        this.__turn_sequence = turns.execute_turns(this.world);
         this.update_until_player_turn();
-        this.last_turn_info.clear_events(); // Remove previous events, we don't really want to know what happened before the first turn.
     }
 
     // Updates the turns until we reach the next player's turn (whateve the character player controlled by the player).
@@ -52,26 +50,32 @@ class Game {
             console.log(`Player Action: ${next_player_action.name}`);
 
         console.log(`SOLVING TURNS ...`);
-        const turn_iter = this.__turn_sequence.next(next_player_action);
-        console.assert(turn_iter.done == false); // We should never be able to end.
+        const events = [];
+        while(true){
+            const turn_iter = this.__turn_sequence.next(next_player_action);
+            console.assert(turn_iter.done == false); // We should never be able to end.
+            console.assert(turn_iter.value);
 
-        this.last_turn_info = turn_iter.value;
+            if(turn_iter.value instanceof concepts.Event){
+                const event = turn_iter.value;
+                console.log(`-> ${event.constructor.name}: ${event.description}` );
+                events.push(event);
+            } else if(turn_iter.value instanceof turns.PlayerTurn){
+                this.turn_info = turn_iter.value;
+                this.turn_info.events = events;
+                break;
+            } else {
+                throw "Something is wrong with the turn solver!";
+            }
+        }
 
         console.log(`NEW PLAYER TURN`);
-        console.log(`Characters Positions: `);
-        for(const body of this.world.bodies){
-            console.log(` - ${body.id}: ${JSON.stringify(body.position)}`);
-        }
-        console.log(`Events Since Last Turn: `);
-        for(const event of this.last_turn_info.events){
-            console.log(` - ${event.constructor.name}: ${event.description}` );
-        }
         console.log(`Possible Actions: `);
-        for(const action_id in this.last_turn_info.possible_actions){
-            const action = this.last_turn_info.possible_actions[action_id];
+        for(const action_id in this.turn_info.possible_actions){
+            const action = this.turn_info.possible_actions[action_id];
             console.log(` - ${action.name}`);
         }
-        return this.last_turn_info;
+        return this.turn_info;
     }
 
     add_player_character_at_random_entry_point(){
