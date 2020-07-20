@@ -113,7 +113,6 @@ class Highlight{
 class GameView {
     entity_views = {};
     is_time_for_player_to_chose_action = true;
-    animation_queue = []; // Must contain only js generators + parallel: (true||false). // TODO: make the animation system separately to be used anywhere there are animations to play.
     current_animations = new anim.AnimationGroup(); // Plays animations that have started.
     skipped_animations = new anim.AnimationGroup(); // Plays animations that needs to be done in one update.
     camera_animations = new anim.AnimationGroup(); // Plays camera animations.
@@ -177,24 +176,32 @@ class GameView {
         this.center_on_player();
     }
 
-    interpret_turn_events() {
-        console.assert(this.animation_queue.length === 0);
+    interpret_turn_events(event_sequence) {
+        console.assert(event_sequence);
 
         this.clear_focus();
 
-        const events = this.game.turn_info.events;
-        for(const event of events){
+        this.event_sequence = event_sequence;
+        this._launch_next_animation_batch();
+    }
+
+    _pop_next_event_animation(){
+        this.next_event = this.event_sequence.next();
+
+        if(!this.next_event.done){
+            const event = this.next_event.value;
             console.assert(event instanceof concepts.Event);
             console.assert(event.focus_positions);
-            this.animation_queue.push({
+            const animation = {
                     start_animation: ()=> this._start_event_animation(event),
                     parallel: event.allow_parallel_animation,
                     focus_positions: event.focus_positions,
                     is_world_event: event.is_world_event,
-                });
+                };
+            return animation;
+        } else {
+            this.next_event = undefined;
         }
-        this.ui.show_action_buttons(Object.values(this.game.turn_info.possible_actions));
-
     }
 
     *_start_event_animation(event){
@@ -308,9 +315,46 @@ class GameView {
         this.ui.update(delta_time);
     }
 
+    _launch_next_animation_batch(){
+        // Get the next animations that are allowed to happen in parallel.
+        let delay_for_next_animation = 0;
+        while(true){
+            const animation = this._pop_next_event_animation();
+            if(!animation) // End of event/animation sequences.
+                break;
+
+            animation.iterator = animation.start_animation();
+            if(animation.iterator.next().done) // Skip non-animations.
+                continue;
+
+            const is_visible_to_player = this.fog_of_war.is_any_visible(...animation.focus_positions);
+            if(!is_visible_to_player && !animation.is_world_event){
+                // No need to play the action in a visible way, just skip it (but still play it).
+                this.skipped_animations.play(animation.iterator)
+                continue;
+            }
+
+            // Start the animation, delayed by the previous parallel one:
+            if(this.delay_between_animations_ms > 0){
+                if(delay_for_next_animation > 0)
+                    animation.iterator = anim.delay(delay_for_next_animation, animation.start_animation());
+                delay_for_next_animation += this.delay_between_animations_ms;
+            }
+            this.current_animations.play(animation.iterator)
+                .then(()=> {
+                    this.fog_of_war.refresh();
+                    this._require_tiles_update = true;
+                }); // Refresh the FOW after each event, to make sure we always see the most up to date world.
+
+            if(animation.parallel === false){
+                break; // We need to only play the animations that are next to each other and parallel.
+            }
+        }
+    }
+
     _update_animations(delta_time){
         // Update the current animation, if any, or switch to the next one, until there isn't any left.
-        if(this.current_animations.animation_count != 0 || this.animation_queue.length > 0){
+        if(this.current_animations.animation_count != 0 || (this.next_event && !this.next_event.done)){
             if(this.is_time_for_player_to_chose_action){
                 this.is_time_for_player_to_chose_action = false;
                 this.ui.lock_actions();
@@ -318,44 +362,14 @@ class GameView {
             }
 
             if(this.current_animations.animation_count == 0){
-                // Get the next animations that are allowed to happen in parallel.
-                let delay_for_next_animation = 0;
-                while(this.animation_queue.length > 0){
-                    const animation = this.animation_queue.shift(); // pop!
-                    animation.iterator = animation.start_animation();
-                    if(animation.iterator.next().done) // Skip non-animations.
-                        continue;
-
-                    const is_visible_to_player = this.fog_of_war.is_any_visible(...animation.focus_positions);
-                    if(!is_visible_to_player && !animation.is_world_event){
-                        // No need to play the action in a visible way, just skip it (but still play it).
-                        this.skipped_animations.play(animation.iterator)
-                        continue;
-                    }
-
-                    // Start the animation, delayed by the previous parallel one:
-                    if(this.delay_between_animations_ms > 0){
-                        if(delay_for_next_animation > 0)
-                            animation.iterator = anim.delay(delay_for_next_animation, animation.start_animation());
-                        delay_for_next_animation += this.delay_between_animations_ms;
-                    }
-                    this.current_animations.play(animation.iterator)
-                        .then(()=> {
-                            this.fog_of_war.refresh();
-                            this._require_tiles_update = true;
-                        }); // Refresh the FOW after each event, to make sure we always see the most up to date world.
-
-                    if(animation.parallel === false){
-                        break; // We need to only play the animations that are next to each other and parallel.
-                    }
-                }
+                this._launch_next_animation_batch();
             }
 
             this.current_animations.update(delta_time);
 
             if(!this.is_time_for_player_to_chose_action
             && this.current_animations.animation_count == 0
-            && this.animation_queue.length == 0
+            && this.next_event === undefined
             ){
                 this._start_player_turn();
             }
@@ -369,6 +383,7 @@ class GameView {
     _start_player_turn(){
         this.is_time_for_player_to_chose_action = true;
         if(this.player_character){
+            this.ui.show_action_buttons(Object.values(this.game.turn_info.possible_actions));
             this.clear_highlights_basic_actions();
             const player_position = this.player_character.position;
             const setup = ()=>{

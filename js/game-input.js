@@ -196,8 +196,8 @@ function play_action(player_action){
     console.assert(!player_action || Object.values(current_game.turn_info.possible_actions).includes(player_action)); // The action MUST come from the possible actions.
 
     editor.set_text("PROCESSING TURNS...");
-    current_game.update_until_player_turn(player_action);
-    current_game_view.interpret_turn_events(); // Starts showing each event one by one until it's player's turn.
+    const event_sequence = current_game.update_until_player_turn(player_action);
+    current_game_view.interpret_turn_events(event_sequence); // Starts showing each event one by one until it's player's turn.
 }
 
 

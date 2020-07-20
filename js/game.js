@@ -36,7 +36,11 @@ class Game {
         // Prepare the game turns to be ready to play (player's turn)
         this.add_player_character_at_random_entry_point();
         this.__turn_sequence = turns.execute_turns(this.world);
-        this.update_until_player_turn();
+
+        // Make sure we begin at a player's turn.
+        const generator = this.update_until_player_turn();
+        let waitforit = generator.next();
+        while(!waitforit.done) waitforit = generator.next();
     }
 
     // Updates the turns until we reach the next player's turn (whateve the character player controlled by the player).
@@ -45,24 +49,23 @@ class Game {
     // - if we were not at a player's turn, the turns will be processed until we do;
     // - if we were already at a player's turn, no turn will proceed but the possible actions will be re-evaluated.
     // So calling this function with no argument is useful when we change the world and want the rules to update what the new state.
-    update_until_player_turn(next_player_action) {
+    *update_until_player_turn(next_player_action) {
         if(next_player_action)
             console.log(`Player Action: ${next_player_action.name}`);
 
         console.log(`SOLVING TURNS ...`);
-        const events = [];
         while(true){
             const turn_iter = this.__turn_sequence.next(next_player_action);
             console.assert(turn_iter.done == false); // We should never be able to end.
             console.assert(turn_iter.value);
+            next_player_action = undefined; // Only push the player action once.
 
             if(turn_iter.value instanceof concepts.Event){
                 const event = turn_iter.value;
                 console.log(`-> ${event.constructor.name}: ${event.description}` );
-                events.push(event);
+                yield event;
             } else if(turn_iter.value instanceof turns.PlayerTurn){
                 this.turn_info = turn_iter.value;
-                this.turn_info.events = events;
                 break;
             } else {
                 throw "Something is wrong with the turn solver!";
