@@ -9,7 +9,7 @@ import * as concepts from "../core/concepts.js";
 import * as visibility from "../core/visibility.js";
 import { sprite_defs } from "../game-assets.js";
 import { Damaged } from "./destruction.js";
-import { missile, damage_effect } from "../game-animations.js";
+import { missile, damage_effect, test_missile_effect } from "../game-animations.js";
 import { graphic_position } from "../view/entity-view.js";
 
 const delete_damage = 5;
@@ -29,7 +29,7 @@ class Deleted extends concepts.Event {
     get focus_positions() { return [ this.deleter_position, this.deleted_position ]; }
 
     *animation(game_view){
-        const missile_effect = damage_effect(game_view.particle_system, graphic_position(this.deleter_position));
+        const missile_effect = test_missile_effect(game_view.particle_system, graphic_position(this.deleter_position));
         yield* missile(missile_effect, graphic_position(this.deleted_position));
         game_view.particle_system.remove(missile_effect);
     }

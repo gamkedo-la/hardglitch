@@ -11,11 +11,12 @@ export {
     repaired,
     missile,
 
+    test_missile_effect,
     damage_effect,
     destruction_effect,
 }
 
-import { graphic_position, EntityView, PIXELS_PER_HALF_SIDE, square_half_unit_vector } from "./view/entity-view.js";
+import { graphic_position, EntityView, PIXELS_PER_HALF_SIDE, square_half_unit_vector, PIXELS_PER_TILES_SIDE } from "./view/entity-view.js";
 import { tween, easing } from "./system/tweening.js";
 import { in_parallel } from "./system/animation.js";
 import { Vector2 } from "./system/spatial.js";
@@ -23,10 +24,11 @@ import {
     ParticleSystem,
     SwirlPrefab,
     ParticleEmitter,
-    FlashParticle
+    FlashParticle,
+    RingParticle
 } from "./system/particles.js";
 import { GameView } from "./game-view.js";
-import { random_int } from "./system/utility.js";
+import { random_int, random_float } from "./system/utility.js";
 
 const default_move_duration_ms = 250;
 const default_destruction_duration_ms = 666;
@@ -143,6 +145,21 @@ function* repaired(entity_view){ // FIXME - not real animation
 }
 
 
+function test_missile_effect(particle_system, position){
+    console.assert(particle_system instanceof ParticleSystem);
+    const effect = new ParticleEmitter(particle_system, position.x, position.y, (emitter) => {
+        let xoff = random_float(-15,15);
+        let yoff = random_float(-15,15);
+        let radius = random_int(8,16);
+        let ttl = random_float(.75,1.5);
+        let hue = random_int(200, 500);
+        return new RingParticle(emitter.x+xoff, emitter.y+yoff, radius, hue, ttl, 10);
+    }, 1 / 16, 25);
+    particle_system.add(effect);
+    console.assert(particle_system.isActive(effect));
+    return effect;
+}
+
 function* missile(missile_effect, target_gfx_position){
     missile_effect.x += square_half_unit_vector.x;
     missile_effect.y += square_half_unit_vector.y;
@@ -153,5 +170,7 @@ function* missile(missile_effect, target_gfx_position){
             missile_effect.y = new_pos.y;
         }
     };
-    yield* translate(missile, target_gfx_position.translate(square_half_unit_vector), 500);
+    const speed = 1.0;
+    const duration = ((target_gfx_position.distance(missile.position) / PIXELS_PER_TILES_SIDE) / speed) * 1000;
+    yield* translate(missile, target_gfx_position.translate(square_half_unit_vector), duration);
 }
