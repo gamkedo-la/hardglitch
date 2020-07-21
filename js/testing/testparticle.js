@@ -1,4 +1,20 @@
-import { ParticleSystem, ParticleEmitter, ParticleSequence, FadeLineParticle, ColorGlitchParticle, OffsetGlitchParticle, FadeParticle, BlipParticle, ParticleGroup, SwirlPrefab, SwirlParticle, RingParticle, ShootUpParticle, FlashParticle } from "../system/particles.js";
+import { 
+    ParticleSystem, 
+    ParticleEmitter, 
+    ParticleSequence, 
+    FadeLineParticle, 
+    ColorGlitchParticle, 
+    OffsetGlitchParticle, 
+    FadeParticle, 
+    BlipParticle, 
+    ParticleGroup, 
+    SwirlPrefab, 
+    SwirlParticle, 
+    RingParticle, 
+    ShootUpParticle, 
+    FlashParticle,
+    ThrobParticle
+} from "../system/particles.js";
 import { random_int, random_float } from "../system/utility.js";
 import { Color } from "../system/color.js";
 import { initialize } from "../system/graphics.js";
@@ -143,6 +159,17 @@ class Tests {
     }
 
     missile(x,y) {
+        this.particles.add(new ParticleEmitter(this.particles, 0, 0, () => {
+            let angle = random_float(0,Math.PI*2);
+            let distance = random_int(64,256);
+            let originx = x + Math.cos(angle) * distance;
+            let originy = y + Math.sin(angle) * distance;
+            let targetx = x;
+            let targety = y;
+            let speed = random_int(50,100);
+            let radius = 5;
+            return new ThrobParticle({x: originx, y:originy}, {x: targetx, y: targety}, radius, speed, radius * .5);
+        }, 1, 25));
     }
 }
 
@@ -169,6 +196,7 @@ class Env {
         this.tests.shootup(700,300);
         this.tests.flash(800,300);
         this.tests.combo(900,300);
+        this.tests.missile(1000,300);
 
     }
 

@@ -15,6 +15,7 @@ export {
     ShootUpParticle,
     FlashParticle,
     BlipEdgeParticle,
+    ThrobParticle,
 }
 
 import { camera } from "./graphics.js";
@@ -1260,4 +1261,69 @@ class BlipEdgeParticle extends Particle {
         canvas_context.fill();
         canvas_context.closePath();
     }
+}
+
+class ThrobParticle extends Particle {
+    constructor(origin, target, radius, speed, throbSpeed) {
+        super(origin.x, origin.y);
+        this.origin = origin
+        this.target = target
+        this.radius = radius;
+        this.speed = speed * .001;
+        this.velocity = new Vector2({x:target.x-origin.x, y: target.y-origin.y});
+        this.velocity.length = this.speed;
+        let hue = random_int(80,150);
+        this.color = Color.fromHSL(hue, 100, random_int(50,80), 1);
+        this.throb = .25;
+        this.throbMin = .25;
+        this.throbMax = 1.25;
+        this.throbIn = false;
+        this.throbSpeed = throbSpeed * .001;
+    }
+
+    update(delta_time) {
+        if (this.done) return;
+        // check distance to target
+        let dtt = new Vector2({x:this.target.x-this.x,y:this.target.y-this.y}).length;
+        let sdt = this.speed * delta_time;
+        if (sdt >= dtt) {
+            this.x = this.target.x;
+            this.y = this.target.y;
+            this._done = true;
+        // otherwise, not close enough to endpoint - update position
+        } else {
+            this.x = this.x + this.velocity.x * delta_time;
+            this.y = this.y + this.velocity.y * delta_time;
+        }
+        // throb
+        if (this.throbIn) {
+            this.throb -= this.throbSpeed * delta_time;
+            if (this.throb <= this.throbMin) {
+                this.throb = this.throbMin;
+                this.throbIn = false;
+            }
+        } else {
+            this.throb += this.throbSpeed * delta_time;
+            if (this.throb >= this.throbMax) {
+                this.throb = this.throbMax;
+                this.throbIn = true;
+            }
+        }
+    }
+
+    draw(canvas_context) {
+        // center dot
+        let radius = this.radius * this.throb;
+        canvas_context.beginPath();
+        canvas_context.arc(Math.round(this.x), Math.round(this.y), radius, 0, Math.PI*2)
+        canvas_context.fillStyle = this.color.asHSL(this.color.a*.5);
+        canvas_context.fill();
+        canvas_context.closePath();
+        canvas_context.beginPath();
+        canvas_context.arc(Math.round(this.x), Math.round(this.y), Math.max(1,radius-2), 0, Math.PI*2)
+        canvas_context.fillStyle = this.color.asHSL();
+        canvas_context.fill();
+        canvas_context.closePath();
+    }
+
 }
