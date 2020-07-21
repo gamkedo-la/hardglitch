@@ -242,7 +242,7 @@ class ParticleEmitter {
      */
     emit() {
         for (let i=0; i<this.count; i++) {
-            let p = this.genFcn();
+            let p = this.genFcn(this);
             this.psys.add(p);
         }
     }
