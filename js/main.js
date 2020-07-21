@@ -3,6 +3,7 @@
 export { current_game, current_game_view }
 
 // save the canvas for dimensions, and its 2d context for drawing to it
+import * as audio from "./system/audio.js";
 import * as graphics from "./system/graphics.js";
 import { load_all_assets } from "./game-assets.js";
 import { Game } from "./game.js";
@@ -24,6 +25,7 @@ const max_delta_time = 1000 / 26; // Always assume at worst that we are at 26fps
 window.onload = async function() {
   const assets = await load_all_assets();
   const canvas = graphics.initialize(assets);
+  audio.initialize(assets.audio);
   input.initialize(canvas); // TODO: change that so that when we have different screens with different input situations
 
   new_game(); // TODO : call this function only once we start a new game.

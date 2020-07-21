@@ -6,6 +6,7 @@ export {
     update, display,
 };
 
+import * as audio from "./system/audio.js";
 import * as graphics from "./system/graphics.js";
 import * as input from "./system/input.js";
 import * as tiles from "./definitions-tiles.js";
@@ -366,6 +367,10 @@ function update(){
             current_game_view.enable_fog_of_war = was_fog_of_war_activated;
             current_game_view.enable_tile_rendering_debug = false;
         }
+    }
+
+    if (input.keyboard.is_just_down(79)) {
+        audio.playEvent('test');
     }
 
     if(is_enabled)

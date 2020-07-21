@@ -59,6 +59,11 @@ const game_assets = { // Description of the assets to load.
         icon_wait: "./images/wait.png",
         icon_cancel: "./images/iconcancel.png",
         icon_take: "./images/iconpickup.png"
+    },
+
+    audio: {
+        asset_loader: asset_system.audio_loader,
+        test: './audio/test.mp3',
     }
 };
 
