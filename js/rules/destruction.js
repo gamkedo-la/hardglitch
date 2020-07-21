@@ -30,7 +30,7 @@ class Damaged extends concepts.Event {
         console.assert(game_view instanceof GameView);
         const entity_view = game_view.get_entity_view(this.entity_id);
         console.assert(entity_view instanceof EntityView);
-        yield* take_damage(entity_view);
+        yield* take_damage(game_view.particle_system, entity_view);
     }
 
 }

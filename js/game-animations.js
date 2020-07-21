@@ -15,8 +15,14 @@ import { graphic_position, EntityView, PIXELS_PER_HALF_SIDE, square_half_unit_ve
 import { tween, easing } from "./system/tweening.js";
 import { in_parallel } from "./system/animation.js";
 import { Vector2 } from "./system/spatial.js";
-import { ParticleSystem, ParticleSequence, SwirlPrefab } from "./system/particles.js";
+import {
+    ParticleSystem,
+    SwirlPrefab,
+    ParticleEmitter,
+    FlashParticle
+} from "./system/particles.js";
 import { GameView } from "./game-view.js";
+import { random_int } from "./system/utility.js";
 
 const default_move_duration_ms = 250;
 const default_destruction_duration_ms = 666;
@@ -92,17 +98,35 @@ function* destroyed(game_view, entity_view, duration_ms=default_destruction_dura
     );
 }
 
-function* take_damage(entity_view){ // FIXME - not real animation
+function damage_effect(particle_system, position){
+    console.assert(particle_system instanceof ParticleSystem);
+    const effect = new ParticleEmitter(particle_system, position.x, position.y, (emitter) => {
+        const xoff = random_int(-15,15);
+        const yoff = random_int(-15,15);
+        const width = random_int(20,40);
+        const hue = random_int(150, 250);
+        const ttl = .1;
+        return new FlashParticle(emitter.x + xoff, emitter.y + yoff, width, hue, ttl);
+    }, .1, 0, 0, 10);
+    particle_system.add(effect);
+    console.assert(particle_system.isActive(effect));
+    return effect;
+}
+
+function* take_damage(particle_system, entity_view){ // FIXME - not real animation
+    console.assert(particle_system instanceof ParticleSystem);
     console.assert(entity_view instanceof EntityView);
     // WwhwhhiiiiiiiiiIIIIIIIIIiiiizzzzzzzzzzZZZZZZZZZZZZZ
     const intensity = 10;
     const time_per_move = Math.round(500 / 4);
     const initial_position = new Vector2(entity_view.position);
+    const effect = damage_effect(particle_system, initial_position.translate(square_half_unit_vector));
     yield* translate(entity_view, initial_position.translate({ x: intensity, y: 0}), time_per_move);
     yield* translate(entity_view, initial_position.translate({ x: -intensity, y: 0}), time_per_move);
     yield* translate(entity_view, initial_position.translate({ x: 0, y: -intensity}), time_per_move);
     yield* translate(entity_view, initial_position.translate({ x: 0, y: intensity}), time_per_move);
     yield* translate(entity_view, initial_position, time_per_move);
+    particle_system.remove(effect);
 }
 
 function* repaired(entity_view){ // FIXME - not real animation
@@ -114,3 +138,4 @@ function* repaired(entity_view){ // FIXME - not real animation
     yield* translate(entity_view, initial_position.translate({ x: 0, y: -intensity}), time_per_move);
     yield* translate(entity_view, initial_position, time_per_move);
 }
+
