@@ -9,6 +9,10 @@ export {
     destroyed,
     take_damage,
     repaired,
+    missile,
+
+    damage_effect,
+    destruction_effect,
 }
 
 import { graphic_position, EntityView, PIXELS_PER_HALF_SIDE, square_half_unit_vector } from "./view/entity-view.js";
@@ -27,10 +31,10 @@ import { random_int } from "./system/utility.js";
 const default_move_duration_ms = 250;
 const default_destruction_duration_ms = 666;
 
-function* translate(entity_view, target_gfx_pos, duration_ms){
-    console.assert(entity_view instanceof EntityView);
-    yield* tween(entity_view.position, {x:target_gfx_pos.x, y:target_gfx_pos.y}, duration_ms,
-        (updated_position)=>{ entity_view.position = updated_position; });
+function* translate(thing_with_position, target_gfx_pos, duration_ms){
+    console.assert(thing_with_position.position instanceof Vector2);
+    yield* tween(thing_with_position.position, {x:target_gfx_pos.x, y:target_gfx_pos.y}, duration_ms,
+        (updated_position)=>{ thing_with_position.position = updated_position; });
 }
 
 function* move(entity_view, target_game_position, duration_ms=default_move_duration_ms){
@@ -139,3 +143,16 @@ function* repaired(entity_view){ // FIXME - not real animation
     yield* translate(entity_view, initial_position, time_per_move);
 }
 
+
+function* missile(missile_effect, target_gfx_position){
+    missile_effect.x += square_half_unit_vector.x;
+    missile_effect.y += square_half_unit_vector.y;
+    const missile = new class {
+        get position() { return new Vector2({ x: missile_effect.x , y: missile_effect.y }); }
+        set position(new_pos) {
+            missile_effect.x = new_pos.x;
+            missile_effect.y = new_pos.y;
+        }
+    };
+    yield* translate(missile, target_gfx_position, 500);
+}

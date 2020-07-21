@@ -9,9 +9,32 @@ import * as concepts from "../core/concepts.js";
 import * as visibility from "../core/visibility.js";
 import { sprite_defs } from "../game-assets.js";
 import { Damaged } from "./destruction.js";
+import { missile, damage_effect } from "../game-animations.js";
+import { graphic_position } from "../view/entity-view.js";
 
 const delete_damage = 5;
 const delete_ap_cost = 5;
+
+class Deleted extends concepts.Event {
+    constructor(deleter_character, deleted_character){
+        super({
+            description: `Entity ${deleter_character.id} deleted parts of entity ${deleted_character.id}!`
+        });
+
+        this.allow_parallel_animation = false;
+        this.deleter_position = deleter_character.position;
+        this.deleted_position = deleted_character.position;
+    }
+
+    get focus_positions() { return [ this.deleter_position, this.deleted_position ]; }
+
+    *animation(game_view){
+        const missile_effect = damage_effect(game_view.particle_system, graphic_position(this.deleter_position));
+        yield* missile(missile_effect, graphic_position(this.deleted_position));
+        game_view.particle_system.remove(missile_effect);
+    }
+};
+
 
 class Delete extends concepts.Action {
     icon_def = sprite_defs.icon_action_delete;
@@ -25,14 +48,21 @@ class Delete extends concepts.Action {
         this.delete_damage = delete_damage;
     }
 
-    execute(world){
+    execute(world, deleter){
+        // TODO: generalize the "take damage" functions like the destroy_entity/destroy_at function
         console.assert(world instanceof concepts.World);
-        const character =  world.body_at(this.target_position);
-        console.assert(character instanceof Character);
-        character.take_damage(this.delete_damage);
-        return [
-            new Damaged(character.id, character.position, this.delete_damage),
+        console.assert(deleter instanceof Character);
+
+        const deleted =  world.body_at(this.target_position);
+        console.assert(deleted instanceof Character);
+        deleted.take_damage(this.delete_damage);
+        const events = [
+            new Damaged(deleted.id, deleted.position, this.delete_damage),
         ];
+        if(!deleted.position.equals(deleter.position)){
+            events.unshift(new Deleted(deleter, deleted));
+        }
+        return events;
     }
 };
 
