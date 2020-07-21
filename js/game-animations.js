@@ -83,7 +83,7 @@ function* destroyed(game_view, entity_view, duration_ms=default_destruction_dura
     console.assert(game_view instanceof GameView);
     console.assert(entity_view instanceof EntityView);
     // Center the sprite so that the rotation origin is in the center of it.
-    destruction_effect(game_view.particle_system, entity_view.position.translate(square_half_unit_vector));
+    const effect = destruction_effect(game_view.particle_system, entity_view.position.translate(square_half_unit_vector));
     entity_view.sprite.move_origin_to_center();
     // WwhwhhiiiiiiiiiIIIIIIIIIiiiizzzzzzzzzzZZZZZZZZZZZZZ
     yield* tween( {
@@ -102,6 +102,7 @@ function* destroyed(game_view, entity_view, duration_ms=default_destruction_dura
             },
             easing.in_out_quad
     );
+    game_view.particle_system.remove(effect);
 }
 
 function damage_effect(particle_system, position){
