@@ -167,7 +167,7 @@ function make_test_world(){ // The game assets must have been initialized first.
     visibility.positions_in_range(entry_point_position, inner_shape, valid_positions_filter)
         .filter(position => world.is_valid_position(position))
         .forEach(position=>{
-            const item_type = random_int(0, 100) >= 50 ? CryptoFile : CryptoKey;
+            const item_type = random_int(0, 100) >= 50 ? RandomActionEnemy : CryptoKey;
             const file = new item_type();
             file.position = position;
             world.add(file);

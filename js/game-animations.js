@@ -153,5 +153,5 @@ function* missile(missile_effect, target_gfx_position){
             missile_effect.y = new_pos.y;
         }
     };
-    yield* translate(missile, target_gfx_position, 500);
+    yield* translate(missile, target_gfx_position.translate(square_half_unit_vector), 500);
 }
