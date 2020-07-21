@@ -30,6 +30,7 @@ class Env {
         let g = new ParticleGroup();
         this.particles.add(g);
 
+        /*
         this.particles.add(new ParticleEmitter(this.particles, 0, 0, () => {
             let xoff = random_float(-15,15);
             let yoff = random_float(-15,15);
@@ -37,6 +38,7 @@ class Env {
             let ttl = random_float(.3, 1.5);
             return new BlipParticle(100+xoff, 300+yoff, g, 0, -velocity, ttl, 10);
         }, .2, 25));
+        */
 
         this.particles.add(new ParticleEmitter(this.particles, 0, 0, () => {
             let xoff = random_float(-15,15);

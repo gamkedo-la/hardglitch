@@ -822,6 +822,7 @@ class SwirlParticle extends Particle {
 		canvas_context.moveTo(Math.round(this.coordLast[coordRand].x), Math.round(this.coordLast[coordRand].y));
 		canvas_context.lineTo(Math.round(this.x), Math.round(this.y));
 		canvas_context.closePath();
+        canvas_context.lineWidth = 1;
         canvas_context.strokeStyle = this.color.asHSL();
 		canvas_context.stroke();
 		if(this.flickerDensity > 0){
@@ -905,6 +906,7 @@ class RingParticle extends Particle {
         // collapse
         this.collapseTTL = totalTTL - this.fadeInTTL;
         this.collapseFactor = radius/this.collapseTTL;
+        this.lineWidth = 1;
     }
 
     update(delta_time) {
@@ -927,11 +929,13 @@ class RingParticle extends Particle {
     draw(canvas_context) {
 
         canvas_context.beginPath();
+        canvas_context.lineWidth = this.lineWidth;
         canvas_context.arc(Math.round(this.x), Math.round(this.y), this.radius, 0, Math.PI*2)
         canvas_context.closePath();
         canvas_context.strokeStyle = this.color.asHSL();
         canvas_context.stroke();
         canvas_context.beginPath();
+        canvas_context.lineWidth = this.lineWidth;
         canvas_context.arc(Math.round(this.x), Math.round(this.y), this.radius+1, 0, Math.PI*2)
         canvas_context.arc(Math.round(this.x), Math.round(this.y), this.radius-1, 0, Math.PI*2)
         canvas_context.closePath();
