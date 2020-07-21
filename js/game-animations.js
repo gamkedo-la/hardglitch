@@ -170,7 +170,7 @@ function* missile(missile_effect, target_gfx_position){
             missile_effect.y = new_pos.y;
         }
     };
-    const speed = 1.0;
+    const speed = 4.0; // squares per seconds
     const duration = ((target_gfx_position.distance(missile.position) / PIXELS_PER_TILES_SIDE) / speed) * 1000;
     yield* translate(missile, target_gfx_position.translate(square_half_unit_vector), duration);
 }
