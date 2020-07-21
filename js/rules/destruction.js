@@ -55,7 +55,7 @@ class Destroyed extends concepts.Event {
         console.assert(game_view instanceof GameView);
         const entity_view = game_view.get_entity_view(this.entity_id);
         console.assert(entity_view instanceof EntityView);
-        yield* destroyed(entity_view);
+        yield* destroyed(game_view, entity_view);
         game_view.remove_entity_view(this.entity_id);
     }
 

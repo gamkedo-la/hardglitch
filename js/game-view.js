@@ -33,6 +33,7 @@ import * as anim from "./system/animation.js";
 import { FogOfWar } from "./view/fogofwar.js";
 import { tween, easing } from "./system/tweening.js";
 import { TakeItem } from "./rules/rule-takeitem.js";
+import { ParticleSystem } from "./system/particles.js";
 
 const a_very_long_time = 99999999999999;
 
@@ -114,6 +115,7 @@ class Highlight{
 class GameView {
     entity_views = {};
     is_time_for_player_to_chose_action = true;
+    particle_system = new ParticleSystem();
     current_animations = new anim.AnimationGroup(); // Plays animations that have started.
     skipped_animations = new anim.AnimationGroup(); // Plays animations that needs to be done in one update.
     camera_animations = new anim.AnimationGroup(); // Plays camera animations.
@@ -172,6 +174,7 @@ class GameView {
 
 
         this.fog_of_war = new FogOfWar(this.game.world);
+
 
         this.reset();
         this.center_on_player();
@@ -311,6 +314,8 @@ class GameView {
 
         this._update_animations(delta_time);
         this._update_entities(delta_time);
+
+        this.particle_system.update(delta_time);
 
         this.fog_of_war.update(delta_time);
 
@@ -503,16 +508,18 @@ class GameView {
 
         this.tile_grid.draw_surface(graphics.screen_canvas_context, visibility_predicate);
         this.tile_grid.draw_effects(graphics.screen_canvas_context, effect_visibility_predicate);
+        this.particle_system.draw(graphics.screen_canvas_context, effect_visibility_predicate);
 
         if(this.enable_fog_of_war){
             this.fog_of_war.display(graphics.screen_canvas_context, this.tile_grid.canvas_context);
         }
 
 
+
         this._render_top_highlights();
 
         if(!editor.is_enabled)
-            this.ui.display();
+        this.ui.display();
         this._render_help(); // TODO: replace this by highlights being UI elements?
     }
 

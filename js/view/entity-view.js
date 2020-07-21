@@ -12,9 +12,9 @@ import * as concepts from "../core/concepts.js";
 import { tween } from "../system/tweening.js";
 
 const PIXELS_PER_TILES_SIDE = 64;
-const PIXELS_PER_HALF_SIDE = 32;
+const PIXELS_PER_HALF_SIDE = PIXELS_PER_TILES_SIDE / 2;
 const square_unit_vector = new Vector2({ x: PIXELS_PER_TILES_SIDE, y: PIXELS_PER_TILES_SIDE });
-const square_half_unit_vector = new Vector2({ x: PIXELS_PER_TILES_SIDE / 2 , y: PIXELS_PER_TILES_SIDE / 2 });
+const square_half_unit_vector = new Vector2({ x: PIXELS_PER_HALF_SIDE , y: PIXELS_PER_HALF_SIDE });
 
 
 // Return a vector in the graphic-world by interpreting a game-world position.

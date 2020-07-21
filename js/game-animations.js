@@ -11,10 +11,12 @@ export {
     repaired,
 }
 
-import { graphic_position, EntityView, PIXELS_PER_HALF_SIDE } from "./view/entity-view.js";
+import { graphic_position, EntityView, PIXELS_PER_HALF_SIDE, square_half_unit_vector } from "./view/entity-view.js";
 import { tween, easing } from "./system/tweening.js";
 import { in_parallel } from "./system/animation.js";
 import { Vector2 } from "./system/spatial.js";
+import { ParticleSystem, ParticleSequence, SwirlPrefab } from "./system/particles.js";
+import { GameView } from "./game-view.js";
 
 const default_move_duration_ms = 250;
 const default_destruction_duration_ms = 666;
@@ -55,9 +57,21 @@ function* swap(left_entity_view, right_entity_view, duration_ms=default_move_dur
     );
 }
 
-function* destroyed(entity_view, duration_ms=default_destruction_duration_ms){
+// TODO: move me in an file where there are all the effects
+function destruction_effect(particle_system, position){
+    console.assert(particle_system instanceof ParticleSystem);
+    const effect = new SwirlPrefab(particle_system, 0.8, position.x, position.y);
+    effect.x = position.x; // FIXME: this is a workaround ParticleSequence not having a position, which means it cannot be active
+    effect.y = position.y; // FIXME: this is a workaround ParticleSequence not having a position, which means it cannot be active
+    particle_system.add(effect);
+    return effect;
+}
+
+function* destroyed(game_view, entity_view, duration_ms=default_destruction_duration_ms){
+    console.assert(game_view instanceof GameView);
     console.assert(entity_view instanceof EntityView);
     // Center the sprite so that the rotation origin is in the center of it.
+    destruction_effect(game_view.particle_system, entity_view.position.translate(square_half_unit_vector));
     entity_view.sprite.move_origin_to_center();
     // WwhwhhiiiiiiiiiIIIIIIIIIiiiizzzzzzzzzzZZZZZZZZZZZZZ
     yield* tween( {
