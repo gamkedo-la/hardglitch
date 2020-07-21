@@ -35,7 +35,7 @@ class Env {
             let yoff = random_float(-15,15);
             let velocity = random_float(30,60);
             let ttl = random_float(.3, 1.5);
-            return new BlipParticle(ctx, 100+xoff, 300+yoff, g, 0, -velocity, ttl, 10);
+            return new BlipParticle(100+xoff, 300+yoff, g, 0, -velocity, ttl, 10);
         }, .2, 25));
 
         this.particles.add(new ParticleEmitter(this.particles, 0, 0, () => {
@@ -44,7 +44,7 @@ class Env {
             let velocity = random_float(30,90);
             let size = random_float(1,4);
             let ttl = random_float(.3,1.6);
-            return new FadeParticle(ctx, 200+xoff, 300+yoff, 0, -velocity, size, new Color(0,255,255), ttl);
+            return new FadeParticle(200+xoff, 300+yoff, 0, -velocity, size, new Color(0,255,255), ttl);
         }, .2, 25));
 
         this.particles.add(new ParticleEmitter(this.particles, 0, 0, () => {
@@ -54,7 +54,7 @@ class Env {
             let ttl = random_float(.3,1);
             let len = random_float(10,50);
             let width = random_float(1,5);
-            return new FadeLineParticle(ctx, 300+xoff, 300+yoff, 0, -velocity, new Color(0,255,0), ttl, len, width, 0, 1);
+            return new FadeLineParticle(300+xoff, 300+yoff, 0, -velocity, new Color(0,255,0), ttl, len, width, 0, 1);
         }, .3, 25));
 
         this.particles.add(new ParticleEmitter(this.particles, 0, 0, () => {
@@ -65,7 +65,7 @@ class Env {
             let height = random_float(1,10);
             let dx = random_float(-4,4);
             let dy = random_float(-4,4);
-            return new OffsetGlitchParticle(ctx, 368+xoff, 236+yoff, width, height, dx, dy, ttl);
+            return new OffsetGlitchParticle(368+xoff, 236+yoff, width, height, dx, dy, ttl);
         }, .1, 25));
 
         this.particles.add(new ParticleEmitter(this.particles, 0, 0, () => {
@@ -77,7 +77,7 @@ class Env {
             let goff = random_float(0,255);
             let boff = random_float(0,255);
             let ttl = random_float(.1,1);
-            return new ColorGlitchParticle(ctx, 368+xoff, 236+yoff, width, height, roff, goff, boff, ttl);
+            return new ColorGlitchParticle(368+xoff, 236+yoff, width, height, roff, goff, boff, ttl);
         }, .3, 25));
 
         /*
@@ -90,12 +90,12 @@ class Env {
             let width = 2;
             let crush = .5;
             let ttl = 1;
-            return new SwirlParticle(ctx, 500+xoff, 268+yoff, hue, speed, radius, width, crush, ttl);
+            return new SwirlParticle(500+xoff, 268+yoff, hue, speed, radius, width, crush, ttl);
         }, .1, 0));
         */
 
         this.particles.add(
-            new ParticleSequence(this.particles, [() => { return new SwirlPrefab(this.particles, ctx, 2.5, 500, 268)}], 3, 0, 0)
+            new ParticleSequence(this.particles, [() => { return new SwirlPrefab(this.particles, 2.5, 500, 268)}], 3, 0, 0)
         );
 
         this.particles.add(new ParticleEmitter(this.particles, 0, 0, () => {
@@ -104,7 +104,7 @@ class Env {
             let radius = random_int(5,10);
             let ttl = random_float(.75,1.5);
             let hue = random_int(150, 250);
-            return new RingParticle(ctx, 600+xoff, 275+yoff, radius, hue, ttl, 25);
+            return new RingParticle(600+xoff, 275+yoff, radius, hue, ttl, 25);
         }, .25, 25));
 
         this.particles.add(new ParticleEmitter(this.particles, 0, 0, () => {
@@ -115,7 +115,7 @@ class Env {
             let hue = random_int(150, 250);
             let ttl = random_float(4,6);
             let pathLen = 60;
-            return new ShootUpParticle(ctx, 700+xoff, 275+yoff, speed, width, hue, pathLen, ttl, 50);
+            return new ShootUpParticle(700+xoff, 275+yoff, speed, width, hue, pathLen, ttl, 50);
         }, .25, 25));
 
         this.particles.add(new ParticleEmitter(this.particles, 0, 0, () => {
@@ -124,7 +124,7 @@ class Env {
             let width = random_int(20,30);
             let hue = random_int(150, 250);
             let ttl = .1;
-            return new FlashParticle(ctx, 800+xoff, 275+yoff, width, hue, ttl);
+            return new FlashParticle(800+xoff, 275+yoff, width, hue, ttl);
         }, .1, 0, 0, 5));
 
         this.particles.add(new ParticleEmitter(this.particles, 0, 0, () => {
@@ -139,9 +139,9 @@ class Env {
             let shootTTL = random_float(.75,1.25);
             let pathLen = 15;
             return new ParticleSequence(this.particles, [
-                () => { return new RingParticle(ctx, 900+xoff, 275+yoff, radius, hue, ringTTL, 25); },
-                () => { return new FlashParticle(ctx, 900+xoff, 275+yoff, width*4, hue, flashTTL); },
-                () => { return new ShootUpParticle(ctx, 900+xoff, 275+yoff, speed, width, hue, pathLen, shootTTL, 50); },
+                () => { return new RingParticle(900+xoff, 275+yoff, radius, hue, ringTTL, 25); },
+                () => { return new FlashParticle(900+xoff, 275+yoff, width*4, hue, flashTTL); },
+                () => { return new ShootUpParticle(900+xoff, 275+yoff, speed, width, hue, pathLen, shootTTL, 50); },
             ], .01);
         }, .1, 25));
 
@@ -155,7 +155,7 @@ class Env {
         this.ctx.drawImage(this.bgimg, 368, 236);
         // run particle system update
         this.particles.update(delta_time);
-        this.particles.draw();
+        this.particles.draw(this.ctx);
     }
 
     setup() {

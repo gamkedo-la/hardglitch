@@ -365,7 +365,6 @@ class ParticleSequence {
 class Particle {
     /**
      * Create a new particle
-     * @param {*} ctx
      * @param {*} x
      * @param {*} y
      */
@@ -390,7 +389,6 @@ class Particle {
 class FadeLineParticle extends Particle {
     /**
      * Create a new fade line particle.
-     * @param {*} ctx - 2d canvas context to draw particle onto
      * @param {*} x - starting x position of particle
      * @param {*} y - starting y position of particle
      * @param {*} dx - delta x in pixels per second, speed of particle
@@ -524,7 +522,6 @@ class FadeLineParticle extends Particle {
 class FadeParticle extends Particle {
     /**
      * Create a new fade particle
-     * @param {*} ctx - 2d canvas context to draw particle onto
      * @param {*} x - starting x position of particle
      * @param {*} y - starting y position of particle
      * @param {*} dx - delta x in pixels per second, speed of particle
@@ -654,7 +651,6 @@ sparkMaxImg.src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAVCAYAAACpF
 class BlipParticle extends Particle {
     /**
      * Create a new blip particle
-     * @param {*} ctx - 2d canvas context to draw particle onto
      * @param {*} x - starting x position of particle
      * @param {*} y - starting y position of particle
      * @param {*} group - Particle group used to determine sparking interactions
@@ -736,7 +732,6 @@ class SwirlParticle extends Particle {
     /*=============================================================================*/
     /**
      * Create a swirl particle
-     * @param {*} ctx
      * @param {*} x
      * @param {*} y
      * @param {*} hue - H of HSL for color
