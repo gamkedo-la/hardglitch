@@ -135,7 +135,6 @@ function* take_damage(particle_system, entity_view){ // FIXME - not real animati
 
 function* repaired(entity_view){ // FIXME - not real animation
     console.assert(entity_view instanceof EntityView);
-    // WwhwhhiiiiiiiiiIIIIIIIIIiiiizzzzzzzzzzZZZZZZZZZZZZZ
     const intensity = 32;
     const time_per_move = Math.round(500 / 2);
     const initial_position = new Vector2(entity_view.position);
