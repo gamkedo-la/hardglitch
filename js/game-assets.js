@@ -61,8 +61,13 @@ const game_assets = { // Description of the assets to load.
         icon_take: "./images/iconpickup.png"
     },
 
-    audio: {
-        asset_loader: asset_system.audio_loader,
+    audio_buffers: { // Short audio assets held in memory. No hard limit on duplicates/overlaps.
+        asset_loader: asset_system.audiobuffer_loader,
+        test: './audio/test.mp3',
+    },
+
+    audio_streams: { // Longer audio assets streamed from disk/server. Currently limited to one unique event per audio source.
+        asset_loader: asset_system.audiostream_loader,
         test: './audio/test.mp3',
     }
 };

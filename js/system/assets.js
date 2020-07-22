@@ -7,7 +7,8 @@ export {
     load_assets,
     dummy_loader,
     image_loader,
-    audio_loader,
+    audiobuffer_loader,
+    audiostream_loader,
 }
 
 // Takes an object that looks like this:
@@ -106,7 +107,7 @@ function image_loader(group_name, name, path) {
     });
 }
 
-function audio_loader(group_name, name, path) {
+function audiobuffer_loader(group_name, name, path) {
     const audio_context = new AudioContext();
     return new Promise((resolve) => {
         //console.log( `image loading: ${name} => ${path} ...` );
@@ -117,7 +118,7 @@ function audio_loader(group_name, name, path) {
         request.open('GET', path);
         request.responseType = 'arraybuffer';
         request.onload = () => {
-            // console.log(`audio loading: ${name} => ${path} - DONE`);
+            // console.log(`audiobuffer loading: ${name} => ${path} - DONE`);
             audio_context.decodeAudioData(request.response,
                 (buffer) => { 
                     result[group_name][name] = buffer;
@@ -129,3 +130,17 @@ function audio_loader(group_name, name, path) {
     });
 }
 
+function audiostream_loader(group_name, name, path) {
+    return new Promise((resolve) => {
+        //console.log( `image loading: ${name} => ${path} ...` );
+        let audiostream = new Audio(path);
+        let result = {};
+        result[group_name] = {};
+        audiostream.oncanplay = () => {
+            audiostream.oncanplay = null;
+            console.log(`audiostream loaded: ${name} => ${path} - DONE`);
+            result[group_name][name] = audiostream;
+            resolve(result);
+        };
+    });
+}

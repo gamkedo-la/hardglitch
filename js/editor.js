@@ -370,7 +370,9 @@ function update(){
     }
 
     if (input.keyboard.is_just_down(79)) {
-        audio.playEvent('test');
+        audio.playEvent('streamtest');
+    } else if (input.keyboard.is_just_released(79)) {
+        audio.stopEvent('streamtest');
     }
 
     if(is_enabled)

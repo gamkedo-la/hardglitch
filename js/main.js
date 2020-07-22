@@ -25,7 +25,7 @@ const max_delta_time = 1000 / 26; // Always assume at worst that we are at 26fps
 window.onload = async function() {
   const assets = await load_all_assets();
   const canvas = graphics.initialize(assets);
-  audio.initialize(assets.audio);
+  audio.initialize(assets);
   input.initialize(canvas); // TODO: change that so that when we have different screens with different input situations
 
   new_game(); // TODO : call this function only once we start a new game.
