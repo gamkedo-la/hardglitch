@@ -15,6 +15,7 @@ import {
     FlashParticle,
     ThrobParticle
 } from "../system/particles.js";
+import { GameFx } from "../game-effects.js";
 import { random_int, random_float } from "../system/utility.js";
 import { Color } from "../system/color.js";
 import { initialize } from "../system/graphics.js";
@@ -185,6 +186,7 @@ class Env {
         this.particles = new ParticleSystem();
         this.particles.alwaysActive = true;
         this.tests = new Tests(this.particles);
+        GameFx.init(this.particles);
 
         //this.tests.blipfade(100,300);
         this.tests.fade(200,300);
@@ -197,6 +199,8 @@ class Env {
         this.tests.flash(800,300);
         this.tests.combo(900,300);
         this.tests.missile(1000,300);
+
+        GameFx.destruction({x:500,y:400});
 
     }
 
