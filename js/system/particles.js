@@ -136,6 +136,9 @@ class ParticleGroup {
     get done() {
         return this._done;
     }
+    set done(value) {
+        this._done = (value) ? true : false;
+    }
 
     *[Symbol.iterator]() {
         for (const item of this.items) {
@@ -236,6 +239,9 @@ class ParticleEmitter {
     get done() {
         return this._done;
     }
+    set done(value) {
+        this._done = (value) ? true : false;
+    }
 
     /**
      * run generator to emit particle
@@ -318,6 +324,9 @@ class ParticleSequence {
     get done() {
         return this._done;
     }
+    set done(value) {
+        this._done = (value) ? true : false;
+    }
 
     /**
      * update processing... this is where the sequence logic is run
@@ -380,6 +389,9 @@ class Particle {
      */
     get done() {
         return this._done;
+    }
+    set done(value) {
+        this._done = (value) ? true : false;
     }
 
 }

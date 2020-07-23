@@ -9,6 +9,7 @@ import { load_all_assets } from "./game-assets.js";
 import { Game } from "./game.js";
 import { GameView } from "./game-view.js";
 import { state, GameState as StateMachine } from "./game-states.js";
+import { GameFx } from "./game-effects.js";
 
 import * as input from "./system/input.js";
 import * as game_input from "./game-input.js";
@@ -111,4 +112,6 @@ function draw_everything() {
 function new_game() {
   current_game = new Game(make_test_world());
   current_game_view = new GameView(current_game);
+  // FIXME: find a better way to integrate?
+  GameFx.initialize(current_game_view.particle_system);
 }

@@ -186,7 +186,7 @@ class Env {
         this.particles = new ParticleSystem();
         this.particles.alwaysActive = true;
         this.tests = new Tests(this.particles);
-        GameFx.init(this.particles);
+        GameFx.initialize(this.particles);
 
         //this.tests.blipfade(100,300);
         this.tests.fade(200,300);
@@ -201,6 +201,8 @@ class Env {
         this.tests.missile(1000,300);
 
         GameFx.destruction({x:500,y:400});
+        let damageFx = GameFx.damage({x:600,y:400});
+        setTimeout(() => {damageFx.done = true;}, 1000);
 
     }
 

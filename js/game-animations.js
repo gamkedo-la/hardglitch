@@ -10,10 +10,6 @@ export {
     take_damage,
     repaired,
     missile,
-
-    test_missile_effect,
-    damage_effect,
-    destruction_effect,
 }
 
 import { graphic_position, EntityView, PIXELS_PER_HALF_SIDE, square_half_unit_vector, PIXELS_PER_TILES_SIDE } from "./view/entity-view.js";
@@ -28,6 +24,7 @@ import {
     RingParticle
 } from "./system/particles.js";
 import { GameView } from "./game-view.js";
+import { GameFx } from "./game-effects.js";
 import { random_int, random_float } from "./system/utility.js";
 
 const default_move_duration_ms = 250;
@@ -69,21 +66,11 @@ function* swap(left_entity_view, right_entity_view, duration_ms=default_move_dur
     );
 }
 
-// TODO: move me in an file where there are all the effects
-function destruction_effect(particle_system, position){
-    console.assert(particle_system instanceof ParticleSystem);
-    const effect = new SwirlPrefab(particle_system, 0.8, position.x, position.y);
-    effect.x = position.x; // FIXME: this is a workaround ParticleSequence not having a position, which means it cannot be active
-    effect.y = position.y; // FIXME: this is a workaround ParticleSequence not having a position, which means it cannot be active
-    particle_system.add(effect);
-    return effect;
-}
-
 function* destroyed(game_view, entity_view, duration_ms=default_destruction_duration_ms){
     console.assert(game_view instanceof GameView);
     console.assert(entity_view instanceof EntityView);
     // Center the sprite so that the rotation origin is in the center of it.
-    const effect = destruction_effect(game_view.particle_system, entity_view.position.translate(square_half_unit_vector));
+    const effect = GameFx.destruction(entity_view.position.translate(square_half_unit_vector));
     entity_view.sprite.move_origin_to_center();
     // WwhwhhiiiiiiiiiIIIIIIIIIiiiizzzzzzzzzzZZZZZZZZZZZZZ
     yield* tween( {
@@ -102,22 +89,7 @@ function* destroyed(game_view, entity_view, duration_ms=default_destruction_dura
             },
             easing.in_out_quad
     );
-    game_view.particle_system.remove(effect);
-}
-
-function damage_effect(particle_system, position){
-    console.assert(particle_system instanceof ParticleSystem);
-    const effect = new ParticleEmitter(particle_system, position.x, position.y, (emitter) => {
-        const xoff = random_int(-15,15);
-        const yoff = random_int(-15,15);
-        const width = random_int(20,40);
-        const hue = random_int(150, 250);
-        const ttl = .1;
-        return new FlashParticle(emitter.x + xoff, emitter.y + yoff, width, hue, ttl);
-    }, .1, 0, 0, 10);
-    particle_system.add(effect);
-    console.assert(particle_system.isActive(effect));
-    return effect;
+    effect.done = true;
 }
 
 function* take_damage(particle_system, entity_view){ // FIXME - not real animation
@@ -127,13 +99,13 @@ function* take_damage(particle_system, entity_view){ // FIXME - not real animati
     const intensity = 10;
     const time_per_move = Math.round(500 / 4);
     const initial_position = new Vector2(entity_view.position);
-    const effect = damage_effect(particle_system, initial_position.translate(square_half_unit_vector));
+    const effect = GameFx.damage(initial_position.translate(square_half_unit_vector));
     yield* translate(entity_view, initial_position.translate({ x: intensity, y: 0}), time_per_move);
     yield* translate(entity_view, initial_position.translate({ x: -intensity, y: 0}), time_per_move);
     yield* translate(entity_view, initial_position.translate({ x: 0, y: -intensity}), time_per_move);
     yield* translate(entity_view, initial_position.translate({ x: 0, y: intensity}), time_per_move);
     yield* translate(entity_view, initial_position, time_per_move);
-    particle_system.remove(effect);
+    effect.done = true;
 }
 
 function* repaired(entity_view){ // FIXME - not real animation
@@ -145,33 +117,10 @@ function* repaired(entity_view){ // FIXME - not real animation
     yield* translate(entity_view, initial_position, time_per_move);
 }
 
-
-function test_missile_effect(particle_system, position){
-    console.assert(particle_system instanceof ParticleSystem);
-    const effect = new ParticleEmitter(particle_system, position.x, position.y, (emitter) => {
-        let xoff = random_float(-15,15);
-        let yoff = random_float(-15,15);
-        let radius = random_int(8,16);
-        let ttl = random_float(.75,1.5);
-        let hue = random_int(200, 500);
-        return new RingParticle(emitter.x+xoff, emitter.y+yoff, radius, hue, ttl, 10);
-    }, 1 / 16, 25);
-    particle_system.add(effect);
-    console.assert(particle_system.isActive(effect));
-    return effect;
-}
-
 function* missile(missile_effect, target_gfx_position){
-    missile_effect.x += square_half_unit_vector.x;
-    missile_effect.y += square_half_unit_vector.y;
-    const missile = new class {
-        get position() { return new Vector2({ x: missile_effect.x , y: missile_effect.y }); }
-        set position(new_pos) {
-            missile_effect.x = new_pos.x;
-            missile_effect.y = new_pos.y;
-        }
-    };
+    missile_effect.position.translate(square_half_unit_vector);
     const speed = 4.0; // squares per seconds
-    const duration = ((target_gfx_position.distance(missile.position) / PIXELS_PER_TILES_SIDE) / speed) * 1000;
-    yield* translate(missile, target_gfx_position.translate(square_half_unit_vector), duration);
+    const duration = ((target_gfx_position.distance(missile_effect.position) / PIXELS_PER_TILES_SIDE) / speed) * 1000;
+    yield* translate(missile_effect, target_gfx_position.translate(square_half_unit_vector), duration);
+    missile_effect.done = true;
 }
