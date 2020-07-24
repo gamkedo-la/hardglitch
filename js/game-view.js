@@ -34,6 +34,7 @@ import { FogOfWar } from "./view/fogofwar.js";
 import { tween, easing } from "./system/tweening.js";
 import { TakeItem } from "./rules/rule-takeitem.js";
 import { ParticleSystem } from "./system/particles.js";
+import { GameFxView } from "./game-effects.js";
 
 const a_very_long_time = 99999999999999;
 
@@ -115,7 +116,7 @@ class Highlight{
 class GameView {
     entity_views = {};
     is_time_for_player_to_chose_action = true;
-    particle_system = new ParticleSystem();
+    fx_view = new GameFxView();
     current_animations = new anim.AnimationGroup(); // Plays animations that have started.
     skipped_animations = new anim.AnimationGroup(); // Plays animations that needs to be done in one update.
     camera_animations = new anim.AnimationGroup(); // Plays camera animations.
@@ -315,7 +316,7 @@ class GameView {
         this._update_animations(delta_time);
         this._update_entities(delta_time);
 
-        this.particle_system.update(delta_time);
+        this.fx_view.update(delta_time);
 
         this.fog_of_war.update(delta_time);
 
@@ -508,7 +509,7 @@ class GameView {
 
         this.tile_grid.draw_surface(graphics.screen_canvas_context, visibility_predicate);
         this.tile_grid.draw_effects(graphics.screen_canvas_context, effect_visibility_predicate);
-        this.particle_system.draw(graphics.screen_canvas_context, effect_visibility_predicate);
+        this.fx_view.draw(graphics.screen_canvas_context, effect_visibility_predicate);
 
         if(this.enable_fog_of_war){
             this.fog_of_war.display(graphics.screen_canvas_context, this.tile_grid.canvas_context);

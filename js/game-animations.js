@@ -16,16 +16,8 @@ import { graphic_position, EntityView, PIXELS_PER_HALF_SIDE, square_half_unit_ve
 import { tween, easing } from "./system/tweening.js";
 import { in_parallel } from "./system/animation.js";
 import { Vector2 } from "./system/spatial.js";
-import {
-    ParticleSystem,
-    SwirlPrefab,
-    ParticleEmitter,
-    FlashParticle,
-    RingParticle
-} from "./system/particles.js";
 import { GameView } from "./game-view.js";
-import { GameFx } from "./game-effects.js";
-import { random_int, random_float } from "./system/utility.js";
+import { GameFxView } from "./game-effects.js";
 
 const default_move_duration_ms = 250;
 const default_destruction_duration_ms = 666;
@@ -70,7 +62,7 @@ function* destroyed(game_view, entity_view, duration_ms=default_destruction_dura
     console.assert(game_view instanceof GameView);
     console.assert(entity_view instanceof EntityView);
     // Center the sprite so that the rotation origin is in the center of it.
-    const effect = GameFx.destruction(entity_view.position.translate(square_half_unit_vector));
+    const effect = game_view.fx_view.destruction(entity_view.position.translate(square_half_unit_vector));
     entity_view.sprite.move_origin_to_center();
     // WwhwhhiiiiiiiiiIIIIIIIIIiiiizzzzzzzzzzZZZZZZZZZZZZZ
     yield* tween( {
@@ -92,14 +84,14 @@ function* destroyed(game_view, entity_view, duration_ms=default_destruction_dura
     effect.done = true;
 }
 
-function* take_damage(particle_system, entity_view){ // FIXME - not real animation
-    console.assert(particle_system instanceof ParticleSystem);
+function* take_damage(fx_view, entity_view){ // FIXME - not real animation
+    console.assert(fx_view instanceof GameFxView);
     console.assert(entity_view instanceof EntityView);
     // WwhwhhiiiiiiiiiIIIIIIIIIiiiizzzzzzzzzzZZZZZZZZZZZZZ
     const intensity = 10;
     const time_per_move = Math.round(500 / 4);
     const initial_position = new Vector2(entity_view.position);
-    const effect = GameFx.damage(initial_position.translate(square_half_unit_vector));
+    const effect = fx_view.damage(initial_position.translate(square_half_unit_vector));
     yield* translate(entity_view, initial_position.translate({ x: intensity, y: 0}), time_per_move);
     yield* translate(entity_view, initial_position.translate({ x: -intensity, y: 0}), time_per_move);
     yield* translate(entity_view, initial_position.translate({ x: 0, y: -intensity}), time_per_move);
@@ -118,7 +110,7 @@ function* repaired(entity_view){ // FIXME - not real animation
 }
 
 function* missile(missile_effect, target_gfx_position){
-    missile_effect.position.translate(square_half_unit_vector);
+    missile_effect.position = missile_effect.position.translate(square_half_unit_vector);
     const speed = 4.0; // squares per seconds
     const duration = ((target_gfx_position.distance(missile_effect.position) / PIXELS_PER_TILES_SIDE) / speed) * 1000;
     yield* translate(missile_effect, target_gfx_position.translate(square_half_unit_vector), duration);

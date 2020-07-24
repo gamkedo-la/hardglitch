@@ -15,7 +15,7 @@ import {
     FlashParticle,
     ThrobParticle
 } from "../system/particles.js";
-import { GameFx } from "../game-effects.js";
+import { GameFx, GameFxView } from "../game-effects.js";
 import { random_int, random_float } from "../system/utility.js";
 import { Color } from "../system/color.js";
 import { initialize } from "../system/graphics.js";
@@ -186,7 +186,8 @@ class Env {
         this.particles = new ParticleSystem();
         this.particles.alwaysActive = true;
         this.tests = new Tests(this.particles);
-        GameFx.initialize(this.particles);
+        this.gfx = new GameFxView();
+        this.gfx.particleSystem.alwaysActive = true;
 
         //this.tests.blipfade(100,300);
         this.tests.fade(200,300);
@@ -200,8 +201,8 @@ class Env {
         this.tests.combo(900,300);
         this.tests.missile(1000,300);
 
-        GameFx.destruction({x:500,y:400});
-        let damageFx = GameFx.damage({x:600,y:400});
+        this.gfx.destruction({x:500,y:400});
+        let damageFx = this.gfx.damage({x:600,y:400});
         setTimeout(() => {damageFx.done = true;}, 1000);
 
     }
@@ -215,6 +216,8 @@ class Env {
         // run particle system update
         this.particles.update(delta_time);
         this.particles.draw(this.ctx);
+        this.gfx.update(delta_time);
+        this.gfx.draw(this.ctx);
     }
 
     setup() {
