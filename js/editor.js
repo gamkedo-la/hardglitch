@@ -155,7 +155,7 @@ function update_world_edition(){
 
     // EDIT TILES
     if(input.mouse.buttons.is_down(input.MOUSE_BUTTON.LEFT)){
-        world_was_edited = world_was_edited || change_pointed_tile_if_key_down(KEY.NUMBER_0, undefined);
+        world_was_edited = world_was_edited || change_pointed_tile_if_key_down(KEY.NUMBER_0, tiles.ID.HOLE);
         world_was_edited = world_was_edited || change_pointed_tile_if_key_down(KEY.NUMBER_1, tiles.ID.GROUND);
         world_was_edited = world_was_edited || change_pointed_tile_if_key_down(KEY.NUMBER_2, tiles.ID.WALL);
         world_was_edited = world_was_edited || change_pointed_tile_if_key_down(KEY.NUMBER_3, tiles.ID.VOID);

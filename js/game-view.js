@@ -583,7 +583,7 @@ class GameView {
 
     help_text_at(position){
         // TODO: consider displaying more than just the thing pointed on top.
-        let help_text = "Hole"; // FIXMIE: This is a hack while "HOLE" have an undefined id.
+        let help_text = "UNKOWN";
         const things_found = this.game.world.everything_at(position);
         while(things_found.length){
             const entity_or_tileid = things_found.pop();

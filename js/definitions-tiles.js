@@ -18,6 +18,7 @@ const ID = {
     GROUND: 10,
     WALL: 20,
     VOID: 30,
+    HOLE: 40,
 };
 
 

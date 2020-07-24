@@ -159,7 +159,6 @@ function make_test_world(){ // The game assets must have been initialized first.
         .filter(position => world.is_valid_position(position))
         .forEach(position=>{
             set_floor_tile(position, tiles.ID.GROUND);
-            set_surface_tile(position, undefined);
             world.remove_entity_at(position);
         });
 
@@ -181,7 +180,7 @@ function make_test_world(){ // The game assets must have been initialized first.
         });
 
     //// Border of the world
-    const world_border_tile = undefined;
+    const world_border_tile = tiles.ID.HOLE;
     for(let x = 0; x < world.width; ++x){
         set_floor_tile({x, y:0}, world_border_tile);
         set_floor_tile({x, y:world.height -1}, world_border_tile);

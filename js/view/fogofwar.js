@@ -10,9 +10,6 @@ import { index_from_position, position_from_index } from "../system/utility.js";
 import * as assets from "../game-assets.js";
 import * as concepts from "../core/concepts.js";
 
-const visibility_sprites_defs = {
-    [false] : assets.sprite_defs.void,  // When we cannot see there
-};
 
 class FogOfWar {
 
@@ -71,7 +68,7 @@ class FogOfWar {
                 .forEach(position =>{
                     const idx = this.index(position);
                     this.viewed_at_least_once_grid[idx] = true;
-                    this.current_visibility_grid[idx] = undefined;
+                    this.current_visibility_grid[idx] = true;
                 });
         })
 
@@ -97,13 +94,13 @@ class FogOfWar {
 
     is_visible(...positions){
         return positions.every(position => this.world.is_valid_position(position)
-                                        && this.current_visibility_grid[this.index(position)] === undefined
+                                        && this.current_visibility_grid[this.index(position)] === true
                                         );
     }
 
     is_any_visible(...positions){
         return positions.some(position => this.world.is_valid_position(position)
-                                        && this.current_visibility_grid[this.index(position)] === undefined);
+                                        && this.current_visibility_grid[this.index(position)] === true);
     }
 
     was_visible(...positions){
