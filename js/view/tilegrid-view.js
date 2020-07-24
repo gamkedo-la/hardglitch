@@ -13,10 +13,9 @@ import { SeamSelector, genFloorOverlay, genFgOverlay } from "./tile-select.js";
 import * as graphics from "../system/graphics.js";
 import { Vector2 } from "../system/spatial.js";
 import { PIXELS_PER_TILES_SIDE, PIXELS_PER_HALF_SIDE } from "./entity-view.js";
-import { ParticleGroup, ParticleSystem, ParticleEmitter, FadeLineParticle, BlipParticle, FadeParticle, BlipEdgeParticle } from "../system/particles.js";
 import { TileGraphBuilder } from "./particle-graph.js";
-import { random_int, random_float, position_from_index } from "../system/utility.js";
-import { Color } from "../system/color.js";
+import { GameFxView } from "../game-effects.js";
+import { position_from_index } from "../system/utility.js";
 
 // Display tiles.
 class TileGridView {
@@ -57,144 +56,9 @@ class TileGridView {
         }
     }
 
-    addExitParticles(x, y) {
-
-        let g = new ParticleGroup();
-        this.particles.add(g);
-        this.particles.add(new ParticleEmitter(this.particles, x, y, () => {
-            let xoff = random_float(-25,25);
-            let yoff = random_float(-25,25);
-            let velocity = random_float(30,60);
-            let ttl = random_float(.3, 1.5);
-            return new BlipParticle(x+xoff, y+yoff, g, 0, -velocity, ttl, 10);
-        }, .2, 25));
-
-        this.particles.add(new ParticleEmitter(this.particles, x, y, () => {
-            let xoff = random_float(-25,25);
-            let yoff = random_float(-25,25);
-            let velocity = random_float(30,90);
-            let ttl = random_float(.3,1);
-            let len = random_float(10,50);
-            let width = random_float(1,5);
-            return new FadeLineParticle(x+xoff, y+yoff, 0, -velocity, new Color(0,255,0), ttl, len, width, 0, 1);
-        }, .3, 25));
-
-    }
-
-    voidSeams = {
-        t:      [new Vector2({x:0,y:9}), new Vector2({x:31,y:9})],
-        ttls:   [new Vector2({x:0,y:9}), new Vector2({x:31,y:9})],
-        rtte:   [new Vector2({x:0,y:9}), new Vector2({x:31,y:9})],
-        ttl:    [new Vector2({x:22,y:9}), new Vector2({x:31,y:9}), new Vector2({x:9,y:22}), new Vector2({x:22,y:9}), new Vector2({x:9,y:31}), new Vector2({x:9,y:22}), ],
-        ttlc:   [new Vector2({x:22,y:0}), new Vector2({x:22,y:9}), new Vector2({x:22,y:9}), new Vector2({x:9,y:22}), new Vector2({x:9,y:22}), new Vector2({x:0,y:22}), ],
-        ttle:   [new Vector2({x:9,y:31}), new Vector2({x:9,y:0})],
-        l:      [new Vector2({x:9,y:31}), new Vector2({x:9,y:0})],
-        ltts:   [new Vector2({x:0,y:31}), new Vector2({x:9,y:22}), new Vector2({x:9,y:22}), new Vector2({x:9,y:0}), ],
-        ltte:   [new Vector2({x:0,y:9}), new Vector2({x:22,y:9}), new Vector2({x:22,y:9}), new Vector2({x:31,y:0}), ],
-        ltbs:   [new Vector2({x:9,y:31}), new Vector2({x:9,y:0})],
-        ltb:    [new Vector2({x:31,y:22}), new Vector2({x:22,y:22}), new Vector2({x:22,y:22}), new Vector2({x:9,y:9}), new Vector2({x:9,y:9}), new Vector2({x:9,y:0}), ],
-        ltbc:   [new Vector2({x:0,y:9}), new Vector2({x:9,y:9}), new Vector2({x:9,y:9}), new Vector2({x:22,y:22}), new Vector2({x:22,y:22}), new Vector2({x:22,y:31}), ],
-        ltbe:   [new Vector2({x:31,y:22}), new Vector2({x:0,y:22})],
-        b:      [new Vector2({x:31,y:22}), new Vector2({x:0,y:22})],
-        btls:   [new Vector2({x:31,y:31}), new Vector2({x:22,y:22}), new Vector2({x:22,y:22}), new Vector2({x:0,y:22}), ],
-        btle:   [new Vector2({x:9,y:31}), new Vector2({x:9,y:9}), new Vector2({x:9,y:9}), new Vector2({x:0,y:0}), ],
-        btrs:   [new Vector2({x:31,y:22}), new Vector2({x:0,y:22})],
-        btr:    [new Vector2({x:22,y:0}), new Vector2({x:22,y:9}), new Vector2({x:22,y:9}), new Vector2({x:9,y:22}), new Vector2({x:9,y:22}), new Vector2({x:0,y:22}), ],
-        btrc:   [new Vector2({x:22,y:9}), new Vector2({x:31,y:9}), new Vector2({x:9,y:22}), new Vector2({x:22,y:9}), new Vector2({x:9,y:31}), new Vector2({x:9,y:22}), ],
-        btre:   [new Vector2({x:22,y:0}), new Vector2({x:22,y:31})],
-        r:      [new Vector2({x:22,y:0}), new Vector2({x:22,y:31})],
-        rtbs:   [new Vector2({x:31,y:0}), new Vector2({x:22,y:9}), new Vector2({x:22,y:9}), new Vector2({x:22,y:31}), ],
-        rtbe:   [new Vector2({x:31,y:22}), new Vector2({x:9,y:22}), new Vector2({x:9,y:22}), new Vector2({x:0,y:31}), ],
-        rtts:   [new Vector2({x:22,y:0}), new Vector2({x:22,y:31})],
-        rtt:    [new Vector2({x:0,y:9}), new Vector2({x:9,y:9}), new Vector2({x:9,y:9}), new Vector2({x:22,y:22}), new Vector2({x:22,y:22}), new Vector2({x:22,y:31}), ],
-        rttc:   [new Vector2({x:31,y:22}), new Vector2({x:22,y:22}), new Vector2({x:22,y:22}), new Vector2({x:9,y:9}), new Vector2({x:9,y:9}), new Vector2({x:9,y:0}), ],
-        rtte:   [new Vector2({x:0,y:9}), new Vector2({x:31,y:9})],
-        ttrs:   [new Vector2({x:0,y:0}), new Vector2({x:9,y:9}), new Vector2({x:9,y:9}), new Vector2({x:31,y:9}), ],
-        ttre:   [new Vector2({x:22,y:0}), new Vector2({x:22,y:22}), new Vector2({x:22,y:22}), new Vector2({x:31,y:31}), ],
-    };
-
-    vemitterCount = 0;
-
-    addVoidParticles(size, idx, floor_grid) {
-        let coords = position_from_index(size.x, size.y, idx);
-        // compute i,j indices from idx
-        let i = coords.x;
-        let j = coords.y;
-        for (let si=i*2; si<=(i*2+1); si++) {
-            for (let sj=j*2; sj<=(j*2+1); sj++) {
-                // position is upper-left corner of subtile in world coords
-                let pos = new Vector2({x: PIXELS_PER_HALF_SIDE*si, y: PIXELS_PER_HALF_SIDE * sj});
-                // tile offset
-                let toff = new Vector2({x: PIXELS_PER_HALF_SIDE*(si-i*2), y: PIXELS_PER_HALF_SIDE*(sj-j*2)});
-                // center relative to 0,0
-                let center = new Vector2({x: PIXELS_PER_HALF_SIDE, y: PIXELS_PER_HALF_SIDE});
-                // lookup floor subtile
-                let floor = floor_grid.get_at(si, sj);
-                if (!floor || floor.length < 8) continue;
-                // lookup void seams for specific void tile
-                floor = floor.slice(9);
-                let seams = this.voidSeams[floor];
-                if (!seams || !seams.length) continue;
-                // iterate through each void seam
-                let seamsFactor = seams.length/2;
-                for (let seamIdx=0; seamIdx<seams.length-1; seamIdx+=2) {
-                    // seam endpoints
-                    let pt1 = seams[seamIdx];
-                    let pt2 = seams[seamIdx+1];
-                    // directional vector from pt1 to pt2
-                    let dir12 = pt2.substract(pt1);
-                    let l12 = dir12.length;
-                    // direction vector towards center
-                    let dirc = new Vector2({x: dir12.y, y: -dir12.x});
-                    this.particles.add(new ParticleEmitter(this.particles, pos.x, pos.y, () => {
-                        // compute startpoint
-                        let off = new Vector2(dir12);
-                        off.length = random_float(0,l12);
-                        let sx = pos.x + pt1.x + off.x;
-                        let sy = pos.y + pt1.y + off.y;
-                        // compute directional vector from startpoint to center
-                        let velocity = new Vector2(dirc);
-                        velocity.length = random_float(30,45);
-                        let size = random_float(.5,1.5);
-                        let ttl = random_float(.3,1);
-                        return new FadeParticle(sx, sy, -velocity.x, -velocity.y, size, new Color(0,222,0), ttl);
-                    }, .3*seamsFactor, 25));
-                    this.vemitterCount++;
-                }
-            }
-        }
-    }
-
-    addBlip(x,y,tile) {
-        // add tile verts/edges to graph
-        let verts = this.gb.addTile(x, y, tile);
-        if (!verts) return;
-        // create one random blip per tile
-        let idx = random_int(0,(verts.length/2)-1)*2;
-        // lookup graph
-        let graph = this.gb.getGraph(verts[idx]);
-        let group = this.gb.getGroup(graph);
-        let blip;
-        //let speed = random_int(40,90);
-        let speed = 60;
-        let radius = 2;
-        let nextEdgeFcn = (v1, v2) => {
-            let g = this.gb.getGraph(v1);
-            if (g) return g.getRandEdge(v1, v2);
-            return undefined;
-        };
-        if (Math.random() > .5) {
-            blip = new BlipEdgeParticle(verts[idx], verts[idx+1], radius, speed, group, nextEdgeFcn);
-        } else {
-            blip = new BlipEdgeParticle(verts[idx+1], verts[idx], radius, speed, group, nextEdgeFcn);
-        }
-        if (group) group.add(blip);
-        this.particles.add(blip);
-    }
-
     reset(position, size, ground_tile_grid, surface_tile_grid){
-        // initialize particle system
-        this.particles = new ParticleSystem();
+        // initialize game fx view
+        this.fx_view = new GameFxView();
         console.assert(position instanceof Vector2);
         console.assert(size instanceof Vector2 && size.x > 2 && size.y > 2);
         this.position = position;
@@ -237,13 +101,21 @@ class TileGridView {
         for (let i=0; i<surface_tile_grid.elements.length; i++) {
             if (surface_tile_grid.elements[i] == tiledefs.ID.EXIT) {
                 let pos = position_from_index(size.x, size.y, i);
-                this.addExitParticles(pos.x*PIXELS_PER_TILES_SIDE + PIXELS_PER_HALF_SIDE, pos.y*PIXELS_PER_TILES_SIDE + PIXELS_PER_HALF_SIDE);
+                this.fx_view.exitPortal({x: pos.x*PIXELS_PER_TILES_SIDE + PIXELS_PER_HALF_SIDE, y: pos.y*PIXELS_PER_TILES_SIDE + PIXELS_PER_HALF_SIDE});
             }
             if (ground_tile_grid.elements[i] == tiledefs.ID.VOID) {
-                this.addVoidParticles(size, i, bg_grid);
+                let coords = position_from_index(size.x, size.y, i);
+                for (let si=coords.x*2; si<=(coords.x*2+1); si++) {
+                    for (let sj=coords.y*2; sj<=(coords.y*2+1); sj++) {
+                        let pos = new Vector2({x: PIXELS_PER_HALF_SIDE*si, y: PIXELS_PER_HALF_SIDE * sj});
+                        let floor = bg_grid.get_at(si, sj);
+                        if (!floor || floor.length < 8) continue;
+                        let tileid = floor.slice(9);  // lvlx_bg_<id>
+                        this.fx_view.voidEdge(pos, tileid);
+                    }
+                }
             }
         }
-        // console.log("void emitters: " + this.vemitterCount);
         // iterate through fg grid
         let addblip = true;
         if (addblip) {
@@ -252,7 +124,7 @@ class TileGridView {
                 let id = fg_grid.elements[i];
                 if (!id) continue;
                 id = id.slice(8);
-                this.addBlip(pos.x*PIXELS_PER_HALF_SIDE, pos.y*PIXELS_PER_HALF_SIDE, id);
+                this.fx_view.edgeBlip({x: pos.x*PIXELS_PER_HALF_SIDE, y:pos.y*PIXELS_PER_HALF_SIDE}, this.gb, id);
             }
         }
 
@@ -303,8 +175,8 @@ class TileGridView {
                               || this.surface_tile_grid.redraw_requested
                               ;
 
-        // particles
-        this.particles.update(delta_time);
+        // fx
+        this.fx_view.update(delta_time);
 
     }
 
@@ -322,8 +194,9 @@ class TileGridView {
 
     draw_effects(canvas_context, position_predicate){
         // particles
-        if(config.enable_particles)
-            this.particles.draw(canvas_context, position_predicate);
+        if(config.enable_particles) {
+            this.fx_view.draw(canvas_context, position_predicate);
+        }
     }
 
     _draw_offscreen_canvas(canvas_context, offscreen_canvas_context){
