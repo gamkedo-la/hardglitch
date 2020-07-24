@@ -364,7 +364,7 @@ class World
             return true;
 
         const surface_tile = this._surface_tile_grid.get_at(position);
-        if(surface_tile && !predicate_tile_is_blocking(surface_tile))
+        if(surface_tile && predicate_tile_is_blocking(surface_tile))
             return true;
 
         if(this.body_at(position))
@@ -419,7 +419,7 @@ class World
             this._surface_tile_grid.get_at(position),
             this._floor_tile_grid.get_at(position),
         ];
-        return things.filter(thing => thing != undefined);
+        return things.filter(thing => thing !== undefined && thing !== null);
     }
 
     everything_at(position){
@@ -430,7 +430,7 @@ class World
             this.item_at(position),
             this.body_at(position),
         ];
-        return things.filter(thing => thing != undefined);
+        return things.filter(thing => thing !== undefined && thing !== null);
     }
 
 };
