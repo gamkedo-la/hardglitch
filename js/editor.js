@@ -342,14 +342,14 @@ function update(){
     if(input.keyboard.is_just_down(KEY.RIGHT_BRACKET)){
         current_game.turn_info.player_character.stats.view_distance.increase(1);
         current_game.turn_info.player_character.update_perception(current_game.world);
-        current_game_view.fog_of_war.refresh();
+        current_game_view.fog_of_war.refresh(current_game.world);
         current_game_view._require_tiles_update = true;
     }
 
     if(input.keyboard.is_just_down(KEY.LEFT_BRACKET)){
         current_game.turn_info.player_character.stats.view_distance.decrease(1);
         current_game.turn_info.player_character.update_perception(current_game.world);
-        current_game_view.fog_of_war.refresh();
+        current_game_view.fog_of_war.refresh(current_game.world);
         current_game_view._require_tiles_update = true;
     }
 
