@@ -117,7 +117,6 @@ class GameView {
     entity_views = {};
     is_time_for_player_to_chose_action = true;
     fx_view = new GameFxView();
-    particle_system = new ParticleSystem();
     current_animations = new anim.AnimationGroup(); // Plays animations that have started.
     skipped_animations = new anim.AnimationGroup(); // Plays animations that needs to be done in one update.
     camera_animations = new anim.AnimationGroup(); // Plays camera animations.
@@ -317,7 +316,6 @@ class GameView {
         this._update_animations(delta_time);
         this._update_entities(delta_time);
 
-        this.particle_system.update(delta_time);
         this.fx_view.update(delta_time);
 
         this.fog_of_war.update(delta_time);
@@ -511,7 +509,6 @@ class GameView {
 
         this.tile_grid.draw_surface(graphics.screen_canvas_context, visibility_predicate);
         this.tile_grid.draw_effects(graphics.screen_canvas_context, effect_visibility_predicate);
-        this.particle_system.draw(graphics.screen_canvas_context, effect_visibility_predicate);
         this.fx_view.draw(graphics.screen_canvas_context, effect_visibility_predicate);
 
         if(this.enable_fog_of_war){

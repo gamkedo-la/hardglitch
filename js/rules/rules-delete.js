@@ -31,7 +31,6 @@ class Deleted extends concepts.Event {
     *animation(game_view){
         const missile_effect = game_view.fx_view.missile(graphic_position(this.deleter_position));
         yield* missile(missile_effect, graphic_position(this.deleted_position));
-        game_view.particle_system.remove(missile_effect);
     }
 };
 
