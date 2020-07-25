@@ -25,6 +25,9 @@ class TileGridView {
 
     constructor(position, size, ground_tile_grid, surface_tile_grid){
         this.reset(position, size, ground_tile_grid, surface_tile_grid);
+        this._offscreen_floor_canvas_context = this._create_offscreen_canvas_context();
+        this._offscreen_surface_canvas_context = this._create_offscreen_canvas_context();
+        this._offscreen_canvas_context = this._create_offscreen_canvas_context();
     }
 
     get enable_grid_lines() { return this._enable_grid_lines; }
@@ -141,11 +144,7 @@ class TileGridView {
             this.ground_tile_grid = new graphics.TileGrid(position, size, PIXELS_PER_TILES_SIDE, tiledefs.sprite_defs, ground_tile_grid.elements);
             this.surface_tile_grid = new graphics.TileGrid(position, size, PIXELS_PER_TILES_SIDE, tiledefs.sprite_defs, ground_tile_grid.elements);
         }
-        this.ground_tile_grid.enable_draw_background = true; // display the background
 
-        this._offscreen_floor_canvas_context = this._create_offscreen_canvas_context();
-        this._offscreen_surface_canvas_context = this._create_offscreen_canvas_context();
-        this._offscreen_canvas_context = this._create_offscreen_canvas_context();
         this._redraw_floor_requested = true;
         this._redraw_surface_requested = true;
     }
