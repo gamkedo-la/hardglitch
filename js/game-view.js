@@ -430,12 +430,14 @@ class GameView {
 
     get list_entity_views() { return Object.values(this.entity_views); }
 
-    _render_entities(){
+    _render_entities(filter){
+        console.assert(filter instanceof Function);
         // We need to render the entities in order of verticality so that things souther
         // than other things can be drawn over, allowing to display higher sprites.
-        const entity_views = this.list_entity_views;
-        entity_views.sort((left_view, right_view) => left_view.position.y - right_view.position.y);
-        entity_views.map(view => view.render_graphics());
+        this.list_entity_views
+            .filter(filter)
+            .sort((left_view, right_view) => left_view.position.y - right_view.position.y)
+            .map(view => view.render_graphics());
     }
 
     _update_highlights(delta_time){
@@ -505,17 +507,18 @@ class GameView {
         this.tile_grid.draw_floor(graphics.screen_canvas_context, visibility_predicate);
 
         this._render_ground_highlights();
-        this._render_entities();
+
+        this._render_entities(entity_view => !entity_view.is_flying);
 
         this.tile_grid.draw_surface(graphics.screen_canvas_context, visibility_predicate);
         this.tile_grid.draw_effects(graphics.screen_canvas_context, effect_visibility_predicate);
         this.fx_view.draw(graphics.screen_canvas_context, effect_visibility_predicate);
 
+        this._render_entities(entity_view => entity_view.is_flying);
+
         if(this.enable_fog_of_war){
             this.fog_of_war.display(graphics.screen_canvas_context, this.tile_grid.canvas_context);
         }
-
-
 
         this._render_top_highlights();
 
