@@ -22,6 +22,7 @@ let is_editing = false; // True if we are doing an edition manipulation and no o
 
 let was_fog_of_war_activated = true;
 
+let display_help_info = false;
 let display_mouse_info = false;
 let display_character_info = false;
 
@@ -176,13 +177,19 @@ function update_world_edition(){
 const help_text_x_from_right_side = 500;
 
 function display_help(){
+
     const canvas_rect = graphics.canvas_rect();
     const display_x = canvas_rect.bottom_right.x - help_text_x_from_right_side;
 
-    let line = 100;
+    let line = 10;
     function next_line(){
         return line += 30;
     }
+
+    draw_text("[F1]  - HELP", {x: display_x, y: next_line() });
+    if(!display_help_info)
+        return;
+
 
     if(current_game_view.ui.is_selecting_action_target){
         draw_text("[ESC] - CANCEL TARGET SELECTION", {x: display_x, y: next_line() });
@@ -217,13 +224,18 @@ function display_editor_help(){
     const canvas_rect = graphics.canvas_rect();
     const display_x = canvas_rect.bottom_right.x - help_text_x_from_right_side;
 
-    let line = 100;
+    let line = 10;
     function next_line(){
         return line += 30;
     }
 
+
     if(!input.mouse.is_dragging)
-        draw_text("[ESC] - EXIT EDITOR MODE", {x: display_x, y: next_line() });
+
+    draw_text("[F1]  - HELP", {x: display_x, y: next_line() });
+    draw_text("[ESC] - EXIT EDITOR MODE", {x: display_x, y: next_line() });
+    if(!display_help_info)
+        return;
 
     draw_text("[F8]  - SHOW/HIDE FOV", {x: display_x, y: next_line() });
     draw_text("[F9]  - MOUSE INFO", {x: display_x, y: next_line() });
@@ -311,6 +323,10 @@ function display(){
 }
 
 function update(){
+
+    if(input.keyboard.is_just_down(KEY.F1)){
+        display_help_info = !display_help_info;
+    }
 
     if(input.keyboard.is_just_down(KEY.F9)){
         display_mouse_info = !display_mouse_info;
