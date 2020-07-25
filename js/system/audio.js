@@ -3,9 +3,10 @@ export {
     playEvent,
     pauseEvent,
     stopEvent,
+    toggleMute,
 };
 
-
+let muted = false;
 let audio_context, mix_groups, audio_buffers, audio_streams, events;
 
 function initialize(assets) {
@@ -38,6 +39,18 @@ function pauseEvent(name) {
 
 function stopEvent(name) {
     events[name].stop();
+}
+
+function toggleMute() {
+    if (!muted) {
+        mix_groups.Master.disconnect();
+        muted = true;
+        console.log("Audio muted.")
+    } else {
+        mix_groups.Master.connect(audio_context.destination);
+        muted = false;
+        console.log("Audio unmuted.")
+    }
 }
 
 // Audio Event Classes

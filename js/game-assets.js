@@ -187,6 +187,7 @@ const sprite_defs = {
 
     button_cancel_action_target_selection: test_button,
     button_select_action: test_button,
+    button_mute_audio: test_button,
 
     icon_action_corrupt: icon_def_from_image("icon_corrupt"),
     icon_action_delete: icon_def_from_image("icon_delete"),
