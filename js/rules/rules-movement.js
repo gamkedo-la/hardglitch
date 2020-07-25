@@ -101,7 +101,32 @@ class Rule_Movements extends concepts.Rule {
 
 };
 
+class Jumped extends concepts.Event {
+    constructor(entity, from_pos, to_pos, duration) {
+        console.assert(entity instanceof concepts.Entity);
+        console.assert(from_pos instanceof concepts.Position);
+        console.assert(to_pos instanceof concepts.Position);
+        super({
+            allow_parallel_animation: false,
+            description: `Entity ${entity.id} Jumped from ${JSON.stringify(from_pos)} to ${JSON.stringify(to_pos)}`
+        });
+        this.entity_id = entity.id;
+        this.from_pos = from_pos;
+        this.to_pos = to_pos;
+        this.duration = duration;
+    }
 
+    get focus_positions() { return [ this.from_pos, this.to_pos ]; }
+
+    *animation(game_view){
+        console.assert(game_view instanceof GameView);
+        const entity_view = game_view.get_entity_view(this.entity_id);
+        console.assert(entity_view instanceof EntityView);
+        console.assert(this.to_pos instanceof concepts.Position);
+        yield* animations.jump(game_view.fx_view, entity_view, this.to_pos);
+    }
+
+};
 
 class Jump extends concepts.Action {
     icon_def = sprite_defs.icon_action_move;
@@ -115,11 +140,11 @@ class Jump extends concepts.Action {
         console.assert(character instanceof Character);
         const initial_pos = character.position;
         character.position = this.target_position;
-        const move_event = new Moved(character, initial_pos, this.target_position, 666);
+        const move_event = new Jumped(character, initial_pos, this.target_position, 666);
         move_event.allow_parallel_animation = false; // Never mix a jump animation with other moves.
         return [move_event]; // TODO: implement a different event, with a different animation
     }
-}
+};
 
 class Rule_Jump extends concepts.Rule {
     range = new visibility.Range_Cross_Star(3, 4);
@@ -170,7 +195,7 @@ class Swaped extends concepts.Event {
         console.assert(this.pos_a.equals(entity_a_view.game_position));
         console.assert(this.pos_b.equals(entity_b_view.game_position));
 
-        yield* animations.swap(entity_a_view, entity_b_view, animations.default_move_duration_ms * 2);
+        yield* animations.swap(game_view.fx_view, entity_a_view, entity_b_view, animations.default_move_duration_ms * 2);
     }
 
 };

@@ -1,9 +1,9 @@
 export { GameFx, GameFxView };
 
-import { 
+import {
     ParticleSystem,
-    ParticleEmitter, 
-    ParticleGroup, 
+    ParticleEmitter,
+    ParticleGroup,
     SwirlParticle,
     FlashParticle,
     RingParticle,
@@ -73,7 +73,7 @@ class GameFxView {
                 return new SwirlParticle(position.x, position.y, hue, speed, radius, width, collapse, pttl);
             }, pstreamInterval, pstreamVar, pstream, ttl*.25);
         particles.add(trickleEmitter);
-        
+
         // create fx wrapper
         let fx = new GameFx(position);
         fx.sentinels.push(collapse);

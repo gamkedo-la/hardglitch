@@ -9,8 +9,8 @@ import * as concepts from "../core/concepts.js";
 import * as visibility from "../core/visibility.js";
 import { sprite_defs } from "../game-assets.js";
 import { Damaged } from "./destruction.js";
-import { missile } from "../game-animations.js";
 import { graphic_position } from "../view/entity-view.js";
+import * as anim from "../game-animations.js";
 
 const delete_damage = 5;
 const delete_ap_cost = 5;
@@ -29,8 +29,7 @@ class Deleted extends concepts.Event {
     get focus_positions() { return [ this.deleter_position, this.deleted_position ]; }
 
     *animation(game_view){
-        const missile_effect = game_view.fx_view.missile(graphic_position(this.deleter_position));
-        yield* missile(missile_effect, graphic_position(this.deleted_position));
+        yield* anim.deleting_missile(game_view.fx_view, this.deleter_position, this.deleted_position);
     }
 };
 

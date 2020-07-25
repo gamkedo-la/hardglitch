@@ -4,12 +4,14 @@ export {
     default_move_duration_ms,
     default_destruction_duration_ms,
     move,
+    jump,
     bounce,
     swap,
     destroyed,
     take_damage,
     repaired,
     missile,
+    deleting_missile,
 }
 
 import { graphic_position, EntityView, PIXELS_PER_HALF_SIDE, square_half_unit_vector, PIXELS_PER_TILES_SIDE } from "./view/entity-view.js";
@@ -22,16 +24,40 @@ import { GameFxView } from "./game-effects.js";
 const default_move_duration_ms = 250;
 const default_destruction_duration_ms = 666;
 
-function* translate(thing_with_position, target_gfx_pos, duration_ms){
+function* translate(thing_with_position, target_gfx_pos, duration_ms, easing){
     console.assert(thing_with_position.position instanceof Vector2);
     yield* tween(thing_with_position.position, {x:target_gfx_pos.x, y:target_gfx_pos.y}, duration_ms,
-        (updated_position)=>{ thing_with_position.position = updated_position; });
+        (updated_position)=>{ thing_with_position.position = updated_position; }, easing);
 }
 
 function* move(entity_view, target_game_position, duration_ms=default_move_duration_ms){
     console.assert(entity_view instanceof EntityView);
     const target_gfx_pos = graphic_position(target_game_position);
     yield* translate(entity_view, target_gfx_pos, duration_ms);
+    entity_view.game_position = target_game_position;
+}
+
+function* jump(fx_view, entity_view, target_game_position){
+    console.assert(fx_view instanceof GameFxView);
+    console.assert(entity_view instanceof EntityView);
+    const target_gfx_pos = graphic_position(target_game_position);
+
+    const jump_height = 50;
+    const jump_duration_ms = 500;
+
+    const top_initial_pos = entity_view.position.translate({ x:0, y: -jump_height });
+    const top_target_pos = target_gfx_pos.translate({ x:0, y: -jump_height });
+
+    yield* translate(entity_view, top_initial_pos, jump_duration_ms, easing.in_out_quad);
+    entity_view.is_visible = false;
+
+    const jump_effect_move_speed = 10.0;
+    yield* missile(fx_view.missile(top_initial_pos), top_target_pos, jump_effect_move_speed);
+
+    entity_view.position = top_target_pos;
+    entity_view.is_visible = true;
+    yield* translate(entity_view, target_gfx_pos, jump_duration_ms, easing.in_out_quad);
+
     entity_view.game_position = target_game_position;
 }
 
@@ -46,23 +72,24 @@ function* bounce(entity_view, target_game_position, duration_ms=default_move_dur
     entity_view.game_position = initial_position;
 }
 
-function* swap(left_entity_view, right_entity_view, duration_ms=default_move_duration_ms){
+function* swap(fx_view, left_entity_view, right_entity_view){
+    console.assert(fx_view instanceof GameFxView);
     console.assert(left_entity_view instanceof EntityView);
     console.assert(right_entity_view instanceof EntityView);
 
     const left_final_pos = right_entity_view.game_position;
     const right_final_pos = left_entity_view.game_position;
     yield* in_parallel(
-        move(left_entity_view, left_final_pos, duration_ms),
-        move(right_entity_view, right_final_pos, duration_ms)
+        jump(fx_view, left_entity_view, left_final_pos),
+        jump(fx_view, right_entity_view, right_final_pos)
     );
 }
 
-function* destroyed(game_view, entity_view, duration_ms=default_destruction_duration_ms){
-    console.assert(game_view instanceof GameView);
+function* destroyed(fx_view, entity_view, duration_ms=default_destruction_duration_ms){
+    console.assert(fx_view instanceof GameFxView);
     console.assert(entity_view instanceof EntityView);
     // Center the sprite so that the rotation origin is in the center of it.
-    const effect = game_view.fx_view.destruction(entity_view.position.translate(square_half_unit_vector));
+    const effect = fx_view.destruction(entity_view.position.translate(square_half_unit_vector));
     entity_view.sprite.move_origin_to_center();
     // WwhwhhiiiiiiiiiIIIIIIIIIiiiizzzzzzzzzzZZZZZZZZZZZZZ
     yield* tween( {
@@ -84,7 +111,7 @@ function* destroyed(game_view, entity_view, duration_ms=default_destruction_dura
     effect.done = true;
 }
 
-function* take_damage(fx_view, entity_view){ // FIXME - not real animation
+function* take_damage(fx_view, entity_view){
     console.assert(fx_view instanceof GameFxView);
     console.assert(entity_view instanceof EntityView);
     // WwhwhhiiiiiiiiiIIIIIIIIIiiiizzzzzzzzzzZZZZZZZZZZZZZ
@@ -100,7 +127,7 @@ function* take_damage(fx_view, entity_view){ // FIXME - not real animation
     effect.done = true;
 }
 
-function* repaired(entity_view){ // FIXME - not real animation
+function* repaired(entity_view){
     console.assert(entity_view instanceof EntityView);
     const intensity = 32;
     const time_per_move = Math.round(500 / 2);
@@ -109,10 +136,17 @@ function* repaired(entity_view){ // FIXME - not real animation
     yield* translate(entity_view, initial_position, time_per_move);
 }
 
-function* missile(missile_effect, target_gfx_position){
+// Speed is square per seconds
+function* missile(missile_effect, target_gfx_position, speed = 4.0){
     missile_effect.position = missile_effect.position.translate(square_half_unit_vector);
-    const speed = 4.0; // squares per seconds
     const duration = ((target_gfx_position.distance(missile_effect.position) / PIXELS_PER_TILES_SIDE) / speed) * 1000;
     yield* translate(missile_effect, target_gfx_position.translate(square_half_unit_vector), duration);
     missile_effect.done = true;
 }
+
+function* deleting_missile(fx_view, source_position, target_position){
+    console.assert(fx_view instanceof GameFxView);
+    const missile_effect = fx_view.missile(graphic_position(source_position));
+    yield* missile(missile_effect, graphic_position(target_position));
+}
+

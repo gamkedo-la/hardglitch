@@ -29,6 +29,9 @@ function game_position_from_graphic_po(vec2){
 
 // Common parts used by both body/character and items views.
 class EntityView {
+    is_visible = true;
+    is_flying = false; // Set to true if you want to display the character over anything in the game world.
+
     constructor(game_position, assets){
         console.assert(game_position);
         console.assert(assets);
@@ -41,7 +44,7 @@ class EntityView {
     }
 
     render_graphics(){
-        if(graphics.camera.can_see(this.sprite.area))
+        if(this.is_visible && graphics.camera.can_see(this.sprite.area))
             this.sprite.draw();
     }
 
