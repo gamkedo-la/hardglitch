@@ -20,7 +20,7 @@ export {
     Position,
 };
 
-import { is_number, clamp } from "../system/utility.js";
+import { is_number, clamp, not } from "../system/utility.js";
 import { Grid } from "../system/grid.js";
 
 
@@ -354,17 +354,19 @@ class World
 
     // Returns true if the position given is blocked by an entity (Body or Item) or a tile that blocks (wall).
     // The meaning of "blocking" depends on the provided predicate.
-    is_blocked_position(position, predicate_tile_is_blocking){
+    is_blocked_position(position, is_not_blocking){
+        console.assert(is_not_blocking instanceof Function);
+        const is_blocking = not(is_not_blocking); // Why do this instead of taking a is_blocking predicate? Because the code calling this function is far easier to understand (when you read it) if the predicate is not negated.
 
         if(!this.is_valid_position(position))
             return true;
 
         const floor_tile = this._floor_tile_grid.get_at(position);
-        if(!floor_tile || !predicate_tile_is_blocking(floor_tile))
+        if(!floor_tile || is_blocking(floor_tile))
             return true;
 
         const surface_tile = this._surface_tile_grid.get_at(position);
-        if(surface_tile && predicate_tile_is_blocking(surface_tile))
+        if(surface_tile && is_blocking(surface_tile))
             return true;
 
         if(this.body_at(position))

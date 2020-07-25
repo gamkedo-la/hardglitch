@@ -85,9 +85,8 @@ class Rule_Movements extends concepts.Rule {
         console.assert(current_pos);
 
         const allowed_moves = character.allowed_moves(); // TODO: filter to what's visible
-        for(const move_id in allowed_moves){
-            const move_target = allowed_moves[move_id];
-            if(!world.is_blocked_position(move_target, tileid => tiles.is_walkable(tileid))
+        for(const [move_id, move_target] of Object.entries(allowed_moves)){
+            if(!world.is_blocked_position(move_target, tiles.is_walkable)
             && character.can_see(move_target)
             ){
                 const move = new Move(move_id, move_target);

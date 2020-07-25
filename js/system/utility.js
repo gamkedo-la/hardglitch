@@ -12,8 +12,9 @@ export {
     is_valid_duration,
     group_per_type,
     clamp,
-    roundRect as draw_round_rectangle,
+    draw_round_rectangle,
     ofmt,
+    not,
 }
 
 
@@ -155,7 +156,7 @@ function clamp(value, min, max) {
  * @param {Boolean} [fill = false] Whether to fill the rectangle.
  * @param {Boolean} [stroke = true] Whether to stroke the rectangle.
  */
-function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
+function draw_round_rectangle(ctx, x, y, width, height, radius, fill, stroke) {
     if (typeof stroke === 'undefined') {
       stroke = true;
     }
@@ -202,4 +203,11 @@ function ofmt(obj, name) {
     } else {
         return "[" + kvs.join(",") + "]";
     }
+}
+
+// Provide the reverse result of a predicate.
+function not(predicate){
+    return (...args)=>{
+        return !predicate(...args);
+    };
 }
