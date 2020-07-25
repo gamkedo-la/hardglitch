@@ -45,6 +45,7 @@ const game_assets = { // Description of the assets to load.
         laserwalltemplate : "./images/laserwall.png",
         crypto_file: "./images/allcryptofiles.png",
         crypto_key: "./images/cryptokeycircle2.png",
+        movable_wall: "./images/block.png",
 
         // TODO: merge icons into one image
         icon_corrupt: "./images/iconcorrupt.png",
@@ -156,6 +157,9 @@ const sprite_defs = {
     },
     wall : {
         image: "wall",
+    },
+    movable_wall : {
+        image: "movable_wall",
     },
     void : {
         image: "void",

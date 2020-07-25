@@ -8,7 +8,7 @@ import { RandomActionEnemy } from "../characters/test-enemy.js";
 
 import * as tiles from "../definitions-tiles.js";
 import { world_grid, default_rules } from "../definitions-world.js";
-import { CryptoFile, CryptoKey } from "../definitions-items.js";
+import * as items from "../definitions-items.js";
 
 import { test_rules } from "./test-rules.js";
 import * as visibility from "../core/visibility.js";
@@ -122,7 +122,7 @@ function make_test_world(){ // The game assets must have been initialized first.
     while(file_count > 0){
         const position = random_position();
         if(can_insert_something_there(position)){
-            const file = new CryptoFile();
+            const file = new items.CryptoFile();
             file.position = position;
             world.add(file);
             --file_count;
@@ -133,7 +133,7 @@ function make_test_world(){ // The game assets must have been initialized first.
     while(key_count > 0){
         const position = random_position();
         if(can_insert_something_there(position)){
-            const key = new CryptoKey();
+            const key = new items.CryptoKey();
             key.position = position;
             world.add(key);
             --key_count;
@@ -146,12 +146,14 @@ function make_test_world(){ // The game assets must have been initialized first.
     const space_between_inner_outter = 1;
     const outter_begin  = inner_range.end + space_between_inner_outter;
     const outter_range = { begin: outter_begin, end: outter_begin + 2 };
-    const clean_range = { begin: 1, end: outter_range.end + 1 };
+    const rim_range = { begin: outter_range.end + 1, end: outter_range.end + 2 };
+    const clean_range = { begin: 1, end: rim_range.end + 1 };
     const test_shape = visibility.Range_Square;
 
     const clean_shape = new visibility.Range_Square(clean_range.begin, clean_range.end);
     const inner_shape = new test_shape(inner_range.begin, inner_range.end);
     const outter_shape = new test_shape(outter_range.begin, outter_range.end);
+    const rim_shape = new test_shape(rim_range.begin, rim_range.end);
     const valid_positions_filter = pos => world.is_valid_position(pos);
 
     // cleanup
@@ -166,7 +168,7 @@ function make_test_world(){ // The game assets must have been initialized first.
     visibility.positions_in_range(entry_point_position, inner_shape, valid_positions_filter)
         .filter(position => world.is_valid_position(position))
         .forEach(position=>{
-            const item_type = random_int(0, 100) >= 50 ? RandomActionEnemy : CryptoKey;
+            const item_type = random_int(0, 100) >= 50 ? RandomActionEnemy : items.CryptoKey;
             const file = new item_type();
             file.position = position;
             world.add(file);
@@ -178,6 +180,16 @@ function make_test_world(){ // The game assets must have been initialized first.
         .forEach(position=>{
             set_floor_tile(position, tiles.ID.VOID);
         });
+
+    // rim
+    visibility.positions_in_range(entry_point_position, rim_shape, valid_positions_filter)
+    .filter(position => world.is_valid_position(position))
+    .forEach(position=>{
+        const item_type = items.MovableWall;
+        const file = new item_type();
+        file.position = position;
+        world.add(file);
+    });
 
     //// Border of the world
     const world_border_tile = tiles.ID.HOLE;
