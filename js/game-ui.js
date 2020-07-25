@@ -107,7 +107,7 @@ class MuteAudioButton extends ui.Button {
             sprite_def: sprite_defs.button_mute_audio,
             frames: { up: 0, down: 1, over: 2, disabled: 3},
             action: audio.toggleMute,
-            is_action_on_up: false,
+            is_action_on_up: true,
             position: {x: 32, y: 32},
             width: 64,
             height: 64,

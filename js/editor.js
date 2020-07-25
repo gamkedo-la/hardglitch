@@ -386,6 +386,9 @@ function update(){
         }
     }
 
+    if (input.keyboard.is_just_down(KEY.DASH)) audio.setVolume('Master', null, -0.05);
+    if (input.keyboard.is_just_down(KEY.EQUAL)) audio.setVolume('Master', null, 0.05);
+
     if (input.keyboard.is_just_down(KEY.O)) {
         audio.playEvent('buffertest', random_float(-1, 1));
     } else if (input.keyboard.is_just_released(KEY.O)) {

@@ -3,8 +3,11 @@ export {
     playEvent,
     pauseEvent,
     stopEvent,
+    setVolume,
     toggleMute,
 };
+
+import { clamp } from "./utility.js";
 
 let muted = false;
 let audio_context, mix_groups, audio_buffers, audio_streams;
@@ -92,6 +95,13 @@ function toggleMute() {
         muted = false;
         console.log("Audio unmuted.")
     }
+}
+
+function setVolume(group_name, setValue, addValue) {
+    let gain = mix_groups[group_name].gain;
+    if (setValue) gain.value = clamp(setValue, 0, 1);
+    else if (addValue) gain.value = clamp(gain.value + addValue, 0, 1);
+    console.log(group_name + ' volume: ' + gain.value.toPrecision(4));
 }
 
 function getMixGroup(name) {

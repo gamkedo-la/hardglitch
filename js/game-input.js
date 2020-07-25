@@ -54,6 +54,8 @@ const KEY = {
     NUMBER_7: 55,
     NUMBER_8: 56,
     NUMBER_9: 57,
+    DASH: 189,
+    EQUAL: 187,
     RIGHT_BRACKET: 221,
     LEFT_BRACKET: 219,
     F1: 112,
