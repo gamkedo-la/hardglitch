@@ -12,6 +12,7 @@ import * as items from "../definitions-items.js";
 
 import { test_rules } from "./test-rules.js";
 import * as visibility from "../core/visibility.js";
+import { LifeForm_Strong, LifeForm_Weak } from "../characters/lifeform.js";
 
 function make_test_world(){ // The game assets must have been initialized first.
     const test_world_size = world_grid;
@@ -111,7 +112,8 @@ function make_test_world(){ // The game assets must have been initialized first.
     while(ennemy_count > 0){
         const position = random_position();
         if(can_insert_something_there(position)){
-            const enemy = new RandomActionEnemy();
+            const enemy_type = random_int(0, 100) >= 50 ? RandomActionEnemy : LifeForm_Strong;
+            const enemy = new enemy_type();
             enemy.position = position;
             world.add(enemy);
             --ennemy_count;
@@ -168,7 +170,7 @@ function make_test_world(){ // The game assets must have been initialized first.
     visibility.positions_in_range(entry_point_position, inner_shape, valid_positions_filter)
         .filter(position => world.is_valid_position(position))
         .forEach(position=>{
-            const item_type = random_int(0, 100) >= 50 ? RandomActionEnemy : items.CryptoKey;
+            const item_type = random_int(0, 100) >= 50 ? LifeForm_Weak : items.CryptoKey;
             const file = new item_type();
             file.position = position;
             world.add(file);

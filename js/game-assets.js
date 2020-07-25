@@ -46,6 +46,8 @@ const game_assets = { // Description of the assets to load.
         crypto_file: "./images/allcryptofiles.png",
         crypto_key: "./images/cryptokeycircle2.png",
         movable_wall: "./images/block.png",
+        life_form: "./images/life_form.png",
+        life_form_weak: "./images/life_form_weak.png",
 
         // TODO: merge icons into one image
         icon_corrupt: "./images/iconcorrupt.png",
@@ -152,6 +154,44 @@ const sprite_defs = {
                   },
         },
     },
+
+    life_form_weak: {
+        image: "life_form_weak",
+        frames: [
+                    { x: 0, y: 0, width: 64, height: 64 },
+                    { x: 64, y: 0, width: 64, height: 64 },
+                ],
+        animations: {
+            idle: {
+                    loop: true,
+                    timeline: [
+                                { frame: 0, duration: 500 },
+                                { frame: 1, duration: 200 },
+                                { frame: 0, duration: 200 },
+                                { frame: 1, duration: 500 },
+                              ],
+                  },
+        },
+    },
+
+    life_form: {
+        image: "life_form",
+        frames: [
+                    { x: 0, y: 0, width: 64, height: 64 },
+                    { x: 64, y: 0, width: 64, height: 64 },
+                ],
+        animations: {
+            idle: {
+                    loop: true,
+                    timeline: [
+                                { frame: 0, duration: 200 },
+                                { frame: 1, duration: 200 },
+                              ],
+                  },
+        },
+    },
+
+
     ground : {
         image: "ground",
     },
