@@ -299,7 +299,7 @@ function display(){
     const canvas_rect = graphics.canvas_rect();
 
     if(text_to_display){
-        draw_text(text_to_display, {x: center.x - 100, y: canvas_rect.height - 100 });
+        draw_text(text_to_display, {x: center.x - 20, y: canvas_rect.height - 210 });
     }
     if(central_text){
         draw_text(central_text, {x: center.x - 200, y: center.y - 20 });

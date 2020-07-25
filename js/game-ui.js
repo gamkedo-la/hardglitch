@@ -188,9 +188,11 @@ class GameInterface {
 
         // ... then we build the buttons with the associated informations.
 
-        const line_y = graphics.canvas_rect().bottom_right.y - 100; // TODO: handle changing the canvas size
-        let line_x = 40;
-        const next_x = ()=> line_x += (action_button_size + 5);
+        const space_between_buttons = action_button_size + 5;
+        const canvas_rect = graphics.canvas_rect();
+        const line_y = canvas_rect.bottom_right.y - 160;
+        let line_x = (canvas_rect.width / 2) - ((Object.keys(actions_per_types).length / 2) * space_between_buttons);
+        const next_x = ()=> line_x += space_between_buttons;
 
         let key_number = 0;
         for(const [action_name, actions] of Object.entries(actions_per_types)){
