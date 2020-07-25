@@ -7,7 +7,28 @@ export {
 };
 
 let muted = false;
-let audio_context, mix_groups, audio_buffers, audio_streams, events;
+let audio_context, mix_groups, audio_buffers, audio_streams;
+let audio_events = [];
+
+const event_defs = {
+    'buffertest': {
+        source_type: 'audiobuffer',
+        source_name: 'test',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
+    'streamtest': {
+        source_type: 'audiostream',
+        source_name: 'test',
+        group_name: 'Music',
+        loop: true,
+        volume: 1,
+        unique: true, // Will not create a new event instance if true
+    }
+}
 
 function initialize(assets) {
     audio_context = new AudioContext();
@@ -22,23 +43,43 @@ function initialize(assets) {
     mix_groups.Master.connect(audio_context.destination);
     mix_groups.Music.connect(mix_groups.Master);
     mix_groups.SoundEffects.connect(mix_groups.Master);
-
-    events = {};
-    events['buffertest'] = new AudioBufferEvent(audio_buffers['test'], mix_groups.SoundEffects);
-    events['streamtest'] = new AudioStreamEvent(audio_streams['test'], mix_groups.Music);
-    events['streamtest'].loop = true;
 }
 
-function playEvent(name) {
-    events[name].play();
+function playEvent(name, pan) {
+    let event_def = event_defs[name];
+    let event;
+
+    let index;
+    if ((event_def.unique || event_def.source_type === 'audiostream') && 
+        (index = audio_events.findIndex((element) => element.event_name === name)) >= 0) {
+        event = audio_events[index];
+    } else { // Create new event instance
+        switch (event_def.source_type) {
+            case 'audiobuffer':
+                event = new AudioBufferEvent(name, event_def);
+                break;
+            case 'audiostream': {
+                event = new AudioStreamEvent(name, event_def);
+                break;
+            }
+            default:
+                return null;
+        }
+        audio_events.push(event);    
+    }
+
+    if (pan) event.pan = pan;
+    event.play();
 }
 
 function pauseEvent(name) {
-    events[name].pause();
+    let index = audio_events.findIndex((element) => element.event_name === name);
+    if (index >= 0 && index < audio_events.length) audio_events[index].pause();
 }
 
 function stopEvent(name) {
-    events[name].stop();
+    let index = audio_events.findIndex((element) => element.event_name === name);
+    if (index >= 0 && index < audio_events.length) audio_events[index].stop();
 }
 
 function toggleMute() {
@@ -53,36 +94,40 @@ function toggleMute() {
     }
 }
 
+function getMixGroup(name) {
+    if (name && mix_groups[name]) return mix_groups[name];
+    else return mix_groups.Master;
+}
+
 // Audio Event Classes
 
 class AudioBufferEvent {
-    constructor(buffer, mixGroup) {
-        this.buffer = buffer;
-        this.bufferSources = [];
+    constructor(name, event_def) {
+        this.event_name = name;
+        this.buffer = audio_buffers[event_def.source_name];
+        this.bufferSource = audio_context.createBufferSource();
+        this.bufferSource.buffer = this.buffer;
         this.panner = audio_context.createStereoPanner();
         this.vol = audio_context.createGain();
 
         this.panner.connect(this.vol);
-        let output = mixGroup ? mixGroup : mix_groups.Master;
+        let output = getMixGroup(event_def.group_name);
         this.vol.connect(output);
 
-        this.loop = false;
+        this.loop = event_def.loop ? event_def.loop : false;
     }
 
     play() {
-        let new_source = audio_context.createBufferSource();
-        new_source.buffer = this.buffer;
-        if (this.loop) new_source.loop = true;
-        else {
-            new_source.onended = () => {
-                let index = this.bufferSources.findIndex((element) => element === new_source);
-                this.bufferSources.splice(index, 1);
+        if (this.loop) {
+            this.bufferSource.loop = true;
+        } else {
+            this.bufferSource.onended = () => {
+                let index = audio_events.findIndex((element) => element === this);
+                audio_events.splice(index, 1);
             }
         }
-        new_source.connect(this.panner);
-        new_source.start();
-
-        this.bufferSources.push(new_source);
+        this.bufferSource.connect(this.panner);
+        this.bufferSource.start();
     }
 
     pause() {
@@ -90,10 +135,9 @@ class AudioBufferEvent {
     }
 
     stop() {
-        for (let source of this.bufferSources) {
-            source.stop();
-        }
-        this.bufferSources.length = 0;
+        this.bufferSource.stop();
+        let index = audio_events.findIndex((element) => element === this);
+        audio_events.splice(index, 1);
     }
 
     setVolumeAtTime(volume, time) {
@@ -107,21 +151,24 @@ class AudioBufferEvent {
     get volume() { return this.vol.gain.value };
     set volume(value) { this.vol.gain.value = value }
     
-    get pan() { return this.pannner.pan.volume }
-    set pan(value) { this.pannner.pan.value = value }
+    get pan() { return this.panner.pan.volume }
+    set pan(value) { this.panner.pan.value = value }
 }
 
 class AudioStreamEvent {
-    constructor(source, mixGroup) {
-        this.source = source;
+    constructor(name, event_def) {
+        this.event_name = name;
+        this.source = audio_streams[event_def.source_name];
         this.sourceNode = audio_context.createMediaElementSource(this.source);
         this.panner = audio_context.createStereoPanner();
         this.vol = audio_context.createGain();
 
         this.sourceNode.connect(this.panner);
         this.panner.connect(this.vol);
-        let output = mixGroup ? mixGroup : mix_groups.Master;
+        let output = event_def.group_name ? mix_groups[event_def.group_name] : mix_groups.Master;
         this.vol.connect(output);
+    
+        this.loop = event_def.loop ? event_def.loop : false;
     }
 
     play() {
@@ -148,9 +195,18 @@ class AudioStreamEvent {
     get volume() { return this.vol.gain.value };
     set volume(value) { this.vol.gain.value = value }
 
-    get pan() { return this.pannner.pan.volume }
-    set pan(value) { this.pannner.pan.value = value }
+    get pan() { return this.panner.pan.volume }
+    set pan(value) { this.panner.pan.value = value }
 
     get loop() { return this.source.loop; }
     set loop(value) { this.source.loop = value ? true : false; }
 }
+
+/* Possible format for gain/pan node pool
+//  gainNodes = {
+//      nodes = [],
+//      nodesUsed = [],
+//  }
+//
+// Checkout on use (nodesUed[i] = 1) and check-in on event completion (nodesUsed[i] = 0) 
+*/
