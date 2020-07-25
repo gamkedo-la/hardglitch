@@ -14,7 +14,11 @@ class MoveUntilYouCant extends concepts.Actor {
     decide_next_action(possible_actions) {
         const move_actions_ids = Object.keys(possible_actions)
             .filter(name => name.startsWith("move_"))
-            .filter(name => possible_actions[name].is_safe);
+            .filter(name => possible_actions[name].is_safe)
+            ;
+
+        if(move_actions_ids.length === 0)
+            return possible_actions.wait;
 
         // We want the character to continue their last action until they cannot.
         // When they cannot, we change the action to continue.
@@ -42,8 +46,9 @@ class LifeForm_Weak extends Character {
     };
 
     constructor(){
-        super("Weak Life Form", new CharacterStats());
+        super("Weak Life Form", );
         this.actor = new MoveUntilYouCant();
+        this.stats.integrity.value = 1;
     }
 
 };
@@ -58,5 +63,7 @@ class LifeForm_Strong extends Character {
     constructor(){
         super("Life Form", new CharacterStats());
         this.actor = new MoveUntilYouCant();
+        this.stats.integrity.max = 20;
+        this.stats.integrity.value = 20;
     }
 };

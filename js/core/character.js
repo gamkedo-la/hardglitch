@@ -66,6 +66,16 @@ class StatValue {
         this._value = new_value;
     }
 
+    set max(new_value) {
+        console.assert(Number.isInteger(new_value) && new_value >= 0);
+        this._max = new_value;
+    }
+
+    set min(new_value) {
+        console.assert(Number.isInteger(new_value) && new_value < this.max);
+        this._max = new_value;
+    }
+
     increase(value_to_add){
         console.assert(Number.isInteger(value_to_add) && value_to_add >= 0);
         const new_value = this.value + value_to_add;
@@ -104,13 +114,12 @@ class CharacterStats{
 // Provides everything common to all characters.
 // Some rules will rely on properties provided there.
 class Character extends concepts.Body {
+    stats = new CharacterStats();
+    inventory = new Inventory();
+    field_of_vision = new FieldOfVision(this.position, default_view_distance);
 
-    constructor(name, stats){
-        console.assert(stats instanceof CharacterStats);
+    constructor(name){
         super(name);
-        this.stats = stats;
-        this.inventory = new Inventory();
-        this.field_of_vision = new FieldOfVision(this.position, default_view_distance);
     }
 
     get position() { return super.position; }
