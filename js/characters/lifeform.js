@@ -6,22 +6,33 @@ import { Character, CharacterStats } from "../core/character.js"
 import { random_sample } from "../system/utility.js";
 import { Wait } from "../rules/rules-basic.js";
 
-class CyclicBehavior extends concepts.Actor {
+
+
+
+class MoveUntilYouCant extends concepts.Actor {
 
     decide_next_action(possible_actions) {
-        // Just picking a random action is a perfectly valid strategy, lol
-        while(true){
-            let random_action = random_sample(Object.values(possible_actions));
-            if(!random_action.is_safe) // Only select ations that seem safe for the character.
-                continue;
-            if(random_action == null) { // no action found.
-                // In this case just wait:
-                return new Wait();
-            }
-            return random_action;
+        const move_actions_ids = Object.keys(possible_actions)
+            .filter(name => name.startsWith("move_"))
+            .filter(name => possible_actions[name].is_safe);
+
+        // We want the character to continue their last action until they cannot.
+        // When they cannot, we change the action to continue.
+
+        if(move_actions_ids.includes(this.last_action_id)){
+            const action = possible_actions[this.last_action_id];
+            console.assert(action instanceof concepts.Action);
+            return action;
+        } else {
+            const random_action_id = random_sample(move_actions_ids);
+            this.last_action_id = random_action_id;
+            const action = possible_actions[random_action_id];
+            console.assert(action instanceof concepts.Action);
+            return action;
         }
     }
 };
+
 
 class LifeForm_Weak extends Character {
     assets = {
@@ -32,8 +43,9 @@ class LifeForm_Weak extends Character {
 
     constructor(){
         super("Weak Life Form", new CharacterStats());
-        this.actor = new CyclicBehavior();
+        this.actor = new MoveUntilYouCant();
     }
+
 };
 
 class LifeForm_Strong extends Character {
@@ -45,6 +57,6 @@ class LifeForm_Strong extends Character {
 
     constructor(){
         super("Life Form", new CharacterStats());
-        this.actor = new CyclicBehavior();
+        this.actor = new MoveUntilYouCant();
     }
 };
