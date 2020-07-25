@@ -103,7 +103,8 @@ class CancelActionButton extends ui.Button {
 
 class MuteAudioButton extends ui.Button {
     constructor() {
-        super({sprite_def: sprite_defs.button_mute_audio,
+        super({
+            sprite_def: sprite_defs.button_mute_audio,
             frames: { up: 0, down: 1, over: 2, disabled: 3},
             action: audio.toggleMute,
             is_action_on_up: false,

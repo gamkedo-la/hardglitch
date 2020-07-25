@@ -15,6 +15,7 @@ import { current_game_view, current_game } from "./main.js";
 import * as items from "./definitions-items.js";
 import * as ui from "./system/ui.js";
 import { Character } from "./core/character.js";
+import { random_float } from "./system/utility.js";
 
 let is_enabled = false; // TURN THIS ON TO SEE THE EDITOR, see the update() function below
 let is_editing = false; // True if we are doing an edition manipulation and no other input should be handled.
@@ -370,7 +371,7 @@ function update(){
     }
 
     if (input.keyboard.is_just_down(KEY.O)) {
-        audio.playEvent('buffertest', Math.random());
+        audio.playEvent('buffertest', random_float(-1, 1));
     } else if (input.keyboard.is_just_released(KEY.O)) {
         audio.stopEvent('streamtest');
     }
