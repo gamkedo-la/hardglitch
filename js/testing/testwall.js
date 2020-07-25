@@ -91,6 +91,16 @@ function gen(grid) {
     grid.set_at(tiledefs.ID.WALL,5,5);
     grid.set_at(tiledefs.ID.WALL,4,6);
     grid.set_at(tiledefs.ID.WALL,5,6);
+
+    // carve out test hole
+    grid.set_at(tiledefs.ID.WALL,8,7);
+    grid.set_at(tiledefs.ID.HOLE,8,8);
+    grid.set_at(tiledefs.ID.WALL,8,9);
+    grid.set_at(tiledefs.ID.HOLE,9,7);
+    grid.set_at(tiledefs.ID.HOLE,9,8);
+    grid.set_at(tiledefs.ID.HOLE,9,9);
+    grid.set_at(tiledefs.ID.HOLE,10,8);
+    grid.set_at(tiledefs.ID.WALL,11,8);
 }
 
 class PathShape {
@@ -588,87 +598,138 @@ const colorMap = {
     "hl": new Color(0,222,164,.75),
 }
 
-function makeWallPath(pos, height, faceInfo, edge) {
-    let path = new Path2D();
-    path.moveTo(pos.x+faceInfo.verts[edge.v1].x, pos.y+faceInfo.verts[edge.v1].y);
-    path.lineTo(pos.x+faceInfo.verts[edge.v1].x, pos.y+faceInfo.verts[edge.v1].y-height);
-    path.lineTo(pos.x+faceInfo.verts[edge.v2].x, pos.y+faceInfo.verts[edge.v2].y-height);
-    path.lineTo(pos.x+faceInfo.verts[edge.v2].x, pos.y+faceInfo.verts[edge.v2].y);
-    path.closePath();
-    return path;
+const holeColorMap = {
+    "top": new Color(90,24,90,.3),
+    "frontlight": new Color(70,85,175,.3),
+    "front": new Color(49,60,123,.3),
+    "frontdark": new Color(36,45,91,.3),
+    "backlight": new Color(70,85,175,.15),
+    "back": new Color(49,60,123,.15),
+    "backdark": new Color(36,45,91,.15),
+    "hl": new Color(200,50,200,.85),
 }
 
-function makeTopPath(pos, height, faceInfo) {
-    let path = new Path2D();
-    path.moveTo(pos.x+faceInfo.verts[0].x, pos.y+faceInfo.verts[0].y-height);
-    for (let i=1; i<faceInfo.verts.length; i++) {
-        path.lineTo(pos.x+faceInfo.verts[i].x, pos.y+faceInfo.verts[i].y-height);
+class ProcWallGenerator {
+    constructor(facemap, colormap) {
+        this.facemap = facemap;
+        this.colormap = colormap;
+        this.show = {
+            front: true,
+            highlightFront: true,
+            top: true,
+            highlightTop: true,
+            highlightBottom: true,
+            back: true,
+            highlightBack: true,
+            highlightMajor: true,
+            highlightMinor: false,
+        }
+        this.highlights = {
+            minorWidth: 3,
+            minorAlpha: .1,
+        }
     }
-    path.closePath();
-    return path;
-}
 
-function makeVertHL(pos, height, faceInfo, verts) {
-    let path = new Path2D();
-    for (let i=0; i<verts.length; i++) {
-        path.moveTo(pos.x+faceInfo.verts[verts[i]].x, pos.y+faceInfo.verts[verts[i]].y);
-        path.lineTo(pos.x+faceInfo.verts[verts[i]].x, pos.y+faceInfo.verts[verts[i]].y-height);
+    create(pos, id, height) {
+        let shapes = [];
+        let faceInfo = this.facemap[id];
+        if (!faceInfo) return undefined;
+        let path;
+        // add back edges
+        if (this.show.back && faceInfo.backedges) {
+            for (const edge of faceInfo.backedges) {
+                path = this.makeWallPath(pos, height, faceInfo, edge);
+                shapes.push(new PathShape(path, true, this.colormap[edge.style]));
+            }
+        }
+        // back highlights
+        if (this.show.highlightBack && faceInfo.hl.back) {
+            path = this.makeVertHL(pos, height, faceInfo, faceInfo.hl.back);
+            if (this.show.highlightMajor) shapes.push(new PathShape(path, false, this.colormap["hl"]));
+            if (this.show.highlightMinor) shapes.push(new PathShape(path, false, this.colormap["hl"].asRGB(this.highlights.minorAlpha), this.highlights.minorWidth));
+        }
+        // bottom highlights
+        if (this.show.highlightBottom) {
+            path = this.makeTopHL(pos, 0, faceInfo);
+            if (this.show.highlightMajor) shapes.push(new PathShape(path, false, this.colormap["hl"]));
+            if (this.show.highlightMinor) shapes.push(new PathShape(path, false, this.colormap["hl"].asRGB(this.highlights.minorAlpha), this.highlights.minorWidth));
+        }
+        // add top
+        if (this.show.back) {
+            path = this.makeTopPath(pos, height, faceInfo);
+            shapes.push(new PathShape(path, true, this.colormap["top"]));
+        }
+        // top highlights
+        if (this.show.highlightTop && faceInfo.hl.top) {
+            path = this.makeTopHL(pos, height, faceInfo);
+            if (this.show.highlightMajor) shapes.push(new PathShape(path, false, this.colormap["hl"]));
+            if (this.show.highlightMinor) shapes.push(new PathShape(path, false, this.colormap["hl"].asRGB(this.highlights.minorAlpha), this.highlights.minorWidth));
+        }
+        // add front edges
+        if (this.show.front && faceInfo.frontedges) {
+            for (const edge of faceInfo.frontedges) {
+                path = this.makeWallPath(pos, height, faceInfo, edge);
+                shapes.push(new PathShape(path, true, this.colormap[edge.style]));
+            }
+        }
+        // front hl
+        if (this.show.highlightFront && faceInfo.hl.front) {
+            path = this.makeVertHL(pos, height, faceInfo, faceInfo.hl.front);
+            shapes.push(new PathShape(path, false, this.colormap["hl"]));
+            if (this.show.highlightMajor) shapes.push(new PathShape(path, false, this.colormap["hl"]));
+            if (this.show.highlightMinor) shapes.push(new PathShape(path, false, this.colormap["hl"].asRGB(this.highlights.minorAlpha), this.highlights.minorWidth));
+        }
+        return new ProcWall(pos, shapes);
     }
-    path.closePath();
-    return path
-}
 
-function makeTopHL(pos, height, faceInfo) {
-    let path = new Path2D();
-    for (let i=0; i<faceInfo.hl.top.length-1; i+=2) {
-        let v1 = faceInfo.verts[faceInfo.hl.top[i]];
-        let v2 = faceInfo.verts[faceInfo.hl.top[i+1]];
-        path.moveTo(pos.x+v1.x, pos.y+v1.y-height);
-        path.lineTo(pos.x+v2.x, pos.y+v2.y-height);
+    makeWallPath(pos, height, faceInfo, edge) {
+        let path = new Path2D();
+        path.moveTo(pos.x+faceInfo.verts[edge.v1].x, pos.y+faceInfo.verts[edge.v1].y);
+        path.lineTo(pos.x+faceInfo.verts[edge.v1].x, pos.y+faceInfo.verts[edge.v1].y-height);
+        path.lineTo(pos.x+faceInfo.verts[edge.v2].x, pos.y+faceInfo.verts[edge.v2].y-height);
+        path.lineTo(pos.x+faceInfo.verts[edge.v2].x, pos.y+faceInfo.verts[edge.v2].y);
+        path.closePath();
+        return path;
     }
-    path.closePath();
-    return path
+
+    makeTopPath(pos, height, faceInfo) {
+        let path = new Path2D();
+        path.moveTo(pos.x+faceInfo.verts[0].x, pos.y+faceInfo.verts[0].y-height);
+        for (let i=1; i<faceInfo.verts.length; i++) {
+            path.lineTo(pos.x+faceInfo.verts[i].x, pos.y+faceInfo.verts[i].y-height);
+        }
+        path.closePath();
+        return path;
+    }
+
+    makeVertHL(pos, height, faceInfo, verts) {
+        let path = new Path2D();
+        for (let i=0; i<verts.length; i++) {
+            path.moveTo(pos.x+faceInfo.verts[verts[i]].x, pos.y+faceInfo.verts[verts[i]].y);
+            path.lineTo(pos.x+faceInfo.verts[verts[i]].x, pos.y+faceInfo.verts[verts[i]].y-height);
+        }
+        path.closePath();
+        return path
+    }
+
+    makeTopHL(pos, height, faceInfo) {
+        let path = new Path2D();
+        for (let i=0; i<faceInfo.hl.top.length-1; i+=2) {
+            let v1 = faceInfo.verts[faceInfo.hl.top[i]];
+            let v2 = faceInfo.verts[faceInfo.hl.top[i+1]];
+            path.moveTo(pos.x+v1.x, pos.y+v1.y-height);
+            path.lineTo(pos.x+v2.x, pos.y+v2.y-height);
+        }
+        path.closePath();
+        return path
+    }
+        
 }
 
 class ProcWall {
-    constructor(pos, id, height) {
-        this.shapes = [];
-        let faceInfo = faceMap[id];
-        if (!faceInfo) {
-            //console.log("skipping: " + id);
-            return undefined;
-        }
-        console.log("creating for: " + id);
-        let path;
-        // add back edges
-        for (const edge of faceInfo.backedges) {
-            path = makeWallPath(pos, height, faceInfo, edge);
-            this.shapes.push(new PathShape(path, true, colorMap[edge.style]));
-        }
-        // back hl
-        path = makeVertHL(pos, height, faceInfo, faceInfo.hl.back);
-        this.shapes.push(new PathShape(path, false, colorMap["hl"]));
-        //this.shapes.push(new PathShape(path, false, colorMap["hl"].asRGB(.1), 3));
-        // bottom highlights
-        path = makeTopHL(pos, 0, faceInfo);
-        this.shapes.push(new PathShape(path, false, colorMap["hl"], 1));
-        //this.shapes.push(new PathShape(path, false, colorMap["hl"].asRGB(.1), 3));
-        // add top
-        path = makeTopPath(pos, height, faceInfo);
-        this.shapes.push(new PathShape(path, true, colorMap["top"]));
-        // add top hl
-        path = makeTopHL(pos, height, faceInfo);
-        this.shapes.push(new PathShape(path, false, colorMap["hl"]));
-        //this.shapes.push(new PathShape(path, false, colorMap["hl"].asRGB(.1), 3));
-        // add front edges
-        for (const edge of faceInfo.frontedges) {
-            path = makeWallPath(pos, height, faceInfo, edge);
-            this.shapes.push(new PathShape(path, true, colorMap[edge.style]));
-        }
-        // front hl
-        path = makeVertHL(pos, height, faceInfo, faceInfo.hl.front);
-        this.shapes.push(new PathShape(path, false, colorMap["hl"]));
-        //this.shapes.push(new PathShape(path, false, colorMap["hl"].asRGB(.1), 3));
+    constructor(pos, shapes) {
+        this.position = pos;
+        this.shapes = (shapes) ? shapes : [];
     }
 
     update(deltaTime) {
@@ -767,6 +828,9 @@ class Env {
 
         // draw background overlay
         let pwalls = [];
+        let pwallgen = new ProcWallGenerator(faceMap, colorMap);
+        let pholegen = new ProcWallGenerator(faceMap, holeColorMap);
+        pholegen.show.top = false;
         for (let j=0; j<bg_grid.height; j++) {
             for (let i=0; i<bg_grid.width; i++) {
                 let v = bg_grid.get_at(i,j);
@@ -775,6 +839,7 @@ class Env {
                 if (!v) continue;
                 v = v.slice(5);
                 let iswall = false;
+                let ishole = false;
                 if (v.startsWith("w2g")) {
                     tileid = v.slice(4);
                     tiles = w2gTiles;
@@ -783,6 +848,7 @@ class Env {
                     tileid = v.slice(4);
                     tiles = g2wTiles;
                 } else if (v.startsWith("h2g")) {
+                    ishole = true;
                     tileid = v.slice(4);
                     tiles = h2gTiles;
                 } else if (v.startsWith("g2h")) {
@@ -792,6 +858,7 @@ class Env {
                     tileid = v.slice(4);
                     tiles = g2vTiles;
                 } else if (v.startsWith("h2w")) {
+                    ishole = true;
                     tileid = v.slice(4);
                     tiles = h2wTiles;
                 } else if (v.startsWith("w2h")) {
@@ -811,7 +878,13 @@ class Env {
                 // walls
                 if (iswall) {
                     let pos = {x:32*i, y:32*j};
-                    let pwall = new ProcWall(pos, tileid, 32);
+                    //let pwall = new ProcWall(pos, tileid, 32);
+                    let pwall = pwallgen.create(pos, tileid, 32);
+                    if (pwall) pwalls.push(pwall);
+                } else if (ishole) {
+                    let pos = {x:32*i, y:32*j};
+                    //let pwall = new ProcWall(pos, tileid, 16);
+                    let pwall = pholegen.create(pos, tileid, 16);
                     if (pwall) pwalls.push(pwall);
                 }
             }
