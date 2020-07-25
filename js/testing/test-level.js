@@ -4,7 +4,7 @@ export { make_test_world }
 
 import * as concepts from "../core/concepts.js";
 import { random_int, index_from_position } from "../system/utility.js";
-import { RandomActionEnemy } from "../enemies/test-enemy.js";
+import { RandomActionEnemy } from "../characters/test-enemy.js";
 
 import * as tiles from "../definitions-tiles.js";
 import { world_grid, default_rules } from "../definitions-world.js";
