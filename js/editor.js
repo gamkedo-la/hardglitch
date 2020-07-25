@@ -369,9 +369,9 @@ function update(){
         }
     }
 
-    if (input.keyboard.is_just_down(79)) {
+    if (input.keyboard.is_just_down(KEY.O)) {
         audio.playEvent('buffertest', Math.random());
-    } else if (input.keyboard.is_just_released(79)) {
+    } else if (input.keyboard.is_just_released(KEY.O)) {
         audio.stopEvent('streamtest');
     }
 
