@@ -6,6 +6,7 @@ export {
 };
 
 import { group_per_type } from "./system/utility.js";
+import * as audio from "./system/audio.js"
 import * as graphics from "./system/graphics.js";
 import * as ui from "./system/ui.js";
 import { sprite_defs } from "./game-assets.js";
@@ -100,6 +101,25 @@ class CancelActionButton extends ui.Button {
 
 };
 
+class MuteAudioButton extends ui.Button {
+    constructor() {
+        super({sprite_def: sprite_defs.button_mute_audio,
+            frames: { up: 0, down: 1, over: 2, disabled: 3},
+            action: audio.toggleMute,
+            is_action_on_up: false,
+            position: {x: 32, y: 32},
+            width: 64,
+            height: 64,
+        })
+
+        this.help_text = new ui.HelpText({
+            width: this.width, height: this.height,
+            area_to_help: this.area,
+            text: "Mute",
+        });
+    }
+}
+
 
 // The interface used by the player when inside the game.
 // NOTE: it's a class instead of just globals because we need to initialize and destroy it
@@ -111,6 +131,8 @@ class GameInterface {
             this.cancel_action_target_selection();
             this.button_cancel_action_selection.visible = false;
     });
+
+    button_mute_audio = new MuteAudioButton();
 
     constructor(on_action_selection_begin, on_action_selection_end, on_action_pointed_begin, on_action_pointed_end){
         console.assert(on_action_selection_begin instanceof Function);
