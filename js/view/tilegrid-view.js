@@ -96,6 +96,7 @@ class TileGridView {
             if (surface_element === tiledefs.ID.WALL) continue;
             if (surface_element === tiledefs.ID.GROUND) continue;
             if (surface_element === tiledefs.ID.VOID) continue;
+            if (surface_element === tiledefs.ID.HOLE) continue;
             midData[i] = surface_element;
         }
         for (let i=0; i<surface_tile_grid.elements.length; i++) {

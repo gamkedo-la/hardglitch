@@ -4,11 +4,6 @@
 export { SeamSelector, genFloorOverlay, genFgOverlay };
 
 import { tile_id } from "../game-assets.js";
-import * as tiledefs from "../definitions-tiles.js";
-
-function isWall(v) {
-    return (v == tiledefs.ID.WALL) ? 1 : 0;
-}
 
 const RIGHT = 1;
 const UP = 2;
