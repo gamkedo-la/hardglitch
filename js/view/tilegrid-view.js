@@ -93,17 +93,17 @@ class TileGridView {
         const midData = new Array(size.x * size.y);
         for (let i=0; i<midData.length; i++) {
             const surface_element = ground_tile_grid.elements[i];
-            if (surface_element == tiledefs.ID.WALL) continue;
-            if (surface_element == tiledefs.ID.GROUND) continue;
-            if (surface_element == tiledefs.ID.VOID) continue;
+            if (surface_element === tiledefs.ID.WALL) continue;
+            if (surface_element === tiledefs.ID.GROUND) continue;
+            if (surface_element === tiledefs.ID.VOID) continue;
             midData[i] = surface_element;
         }
         for (let i=0; i<surface_tile_grid.elements.length; i++) {
-            if (surface_tile_grid.elements[i] == tiledefs.ID.EXIT) {
+            if (surface_tile_grid.elements[i] === tiledefs.ID.EXIT) {
                 let pos = position_from_index(size.x, size.y, i);
                 this.fx_view.exitPortal({x: pos.x*PIXELS_PER_TILES_SIDE + PIXELS_PER_HALF_SIDE, y: pos.y*PIXELS_PER_TILES_SIDE + PIXELS_PER_HALF_SIDE});
             }
-            if (ground_tile_grid.elements[i] == tiledefs.ID.VOID) {
+            if (ground_tile_grid.elements[i] === tiledefs.ID.VOID) {
                 let coords = position_from_index(size.x, size.y, i);
                 for (let si=coords.x*2; si<=(coords.x*2+1); si++) {
                     for (let sj=coords.y*2; sj<=(coords.y*2+1); sj++) {

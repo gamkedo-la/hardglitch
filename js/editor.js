@@ -155,7 +155,7 @@ function update_world_edition(){
 
     // EDIT TILES
     if(input.mouse.buttons.is_down(input.MOUSE_BUTTON.LEFT)){
-        world_was_edited = world_was_edited || change_pointed_tile_if_key_down(KEY.NUMBER_0, undefined);
+        world_was_edited = world_was_edited || change_pointed_tile_if_key_down(KEY.NUMBER_0, tiles.ID.HOLE);
         world_was_edited = world_was_edited || change_pointed_tile_if_key_down(KEY.NUMBER_1, tiles.ID.GROUND);
         world_was_edited = world_was_edited || change_pointed_tile_if_key_down(KEY.NUMBER_2, tiles.ID.WALL);
         world_was_edited = world_was_edited || change_pointed_tile_if_key_down(KEY.NUMBER_3, tiles.ID.VOID);
@@ -342,14 +342,14 @@ function update(){
     if(input.keyboard.is_just_down(KEY.RIGHT_BRACKET)){
         current_game.turn_info.player_character.stats.view_distance.increase(1);
         current_game.turn_info.player_character.update_perception(current_game.world);
-        current_game_view.fog_of_war.refresh();
+        current_game_view.fog_of_war.refresh(current_game.world);
         current_game_view._require_tiles_update = true;
     }
 
     if(input.keyboard.is_just_down(KEY.LEFT_BRACKET)){
         current_game.turn_info.player_character.stats.view_distance.decrease(1);
         current_game.turn_info.player_character.update_perception(current_game.world);
-        current_game_view.fog_of_war.refresh();
+        current_game_view.fog_of_war.refresh(current_game.world);
         current_game_view._require_tiles_update = true;
     }
 
