@@ -93,14 +93,25 @@ function gen(grid) {
     grid.set_at(tiledefs.ID.WALL,5,6);
 
     // carve out test hole
-    grid.set_at(tiledefs.ID.WALL,8,7);
+    grid.set_at(tiledefs.ID.HOLE,7,7);
+    grid.set_at(tiledefs.ID.HOLE,7,8);
+    grid.set_at(tiledefs.ID.HOLE,8,7);
     grid.set_at(tiledefs.ID.HOLE,8,8);
-    grid.set_at(tiledefs.ID.WALL,8,9);
+    grid.set_at(tiledefs.ID.HOLE,9,5);
+    grid.set_at(tiledefs.ID.HOLE,9,6);
     grid.set_at(tiledefs.ID.HOLE,9,7);
     grid.set_at(tiledefs.ID.HOLE,9,8);
     grid.set_at(tiledefs.ID.HOLE,9,9);
+    grid.set_at(tiledefs.ID.HOLE,10,5);
+    grid.set_at(tiledefs.ID.HOLE,10,6);
+    grid.set_at(tiledefs.ID.HOLE,10,7);
     grid.set_at(tiledefs.ID.HOLE,10,8);
-    grid.set_at(tiledefs.ID.WALL,11,8);
+    grid.set_at(tiledefs.ID.HOLE,10,9);
+    grid.set_at(tiledefs.ID.HOLE,11,7);
+    grid.set_at(tiledefs.ID.HOLE,11,8);
+    grid.set_at(tiledefs.ID.HOLE,12,7);
+    grid.set_at(tiledefs.ID.HOLE,12,8);
+    //grid.set_at(tiledefs.ID.WALL,11,8);
 }
 
 class PathShape {
@@ -658,7 +669,7 @@ const holeFaceMap = {
         ],
         "hl": {
             "front": [3,4],
-            "top": [3,4, 4,5],
+            "top": [2,3, 3,4, 4,5],
         },
         "frontedges": [
             {v1: 3, v2: 4, style: "frontdark"},
@@ -671,7 +682,7 @@ const holeFaceMap = {
             {x:16,  y:0}, {x:32, y:0}, {x:32, y:15}, {x:31, y:16}, {x:31, y:32}, {x:16, y:32},
         ],
         "hl": {
-            "top": [3,4],
+            "top": [2,3, 3,4],
         },
     },
 
