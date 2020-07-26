@@ -76,26 +76,25 @@ class MoveInCircles extends concepts.Actor {
 
         const prefered_direction = this.direction_sequence.next().value;
         const prefered_move_id = `move_${prefered_direction}`;
-        const prefered_move = possible_actions[prefered_move_id];
-        if(prefered_move){
+        if(move_actions_ids.includes(prefered_move_id)){
             this.last_action_id = prefered_move_id;
+            const prefered_move = possible_actions[prefered_move_id];
+            console.assert(prefered_move instanceof concepts.Action && prefered_move.is_safe);
             return prefered_move;
         } else {
             this.directions.reverse();
             const reversed_move_id = reverse_move_id[this.last_action_id];
-            const second_prefered_move = possible_actions[reversed_move_id];
-            if(second_prefered_move && second_prefered_move.is_safe){
-                this.last_action_id = second_prefered_move;
+            if(move_actions_ids.includes(reverse_move_id)){
+                this.last_action_id = reversed_move_id;
+                const second_prefered_move = possible_actions[reverse_move_id];
+                console.assert(second_prefered_move instanceof concepts.Action && second_prefered_move.is_safe);
                 return second_prefered_move;
             } else {
                 const random_action_id = random_sample(move_actions_ids);
                 const action = possible_actions[random_action_id];
-                if(action.is_safe){
-                    this.last_action_id = random_action_id;
-                    return action;
-                } else {
-                    return possible_actions.wait;
-                }
+                this.last_action_id = random_action_id;
+                console.assert(action instanceof concepts.Action && action.is_safe);
+                return action;
             }
         }
     }
