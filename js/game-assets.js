@@ -45,7 +45,7 @@ const game_assets = { // Description of the assets to load.
         laserwalltemplate : "./images/laserwall.png",
         crypto_file: "./images/allcryptofiles.png",
         crypto_key: "./images/cryptokeycircle2.png",
-        movable_wall: "./images/block.png",
+        movable_wall: "./images/column2.png",
         life_form: "./images/life_form.png",
         life_form_weak: "./images/life_form_weak.png",
 
