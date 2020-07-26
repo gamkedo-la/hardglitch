@@ -6,8 +6,12 @@ import { Character, CharacterStats } from "../core/character.js"
 import { random_sample } from "../system/utility.js";
 import { Wait } from "../rules/rules-basic.js";
 
-
-
+const reverse_move = {
+    move_east : "move_west",
+    move_north: "move_south",
+    move_west : "move_east",
+    move_south: "move_north",
+};
 
 class MoveUntilYouCant extends concepts.Actor {
 
@@ -28,14 +32,23 @@ class MoveUntilYouCant extends concepts.Actor {
             console.assert(action instanceof concepts.Action);
             return action;
         } else {
-            const random_action_id = random_sample(move_actions_ids);
-            this.last_action_id = random_action_id;
-            const action = possible_actions[random_action_id];
-            console.assert(action instanceof concepts.Action);
-            return action;
+            const reverse_action_id = reverse_move[this.last_action_id];
+            if(move_actions_ids.includes(reverse_action_id)){
+                this.last_action_id = reverse_action_id;
+                const action = possible_actions[reverse_action_id];
+                console.assert(action instanceof concepts.Action);
+                return action;
+            } else {
+                const random_action_id = random_sample(move_actions_ids);
+                this.last_action_id = random_action_id;
+                const action = possible_actions[random_action_id];
+                console.assert(action instanceof concepts.Action);
+                return action;
+            }
         }
     }
 };
+
 
 
 class LifeForm_Weak extends Character {
