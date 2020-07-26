@@ -5,6 +5,7 @@ export {
     stopEvent,
     setVolume,
     toggleMute,
+    is_muted,
 };
 
 import { clamp } from "./utility.js";
@@ -12,6 +13,8 @@ import { clamp } from "./utility.js";
 let muted = false;
 let audio_context, mix_groups, audio_buffers, audio_streams;
 let audio_events = [];
+
+function is_muted() { return muted; }
 
 const event_defs = {
     'buffertest': {
@@ -53,7 +56,7 @@ function playEvent(name, pan) {
     let event;
 
     let index;
-    if ((event_def.unique || event_def.source_type === 'audiostream') && 
+    if ((event_def.unique || event_def.source_type === 'audiostream') &&
         (index = audio_events.findIndex((element) => element.event_name === name)) >= 0) {
         event = audio_events[index];
     } else { // Create new event instance
@@ -68,7 +71,7 @@ function playEvent(name, pan) {
             default:
                 return null;
         }
-        audio_events.push(event);    
+        audio_events.push(event);
     }
 
     if (pan) event.pan = pan;
@@ -160,7 +163,7 @@ class AudioBufferEvent {
 
     get volume() { return this.vol.gain.value };
     set volume(value) { this.vol.gain.value = value }
-    
+
     get pan() { return this.panner.pan.volume }
     set pan(value) { this.panner.pan.value = value }
 }
@@ -177,7 +180,7 @@ class AudioStreamEvent {
         this.panner.connect(this.vol);
         let output = event_def.group_name ? mix_groups[event_def.group_name] : mix_groups.Master;
         this.vol.connect(output);
-    
+
         this.loop = event_def.loop ? event_def.loop : false;
     }
 
@@ -218,5 +221,5 @@ class AudioStreamEvent {
 //      nodesUsed = [],
 //  }
 //
-// Checkout on use (nodesUed[i] = 1) and check-in on event completion (nodesUsed[i] = 0) 
+// Checkout on use (nodesUed[i] = 1) and check-in on event completion (nodesUsed[i] = 0)
 */

@@ -85,6 +85,7 @@ class CancelActionButton extends ui.Button {
             width: action_button_size, height: action_button_size,
             area_to_help: this.area,
             text: "Cancel",
+            delay_ms: 0,
         });
 
     }
@@ -109,16 +110,36 @@ class MuteAudioButton extends ui.Button {
             action: audio.toggleMute,
             is_action_on_up: true,
             position: {x: 32, y: 32},
-            width: 64,
-            height: 64,
-        })
+            width: action_button_size,
+            height: action_button_size,
+        });
+
+        this.icons = {
+            mute: new graphics.Sprite(sprite_defs.icon_volume_mute),
+            unmute: new graphics.Sprite(sprite_defs.icon_volume_unmute),
+        };
+        const icon_position = center_in_rectangle(this.icons.mute,
+            { position: this.position, width: action_button_size, height:action_button_size}).position;
+
+        this.icons.mute.position = icon_position;
+        this.icons.unmute.position = icon_position;
 
         this.help_text = new ui.HelpText({
             width: this.width, height: this.height,
             area_to_help: this.area,
             text: "Mute",
+            delay_ms: 0,
         });
     }
+
+    _on_update(delta_time){
+        if(audio.is_muted())
+            this.icon = this.icons.mute;
+        else
+            this.icon = this.icons.unmute;
+        super._on_update(delta_time);
+    }
+
 }
 
 

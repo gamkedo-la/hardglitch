@@ -50,6 +50,8 @@ const game_assets = { // Description of the assets to load.
         life_form_weak: "./images/life_form_weak.png",
 
         // TODO: merge icons into one image
+        icon_volume_mute: "./images/iconmute.png",
+        icon_volume_unmute: "./images/iconsound.png",
         icon_corrupt: "./images/iconcorrupt.png",
         icon_delete: "./images/icondelete.png",
         icon_merge: "./images/iconmerge.png",
@@ -61,7 +63,7 @@ const game_assets = { // Description of the assets to load.
         icon_swap: "./images/iconswap.png",
         icon_wait: "./images/wait.png",
         icon_cancel: "./images/iconcancel.png",
-        icon_take: "./images/iconpickup.png"
+        icon_take: "./images/iconpickup.png",
     },
 
     audio_buffers: { // Short audio assets held in memory. No hard limit on duplicates/overlaps.
@@ -233,6 +235,8 @@ const sprite_defs = {
     button_select_action: test_button,
     button_mute_audio: test_button,
 
+    icon_volume_mute: icon_def_from_image("icon_volume_mute"),
+    icon_volume_unmute: icon_def_from_image("icon_volume_unmute"),
     icon_action_corrupt: icon_def_from_image("icon_corrupt"),
     icon_action_delete: icon_def_from_image("icon_delete"),
     icon_action_merge: icon_def_from_image("icon_merge"),
