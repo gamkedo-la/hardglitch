@@ -84,15 +84,18 @@ class MoveInCircles extends concepts.Actor {
             this.directions.reverse();
             const reversed_move_id = reverse_move_id[this.last_action_id];
             const second_prefered_move = possible_actions[reversed_move_id];
-            if(second_prefered_move){
+            if(second_prefered_move && second_prefered_move.is_safe){
                 this.last_action_id = second_prefered_move;
                 return second_prefered_move;
             } else {
                 const random_action_id = random_sample(move_actions_ids);
                 const action = possible_actions[random_action_id];
-                console.assert(action instanceof concepts.Action);
-                this.last_action_id = random_action_id;
-                return action;
+                if(action.is_safe){
+                    this.last_action_id = random_action_id;
+                    return action;
+                } else {
+                    return possible_actions.wait;
+                }
             }
         }
     }
