@@ -587,6 +587,282 @@ const faceMap = {
 
 }
 
+const holeFaceMap = {
+    "ltb": {
+        "verts": [
+            {x:0,  y:0}, {x:16, y:0}, {x:32, y:16}, {x:32, y:31}, {x:15, y:31}, {x:0,  y:16},
+        ],
+        "hl": {
+            "front": [4,5],
+            "top": [3,4, 4,5, 5,0],
+        },
+        "frontedges": [
+            {v1: 3, v2: 4, style: "front"},
+            {v1: 4, v2: 5, style: "frontlight"},
+        ],
+    },
+
+    "btls": {
+        "verts": [
+            {x:0,  y:16}, {x:32, y:16}, {x:32, y:47}, {x:16, y:31}, {x:0, y:31},
+        ],
+        "hl": {
+            "front": [2,3],
+            "top": [2,3, 3,4],
+        },
+        "frontedges": [
+            {v1: 2, v2: 3, style: "frontlight"},
+            {v1: 3, v2: 4, style: "front"},
+        ],
+    },
+
+    "btle": {
+        "verts": [
+            {x:0,  y:0}, {x:15, y:0}, {x:15, y:32}, {x:0, y:32}, {x:0, y:15},
+        ],
+        "hl": {
+            "top": [3,4],
+        },
+    },
+
+    "l": {
+        "verts": [
+            {x:0,  y:0}, {x:15, y:0}, {x:15, y:32}, {x:0, y:32},
+        ],
+        "hl": {
+            "top": [3,0],
+        },
+    },
+
+    "ttle": {
+        "verts": [
+            {x:0,  y:0}, {x:15, y:0}, {x:15, y:32}, {x:0, y:32},
+        ],
+        "hl": {
+            "top": [3,0],
+        },
+    },
+
+    "ltbs": {
+        "verts": [
+            {x:0,  y:0}, {x:15, y:0}, {x:15, y:32}, {x:0, y:32},
+        ],
+        "hl": {
+            "top": [3,0],
+        },
+    },
+
+    "btr": {
+        "verts": [
+            {x:0,  y:16}, {x:15, y:0}, {x:31, y:0}, {x:31, y:16}, {x:16, y:31}, {x:0,  y:31},
+        ],
+        "hl": {
+            "front": [3,4],
+            "top": [3,4, 4,5],
+        },
+        "frontedges": [
+            {v1: 3, v2: 4, style: "frontdark"},
+            {v1: 4, v2: 5, style: "front"},
+        ],
+    },
+
+    "rtbs": {
+        "verts": [
+            {x:16,  y:0}, {x:32, y:0}, {x:32, y:15}, {x:31, y:16}, {x:31, y:32}, {x:16, y:32},
+        ],
+        "hl": {
+            "top": [3,4],
+        },
+    },
+
+    "rtbe": {
+        "verts": [
+            {x:0,  y:16}, {x:32, y:16}, {x:32, y:31}, {x:16, y:31}, {x:0, y:47},
+        ],
+        "hl": {
+            "front": [3],
+            "top": [2,3, 3,4],
+        },
+        "frontedges": [
+            {v1: 2, v2: 3, style: "front"},
+            {v1: 3, v2: 4, style: "frontdark"},
+        ],
+    },
+
+    "rtt": {
+        "verts": [
+            {x:0,  y:0}, {x:16, y:0}, {x:31, y:15}, {x:31, y:32}, {x:16, y:32}, {x:0, y:15},
+        ],
+        "backedges": [
+            {v1: 0, v2: 1, style: "back"},
+            {v1: 1, v2: 2, style: "backdark"},
+        ],
+        "hl": {
+            "back": [1,2],
+            "top": [0,1, 1,2, 2,3],
+        },
+    },
+
+    "ttrs": {
+        "verts": [
+            {x:0,  y:-15}, {x:15, y:0}, {x:32, y:0}, {x:32, y:15}, {x:0, y:15},
+        ],
+        "backedges": [
+            {v1: 0, v2: 1, style: "backdark"},
+            {v1: 1, v2: 2, style: "back"},
+        ],
+        "hl": {
+            "back": [1],
+            "top": [0,1, 1,2],
+        },
+    },
+
+    "ttre": {
+        "verts": [
+            {x:16,  y:0}, {x:31, y:0}, {x:31, y:16}, {x:32, y:17}, {x:32, y:32}, {x:16, y:32},
+        ],
+        "hl": {
+            "top": [1,2],
+        },
+    },
+
+    "ttl": {
+        "verts": [
+            {x:0,  y:15}, {x:15, y:0}, {x:32, y:0}, {x:32, y:15}, {x:15, y:32}, {x:0, y:32},
+        ],
+        "backedges": [
+            {v1: 0, v2: 1, style: "backlight"},
+            {v1: 1, v2: 2, style: "back"},
+        ],
+        "hl": {
+            "back": [0,1],
+            "top": [0,1, 1,2, 5,0],
+        },
+    },
+
+    "ltts": {
+        "verts": [
+            {x:0,  y:0}, {x:15, y:0}, {x:15, y:32}, {x:0, y:32}, {x:0, y:16},
+        ],
+        "hl": {
+            "top": [4,0],
+        },
+    },
+
+    "ltte": {
+        "verts": [
+            {x:0,  y:0}, {x:16, y:0}, {x:32, y:-15}, {x:32, y:15}, {x:0, y:15},
+        ],
+        "backedges": [
+            {v1: 0, v2: 1, style: "back"},
+            {v1: 1, v2: 2, style: "backlight"},
+        ],
+        "hl": {
+            "back": [1],
+            "top": [0,1, 1,2],
+        },
+    },
+
+    "ttls": {
+        "verts": [
+            {x:0,  y:0}, {x:32, y:0}, {x:32, y:15}, {x:0, y:15},
+        ],
+        "backedges": [
+            {v1: 0, v2: 1, style: "back"},
+        ],
+        "hl": {
+            "top": [0,1],
+        },
+    },
+
+    "t": {
+        "verts": [
+            {x:0,  y:0}, {x:32, y:0}, {x:32, y:15}, {x:0, y:15},
+        ],
+        "backedges": [
+            {v1: 0, v2: 1, style: "back"},
+        ],
+        "hl": {
+            "top": [0,1],
+        },
+    },
+
+    "rtte": {
+        "verts": [
+            {x:0,  y:0}, {x:32, y:0}, {x:32, y:15}, {x:0, y:15},
+        ],
+        "backedges": [
+            {v1: 0, v2: 1, style: "back"},
+        ],
+        "hl": {
+            "top": [0,1],
+        },
+    },
+
+    "b": {
+        "verts": [
+            {x:0,  y:16}, {x:32, y:16}, {x:32, y:31}, {x:0, y:31},
+        ],
+        "hl": {
+            "top": [2,3],
+        },
+        "frontedges": [
+            {v1: 2, v2: 3, style: "front"},
+        ],
+    },
+
+    "ltbe": {
+        "verts": [
+            {x:0,  y:16}, {x:32, y:16}, {x:32, y:31}, {x:0, y:31},
+        ],
+        "hl": {
+            "top": [2,3],
+        },
+        "frontedges": [
+            {v1: 2, v2: 3, style: "front"},
+        ],
+    },
+
+    "btrs": {
+        "verts": [
+            {x:0,  y:16}, {x:32, y:16}, {x:32, y:31}, {x:0, y:31},
+        ],
+        "hl": {
+            "top": [2,3],
+        },
+        "frontedges": [
+            {v1: 2, v2: 3, style: "front"},
+        ],
+    },
+
+    "r": {
+        "verts": [
+            {x:16,  y:0}, {x:31, y:0}, {x:31, y:32}, {x:16, y:32},
+        ],
+        "hl": {
+            "top": [1,2],
+        },
+    },
+
+    "rtts": {
+        "verts": [
+            {x:16,  y:0}, {x:31, y:0}, {x:31, y:32}, {x:16, y:32},
+        ],
+        "hl": {
+            "top": [1,2],
+        },
+    },
+
+    "btre": {
+        "verts": [
+            {x:16,  y:0}, {x:31, y:0}, {x:31, y:32}, {x:16, y:32},
+        ],
+        "hl": {
+            "top": [1,2],
+        },
+    },
+
+}
 const colorMap = {
     "top": new Color(98,129,189,.85),
     "frontlight": new Color(70,85,175,.85),
@@ -600,12 +876,12 @@ const colorMap = {
 
 const holeColorMap = {
     "top": new Color(90,24,90,.3),
-    "frontlight": new Color(70,85,175,.3),
-    "front": new Color(49,60,123,.3),
-    "frontdark": new Color(36,45,91,.3),
-    "backlight": new Color(70,85,175,.15),
-    "back": new Color(49,60,123,.15),
-    "backdark": new Color(36,45,91,.15),
+    "frontlight": new Color(156,36,222,.2),
+    "front": new Color(156,36,222,.3),
+    "frontdark": new Color(156,36,222,.4),
+    "backlight": new Color(156,36,222,.2),
+    "back": new Color(156,36,222,.3),
+    "backdark": new Color(156,36,222,.4),
     "hl": new Color(200,50,200,.85),
 }
 
@@ -655,7 +931,7 @@ class ProcWallGenerator {
             if (this.show.highlightMinor) shapes.push(new PathShape(path, false, this.colormap["hl"].asRGB(this.highlights.minorAlpha), this.highlights.minorWidth));
         }
         // add top
-        if (this.show.back) {
+        if (this.show.top) {
             path = this.makeTopPath(pos, height, faceInfo);
             shapes.push(new PathShape(path, true, this.colormap["top"]));
         }
@@ -829,8 +1105,9 @@ class Env {
         // draw background overlay
         let pwalls = [];
         let pwallgen = new ProcWallGenerator(faceMap, colorMap);
-        let pholegen = new ProcWallGenerator(faceMap, holeColorMap);
+        let pholegen = new ProcWallGenerator(holeFaceMap, holeColorMap);
         pholegen.show.top = false;
+        pholegen.dbg = true;
         for (let j=0; j<bg_grid.height; j++) {
             for (let i=0; i<bg_grid.width; i++) {
                 let v = bg_grid.get_at(i,j);
@@ -878,13 +1155,11 @@ class Env {
                 // walls
                 if (iswall) {
                     let pos = {x:32*i, y:32*j};
-                    //let pwall = new ProcWall(pos, tileid, 32);
                     let pwall = pwallgen.create(pos, tileid, 32);
                     if (pwall) pwalls.push(pwall);
                 } else if (ishole) {
                     let pos = {x:32*i, y:32*j};
-                    //let pwall = new ProcWall(pos, tileid, 16);
-                    let pwall = pholegen.create(pos, tileid, 16);
+                    let pwall = pholegen.create(pos, tileid, 20);
                     if (pwall) pwalls.push(pwall);
                 }
             }
