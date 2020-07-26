@@ -1,5 +1,6 @@
 export {
     rotate_array,
+    shuffle_array,
     random_sample,
     random_float,
     random_int,
@@ -27,6 +28,20 @@ function rotate_array(array, count = 1){
         array.push(element);
         --count;
     }
+    return array;
+}
+
+// Source: https://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array
+/**
+ * Shuffles array in place. ES6 version
+ * @param {Array} a items An array containing the items.
+ */
+function shuffle_array(a) {
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
 }
 
 // Return a random element of the provided array.
