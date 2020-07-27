@@ -477,25 +477,26 @@ class GameView {
         highlight.text = this.help_text_at(new_pos);
     }
 
-    get _visibility_predicate(){
+    _visibility_predicate(allow_past_visibility = false){
         // Filter tiles to draw depending on the player's visibility.
         if(!this._require_tiles_update)
             return undefined; // No need to update tiles.
 
+        const was_visible = position => this.fog_of_war.was_visible(position);
+        const is_visible = position => this.fog_of_war.is_visible(position);
+        const predicate = allow_past_visibility? was_visible : is_visible;
+        this._require_tiles_update = false;
+
         if(this.enable_tile_rendering_debug){ // Used for debugging the tiles rendering.
             // Force the fog-of-war filter to "see" how the rendering is done, even if fog is disabled.
-            const predicate = position => this.fog_of_war.is_visible(position);
-            this._require_tiles_update = false;
             return predicate;
         }
 
         // With fog of war disabled, draw all tiles.
-        const predicate = this.enable_fog_of_war ? position => this.fog_of_war.is_visible(position) : () => true;
-        this._require_tiles_update = false;
-        return predicate;
+        return this.enable_fog_of_war ? predicate : () => true;
     }
 
-    get _effects_visibility_predicate(){
+    _effects_visibility_predicate(){
         // Effects are never displayed if not visible.
         return (gfx_position)=>{
             // Translate position of particles into position in the grid.
@@ -505,8 +506,8 @@ class GameView {
     }
 
     render_graphics(){
-        const visibility_predicate = this._visibility_predicate;
-        const effect_visibility_predicate = this._effects_visibility_predicate;
+        const visibility_predicate = this._visibility_predicate();
+        const effect_visibility_predicate = this._effects_visibility_predicate();
 
         this.tile_grid.draw_floor(graphics.screen_canvas_context, visibility_predicate);
 
@@ -525,8 +526,6 @@ class GameView {
         this.fx_view.draw(graphics.screen_canvas_context, effect_visibility_predicate);
 
         this._render_entities(graphics.screen_canvas_context, entity_view => entity_view.is_flying);
-
-
 
         this._render_top_highlights();
 

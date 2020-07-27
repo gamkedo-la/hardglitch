@@ -17,30 +17,20 @@ class ProcWallSystem {
     update(deltaTime) {
     }
 
-    isActive(obj) {
-        // if (this.alwaysActive) return true;
-        // this.checkArea.position.x = obj.position.x;
-        // this.checkArea.position.y = obj.position.y;
-        // return camera.can_see(this.checkArea);
-        return true;
-    }
-
     draw(canvas_context, position_predicate = ()=>true) {
         // make sure they don't impact the rest of the drawing code
         canvas_context.save();
         // iterate through tracked items
         let poks = 0;
-        let aoks = 0;
         for (let i=0; i<this.items.length; i++) {
-            let item = this.items[i];
-            let pok = position_predicate(item.position);
-            let aok = this.isActive(item);
-            if (pok) poks++;
-            if (aok) aoks++;
-            if (pok && aok) item.draw(canvas_context);
+            const item = this.items[i];
+            if (position_predicate(item.position)){
+                poks++;
+                item.draw(canvas_context);
+            }
         }
         canvas_context.restore();
-        console.log("poks: " + poks + " aoks: " + aoks);
+        console.log("poks: " + poks);
     }
 
     add(pwall) {
