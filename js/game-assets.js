@@ -6,6 +6,7 @@ export {
     load_all_assets,
     sprite_defs,
     tile_id,
+    parse_tile_id,
     tile_defs,
 };
 
@@ -389,6 +390,13 @@ const tile_defs = {
  */
 function tile_id(lvl, layer, name) {
     return lvl + "_" + layer + "_" + name;
+}
+
+function parse_tile_id(id) {
+    if (!id) return {};
+    let fields = id.split("_", 3);
+    if (!fields || fields.length != 3) return {};
+    return {lvl: fields[0], layer: fields[1], name: fields[2]};
 }
 
 function update_sprite_defs(imgname, lvl, layer, tilesize) {

@@ -15,7 +15,9 @@ import { Vector2 } from "../system/spatial.js";
 import { PIXELS_PER_TILES_SIDE, PIXELS_PER_HALF_SIDE } from "./entity-view.js";
 import { TileGraphBuilder } from "./particle-graph.js";
 import { GameFxView } from "../game-effects.js";
-import { position_from_index } from "../system/utility.js";
+import { position_from_index, ofmt } from "../system/utility.js";
+import { parse_tile_id } from "../game-assets.js";
+import { procWallGenSelector, ProcWallSystem } from "./proc-wall.js";
 
 // Display tiles.
 class TileGridView {
@@ -67,6 +69,7 @@ class TileGridView {
         this.position = position;
         this.size = size;
         this.gb = new TileGraphBuilder(size.x*PIXELS_PER_TILES_SIDE);
+        this.procWallSys = new ProcWallSystem();
 
         // translate given grids to display grids
         const bg_grid = new Grid(size.x*2, size.y*2);
@@ -89,8 +92,9 @@ class TileGridView {
 
         // handle floor transitions
         genFloorOverlay("lvl1", ground_tile_grid, bg_grid, selectors);
+        // generate walls
         // handle surface transitions
-        genFgOverlay("lvl1", "fg", ground_tile_grid, fg_grid, (v) => (v == tiledefs.ID.WALL) ? 1 : 0);
+        //genFgOverlay("lvl1", "fg", ground_tile_grid, fg_grid, (v) => (v == tiledefs.ID.WALL) ? 1 : 0);
         //genFgOverlay("lvl1", "laser", ground_tile_grid, fg_grid, (v) => (v == tiledefs.ID.HOLE) ? 1 : 0);
         // filter out all wall/ground tiles from fg
         const midData = new Array(size.x * size.y);
@@ -118,6 +122,23 @@ class TileGridView {
                         this.fx_view.voidEdge(pos, tileid);
                     }
                 }
+            }
+        }
+        // iterate through bg grid
+        let pwallgen = procWallGenSelector("wall");
+        let pholegen = procWallGenSelector("hole");
+        for (let i=0; i<bg_grid.elements.length; i++) {
+            let id = bg_grid.elements[i];
+            if (!id) continue;
+            let coords = position_from_index(size.x*2, size.y*2, i);
+            let pos = {x: coords.x*PIXELS_PER_HALF_SIDE, y:coords.y*PIXELS_PER_HALF_SIDE};
+            let sid = parse_tile_id(id);
+            if (sid.layer && sid.layer.startsWith("w2")) {
+                let pwall = pwallgen.create(pos, sid.name, 32);
+                if (pwall) this.procWallSys.add(pwall);
+            } else if (sid.layer && sid.layer.startsWith("h2")) {
+                let pwall = pholegen.create(pos, sid.name, 16);
+                if (pwall) this.procWallSys.add(pwall);
             }
         }
         // iterate through fg grid
@@ -215,6 +236,16 @@ class TileGridView {
         return (position)=> position_predicate({ x: Math.floor(position.x/2), y: Math.floor(position.y/2) });
     }
 
+    _wall_visibility_predicate(position_predicate){
+        if(!position_predicate)
+            return undefined;
+        return (gfx_position)=>{
+            // translate gfx position to grid position
+            const grid_pos = graphics.from_graphic_to_grid_position(gfx_position, PIXELS_PER_TILES_SIDE);
+            return position_predicate(grid_pos);
+        };
+    }
+
     // _top_half_tile_predicate(position_predicate){
     //     // Here we try to display walls completely if their base is visible.
     //     if(!position_predicate)
@@ -247,6 +278,8 @@ class TileGridView {
                 canvas_context = this.mid_tile_grid.draw(canvas_context, position_predicate);
             }
             canvas_context = this.surface_tile_grid.draw(canvas_context, this._half_tile_predicate(position_predicate));
+            //this.procWallSys.draw(canvas_context, this._half_tile_predicate(position_predicate));
+            this.procWallSys.draw(canvas_context, this._wall_visibility_predicate(position_predicate));
         }
 
         this._redraw_surface_requested = false;
