@@ -56,7 +56,7 @@ function draw_text(text, position){
     reused_text_line.position = position;
     reused_text_line.text = text;
     reused_text_line.update();
-    reused_text_line.draw();
+    reused_text_line.draw(graphics.screen_canvas_context);
 }
 
 function display_mouse_position(){
@@ -350,7 +350,6 @@ function update(){
                 current_game_view.enable_tile_rendering_debug = false;
             else {
                 current_game_view.enable_fog_of_war = true;
-                current_game_view.enable_tile_rendering_debug = false;
             }
         }
 

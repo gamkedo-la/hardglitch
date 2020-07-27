@@ -43,9 +43,9 @@ class EntityView {
         this.sprite.update(delta_time);
     }
 
-    render_graphics(){
+    render_graphics(canvas_context){
         if(this.is_visible && graphics.camera.can_see(this.sprite.area))
-            this.sprite.draw();
+            this.sprite.draw(canvas_context);
     }
 
     // This is used in animations to set the graphics at specific squares of the grid.

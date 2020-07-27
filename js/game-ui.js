@@ -193,7 +193,7 @@ class GameInterface {
 
     display() {
         graphics.camera.begin_in_screen_rendering();
-        this.elements.map(element => element.draw());
+        this.elements.map(element => element.draw(graphics.screen_canvas_context));
         graphics.camera.end_in_screen_rendering();
     }
 

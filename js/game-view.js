@@ -108,7 +108,7 @@ class Highlight{
     draw_help(){
         console.assert(!graphics.camera.is_rendering_in_screen);
         if(this._help_text && this._drawn_since_last_update){
-            this._help_text.draw();
+            this._help_text.draw(graphics.screen_canvas_context);
         }
     }
 };
@@ -127,17 +127,21 @@ class GameView {
     get enable_fog_of_war() { return this._enable_fog_of_war; };
     set enable_fog_of_war(new_value) {
         console.assert(typeof(new_value) === "boolean");
-        this._enable_fog_of_war = new_value;
-        this._require_tiles_update = true;
+        if(new_value !== this._enable_fog_of_war){
+            this._enable_fog_of_war = new_value;
+            this._require_tiles_update = true;
+        }
     };
 
     get enable_tile_rendering_debug() { return this._enable_tile_rendering_debug; };
     set enable_tile_rendering_debug(new_value) {
         console.assert(typeof(new_value) === "boolean");
-        this._enable_tile_rendering_debug = new_value;
-        this._require_tiles_update = true;
-        if(this._enable_tile_rendering_debug === false)
-            this._requires_reset = true;
+        if(new_value !== this._enable_tile_rendering_debug){
+            this._require_tiles_update = true;
+            this._enable_tile_rendering_debug = new_value;
+            if(this._enable_tile_rendering_debug === false)
+                this._requires_reset = true;
+        }
     };
 
     enable_auto_camera_center = true;
@@ -430,14 +434,14 @@ class GameView {
 
     get list_entity_views() { return Object.values(this.entity_views); }
 
-    _render_entities(filter){
+    _render_entities(canvas_context, filter){
         console.assert(filter instanceof Function);
         // We need to render the entities in order of verticality so that things souther
         // than other things can be drawn over, allowing to display higher sprites.
         this.list_entity_views
             .filter(filter)
             .sort((left_view, right_view) => left_view.position.y - right_view.position.y)
-            .map(view => view.render_graphics());
+            .map(view => view.render_graphics(canvas_context));
     }
 
     _update_highlights(delta_time){
@@ -507,14 +511,13 @@ class GameView {
         this.tile_grid.draw_floor(graphics.screen_canvas_context, visibility_predicate);
 
         this._render_ground_highlights();
-
-        this._render_entities(entity_view => !entity_view.is_flying);
+        this._render_entities(graphics.screen_canvas_context, entity_view => !entity_view.is_flying);
 
         this.tile_grid.draw_surface(graphics.screen_canvas_context, visibility_predicate);
         this.tile_grid.draw_effects(graphics.screen_canvas_context, effect_visibility_predicate);
         this.fx_view.draw(graphics.screen_canvas_context, effect_visibility_predicate);
 
-        this._render_entities(entity_view => entity_view.is_flying);
+        this._render_entities(graphics.screen_canvas_context, entity_view => entity_view.is_flying);
 
         if(this.enable_fog_of_war){
             this.fog_of_war.display(graphics.screen_canvas_context, this.tile_grid.canvas_context);
@@ -523,7 +526,8 @@ class GameView {
         this._render_top_highlights();
 
         if(!editor.is_enabled)
-        this.ui.display();
+            this.ui.display();
+
         this._render_help(); // TODO: replace this by highlights being UI elements?
     }
 

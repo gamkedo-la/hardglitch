@@ -475,7 +475,8 @@ class TileGrid
     canvas_context.drawImage(this._offscreen_canvas_context.canvas, 0, 0);
   }
 
-  draw(canvas_context = screen_canvas_context, position_predicate){
+  draw(canvas_context, position_predicate){
+    console.assert(canvas_context);
     canvas_context.save();
 
     if(position_predicate)
@@ -527,25 +528,25 @@ function on_window_resized(){
   camera.on_canvas_resized();
 }
 
-function draw_rectangle(rectangle, fillColor) {
-  screen_canvas_context.fillStyle = fillColor;
-  screen_canvas_context.fillRect(rectangle.position.x, rectangle.position.y,
+function draw_rectangle(canvas_context, rectangle, fillColor) {
+  canvas_context.fillStyle = fillColor;
+  canvas_context.fillRect(rectangle.position.x, rectangle.position.y,
     rectangle.width, rectangle.height);
 }
 
-function draw_circle(centerX, centerY, radius, fillColor) {
-  screen_canvas_context.fillStyle = fillColor;
-  screen_canvas_context.beginPath();
-  screen_canvas_context.arc(centerX, centerY, radius, 0, Math.PI*2, true);
-  screen_canvas_context.fill();
+function draw_circle(canvas_context, centerX, centerY, radius, fillColor) {
+  canvas_context.fillStyle = fillColor;
+  canvas_context.beginPath();
+  canvas_context.arc(centerX, centerY, radius, 0, Math.PI*2, true);
+  canvas_context.fill();
 }
 
-function drawBitmapCenteredAtLocationWithRotation(graphic, atX, atY,withAngle) {
-  screen_canvas_context.save(); // allows us to undo translate movement and rotate spin
-  screen_canvas_context.translate(atX,atY); // sets the point where our graphic will go
-  screen_canvas_context.rotate(withAngle); // sets the rotation
-  screen_canvas_context.drawImage(graphic,-graphic.width/2,-graphic.height/2); // center, draw
-  screen_canvas_context.restore(); // undo the translation movement and rotation since save()
+function drawBitmapCenteredAtLocationWithRotation(canvas_context, graphic, atX, atY,withAngle) {
+  canvas_context.save(); // allows us to undo translate movement and rotate spin
+  canvas_context.translate(atX,atY); // sets the point where our graphic will go
+  canvas_context.rotate(withAngle); // sets the rotation
+  canvas_context.drawImage(graphic,-graphic.width/2,-graphic.height/2); // center, draw
+  canvas_context.restore(); // undo the translation movement and rotation since save()
 }
 
 function clear(canvas_context = screen_canvas_context){
@@ -562,26 +563,26 @@ const text_defaults = {
   font: "24px arial", color: "black",
 };
 
-function text_operation(font, color, operation){
-  screen_canvas_context.save();
-  screen_canvas_context.font = font;
-  screen_canvas_context.fillStyle = color;
-  screen_canvas_context.textAlign = text_defaults.text_align;
-  screen_canvas_context.textBaseline = text_defaults.text_baseline;
+function text_operation(canvas_context, font, color, operation){
+  canvas_context.save();
+  canvas_context.font = font;
+  canvas_context.fillStyle = color;
+  canvas_context.textAlign = text_defaults.text_align;
+  canvas_context.textBaseline = text_defaults.text_baseline;
   const result = operation();
-  screen_canvas_context.restore();
+  canvas_context.restore();
   return result;
 }
 
-function measure_text(text, font=text_defaults.font, color=text_defaults.color){
-  return text_operation(font, color, ()=>{
-    return screen_canvas_context.measureText(text);
+function measure_text(canvas_context, text, font=text_defaults.font, color=text_defaults.color){
+  return text_operation(canvas_context, font, color, ()=>{
+    return canvas_context.measureText(text);
   });
 }
 
-function draw_text(text, position, font=text_defaults.font, color=text_defaults.color){
-  return text_operation(font, color, ()=>{
-    screen_canvas_context.fillText(text, position.x, position.y);
+function draw_text(canvas_context, text, position, font=text_defaults.font, color=text_defaults.color){
+  return text_operation(canvas_context, font, color, ()=>{
+    canvas_context.fillText(text, position.x, position.y);
   });
 }
 

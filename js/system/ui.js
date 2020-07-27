@@ -9,7 +9,7 @@ export {
 };
 
 import { Vector2, Rectangle, is_intersection, Vector2_origin } from "./spatial.js";
-import { Sprite, draw_rectangle, canvas_rect, draw_text, measure_text, camera } from "./graphics.js";
+import { Sprite, draw_rectangle, canvas_rect, draw_text, measure_text, camera, screen_canvas_context } from "./graphics.js";
 import { mouse, MOUSE_BUTTON } from "./input.js";
 import { is_number } from "./utility.js";
 
@@ -112,15 +112,16 @@ class UIElement {
 
     // Called by graphic systems to display this UI element.
     // Must be implemented by child classes.
-    draw() {
+    draw(canvas_context) {
+        console.assert(canvas_context);
         if(!this.visible)
             return; // TODO: this is not optimal, a better way would be for the thing owning this to have visible elements in an array and non-visible in another array, and only call draw on the visible ones.
 
-        this._on_draw();
-        this.all_ui_elements.map(element => element.draw());
+        this._on_draw(canvas_context);
+        this.all_ui_elements.map(element => element.draw(canvas_context));
 
         if(this.draw_debug){
-            draw_rectangle(this._area, "#ff00ff");
+            draw_rectangle(canvas_context, this._area, "#ff00ff");
         }
     }
 
@@ -217,8 +218,8 @@ class Button extends UIElement {
         this._sprite.update(delta_time);
     }
 
-    _on_draw(){
-        this._sprite.draw();
+    _on_draw(canvas_context){
+        this._sprite.draw(canvas_context);
     }
 
 
@@ -289,12 +290,13 @@ class Text extends UIElement {
     set text(new_text){
         console.assert(typeof new_text === 'string');
         this._text = new_text;
-        this._reset();
+        this._request_reset = true;
     }
 
-    _reset(){
+    _reset(canvas_context = screen_canvas_context){
+        console.assert(canvas_context);
         // Force resize to the actual size of the text graphically.
-        const text_metrics = measure_text(this._text, this._font, this._color);
+        const text_metrics = measure_text(canvas_context, this._text, this._font, this._color);
         const actual_width = Math.abs(text_metrics.actualBoundingBoxLeft) + Math.abs(text_metrics.actualBoundingBoxRight);
         const actual_height = Math.abs(text_metrics.actualBoundingBoxAscent ) + Math.abs(text_metrics.actualBoundingBoxDescent);
         this._area.size = new Vector2({
@@ -307,9 +309,11 @@ class Text extends UIElement {
 
     }
 
-    _on_draw(){
-        draw_rectangle(this.area, this._background_color);
-        draw_text(this._text, this.position.translate({x:this._margin_horizontal, y:this._margin_vertical}), this._font, this._color);
+    _on_draw(canvas_context){
+        if(this._request_reset)
+            this._reset(canvas_context);
+        draw_rectangle(canvas_context, this.area, this._background_color);
+        draw_text(canvas_context, this._text, this.position.translate({x:this._margin_horizontal, y:this._margin_vertical}), this._font, this._color);
     }
 };
 
