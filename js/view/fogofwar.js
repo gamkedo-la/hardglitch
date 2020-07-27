@@ -84,8 +84,8 @@ class FogOfWar {
     display(canvas_context, complete_grid_canvas_context){
         console.assert(canvas_context);
         console.assert(complete_grid_canvas_context);
-        this.draw_dark_unknown(canvas_context);
-        this.draw_last_visible_squares(canvas_context);
+        this._draw_dark_unknown(canvas_context);
+        this._draw_last_visible_squares(canvas_context);
         if(this._need_last_seen_capture){
             this.capture_last_visible_squares(complete_grid_canvas_context);
         }
@@ -113,7 +113,7 @@ class FogOfWar {
                                         && this.viewed_at_least_once_grid[this.index(position)] === true);
     }
 
-    draw_dark_unknown(canvas_context){
+    _draw_dark_unknown(canvas_context){
         canvas_context.drawImage(this._dark_canvas_context.canvas, 0, 0);
     }
 
@@ -132,7 +132,7 @@ class FogOfWar {
         });
     }
 
-    draw_last_visible_squares(canvas_context){
+    _draw_last_visible_squares(canvas_context){
         canvas_context.drawImage(this._fog_canvas_context.canvas, 0, 0);
     }
 

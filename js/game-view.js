@@ -508,10 +508,12 @@ class GameView {
         const visibility_predicate = this._visibility_predicate;
         const effect_visibility_predicate = this._effects_visibility_predicate;
 
+        // graphics.clear(this.tile_grid.canvas_context);
         this.tile_grid.draw_floor(graphics.screen_canvas_context, visibility_predicate);
 
         this._render_ground_highlights();
         this._render_entities(graphics.screen_canvas_context, entity_view => !entity_view.is_flying);
+
 
         this.tile_grid.draw_surface(graphics.screen_canvas_context, visibility_predicate);
         this.tile_grid.draw_effects(graphics.screen_canvas_context, effect_visibility_predicate);
