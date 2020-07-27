@@ -518,6 +518,8 @@ function canvas_resize_to_window(){
   // We want an even picture to avoid weird scaling issues making sprites display weirdly.
   canvas.width  = window.innerWidth % 2 === 0 ? window.innerWidth : window.innerWidth - 1;
   canvas.height = window.innerHeight % 2 === 0 ? window.innerHeight : window.innerHeight - 1;
+  screen_canvas_context = canvas.getContext('2d');
+  screen_canvas_context.imageSmoothingEnabled = false;
 }
 
 function on_window_resized(){
@@ -546,11 +548,12 @@ function drawBitmapCenteredAtLocationWithRotation(graphic, atX, atY,withAngle) {
   screen_canvas_context.restore(); // undo the translation movement and rotation since save()
 }
 
-function clear(){
-  screen_canvas_context.save();
-  screen_canvas_context.resetTransform();
-  screen_canvas_context.clearRect(0, 0, canvas.width, canvas.height);
-  screen_canvas_context.restore();
+function clear(canvas_context = screen_canvas_context){
+  const canvas_transform = canvas_context.getTransform();
+  canvas_context.resetTransform();
+  canvas_context.clearRect(0, 0, canvas_context.canvas.width, canvas_context.canvas.height);
+  canvas_context.setTransform(canvas_transform);
+  canvas_context.imageSmoothingEnabled = false;
 }
 
 
