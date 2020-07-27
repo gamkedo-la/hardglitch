@@ -158,8 +158,6 @@ class TileGridView {
         // FIXME: for now, enable_overlay is the switch between the old tile display and the new tile display
         if (this._enable_overlay) {
             this.ground_tile_grid = new graphics.TileGrid(position, dsize, PIXELS_PER_HALF_SIDE, tiledefs.sprite_defs, bg_grid.elements);
-            this.mid_tile_grid = new graphics.TileGrid(position, size, PIXELS_PER_TILES_SIDE, tiledefs.sprite_defs, midData);
-            this.surface_tile_grid = new graphics.TileGrid(position, dsize, PIXELS_PER_HALF_SIDE, tiledefs.sprite_defs, fg_grid.elements);
             this.floor_top_tile_grid = new graphics.TileGrid(position, size, PIXELS_PER_TILES_SIDE, tiledefs.sprite_defs, surface_tile_grid.elements);
         } else {
             this.ground_tile_grid = new graphics.TileGrid(position, size, PIXELS_PER_TILES_SIDE, tiledefs.sprite_defs, ground_tile_grid.elements);
@@ -182,9 +180,8 @@ class TileGridView {
     update(delta_time){
         this.ground_tile_grid.update(delta_time);
         if (this._enable_overlay) {
-            this.mid_tile_grid.update(delta_time);
+            this.procWallSys.update(delta_time);
         }
-        this.surface_tile_grid.update(delta_time);
         this.floor_top_tile_grid.update(delta_time);
 
         this._redraw_floor_requested = this._redraw_floor_requested
@@ -192,8 +189,6 @@ class TileGridView {
                               || this.floor_top_tile_grid.redraw_requested
                               ;
         this._redraw_surface_requested = this._redraw_surface_requested
-                              || this.mid_tile_grid.redraw_requested
-                              || this.surface_tile_grid.redraw_requested
                               ;
 
         // fx
@@ -225,9 +220,6 @@ class TileGridView {
         this._offscreen_canvas_context.drawImage(offscreen_canvas_context.canvas, 0, 0);
     }
 
-    _clear_canvas(canvas_context){
-        canvas_context.clearRect(0, 0, canvas_context.width, canvas_context.height);
-    }
 
     _half_tile_predicate(position_predicate){
         // The predicate assumes a tile grid normal but here we have tiles smaller by half, so we need to translate the position of the tile to the position it have in the real grid.
@@ -246,20 +238,8 @@ class TileGridView {
         };
     }
 
-    // _top_half_tile_predicate(position_predicate){
-    //     // Here we try to display walls completely if their base is visible.
-    //     if(!position_predicate)
-    //         return undefined;
-    //     else return (position)=> {
-    //         const current_square = { x: Math.floor(position.x/2), y: Math.floor(position.y/2) };
-    //         const lower_square = { x: current_square.x, y: current_square.y + 1 };
-    //         return position_predicate(current_square)
-    //             || ( lower_square.y < this.height && position_predicate(lower_square) );
-    //     };
-    // }
-
     _render_floor(canvas_context, position_predicate){
-        this._clear_canvas(canvas_context);
+        graphics.clear(canvas_context);
 
         if(this._enable_tile_sprites)
             canvas_context =this.ground_tile_grid.draw(canvas_context, this._half_tile_predicate(position_predicate));
@@ -273,13 +253,11 @@ class TileGridView {
     }
 
     _render_surface(canvas_context, position_predicate){
+        graphics.clear(canvas_context);
         if(this._enable_tile_sprites){
             if (this._enable_overlay) {
-                canvas_context = this.mid_tile_grid.draw(canvas_context, position_predicate);
+                this.procWallSys.draw(canvas_context, this._wall_visibility_predicate(position_predicate));
             }
-            canvas_context = this.surface_tile_grid.draw(canvas_context, this._half_tile_predicate(position_predicate));
-            //this.procWallSys.draw(canvas_context, this._half_tile_predicate(position_predicate));
-            this.procWallSys.draw(canvas_context, this._wall_visibility_predicate(position_predicate));
         }
 
         this._redraw_surface_requested = false;
