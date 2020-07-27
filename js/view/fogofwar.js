@@ -73,7 +73,6 @@ class FogOfWar {
         })
 
         this._render_dark_unknown();
-        this._render_last_visible_squares();
         this._need_last_seen_capture = true;
     }
 
@@ -81,14 +80,36 @@ class FogOfWar {
         // ¯\_(ツ)_/¯  No sprite to update nor other animation to animate.
     }
 
-    display(canvas_context, complete_grid_canvas_context){
+    display(canvas_context){
         console.assert(canvas_context);
-        console.assert(complete_grid_canvas_context);
         this._draw_dark_unknown(canvas_context);
         this._draw_last_visible_squares(canvas_context);
-        if(this._need_last_seen_capture){
-            this.capture_last_visible_squares(complete_grid_canvas_context);
-        }
+    }
+
+    capture_visible_squares(canvas_context){
+        if(!this._need_last_seen_capture)
+            return;
+
+        // const previous_transform = canvas_context.getTransform();
+        // canvas_context.resetTransform();
+
+        // for(let idx = 0; idx < this.current_visibility_grid.length; ++idx){
+        //     if(this.current_visibility_grid[idx] === true){
+        //         const position = this.position_from_index(idx);
+        //         const gfx_position = graphic_position(position);
+        //         this._last_seen_canvas_context.drawImage(canvas_context.canvas,
+        //                 gfx_position.x, gfx_position.y, PIXELS_PER_TILES_SIDE, PIXELS_PER_TILES_SIDE, // source
+        //                 gfx_position.x, gfx_position.y, PIXELS_PER_TILES_SIDE, PIXELS_PER_TILES_SIDE, // destination
+        //             );
+        //     }
+        // }
+
+        // canvas_context.setTransform(previous_transform);
+        //this._last_seen_canvas_context.fillColor = "white";
+        //this._last_seen_canvas_context.fillRect(0, 0, this._last_seen_canvas_context.canvas.width, this._last_seen_canvas_context.canvas.height);
+        this._last_seen_canvas_context.drawImage(canvas_context.canvas, 0, 0);
+
+        this._need_last_seen_capture = false;
     }
 
 
@@ -133,11 +154,13 @@ class FogOfWar {
     }
 
     _draw_last_visible_squares(canvas_context){
+        if(this._need_last_seen_capture)
+            this._render_last_visible_squares();
         canvas_context.drawImage(this._fog_canvas_context.canvas, 0, 0);
     }
 
     _render_last_visible_squares(){
-        this._fog_canvas_context.clearRect(0, 0, this.graphic_width, this.graphic_height);
+        graphics.clear(this._fog_canvas_context);
         for(let idx = 0; idx < this.viewed_at_least_once_grid.length; ++idx){
             if(this.viewed_at_least_once_grid[idx] === true && this.current_visibility_grid[idx] === false){ // Not currently visible.
                 const position = this.position_from_index(idx);
@@ -148,11 +171,6 @@ class FogOfWar {
                     );
             }
         }
-    }
-
-    capture_last_visible_squares(canvas_context){
-        this._last_seen_canvas_context.drawImage(canvas_context.canvas, 0, 0);
-        this._need_last_seen_capture = false;
     }
 
 };

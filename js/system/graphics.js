@@ -240,14 +240,14 @@ class Sprite {
       if(this._current_frame)
       {
         canvas_context.drawImage(this.source_image,
-          this._current_frame.x, this._current_frame.y, size.width, size.height, // source  // FIXME: why do we need the -1????????? weird display bug, no idea why!!!!
+          this._current_frame.x, this._current_frame.y, size.width, size.height, // source
           origin_translation.x, origin_translation.y, size.width, size.height, // destination
         );
       }
       else
       {
         // No frame, use the whole image.
-        canvas_context.drawImage(this.source_image, origin_translation.x, origin_translation.y, size.width, size.height); // FIXME: why do we need the -1????????? weird display bug, no idea why!!!!
+        canvas_context.drawImage(this.source_image, origin_translation.x, origin_translation.y, size.width, size.height);
       }
 
       canvas_context.restore();

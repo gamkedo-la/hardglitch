@@ -12,7 +12,7 @@ import { SeamSelector, genFloorOverlay, genFgOverlay } from "./tile-select.js";
 
 import * as graphics from "../system/graphics.js";
 import { Vector2 } from "../system/spatial.js";
-import { PIXELS_PER_TILES_SIDE, PIXELS_PER_HALF_SIDE } from "./entity-view.js";
+import { PIXELS_PER_TILES_SIDE, PIXELS_PER_HALF_SIDE, graphic_position } from "./entity-view.js";
 import { TileGraphBuilder } from "./particle-graph.js";
 import { GameFxView } from "../game-effects.js";
 import { position_from_index, ofmt } from "../system/utility.js";
@@ -199,13 +199,13 @@ class TileGridView {
     draw_floor(canvas_context, position_predicate){
         if(this._redraw_floor_requested || position_predicate)
             this._render_floor(this._offscreen_floor_canvas_context, position_predicate);
-        this._draw_offscreen_canvas(canvas_context, this._offscreen_floor_canvas_context);
+        this._draw_offscreen_canvas(canvas_context, this._offscreen_floor_canvas_context, position_predicate);
     }
 
     draw_surface(canvas_context, position_predicate){
         if(this._redraw_surface_requested || position_predicate)
             this._render_surface(this._offscreen_surface_canvas_context, position_predicate);
-        this._draw_offscreen_canvas(canvas_context, this._offscreen_surface_canvas_context);
+        this._draw_offscreen_canvas(canvas_context, this._offscreen_surface_canvas_context, position_predicate);
     }
 
     draw_effects(canvas_context, position_predicate){
@@ -215,9 +215,25 @@ class TileGridView {
         }
     }
 
-    _draw_offscreen_canvas(canvas_context, offscreen_canvas_context){
+    _draw_offscreen_canvas(canvas_context, offscreen_canvas_context, position_predicate){
         canvas_context.drawImage(offscreen_canvas_context.canvas, 0, 0);
-        this._offscreen_canvas_context.drawImage(offscreen_canvas_context.canvas, 0, 0);
+
+        if(!position_predicate)
+            return;
+
+        for(let y = 0; y < this.height; ++y){
+            for(let x = 0; x < this.width; ++x){
+                const position = {x, y};
+                if(!position_predicate(position))
+                    continue;
+
+                const gfx_position = graphic_position(position);
+                this._offscreen_canvas_context.drawImage(offscreen_canvas_context.canvas,
+                    gfx_position.x, gfx_position.y, PIXELS_PER_TILES_SIDE, PIXELS_PER_TILES_SIDE,
+                    gfx_position.x, gfx_position.y, PIXELS_PER_TILES_SIDE, PIXELS_PER_TILES_SIDE,
+                );
+            }
+        }
     }
 
 

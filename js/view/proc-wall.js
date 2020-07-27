@@ -18,10 +18,11 @@ class ProcWallSystem {
     }
 
     isActive(obj) {
-        if (this.alwaysActive) return true;
-        this.checkArea.position.x = obj.position.x;
-        this.checkArea.position.y = obj.position.y;
-        return camera.can_see(this.checkArea);
+        // if (this.alwaysActive) return true;
+        // this.checkArea.position.x = obj.position.x;
+        // this.checkArea.position.y = obj.position.y;
+        // return camera.can_see(this.checkArea);
+        return true;
     }
 
     draw(canvas_context, position_predicate = ()=>true) {
@@ -211,7 +212,7 @@ class ProcWallGenerator {
         path.closePath();
         return path
     }
-        
+
 }
 
 function procWallGenSelector(kind) {
