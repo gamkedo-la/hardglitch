@@ -484,16 +484,17 @@ class GameView {
 
         const was_visible = position => this.fog_of_war.was_visible(position);
         const is_visible = position => this.fog_of_war.is_visible(position);
-        const predicate = allow_past_visibility? was_visible : is_visible;
-        this._require_tiles_update = false;
+        const predicate = allow_past_visibility ? was_visible : is_visible;
+
 
         if(this.enable_tile_rendering_debug){ // Used for debugging the tiles rendering.
             // Force the fog-of-war filter to "see" how the rendering is done, even if fog is disabled.
             return predicate;
         }
 
+        const everything = () => true;
         // With fog of war disabled, draw all tiles.
-        return this.enable_fog_of_war ? predicate : () => true;
+        return this.enable_fog_of_war ? predicate : everything;
     }
 
     _effects_visibility_predicate(){
@@ -507,6 +508,7 @@ class GameView {
 
     render_graphics(){
         const visibility_predicate = this._visibility_predicate();
+        const wide_visibility_predicate = this._visibility_predicate(true);
         const effect_visibility_predicate = this._effects_visibility_predicate();
 
         this.tile_grid.draw_floor(graphics.screen_canvas_context, visibility_predicate);
@@ -518,7 +520,7 @@ class GameView {
             this.fog_of_war.display(graphics.screen_canvas_context);
         }
 
-        this.tile_grid.draw_surface(graphics.screen_canvas_context, visibility_predicate);
+        this.tile_grid.draw_surface(graphics.screen_canvas_context, wide_visibility_predicate);
         this.tile_grid.draw_effects(graphics.screen_canvas_context, effect_visibility_predicate);
 
         this.fog_of_war.capture_visible_squares(this.tile_grid.canvas_context);
@@ -533,6 +535,8 @@ class GameView {
             this.ui.display();
 
         this._render_help(); // TODO: replace this by highlights being UI elements?
+
+        this._require_tiles_update = false;
     }
 
     _render_ground_highlights(){
