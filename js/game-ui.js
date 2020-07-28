@@ -212,7 +212,7 @@ class GameInterface {
         const space_between_buttons = action_button_size + 5;
         const canvas_rect = graphics.canvas_rect();
         const line_y = canvas_rect.bottom_right.y - 160;
-        let line_x = (canvas_rect.width / 2) - ((Object.keys(actions_per_types).length / 2) * space_between_buttons);
+        let line_x = (canvas_rect.width / 2) - (Math.floor((Object.keys(actions_per_types).length / 2) + 1) * space_between_buttons);
         const next_x = ()=> line_x += space_between_buttons;
 
         let key_number = 0;
