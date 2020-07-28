@@ -154,11 +154,20 @@ class GameView {
         this._enable_fog_of_war = true;
         this._enable_tile_rendering_debug = false;
 
-        this.ui = new GameInterface((...args)=>this.on_action_selection_begin(...args), // On action selection begin.
-            (...args)=>this.on_action_selection_end(...args),   // On action selection end.
-            (...args)=>this.highlight_action_range(...args),    // On action pointed begin.
-            (...args)=>{ this.clear_action_range_highlight(...args) }, // On action pointed end.
-            );
+        const ui_config = {
+            on_action_selection_begin: (...args) => this.on_action_selection_begin(...args),
+            on_action_selection_end: (...args) => this.on_action_selection_end(...args),
+            on_action_pointed_begin: (...args) => this.highlight_action_range(...args),
+            on_action_pointed_end: (...args) => this.clear_action_range_highlight(...args),
+            toggle_autofocus: () => {
+                this.enable_auto_camera_center = !this.enable_auto_camera_center;
+                if(this.enable_auto_camera_center)
+                    this.center_on_player(500);
+            },
+            is_autofocus_enabled: () => this.enable_auto_camera_center,
+        };
+
+        this.ui = new GameInterface(ui_config);
 
         this._highlight_sprites = {
             neutral: new graphics.Sprite(sprite_defs.highlight_blue),
@@ -409,8 +418,7 @@ class GameView {
                 this.highlight_available_basic_actions();
             };
             if(this.enable_auto_camera_center && this.player_character){
-                this.center_on_limit_position_if_too_far(this.player_character.position, 500)
-                    .then(setup);
+                this.center_on_player(500).then(setup);
             } else {
                 setup();
             }
@@ -699,16 +707,16 @@ class GameView {
         return new concepts.Position(grid_pos);
     }
 
-    center_on_player(){
+    center_on_player(ms_to_center = 0){
         const player = this.player_character;
         const player_position = player.position;
-        this.center_on_position(player_position);
+        return this.center_on_position(player_position, ms_to_center);
     }
 
-    center_on_player_if_too_far(){
+    center_on_player_if_too_far(ms_to_center = 500){
         const player = this.player_character;
         console.assert(player);
-        this.center_on_limit_position_if_too_far(player.position, 500);
+        return this.center_on_limit_position_if_too_far(player.position, ms_to_center);
     }
 
     center_on_position(grid_position, ms_to_center = 0){

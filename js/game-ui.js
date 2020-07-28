@@ -143,6 +143,48 @@ class MuteAudioButton extends ui.Button {
 }
 
 
+class AutoFocusButton extends ui.Button {
+    constructor(toggle_autofocus, is_autofocus_enabled) {
+        super({
+            sprite_def: sprite_defs.button_mute_audio,
+            frames: { up: 0, down: 1, over: 2, disabled: 3},
+            action: toggle_autofocus,
+            is_action_on_up: true,
+            position: {x: 32, y: 32 + action_button_size + 8 },
+            width: action_button_size,
+            height: action_button_size,
+        });
+
+        this.is_autofocus_enabled = is_autofocus_enabled;
+
+        this.icons = {
+            on: new graphics.Sprite(sprite_defs.icon_action_observe),
+        };
+        const icon_position = center_in_rectangle(this.icons.on,
+            { position: this.position, width: action_button_size, height:action_button_size}).position;
+
+        this.icons.on.position = icon_position;
+        // this.icons.off.position = icon_position;
+
+        this.help_text = new ui.HelpText({
+            width: this.width, height: this.height,
+            area_to_help: this.area,
+            text: "Auto-Focus ([F] to focus manually)",
+            delay_ms: 0,
+        });
+    }
+
+    _on_update(delta_time){
+        if(this.is_autofocus_enabled())
+            this.icon = this.icons.on;
+        else
+            this.icon = this.icons.off;
+        super._on_update(delta_time);
+    }
+
+}
+
+
 // The interface used by the player when inside the game.
 // NOTE: it's a class instead of just globals because we need to initialize and destroy it
 //       at specific times in the life of the game, and it's easier to do if its just an object.
@@ -156,16 +198,19 @@ class GameInterface {
 
     button_mute_audio = new MuteAudioButton();
 
-    constructor(on_action_selection_begin, on_action_selection_end, on_action_pointed_begin, on_action_pointed_end){
-        console.assert(on_action_selection_begin instanceof Function);
-        console.assert(on_action_selection_end instanceof Function);
-        console.assert(on_action_pointed_begin instanceof Function);
-        console.assert(on_action_pointed_end instanceof Function);
+
+    constructor(config){
+        console.assert(config instanceof Object);
+        console.assert(config.on_action_selection_begin instanceof Function);
+        console.assert(config.on_action_selection_end instanceof Function);
+        console.assert(config.on_action_pointed_begin instanceof Function);
+        console.assert(config.on_action_pointed_end instanceof Function);
+        console.assert(config.toggle_autofocus instanceof Function);
+        console.assert(config.is_autofocus_enabled instanceof Function);
         this._action_buttons = [];
-        this.on_action_selection_begin = on_action_selection_begin;
-        this.on_action_selection_end = on_action_selection_end;
-        this.on_action_pointed_begin = on_action_pointed_begin;
-        this.on_action_pointed_end = on_action_pointed_end;
+        this.config = config;
+
+        this.button_auto_focus = new AutoFocusButton(this.config.toggle_autofocus, this.config.is_autofocus_enabled);
     }
 
     get elements(){
@@ -235,10 +280,10 @@ class GameInterface {
                     }
                     this.lock_actions(); // Can be unlocked by clicking somewhere there is no action target.
                 },
-                ()=> this.on_action_pointed_begin(action_range, actions.map(action=>action.target_position)),
+                ()=> this.config.on_action_pointed_begin(action_range, actions.map(action=>action.target_position)),
                 ()=> {
                     if(!this.is_mouse_over)
-                        this.on_action_pointed_end();
+                        this.config.on_action_pointed_end();
                 });
             this._action_buttons.push(action_button);
             ++key_number;
@@ -267,14 +312,14 @@ class GameInterface {
 
     _begin_target_selection(action_name, actions){
         this._selected_action = { action_name, actions };
-        this.on_action_selection_begin(this._selected_action);
+        this.config.on_action_selection_begin(this._selected_action);
         this.button_cancel_action_selection.visible = true;
     }
 
     _end_target_selection(action){
         console.assert(!action || action instanceof concepts.Action);
         this._selected_action = undefined;
-        this.on_action_selection_end(action);
+        this.config.on_action_selection_end(action);
         this.button_cancel_action_selection.visible = false;
     }
 

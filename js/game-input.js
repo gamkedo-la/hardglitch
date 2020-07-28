@@ -157,11 +157,8 @@ function update_camera_control(delta_time){
     const keyboard = input.keyboard;
 
 
-    if(keyboard.is_just_down(KEY.F)){
-        current_game_view.enable_auto_camera_center = !current_game_view.enable_auto_camera_center;
-        if(current_game_view.enable_auto_camera_center){
-            current_game_view.center_on_player_if_too_far();
-        }
+    if(keyboard.is_just_down(KEY.F) && current_game_view.player_character){
+        current_game_view.center_on_player(500);
     }
 
     const drag_pos = input.mouse.dragging_positions;
