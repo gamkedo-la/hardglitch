@@ -176,10 +176,10 @@ class Game {
     }
 }
 
-function loadImage(src) {
+function loadImage(src, tag) {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.addEventListener("load", () => resolve(img));
+    img.addEventListener("load", () => resolve(img, tag));
     img.addEventListener("error", err => reject(err));
     img.src = src;
   });

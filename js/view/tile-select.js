@@ -1,9 +1,10 @@
 // This file contains the code that knows how to select tiles sprites
 // depending on a grid of tiles.
 
-export { SeamSelector, genFloorOverlay, genFgOverlay };
+export { SeamSelector, genFloorOverlay, genFgOverlay, genSeamOverlay };
 
-import { tile_id } from "../game-assets.js";
+import { tile_id, parse_tile_id } from "../game-assets.js";
+import { ofmt } from "../system/utility.js";
 
 const RIGHT = 1;
 const UP = 2;
@@ -14,11 +15,10 @@ const UL = 32;
 const DL = 64;
 const DR = 128;
 
-function same() {
-    let a = Array.from(arguments);
+function same(...values) {
     let same = true;
-    for (let i=0; same && i<arguments.length; i++) {
-        if (i>0 && arguments[i] != arguments[0]) same = false;
+    for (let i=1; same && i<arguments.length; i++) {
+        if (values[i] != values[0]) same = false;
     }
     return same;
 }
@@ -57,6 +57,25 @@ function pickSelector(selectors, base, ...others) {
     return best;
 }
 
+function pickMode(...values) {
+    if (values.length == 0) return undefined;
+    let counts = {};
+    let mode = undefined;
+    for (let i=0; i<values.length; i++) {
+        let value = values[i];
+        if (value === undefined) continue;
+        if (counts[value] === undefined) {
+            counts[value] = (value == "ground") ? 3 : 1;
+        } else {
+            counts[value]++;
+        }
+        if (mode === undefined || counts[value] > counts[mode]) {
+            mode = value;
+        }
+    }
+    return mode;
+}
+
 function getMask(grid, p, fcn) {
     let m = ((fcn(grid.right(p))) ? RIGHT : 0) +
             ((fcn(grid.up(p))) ? UP : 0) +
@@ -67,6 +86,45 @@ function getMask(grid, p, fcn) {
             ((fcn(grid.dl(p))) ? DL : 0) +
             ((fcn(grid.dr(p))) ? DR : 0);
     return m;
+}
+
+function genSeamOverlay(lvl, grid, overlay, selectors) {
+    for (let j=0; j<grid.height; j++) {
+        for (let i=0; i<grid.width; i++) {
+            let id = parse_tile_id(grid.get_at(i,j));
+            if (!id) continue;
+            let p = {x:i, y:j};
+            let cornerLayer;
+            let neighbors;
+            let cid;
+            switch (id.name) {
+                case "ttl":
+                    neighbors = [ parse_tile_id(grid.ul(p)).layer, parse_tile_id(grid.up(p)).layer, parse_tile_id(grid.left(p)).layer ];
+                    cid = "ortb";
+                    break;
+                case "ltb":
+                    neighbors = [ parse_tile_id(grid.dl(p)).layer, parse_tile_id(grid.left(p)).layer, parse_tile_id(grid.down(p)).layer ];
+                    cid = "ottr";
+                    break;
+                case "btr":
+                    neighbors = [ parse_tile_id(grid.dr(p)).layer, parse_tile_id(grid.down(p)).layer, parse_tile_id(grid.right(p)).layer ];
+                    cid = "oltt";
+                    break;
+                case "rtt":
+                    neighbors = [ parse_tile_id(grid.ur(p)).layer, parse_tile_id(grid.right(p)).layer, parse_tile_id(grid.up(p)).layer ];
+                    cid = "obtl";
+                    break;
+            }
+            if (!neighbors) continue;
+            if (same(...neighbors)) {
+                cornerLayer = neighbors[0];
+            } else {
+                cornerLayer = "ground";
+            }
+            if (!cornerLayer) continue;
+            overlay.set_at(tile_id(lvl, cornerLayer, cid), i, j);
+        }
+    }
 }
 
 /**
@@ -126,7 +184,6 @@ function genFloorOverlay(lvl, grid, overlay, selectors) {
             if (!selector) continue;
             // compute base mask of surrounding tiles based on selector
             baseMask = getMask(grid, p, selector.baseCmp);
-            //if (v == 2) console.log("ur: " + i + "," + j + ": " + selector + " mask: " + baseMask);
             let tr = "";
             switch (baseMask & (RIGHT|UR|UP)) {
                 case 0:
@@ -163,7 +220,6 @@ function genFloorOverlay(lvl, grid, overlay, selectors) {
             if (!selector) continue;
             // compute base mask of surrounding tiles based on selector
             baseMask = getMask(grid, p, selector.baseCmp);
-            //if (v == 2) console.log("dl: " + i + "," + j + ": " + selector + " mask: " + baseMask);
             let bl = "";
             switch (baseMask & (LEFT|DL|DOWN)) {
                 case 0:
@@ -201,7 +257,6 @@ function genFloorOverlay(lvl, grid, overlay, selectors) {
             if (!selector) continue;
             // compute base mask of surrounding tiles based on selector
             baseMask = getMask(grid, p, selector.baseCmp);
-            //if (v == 2) console.log("dr: " + i + "," + j + ": " + selector + " mask: " + baseMask);
             let br = "";
             switch (baseMask & (RIGHT|DR|DOWN)) {
                 case 0:
