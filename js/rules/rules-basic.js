@@ -143,7 +143,9 @@ class PlayerExitLevel extends concepts.Event {
         // TEMPORARY ANIMATION
         editor.set_central_text("YOU WIN THIS LEVEL! - LOADING NEXT LEVEL ...");
         current_game_view.clear_focus();
-        yield current_game_view.center_on_position(character_view.game_position);
+        let ready_to_exit = false;
+        current_game_view.center_on_position(character_view.game_position, 500).then(()=> ready_to_exit = true );
+        while(!ready_to_exit) yield;
         yield* anim.wait(4000);
         window.location.reload(); // TODO: replace by proper handling of the level exit
     }
