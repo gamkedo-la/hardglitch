@@ -167,14 +167,14 @@ function make_test_world(){ // The game assets must have been initialized first.
         });
 
     // closer stuffs
-    // visibility.positions_in_range(entry_point_position, inner_shape, valid_positions_filter)
-    //     .filter(position => world.is_valid_position(position))
-    //     .forEach(position=>{
-    //         const item_type = random_int(0, 100) >= 50 ? LifeForm_Weak : items.CryptoKey;
-    //         const file = new item_type();
-    //         file.position = position;
-    //         world.add(file);
-    //     });
+    visibility.positions_in_range(entry_point_position, inner_shape, valid_positions_filter)
+        .filter(position => world.is_valid_position(position))
+        .forEach(position=>{
+            const item_type = random_int(0, 100) >= 70 ? LifeForm_Weak : items.CryptoKey;
+            const file = new item_type();
+            file.position = position;
+            world.add(file);
+        });
 
     // farther voids
     visibility.positions_in_range(entry_point_position, outter_shape, valid_positions_filter)
@@ -184,14 +184,14 @@ function make_test_world(){ // The game assets must have been initialized first.
         });
 
     // rim
-    // visibility.positions_in_range(entry_point_position, rim_shape, valid_positions_filter)
-    // .filter(position => world.is_valid_position(position))
-    // .forEach(position=>{
-    //     const item_type = items.MovableWall;
-    //     const file = new item_type();
-    //     file.position = position;
-    //     world.add(file);
-    // });
+    visibility.positions_in_range(entry_point_position, rim_shape, valid_positions_filter)
+    .filter(position => world.is_valid_position(position))
+    .forEach(position=>{
+        const item_type = random_int(0, 100) >= 70 ? items.CryptoFile : items.MovableWall;
+        const file = new item_type();
+        file.position = position;
+        world.add(file);
+    });
 
     //// Border of the world
     const world_border_tile = tiles.ID.HOLE;
