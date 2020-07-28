@@ -8,7 +8,7 @@ import { config } from "../game-config.js";
 
 import { Grid } from "../system/grid.js";
 import * as tiledefs from "../definitions-tiles.js";
-import { SeamSelector, genFloorOverlay, genFgOverlay } from "./tile-select.js";
+import { SeamSelector, genFloorOverlay, genFgOverlay, genSeamOverlay } from "./tile-select.js";
 
 import * as graphics from "../system/graphics.js";
 import { Vector2 } from "../system/spatial.js";
@@ -72,40 +72,20 @@ class TileGridView {
         this.procWallSys = new ProcWallSystem();
 
         // translate given grids to display grids
-        const bg_grid = new Grid(size.x*2, size.y*2);
-        const fg_grid = new Grid(size.x*2, size.y*2);
+        const floor_grid = new Grid(size.x*2, size.y*2);
+        const seam_grid = new Grid(size.x*2, size.y*2);
         let selectors = [
-            new SeamSelector("w2h", (fg) => (fg==tiledefs.ID.WALL), (bg) => (bg == tiledefs.ID.HOLE)),
-            new SeamSelector("w2v", (fg) => (fg==tiledefs.ID.WALL), (bg) => (bg == tiledefs.ID.VOID)),
-            new SeamSelector("w2g", (fg) => (fg==tiledefs.ID.WALL), (bg) => (bg != tiledefs.ID.WALL)),
-            new SeamSelector("h2w", (fg) => (fg==tiledefs.ID.HOLE), (bg) => (bg == tiledefs.ID.WALL)),
-            new SeamSelector("h2v", (fg) => (fg==tiledefs.ID.HOLE), (bg) => (bg == tiledefs.ID.VOID)),
-            new SeamSelector("h2g", (fg) => (fg==tiledefs.ID.HOLE), (bg) => (bg != tiledefs.ID.HOLE)),
-            new SeamSelector("v2h", (fg) => (fg==tiledefs.ID.VOID), (bg) => (bg == tiledefs.ID.HOLE)),
-            new SeamSelector("v2w", (fg) => (fg==tiledefs.ID.VOID), (bg) => (bg == tiledefs.ID.WALL)),
-            new SeamSelector("v2g", (fg) => (fg==tiledefs.ID.VOID), (bg) => (bg != tiledefs.ID.VOID)),
-            new SeamSelector("g2w", (fg) => (fg==tiledefs.ID.GROUND), (bg) => (bg == tiledefs.ID.WALL)),
-            new SeamSelector("g2h", (fg) => (fg==tiledefs.ID.GROUND), (bg) => (bg == tiledefs.ID.HOLE)),
-            new SeamSelector("g2v", (fg) => (fg==tiledefs.ID.GROUND), (bg) => (bg == tiledefs.ID.VOID)),
-            new SeamSelector("g2o", (fg) => (fg==tiledefs.ID.GROUND), (bg) => (bg != tiledefs.ID.GROUND)),
+            new SeamSelector("wall", (fg) => (fg==tiledefs.ID.WALL), (bg) => (bg != tiledefs.ID.WALL)),
+            new SeamSelector("void", (fg) => (fg==tiledefs.ID.VOID), (bg) => (bg != tiledefs.ID.VOID)),
+            new SeamSelector("hole", (fg) => (fg==tiledefs.ID.HOLE), (bg) => (bg != tiledefs.ID.HOLE)),
+            new SeamSelector("ground", (fg) => (fg==tiledefs.ID.GROUND), (bg) => (bg != tiledefs.ID.GROUND)),
         ];
 
-        // handle floor transitions
-        genFloorOverlay("lvl1", ground_tile_grid, bg_grid, selectors);
-        // generate walls
-        // handle surface transitions
-        //genFgOverlay("lvl1", "fg", ground_tile_grid, fg_grid, (v) => (v == tiledefs.ID.WALL) ? 1 : 0);
-        //genFgOverlay("lvl1", "laser", ground_tile_grid, fg_grid, (v) => (v == tiledefs.ID.HOLE) ? 1 : 0);
-        // filter out all wall/ground tiles from fg
-        const midData = new Array(size.x * size.y);
-        for (let i=0; i<midData.length; i++) {
-            const surface_element = ground_tile_grid.elements[i];
-            if (surface_element === tiledefs.ID.WALL) continue;
-            if (surface_element === tiledefs.ID.GROUND) continue;
-            if (surface_element === tiledefs.ID.VOID) continue;
-            if (surface_element === tiledefs.ID.HOLE) continue;
-            midData[i] = surface_element;
-        }
+        // generate floor
+        genFloorOverlay("lvl1", ground_tile_grid, floor_grid, selectors);
+        genSeamOverlay("lvl1", floor_grid, seam_grid);
+
+        // generate tile-specific effects
         for (let i=0; i<surface_tile_grid.elements.length; i++) {
             if (surface_tile_grid.elements[i] === tiledefs.ID.EXIT) {
                 let pos = position_from_index(size.x, size.y, i);
@@ -116,37 +96,38 @@ class TileGridView {
                 for (let si=coords.x*2; si<=(coords.x*2+1); si++) {
                     for (let sj=coords.y*2; sj<=(coords.y*2+1); sj++) {
                         let pos = new Vector2({x: PIXELS_PER_HALF_SIDE*si, y: PIXELS_PER_HALF_SIDE * sj});
-                        let floor = bg_grid.get_at(si, sj);
-                        if (!floor || floor.length < 8) continue;
-                        let tileid = floor.slice(9);  // lvlx_bg_<id>
-                        this.fx_view.voidEdge(pos, tileid);
+                        let id = parse_tile_id(floor_grid.get_at(si, sj));
+                        if (!id.name) continue;
+                        this.fx_view.voidEdge(pos, id.name);
                     }
                 }
             }
         }
-        // iterate through bg grid
+
+        // generate walls
         let pwallgen = procWallGenSelector("wall");
         let pholegen = procWallGenSelector("hole");
-        for (let i=0; i<bg_grid.elements.length; i++) {
-            let id = bg_grid.elements[i];
+        for (let i=0; i<floor_grid.elements.length; i++) {
+            let id = floor_grid.elements[i];
             if (!id) continue;
             let coords = position_from_index(size.x*2, size.y*2, i);
             let pos = {x: coords.x*PIXELS_PER_HALF_SIDE, y:coords.y*PIXELS_PER_HALF_SIDE};
             let sid = parse_tile_id(id);
-            if (sid.layer && sid.layer.startsWith("w2")) {
+            if (sid.layer === "wall") {
                 let pwall = pwallgen.create(pos, sid.name, 32);
                 if (pwall) this.procWallSys.add(pwall);
-            } else if (sid.layer && sid.layer.startsWith("h2")) {
+            } else if (sid.layer === "hole") {
                 let pwall = pholegen.create(pos, sid.name, 16);
                 if (pwall) this.procWallSys.add(pwall);
             }
         }
-        // iterate through fg grid
+
+        // add blip effects to walls
         let addblip = true;
         if (addblip) {
-            for (let i=0; i<fg_grid.elements.length; i++) {
+            for (let i=0; i<floor_grid.elements.length; i++) {
                 let pos = position_from_index(size.x*2, size.y*2, i);
-                let id = fg_grid.elements[i];
+                let id = floor_grid.elements[i];
                 if (!id) continue;
                 id = id.slice(8);
                 this.fx_view.edgeBlip({x: pos.x*PIXELS_PER_HALF_SIDE, y:pos.y*PIXELS_PER_HALF_SIDE}, this.gb, id);
@@ -155,14 +136,9 @@ class TileGridView {
 
         const dsize = new Vector2({x: size.x*2, y: size.y*2});
         // TODO: replace this by just tiles we use, not all tiles in the world
-        // FIXME: for now, enable_overlay is the switch between the old tile display and the new tile display
-        if (this._enable_overlay) {
-            this.ground_tile_grid = new graphics.TileGrid(position, dsize, PIXELS_PER_HALF_SIDE, tiledefs.sprite_defs, bg_grid.elements);
-            this.floor_top_tile_grid = new graphics.TileGrid(position, size, PIXELS_PER_TILES_SIDE, tiledefs.sprite_defs, surface_tile_grid.elements);
-        } else {
-            this.ground_tile_grid = new graphics.TileGrid(position, size, PIXELS_PER_TILES_SIDE, tiledefs.sprite_defs, ground_tile_grid.elements);
-            this.surface_tile_grid = new graphics.TileGrid(position, size, PIXELS_PER_TILES_SIDE, tiledefs.sprite_defs, ground_tile_grid.elements);
-        }
+        this.floor_tile_grid = new graphics.TileGrid(position, dsize, PIXELS_PER_HALF_SIDE, tiledefs.sprite_defs, floor_grid.elements);
+        this.seam_tile_grid = new graphics.TileGrid(position, dsize, PIXELS_PER_HALF_SIDE, tiledefs.sprite_defs, seam_grid.elements);
+        this.floor_top_tile_grid = new graphics.TileGrid(position, size, PIXELS_PER_TILES_SIDE, tiledefs.sprite_defs, surface_tile_grid.elements);
 
         this._redraw_floor_requested = true;
         this._redraw_surface_requested = true;
@@ -178,14 +154,16 @@ class TileGridView {
     get height() { return this.size.y; }
 
     update(delta_time){
-        this.ground_tile_grid.update(delta_time);
+        this.floor_tile_grid.update(delta_time);
+        this.seam_tile_grid.update(delta_time);
         if (this._enable_overlay) {
             this.procWallSys.update(delta_time);
         }
         this.floor_top_tile_grid.update(delta_time);
 
         this._redraw_floor_requested = this._redraw_floor_requested
-                              || this.ground_tile_grid.redraw_requested
+                              || this.floor_tile_grid.redraw_requested
+                              || this.seam_tile_grid.redraw_requested
                               || this.floor_top_tile_grid.redraw_requested
                               ;
         this._redraw_surface_requested = this._redraw_surface_requested
@@ -257,8 +235,10 @@ class TileGridView {
     _render_floor(canvas_context, position_predicate){
         graphics.clear(canvas_context);
 
-        if(this._enable_tile_sprites)
-            canvas_context =this.ground_tile_grid.draw(canvas_context, this._half_tile_predicate(position_predicate));
+        if(this._enable_tile_sprites) {
+            canvas_context =this.floor_tile_grid.draw(canvas_context, this._half_tile_predicate(position_predicate));
+            canvas_context =this.seam_tile_grid.draw(canvas_context, this._half_tile_predicate(position_predicate));
+        }
 
         if(this.enable_grid_lines){
             graphics.draw_grid_lines(this.size.x, this.size.y, PIXELS_PER_TILES_SIDE, this.position, canvas_context);

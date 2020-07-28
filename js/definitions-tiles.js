@@ -85,23 +85,10 @@ function update_id_defs(lvl, layer) {
     }
 }
 // update ID/defs for level 1 tiles
-update_id_defs("lvl1", "fg");
-update_id_defs("lvl1", "bg");
-update_id_defs("lvl1", "laser");
-update_id_defs("lvl1", "g2w");
-update_id_defs("lvl1", "g2h");
-update_id_defs("lvl1", "g2o");
-update_id_defs("lvl1", "h2w");
-update_id_defs("lvl1", "h2v");
-update_id_defs("lvl1", "h2g");
-update_id_defs("lvl1", "w2h");
-update_id_defs("lvl1", "w2v");
-update_id_defs("lvl1", "w2g");
-update_id_defs("lvl1", "v2g");
-update_id_defs("lvl1", "v2h");
-update_id_defs("lvl1", "v2w");
-update_id_defs("lvl1", "g2v");
-
+update_id_defs("lvl1", "ground");
+update_id_defs("lvl1", "wall");
+update_id_defs("lvl1", "void");
+update_id_defs("lvl1", "hole");
 
 // All the tile sprites definitions (as described by tiles definitions).
 const tile_sprite_defs = {};

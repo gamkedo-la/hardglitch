@@ -65,7 +65,7 @@ function pickMode(...values) {
         let value = values[i];
         if (value === undefined) continue;
         if (counts[value] === undefined) {
-            counts[value] = (value == "ground") ? 3 : 1;
+            counts[value] = 1;
         } else {
             counts[value]++;
         }
@@ -88,7 +88,7 @@ function getMask(grid, p, fcn) {
     return m;
 }
 
-function genSeamOverlay(lvl, grid, overlay, selectors) {
+function genSeamOverlay(lvl, grid, overlay) {
     for (let j=0; j<grid.height; j++) {
         for (let i=0; i<grid.width; i++) {
             let id = parse_tile_id(grid.get_at(i,j));

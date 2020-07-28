@@ -129,7 +129,7 @@ class Game {
 
         // create seams
         let seam_grid = new Grid(width*2, height*2);
-        genSeamOverlay("lvl1", bg_grid, seam_grid, selectors);
+        genSeamOverlay("lvl1", bg_grid, seam_grid);
 
         // draw seam overlay
         for (let j=0; j<seam_grid.height; j++) {
@@ -144,20 +144,6 @@ class Game {
                 this.ctx.drawImage(img, tsize*i, tsize*j);
             }
         }
-
-        // draw perspective overlay
-        /*
-        for (let j=0; j<fg_grid.height; j++) {
-            for (let i=0; i<fg_grid.width; i++) {
-                let v = fg_grid.get_at(i,j);
-                if (!v) continue;
-                v = v.slice(8);
-                let img = fgTiles[v];
-                if (!img) continue;
-                this.ctx.drawImage(img, tsize*i, tsize*j);
-            }
-        }
-        */
 
     }
 }
@@ -177,10 +163,10 @@ function start() {
 }
 
 const templatesToLoad = [
-    {path: "srcref/groundtemplate.png", tag: "ground"},
-    {path: "srcref/holetemplate.png", tag: "hole"},
-    {path: "srcref/walltemplate.png", tag: "wall"},
-    {path: "srcref/voidtemplate.png", tag: "void"},
+    {path: "srcref/ground_template.png", tag: "ground"},
+    {path: "srcref/hole_template.png", tag: "hole"},
+    {path: "srcref/wall_template.png", tag: "wall"},
+    {path: "srcref/void_template.png", tag: "void"},
 ];
 
 const templates = {};

@@ -26,21 +26,10 @@ const game_assets = { // Description of the assets to load.
         key : "./images/world_key.png",
         wall : "./images/world_wall.png",
         tileset_entry_exit : "./images/portalinout.png",
-        bgtemplate : "./images/bgtemplate.png",
-        tiletemplate : "./images/tiletemplate.png",
-        g2w_template : "./images/groundToWall.png",
-        g2h_template : "./images/groundToHole.png",
-        g2o_template : "./images/groundToOther.png",
-        h2w_template : "./images/holeToWall.png",
-        h2v_template : "./images/holeToVoid.png",
-        h2g_template : "./images/holeToGround.png",
-        w2h_template : "./images/wallToHole.png",
-        w2v_template : "./images/wallToVoid.png",
-        w2g_template : "./images/wallToGround.png",
-        g2v_template : "./images/groundToVoid.png",
-        v2g_template : "./images/voidToGround.png",
-        v2h_template : "./images/voidToHole.png",
-        v2w_template : "./images/voidToWall.png",
+        ground_template : "./images/ground_template.png",
+        void_template : "./images/void_template.png",
+        hole_template : "./images/hole_template.png",
+        wall_template : "./images/wall_template.png",
         test_button : "./images/test_button.png",
         highlights : "./images/highlights.png",
         laserwalltemplate : "./images/laserwall.png",
@@ -462,26 +451,8 @@ function update_anim_defs(imgname, lvl, layer, tilesize, templatesize, frames, d
     }
 }
 
-update_sprite_defs("bgtemplate", "lvl1", "bg", 32);
-update_sprite_defs("tiletemplate", "lvl1", "fg", 32);
-update_sprite_defs("laserwalltemplate", "lvl1", "laser", 32);
-
-update_sprite_defs("g2w_template", "lvl1", "g2w", 32);
-update_sprite_defs("g2h_template", "lvl1", "g2h", 32);
-update_sprite_defs("g2o_template", "lvl1", "g2o", 32);
-update_sprite_defs("g2v_template", "lvl1", "g2v", 32);
-
-update_sprite_defs("h2w_template", "lvl1", "h2w", 32);
-update_sprite_defs("h2v_template", "lvl1", "h2v", 32);
-update_sprite_defs("h2g_template", "lvl1", "h2g", 32);
-
-update_sprite_defs("w2h_template", "lvl1", "w2h", 32);
-update_sprite_defs("w2v_template", "lvl1", "w2v", 32);
-update_sprite_defs("w2g_template", "lvl1", "w2g", 32);
-
-
-update_sprite_defs("v2g_template", "lvl1", "v2g", 32); // FIXME: performance of animations in tile grids - replace this line by the following commented one once we have animations fluid on tiles
-// update_anim_defs("v2g_template", "lvl1", "v2g", 32, 512, 8, 100);
-
-update_sprite_defs("v2h_template", "lvl1", "v2h", 32);
-update_sprite_defs("v2w_template", "lvl1", "v2w", 32);
+update_sprite_defs("ground_template", "lvl1", "ground", 32);
+update_sprite_defs("hole_template", "lvl1", "hole", 32);
+update_sprite_defs("void_template", "lvl1", "void", 32);
+update_sprite_defs("wall_template", "lvl1", "wall", 32);
+// update_anim_defs("void_template", "lvl1", "void", 32, 512, 8, 100);
