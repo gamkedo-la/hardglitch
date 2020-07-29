@@ -11,6 +11,7 @@ import {
     FadeParticle,
     FadeLineParticle,
     BlipEdgeParticle,
+    LightningParticle,
 } from "./system/particles.js";
 import { Color } from "./system/color.js";
 import { Vector2 } from "./system/spatial.js";
@@ -214,6 +215,32 @@ class GameFxView {
         fx.relocatables.push(blip);
         return fx;
     }
+
+    lightningJump(origin, target) {
+        let emitInterval = .1;
+        let emitJitter = 25;
+        let emitTTL = 0;
+        let emitCount = 1;
+        let emitter = new ParticleEmitter(this.particleSystem, origin.x, origin.y, (e) => {
+            let segments = random_int(10,15);
+            let width = random_int(1,2);
+            let color = new Color(65,226,222, random_float(.5,1));
+            let variance = 2;
+            let endWidth = 10;
+            let ttl = random_float(.25, .5);
+            let emergePct = .5;
+            let flash = random_int(1,3);
+            let floaters = random_int(1,3);
+            let floaterPct = random_float(0.25,1);
+            return new LightningParticle({x: e.x, y:e.y}, {x: target.x, y: target.y}, segments, width, color, endWidth, variance, ttl, emergePct, flash, floaters, floaterPct);
+        }, emitInterval, emitJitter, emitTTL, emitCount);
+        this.particleSystem.add(emitter);
+        let fx = new GameFx(origin);
+        fx.sentinels.push(emitter);
+        fx.relocatables.push(emitter);
+        return fx;
+    }
+
 
 }
 

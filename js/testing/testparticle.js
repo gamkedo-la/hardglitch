@@ -251,6 +251,9 @@ class Env {
         let damageFx = this.gfx.damage({x:600,y:400});
         setTimeout(() => {damageFx.done = true;}, 1000);
 
+        let lfx = this.gfx.lightningJump({x:500,y:500}, {x:600,y:600});
+        setTimeout(() => {lfx.done = true;}, 1000);
+
     }
 
     loop() {

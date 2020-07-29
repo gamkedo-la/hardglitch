@@ -52,8 +52,16 @@ function* jump(fx_view, entity_view, target_game_position){
     yield* translate(entity_view, top_initial_pos, jump_duration_ms, easing.in_out_quad);
     entity_view.is_visible = false;
 
-    const jump_effect_move_speed = 10.0;
-    yield* missile(fx_view.missile(top_initial_pos), top_target_pos, jump_effect_move_speed);
+    const fx_origin = top_initial_pos.translate({x:PIXELS_PER_HALF_SIDE, y: PIXELS_PER_HALF_SIDE});
+    const fx_target = top_target_pos.translate({x:PIXELS_PER_HALF_SIDE, y: PIXELS_PER_HALF_SIDE});
+    const jump_distance = fx_target.substract(fx_origin).length;
+    const fx_duration = jump_distance * 2.5;
+    let fx = fx_view.lightningJump(fx_origin, fx_target);
+    yield* translate(fx, fx_target, fx_duration, easing.in_out_quad);
+    fx.done = true;
+
+    //const jump_effect_move_speed = 10.0;
+    //yield* missile(fx_view.missile(top_initial_pos), top_target_pos, jump_effect_move_speed);
 
     entity_view.position = top_target_pos;
     entity_view.is_visible = true;
