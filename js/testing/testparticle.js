@@ -9,13 +9,13 @@ import {
     BlipParticle, 
     ParticleGroup, 
     SwirlPrefab, 
-    SwirlParticle, 
     RingParticle, 
     ShootUpParticle, 
     FlashParticle,
-    ThrobParticle
+    ThrobParticle,
+    LightningParticle,
 } from "../system/particles.js";
-import { GameFx, GameFxView } from "../game-effects.js";
+import { GameFxView } from "../game-effects.js";
 import { random_int, random_float } from "../system/utility.js";
 import { Color } from "../system/color.js";
 import { initialize } from "../system/graphics.js";
@@ -132,7 +132,7 @@ class Tests {
         this.particles.add(new ParticleEmitter(this.particles, 0, 0, () => {
             let xoff = random_int(-15,15);
             let yoff = random_int(-15,15);
-            let width = random_int(20,30);
+            let width = random_int(5,30);
             let hue = random_int(150, 250);
             let ttl = .1;
             return new FlashParticle(x+xoff, y-25+yoff, width, hue, ttl);
@@ -172,6 +172,45 @@ class Tests {
             return new ThrobParticle({x: originx, y:originy}, {x: targetx, y: targety}, radius, speed, radius * .5);
         }, 1, 25));
     }
+
+    lightningorb(x,y) {
+        this.particles.add(new ParticleEmitter(this.particles, 0, 0, () => {
+            let angle = random_float(0,Math.PI*2);
+            let distance = random_int(35,50);
+            let targetx = x + Math.cos(angle) * distance;
+            let targety = y + Math.sin(angle) * distance;
+            let originx = x;
+            let originy = y;
+            let segments = random_int(10,15);
+            let width = random_int(1,2);
+            let color = new Color(0,255,255, random_float(.25,1));
+            let variance = 1.5;
+            let endWidth = 10;
+            let ttl = .5;
+            let emergePct = .5;
+            return new LightningParticle({x: originx, y:originy}, {x: targetx, y: targety}, segments, width, color, endWidth, variance, ttl, emergePct);
+        }, .05, 25, 0, 5));
+    }
+
+    lightningstrike(x,y) {
+        this.particles.add(new ParticleEmitter(this.particles, 0, 0, () => {
+            let angle = random_float(0,Math.PI*2);
+            let distance = random_int(175,200);
+            let originx = x + Math.cos(angle) * distance;
+            let originy = y + Math.sin(angle) * distance;
+            let targetx = x;
+            let targety = y;
+            let segments = random_int(10,15);
+            let width = random_int(1,2);
+            let color = new Color(255,25,25, random_float(.25,1));
+            let variance = 1.5;
+            let endWidth = 10;
+            let ttl = 1;
+            let emergePct = .25;
+            return new LightningParticle({x: originx, y:originy}, {x: targetx, y: targety}, segments, width, color, endWidth, variance, ttl, emergePct);
+        }, 2, 25));
+    }
+
 }
 
 class Env {
@@ -200,6 +239,8 @@ class Env {
         this.tests.flash(800,300);
         this.tests.combo(900,300);
         this.tests.missile(1000,300);
+        this.tests.lightningorb(200,400);
+        this.tests.lightningstrike(200,500);
 
         this.gfx.destruction({x:500,y:400});
         let damageFx = this.gfx.damage({x:600,y:400});

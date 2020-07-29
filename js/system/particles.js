@@ -16,10 +16,11 @@ export {
     FlashParticle,
     BlipEdgeParticle,
     ThrobParticle,
+    LightningParticle,
 }
 
 import { camera } from "./graphics.js";
-import { random_int, random_float } from "../system/utility.js";
+import { random_int, random_float, ofmt } from "../system/utility.js";
 import { Color } from "../system/color.js";
 import { Vector2 } from "../system/spatial.js";
 
@@ -1336,6 +1337,81 @@ class ThrobParticle extends Particle {
         canvas_context.fillStyle = this.color.asHSL();
         canvas_context.fill();
         canvas_context.closePath();
+    }
+
+}
+
+class LightningParticle extends Particle {
+    constructor(origin, target, segments, width, color, endWidth, variance, ttl, emergePct, flash) {
+        super(origin.x, origin.y);
+        this.origin = origin;
+        this.target = target;
+        this.segments = segments;
+        this.width = width;
+        this.color = color;
+        this.endWidth = endWidth;
+        this.segmentRate = this.segments / (ttl * emergePct * 1000);
+        this.ttl = ttl * 1000;
+        this.direction = new Vector2({x:target.x-origin.x, y: target.y-origin.y});
+        this.distance = this.direction.length;
+        this.path = [origin];
+        let segmentLength = this.distance / segments;
+        this.direction.length = segmentLength;
+        this.lwidth = (this.distance / segments) * variance;
+        this.flash = flash;
+        this.fadeTarget = 0;
+        this.fadeRate = (color.a - this.fadeTarget)/(this.ttl * (1-emergePct));
+        //console.log("fadeRate: " + this.fadeRate);
+    }
+
+    update(delta_time) {
+        if (this.done) return;
+        // build path
+        if (this.path.length < this.segments) {
+            let rate = Math.round(this.segmentRate * delta_time + .5);
+            for (let i=0; i<rate; i++) {
+                if (this.path.length >= this.segments) break;
+                let lastp = this.path[this.path.length-1];
+                let x = lastp.x + this.direction.x;
+                let y = lastp.y + this.direction.y;
+                if (this.path.length < this.segments-1) {
+                    let xvar = (Math.random() * this.lwidth) - (this.lwidth / 2);
+                    let yvar = (Math.random() * this.lwidth) - (this.lwidth / 2);
+                    x += xvar;
+                    y += yvar;
+                    // reorient
+                    this.direction = new Vector2({x:this.target.x-x, y: this.target.y-y});
+                    this.direction.length = this.direction.length / (this.segments - this.path.length);
+                } else {
+                    x = this.target.x;
+                    y = this.target.y;
+                }
+                let p = {x:x, y:y};
+                this.path.push({x:x, y:y});
+            }
+        // otherwise, fade
+        } else {
+            //console.log("a: " + this.color.a + " fade amt: " + this.fadeRate * delta_time);
+            this.color.a = Math.max(0, this.color.a - this.fadeRate * delta_time);
+        }
+        this.ttl -= delta_time;
+        if (this.ttl <= 0) {
+            this.done = true;
+        }
+    }
+
+    draw(canvas_context) {
+        // draw lightning path
+        canvas_context.beginPath();
+        canvas_context.moveTo(this.path[0].x, this.path[0].y);
+        for (let i=1; i<this.path.length; i++) {
+            let p = this.path[i];
+            canvas_context.lineTo(p.x, p.y);
+        }
+        canvas_context.strokeStyle = this.color.asRGB();
+        canvas_context.lineCap = "round";
+		canvas_context.lineWidth = this.width;
+        canvas_context.stroke();
     }
 
 }
