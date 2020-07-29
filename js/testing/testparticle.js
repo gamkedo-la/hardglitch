@@ -193,22 +193,27 @@ class Tests {
     }
 
     lightningstrike(x,y) {
-        this.particles.add(new ParticleEmitter(this.particles, 0, 0, () => {
+        this.particles.add(new ParticleSequence(this.particles, [() => { 
             let angle = random_float(0,Math.PI*2);
             let distance = random_int(175,200);
             let originx = x + Math.cos(angle) * distance;
             let originy = y + Math.sin(angle) * distance;
             let targetx = x;
             let targety = y;
-            let segments = random_int(10,15);
-            let width = random_int(1,2);
-            let color = new Color(255,25,25, random_float(.25,1));
-            let variance = 1.5;
-            let endWidth = 10;
-            let ttl = 1;
-            let emergePct = .25;
-            return new LightningParticle({x: originx, y:originy}, {x: targetx, y: targety}, segments, width, color, endWidth, variance, ttl, emergePct);
-        }, 2, 25));
+            return new ParticleEmitter(this.particles, 0, 0, () => {
+                let segments = random_int(10,15);
+                let width = random_int(1,2);
+                let color = new Color(200,0,0, random_float(.5,1));
+                let variance = 2;
+                let endWidth = 10;
+                let ttl = random_float(1.4, 1.75);
+                let emergePct = .5;
+                let flash = random_int(1,3);
+                let floaters = random_int(1,3);
+                let floaterPct = random_float(0.25,1);
+                return new LightningParticle({x: originx, y:originy}, {x: targetx, y: targety}, segments, width, color, endWidth, variance, ttl, emergePct, flash, floaters, floaterPct);
+            }, 1, 25, .1, 5);
+        }], 2, 0, 0));
     }
 
 }

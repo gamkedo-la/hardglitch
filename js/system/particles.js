@@ -551,7 +551,8 @@ class FadeParticle extends Particle {
         this.size = size;
         this.color = color;
         this.lifetime = lifetime;
-        this.fade = 1;
+        this.fade = color.a;
+        this.fadeRate = this.fade/this.lifetime;
         this.ttl = lifetime;
     }
 
@@ -570,7 +571,7 @@ class FadeParticle extends Particle {
         this.x += (this.dx * delta_time);
         this.y += (this.dy * delta_time);
         // fade... slowly fade to nothing
-        this.fade -= (delta_time/this.lifetime);
+        this.fade -= (delta_time * this.fadeRate);
         this.color.a = this.fade;
         // time-to-live
         this.ttl -= delta_time;
@@ -1342,7 +1343,7 @@ class ThrobParticle extends Particle {
 }
 
 class LightningParticle extends Particle {
-    constructor(origin, target, segments, width, color, endWidth, variance, ttl, emergePct, flash) {
+    constructor(origin, target, segments, width, color, endWidth, variance, ttl, emergePct, flash=0, floaters=0, floaterPct=0) {
         super(origin.x, origin.y);
         this.origin = origin;
         this.target = target;
@@ -1352,6 +1353,7 @@ class LightningParticle extends Particle {
         this.endWidth = endWidth;
         this.segmentRate = this.segments / (ttl * emergePct * 1000);
         this.ttl = ttl * 1000;
+        this.maxTTL = ttl;
         this.direction = new Vector2({x:target.x-origin.x, y: target.y-origin.y});
         this.distance = this.direction.length;
         this.path = [origin];
@@ -1359,12 +1361,32 @@ class LightningParticle extends Particle {
         this.direction.length = segmentLength;
         this.lwidth = (this.distance / segments) * variance;
         this.flash = flash;
-        this.fadeTarget = 0;
-        this.fadeRate = (color.a - this.fadeTarget)/(this.ttl * (1-emergePct));
-        //console.log("fadeRate: " + this.fadeRate);
+        this.alphaTarget = 0;
+        this.alphaMax = color.a;
+        this.fadeRate = (this.alphaMax - this.alphaTarget)*(flash+1)/(this.ttl * (1-emergePct));
+        this.subparticles = [];
+        this.floaters = floaters;
+        this.floaterPct = floaterPct;
+        this.floaterColor = this.color.copy();
+        this.floaterColor.a *= .5;
+    }
+
+    get done() {
+        if (!this._done) return false;
+        let subdone = true;
+        for (let i=0; i<this.subparticles.length; i++) {
+            subdone &= this.subparticles[i].done;
+        }
+        return subdone;
+    }
+    set done(value) {
+        this._done = (value) ? true : false;
     }
 
     update(delta_time) {
+        for (let i=0; i<this.subparticles.length; i++) {
+            this.subparticles[i].update(delta_time);
+        }
         if (this.done) return;
         // build path
         if (this.path.length < this.segments) {
@@ -1374,9 +1396,9 @@ class LightningParticle extends Particle {
                 let lastp = this.path[this.path.length-1];
                 let x = lastp.x + this.direction.x;
                 let y = lastp.y + this.direction.y;
+                let xvar = (Math.random() * this.lwidth) - (this.lwidth / 2);
+                let yvar = (Math.random() * this.lwidth) - (this.lwidth / 2);
                 if (this.path.length < this.segments-1) {
-                    let xvar = (Math.random() * this.lwidth) - (this.lwidth / 2);
-                    let yvar = (Math.random() * this.lwidth) - (this.lwidth / 2);
                     x += xvar;
                     y += yvar;
                     // reorient
@@ -1387,12 +1409,31 @@ class LightningParticle extends Particle {
                     y = this.target.y;
                 }
                 let p = {x:x, y:y};
-                this.path.push({x:x, y:y});
+                if (this.floaters && Math.random() < this.floaterPct) {
+                    for (let i=0; i<this.floaters; i++) {
+                        let ppx = x;
+                        let ppy = y;
+                        let vtolx = x-lastp.x;
+                        let vtoly = y-lastp.y;
+                        let pct = Math.random();
+                        ppx += pct * vtolx;
+                        ppy += pct * vtoly;
+                        let dx = random_float(0, xvar);
+                        let dy = random_float(0, yvar);
+                        let ttl = random_float(this.maxTTL*.75,this.maxTTL*1.5);
+                        let fp = new FadeParticle(ppx, ppy, dx, dy, this.width, this.floaterColor, ttl);
+                        this.subparticles.push(fp);
+                    }
+                }
+                this.path.push(p);
             }
-        // otherwise, fade
+        // otherwise, flash/fade
         } else {
-            //console.log("a: " + this.color.a + " fade amt: " + this.fadeRate * delta_time);
-            this.color.a = Math.max(0, this.color.a - this.fadeRate * delta_time);
+            if (this.flash && this.color.a === this.alphaTarget) {
+                this.color.a = this.alphaMax;
+            } else {
+                this.color.a = Math.max(0, this.color.a - this.fadeRate * delta_time);
+            }
         }
         this.ttl -= delta_time;
         if (this.ttl <= 0) {
@@ -1401,6 +1442,9 @@ class LightningParticle extends Particle {
     }
 
     draw(canvas_context) {
+        for (let i=0; i<this.subparticles.length; i++) {
+            this.subparticles[i].draw(canvas_context);
+        }
         // draw lightning path
         canvas_context.beginPath();
         canvas_context.moveTo(this.path[0].x, this.path[0].y);
