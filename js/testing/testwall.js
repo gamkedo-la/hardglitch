@@ -5,6 +5,7 @@ import * as tiledefs from "../definitions-tiles.js";
 import { procWallGenSelector } from "../view/proc-wall.js";
 import { parse_tile_id } from "../game-assets.js";
 import { WallModel } from "../view/wall-model.js";
+import { Color } from "../system/color.js";
 
 const templatesToLoad = [
     {path: "srcref/ground_template.png", tag: "ground"},
@@ -21,6 +22,7 @@ function drawGrid(ctx, x, y, dimx, dimy, stepx, stepy, style) {
         ctx.moveTo(x, y+stepy*i);
         ctx.lineTo(x+dimx*stepx, y+stepy*i);
         ctx.closePath();
+        ctx.lineWidth = 1;
         ctx.strokeStyle = style;
         ctx.stroke();
     }
@@ -29,6 +31,7 @@ function drawGrid(ctx, x, y, dimx, dimy, stepx, stepy, style) {
         ctx.moveTo(x+stepx*i, y);
         ctx.lineTo(x+stepx*i, y+dimy*stepy);
         ctx.closePath();
+        ctx.lineWidth = 1;
         ctx.strokeStyle = style;
         ctx.stroke();
     }
@@ -217,10 +220,39 @@ class Env {
         }
 
         // test wall model
-        let model8_0 = new WallModel(8, 16, 0);
         this.ctx.fillStyle = "black";
         this.ctx.fillRect(32*20,0, 32*12,32*8);
         drawGrid(this.ctx, 32*20, 0, 12, 8, 32, 32, "gray");
+        let models = [ 
+            new WallModel(8, 16, 0),
+            new WallModel(16, 16, 0),
+            new WallModel(8, 16, 4),
+            new WallModel(16, 16, 4),
+        ];
+        let shapes = ["ttl", "t", "l", "ltts", "ltt"];
+        for (let j=0; j<models.length; j++) {
+            for (let i=0; i<shapes.length; i++) {
+                let pos = {x:32*(20+i), y:32*j};
+                let walls = models[j].getBottomFaces(pos, shapes[i]);
+                for (const wall of walls) {
+                    this.ctx.fillStyle = "red";
+                    this.ctx.fill(wall);
+                }
+            }
+        }
+        drawGrid(this.ctx, 32*20, 0, 24, 16, 16, 16, new Color(127,127,127,.25));
+
+        /*
+        this.ctx.fillRect(32*20,32*4, 32, 32);
+        let path = new Path2D();
+        path.moveTo(32*20, 32*5);
+        path.lineTo(32*20+32, 32*5);
+        path.lineTo(32*20+32, 32*5+32);
+        path.lineTo(32*20, 32*5+32);
+        path.closePath();
+        this.ctx.fillRect(32*20,32*4, 32, 32);
+        this.ctx.fill(path);
+        */
 
     }
 }

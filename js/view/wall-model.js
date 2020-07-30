@@ -3,22 +3,82 @@ export { WallModel };
 function buildVertexMap(width, offset=0) {
     let vmap = {};
     vmap["t"] = [ 
-        {x:0, y:offset}, 
-        {x:32, y:offset}, 
-        {x:32, y:offset+width}, 
-        {x:0, y:offset+width} 
+        {x:0, y:offset, side:"back"}, 
+        {x:32, y:offset, side:"back"}, 
+        {x:32, y:offset+width, side:"front"}, 
+        {x:0, y:offset+width, side:"front"},
     ];
     vmap["ttls"] = vmap.t;
     vmap["ttl"] = [ 
-        {x:offset, y:15+offset}, 
-        {x:15+offset, y:offset}, 
-        {x:32, y:offset}, 
-        {x:32, y:offset+width}, 
-        {x:Math.min(32,15+width+offset), y:offset+width},
-        {x:width+offset, y:Math.min(32,15+width+offset)},
-        {x:width+offset, y:32},
-        {x:offset, y:32},
+        {x:offset, y:15+offset, side:"back", corner:true}, 
+        {x:15+offset, y:offset, side:"back", corner:true}, 
+        {x:32, y:offset, side:"back"}, 
     ];
+    if (offset+width >= 16) {
+        vmap["ttl"].push(...[
+            {x:32, y:offset+width, side:"front", corner:true}, 
+            {x:offset+width, y:32, side:"front", corner:true}, 
+            {x:offset, y:32, side:"front"},
+        ])
+    } else {
+        vmap["ttl"].push(...[
+            {x:32, y:offset+width, side:"front"}, 
+            {x:16+width+offset, y:offset+width, side:"front", corner:true},
+            {x:offset+width, y:16+width+offset, side:"front", corner:true},
+            {x:offset+width, y:32, side:"front"},
+            {x:offset, y:32, side:"front"},
+        ])
+    }
+    vmap["l"] = [ 
+        {x:offset, y:0}, 
+        {x:offset+width, y:0}, 
+        {x:offset+width, y:32}, 
+        {x:offset, y:32}, 
+    ];
+    vmap["ttle"] = vmap.l;
+    vmap["ltbs"] = vmap.l;
+    // --- LTTS ---
+    vmap["ltts"] = [
+        {x:offset,  y:0}, 
+        {x:offset+width, y:0}, 
+    ];
+    // lower right corner or intersection of right edge w/ bottom
+    if (offset+width > 16) {
+        vmap["ltts"].push({x:offset+width, y:32});
+    } else {
+        vmap["ltts"].push({x:offset+width, y:16+width+offset, side:"front", corner:true})
+    }
+    // intersection of front angled edge w/ bottom
+    if ((offset+width)>=8 && offset+width < 16) {
+        vmap["ltts"].push({x:offset*2, y:32, side:"front"});
+    }
+    // interior lower-left grid corner
+    if (offset<8 && offset+width>8) {
+        vmap["ltts"].push({x:0, y:32});
+    }
+    // intersection of back angled edge w/ left
+    if (offset>0) {
+        vmap["ltts"].push({x:0, y:16+offset*2, side:"back"});
+    }
+    // corner of back angled edge to left
+    vmap["ltts"].push({x:offset, y:16+offset, side:"back", corner:true});
+    // --- LTT ---
+    if (offset + width > 16) {
+        vmap["ltt"] = [
+            {x:0,  y:0}, 
+            {x:offset+width, y:0}, 
+            {x:offset+width, y:(offset+width)-16, side:"front", corner:true},
+            {x:(offset+width)-16, y:offset+width, side:"front", corner:true},
+            {x:0, y:offset+width}, 
+        ];
+    } else if (offset+width > 8) {
+        vmap["ltt"] = [
+            {x:0,  y:0}, 
+            {x:(offset+width)*2-16, y:0, side:"front", corner:(offset+width===16)}, 
+            {x:0, y:(offset+width)*2-16, side:"front", corner:(offset+width===16)}, 
+        ];
+    }
+    return vmap;
 }
 
 class WallModel {
@@ -30,7 +90,16 @@ class WallModel {
     getTopFaces(id) {
     }
 
-    getBottomFaces(id) {
+    getBottomFaces(pos, id) {
+        let verts = this.vertexMap[id];
+        if (!verts) return [];
+        let path = new Path2D();
+        path.moveTo(pos.x+verts[0].x, pos.y+verts[0].y);
+        for (let i=1; i<verts.length; i++) {
+            path.lineTo(pos.x+verts[i].x, pos.y+verts[i].y);
+        }
+        path.closePath();
+        return [path];
     }
 
     getFrontFaces(id) {
