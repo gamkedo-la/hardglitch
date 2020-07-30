@@ -148,7 +148,7 @@ function make_test_world(){ // The game assets must have been initialized first.
     const space_between_inner_outter = 1;
     const outter_begin  = inner_range.end + space_between_inner_outter;
     const outter_range = { begin: outter_begin, end: outter_begin + 2 };
-    const rim_range = { begin: outter_range.end + 1, end: outter_range.end + 2 };
+    const rim_range = { begin: outter_range.end, end: outter_range.end + 1 };
     const clean_range = { begin: 1, end: rim_range.end + 1 };
     const test_shape = visibility.Range_Square;
 
@@ -157,6 +157,19 @@ function make_test_world(){ // The game assets must have been initialized first.
     const outter_shape = new test_shape(outter_range.begin, outter_range.end);
     const rim_shape = new test_shape(rim_range.begin, rim_range.end);
     const valid_positions_filter = pos => world.is_valid_position(pos);
+
+
+    //// Border of the world
+    const world_border_tile = tiles.ID.HOLE;
+    for(let x = 0; x < world.width; ++x){
+        set_floor_tile({x, y:0}, world_border_tile);
+        set_floor_tile({x, y:world.height -1}, world_border_tile);
+    }
+    for(let y = 0; y < world.height; ++y){
+        set_floor_tile({x:0, y}, world_border_tile);
+        set_floor_tile({x: world.width - 1, y}, world_border_tile);
+    }
+
 
     // cleanup
     visibility.positions_in_range(entry_point_position, clean_shape, valid_positions_filter)
@@ -187,22 +200,11 @@ function make_test_world(){ // The game assets must have been initialized first.
     visibility.positions_in_range(entry_point_position, rim_shape, valid_positions_filter)
     .filter(position => world.is_valid_position(position))
     .forEach(position=>{
-        const item_type = random_int(0, 100) >= 70 ? items.CryptoFile : items.MovableWall;
+        const item_type = /*random_int(0, 100) >= 70 ? items.CryptoFile : */items.MovableWall;
         const file = new item_type();
         file.position = position;
         world.add(file);
     });
-
-    //// Border of the world
-    const world_border_tile = tiles.ID.HOLE;
-    for(let x = 0; x < world.width; ++x){
-        set_floor_tile({x, y:0}, world_border_tile);
-        set_floor_tile({x, y:world.height -1}, world_border_tile);
-    }
-    for(let y = 0; y < world.height; ++y){
-        set_floor_tile({x:0, y}, world_border_tile);
-        set_floor_tile({x: world.width - 1, y}, world_border_tile);
-    }
 
     return world;
 }
