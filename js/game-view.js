@@ -707,21 +707,23 @@ class GameView {
         return new concepts.Position(grid_pos);
     }
 
+    stop_camera_animation(){
+        if(this._current_camera_animation_promise){
+            this._current_camera_animation_promise.cancel();
+            this._current_camera_animation_promise = undefined;
+        }
+    }
+
     center_on_player(ms_to_center = 0){
         const player = this.player_character;
         const player_position = player.position;
         return this.center_on_position(player_position, ms_to_center);
     }
 
-    center_on_player_if_too_far(ms_to_center = 500){
-        const player = this.player_character;
-        console.assert(player);
-        return this.center_on_limit_position_if_too_far(player.position, ms_to_center);
-    }
-
     center_on_position(grid_position, ms_to_center = 0){
         console.assert(Number.isInteger(grid_position.x) && Number.isInteger(grid_position.y));
         console.assert(Number.isInteger(ms_to_center) && ms_to_center >= 0);
+        this.stop_camera_animation();
 
         const gfx_position = graphics.from_grid_to_graphic_position(grid_position, PIXELS_PER_TILES_SIDE)
             .translate(square_half_unit_vector); // center in the square
@@ -729,24 +731,11 @@ class GameView {
             graphics.camera.center(new Vector2(new_center));
         }, easing.in_out_quad);
 
-        return this.camera_animations.play(camera_move_animation);
-    }
-
-    center_on_limit_position_if_too_far(grid_position, ms_to_center = 0){
-        const camera_grid_position = this.grid_position(graphics.camera.center_position);
-
-        if(!camera_grid_position){
-            return this.center_on_position(grid_position, ms_to_center);
-        }
-
-        const limit_distance = { x: 6, y: 5 };
-        if(Math.abs(camera_grid_position.x - grid_position.x) >= limit_distance.x
-        || Math.abs(camera_grid_position.y - grid_position.y) >= limit_distance.y
-        ) {
-            return this.center_on_position(grid_position, ms_to_center);
-        }
-
-        return Promise.resolve();
+        this._current_camera_animation_promise = this.camera_animations.play(camera_move_animation);
+        this._current_camera_animation_promise.then(()=>{
+            this._current_camera_animation_promise = undefined;
+        });
+        return this._current_camera_animation_promise;
     }
 
 };
