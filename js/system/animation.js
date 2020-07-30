@@ -60,10 +60,17 @@ class AnimationGroup {
 
         let resolver;
         const promise = new Promise(resolve => resolver = resolve);
-        this.animations.push({
+
+        const animation = {
             iterator: animation_iterator,
             resolver: resolver,
-        });
+        };
+        this.animations.push(animation);
+
+        promise.cancel = ()=>{
+            this.animations.slice(this.animations.indexOf(animation), 1);
+            animation.resolver();
+        };
 
         return promise;
     }
