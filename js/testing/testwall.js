@@ -224,12 +224,13 @@ class Env {
         this.ctx.fillRect(32*20,0, 32*12,32*8);
         drawGrid(this.ctx, 32*20, 0, 12, 8, 32, 32, "gray");
         let models = [ 
+            new WallModel(4, 16, 0),
             new WallModel(8, 16, 0),
             new WallModel(16, 16, 0),
             new WallModel(8, 16, 4),
             new WallModel(16, 16, 4),
         ];
-        let shapes = ["ttl", "t", "l", "ltts", "ltt"];
+        let shapes = ["ttl", "t", "l", "ltts", "ltt", "oltt", "ltte"];
         for (let j=0; j<models.length; j++) {
             for (let i=0; i<shapes.length; i++) {
                 let pos = {x:32*(20+i), y:32*j};

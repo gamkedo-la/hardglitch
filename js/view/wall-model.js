@@ -37,6 +37,7 @@ function buildVertexMap(width, offset=0) {
     ];
     vmap["ttle"] = vmap.l;
     vmap["ltbs"] = vmap.l;
+
     // --- LTTS ---
     vmap["ltts"] = [
         {x:offset,  y:0}, 
@@ -51,6 +52,9 @@ function buildVertexMap(width, offset=0) {
     // intersection of front angled edge w/ bottom
     if ((offset+width)>=8 && offset+width < 16) {
         vmap["ltts"].push({x:offset*2, y:32, side:"front"});
+    // intersection of front angled edge w/ left
+    } else if (offset+width<8) {
+        vmap["ltts"].push({x:0, y:16+(offset+width)*2, side:"front"});
     }
     // interior lower-left grid corner
     if (offset<8 && offset+width>8) {
@@ -62,6 +66,7 @@ function buildVertexMap(width, offset=0) {
     }
     // corner of back angled edge to left
     vmap["ltts"].push({x:offset, y:16+offset, side:"back", corner:true});
+
     // --- LTT ---
     if (offset + width > 16) {
         vmap["ltt"] = [
@@ -78,6 +83,75 @@ function buildVertexMap(width, offset=0) {
             {x:0, y:(offset+width)*2-16, side:"front", corner:(offset+width===16)}, 
         ];
     }
+    // --- OLTT ---
+    if (offset<8) {
+        vmap["oltt"] = [
+            {x:16+offset*2,  y:32, side:"back", corner:(offset==0)}, 
+            {x:32,  y:16+offset*2, side:"front", corner:(offset==0)}, 
+        ];
+        if (width+offset >= 8) {
+            vmap["oltt"].push({x:32, y:32});
+        } else {
+            vmap["oltt"].push(...[
+                {x:32, y:16+(offset+width)*2, side:"front"},
+                {x:16+(offset+width)*2, side:"front", y:32},
+
+            ])
+        }
+    }
+
+    // --- LTTE ---
+    vmap["ltte"] = [
+        {y:offset,  x:0}, 
+        {y:offset+width, x:0}, 
+    ];
+    // lower right corner or intersection of right edge w/ bottom
+    if (offset+width > 16) {
+        vmap["ltte"].push({y:offset+width, x:32});
+    } else {
+        vmap["ltte"].push({y:offset+width, x:16+width+offset, side:"front", corner:true})
+    }
+    // intersection of front angled edge w/ bottom
+    if ((offset+width)>=8 && offset+width < 16) {
+        vmap["ltte"].push({y:offset*2, x:32, side:"front"});
+    // intersection of front angled edge w/ left
+    } else if (offset+width<8) {
+        vmap["ltte"].push({y:0, x:16+(offset+width)*2, side:"front"});
+    }
+    // interior lower-left grid corner
+    if (offset<8 && offset+width>8) {
+        vmap["ltte"].push({y:0, x:32});
+    }
+    // intersection of back angled edge w/ left
+    if (offset>0) {
+        vmap["ltte"].push({y:0, x:16+offset*2, side:"back"});
+    }
+    // corner of back angled edge to left
+    vmap["ltte"].push({y:offset, x:16+offset, side:"back", corner:true});
+
+    /*
+    // --- LTTE ---
+    vmap["ltte"] = [
+        {x:0,  y:offset, side:"back"}, 
+        {x:16, y:offset, side:"back", corner:true},
+    ];
+    // intersection of back angled edge w/ top
+    if (offset<=8) {
+        vmap["ltte"].push({x:16+offset*2, y:0, side:"back", corner:true});
+    }
+    // intersection of front angled edge w/ top
+    if (offset+width<8) {
+        vmap["ltte"].push({x:16+(offset+width)*2, y:0, side:"front"});
+    // intersection of front angled edge w/ right
+    } else if (offset+width<16) {
+        vmap["ltte"].push(...[
+            {x:32, y:0, side:"front"},
+            {x:32, y:(offset+width-8)*2, side:"front"},
+        ]);
+    } else {
+    }
+    */
+
     return vmap;
 }
 
