@@ -38,6 +38,7 @@ const game_assets = { // Description of the assets to load.
         movable_wall: "./images/column5.png",
         life_form: "./images/life_form.png",
         life_form_weak: "./images/life_form_weak.png",
+        menu_button: "./images/wordmenu1.png",
 
         // TODO: merge icons into one image
         icon_volume_mute: "./images/iconmute.png",
@@ -225,6 +226,16 @@ const sprite_defs = {
     button_cancel_action_target_selection: test_button,
     button_select_action: test_button,
     button_mute_audio: test_button,
+
+    button_menu: {
+        image: "menu_button",
+        frames: [
+            { x: 0, y: 0, width: 256, height: 64 },
+            { x: 0, y: 64, width: 256, height: 64 },
+            { x: 0, y: 128, width: 256, height: 64 },
+            { x: 0, y: 192, width: 256, height: 64 },
+        ]
+    },
 
     icon_volume_mute: icon_def_from_image("icon_volume_mute"),
     icon_volume_unmute: icon_def_from_image("icon_volume_unmute"),
