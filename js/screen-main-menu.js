@@ -6,14 +6,12 @@ export {
 import * as fsm from "./system/finite-state-machine.js";
 import * as graphics from "./system/graphics.js";
 import * as ui from "./system/ui.js";
+import { Screen } from "./screen.js";
 import { sprite_defs } from "./game-assets.js";
-import { tween } from "./system/tweening.js";
-import { Color } from "./system/color.js";
 import { invoke_on_members } from "./system/utility.js";
 import { Vector2 } from "./system/spatial.js";
 
 class MainMenu {
-
 
     constructor(state_machine, position){
         console.assert(state_machine instanceof fsm.StateMachine);
@@ -53,8 +51,7 @@ class MainMenu {
 };
 
 
-class MainMenuScreen extends fsm.State {
-    fade = 0;
+class MainMenuScreen extends Screen {
 
     *enter(){
         if(!this.main_menu){
@@ -67,11 +64,7 @@ class MainMenuScreen extends fsm.State {
             this.main_menu = new MainMenu(this.state_machine, this.title.position.translate({ x:0, y: 100 }));
         }
 
-        yield* this._fade_in();
-    }
-
-    *leave(){
-        yield* this._fade_out();
+        yield* super.enter();
     }
 
     update(delta_time){
@@ -82,25 +75,14 @@ class MainMenuScreen extends fsm.State {
     display(canvas_context){
         graphics.draw_rectangle(canvas_context, graphics.canvas_rect(), "orange");
 
-        if(this.fade == 1){
+        if(!this.is_fading){
             this.main_menu.draw(canvas_context);
-        } else {
-            const color = new Color(0, 0, 0, 1.0 - this.fade);
-            graphics.draw_rectangle(canvas_context, graphics.canvas_rect(), color.toString());
         }
 
         this.title.draw(canvas_context);
-    }
 
-    *_fade_in(){
-        this.fade = 0;
-        yield* tween(this.fade, 1, 1000, value => this.fade = value);
+        super.display(canvas_context);
     }
-
-    *_fade_out(){
-        yield* tween(this.fade, 0, 1000, value => this.fade = value);
-    }
-
 };
 
 
