@@ -38,6 +38,14 @@ class MainMenu {
             frames: { up: 0, down: 1, over: 2, disabled: 3 },
         });
 
+        this.button_credits = new ui.Button({
+            action: ()=> { state_machine.push_action("credits"); },
+            position: this.position.translate({x: 0, y: button_y_drift() }),
+            width: 256, height: 64,
+            sprite_def: sprite_defs.button_menu,
+            frames: { up: 0, down: 1, over: 2, disabled: 3 },
+        });
+
     }
 
     update(delta_time){

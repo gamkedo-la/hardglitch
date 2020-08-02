@@ -10,6 +10,7 @@ import * as fsm from "./system/finite-state-machine.js";
 import { LoadingGameScreen } from "./screen-loading-game.js";
 import { MainMenuScreen } from "./screen-main-menu.js";
 import { GameScreen } from "./screen-game.js";
+import { CreditsScreen } from "./screen-credits.js";
 
 
 let last_update_time = performance.now();
@@ -22,12 +23,17 @@ const game_state_machine = new class extends fsm.StateMachine{
     super({
       loading_game: new LoadingGameScreen(),
       main_menu: new MainMenuScreen(),
+      credits: new CreditsScreen(),
       game: new GameScreen(),
     },{
       // This is the transition table, stating which action from one state leads to which other state.
       initial_state: "loading_game",
       loading_game: { game_ready: "main_menu" },
-      main_menu: { new_game: "game" },
+      main_menu: {
+        new_game: "game",
+        credits: "credits",
+      },
+      credits: { back: "main_menu" },
     });
   }
 
