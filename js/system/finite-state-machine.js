@@ -19,6 +19,9 @@ class State {
     // Once entered the state and not leaving, this function will be called at every update.
     update(delta_time){}
 
+    // Set by the state machine this state is owned by.
+    get state_machine() { return this._state_machine; }
+
 };
 
 // const exemple = {
@@ -67,7 +70,7 @@ class StateMachine {
         this.transition_table = transition_table;
         this.states = states;
         for(const state of Object.values(this.states)){
-            state.state_machine = this;
+            state._state_machine = this;
         }
     }
 
