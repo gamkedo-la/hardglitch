@@ -587,10 +587,10 @@ function draw_text(canvas_context, text, position, font=text_defaults.font, colo
 }
 
 function canvas_center_position(){
-  return {
-    x: canvas.width / 2,
-    y: canvas.height / 2
-  };
+  return new spatial.Vector2({
+    x: Math.round(canvas.width / 2),
+    y: Math.round(canvas.height / 2),
+  });
 }
 
 function canvas_rect(){

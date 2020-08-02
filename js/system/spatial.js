@@ -36,6 +36,7 @@ class Vector2{
     }
 
     set length(scalar) {
+        console.assert(typeof scalar === "number");;
         if (scalar <= 0) {
             this.x = 0;
             this.y = 0;
@@ -52,6 +53,8 @@ class Vector2{
     }
 
     clamp(min, max) {
+        console.assert(typeof min === "number");
+        console.assert(typeof max === "number");
         let magnitude = this.length;
         if (magnitude > max) {
             this.length = max;
@@ -67,18 +70,22 @@ class Vector2{
     }
 
     multiply(scalar) {
+        console.assert(typeof scalar === "number");
         return new Vector2({x: this.x * scalar, y: this.y * scalar});
     }
 
     divide(scalar) {
+        console.assert(typeof scalar === "number");
         return new Vector2({x: this.x / scalar, y: this.y / scalar});
     }
 
     translate(translation){
+        console.assert(typeof translation.x === "number" && typeof translation.y === "number");
         return new Vector2({ x: this.x + translation.x, y: this.y + translation.y });
     }
 
     rotate(degrees) {
+        console.assert(typeof degrees === "number");
         let rads = Math.radians(degrees);
 
         let rx = this.x * Math.cos(rads) - this.y * Math.sin(rads);
@@ -88,10 +95,12 @@ class Vector2{
     }
 
     substract(other_vec2){
+        console.assert(typeof other_vec2.x === "number" && typeof other_vec2.y === "number");
         return new Vector2({ x: this.x - other_vec2.x, y: this.y - other_vec2.y });
     }
 
     distance(other_vec2){
+        console.assert(typeof other_vec2.x === "number" && typeof other_vec2.y === "number");
         return this.substract(other_vec2).length;
     }
 

@@ -4,47 +4,67 @@ import * as graphics from "../system/graphics.js";
 import * as input from "../system/input.js";
 import * as gameinput from "../game-input.js";
 import * as ui from "../system/ui.js";
-import { current_game_view } from "../main.js";
+import * as anim from "../system/animation.js";
+import { random_int } from "../system/utility.js";
 
-class MainMenu extends fsm.State {
+function shaky_position(){
+    return graphics.canvas_center_position()
+        .translate({ x: random_int(0,10), y: random_int(0, 10)});
+}
+
+class MyStates extends fsm.State {
+
+    constructor(name){
+        super();
+        this.name = name;
+        this._yop = 0;
+    }
+
+    *enter(){
+        this.state_machine.textbox.text = `Entering ${this.name} ...`;
+        yield* anim.wait(500);
+        this.state_machine.textbox.text = this.name;
+    }
+
+    update(delta_time){
+        this._yop += delta_time;
+
+        const change_frequency = 300;
+        if(this._yop > change_frequency){
+            this.state_machine.textbox.position = shaky_position();
+            this._yop -= change_frequency;
+        }
+    }
+
+    *leave(){
+        this.state_machine.textbox.text = `Exiting ${this.name} ...`;
+        yield* anim.wait(500);
+    }
+}
+
+class MainMenu extends MyStates {
     color = "pink";
-
-    *enter(){
-        this.state_machine.textbox.text = "Main Menu";
-    }
-
+    constructor(){ super("Main Menu"); }
 }
 
-class Credits extends fsm.State {
+class Credits extends MyStates {
     color = "grey";
-
-    *enter(){
-        this.state_machine.textbox.text = "Credits";
-    }
+    constructor(){ super("Credits"); }
 }
 
-class GameSession extends fsm.State {
+class GameSession extends MyStates {
     color = "orange";
-
-    *enter(){
-        this.state_machine.textbox.text = "Game!";
-    }
+    constructor(){ super("Game"); }
 }
 
-class InGameMenu extends fsm.State {
+class InGameMenu extends MyStates {
     color = "red";
-
-    *enter(){
-        this.state_machine.textbox.text = "Game Menu";
-    }
+    constructor(){ super("Game Menu"); }
 }
 
-class Editor extends fsm.State {
+class Editor extends MyStates {
     color = "purple";
-
-    *enter(){
-        this.state_machine.textbox.text = "Editor";
-    }
+    constructor(){ super("Editor"); }
 }
 
 
@@ -57,14 +77,14 @@ class GameStateMachine extends fsm.StateMachine {
     });
 
     constructor(canvas_context){
-        super({
+        super({ // States: state_id: state_object
             main_menu: new MainMenu(),
             credits: new Credits(),
             game: new GameSession(),
             game_menu: new InGameMenu(),
             editor: new Editor(),
         },
-        {
+        { // Transition table
             initial_state: "main_menu",
             main_menu: {
                 down : "game",
