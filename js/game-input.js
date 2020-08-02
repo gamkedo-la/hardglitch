@@ -202,7 +202,6 @@ function play_action(player_action){
 
 
 function update(delta_time){
-    input.update(delta_time);
 
     if(input.keyboard.is_just_down(KEY.F7))
         config.enable_particles = !config.enable_particles;

@@ -1,37 +1,63 @@
-// This file contains the main loop and initialization code for this game.
-
-export { current_game, current_game_view }
+// This file contains the main loop and initialization code for this game, and the global game state machine.
 
 // save the canvas for dimensions, and its 2d context for drawing to it
 import * as audio from "./system/audio.js";
 import * as graphics from "./system/graphics.js";
 import { load_all_assets } from "./game-assets.js";
-import { Game } from "./game.js";
-import { GameView } from "./game-view.js";
-import { state, GameState as StateMachine } from "./game-states.js";
-
 import * as input from "./system/input.js";
-import * as game_input from "./game-input.js";
-import { make_test_world } from "./testing/test-level.js";
+import * as fsm from "./system/finite-state-machine.js";
 
-import * as editor from "./editor.js";
+import { LoadingGameScreen } from "./screen-loading-game.js";
+import { MainMenuScreen } from "./screen-main-menu.js";
 
-let current_game = null;
-let current_game_view = null;
+
 let last_update_time = performance.now();
-let game_state_machine = new StateMachine(state.running);
 const max_delta_time = 1000 / 26; // Always assume at worst that we are at 26fps
 
+// This describe the different states/screens the game can go through.
+// There can be inner states too.
+const game_state_machine = new class extends fsm.StateMachine{
+  constructor(){
+    super({
+      loading_game: new LoadingGameScreen(),
+      main_menu: new MainMenuScreen(),
+    },{
+      // This is the transition table, stating which action from one state leads to which other state.
+      initial_state: "loading_game",
+      loading_game: { game_ready: "main_menu" }
+    });
+  }
+
+  update(delta_time){
+    input.update(delta_time);
+    super.update(delta_time); // Update the current state (and other details automatically handled, like transitions)
+  }
+
+  display(canvas_context){
+    graphics.clear();
+    this.current_state.display(canvas_context);
+  }
+};
+
+// Loading...
 window.onload = async function() {
+  game_state_machine.start();
+  game_state_machine.update(); // To display the first state at least once before starting loading...
+
   const assets = await load_all_assets();
   const canvas_context = graphics.initialize(assets);
   audio.initialize(assets);
-  input.initialize(canvas_context); // TODO: change that so that when we have different screens with different input situations
-
-  new_game(); // TODO : call this function only once we start a new game.
-
+  input.initialize(canvas_context);
+  // OK now we're ready.
   start();
 }
+
+function start() { // Now we can start the game!
+  window.requestAnimationFrame(update_cycle);
+  game_state_machine.push_action("game_ready");
+  console.log("GAME READY - STARTED");
+}
+
 
 function get_delta_time(timestamp_now) {
   const delta_time = Math.min(max_delta_time, timestamp_now - last_update_time);
@@ -44,71 +70,9 @@ function update_cycle(highres_timestamp){
   if(!highres_timestamp)
     return;
   const delta_time = get_delta_time(highres_timestamp);
-  update_everything(delta_time);
-  draw_everything();
+
+  game_state_machine.update(delta_time);
+  game_state_machine.display(graphics.screen_canvas_context);
+
   window.requestAnimationFrame(update_cycle);
-}
-
-function start() {
-  window.requestAnimationFrame(update_cycle);
-  console.log("GAME READY - STARTED");
-}
-
-
-
-function update_everything(delta_time) {
-
-  // switch(gameState.getState()) {
-  //   case state.menu:
-  //     break;
-  //   case state.running: {
-  //     runningUpdate(delta_time);
-  //     break;
-  //   }
-  //   case state.editor:
-  //     runningUpdate(delta_time);
-  //     editor.update(delta_time);
-  //     break;
-  //   default:
-  //     console.log(`Error Updating ${gameState.getState()}`);
-
-  // }
-
-  // function runningUpdate(delta_time) {
-    game_input.update(delta_time);
-    const ongoing_target_selection = current_game_view.ui.is_selecting_action_target;
-    current_game_view.update(delta_time);
-  // }
-
-
-  if(!ongoing_target_selection  // TODO: REPLACE THIS MECHANISM BY A FINITE STATE MACHINE: MENU <-> GAME <-> EDITOR MODE
-  && current_game_view.is_time_for_player_to_chose_action
-  && !input.mouse.is_dragging
-  )
-    editor.update(delta_time);
-
-}
-
-function draw_everything() {
-  graphics.clear()
-  switch(game_state_machine.getState()) {
-    case state.menu:
-      break;
-    case state.running:
-      current_game_view.render_graphics();
-      editor.display();
-      break;
-    case state.editor: {
-      current_game_view.render_graphics();
-      editor.display();
-      break;
-    }
-    default:
-      console.log(`Error Drawing ${game_state_machine.getState()}`);
-  }
-}
-
-function new_game() {
-  current_game = new Game(make_test_world());
-  current_game_view = new GameView(current_game);
 }
