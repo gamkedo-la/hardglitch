@@ -20,12 +20,20 @@ class MainMenu {
         console.assert(position instanceof Vector2);
         this.position = position;
 
-        const space_between_buttons = 30;
+        const space_between_buttons = 70;
         let next_button_y_drift = 0;
         const button_y_drift = () => next_button_y_drift += space_between_buttons;
 
         this.button_new_game = new ui.Button({
             action: ()=> { state_machine.push_action("new_game"); },
+            position: this.position.translate({x: 0, y: button_y_drift() }),
+            width: 256, height: 64,
+            sprite_def: sprite_defs.button_menu,
+            frames: { up: 0, down: 1, over: 2, disabled: 3 },
+        });
+
+        this.button_test_level = new ui.Button({
+            action: ()=> { state_machine.push_action("new_game", "test"); },
             position: this.position.translate({x: 0, y: button_y_drift() }),
             width: 256, height: 64,
             sprite_def: sprite_defs.button_menu,
@@ -53,7 +61,7 @@ class MainMenuScreen extends fsm.State {
             this.title = new ui.Text({
                 text: "HARD GLITCH",
                 font: "52px arial",
-                position: { x: 400, y: 200 }
+                position: { x: 100, y: 200 }
             });
 
             this.main_menu = new MainMenu(this.state_machine, this.title.position.translate({ x:0, y: 100 }));
