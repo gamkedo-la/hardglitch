@@ -4,42 +4,46 @@ import * as graphics from "../system/graphics.js";
 import * as input from "../system/input.js";
 import * as gameinput from "../game-input.js";
 import * as ui from "../system/ui.js";
+import { current_game_view } from "../main.js";
 
 class MainMenu extends fsm.State {
-
+    color = "pink";
 
     *enter(){
         this.state_machine.textbox.text = "Main Menu";
-        this.state_machine.move_text_up();
     }
 
 }
 
 class Credits extends fsm.State {
+    color = "grey";
+
     *enter(){
         this.state_machine.textbox.text = "Credits";
-        this.state_machine.move_text_up();
     }
 }
 
 class GameSession extends fsm.State {
+    color = "orange";
+
     *enter(){
         this.state_machine.textbox.text = "Game!";
-        this.state_machine.move_text_up();
     }
 }
 
 class InGameMenu extends fsm.State {
+    color = "red";
+
     *enter(){
         this.state_machine.textbox.text = "Game Menu";
-        this.state_machine.move_text_up();
     }
 }
 
 class Editor extends fsm.State {
+    color = "purple";
+
     *enter(){
         this.state_machine.textbox.text = "Editor";
-        this.state_machine.move_text_up();
     }
 }
 
@@ -63,29 +67,54 @@ class GameStateMachine extends fsm.StateMachine {
         {
             initial_state: "main_menu",
             main_menu: {
-                next : "game"
+                down : "game",
+                left : "credits",
             },
+            credits: { right : "main_menu" },
             game: {
-                next : "game_menu"
+                up : "main_menu",
+                down: "game_menu",
+                right: "editor",
             },
+            editor: { left: "game" },
+            game_menu: {
+                up: "game",
+                right: "main_menu",
+            }
         });
 
         this.canvas_context = canvas_context;
     }
 
-    move_text_up(){
-        this.textbox.position = this.textbox.position.translate({x:0, y: -20});
-    }
-
     update(delta_time){
-        super.update(delta_time);
+
+        if(input.keyboard.is_just_down(gameinput.KEY.UP_ARROW)){
+            game_statemachine.push_action("up");
+        }
+        if(input.keyboard.is_just_down(gameinput.KEY.RIGHT_ARROW)){
+            game_statemachine.push_action("right");
+        }
+        if(input.keyboard.is_just_down(gameinput.KEY.DOWN_ARROW)){
+            game_statemachine.push_action("down");
+        }
+        if(input.keyboard.is_just_down(gameinput.KEY.LEFT_ARROW)){
+            game_statemachine.push_action("left");
+        }
 
         Object.values(this).filter(member => member instanceof Object && member.update instanceof Function)
             .map(member=> member.update(delta_time));
 
+
+        super.update(delta_time);
     }
 
     render_graphics(){
+        const current_state = this.current_state;
+        if(current_state){
+            graphics.draw_rectangle(this.canvas_context, graphics.canvas_rect(), current_state.color);
+        }
+
+
         this.textbox.draw(this.canvas_context);
 
     }
@@ -106,10 +135,6 @@ function update(highres_timestamp){
     const delta_time = get_delta_time(highres_timestamp);
 
     input.update(delta_time);
-
-    if(input.keyboard.is_just_down(gameinput.KEY.SPACE)){
-        game_statemachine.push_action("next");
-    }
 
     game_statemachine.update(delta_time);
 

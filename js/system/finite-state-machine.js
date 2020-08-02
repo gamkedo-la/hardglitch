@@ -34,6 +34,7 @@ class State {
 // }
 
 // const example_transition_table = {
+//     initial_state : "main_menu",
 //     main_menu : {
 //         start_game : "game_session",
 //         see_credits : "credits",
@@ -69,6 +70,9 @@ class StateMachine {
             state.state_machine = this;
         }
     }
+
+    get current_state() { return this._current_state; }
+    get current_state_id() { return this._current_state_id; }
 
     start(){
         this._begin_state_transition(this.transition_table.initial_state);
