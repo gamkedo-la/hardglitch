@@ -72,22 +72,28 @@ class StateMachine {
         for(const state of Object.values(this.states)){
             state._state_machine = this;
         }
+
+        this._started = false;
     }
 
     get current_state() { return this._current_state; }
     get current_state_id() { return this._current_state_id; }
 
     start(){
+        console.log(`FSM: STARTING WITH STATE ${this.transition_table.initial_state}`);
+        this._started = true;
         this._begin_state_transition(this.transition_table.initial_state);
     }
 
     get_state(state_id){
+        console.assert(this._started);
         const state = this.states[state_id];
         console.assert(state instanceof State);
         return state;
     }
 
     update(delta_time){
+        console.assert(this._started);
         if(this._transition_sequence !== undefined){
             if(this._transition_sequence.next(delta_time).done){
                 this._transition_sequence = undefined;
@@ -101,7 +107,9 @@ class StateMachine {
     }
 
     push_action(action, ...data){
+        console.assert(this._started);
         console.assert(action !== undefined);
+        console.log(`FSM: ACTION PUSHED: ${action} (${data})`);
         const next_state_id = this._find_transition(this._current_state_id, action);
         if(next_state_id){
             this._begin_state_transition(next_state_id, ...data);
@@ -109,6 +117,7 @@ class StateMachine {
     }
 
     _find_transition(state_id, action){
+        console.assert(this._started);
         const state_transitions = this.transition_table[state_id];
         if(state_transitions instanceof Object){
             const new_state_id = state_transitions[action];
@@ -117,10 +126,12 @@ class StateMachine {
     }
 
     _begin_state_transition(next_state_id, ...data){
+        console.assert(this._started);
         console.assert(this._next_state_id === undefined);
         this._transition_data = data;
         this._next_state_id = next_state_id;
         if(this._current_state){
+            console.log(`FSM: LEAVING ${this._current_state_id} ...`);
             this._transition_sequence = this._current_state.leave(...this._transition_data);
         } else {
             this._end_state_transition();
@@ -128,6 +139,7 @@ class StateMachine {
     }
 
     _end_state_transition(){
+        console.assert(this._started);
         console.assert(this._next_state_id !== undefined);
         const next_state = this.get_state(this._next_state_id);
         console.assert(next_state instanceof State);
@@ -136,6 +148,7 @@ class StateMachine {
         const data = this._transition_data;
         this._transition_data = undefined;
         this._next_state_id = undefined;
+        console.log(`FSM: ENTERING ${this._current_state_id} ...`);
         this._transition_sequence = this._current_state.enter(...data);
     }
 
