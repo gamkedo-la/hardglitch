@@ -68,14 +68,14 @@ class Tweening{
 
     get_values(ratio){
         console.assert(ratio >= 0 && ratio <=1);
-        if(this.animated_values instanceof Object){
+        if(this.animated_values instanceof AnimatedValue){
+            return this.animated_values.get_value(ratio);
+        } else {
             const result_values = {};
             for(const id in this.animated_values){
                 result_values[id] = this.animated_values[id].get_value(ratio);
             }
             return result_values;
-        } else {
-            return this.animated_values.get_value(ratio);
         }
     }
 
