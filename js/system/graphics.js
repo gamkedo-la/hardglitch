@@ -510,7 +510,7 @@ function initialize(assets){
   canvas_resize_to_window();
   window.addEventListener('resize', on_window_resized);
 
-  return canvas;
+  return screen_canvas_context;
 }
 
 function canvas_resize_to_window(){

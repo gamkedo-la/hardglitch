@@ -314,7 +314,10 @@ function canvas_mouse_position(canvas, event) {
 
 const input_update_queue = [];
 
-function initialize(canvas) {
+function initialize(canvas_context) {
+  console.assert(canvas_context);
+  const canvas = canvas_context.canvas;
+  console.assert(canvas);
 
   document.addEventListener("keydown", function(event) {
     event.preventDefault(); // without this, arrow keys scroll the browser!
