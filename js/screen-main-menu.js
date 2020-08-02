@@ -67,10 +67,8 @@ class MainMenuScreen extends fsm.State {
     }
 
     update(delta_time){
-        if(this.main_menu){
-            this.main_menu.update(delta_time);
-            this.title.update(delta_time);
-        }
+        this.main_menu.update(delta_time);
+        this.title.update(delta_time);
     }
 
     display(canvas_context){
@@ -83,8 +81,7 @@ class MainMenuScreen extends fsm.State {
             graphics.draw_rectangle(canvas_context, graphics.canvas_rect(), color.toString());
         }
 
-        if(this.title)
-            this.title.draw(canvas_context);
+        this.title.draw(canvas_context);
     }
 
     *_fade_in(){

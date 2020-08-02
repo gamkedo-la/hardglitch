@@ -6,17 +6,22 @@ export {
     game_position_from_graphic_position,
     mouse_game_position,
     mouse_grid_position,
-    mouse_is_pointing_walkable_position,
     play_action,
+    begin_game,
+    end_game,
 }
 
 import { config } from "./game-config.js";
 import * as input from "./system/input.js";
 import * as graphics from "./system/graphics.js";
 import * as editor from "./editor.js";
-import { current_game, current_game_view } from "./main.js";
 import { Vector2_unit_x, Vector2_unit_y, Vector2 } from "./system/spatial.js";
 import * as concepts from "./core/concepts.js";
+import { Game } from "./game.js";
+import { GameView } from "./game-view.js";
+
+let current_game;
+let current_game_view;
 
 // TODO: add the system that changes the mouse icons here
 
@@ -89,14 +94,6 @@ function mouse_grid_position(){
     if(!current_game_view)
         return undefined;
     return current_game_view.grid_position(mouse_game_position());
-}
-
-function mouse_is_pointing_walkable_position(){
-    const mouse_grid_pos = mouse_grid_position();
-    if(mouse_grid_pos)
-        return current_game.is_walkable(mouse_grid_pos);
-    else
-        return false;
 }
 
 let mouse_was_dragging_last_update = true;
@@ -201,7 +198,20 @@ function play_action(player_action){
 }
 
 
+function begin_game(game, game_view){
+    current_game = game;
+    current_game_view = game_view;
+}
+
+function end_game(){
+    current_game = undefined;
+    current_game_view = undefined;
+}
+
+
 function update(delta_time){
+    console.assert(current_game instanceof Game);
+    console.assert(current_game_view instanceof GameView);
 
     if(input.keyboard.is_just_down(KEY.F7))
         config.enable_particles = !config.enable_particles;

@@ -150,6 +150,7 @@ class StateMachine {
         this._next_state_id = undefined;
         console.log(`FSM: ENTERING ${this._current_state_id} ...`);
         this._transition_sequence = this._current_state.enter(...data);
+        this._transition_sequence.next(); // Make sure we executed at least the first part of the entry function.
     }
 
 };

@@ -11,7 +11,6 @@ import * as graphics from "./system/graphics.js";
 import * as input from "./system/input.js";
 import * as tiles from "./definitions-tiles.js";
 import { mouse_grid_position, mouse_game_position, KEY, play_action } from "./game-input.js";
-import { current_game_view, current_game } from "./main.js";
 import * as items from "./definitions-items.js";
 import * as ui from "./system/ui.js";
 import { Character } from "./core/character.js";

@@ -6,7 +6,6 @@ import * as editor from "../editor.js";
 import { CharacterView } from "../view/character-view.js";
 import { GameView } from "../game-view.js";
 import { Character } from "../core/character.js";
-import { current_game_view } from "../main.js";
 import * as anim from "../system/animation.js";
 import { destroy_entity } from "./destruction.js";
 
@@ -142,9 +141,9 @@ class PlayerExitLevel extends concepts.Event {
         ///////////////////////////////////////////////////////////////
         // TEMPORARY ANIMATION
         editor.set_central_text("YOU WIN THIS LEVEL! - LOADING NEXT LEVEL ...");
-        current_game_view.clear_focus();
+        game_view.clear_focus();
         let ready_to_exit = false;
-        current_game_view.center_on_position(character_view.game_position, 500).then(()=> ready_to_exit = true );
+        game_view.center_on_position(character_view.game_position, 500).then(()=> ready_to_exit = true );
         while(!ready_to_exit) yield;
         yield* anim.wait(4000);
         window.location.reload(); // TODO: replace by proper handling of the level exit
