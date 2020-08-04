@@ -86,18 +86,6 @@ function make_test_world(){ // The game assets must have been initialized first.
     const entry_point_position = set_surface_tile(random_position(), tiles.ID.ENTRY);
     console.assert(is_floor_walkable(entry_point_position));
 
-    let exit_count = 8;
-    while(exit_count > 0){
-        const exit_pos = random_position();
-        const tileid = surface_tile_id(exit_pos);
-        if(tileid !== tiles.ID.EXIT  // Don't overwrite other exits!
-        && tileid !== tiles.ID.ENTRY // Don't overwrite entries!
-        && is_floor_walkable(exit_pos)) {
-            set_surface_tile(exit_pos, tiles.ID.EXIT);
-            --exit_count;
-        }
-    }
-
     const world = new concepts.World( test_world_size.width, test_world_size.height, floor_tile_grid, surface_tile_grid );
     console.assert(world._surface_tile_grid.matching_positions(tileid=> tileid == tiles.ID.ENTRY).length > 0);
 
@@ -205,6 +193,18 @@ function make_test_world(){ // The game assets must have been initialized first.
         file.position = position;
         world.add(file);
     });
+
+    let exit_count = 8;
+    while(exit_count > 0){
+        const exit_pos = random_position();
+        const tileid = surface_tile_id(exit_pos);
+        if(tileid !== tiles.ID.EXIT  // Don't overwrite other exits!
+        && tileid !== tiles.ID.ENTRY // Don't overwrite entries!
+        && is_floor_walkable(exit_pos)) {
+            set_surface_tile(exit_pos, tiles.ID.EXIT);
+            --exit_count;
+        }
+    }
 
     return world;
 }
