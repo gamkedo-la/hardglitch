@@ -4,6 +4,7 @@ export {
     is_enabled, is_editing,
     set_text, set_central_text,
     update, display,
+    switch_editor,
 };
 
 import * as audio from "./system/audio.js";
@@ -15,6 +16,10 @@ import * as items from "./definitions-items.js";
 import * as ui from "./system/ui.js";
 import { Character } from "./core/character.js";
 import { random_float } from "./system/utility.js";
+
+let current_game;
+let current_game_view;
+
 
 let is_enabled = false; // TURN THIS ON TO SEE THE EDITOR, see the update() function below
 let is_editing = false; // True if we are doing an edition manipulation and no other input should be handled.
@@ -368,22 +373,6 @@ function update(){
         current_game_view._require_tiles_update = true;
     }
 
-    if(input.keyboard.is_just_down(KEY.ESCAPE)){
-        is_enabled = !is_enabled;
-        if(is_enabled){
-            // Just entered the editor!
-            was_fog_of_war_activated = current_game_view.enable_fog_of_war;
-            current_game_view.enable_tile_rendering_debug = false;
-            current_game_view.enable_fog_of_war = false;
-        } else {
-            // Just exited the editor mode.
-            // Make sure the changes are taken into account:
-            play_action();
-            current_game_view.enable_fog_of_war = was_fog_of_war_activated;
-            current_game_view.enable_tile_rendering_debug = false;
-        }
-    }
-
     if (input.keyboard.is_just_down(KEY.DASH)) audio.setVolume('Master', null, -0.05);
     if (input.keyboard.is_just_down(KEY.EQUAL)) audio.setVolume('Master', null, 0.05);
 
@@ -395,4 +384,36 @@ function update(){
 
     if(is_enabled)
         update_world_edition();
+}
+
+function switch_editor(game, game_view){
+    is_enabled = !is_enabled;
+    if(is_enabled){
+        begin_edition(game, game_view);
+    } else {
+        end_edition();
+    }
+}
+
+function begin_edition(game, game_view){
+    current_game = game;
+    current_game_view = game_view;
+
+    is_enabled = true;
+
+    was_fog_of_war_activated = current_game_view.enable_fog_of_war;
+    current_game_view.enable_tile_rendering_debug = false;
+    current_game_view.enable_fog_of_war = false;
+}
+
+function end_edition(){
+        // Make sure the changes are taken into account:
+    play_action();
+    current_game_view.enable_fog_of_war = was_fog_of_war_activated;
+    current_game_view.enable_tile_rendering_debug = false;
+
+    current_game = undefined;
+    current_game_view = undefined;
+
+    is_enabled = false;
 }
