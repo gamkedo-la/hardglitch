@@ -16,6 +16,7 @@ import * as items from "./definitions-items.js";
 import * as ui from "./system/ui.js";
 import { Character } from "./core/character.js";
 import { random_float } from "./system/utility.js";
+import { GameSession } from "./game-session.js";
 
 let current_game;
 let current_game_view;
@@ -386,18 +387,20 @@ function update(){
         update_world_edition();
 }
 
-function switch_editor(game, game_view){
+function switch_editor(game_session){
     is_enabled = !is_enabled;
     if(is_enabled){
-        begin_edition(game, game_view);
+        begin_edition(game_session);
     } else {
         end_edition();
     }
 }
 
-function begin_edition(game, game_view){
-    current_game = game;
-    current_game_view = game_view;
+function begin_edition(game_session){
+    console.assert(game_session instanceof GameSession);
+
+    current_game = game_session.game;
+    current_game_view = game_session.view;
 
     is_enabled = true;
 

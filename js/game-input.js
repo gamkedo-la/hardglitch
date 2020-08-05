@@ -14,11 +14,11 @@ export {
 import { config } from "./game-config.js";
 import * as input from "./system/input.js";
 import * as graphics from "./system/graphics.js";
-import * as editor from "./editor.js";
 import { Vector2_unit_x, Vector2_unit_y, Vector2 } from "./system/spatial.js";
 import * as concepts from "./core/concepts.js";
 import { Game } from "./game.js";
 import { GameView } from "./game-view.js";
+import { GameSession } from "./game-session.js";
 
 let current_game;
 let current_game_view;
@@ -148,7 +148,7 @@ function select_player_action(){
 
 let draggin_start_camera_position = undefined;
 
-function update_camera_control(delta_time){
+function update_camera_control(delta_time, allow_camera_dragging){
     const camera_speed = 1;
     const current_speed = camera_speed * delta_time;
     const keyboard = input.keyboard;
@@ -161,7 +161,7 @@ function update_camera_control(delta_time){
     const drag_pos = input.mouse.dragging_positions;
     if(input.mouse.is_dragging
     && !current_game_view.ui.is_under(drag_pos.begin) // Don't drag the camera if we are manipulating UI
-    && !editor.is_editing // Don't drag when we are editing the world with the editor
+    && allow_camera_dragging
     ){
         // Map dragging
         if(!draggin_start_camera_position){
@@ -192,15 +192,15 @@ function play_action(player_action){
     console.assert(!player_action || player_action instanceof concepts.Action);
     console.assert(!player_action || Object.values(current_game.turn_info.possible_actions).includes(player_action)); // The action MUST come from the possible actions.
 
-    editor.set_text("PROCESSING TURNS...");
     const event_sequence = current_game.update_until_player_turn(player_action);
     current_game_view.interpret_turn_events(event_sequence); // Starts showing each event one by one until it's player's turn.
 }
 
 
-function begin_game(game, game_view){
-    current_game = game;
-    current_game_view = game_view;
+function begin_game(game_session){
+    console.assert(game_session instanceof GameSession);
+    current_game = game_session.game;
+    current_game_view = game_session.view;
 }
 
 function end_game(){
@@ -209,7 +209,7 @@ function end_game(){
 }
 
 
-function update(delta_time){
+function update(delta_time, allow_player_action=true, allow_camera_dragging=true){
     console.assert(current_game instanceof Game);
     console.assert(current_game_view instanceof GameView);
 
@@ -217,7 +217,7 @@ function update(delta_time){
         config.enable_particles = !config.enable_particles;
 
     if(current_game_view){
-        update_camera_control(delta_time);
+        update_camera_control(delta_time, allow_camera_dragging);
 
         if(current_game_view.ui.is_selecting_action_target){
             // When we already are in action target selection mode, re-selecting an action through the keys is like a cancel.
@@ -229,7 +229,7 @@ function update(delta_time){
             if(!input.mouse.is_dragging
             && current_game_view.is_time_for_player_to_chose_action
             && !current_game_view.ui.is_mouse_over
-            && !editor.is_enabled
+            && allow_player_action
             ){
                 const player_action = select_player_action();
 

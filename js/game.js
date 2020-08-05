@@ -11,7 +11,7 @@ import { GlitchyGlitchMacGlitchy } from "./characters/glitch.js";
 
 // Abstract but complete representation of a game.
 // Create this object for each new game.
-// Make it visible using a GameView.
+// Make it visible using a GameView. See GameSession.
 class Game {
     turn_info = null;
 
