@@ -62,12 +62,12 @@ class StateMachine extends State {
         console.assert(transition_table);
         console.assert(states instanceof Object);
         console.assert(Object.values(states).every(state => state instanceof State));
-        console.assert(states[transition_table.initial_state] instanceof State);
-        console.assert(Object.keys(transition_table)
-            .filter(state_id=> state_id !== "initial_state")
-            .every(state_id => states[state_id] instanceof State
-                && Object.values(transition_table[state_id])
-                         .every(next_state_id => states[next_state_id] instanceof State))
+        console.assert(states[transition_table.initial_state] instanceof State); // The initial state must exist in the provided state objects.
+        console.assert(Object.keys(transition_table)             // Transition table requirements:
+            .filter(state_id=> state_id !== "initial_state")     // keys that are not "initial_state" (which is used to specify which state to start with),
+            .every(state_id => states[state_id] instanceof State // must exist in the provided states names,
+                && Object.values(transition_table[state_id])     // and for each action of a state...
+                         .every(next_state_id => states[next_state_id] instanceof State)) // ... we must find the corresponding State to transition to in the provided states.
         );
         super();
         this.transition_table = transition_table;
@@ -83,11 +83,11 @@ class StateMachine extends State {
     get current_state_id() { return this._current_state_id; }
     get is_running() { return this._started; }
 
-    start(){
+    start(...data){
         console.assert(this._started === false);
         console.log(`FSM: ${this.constructor.name} STARTING WITH STATE ${this.transition_table.initial_state}`);
         this._started = true;
-        this._begin_state_transition(this.transition_table.initial_state);
+        this._begin_state_transition(this.transition_table.initial_state, ...data);
     }
 
     stop(){
@@ -172,8 +172,10 @@ class StateMachine extends State {
     _end_state_transition(){
         console.assert(this.is_running);
         console.assert(this._next_state_id !== undefined);
-        if(this._current_state instanceof StateMachine)
+
+        if(this._current_state instanceof StateMachine) // If the state we are leaving is a state machine, stop it.
             this._current_state.stop();
+
         const next_state = this.get_state(this._next_state_id);
         console.assert(next_state instanceof State);
         this._current_state = next_state;
@@ -181,11 +183,13 @@ class StateMachine extends State {
         const data = this._transition_data;
         delete this._transition_data;
         delete this._next_state_id;
+
         console.log(`FSM: ENTERING ${this._current_state_id} ...`);
-        if(this._current_state instanceof StateMachine)
-            this._current_state.start();
         this._transition_sequence = this._current_state.enter(...data);
         this._transition_sequence.next(); // Make sure we executed at least the first part of the entry function.
+
+        if(this._current_state instanceof StateMachine) // If the state we entered is a state machine, also start it.
+            this._current_state.start(...data);
     }
 
 };

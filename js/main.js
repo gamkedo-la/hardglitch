@@ -28,12 +28,19 @@ const game_state_machine = new class extends fsm.StateMachine{
     },{
       // This is the transition table, stating which action from one state leads to which other state.
       initial_state: "loading_game",
-      loading_game: { game_ready: "main_menu" },
+      loading_game: {
+        game_ready: "main_menu"
+      },
       main_menu: {
         new_game: "game",
         credits: "credits",
       },
-      credits: { back: "main_menu" },
+      credits: {
+        back: "main_menu",
+      },
+      game: {
+        exit: "main_menu",
+      }
     });
   }
 

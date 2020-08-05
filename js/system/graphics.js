@@ -5,6 +5,7 @@
 export {
   initialize,
   clear,
+  reset,
   Sprite,
   TileGrid,
   create_canvas_context,
@@ -106,6 +107,13 @@ class Camera{
 
   on_canvas_resized() {
     this.position = this.position; // Recalculate the position assuming it didn't change but the canvas size might have changed.
+  }
+
+  reset(){
+    this.position = spatial.Vector2_origin;
+    if(this._in_screen_rendering){
+      this.end_in_screen_rendering();
+    }
   }
 
 };
@@ -565,6 +573,11 @@ function clear(canvas_context = screen_canvas_context){
   canvas_context.imageSmoothingEnabled = false;
 }
 
+function reset() {
+  camera.reset();
+  screen_canvas_context.resetTransform();
+  clear(screen_canvas_context);
+}
 
 const text_defaults = {
   text_align: "left", text_baseline: "top",

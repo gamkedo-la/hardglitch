@@ -8,7 +8,6 @@
 export const config = {
 
     enable_particles: true,
-
 };
 
 

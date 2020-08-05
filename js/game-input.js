@@ -34,6 +34,7 @@ const KEY = {
     DOWN_ARROW: 40,
     LEFT_CTRL:17,
     ESCAPE:27,
+    ENTER: 13,
     W: 87,
     A: 65,
     S: 83,
@@ -209,7 +210,8 @@ function end_game(){
 }
 
 
-function update(delta_time, allow_player_action=true, allow_camera_dragging=true){
+function update(delta_time, input_config){
+    console.assert(input_config instanceof Object);
     console.assert(current_game instanceof Game);
     console.assert(current_game_view instanceof GameView);
 
@@ -217,7 +219,7 @@ function update(delta_time, allow_player_action=true, allow_camera_dragging=true
         config.enable_particles = !config.enable_particles;
 
     if(current_game_view){
-        update_camera_control(delta_time, allow_camera_dragging);
+        update_camera_control(delta_time, input_config.is_camera_dragging_allowed);
 
         if(current_game_view.ui.is_selecting_action_target){
             // When we already are in action target selection mode, re-selecting an action through the keys is like a cancel.
@@ -229,7 +231,7 @@ function update(delta_time, allow_player_action=true, allow_camera_dragging=true
             if(!input.mouse.is_dragging
             && current_game_view.is_time_for_player_to_chose_action
             && !current_game_view.ui.is_mouse_over
-            && allow_player_action
+            && input_config.is_player_action_allowed
             ){
                 const player_action = select_player_action();
 
