@@ -135,8 +135,12 @@ class StateMachine extends State {
     push_action(action, ...data){
         console.assert(this.is_running);
         console.assert(action !== undefined);
-        console.log(`FSM: ACTION PUSHED: ${action} (${data})`);
+        if(this._next_state_id){
+            console.log(`FSM: ${this.constructor.name} + ${action} (${data}) => IGNORED BECAUSE A TRANSITION TO ${this._next_state_id} IS ONGOING`);
+            return false;
+        }
         const next_state_id = this._find_transition(this._current_state_id, action);
+        console.log(`FSM: ${this.constructor.name} + ${action} (${data}) => ${next_state_id}`);
         if(next_state_id){
             this._begin_state_transition(next_state_id, ...data);
             return true;
