@@ -11,6 +11,7 @@ import { LoadingGameScreen } from "./screen-loading-game.js";
 import { MainMenuScreen } from "./screen-main-menu.js";
 import { GameScreen } from "./screen-game.js";
 import { CreditsScreen } from "./screen-credits.js";
+import { GameOverScreen_Success, GameOverScreen_Failure } from "./screen-gameover.js";
 
 
 let last_update_time = performance.now();
@@ -25,6 +26,8 @@ const game_state_machine = new class extends fsm.StateMachine{
       main_menu: new MainMenuScreen(),
       credits: new CreditsScreen(),
       game: new GameScreen(),
+      gameover_success: new GameOverScreen_Success(),
+      gameover_failure: new GameOverScreen_Failure(),
     },{
       // This is the transition table, stating which action from one state leads to which other state.
       initial_state: "loading_game",
@@ -40,6 +43,14 @@ const game_state_machine = new class extends fsm.StateMachine{
       },
       game: {
         exit: "main_menu",
+        escape: "gameover_success",
+        died: "gameover_failure",
+      },
+      gameover_success: {
+        ok: "main_menu",
+      },
+      gameover_failure: {
+        ok: "main_menu",
       }
     });
   }

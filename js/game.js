@@ -99,6 +99,10 @@ class Game {
         return !this.world.is_blocked_position(game_position, tiles.is_safely_walkable);
     }
 
+    get is_finished(){
+        return this.world.is_finished;
+    }
+
 };
 
 

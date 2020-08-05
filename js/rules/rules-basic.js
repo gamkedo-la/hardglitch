@@ -92,7 +92,7 @@ class GameOver extends concepts.Event {
     get is_world_event() { return true; }
 
     *animation(){ // TEMPORARY ANIMATION
-        editor.set_central_text("GAME OVER! - RELOAD TO RESTART");
+        editor.set_central_text("GAME OVER! - PRESS [SPACE]");
         while(true) yield;
     }
 }
@@ -138,15 +138,12 @@ class PlayerExitLevel extends concepts.Event {
         const character_view = game_view.get_entity_view(this.character_id);
         console.assert(character_view instanceof CharacterView);
 
-        ///////////////////////////////////////////////////////////////
-        // TEMPORARY ANIMATION
-        editor.set_central_text("YOU WIN THIS LEVEL! - LOADING NEXT LEVEL ...");
+        editor.set_central_text("YOU WIN THIS LEVEL! - [SPACE] NEXT LEVEL");
         game_view.clear_focus();
         let ready_to_exit = false;
         game_view.center_on_position(character_view.game_position, 500).then(()=> ready_to_exit = true );
         while(!ready_to_exit) yield;
-        yield* anim.wait(4000);
-        window.location.reload(); // TODO: replace by proper handling of the level exit
+        while(true) yield;
     }
 };
 

@@ -5,6 +5,7 @@ export {
     set_text, set_central_text,
     update, display, update_debug_keys, display_debug_info,
     begin_edition, end_edition,
+    clear,
 };
 
 import * as audio from "./system/audio.js";
@@ -30,6 +31,17 @@ let display_character_info = false;
 
 let text_to_display = "READY";
 let central_text = null;
+
+function clear(){
+    is_enabled = false;
+    is_editing = false;
+    was_fog_of_war_activated = true;
+    display_help_info = false;
+    display_mouse_info = false;
+    display_character_info = false;
+    text_to_display = "READY";
+    central_text = null;
+}
 
 function set_text(text){ // TODO: add a text display in the Canvas to display this
     console.log(text);

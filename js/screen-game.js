@@ -28,6 +28,21 @@ class PlayingGame extends fsm.State{
 
     update(delta_time){
 
+        if(this.game_session.is_game_finished){
+            if(input.keyboard.is_just_down(KEY.SPACE)){
+                if(this.game_session.is_any_player_character_alive){
+                    this.state_machine.escape();
+                } else {
+                    this.state_machine.horrible_death();
+                }
+            }
+            this.game_session.update(delta_time, {
+                is_player_action_allowed: false,
+                is_camera_dragging_allowed: true,
+            });
+            return;
+        }
+
         const ongoing_target_selection = this.game_session.view.ui.is_selecting_action_target;
         this.game_session.update(delta_time, {
             is_player_action_allowed: true,
@@ -174,12 +189,12 @@ class GameScreen extends fsm.StateMachine {
     }
 
     *leave(){
-        this.game_session.stop();
 
         yield* this.fader.generate_fade_out();
+        this.game_session.stop();
         // ...
         delete this.game_session;
-
+        editor.clear()
         graphics.reset();
     }
 
@@ -202,6 +217,16 @@ class GameScreen extends fsm.StateMachine {
 
     exit(){
         this.state_machine.push_action("exit");
+    }
+
+    escape(){
+        // TODO, pass the next level
+        const next_level = undefined;
+        this.state_machine.push_action("escape", next_level);
+    }
+
+    horrible_death(){
+        this.state_machine.push_action("died");
     }
 
 };

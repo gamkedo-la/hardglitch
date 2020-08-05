@@ -209,6 +209,10 @@ class Keyboard {
     return this._keys_states.some(keystate => keystate.state == KEY_STATE.DOWN || keystate.state == KEY_STATE.HOLD);
   }
 
+  is_any_key_just_down(){
+    return this._keys_states.some(keystate => keystate.state == KEY_STATE.DOWN);
+  }
+
   // Return true if the provided combination (made of one or more patterns) are true.
   // The pattern object should look like this:
   //  {

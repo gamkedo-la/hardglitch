@@ -25,6 +25,9 @@ class GameSession {
         this.view.update(0); // Update the camera state.
     }
 
+    get is_game_finished() { return this.game.is_finished; }
+    get is_any_player_character_alive() { return this.game.player_characters.length > 0; }
+
     start(){
         game_input.begin_game(this);
     }
