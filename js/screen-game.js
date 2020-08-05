@@ -7,6 +7,7 @@ export {
 import * as graphics from "./system/graphics.js";
 import * as input from "./system/input.js";
 import * as fsm from "./system/finite-state-machine.js";
+import * as ui from "./system/ui.js";
 
 import { KEY } from "./game-input.js";
 
@@ -14,6 +15,7 @@ import * as editor from "./editor.js";
 import { ScreenFader } from "./system/screenfader.js";
 import { GameSession } from "./game-session.js";
 import { Color } from "./system/color.js";
+import { sprite_defs } from "./game-assets.js";
 
 class PlayingGame extends fsm.State{
 
@@ -55,11 +57,11 @@ class PlayingGame extends fsm.State{
         && this.game_session.view.is_time_for_player_to_chose_action
         && !input.mouse.is_dragging
         ){
-            if(input.keyboard.is_just_down(KEY.ESCAPE)){
+            if(input.keyboard.is_just_down(KEY.F2)){
                 this.state_machine.push_action("edit", this.game_session);
             }
 
-            if(input.keyboard.is_just_down(KEY.ENTER)){
+            if(input.keyboard.is_just_down(KEY.ESCAPE)){
                 this.state_machine.push_action("back");
             }
         }
@@ -124,7 +126,51 @@ class InGameMenu extends fsm.State {
         this.fader._fade = 0;
     }
 
+    _init_ui(){
+        console.assert(this.ui === undefined);
+
+        this.ui = {
+            resume_button: new ui.Button({
+                action: ()=>{ this.go_back(); },
+                position: graphics.canvas_center_position(),
+                width: 256, height: 64,
+                sprite_def: sprite_defs.button_menu,
+                frames: { up: 0, down: 1, over: 2, disabled: 3 },
+            }),
+            exit_button: new ui.Button({
+                action: ()=>{ this.exit_game(); },
+                position: graphics.canvas_center_position().translate({ x:0, y: 100 }),
+                width: 256, height: 64,
+                sprite_def: sprite_defs.button_menu,
+                frames: { up: 0, down: 1, over: 2, disabled: 3 },
+            }),
+            update: function(delta_time){
+                this.resume_button.update(delta_time);
+                this.exit_button.update(delta_time);
+            },
+            display: function(canvas_context){
+                graphics.camera.begin_in_screen_rendering();
+                this.resume_button.draw(canvas_context);
+                this.exit_button.draw(canvas_context);
+                graphics.camera.end_in_screen_rendering();
+            }
+        };
+    }
+
+    go_back(){
+        this.state_machine.push_action("back");
+    }
+
+    exit_game(){
+        console.assert(this.state_machine instanceof GameScreen);
+        this.state_machine.exit();
+    }
+
     *enter(){
+        if(!this.ui){
+            this._init_ui();
+        }
+
         yield* this.fader.generate_fade_out(0.3);
     }
 
@@ -134,19 +180,30 @@ class InGameMenu extends fsm.State {
 
     update(delta_time){
         this.fader.update(delta_time);
+        if(this.fader.is_fading)
+            return;
+
+        this.ui.update(delta_time);
+
+        if(input.keyboard.is_just_down(KEY.ESCAPE)){
+            this.go_back();
+        }
 
         if(input.keyboard.is_just_down(KEY.ENTER)){
-            this.state_machine.push_action("back");
+            console.assert(this.state_machine instanceof GameScreen);
+            this.exit_game();
         }
 
-        if(input.keyboard.is_just_down(KEY.F10)){
-            console.assert(this.state_machine instanceof GameScreen);
-            this.state_machine.exit();
-        }
+
     }
 
     display(canvas_context){
         this.fader.display(canvas_context);
+        if(this.fader.is_fading)
+            return;
+
+        // Draw the UI OVER the fader:
+        this.ui.display(canvas_context);
     }
 
 };

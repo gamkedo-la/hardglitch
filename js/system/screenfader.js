@@ -32,7 +32,7 @@ class ScreenFader {
 
     // To be called last in graphic rendering.
     display(canvas_context){
-        if(this.is_fading){
+        if(this._fade !== 0){
             this._color.a = this._fade;
             graphics.execute_without_transform(canvas_context, ()=>{
                 graphics.draw_rectangle(canvas_context, graphics.canvas_rect(), this._color.toString());
@@ -51,10 +51,12 @@ class ScreenFader {
     }
 
     *generate_fade_in(target=0){
+        this._fade_target = target;
         yield* this._launch_fade(this._fade, target);
     }
 
     *generate_fade_out(target=1){
+        this._fade_target = target;
         yield* this._launch_fade(this._fade, target);
     }
 

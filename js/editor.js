@@ -209,10 +209,12 @@ function display_help(game_session){
     if(game_session.view.ui.is_selecting_action_target){
         draw_text("[ESC] - CANCEL TARGET SELECTION", {x: display_x, y: next_line() });
     } else {
+        draw_text("[ESC]  - MENU", {x: display_x, y: next_line() });
+
         if(game_session.view.is_time_for_player_to_chose_action
         && !input.mouse.is_dragging
         )
-            draw_text("[ESC] - EDITOR MODE", {x: display_x, y: next_line() });
+            draw_text("[F2] - EDITOR MODE", {x: display_x, y: next_line() });
     }
     draw_text("[F8]  - SHOW/HIDE FOV", {x: display_x, y: next_line() });
     draw_text("[F9]  - MOUSE INFO", {x: display_x, y: next_line() });

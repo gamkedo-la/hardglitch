@@ -33,8 +33,11 @@ class GameOverScreen_Success extends fsm.State {
     }
 
     update(delta_time){
-        if(input.keyboard.is_any_key_just_down() || input.mouse.buttons.is_any_key_just_down()){
-            this.state_machine.push_action("ok");
+
+        if(!this.fader.is_fading){
+            if(input.keyboard.is_any_key_just_down() || input.mouse.buttons.is_any_key_just_down()){
+                this.state_machine.push_action("ok");
+            }
         }
 
         this.message.update(delta_time);
@@ -77,8 +80,10 @@ class GameOverScreen_Failure extends fsm.State {
     }
 
     update(delta_time){
-        if(input.keyboard.is_any_key_just_down() || input.mouse.buttons.is_any_key_just_down()){
-            this.state_machine.push_action("ok");
+        if(!this.fader.is_fading){
+            if(input.keyboard.is_any_key_just_down() || input.mouse.buttons.is_any_key_just_down()){
+                this.state_machine.push_action("ok");
+            }
         }
 
         this.message.update(delta_time);
