@@ -13,7 +13,6 @@ import { sprite_defs } from "./game-assets.js";
 import * as concepts from "./core/concepts.js";
 import { play_action, mouse_grid_position, KEY } from "./game-input.js";
 import { keyboard, mouse, MOUSE_BUTTON } from "./system/input.js";
-import { set_text } from "./editor.js";
 import { Vector2, center_in_rectangle } from "./system/spatial.js";
 
 const action_button_size = 50;
@@ -269,8 +268,6 @@ class GameInterface {
             const key_name =  key_number <= 10 ? `[${key_number === 0 ? "SPACE" : key_number }] ` : "";
             const action_button = new ActionButton(position, first_action.icon_def, action_name, key_name,
                 ()=>{ // on clicked
-                    set_text(`ACTION SELECTED: ${action_name}`);
-                    // TODO: highlight the possible targets
                     if(actions.length == 1 && first_action.target_position === undefined){ // No need for targets
                         play_action(first_action); // Play the action immediately
                     } else {
@@ -340,7 +337,6 @@ class GameInterface {
                 const selected_action_with_target = this.selected_action.actions.find(action=>action.target_position.equals(target_position));
                 if(selected_action_with_target){
                     console.assert(selected_action_with_target instanceof concepts.Action);
-                    set_text(`ACTION TARGET SELECTED: ${JSON.stringify(target_position)}`);
                     this._end_target_selection(selected_action_with_target);
                     play_action(selected_action_with_target);
                 }

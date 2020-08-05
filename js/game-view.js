@@ -12,7 +12,6 @@ import { Game } from "./game.js";
 import { Vector2, Rectangle } from "./system/spatial.js";
 
 import * as concepts from "./core/concepts.js";
-import * as editor from "./editor.js";
 
 import {
     graphic_position, PIXELS_PER_TILES_SIDE, square_half_unit_vector,
@@ -123,6 +122,8 @@ class GameView {
     player_actions_highlights = []; // Must contain Highlight objects for the currently playable actions.
     action_range_highlights = []; // Must contain Highlight objects for the currently pointed action's range.
     delay_between_animations_ms = Math.round(1000 / 5); // we'll try to keep a little delay between each beginning of parallel animation.
+
+    enable_edition = false; // Turn on to limit view for editor mode.
 
     get enable_fog_of_war() { return this._enable_fog_of_war; };
     set enable_fog_of_war(new_value) {
@@ -319,7 +320,7 @@ class GameView {
 
         if(this._requires_reset){
             this.reset();
-            if(editor.is_enabled)
+            if(this.enable_edition)
                 return;
         }
 
@@ -427,7 +428,6 @@ class GameView {
             this.clear_focus();
             this.lock_actions();
         }
-        editor.set_text("PLAYER'S TURN!");
     }
 
     _update_entities(delta_time){
@@ -457,7 +457,7 @@ class GameView {
         if(mouse_pos){
             if(!this._last_mouse_grid_pos || !mouse_pos.equals(this._last_mouse_grid_pos)){
                 this._last_mouse_grid_pos = mouse_pos;
-                if(editor.is_enabled)
+                if(this.enable_edition)
                     this._change_highlight_position(this._pointed_highlight_edit, mouse_pos);
                 else
                     this._change_highlight_position(this._pointed_highlight, mouse_pos);
@@ -539,7 +539,7 @@ class GameView {
 
         this._render_top_highlights();
 
-        if(!editor.is_enabled)
+        if(!this.enable_edition)
             this.ui.display();
 
         this._render_help(); // TODO: replace this by highlights being UI elements?
@@ -552,7 +552,7 @@ class GameView {
             this._character_focus_highlight.draw();
 
         if(!mouse.is_dragging
-        && !editor.is_enabled
+        && !this.enable_edition
         ){
             if(this.is_time_for_player_to_chose_action){
                 this.player_actions_highlights
@@ -577,11 +577,11 @@ class GameView {
 
         if(!mouse.is_dragging){
 
-            if(!editor.is_enabled && this.is_time_for_player_to_chose_action){
+            if(!this.enable_edition && this.is_time_for_player_to_chose_action){
                 this.action_range_highlights.forEach(highlight => highlight.draw());
             }
 
-            if(editor.is_enabled){
+            if(this.enable_edition){
                 this._pointed_highlight_edit.draw();
             }
         }

@@ -401,6 +401,7 @@ function begin_edition(game_session){
 
     current_game = game_session.game;
     current_game_view = game_session.view;
+    current_game_view.enable_edition = true;
 
     is_enabled = true;
 
@@ -410,10 +411,11 @@ function begin_edition(game_session){
 }
 
 function end_edition(){
-        // Make sure the changes are taken into account:
+    // Make sure the changes are taken into account:
     play_action();
     current_game_view.enable_fog_of_war = was_fog_of_war_activated;
     current_game_view.enable_tile_rendering_debug = false;
+    current_game_view.enable_edition = false;
 
     current_game = undefined;
     current_game_view = undefined;
