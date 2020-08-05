@@ -17,7 +17,8 @@ class RandomActionSelector extends concepts.Actor {
                 continue;
             if(random_action == null) { // no action found.
                 // In this case just wait:
-                return new Wait();
+                console.assert(possible_actions.wait instanceof Wait);
+                return possible_actions.wait;
             }
             return random_action;
         }

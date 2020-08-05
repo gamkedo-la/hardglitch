@@ -201,16 +201,20 @@ function display_help(game_session){
         return line += 30;
     }
 
+
     draw_text("[F1]  - HELP", {x: display_x, y: next_line() });
+
+    const is_selecting_action_target = game_session.view.ui.is_selecting_action_target;
+    if(!is_selecting_action_target){
+        draw_text("[ESC]  - MENU", {x: display_x, y: next_line() });
+    }
+
     if(!display_help_info)
         return;
 
-
-    if(game_session.view.ui.is_selecting_action_target){
+    if(is_selecting_action_target){
         draw_text("[ESC] - CANCEL TARGET SELECTION", {x: display_x, y: next_line() });
     } else {
-        draw_text("[ESC]  - MENU", {x: display_x, y: next_line() });
-
         if(game_session.view.is_time_for_player_to_chose_action
         && !input.mouse.is_dragging
         )
@@ -250,7 +254,7 @@ function display_editor_help(){
     if(!input.mouse.is_dragging)
 
     draw_text("[F1]  - HELP", {x: display_x, y: next_line() });
-    draw_text("[ESC] - EXIT EDITOR MODE", {x: display_x, y: next_line() });
+    draw_text("[F2] OR [ESC] - EXIT EDITOR MODE", {x: display_x, y: next_line() });
     if(!display_help_info)
         return;
 

@@ -105,7 +105,7 @@ class EditorMode extends fsm.State {
 
         editor.update(this.game_session);
 
-        if(input.keyboard.is_just_down(KEY.ESCAPE)){
+        if(input.keyboard.is_just_down(KEY.ESCAPE) || input.keyboard.is_just_down(KEY.F2)){
             this.state_machine.push_action("back");
         }
     }
