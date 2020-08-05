@@ -6,10 +6,11 @@ export {
 import * as fsm from "./system/finite-state-machine.js";
 import * as graphics from "./system/graphics.js";
 import * as ui from "./system/ui.js";
-import { Screen } from "./screen.js";
+
 import { sprite_defs } from "./game-assets.js";
 import { invoke_on_members } from "./system/utility.js";
 import { Vector2 } from "./system/spatial.js";
+import { ScreenFader } from "./system/screenfader.js";
 
 class MainMenu {
 
@@ -59,7 +60,8 @@ class MainMenu {
 };
 
 
-class MainMenuScreen extends Screen {
+class MainMenuScreen extends fsm.State {
+    fader = new ScreenFader();
 
     *enter(){
         if(!this.main_menu){
@@ -72,15 +74,21 @@ class MainMenuScreen extends Screen {
             this.main_menu = new MainMenu(this.state_machine, this.title.position.translate({ x:0, y: 100 }));
         }
 
-        yield* super.enter();
+        yield* this.fader.generate_fade_in();
+    }
+
+    *leave(){
+        yield* this.fader.generate_fade_out();
     }
 
     update(delta_time){
+        this.fader.update(delta_time);
         this.main_menu.update(delta_time);
         this.title.update(delta_time);
     }
 
     display(canvas_context){
+
         graphics.draw_rectangle(canvas_context, graphics.canvas_rect(), "orange");
 
         if(!this.is_fading){
@@ -89,7 +97,7 @@ class MainMenuScreen extends Screen {
 
         this.title.draw(canvas_context);
 
-        super.display(canvas_context);
+        this.fader.display(canvas_context);
     }
 };
 

@@ -6,17 +6,20 @@ export {
 
 import * as input from "./system/input.js";
 import * as game_input from "./game-input.js";
+import * as fsm from "./system/finite-state-machine.js";
+
 import { KEY } from "./game-input.js";
 import { GameView } from "./game-view.js";
 import { Game } from "./game.js";
 import { make_test_world } from "./testing/test-level.js";
-import { Screen } from "./screen.js";
 
 import * as level1 from "./levels/level1.js";
 
 import * as editor from "./editor.js";
+import { ScreenFader } from "./system/screenfader.js";
 
-class GameScreen extends Screen {
+class GameScreen extends fsm.State {
+    fader = new ScreenFader();
 
     *enter(level){
         if(level === "test"){
@@ -27,7 +30,8 @@ class GameScreen extends Screen {
 
         this.game_view = new GameView(this.game);
         this.game_view.update(0);
-        yield* super.enter();
+
+        yield* this.fader.generate_fade_in();
 
         game_input.begin_game(this.game, this.game_view);
     }
@@ -35,14 +39,15 @@ class GameScreen extends Screen {
     *leave(){
         game_input.end_game();
 
-        yield* super.leave();
+        yield* this.fader.generate_fade_out();
         // ...
         delete this.game;
         delete this.game_view;
     }
 
     update(delta_time){
-        if(this.is_fading)
+        this.fader.update(delta_time);
+        if(this.fader.is_fading) // No input handled until the fades are done.
             return;
 
         game_input.update(delta_time);
@@ -61,14 +66,17 @@ class GameScreen extends Screen {
             editor.update(delta_time);
 
         ////////////////////////////////
-
-        super.update(delta_time);
     }
 
     display(canvas_context){
+        console.assert(canvas_context); // TODO: pass this canvas_context to the functions below and handle them.
+
         this.game_view.render_graphics();
-        super.display(canvas_context)
-        editor.display(); // TODO: this is a hack, make it work better
+
+        if(!this.fader.is_fading)
+            editor.display(); // TODO: this is a hack, make it work better
+
+        this.fader.display(canvas_context);
     }
 
 };

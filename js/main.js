@@ -37,11 +37,6 @@ const game_state_machine = new class extends fsm.StateMachine{
     });
   }
 
-  update(delta_time){
-    input.update(delta_time);
-    super.update(delta_time); // Update the current state (and other details automatically handled, like transitions)
-  }
-
   display(canvas_context){
     graphics.clear();
     this.current_state.display(canvas_context);
@@ -54,9 +49,13 @@ window.onload = async function() {
   game_state_machine.update(); // To display the first state at least once before starting loading...
 
   const assets = await load_all_assets();
+  game_state_machine.update();
   const canvas_context = graphics.initialize(assets);
+  game_state_machine.update();
   audio.initialize(assets);
+  game_state_machine.update();
   input.initialize(canvas_context);
+  game_state_machine.update();
   // OK now we're ready.
   start();
 }
@@ -64,7 +63,7 @@ window.onload = async function() {
 function start() { // Now we can start the game!
   window.requestAnimationFrame(update_cycle);
   game_state_machine.push_action("game_ready");
-  console.log("GAME READY - STARTED");
+  console.log("GAME READY - STARTING");
 }
 
 
@@ -80,6 +79,7 @@ function update_cycle(highres_timestamp){
     return;
   const delta_time = get_delta_time(highres_timestamp);
 
+  input.update(delta_time);
   game_state_machine.update(delta_time);
   game_state_machine.display(graphics.screen_canvas_context);
 

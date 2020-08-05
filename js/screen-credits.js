@@ -6,10 +6,11 @@ export {
 import * as ui from "./system/ui.js";
 import * as input from "./system/input.js";
 import * as graphics from "./system/graphics.js";
-import { Screen } from "./screen.js";
+import * as fsm from "./system/finite-state-machine.js";
 import { KEY } from "./game-input.js";
 import { sprite_defs } from "./game-assets.js";
 import { invoke_on_members } from "./system/utility.js";
+import { ScreenFader } from "./system/screenfader.js";
 
 class Credits {
     constructor(on_back_button){
@@ -40,27 +41,32 @@ class Credits {
 
 }
 
-class CreditsScreen extends Screen {
+class CreditsScreen extends fsm.State {
+    fader = new ScreenFader();
 
     *enter(){
         if(!this.credits){
-            this.credits = new Credits(()=> this._go_back());
+            this.credits = new Credits(()=> this.go_back());
         }
-        yield* super.enter();
+        yield* this.fader.generate_fade_in();
     }
 
-    _go_back(){
+    *leave(){
+        yield* this.fader.generate_fade_out();
+    }
+
+    go_back(){
         this.state_machine.push_action("back");;
     }
 
     update(delta_time){
         if(input.keyboard.is_just_down(KEY.ESCAPE)){
-            this._go_back();
+            this.go_back();
         }
 
         this.credits.update(delta_time);
 
-        super.update(delta_time);
+        this.fader.update(delta_time);
     }
 
     display(canvas_context){
@@ -68,7 +74,7 @@ class CreditsScreen extends Screen {
 
         this.credits.draw(canvas_context);
 
-        super.display(canvas_context);
+        this.fader.display(canvas_context);
     }
 
 };

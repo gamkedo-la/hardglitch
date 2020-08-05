@@ -8,6 +8,7 @@ export {
   Sprite,
   TileGrid,
   create_canvas_context,
+  execute_without_transform,
   draw_text,
   measure_text,
   draw_rectangle,
@@ -549,11 +550,18 @@ function drawBitmapCenteredAtLocationWithRotation(canvas_context, graphic, atX, 
   canvas_context.restore(); // undo the translation movement and rotation since save()
 }
 
-function clear(canvas_context = screen_canvas_context){
+function execute_without_transform(canvas_context, func){
   const canvas_transform = canvas_context.getTransform();
   canvas_context.resetTransform();
-  canvas_context.clearRect(0, 0, canvas_context.canvas.width, canvas_context.canvas.height);
+  const result = func(canvas_context);
   canvas_context.setTransform(canvas_transform);
+  return result;
+}
+
+function clear(canvas_context = screen_canvas_context){
+  execute_without_transform(canvas_context, ()=>{
+    canvas_context.clearRect(0, 0, canvas_context.canvas.width, canvas_context.canvas.height);
+  });
   canvas_context.imageSmoothingEnabled = false;
 }
 
