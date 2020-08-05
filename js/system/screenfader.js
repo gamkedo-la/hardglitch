@@ -10,13 +10,20 @@ import { AnimationGroup } from "./animation.js";
 
 
 class ScreenFader {
-    color = new Color(0, 0, 0);
     duration_ms = 1000;
 
-    _fade = 0;
+    _color = new Color(0, 0, 0);
+    _fade = 1;
+    _fade_target = 0;
     _animator = new AnimationGroup();
 
-    get is_fading() { return this._fade !== 1; }
+    get color() { return this._color.copy(); }
+    set color(new_color){
+        console.assert(new_color instanceof Color);
+        this._color = new_color;
+    }
+
+    get is_fading() { return this._fade !== this._fade_target; }
 
     // To be called at each update cycle.
     update(delta_time){
@@ -26,9 +33,9 @@ class ScreenFader {
     // To be called last in graphic rendering.
     display(canvas_context){
         if(this.is_fading){
-            this.color.a = 1.0 - this._fade;
+            this._color.a = this._fade;
             graphics.execute_without_transform(canvas_context, ()=>{
-                graphics.draw_rectangle(canvas_context, graphics.canvas_rect(), this.color.toString());
+                graphics.draw_rectangle(canvas_context, graphics.canvas_rect(), this._color.toString());
             });
         }
     }
@@ -43,16 +50,17 @@ class ScreenFader {
         }
     }
 
-    *generate_fade_in(){
-        this.cancel();
-        this._fade = 0;
-        this._current_generator = tween(this._fade, 1, this.duration_ms, value => this._fade = value);
-        yield* this._current_generator;
+    *generate_fade_in(target=0){
+        yield* this._launch_fade(this._fade, target);
     }
 
-    *generate_fade_out(){
+    *generate_fade_out(target=1){
+        yield* this._launch_fade(this._fade, target);
+    }
+
+    *_launch_fade(from, to){
         this.cancel();
-        this._current_generator = tween(this._fade, 0, this.duration_ms, value => this._fade = value);
+        this._current_generator = tween(from, to, this.duration_ms, value => this._fade = value);
         yield* this._current_generator;
     }
 

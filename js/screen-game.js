@@ -12,9 +12,85 @@ import { KEY } from "./game-input.js";
 import * as editor from "./editor.js";
 import { ScreenFader } from "./system/screenfader.js";
 import { GameSession } from "./game-session.js";
+import { Color } from "./system/color.js";
 
-class GameScreen extends fsm.State {
+class PlayingGame extends fsm.State{
+    *enter(){}
+    *leave(){}
+
+    update(delta_time){
+        console.assert(this.state_machine.game_session instanceof GameSession);
+
+        editor.update_debug_keys(this.state_machine.game_session); // Debug action update // TODO: remove this later
+
+        if(input.keyboard.is_just_down(KEY.ESCAPE)){
+            this.state_machine.push_action("edit", this.state_machine.game_session);
+        }
+
+    }
+
+    display(canvas_context){
+        editor.display_debug_info(this.state_machine.game_session); // Display debug info // TODO: remove this later
+    }
+};
+
+class EditorMode extends fsm.State {
     fader = new ScreenFader();
+
+    constructor(){
+        super();
+        this.fader.color = new Color(255,0,255);
+        this.fader.duration_ms = 300;
+        this.fader._fade = 0;
+    }
+
+    *enter(game_session){
+        console.assert(game_session instanceof GameSession);
+        this.game_session = game_session;
+        editor.begin_edition(game_session);
+        yield* this.fader.generate_fade_out(0.1);
+    }
+
+    *leave(){
+        yield* this.fader.generate_fade_in();
+        editor.end_edition(this.game_session);
+        delete this.game_session;
+    }
+
+    update(delta_time){
+        this.fader.update(delta_time);
+
+        editor.update(this.game_session);
+
+        if(input.keyboard.is_just_down(KEY.ESCAPE)){
+            this.state_machine.push_action("back");
+        }
+    }
+
+    display(canvas_context){
+        editor.display(this.game_session);
+        this.fader.display(canvas_context);
+    }
+};
+
+
+class GameScreen extends fsm.StateMachine {
+    fader = new ScreenFader();
+
+    constructor(){
+        super({
+            playing: new PlayingGame(),
+            editor: new EditorMode(),
+        }, {
+            initial_state: "playing",
+            playing: {
+                edit: "editor",
+            },
+            editor: {
+                back: "playing",
+            }
+        });
+    }
 
     *enter(level){
         if(!this.game_session){
@@ -41,29 +117,14 @@ class GameScreen extends fsm.State {
 
         this.game_session.update(delta_time);
 
-        //// TEMPORARY: FIXME: should be a sub-state
-        if(input.keyboard.is_just_down(KEY.ESCAPE)){
-            editor.switch_editor(this.game_session);
-        }
-
-        const ongoing_target_selection = this.game_session.view.ui.is_selecting_action_target;
-        if(!ongoing_target_selection
-        && this.game_session.view.is_time_for_player_to_chose_action
-        && !input.mouse.is_dragging
-        )
-            editor.update(delta_time);
-
-        ////////////////////////////////
-
+        super.update(delta_time); // Updates the sub-states
     }
 
     display(canvas_context){
-        console.assert(canvas_context); // TODO: pass this canvas_context to the functions below and handle them.
+        console.assert(canvas_context);
 
         this.game_session.display(canvas_context);
-
-        if(!this.fader.is_fading)
-            editor.display(); // TODO: this is a hack, make it work better
+        this.current_state.display(canvas_context);
 
         this.fader.display(canvas_context);
     }

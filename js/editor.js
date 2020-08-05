@@ -3,24 +3,21 @@
 export {
     is_enabled, is_editing,
     set_text, set_central_text,
-    update, display,
-    switch_editor,
+    update, display, update_debug_keys, display_debug_info,
+    begin_edition, end_edition,
 };
 
 import * as audio from "./system/audio.js";
 import * as graphics from "./system/graphics.js";
 import * as input from "./system/input.js";
 import * as tiles from "./definitions-tiles.js";
-import { mouse_grid_position, mouse_game_position, KEY, play_action } from "./game-input.js";
 import * as items from "./definitions-items.js";
 import * as ui from "./system/ui.js";
+
+import { mouse_grid_position, mouse_game_position, KEY, play_action } from "./game-input.js";
 import { Character } from "./core/character.js";
 import { random_float } from "./system/utility.js";
 import { GameSession } from "./game-session.js";
-
-let current_game;
-let current_game_view;
-
 
 let is_enabled = false; // TURN THIS ON TO SEE THE EDITOR, see the update() function below
 let is_editing = false; // True if we are doing an edition manipulation and no other input should be handled.
@@ -65,8 +62,7 @@ function draw_text(text, position){
 }
 
 function display_mouse_position(){
-    if(!current_game_view)
-        return;
+
     let line = 100;
     function next_line(){
         return line += 30;
@@ -105,7 +101,8 @@ function display_mouse_position(){
     draw_text(`FRAMES LEFT MOUSE BUTTON ${lmb_down_frames}`, {x: display_x, y: next_line() });
 }
 
-function update_world_edition(){
+function update_world_edition(game_session){
+    console.assert(game_session instanceof GameSession);
     // TODO: use a map of input pattern => action
 
     is_editing = input.keyboard.is_any_key_down();
@@ -118,8 +115,8 @@ function update_world_edition(){
 
     function change_pointed_tile_if_key_down(key_code, tile_id){
         if(input.keyboard.is_down(key_code)
-        && current_game.world._floor_tile_grid.get_at(mouse_grid_pos) != tile_id){
-            current_game.world._floor_tile_grid.set_at(tile_id, mouse_grid_pos);
+        && game_session.game.world._floor_tile_grid.get_at(mouse_grid_pos) != tile_id){
+            game_session.game.world._floor_tile_grid.set_at(tile_id, mouse_grid_pos);
             return true;
         }
         return false;
@@ -132,8 +129,8 @@ function update_world_edition(){
         ];
 
         if(input.keyboard.keys_matches_pattern(...key_pattern)){
-            if(current_game.is_walkable(mouse_grid_pos)){
-                current_game.add_player_character(mouse_grid_pos);
+            if(game_session.game.is_walkable(mouse_grid_pos)){
+                game_session.game.add_player_character(mouse_grid_pos);
                 return true;
             }
         }
@@ -148,10 +145,10 @@ function update_world_edition(){
         ];
 
         if(input.keyboard.keys_matches_pattern(...key_pattern)){
-            if(current_game.is_walkable(mouse_grid_pos)){
+            if(game_session.game.is_walkable(mouse_grid_pos)){
                 const file = new items.CryptoFile();
                 file.position = mouse_grid_pos;
-                current_game.world.add(file);
+                game_session.game.world.add(file);
                 return true;
             }
         }
@@ -176,12 +173,13 @@ function update_world_edition(){
 
 
     if(world_was_edited)
-        current_game_view.notify_edition();
+        game_session.view.notify_edition();
 }
 
 const help_text_x_from_right_side = 500;
 
-function display_help(){
+function display_help(game_session){
+    console.assert(game_session instanceof GameSession);
 
     const canvas_rect = graphics.canvas_rect();
     const display_x = canvas_rect.bottom_right.x - help_text_x_from_right_side;
@@ -196,10 +194,10 @@ function display_help(){
         return;
 
 
-    if(current_game_view.ui.is_selecting_action_target){
+    if(game_session.view.ui.is_selecting_action_target){
         draw_text("[ESC] - CANCEL TARGET SELECTION", {x: display_x, y: next_line() });
     } else {
-        if(current_game_view.is_time_for_player_to_chose_action
+        if(game_session.view.is_time_for_player_to_chose_action
         && !input.mouse.is_dragging
         )
             draw_text("[ESC] - EDITOR MODE", {x: display_x, y: next_line() });
@@ -218,9 +216,9 @@ function display_help(){
     draw_text("Drag the screen to move the camera", {x: display_x, y: next_line() });
     draw_text("Click on squares around PC to move or act", {x: display_x, y: next_line() });
     next_line();
-    draw_text(`AUTO CAMERA CENTER = ${current_game_view.enable_auto_camera_center ? "enabled" : "disabled"}`, {x: display_x, y: next_line() });
+    draw_text(`AUTO CAMERA CENTER = ${game_session.view.enable_auto_camera_center ? "enabled" : "disabled"}`, {x: display_x, y: next_line() });
     next_line();
-    draw_text(`TURN: ${current_game.turn_info.turn_id} PHASE: ${current_game.turn_info.turn_phase_id}`, {x: display_x, y: next_line() });
+    draw_text(`TURN: ${game_session.game.turn_info.turn_id} PHASE: ${game_session.game.turn_info.turn_phase_id}`, {x: display_x, y: next_line() });
 
 
 }
@@ -257,7 +255,8 @@ function display_editor_help(){
 
 }
 
-function display_stats_of_pointed_character(){
+function display_stats_of_pointed_character(game_session){
+    console.assert(game_session instanceof GameSession);
 
     const stats_x = 50;
     let line = graphics.canvas_center_position().y;
@@ -270,7 +269,7 @@ function display_stats_of_pointed_character(){
     if(!mouse_grid_pos)
         return;
 
-    const character = current_game.world.body_at(mouse_grid_pos);
+    const character = game_session.game.world.body_at(mouse_grid_pos);
     if(!(character instanceof Character)){
         draw_text("No Character - Point square with character", { x: stats_x, y: next_line() });
         return;
@@ -294,10 +293,8 @@ function display_stats_of_pointed_character(){
 
 }
 
-
-
-function display(){
-
+function display_debug_info(game_session){
+    console.assert(game_session instanceof GameSession);
     graphics.camera.begin_in_screen_rendering();
 
     const center = graphics.canvas_center_position();
@@ -314,20 +311,31 @@ function display(){
         display_mouse_position();
 
     if(display_character_info)
-        display_stats_of_pointed_character();
+        display_stats_of_pointed_character(game_session);
 
     if(is_enabled){ // Specific to editor mode.
         draw_text("---====::::  EDITOR MODE  ::::====---", {x: center.x - 200, y: 40 });
         display_editor_help();
     } else {
-        display_help();
-
+        display_help(game_session);
     }
 
     graphics.camera.end_in_screen_rendering();
 }
 
-function update(){
+function display(game_session){
+    display_debug_info(game_session);
+}
+
+function update_debug_keys(game_session){
+    console.assert(game_session instanceof GameSession);
+
+    const ongoing_target_selection = game_session.view.ui.is_selecting_action_target;
+    if(ongoing_target_selection
+    || !game_session.view.is_time_for_player_to_chose_action
+    || input.mouse.is_dragging
+    )
+        return;
 
     if(input.keyboard.is_just_down(KEY.F1)){
         display_help_info = !display_help_info;
@@ -342,36 +350,36 @@ function update(){
     }
 
     if(input.keyboard.is_just_down(KEY.M)){
-        current_game_view.tile_grid.enable_grid_lines = !current_game_view.tile_grid.enable_grid_lines;
+        game_session.view.tile_grid.enable_grid_lines = !game_session.view.tile_grid.enable_grid_lines;
     }
 
     if(input.keyboard.is_just_down(KEY.F8)){
 
-        if(current_game_view.enable_fog_of_war) {
-            current_game_view.enable_fog_of_war = false;
-            current_game_view.enable_tile_rendering_debug = true;
+        if(game_session.view.enable_fog_of_war) {
+            game_session.view.enable_fog_of_war = false;
+            game_session.view.enable_tile_rendering_debug = true;
         } else {
-            if(current_game_view.enable_tile_rendering_debug)
-                current_game_view.enable_tile_rendering_debug = false;
+            if(game_session.view.enable_tile_rendering_debug)
+                game_session.view.enable_tile_rendering_debug = false;
             else {
-                current_game_view.enable_fog_of_war = true;
+                game_session.view.enable_fog_of_war = true;
             }
         }
 
     }
 
     if(input.keyboard.is_just_down(KEY.RIGHT_BRACKET)){
-        current_game.turn_info.player_character.stats.view_distance.increase(1);
-        current_game.turn_info.player_character.update_perception(current_game.world);
-        current_game_view.fog_of_war.refresh(current_game.world);
-        current_game_view._require_tiles_update = true;
+        game_session.game.turn_info.player_character.stats.view_distance.increase(1);
+        game_session.game.turn_info.player_character.update_perception(game_session.game.world);
+        game_session.view.fog_of_war.refresh(game_session.game.world);
+        game_session.view._require_tiles_update = true;
     }
 
     if(input.keyboard.is_just_down(KEY.LEFT_BRACKET)){
-        current_game.turn_info.player_character.stats.view_distance.decrease(1);
-        current_game.turn_info.player_character.update_perception(current_game.world);
-        current_game_view.fog_of_war.refresh(current_game.world);
-        current_game_view._require_tiles_update = true;
+        game_session.game.turn_info.player_character.stats.view_distance.decrease(1);
+        game_session.game.turn_info.player_character.update_perception(game_session.game.world);
+        game_session.view.fog_of_war.refresh(game_session.game.world);
+        game_session.view._require_tiles_update = true;
     }
 
     if (input.keyboard.is_just_down(KEY.DASH)) audio.setVolume('Master', null, -0.05);
@@ -382,43 +390,33 @@ function update(){
     } else if (input.keyboard.is_just_released(KEY.O)) {
         audio.stopEvent('streamtest');
     }
-
-    if(is_enabled)
-        update_world_edition();
 }
 
-function switch_editor(game_session){
-    is_enabled = !is_enabled;
-    if(is_enabled){
-        begin_edition(game_session);
-    } else {
-        end_edition();
-    }
+function update(game_session){
+    update_debug_keys(game_session);
+    if(is_enabled)
+        update_world_edition(game_session);
 }
 
 function begin_edition(game_session){
     console.assert(game_session instanceof GameSession);
 
-    current_game = game_session.game;
-    current_game_view = game_session.view;
-    current_game_view.enable_edition = true;
+    game_session.view.enable_edition = true;
 
     is_enabled = true;
 
-    was_fog_of_war_activated = current_game_view.enable_fog_of_war;
-    current_game_view.enable_tile_rendering_debug = false;
-    current_game_view.enable_fog_of_war = false;
+    was_fog_of_war_activated = game_session.view.enable_fog_of_war;
+    game_session.view.enable_tile_rendering_debug = false;
+    game_session.view.enable_fog_of_war = false;
 }
 
-function end_edition(){
+function end_edition(game_session){
     // Make sure the changes are taken into account:
     play_action();
-    current_game_view.enable_fog_of_war = was_fog_of_war_activated;
-    current_game_view.enable_tile_rendering_debug = false;
-    current_game_view.enable_edition = false;
-
-    current_game = undefined;
-    current_game_view = undefined;
+    game_session.view.enable_fog_of_war = was_fog_of_war_activated;
+    game_session.view.enable_tile_rendering_debug = false;
+    game_session.view.enable_edition = false;
 
     is_enabled = false;
 }
+
