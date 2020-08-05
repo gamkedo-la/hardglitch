@@ -100,6 +100,9 @@ class GameOver extends concepts.Event {
 class Rule_GameOver extends concepts.Rule {
 
     check_game_over(world){
+        if(world.is_finished) // The game is already finished.
+            return [];
+
         world.is_finished = is_game_over(world);
         if(world.is_finished)
             return [ new GameOver() ]; // This event will notify the rest of the code that the game is over.
@@ -138,7 +141,7 @@ class PlayerExitLevel extends concepts.Event {
         const character_view = game_view.get_entity_view(this.character_id);
         console.assert(character_view instanceof CharacterView);
 
-        editor.set_central_text("YOU WIN THIS LEVEL! - [SPACE] NEXT LEVEL");
+        editor.set_central_text("YOU FOUND THE EXIT BUS! - [SPACE] NEXT LEVEL");
         game_view.clear_focus();
         let ready_to_exit = false;
         game_view.center_on_position(character_view.game_position, 500).then(()=> ready_to_exit = true );
