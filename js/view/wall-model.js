@@ -8,7 +8,9 @@ function buildVertexMap(width, offset=0) {
         {x:32, y:offset+width, side:"front"}, 
         {x:0, y:offset+width, side:"front"},
     ];
+
     vmap["ttls"] = vmap.t;
+
     vmap["ttl"] = [ 
         {x:offset, y:15+offset, side:"back", corner:true}, 
         {x:15+offset, y:offset, side:"back", corner:true}, 
@@ -29,6 +31,7 @@ function buildVertexMap(width, offset=0) {
             {x:offset, y:32, side:"front"},
         ])
     }
+
     vmap["l"] = [ 
         {x:offset, y:0}, 
         {x:offset+width, y:0}, 
@@ -129,28 +132,37 @@ function buildVertexMap(width, offset=0) {
     // corner of back angled edge to left
     vmap["ltte"].push({y:offset, x:16+offset, side:"back", corner:true});
 
-    /*
-    // --- LTTE ---
-    vmap["ltte"] = [
-        {x:0,  y:offset, side:"back"}, 
-        {x:16, y:offset, side:"back", corner:true},
+    // --- LTB ---
+    vmap["ltb"] = [ 
+        {x:offset, y:0}, 
     ];
-    // intersection of back angled edge w/ top
-    if (offset<=8) {
-        vmap["ltte"].push({x:16+offset*2, y:0, side:"back", corner:true});
-    }
-    // intersection of front angled edge w/ top
-    if (offset+width<8) {
-        vmap["ltte"].push({x:16+(offset+width)*2, y:0, side:"front"});
-    // intersection of front angled edge w/ right
-    } else if (offset+width<16) {
-        vmap["ltte"].push(...[
-            {x:32, y:0, side:"front"},
-            {x:32, y:(offset+width-8)*2, side:"front"},
+    if (offset+width >= 16) {
+        vmap["ltb"].push(...[
+            {x:offset+width, y:0, side:"back", corner:true}, 
+            {x:32, y:32-(offset+width), side:"back", corner:true}, 
         ]);
     } else {
+        vmap["ltb"].push(...[
+            {x:offset+width, y:0}, 
+            {x:offset+width, y:16-(width+offset), side:"back", corner:true}, 
+            {x:16+(width+offset), y:32-(width+offset), side:"back", corner:true}, 
+            {x:32, y:32-(width+offset), side:"back"}, 
+        ]);
     }
-    */
+    vmap["ltb"].push(...[
+        {x:32, y:32-(offset), side:"front"}, 
+        {x:16+offset, y:32-(offset), side:"front", corner:true}, 
+        {x:offset, y:16-(offset), side:"front", corner:true}, 
+    ]);
+
+    vmap["b"] = [ 
+        {x:0, y:32-(offset+width), side:"back"}, 
+        {x:32, y:32-(offset+width), side:"back"}, 
+        {x:32, y:32-offset, side:"front"}, 
+        {x:0, y:32-offset, side:"front"},
+    ];
+    vmap["ltbe"] = vmap.b;
+    vmap["btrs"] = vmap.b;
 
     return vmap;
 }

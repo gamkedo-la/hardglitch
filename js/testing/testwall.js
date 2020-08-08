@@ -230,7 +230,7 @@ class Env {
             new WallModel(8, 16, 4),
             new WallModel(16, 16, 4),
         ];
-        let shapes = ["ttl", "t", "l", "ltts", "ltt", "oltt", "ltte"];
+        let shapes = ["ttl", "t", "l", "ltts", "ltt", "oltt", "ltte", "ltb", "b"];
         for (let j=0; j<models.length; j++) {
             for (let i=0; i<shapes.length; i++) {
                 let pos = {x:32*(20+i), y:32*j};
