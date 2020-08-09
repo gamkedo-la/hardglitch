@@ -187,7 +187,7 @@ class Button extends UIElement {
 
         this._sounds = button_def.sounds;
 
-        this.is_action_on_up = button_def.is_action_on_up !== undefined? button_def.is_action_on_up : false;
+        this.is_action_on_up = button_def.is_action_on_up !== undefined? button_def.is_action_on_up : true;
 
         this._action = button_def.action;
 
