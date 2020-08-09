@@ -35,6 +35,10 @@ class LoadingGameScreen extends fsm.State {
         this.screen_canvas_context.restore();
     }
 
+    on_canvas_resized(){
+
+    }
+
 };
 
 

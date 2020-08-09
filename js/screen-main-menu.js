@@ -72,20 +72,26 @@ class MainMenu {
 class MainMenuScreen extends fsm.State {
     fader = new ScreenFader();
 
+    _init_ui(){
+        console.assert(this.main_menu === undefined);
+        console.assert(this.title === undefined);
+        this.title = new ui.Text({
+            text: "HARD GLITCH",
+            font: "80px ZingDiddlyDooZapped",
+            color: "white",
+            background_color: "#ffffff00",
+            position: Vector2_origin
+        });
+        this.title.position = {
+            x: graphics.centered_rectangle_in_screen(this.title.area).position.x,
+            y: 80
+        };
+        this.main_menu = new MainMenu(this.state_machine, this.title.position.translate({ x:0, y: 100 }));
+    }
+
     *enter(){
         if(!this.main_menu){
-            this.title = new ui.Text({
-                text: "HARD GLITCH",
-                font: "80px ZingDiddlyDooZapped",
-                color: "white",
-                background_color: "#ffffff00",
-                position: Vector2_origin
-            });
-            this.title.position = {
-                x: graphics.centered_rectangle_in_screen(this.title.area).position.x,
-                y: 80
-            };
-            this.main_menu = new MainMenu(this.state_machine, this.title.position.translate({ x:0, y: 100 }));
+            this._init_ui();
         }
 
         yield* this.fader.generate_fade_in();
@@ -113,6 +119,12 @@ class MainMenuScreen extends fsm.State {
         this.title.draw(canvas_context);
 
         this.fader.display(canvas_context);
+    }
+
+    on_canvas_resized(){
+        delete this.main_menu;
+        delete this.title;
+        this._init_ui();
     }
 };
 

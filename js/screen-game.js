@@ -215,6 +215,11 @@ class InGameMenu extends fsm.State {
         this.ui.display(canvas_context);
     }
 
+    on_canvas_resized(){
+        delete this.ui;
+        this._init_ui();
+    }
+
 };
 
 
@@ -293,6 +298,13 @@ class GameScreen extends fsm.StateMachine {
 
     horrible_death(){
         this.state_machine.push_action("died");
+    }
+
+    on_canvas_resized(){
+        if(this.current_state.on_canvas_resized){
+            this.this.current_state.on_canvas_resized();
+        }
+        this.game_session.on_canvas_resized();
     }
 
 };

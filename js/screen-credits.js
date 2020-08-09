@@ -45,9 +45,13 @@ class Credits {
 class CreditsScreen extends fsm.State {
     fader = new ScreenFader();
 
+    create_ui(){
+        this.credits = new Credits(()=> this.go_back());
+    }
+
     *enter(){
         if(!this.credits){
-            this.credits = new Credits(()=> this.go_back());
+            this.create_ui();
         }
         yield* this.fader.generate_fade_in();
     }
@@ -76,6 +80,10 @@ class CreditsScreen extends fsm.State {
         this.credits.draw(canvas_context);
 
         this.fader.display(canvas_context);
+    }
+
+    on_canvas_resized(){
+        this.create_ui();
     }
 
 };

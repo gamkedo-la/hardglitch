@@ -22,31 +22,36 @@ class GameOverScreen_Success extends fsm.State {
         this.fader.color = new Color(255,255,255);
     }
 
+    _init_ui(){
+        console.assert(this.ui === undefined);
+        this.ui = {
+            message : new ui.Text({
+                text: "Congratulations! You escaped the computer!",
+                position: graphics.canvas_center_position().translate({x:-200, y:0}),
+            }),
+            button_back : new ui.TextButton({
+                text: "Continue [ANY KEY]",
+                position: Vector2_origin,
+                sprite_def: sprite_defs.button_menu,
+                action: ()=> { this.go_to_next_screen(); }
+            }),
+        };
+        // Center the buttons in the screen.
+        let button_pad_y = 0;
+        const next_pad_y = () => {
+            const result = button_pad_y;
+            button_pad_y += 80;
+            return result;
+        };
+        Object.values(this.ui).forEach(button => {
+            const center_pos = graphics.centered_rectangle_in_screen(button.area).position;
+            button.position = center_pos.translate({ x:0, y: next_pad_y() });
+        });
+    }
+
     *enter(){
         if(!this.ui){
-            this.ui = {
-                message : new ui.Text({
-                    text: "Congratulations! You escaped the computer!",
-                    position: graphics.canvas_center_position().translate({x:-200, y:0}),
-                }),
-                button_back : new ui.TextButton({
-                    text: "Continue [ANY KEY]",
-                    position: Vector2_origin,
-                    sprite_def: sprite_defs.button_menu,
-                    action: ()=> { this.go_to_next_screen(); }
-                }),
-            };
-            // Center the buttons in the screen.
-            let button_pad_y = 0;
-            const next_pad_y = () => {
-                const result = button_pad_y;
-                button_pad_y += 80;
-                return result;
-            };
-            Object.values(this.ui).forEach(button => {
-                const center_pos = graphics.centered_rectangle_in_screen(button.area).position;
-                button.position = center_pos.translate({ x:0, y: next_pad_y() });
-            });
+            this._init_ui();
         }
         yield* this.fader.generate_fade_in();
     }
@@ -80,6 +85,10 @@ class GameOverScreen_Success extends fsm.State {
         this.fader.display(canvas_context);
     }
 
+    on_canvas_resized(){
+        delete this.ui;
+        this._init_ui();
+    }
 
 };
 
@@ -92,37 +101,42 @@ class GameOverScreen_Failure extends fsm.State {
         this.fader.color = new Color(255,0,0);
     }
 
+    _init_ui(){
+        console.assert(this.ui === undefined);
+        this.ui = {
+            message : new ui.Text({
+                text: "Game Over - Please Retry, 'Glitch' needs to escape!",
+                position: graphics.canvas_center_position().translate({x:-200, y:0}),
+            }),
+            button_retry : new ui.TextButton({
+                text: "Retry [SPACE]",
+                position: Vector2_origin,
+                sprite_def: sprite_defs.button_menu,
+                action: ()=> { this.retry_new_game(); },
+            }),
+            button_back : new ui.TextButton({
+                text: "Main Menu [ESC]",
+                position: Vector2_origin,
+                sprite_def: sprite_defs.button_menu,
+                action: ()=> { this.back_to_main_menu(); }
+            }),
+        };
+        // Center the buttons in the screen.
+        let button_pad_y = 0;
+        const next_pad_y = () => {
+            const result = button_pad_y;
+            button_pad_y += 80;
+            return result;
+        };
+        Object.values(this.ui).forEach(button => {
+            const center_pos = graphics.centered_rectangle_in_screen(button.area).position;
+            button.position = center_pos.translate({ x:0, y: next_pad_y() });
+        });
+    }
+
     *enter(){
         if(!this.ui){
-            this.ui = {
-                message : new ui.Text({
-                    text: "Game Over - Please Retry, 'Glitch' needs to escape!",
-                    position: graphics.canvas_center_position().translate({x:-200, y:0}),
-                }),
-                button_retry : new ui.TextButton({
-                    text: "Retry [SPACE]",
-                    position: Vector2_origin,
-                    sprite_def: sprite_defs.button_menu,
-                    action: ()=> { this.retry_new_game(); },
-                }),
-                button_back : new ui.TextButton({
-                    text: "Main Menu [ESC]",
-                    position: Vector2_origin,
-                    sprite_def: sprite_defs.button_menu,
-                    action: ()=> { this.back_to_main_menu(); }
-                }),
-            };
-            // Center the buttons in the screen.
-            let button_pad_y = 0;
-            const next_pad_y = () => {
-                const result = button_pad_y;
-                button_pad_y += 80;
-                return result;
-            };
-            Object.values(this.ui).forEach(button => {
-                const center_pos = graphics.centered_rectangle_in_screen(button.area).position;
-                button.position = center_pos.translate({ x:0, y: next_pad_y() });
-            });
+            this._init_ui();
         }
         yield* this.fader.generate_fade_in();
     }
@@ -158,6 +172,12 @@ class GameOverScreen_Failure extends fsm.State {
         invoke_on_members(this.ui, "draw", canvas_context);
 
         this.fader.display(canvas_context);
+    }
+
+
+    on_canvas_resized(){
+        delete this.ui;
+        this._init_ui();
     }
 
 };

@@ -54,11 +54,19 @@ const game_state_machine = new class extends fsm.StateMachine{
         retry: "game",
       }
     });
+
   }
 
   display(canvas_context){
     graphics.clear();
     this.current_state.display(canvas_context);
+  }
+
+  make_ready_for_canvas_resize(){
+    console.assert(Object.values(this.states).every(state => state.on_canvas_resized instanceof Function));
+    window.addEventListener('resize', ()=>{
+      this.current_state.on_canvas_resized();
+    });
   }
 };
 
@@ -75,6 +83,7 @@ window.onload = async function() {
   game_state_machine.update();
   input.initialize(canvas_context);
   game_state_machine.update();
+  game_state_machine.make_ready_for_canvas_resize(); // This must be called after the rest is initialized as it's implem relies on graphics data etc.
   // OK now we're ready.
   start();
 }

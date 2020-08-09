@@ -185,9 +185,6 @@ class GameView {
         this._pointed_highlight_edit = new Highlight({x:0, y:0}, this._highlight_sprites.edit, "EDITOR");
         this._character_focus_highlight = new Highlight({x:0, y:0}, this._highlight_sprites.turn, "Character");
 
-        window.addEventListener('resize', ()=> this.on_canvas_resized());
-
-
         this.fog_of_war = new FogOfWar(this.game.world);
 
 
@@ -658,6 +655,7 @@ class GameView {
     on_canvas_resized(){
         this.ui.cancel_action_target_selection();
         this.notify_edition();
+        this.center_on_player();
     }
 
     _reset_tilegrid(world){
