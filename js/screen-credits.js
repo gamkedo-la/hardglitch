@@ -21,11 +21,12 @@ class Credits {
             position: { x: 30, y: 30 }
         });
 
-        this.back_button = new ui.Button({
+        this.back_button = new ui.TextButton({
+            text: "Back",
             action: on_back_button,
             position: this.title.position.translate({x: 500, y: 0 }),
-            width: 64, height: 64,
-            sprite_def: sprite_defs.button_cancel_action_target_selection,
+            width: 256, height: 64,
+            sprite_def: sprite_defs.button_menu,
             frames: { up: 0, down: 1, over: 2, disabled: 3 },
         });
     }
