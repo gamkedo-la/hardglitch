@@ -460,7 +460,8 @@ class Bar extends UIElement {
     //     is_horizontal_bar: true,             // True if the bar behaves as horizontal, false for vertical
     //     bar_colors: {
     //         background: "#0000ff",       // Color used for values that are higher than the current value.
-    //         change: "#ff0000",           // Color used to mark the difference from before when the value changed.
+    //         change_positive: "#ffffff",           // Color used to mark the difference from before when the value changed.
+    //         change_negative: "#ff0000",           // Color used to mark the difference from before when the value changed.
     //         value: "#00ff00",            // Color used for the values that are lower or equal to the current value.
     //     },
     //     min_value: 0, // Minimum value that can be represented by the bar (the value can go below, it'll just not be visible).
@@ -475,7 +476,8 @@ class Bar extends UIElement {
 
         const default_bar_colors = {
             background: "#0000ff",       // Color used for values that are higher than the current value.
-            change: "#ff0000",           // Color used to mark the difference from before when the value changed.
+            change_positive: "#ffffff",           // Color used to mark the difference from before when the value changed.
+            change_negative: "#ff0000",           // Color used to mark the difference from before when the value changed.
             value: "#00ff00",            // Color used for the values that are lower or equal to the current value.
         };
 
@@ -582,6 +584,12 @@ class Bar extends UIElement {
 
         if(previous_value === current_value)
             return;
+
+        if(previous_value > current_value){
+            this.colors.change = this.colors.change_negative;
+        } else {
+            this.colors.change = this.colors.change_positive;
+        }
 
         const graphic_width = (value)=>{
             return this._ratio(value) * this.area.width;
