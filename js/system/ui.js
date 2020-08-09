@@ -491,6 +491,9 @@ class Bar extends UIElement {
         this._is_horizontal_bar = bar_def.is_horizontal_bar ? bar_def.is_horizontal_bar : true;
         this._animations = new anim.AnimationGroup();
 
+        if(this._is_horizontal_bar === false)
+            throw "VERTICAL BARS NOT IMPLEMENTED YET";
+
         this.helptext = new HelpText({
             text: this._name,
             area_to_help: this.area,
