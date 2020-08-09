@@ -14,7 +14,7 @@ import * as concepts from "./core/concepts.js";
 import { play_action, mouse_grid_position, KEY } from "./game-input.js";
 import { keyboard, mouse, MOUSE_BUTTON } from "./system/input.js";
 import { Vector2, center_in_rectangle } from "./system/spatial.js";
-import { Character } from "./core/character.js";
+import { Character, StatValue } from "./core/character.js";
 
 const action_button_size = 50;
 
@@ -174,6 +174,13 @@ class AutoFocusButton extends ui.Button {
 
 }
 
+function update_stat_bar(bar, stat){
+    console.assert(bar instanceof ui.Bar);
+    console.assert(stat instanceof StatValue);
+    bar.max_value = stat.max;
+    bar.value = stat.value;
+}
+
 class CharacterStatus{
 
     health_bar = new ui.Bar({
@@ -182,24 +189,31 @@ class CharacterStatus{
         bar_name: "Integrity",
     });
 
+    action_bar = new ui.Bar({
+        position: { x: 80, y: graphics.canvas_rect().bottom_right.y - 50 },
+        width: 300, height: 32,
+        bar_name: "Action Points",
+    });
+
     constructor(){
 
     }
 
+
+
     update(delta_time, character){
         this.character = character;
-        if(!this.character)
+        if(!(this.character instanceof Character))
             return;
 
-        this.health_bar.min_value = this.character.stats.integrity.min;
-        this.health_bar.max_value = this.character.stats.integrity.max;
-        this.health_bar.value = this.character.stats.integrity.value;
+        update_stat_bar(this.health_bar, this.character.stats.integrity);
+        update_stat_bar(this.action_bar, this.character.stats.action_points);
 
         invoke_on_members(this, "update", delta_time);
     }
 
     draw(canvas_context){
-        if(!this.character)
+        if(!(this.character instanceof Character))
             return;
         invoke_on_members(this, "draw", canvas_context);
     }

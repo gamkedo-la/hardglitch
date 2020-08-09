@@ -524,7 +524,7 @@ class Bar extends UIElement {
         this._value_rect = new Rectangle(this.area);
         this._change_rect = new Rectangle(this.area);
 
-        this._value_rect.width = this.value_ratio * this._value_rect.width;
+        this._value_rect.width = Math.max(this.value_ratio, 0) * this._value_rect.width;
 
     }
 

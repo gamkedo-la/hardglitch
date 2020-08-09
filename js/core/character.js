@@ -2,6 +2,7 @@
 export {
     Character,
     CharacterStats,
+    StatValue,
 }
 
 import * as concepts from "./concepts.js";
@@ -73,7 +74,7 @@ class StatValue {
 
     set min(new_value) {
         console.assert(Number.isInteger(new_value) && new_value < this.max);
-        this._max = new_value;
+        this._min = new_value;
     }
 
     increase(value_to_add){
