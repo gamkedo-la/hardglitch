@@ -164,7 +164,7 @@ class Button extends UIElement {
     constructor(button_def){
         super(Object.assign(button_def, { width: 1, height: 1 })); // We ignore the width/height because it will be defined by the current frame of the sprite.
         this._sprite = new Sprite(button_def.sprite_def);
-        this._sprite.position = this.position;
+        this._sprite.position = super.position;
         const frames = button_def.frames;
         if(frames != undefined){
             this._frames = {
@@ -194,6 +194,11 @@ class Button extends UIElement {
         super.area = new_area;
         this._sprite.area = new_area;
     }
+    set position(new_position){
+        super.position = new_position;
+        this._sprite.position = new_position;
+    }
+    get position() { return super.position; }
 
     get state() { return this._state; }
 
@@ -391,9 +396,16 @@ class TextButton extends Button {
             position: this.position,
             background_color: textbutton_def.background ? textbutton_def.background : "#ffffff00"
         }));
+        this.position = this.position;
+    }
+
+    get position() { return super.position; }
+    set position(new_pos){
+        super.position = new_pos;
         // TEMPORARY: just center the text in the button display
         this.textbox.area = center_in_rectangle(this.textbox.area, this.area);
     }
+
 }
 
 class Pannel extends UIElement {
