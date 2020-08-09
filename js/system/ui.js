@@ -10,8 +10,9 @@ export {
     TextButton,
 };
 
+import * as audio from "./audio.js";
+import * as graphics from "./graphics.js";
 import { Vector2, Rectangle, is_intersection, Vector2_origin, center_in_rectangle } from "./spatial.js";
-import { Sprite, draw_rectangle, canvas_rect, draw_text, measure_text, camera, screen_canvas_context } from "./graphics.js";
 import { mouse, MOUSE_BUTTON } from "./input.js";
 import { is_number } from "./utility.js";
 
@@ -53,7 +54,7 @@ class UIElement {
         });
     }
 
-    get parent_area(){ return this.parent ? this.parent.area : canvas_rect(); }
+    get parent_area(){ return this.parent ? this.parent.area : graphics.canvas_rect(); }
 
     get visible() { return this._visible; }
     set visible(new_visible){
@@ -94,7 +95,7 @@ class UIElement {
     get in_screenspace() { return this._in_screenspace; }
     set in_screenspace(is_it) { this._in_screenspace = is_it; }
 
-    get _space_origin() { return this.in_screenspace ? Vector2_origin : camera.position; }
+    get _space_origin() { return this.in_screenspace ? Vector2_origin : graphics.camera.position; }
 
     is_intersecting(rect){
         return is_intersection(this._area, rect, this._space_origin);
@@ -106,7 +107,7 @@ class UIElement {
 
     get is_mouse_over(){ return is_mouse_pointing(this._area, this._space_origin); }
 
-    get all_ui_elements() { return Object.values(this).filter(element => element instanceof UIElement || element instanceof Sprite); }
+    get all_ui_elements() { return Object.values(this).filter(element => element instanceof UIElement || element instanceof graphics.Sprite); }
 
     // Called each frame to update the state of the UI element.
     // _on_update() Must be implemented by child classes.
@@ -127,7 +128,7 @@ class UIElement {
         this.all_ui_elements.map(element => element.draw(canvas_context));
 
         if(this.draw_debug){
-            draw_rectangle(canvas_context, this._area, "#ff00ff");
+            graphics.draw_rectangle(canvas_context, this._area, "#ff00ff");
         }
     }
 
@@ -156,14 +157,18 @@ class Button extends UIElement {
     // Button parametters:
     // {
     //   (See UIElement constructor for more parametters.)
-    //   sprite_def: ..., // Sprite definition to use, with all the frames defined.
+    //   sprite_def: ..., // graphics.Sprite definition to use, with all the frames defined.
     //   frames: { up: 0, down: 1, over: 2, disabled:3 }, // Which sprite frame for which situation. Use 0 for any unspecified frame.
     //   is_action_on_up: false, // If true, the action is triggered on releasing the button, not on pressing it. False if not specified.
     //   action: ()=> {}, // Function to call when you press that button. Calls nothing if undefined.
+    //   sounds: { // Optional sounds to play when the state change.
+    //      up: "sound_a", down: "sound_b", etc.
+    //      action: "sound_x", // Sound to play before running the action associated with this button.
+    //   },
     // }
     constructor(button_def){
         super(Object.assign(button_def, { width: 1, height: 1 })); // We ignore the width/height because it will be defined by the current frame of the sprite.
-        this._sprite = new Sprite(button_def.sprite_def);
+        this._sprite = new graphics.Sprite(button_def.sprite_def);
         this._sprite.position = super.position;
         const frames = button_def.frames;
         if(frames != undefined){
@@ -180,8 +185,11 @@ class Button extends UIElement {
                 this._frames = { up:0, down:0, over:0, disabled:0 };
         }
 
-        this.is_action_on_up = button_def.is_action_on_up != undefined? button_def.is_action_on_up : false;
-        this.action = button_def.action;
+        this._sounds = button_def.sounds;
+
+        this.is_action_on_up = button_def.is_action_on_up !== undefined? button_def.is_action_on_up : false;
+
+        this._action = button_def.action;
 
         this._was_mouse_over = false;
         this._on_up();
@@ -238,9 +246,26 @@ class Button extends UIElement {
         this._sprite.update(delta_time);
     }
 
-    _change_sprite_frame(frame_idx){
-        this._sprite.force_frame(frame_idx);
+    action(){
+        this._play_sound('action');
+        this._action();
+    }
+
+    _play_sound(state_id){
+        console.assert(state_id == 'up' || state_id == 'down' || state_id == 'over' || state_id == 'disabled' || state_id == 'action' );
+        if(this._sounds !== undefined) {
+            const sound_id = this._sounds[state_id];
+            if(sound_id !== undefined){
+                audio.playEvent(sound_id);
+            }
+        }
+    }
+
+    _change_state(state_id){
+        console.assert(state_id == 'up' || state_id == 'down' || state_id == 'over' || state_id == 'disabled');
+        this._sprite.force_frame(this._frames[state_id]);
         super.area = this._sprite.area;
+        this._play_sound(state_id);
     }
 
     _on_draw(canvas_context){
@@ -250,24 +275,24 @@ class Button extends UIElement {
 
     _on_up(){
         this._state = ButtonState.UP;
-        this._change_sprite_frame(this._frames.up);
+        this._change_state('up');
     }
 
     _on_down(){
         this._state = ButtonState.DOWN;
-        this._change_sprite_frame(this._frames.down);
+        this._change_state('down');
     }
 
     _on_begin_over(){
         this._was_mouse_over = true;
         if(this.state == ButtonState.UP)
-            this._change_sprite_frame(this._frames.over);
+            this._change_state('over');
     }
 
     _on_end_over(){
         this._was_mouse_over = false;
         if(this.state == ButtonState.UP)
-            this._change_sprite_frame(this._frames.up);
+            this._change_state('up');
     }
 
     _on_enabled(){
@@ -282,7 +307,7 @@ class Button extends UIElement {
     }
 
     _on_disabled(){
-        this._change_sprite_frame(this._frames.disabled);
+        this._change_state('disabled');
     }
 
 };
@@ -318,10 +343,10 @@ class Text extends UIElement {
         this._request_reset = true;
     }
 
-    _reset(canvas_context = screen_canvas_context){
+    _reset(canvas_context = graphics.screen_canvas_context){
         console.assert(canvas_context);
         // Force resize to the actual size of the text graphically.
-        const text_metrics = measure_text(canvas_context, this._text, this._font, this._color);
+        const text_metrics = graphics.measure_text(canvas_context, this._text, this._font, this._color);
         const actual_width = Math.abs(text_metrics.actualBoundingBoxLeft) + Math.abs(text_metrics.actualBoundingBoxRight);
         const actual_height = Math.abs(text_metrics.actualBoundingBoxAscent ) + Math.abs(text_metrics.actualBoundingBoxDescent);
         this._area.size = new Vector2({
@@ -337,8 +362,8 @@ class Text extends UIElement {
     _on_draw(canvas_context){
         if(this._request_reset)
             this._reset(canvas_context);
-        draw_rectangle(canvas_context, this.area, this._background_color);
-        draw_text(canvas_context, this._text, this.position.translate({x:this._margin_horizontal, y:this._margin_vertical}), this._font, this._color);
+        graphics.draw_rectangle(canvas_context, this.area, this._background_color);
+        graphics.draw_text(canvas_context, this._text, this.position.translate({x:this._margin_horizontal, y:this._margin_vertical}), this._font, this._color);
     }
 };
 

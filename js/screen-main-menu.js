@@ -28,15 +28,18 @@ class MainMenu {
             color: "#ffffff",
             action: ()=> { state_machine.push_action("new_game"); },
             position: this.position.translate({x: 0, y: button_y_drift() }),
-            width: 256, height: 64,
             sprite_def: sprite_defs.button_menu,
+            sounds:{
+                over: 'buffertest',
+                down: 'buffertest',
+                action: 'buffertest',
+            },
         });
 
         this.button_test_level = new ui.TextButton({
             text: "Test Level",
             action: ()=> { state_machine.push_action("new_game", "test"); },
             position: this.position.translate({x: 0, y: button_y_drift() }),
-            width: 256, height: 64,
             sprite_def: sprite_defs.button_menu,
         });
 
@@ -44,7 +47,6 @@ class MainMenu {
             text: "Credits",
             action: ()=> { state_machine.push_action("credits"); },
             position: this.position.translate({x: 0, y: button_y_drift() }),
-            width: 256, height: 64,
             sprite_def: sprite_defs.button_menu,
         });
 
