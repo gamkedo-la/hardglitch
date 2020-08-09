@@ -135,14 +135,12 @@ class InGameMenu extends fsm.State {
                 position: graphics.canvas_center_position(),
                 width: 256, height: 64,
                 sprite_def: sprite_defs.button_menu,
-                frames: { up: 0, down: 1, over: 2, disabled: 3 },
             }),
             exit_button: new ui.Button({
                 action: ()=>{ this.exit_game(); },
                 position: graphics.canvas_center_position().translate({ x:0, y: 100 }),
                 width: 256, height: 64,
                 sprite_def: sprite_defs.button_menu,
-                frames: { up: 0, down: 1, over: 2, disabled: 3 },
             }),
             update: function(delta_time){
                 this.resume_button.update(delta_time);

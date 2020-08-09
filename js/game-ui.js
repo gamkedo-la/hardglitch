@@ -23,7 +23,6 @@ class ActionButton extends ui.Button {
             position: position,
             width: action_button_size, height: action_button_size,
             sprite_def: sprite_defs.button_select_action,
-            frames: { up: 0, down: 1, over: 2, disabled: 3 },
             action: on_clicked
         });
 
@@ -73,7 +72,6 @@ class CancelActionButton extends ui.Button {
             position: { x: 0, y: 0 },
             width: action_button_size, height: action_button_size,
             sprite_def: sprite_defs.button_cancel_action_target_selection,
-            frames: { up: 0, down: 1, over: 2, disabled: 3 },
             visible: false,
             action: action,
         });
@@ -105,7 +103,6 @@ class MuteAudioButton extends ui.Button {
     constructor() {
         super({
             sprite_def: sprite_defs.button_mute_audio,
-            frames: { up: 0, down: 1, over: 2, disabled: 3},
             action: audio.toggleMute,
             is_action_on_up: true,
             position: {x: 32, y: 32},
@@ -146,7 +143,6 @@ class AutoFocusButton extends ui.Button {
     constructor(toggle_autofocus, is_autofocus_enabled) {
         super({
             sprite_def: sprite_defs.button_mute_audio,
-            frames: { up: 0, down: 1, over: 2, disabled: 3},
             action: toggle_autofocus,
             is_action_on_up: true,
             position: {x: 32, y: 32 + action_button_size + 8 },

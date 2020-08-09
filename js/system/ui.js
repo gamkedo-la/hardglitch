@@ -174,7 +174,10 @@ class Button extends UIElement {
                 disabled: frames.disabled != undefined ? frames.disabled : 0,
             };
         } else {
-            this._frames = { up:0, down:0, over:0, disabled:0 };
+            if(this._sprite.frames.length === 4)
+                this._frames = { up:0, down:1, over:2, disabled:3 };
+            else
+                this._frames = { up:0, down:0, over:0, disabled:0 };
         }
 
 
