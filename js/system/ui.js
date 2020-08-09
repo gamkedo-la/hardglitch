@@ -5,10 +5,12 @@
 export {
     UIElement,
     Button,
-    Text, HelpText,
+    Text,
+    HelpText,
+    TextButton,
 };
 
-import { Vector2, Rectangle, is_intersection, Vector2_origin } from "./spatial.js";
+import { Vector2, Rectangle, is_intersection, Vector2_origin, center_in_rectangle } from "./spatial.js";
 import { Sprite, draw_rectangle, canvas_rect, draw_text, measure_text, camera, screen_canvas_context } from "./graphics.js";
 import { mouse, MOUSE_BUTTON } from "./input.js";
 import { is_number } from "./utility.js";
@@ -84,6 +86,10 @@ class UIElement {
     get width() { return this._area.width; }
     get height() { return this._area.height; }
     get area () { return new Rectangle(this._area); }
+    set area (new_area) {
+        console.assert(new_area instanceof Rectangle);
+        this._area = new_area;
+    }
 
     get in_screenspace() { return this._in_screenspace; }
     set in_screenspace(is_it) { this._in_screenspace = is_it; }
@@ -364,6 +370,17 @@ class HelpText extends Text {
     }
 };
 
+class TextButton extends Button {
+    constructor(textbutton_def){
+        super(textbutton_def);
+        this.textbox = new Text(Object.assign(textbutton_def, {
+            position: this.position,
+            background_color: textbutton_def.background ? textbutton_def.background : "#ffffff00"
+        }));
+        // TEMPORARY: just center the text in the button display
+        this.textbox.area = center_in_rectangle(this.textbox.area, this.area);
+    }
+}
 
 class Pannel extends UIElement {
 

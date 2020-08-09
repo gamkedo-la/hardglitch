@@ -23,7 +23,9 @@ class MainMenu {
         let next_button_y_drift = 0;
         const button_y_drift = () => next_button_y_drift += space_between_buttons;
 
-        this.button_new_game = new ui.Button({
+        this.button_new_game = new ui.TextButton({
+            text: "New Game",
+            color: "#ffffff",
             action: ()=> { state_machine.push_action("new_game"); },
             position: this.position.translate({x: 0, y: button_y_drift() }),
             width: 256, height: 64,
@@ -31,7 +33,8 @@ class MainMenu {
             frames: { up: 0, down: 1, over: 2, disabled: 3 },
         });
 
-        this.button_test_level = new ui.Button({
+        this.button_test_level = new ui.TextButton({
+            text: "Test Level",
             action: ()=> { state_machine.push_action("new_game", "test"); },
             position: this.position.translate({x: 0, y: button_y_drift() }),
             width: 256, height: 64,
@@ -39,7 +42,8 @@ class MainMenu {
             frames: { up: 0, down: 1, over: 2, disabled: 3 },
         });
 
-        this.button_credits = new ui.Button({
+        this.button_credits = new ui.TextButton({
+            text: "Credits",
             action: ()=> { state_machine.push_action("credits"); },
             position: this.position.translate({x: 0, y: button_y_drift() }),
             width: 256, height: 64,
