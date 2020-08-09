@@ -184,13 +184,13 @@ function update_stat_bar(bar, stat){
 class CharacterStatus{
 
     health_bar = new ui.Bar({
-        position: { x: 80, y: graphics.canvas_rect().bottom_right.y - 100 },
+        position: { x: 80, y: graphics.canvas_rect().bottom_right.y - 160 },
         width: 300, height: 32,
         bar_name: "Integrity",
     });
 
     action_bar = new ui.Bar({
-        position: { x: 80, y: graphics.canvas_rect().bottom_right.y - 50 },
+        position: { x: 80, y: graphics.canvas_rect().bottom_right.y - 100 },
         width: 300, height: 32,
         bar_name: "Action Points",
     });

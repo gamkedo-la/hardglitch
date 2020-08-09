@@ -482,6 +482,13 @@ class Bar extends UIElement {
         this._name = bar_def.bar_name;
         this._is_horizontal_bar = bar_def.is_horizontal_bar ? bar_def.is_horizontal_bar : true;
 
+        this.helptext = new HelpText({
+            text: this._name,
+            area_to_help: this.area,
+            position: this.position,
+            delay_ms: 0,
+        });
+
         this._require_update = true;
     }
 
@@ -526,6 +533,7 @@ class Bar extends UIElement {
 
         this._value_rect.width = Math.max(this.value_ratio, 0) * this._value_rect.width;
 
+        this.helptext.text = `${this._name} ${this.value} / ${this.max_value}`
     }
 
     _on_draw(canvas_context) {
