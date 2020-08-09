@@ -8,6 +8,7 @@ export {
     Text,
     HelpText,
     TextButton,
+    Bar,
 };
 
 import * as audio from "./audio.js";
@@ -110,7 +111,7 @@ class UIElement {
     get all_ui_elements() { return Object.values(this).filter(element => element instanceof UIElement || element instanceof graphics.Sprite); }
 
     // Called each frame to update the state of the UI element.
-    // _on_update() Must be implemented by child classes.
+    // ._on_update(delta_time) Must be implemented by child classes.
     update(delta_time) {
         this._on_update(delta_time);
         this.all_ui_elements.map(element => element.update(delta_time));
@@ -118,7 +119,7 @@ class UIElement {
 
 
     // Called by graphic systems to display this UI element.
-    // Must be implemented by child classes.
+    // ._on_draw(canvas_context) Must be implemented by child classes.
     draw(canvas_context) {
         console.assert(canvas_context);
         if(!this.visible)
@@ -446,4 +447,102 @@ class Window extends UIElement {
     background = new Pannel();
 
 };
+
+
+class Bar extends UIElement {
+
+    // example = new HorizontalBar({
+    //     position: { x: 123, y: 123 },
+    //     width: 123,
+    //     height: 20,
+    //     is_horizontal_bar: true,             // True if the bar behaves as horizontal, false for vertical
+    //     bar_colors: {
+    //         background: "#0000ff",       // Color used for values that are higher than the current value.
+    //         change: "#ff0000",           // Color used to mark the difference from before when the value changed.
+    //         value: "#00ff00",            // Color used for the values that are lower or equal to the current value.
+    //     },
+    //     min_value: 0, // Minimum value that can be represented by the bar (the value can go below, it'll just not be visible).
+    //     max_value: 0, // Maximum value that can be represented by the bar (the value can go over, it'll just not be visible).
+    //     value: 50,    // Current value
+    //     bar_name: "Health", // Text to use when displaying the helptext.
+    // });
+    constructor(bar_def){
+        super(bar_def);
+
+        const default_bar_colors = {
+            background: "#0000ff",       // Color used for values that are higher than the current value.
+            change: "#ff0000",           // Color used to mark the difference from before when the value changed.
+            value: "#00ff00",            // Color used for the values that are lower or equal to the current value.
+        };
+
+        this.colors = bar_def.bar_colors ? bar_def.bar_colors : default_bar_colors;
+        this._min_value = bar_def.min_value ? bar_def.min_value : 0;
+        this._max_value = bar_def.max_value ? bar_def.max_value : 100;
+        this._value = bar_def.value ? bar_def.value : 50;
+        this._name = bar_def.bar_name;
+        this._is_horizontal_bar = bar_def.is_horizontal_bar ? bar_def.is_horizontal_bar : true;
+
+        this._require_update = true;
+    }
+
+    get value() { return this._value; }
+    set value(new_value){
+        console.assert(typeof new_value === "number");
+        if(new_value != this._value){
+            this._value = new_value;
+            this._require_update = true;
+        }
+    }
+
+    get max_value() { return this._max_value; }
+    set max_value(new_value){
+        console.assert(typeof new_value === "number");
+        if(new_value != this._max_value){
+            console.assert(new_value >= this.min_value);
+            this._max_value = new_value;
+            this._require_update = true;
+        }
+    }
+
+    get min_value() { return this._min_value; }
+    set min_value(new_value){
+        console.assert(typeof new_value === "number");
+        if(new_value != this._min_value){
+            console.assert(new_value <= this.max_value);
+            this._min_value = new_value;
+            this._require_update = true;
+        }
+    }
+
+    get value_length() { return this._max_value - this._min_value; }
+    get value_ratio() { return (this._value - this._min_value) / this.value_length; }
+
+    _on_update(delta_time){
+        if(!this._require_update)
+            return;
+
+        this._value_rect = new Rectangle(this.area);
+        this._change_rect = new Rectangle(this.area);
+
+        this._value_rect.width = this.value_ratio * this._value_rect.width;
+
+    }
+
+    _on_draw(canvas_context) {
+        graphics.draw_rectangle(canvas_context, this.area, this.colors.background);
+        graphics.draw_rectangle(canvas_context, this._value_rect, this.colors.value);
+    }
+
+    // Called when this.visible is changed from hidden (false) to visible (true).
+    _on_visible(){  }
+
+    // Called when this.visible is changed from visible (true) to hidden (false).
+    _on_hidden(){  }
+
+    // Called when this.enabled is changed from disabled (false) to enabled (true).
+    _on_enabled(){  }
+
+    // Called when this.enabled is changed from enabled (true) to disabled (false).
+    _on_disabled(){  }
+}
 

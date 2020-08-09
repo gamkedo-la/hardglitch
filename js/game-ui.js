@@ -5,7 +5,7 @@ export {
     GameInterface,
 };
 
-import { group_per_type } from "./system/utility.js";
+import { group_per_type, invoke_on_members } from "./system/utility.js";
 import * as audio from "./system/audio.js"
 import * as graphics from "./system/graphics.js";
 import * as ui from "./system/ui.js";
@@ -14,6 +14,7 @@ import * as concepts from "./core/concepts.js";
 import { play_action, mouse_grid_position, KEY } from "./game-input.js";
 import { keyboard, mouse, MOUSE_BUTTON } from "./system/input.js";
 import { Vector2, center_in_rectangle } from "./system/spatial.js";
+import { Character } from "./core/character.js";
 
 const action_button_size = 50;
 
@@ -173,6 +174,40 @@ class AutoFocusButton extends ui.Button {
 
 }
 
+class CharacterStatus{
+
+    health_bar = new ui.Bar({
+        position: { x: 80, y: graphics.canvas_rect().bottom_right.y - 100 },
+        width: 300, height: 32,
+        bar_name: "Integrity",
+    });
+
+    constructor(){
+
+    }
+
+    update(delta_time, character){
+        this.character = character;
+        if(!this.character)
+            return;
+
+        this.health_bar.min_value = this.character.stats.integrity.min;
+        this.health_bar.max_value = this.character.stats.integrity.max;
+        this.health_bar.value = this.character.stats.integrity.value;
+
+        invoke_on_members(this, "update", delta_time);
+    }
+
+    draw(canvas_context){
+        if(!this.character)
+            return;
+        invoke_on_members(this, "draw", canvas_context);
+    }
+
+
+};
+
+
 
 // The interface used by the player when inside the game.
 // NOTE: it's a class instead of just globals because we need to initialize and destroy it
@@ -187,6 +222,7 @@ class GameInterface {
 
     button_mute_audio = new MuteAudioButton();
 
+    character_status = new CharacterStatus();
 
     constructor(config){
         console.assert(config instanceof Object);
@@ -205,7 +241,8 @@ class GameInterface {
     get elements(){
         return Object.values(this)
             .concat(this._action_buttons)
-            .filter(element => element instanceof ui.UIElement);
+            .filter(element => element instanceof ui.UIElement)
+            .concat([ this.character_status ]);
     }
 
     is_under(position){
@@ -220,8 +257,8 @@ class GameInterface {
         return this._selected_action !== undefined;
     }
 
-    update(delta_time){
-        this.elements.map(element => element.update(delta_time));
+    update(delta_time, current_character){
+        this.elements.map(element => element.update(delta_time, current_character));
         this._handle_action_target_selection(delta_time);
     }
 

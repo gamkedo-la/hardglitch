@@ -331,7 +331,7 @@ class GameView {
 
         this.fog_of_war.update(delta_time);
 
-        this.ui.update(delta_time);
+        this.ui.update(delta_time, this.player_character);
     }
 
     _launch_next_animation_batch(){
