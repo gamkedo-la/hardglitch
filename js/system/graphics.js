@@ -15,6 +15,7 @@ export {
   draw_rectangle,
   canvas_center_position,
   canvas_rect,
+  centered_rectangle_in_screen,
   draw_grid_lines,
   from_grid_to_graphic_position,
   from_graphic_to_grid_position,
@@ -616,6 +617,10 @@ function canvas_center_position(){
 
 function canvas_rect(){
   return new spatial.Rectangle({ x: 0, y:0, width:canvas.width, height:canvas.height});
+}
+
+function centered_rectangle_in_screen(rect){
+  return spatial.center_in_rectangle(rect, canvas_rect());
 }
 
 function draw_grid_lines(width, height, square_size, start_position={x:0, y:0}, context=screen_canvas_context){
