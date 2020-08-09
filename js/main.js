@@ -47,10 +47,11 @@ const game_state_machine = new class extends fsm.StateMachine{
         died: "gameover_failure",
       },
       gameover_success: {
-        ok: "main_menu",
+        ok: "credits",
       },
       gameover_failure: {
-        ok: "main_menu",
+        back: "main_menu",
+        retry: "game",
       }
     });
   }

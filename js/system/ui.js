@@ -168,6 +168,7 @@ class Button extends UIElement {
     // }
     constructor(button_def){
         super(Object.assign(button_def, { width: 1, height: 1 })); // We ignore the width/height because it will be defined by the current frame of the sprite.
+        console.assert(button_def.action instanceof Function);
         this._sprite = new graphics.Sprite(button_def.sprite_def);
         this._sprite.position = super.position;
         const frames = button_def.frames;
