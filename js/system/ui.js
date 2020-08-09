@@ -16,6 +16,8 @@ import * as graphics from "./graphics.js";
 import { Vector2, Rectangle, is_intersection, Vector2_origin, center_in_rectangle } from "./spatial.js";
 import { mouse, MOUSE_BUTTON } from "./input.js";
 import { is_number } from "./utility.js";
+import * as anim from "./animation.js";
+import { tween } from "./tweening.js";
 
 function is_point_under(position, area, origin){
     console.assert(position.x != undefined && position.y != undefined );
@@ -465,6 +467,8 @@ class Bar extends UIElement {
     //     max_value: 0, // Maximum value that can be represented by the bar (the value can go over, it'll just not be visible).
     //     value: 50,    // Current value
     //     bar_name: "Health", // Text to use when displaying the helptext.
+    //     change_delay_ms: 0, // Milliseconds after a value change after which we start animation the change bar.
+    //     change_duration_ms: 0, // Duration in milliseconds of the change bar animation.
     // });
     constructor(bar_def){
         super(bar_def);
@@ -476,11 +480,14 @@ class Bar extends UIElement {
         };
 
         this.colors = bar_def.bar_colors ? bar_def.bar_colors : default_bar_colors;
+        this.change_delay_ms = bar_def.change_delay_ms !== undefined ? bar_def.change_delay_ms : 500;
+        this.change_duration_ms = bar_def.change_duration_ms !== undefined ? bar_def.change_duration_ms : 800;
         this._min_value = bar_def.min_value ? bar_def.min_value : 0;
         this._max_value = bar_def.max_value ? bar_def.max_value : 100;
         this._value = bar_def.value ? bar_def.value : 50;
         this._name = bar_def.bar_name;
         this._is_horizontal_bar = bar_def.is_horizontal_bar ? bar_def.is_horizontal_bar : true;
+        this._animations = new anim.AnimationGroup();
 
         this.helptext = new HelpText({
             text: this._name,
@@ -496,6 +503,7 @@ class Bar extends UIElement {
     set value(new_value){
         console.assert(typeof new_value === "number");
         if(new_value != this._value){
+            this._previous_value = this._value;
             this._value = new_value;
             this._require_update = true;
         }
@@ -521,24 +529,96 @@ class Bar extends UIElement {
         }
     }
 
-    get value_length() { return this._max_value - this._min_value; }
-    get value_ratio() { return (this._value - this._min_value) / this.value_length; }
+    get range_length() { return this._max_value - this._min_value; }
+    get value_ratio() { return this._ratio(this._value, this._min_value); }
+
+    _ratio(value){
+        return (value - this._min_value) / this.range_length;
+    }
 
     _on_update(delta_time){
+
+        this._animations.update(delta_time);
+
         if(!this._require_update)
             return;
 
         this._value_rect = new Rectangle(this.area);
-        this._change_rect = new Rectangle(this.area);
-
         this._value_rect.width = Math.max(this.value_ratio, 0) * this._value_rect.width;
 
+        // Check if we changed the value, if yes we have to udpate the change bar
+        if(this._previous_value !== undefined){
+            this._cancel_change_animation();
+            this._current_change_animation_promise = this._animations.play(this._change_animation(this._previous_value, this.value));
+            console.assert(this._current_change_animation_promise.cancel instanceof Function);
+            this._current_change_animation_promise.then(()=>{
+                this._cancel_change_animation();
+            });
+            delete this._previous_value;
+        }
+
         this.helptext.text = `${this._name} ${this.value} / ${this.max_value}`
+    }
+
+    _cancel_change_animation(){
+        delete this._change_rect;
+        if(this._current_change_animation_promise){
+            this._current_change_animation_promise.cancel();
+            delete this._current_change_animation_promise;
+        }
+    }
+
+    _clamp_to_visible(value){
+        if(value < this.min_value)
+            value = this.min_value;
+        if(value > this.max_value)
+            value = this.max_value;
+        return value;
+    }
+
+    *_change_animation(previous_value, current_value){
+        previous_value = this._clamp_to_visible(previous_value);
+        current_value = this._clamp_to_visible(current_value);
+
+        if(previous_value === current_value)
+            return;
+
+        const graphic_width = (value)=>{
+            return this._ratio(value) * this.area.width;
+        };
+
+        const previous_x = graphic_width(previous_value);
+        const current_x = graphic_width(current_value);
+        const min_x = Math.min(previous_x, current_x);
+        const max_x = Math.max(previous_x, current_x);
+        const change_width = max_x - min_x;
+
+        const change_rect = new Rectangle({
+            position : this._value_rect.position.translate({ x: min_x, y: 0 }),
+            width: change_width,
+            height: this._value_rect.height,
+        });
+        this._change_rect = change_rect;
+
+        yield* anim.wait(this.change_delay_ms);
+        yield* tween(change_width, 0, this.change_duration_ms, (value) => {
+            const previous_width = change_rect.width;
+            change_rect.width = value;
+            if(previous_x < current_x){
+                const width_diff = previous_width - value;
+                change_rect.position = change_rect.position.translate({ x: width_diff, y:0 });
+            }
+        });
+
+        delete this._change_rect;
     }
 
     _on_draw(canvas_context) {
         graphics.draw_rectangle(canvas_context, this.area, this.colors.background);
         graphics.draw_rectangle(canvas_context, this._value_rect, this.colors.value);
+        if(this._change_rect){
+            graphics.draw_rectangle(canvas_context, this._change_rect, this.colors.change);
+        }
     }
 
     // Called when this.visible is changed from hidden (false) to visible (true).

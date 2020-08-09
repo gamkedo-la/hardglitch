@@ -55,8 +55,11 @@ class AnimationGroup {
     // Here an animation is a generator object (probably obtained by calling a coroutine).
     play(animation_iterator){
         const animation_state = animation_iterator.next(0); // Get to the first step of the animation
-        if(animation_state.done) // Skip when there was actually no animation
-            return Promise.resolve(animation_state.value);
+        if(animation_state.done){ // Skip when there was actually no animation
+            const promise = Promise.resolve(animation_state.value);
+            promise.cancel = function(){}; // All promises from this function must have a cancel function.
+            return promise;
+        }
 
         let resolver;
         const promise = new Promise(resolve => resolver = resolve);
