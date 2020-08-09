@@ -199,8 +199,6 @@ class CharacterStatus{
 
     }
 
-
-
     update(delta_time, character){
         this.character = character;
         if(!(this.character instanceof Character))
@@ -218,6 +216,14 @@ class CharacterStatus{
         invoke_on_members(this, "draw", canvas_context);
     }
 
+    begin_preview_costs(preview_values){
+        this.health_bar.show_preview_value(preview_values.integrity);
+        this.action_bar.show_preview_value(preview_values.action_points);
+    }
+
+    end_preview_costs(){
+        invoke_on_members(this, "hide_preview_value");
+    }
 
 };
 

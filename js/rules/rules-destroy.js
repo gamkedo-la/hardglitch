@@ -17,7 +17,9 @@ class Destroy extends concepts.Action {
         super(`destroy_${target_position.x}_${target_position.y}`,
                 `Destroy anything at ${JSON.stringify(target_position)}`,
                 target_position,
-                50
+                { // costs
+                    action_points: 50
+                }
                 );
     }
 

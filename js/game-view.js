@@ -34,6 +34,7 @@ import { tween, easing } from "./system/tweening.js";
 import { TakeItem } from "./rules/rule-takeitem.js";
 import { ParticleSystem } from "./system/particles.js";
 import { GameFxView } from "./game-effects.js";
+import { Character } from "./core/character.js";
 
 const a_very_long_time = 99999999999999;
 
@@ -41,7 +42,7 @@ class Highlight{
     enabled = true;
 
     // Reuse a sprite for highlighting.
-    constructor(position, sprite, text){
+    constructor(position, sprite, text, events){
         console.assert(Number.isInteger(position.x) && Number.isInteger(position.y));
         console.assert(sprite instanceof graphics.Sprite);
         console.assert(text === undefined || typeof text === 'string');
@@ -55,6 +56,9 @@ class Highlight{
             });
         }
         this.position = position;
+        this.events = events;
+
+
     }
 
     set position(new_pos) {
@@ -102,6 +106,20 @@ class Highlight{
         this._sprite.position = graphic_position(this._position); // BEWARE: We share the sprite with other highlights so we need to reposition it before each redraw.
         this._sprite.draw(canvas_context);
         this._drawn_since_last_update = true;
+
+        if(this.events){
+            if(this._help_text.is_mouse_over_area_to_help){
+                if(!this._mouse_is_over){
+                    this._mouse_is_over = true;
+                    this.events.on_mouse_over_begin();
+                }
+            } else {
+                if(this._mouse_is_over){
+                    this._mouse_is_over = false;
+                    this.events.on_mouse_over_end();
+                }
+            }
+        }
     }
 
     draw_help(){
@@ -110,6 +128,7 @@ class Highlight{
             this._help_text.draw(graphics.screen_canvas_context);
         }
     }
+
 };
 
 class GameView {
@@ -225,8 +244,8 @@ class GameView {
         yield* event.animation(this);
     };
 
-    _add_highlight(position, sprite, text){
-        this.player_actions_highlights.push(new Highlight(position, sprite, text));
+    _add_highlight(position, sprite, text, events){
+        this.player_actions_highlights.push(new Highlight(position, sprite, text, events));
     }
 
     get_entity_view(entity_id){
@@ -245,7 +264,21 @@ class GameView {
 
     _action_description(action){ // TODO: make a general function for this AND make it handle also more general description and action icons.
         console.assert(action instanceof concepts.Action);
-        return `${action.name} -${action.cost} AP`;
+        return `${action.name} -${action.costs.action_points} AP`;
+    }
+
+    _action_highlitgh_events(action){
+        const events = {
+            on_mouse_over_begin: () => {
+                this.ui.character_status.begin_preview_costs({
+                    action_points: this.player_character.stats.integrity.value - action.costs.action_points
+                });
+            },
+            on_mouse_over_end: () => {
+                this.ui.character_status.end_preview_costs();
+            },
+        };
+        return events;
     }
 
     // Setup highlights for actions that are known with a target position.
@@ -254,13 +287,14 @@ class GameView {
 
         const available_actions = this.game.turn_info.possible_actions;
         for(const action of Object.values(available_actions)){
+            console.assert(this.player_character instanceof Character);
             if(action.is_basic && action.is_safe){
                 if(action instanceof Move)
-                    this._add_highlight(action.target_position, this._highlight_sprites.movement, this._action_description(action));
+                    this._add_highlight(action.target_position, this._highlight_sprites.movement, this._action_description(action),this._action_highlitgh_events(action));
                 else if(action instanceof TakeItem)
-                    this._add_highlight(action.target_position, this._highlight_sprites.take, this._action_description(action));
+                    this._add_highlight(action.target_position, this._highlight_sprites.take, this._action_description(action),this._action_highlitgh_events(action));
                 else
-                    this._add_highlight(action.target_position, this._highlight_sprites.basic_action, this._action_description(action));
+                    this._add_highlight(action.target_position, this._highlight_sprites.basic_action, this._action_description(action),this._action_highlitgh_events(action));
             }
         }
 
@@ -274,8 +308,9 @@ class GameView {
         this.clear_highlights_basic_actions(); // Clear previous highlighting
 
         for(const action of action_info.actions){
+            console.assert(this.player_character instanceof Character);
             if(action.target_position){
-                this._add_highlight(action.target_position, this._highlight_sprites.action, this._action_description(action));
+                this._add_highlight(action.target_position, this._highlight_sprites.action, this._action_description(action), this._action_highlitgh_events(action));
             }
         }
     }

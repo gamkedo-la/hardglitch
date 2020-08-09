@@ -41,7 +41,9 @@ class Delete extends concepts.Action {
         super(`delete_${target_position.x}_${target_position.y}`,
                 `Deal ${delete_damage} damages at ${JSON.stringify(target_position)}`,
                 target_position,
-                delete_ap_cost
+                { // costs
+                    action_points: delete_ap_cost
+                }
                 );
         this.delete_damage = delete_damage;
     }

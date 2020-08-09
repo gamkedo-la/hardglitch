@@ -462,6 +462,7 @@ class Bar extends UIElement {
     //         background: "#0000ff",       // Color used for values that are higher than the current value.
     //         change_positive: "#ffffff",           // Color used to mark the difference from before when the value changed.
     //         change_negative: "#ff0000",           // Color used to mark the difference from before when the value changed.
+    //         preview: "#ff00ff",           // Color used to preview the cost of actions.
     //         value: "#00ff00",            // Color used for the values that are lower or equal to the current value.
     //     },
     //     min_value: 0, // Minimum value that can be represented by the bar (the value can go below, it'll just not be visible).
@@ -476,8 +477,9 @@ class Bar extends UIElement {
 
         const default_bar_colors = {
             background: "#0000ff",       // Color used for values that are higher than the current value.
-            change_positive: "#ffffff",           // Color used to mark the difference from before when the value changed.
-            change_negative: "#ff0000",           // Color used to mark the difference from before when the value changed.
+            change_positive: "#ffffff",  // Color used to mark the difference from before when the value changed.
+            change_negative: "#ff0000",  // Color used to mark the difference from before when the value changed.
+            preview: "#ff00ff",          // Color used to preview the cost of actions.
             value: "#00ff00",            // Color used for the values that are lower or equal to the current value.
         };
 
@@ -581,6 +583,11 @@ class Bar extends UIElement {
         return value;
     }
 
+
+    graphic_width(value){
+        return this._ratio(value) * this.area.width;
+    };
+
     *_change_animation(previous_value, current_value){
         previous_value = this._clamp_to_visible(previous_value);
         current_value = this._clamp_to_visible(current_value);
@@ -594,12 +601,9 @@ class Bar extends UIElement {
             this.colors.change = this.colors.change_positive;
         }
 
-        const graphic_width = (value)=>{
-            return this._ratio(value) * this.area.width;
-        };
 
-        const previous_x = graphic_width(previous_value);
-        const current_x = graphic_width(current_value);
+        const previous_x = this.graphic_width(previous_value);
+        const current_x = this.graphic_width(current_value);
         const min_x = Math.min(previous_x, current_x);
         const max_x = Math.max(previous_x, current_x);
         const change_width = max_x - min_x;
@@ -629,7 +633,35 @@ class Bar extends UIElement {
         graphics.draw_rectangle(canvas_context, this._value_rect, this.colors.value);
         if(this._change_rect){
             graphics.draw_rectangle(canvas_context, this._change_rect, this.colors.change);
+        } else if(this._preview_rect){
+            graphics.draw_rectangle(canvas_context, this._preview_rect, this.colors.preview);
         }
+    }
+
+    show_preview_value(value){
+        this.hide_preview_value();
+
+        const current_value = this._clamp_to_visible(this.value);
+        const preview_value = this._clamp_to_visible(value);
+
+        if(current_value === preview_value)
+            return;
+
+        const current_x = this.graphic_width(current_value);
+        const preview_x = this.graphic_width(preview_value);
+        const min_x = Math.min(current_x, preview_x);
+        const max_x = Math.max(current_x, preview_x);
+        const preview_width = max_x - min_x;
+
+        this._preview_rect = new Rectangle({
+            position : this._value_rect.position.translate({ x: min_x, y: 0 }),
+            width: preview_width,
+            height: this._value_rect.height,
+        });
+    }
+
+    hide_preview_value(){
+        delete this._preview_rect;
     }
 
     // Called when this.visible is changed from hidden (false) to visible (true).

@@ -48,7 +48,10 @@ class Wait extends concepts.Action {
 
     constructor(character){
         console.assert(character instanceof Character);
-        super("wait", "Wait", undefined, character.stats.action_points.value); // Costs the rest of the current AP of the character
+        super("wait", "Wait", undefined,
+        { // costs
+            action_points: character.stats.action_points.value
+        }); // Costs the rest of the current AP of the character
     }
 
     execute(world, body) {

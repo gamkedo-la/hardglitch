@@ -50,8 +50,10 @@ class TakeItem extends concepts.Action {
     constructor(target_position){
         console.assert(target_position instanceof concepts.Position);
         super(`take_item_at_${target_position.x}_${target_position.y}`,
-            "Take Item", target_position, 1
-        );
+            "Take Item", target_position,
+            { // costs
+                action_points: 1
+            });
         this.is_basic = true; // Items occupy positions that cannot be moved into, so it's safe to assume that we will take them by default.
     }
 
