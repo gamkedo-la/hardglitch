@@ -162,7 +162,7 @@ class Button extends UIElement {
     //   action: ()=> {}, // Function to call when you press that button. Calls nothing if undefined.
     // }
     constructor(button_def){
-        super(button_def);
+        super(Object.assign(button_def, { width: 1, height: 1 })); // We ignore the width/height because it will be defined by the current frame of the sprite.
         this._sprite = new Sprite(button_def.sprite_def);
         this._sprite.position = this.position;
         const frames = button_def.frames;
@@ -180,12 +180,19 @@ class Button extends UIElement {
                 this._frames = { up:0, down:0, over:0, disabled:0 };
         }
 
-
         this.is_action_on_up = button_def.is_action_on_up != undefined? button_def.is_action_on_up : false;
         this.action = button_def.action;
 
         this._was_mouse_over = false;
         this._on_up();
+    }
+
+    // We want the size, position etc of this object to be relative to the sprite.
+    get area(){ return this._sprite.area; }
+    set area(new_area){
+        console.assert(new_area instanceof Rectangle);
+        super.area = new_area;
+        this._sprite.area = new_area;
     }
 
     get state() { return this._state; }
@@ -223,8 +230,12 @@ class Button extends UIElement {
             }
         }
 
-        this._sprite.position = this.position;
         this._sprite.update(delta_time);
+    }
+
+    _change_sprite_frame(frame_idx){
+        this._sprite.force_frame(frame_idx);
+        super.area = this._sprite.area;
     }
 
     _on_draw(canvas_context){
@@ -234,24 +245,24 @@ class Button extends UIElement {
 
     _on_up(){
         this._state = ButtonState.UP;
-        this._sprite.force_frame(this._frames.up);
+        this._change_sprite_frame(this._frames.up);
     }
 
     _on_down(){
         this._state = ButtonState.DOWN;
-        this._sprite.force_frame(this._frames.down);
+        this._change_sprite_frame(this._frames.down);
     }
 
     _on_begin_over(){
         this._was_mouse_over = true;
         if(this.state == ButtonState.UP)
-            this._sprite.force_frame(this._frames.over);
+            this._change_sprite_frame(this._frames.over);
     }
 
     _on_end_over(){
         this._was_mouse_over = false;
         if(this.state == ButtonState.UP)
-            this._sprite.force_frame(this._frames.up);
+            this._change_sprite_frame(this._frames.up);
     }
 
     _on_enabled(){
@@ -266,7 +277,7 @@ class Button extends UIElement {
     }
 
     _on_disabled(){
-        this._sprite.force_frame(this._frames.disabled);
+        this._change_sprite_frame(this._frames.disabled);
     }
 
 };

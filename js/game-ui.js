@@ -21,7 +21,6 @@ class ActionButton extends ui.Button {
     constructor(position, icon_def, action_name, key_name, on_clicked, on_begin_mouse_over, on_end_mouse_over){
         super({ // TODO: add a way to identify the action visually, text + icon
             position: position,
-            width: action_button_size, height: action_button_size,
             sprite_def: sprite_defs.button_select_action,
             action: on_clicked
         });
@@ -70,7 +69,6 @@ class CancelActionButton extends ui.Button {
     constructor(action){
         super({ // TODO: add a way to identify the action visually, text + icon
             position: { x: 0, y: 0 },
-            width: action_button_size, height: action_button_size,
             sprite_def: sprite_defs.button_cancel_action_target_selection,
             visible: false,
             action: action,
@@ -106,8 +104,6 @@ class MuteAudioButton extends ui.Button {
             action: audio.toggleMute,
             is_action_on_up: true,
             position: {x: 32, y: 32},
-            width: action_button_size,
-            height: action_button_size,
         });
 
         this.icons = {
@@ -146,8 +142,6 @@ class AutoFocusButton extends ui.Button {
             action: toggle_autofocus,
             is_action_on_up: true,
             position: {x: 32, y: 32 + action_button_size + 8 },
-            width: action_button_size,
-            height: action_button_size,
         });
 
         this.is_autofocus_enabled = is_autofocus_enabled;
@@ -249,7 +243,7 @@ class GameInterface {
 
         // ... then we build the buttons with the associated informations.
 
-        const space_between_buttons = action_button_size + 5;
+        const space_between_buttons = action_button_size + 8;
         const canvas_rect = graphics.canvas_rect();
         const line_y = canvas_rect.bottom_right.y - 160;
         let line_x = (canvas_rect.width / 2) - (Math.floor((Object.keys(actions_per_types).length / 2) + 1) * space_between_buttons);
