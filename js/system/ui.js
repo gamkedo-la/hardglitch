@@ -639,6 +639,9 @@ class Bar extends UIElement {
     }
 
     show_preview_value(value){
+        if(value === undefined)
+            return;
+
         this.hide_preview_value();
 
         const current_value = this._clamp_to_visible(this.value);

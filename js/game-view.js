@@ -270,7 +270,7 @@ class GameView {
         const events = {
             on_mouse_over_begin: () => {
                 this.ui.character_status.begin_preview_costs({
-                    action_points: this.player_character.stats.integrity.value - action.costs.action_points
+                    action_points: this.player_character.stats.action_points.value - action.costs.action_points,
                 });
             },
             on_mouse_over_end: () => {
