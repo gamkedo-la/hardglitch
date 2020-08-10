@@ -5,6 +5,7 @@ export {
     loaded_assets as assets,
     load_all_assets,
     sprite_defs,
+    sound_event_defs,
     tile_id,
     parse_tile_id,
     tile_defs,
@@ -469,3 +470,112 @@ update_sprite_defs("hole_template", "lvl1", "hole", 32);
 update_sprite_defs("void_template", "lvl1", "void", 32);
 update_sprite_defs("wall_template", "lvl1", "wall", 32);
 // update_anim_defs("void_template", "lvl1", "void", 32, 512, 8, 100);
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////
+// Sound events descriptions here.
+// Describe here all the sounds of the game and how to play them (not when).
+const sound_event_defs = {
+    'buffertest': {
+        source_type: 'audiobuffer',
+        source_name: 'test',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
+    'selectButton': {
+        source_type: 'audiobuffer',
+        source_name: 'select',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
+    'clickButton': {
+        source_type: 'audiobuffer',
+        source_name: 'click',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
+    'deleteAction': {
+        source_type: 'audiobuffer',
+        source_name: 'delete',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
+    'destroyAction': {
+        source_type: 'audiobuffer',
+        source_name: 'destroy',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
+    'errorAction': {
+        source_type: 'audiobuffer',
+        source_name: 'error',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
+    'exit_bus': {
+        source_type: 'audiobuffer',
+        source_name: 'exitbus',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
+    'jumpAction': {
+        source_type: 'audiobuffer',
+        source_name: 'jump',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
+    'moveAction': {
+        source_type: 'audiobuffer',
+        source_name: 'move',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
+    'repairAction': {
+        source_type: 'audiobuffer',
+        source_name: 'repair',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
+    'streamtest': {
+        source_type: 'audiostream',
+        source_name: 'test',
+        group_name: 'Music',
+        loop: true,
+        volume: 1,
+        unique: true, // Will not create a new event instance if true
+    }
+}
+
+

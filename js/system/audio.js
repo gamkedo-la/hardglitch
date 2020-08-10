@@ -13,111 +13,16 @@ import { clamp } from "./utility.js";
 let muted = false;
 let audio_context, mix_groups, audio_buffers, audio_streams;
 let audio_events = [];
+let event_defs;
 
 function is_muted() { return muted; }
 
-const event_defs = {
-    'buffertest': {
-        source_type: 'audiobuffer',
-        source_name: 'test',
-        group_name: 'SoundEffects',
-        loop: false,
-        volume: 1,
-        unique: false,
-    },
+function initialize(assets, sound_event_defs) {
+    console.assert(assets instanceof Object);
+    console.assert(sound_event_defs instanceof Object);
 
-    'selectButton': {
-        source_type: 'audiobuffer',
-        source_name: 'select',
-        group_name: 'SoundEffects',
-        loop: false,
-        volume: 1,
-        unique: false,
-    },
+    event_defs = sound_event_defs;
 
-    'clickButton': {
-        source_type: 'audiobuffer',
-        source_name: 'click',
-        group_name: 'SoundEffects',
-        loop: false,
-        volume: 1,
-        unique: false,
-    },
-
-    'deleteAction': {
-        source_type: 'audiobuffer',
-        source_name: 'delete',
-        group_name: 'SoundEffects',
-        loop: false,
-        volume: 1,
-        unique: false,
-    },
-
-    'destroyAction': {
-        source_type: 'audiobuffer',
-        source_name: 'destroy',
-        group_name: 'SoundEffects',
-        loop: false,
-        volume: 1,
-        unique: false,
-    },
-
-    'errorAction': {
-        source_type: 'audiobuffer',
-        source_name: 'error',
-        group_name: 'SoundEffects',
-        loop: false,
-        volume: 1,
-        unique: false,
-    },
-
-    'exit_bus': {
-        source_type: 'audiobuffer',
-        source_name: 'exitbus',
-        group_name: 'SoundEffects',
-        loop: false,
-        volume: 1,
-        unique: false,
-    },
-
-    'jumpAction': {
-        source_type: 'audiobuffer',
-        source_name: 'jump',
-        group_name: 'SoundEffects',
-        loop: false,
-        volume: 1,
-        unique: false,
-    },
-
-    'moveAction': {
-        source_type: 'audiobuffer',
-        source_name: 'move',
-        group_name: 'SoundEffects',
-        loop: false,
-        volume: 1,
-        unique: false,
-    },
-
-    'repairAction': {
-        source_type: 'audiobuffer',
-        source_name: 'repair',
-        group_name: 'SoundEffects',
-        loop: false,
-        volume: 1,
-        unique: false,
-    },
-
-    'streamtest': {
-        source_type: 'audiostream',
-        source_name: 'test',
-        group_name: 'Music',
-        loop: true,
-        volume: 1,
-        unique: true, // Will not create a new event instance if true
-    }
-}
-
-function initialize(assets) {
     audio_context = new AudioContext();
     audio_buffers = assets.audio_buffers;
     audio_streams = assets.audio_streams;
@@ -133,6 +38,7 @@ function initialize(assets) {
 }
 
 function playEvent(name, pan) {
+    console.assert(event_defs instanceof Object);
     let event_def = event_defs[name];
     let event;
 

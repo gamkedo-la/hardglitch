@@ -3,7 +3,7 @@
 // save the canvas for dimensions, and its 2d context for drawing to it
 import * as audio from "./system/audio.js";
 import * as graphics from "./system/graphics.js";
-import { load_all_assets } from "./game-assets.js";
+import { load_all_assets, sound_event_defs } from "./game-assets.js";
 import * as input from "./system/input.js";
 import * as fsm from "./system/finite-state-machine.js";
 
@@ -79,7 +79,7 @@ window.onload = async function() {
   game_state_machine.update();
   const canvas_context = graphics.initialize(assets);
   game_state_machine.update();
-  audio.initialize(assets);
+  audio.initialize(assets, sound_event_defs);
   game_state_machine.update();
   input.initialize(canvas_context);
   game_state_machine.update();
