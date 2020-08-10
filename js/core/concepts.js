@@ -38,17 +38,17 @@ function new_actor_id(){
 // An action is when an Actor changes something (using it's Body) in the world, following the
 // world's rules.
 class Action {
-    constructor(id, name, target_position, cost){
+    constructor(id, name, target_position, costs){
         console.assert(typeof id === 'string');
         console.assert(target_position === undefined || target_position instanceof Position);
         console.assert(typeof name === 'string');
-        console.assert(Number.isInteger(cost) && cost >= 0);
+        console.assert(costs instanceof Object);
         this.id = id;                       // Used internally to identify this Action in some special code (for example to identify special moves to bind to keyboard keys)
         this.target_position = target_position; // Position of the target of this action. Could refer to the acting character, another character, an item or a tile at that position.
         this.name = name,                   // Name that will be displayed to the player.
         this.is_basic = false;              // Basic actions are visible directly in the game.
         this.is_safe = true;                // If false, means that this action should not be available unless explicitely attempted.
-        this.cost = cost;                   // Action points to pay to do this action.
+        this.costs = costs;                 // Description of the costs for this action.
     }
 
     // Apply the action, transform the world.

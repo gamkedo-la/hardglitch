@@ -9,6 +9,10 @@ import * as input from "./system/input.js";
 import * as graphics from "./system/graphics.js";
 import { Color } from "./system/color.js";
 import { ScreenFader } from "./system/screenfader.js";
+import { Vector2_origin } from "./system/spatial.js";
+import { invoke_on_members } from "./system/utility.js";
+import { sprite_defs } from "./game-assets.js";
+import { KEY } from "./game-input.js";
 
 class GameOverScreen_Success extends fsm.State {
     fader = new ScreenFader();
@@ -18,12 +22,36 @@ class GameOverScreen_Success extends fsm.State {
         this.fader.color = new Color(255,255,255);
     }
 
-    *enter(){
-        if(!this.message){
-            this.message = new ui.Text({
-                text: "Congratulations! You escaped the computer and will survive on the internet!",
+    _init_ui(){
+        console.assert(this.ui === undefined);
+        this.ui = {
+            message : new ui.Text({
+                text: "Congratulations! You escaped the computer!",
                 position: graphics.canvas_center_position().translate({x:-200, y:0}),
-            });
+            }),
+            button_back : new ui.TextButton({
+                text: "Continue [ANY KEY]",
+                position: Vector2_origin,
+                sprite_def: sprite_defs.button_menu,
+                action: ()=> { this.go_to_next_screen(); }
+            }),
+        };
+        // Center the buttons in the screen.
+        let button_pad_y = 0;
+        const next_pad_y = () => {
+            const result = button_pad_y;
+            button_pad_y += 80;
+            return result;
+        };
+        Object.values(this.ui).forEach(button => {
+            const center_pos = graphics.centered_rectangle_in_screen(button.area).position;
+            button.position = center_pos.translate({ x:0, y: next_pad_y() });
+        });
+    }
+
+    *enter(){
+        if(!this.ui){
+            this._init_ui();
         }
         yield* this.fader.generate_fade_in();
     }
@@ -32,15 +60,19 @@ class GameOverScreen_Success extends fsm.State {
         yield* this.fader.generate_fade_out();
     }
 
+    go_to_next_screen(){
+        this.state_machine.push_action("ok");
+    }
+
     update(delta_time){
 
         if(!this.fader.is_fading){
-            if(input.keyboard.is_any_key_just_down() || input.mouse.buttons.is_any_key_just_down()){
-                this.state_machine.push_action("ok");
+            if(input.keyboard.is_any_key_just_down()){
+                this.go_to_next_screen();
+            } else {
+                invoke_on_members(this.ui, "update", delta_time);
             }
         }
-
-        this.message.update(delta_time);
 
         this.fader.update(delta_time);
     }
@@ -48,11 +80,15 @@ class GameOverScreen_Success extends fsm.State {
     display(canvas_context){
         graphics.draw_rectangle(canvas_context, graphics.canvas_rect(), "white");
 
-        this.message.draw(canvas_context);
+        invoke_on_members(this.ui, "draw", canvas_context);
 
         this.fader.display(canvas_context);
     }
 
+    on_canvas_resized(){
+        delete this.ui;
+        this._init_ui();
+    }
 
 };
 
@@ -65,12 +101,42 @@ class GameOverScreen_Failure extends fsm.State {
         this.fader.color = new Color(255,0,0);
     }
 
-    *enter(){
-        if(!this.message){
-            this.message = new ui.Text({
-                text: "Game Over - Please retry, 'Glitch' needs to escape!",
+    _init_ui(){
+        console.assert(this.ui === undefined);
+        this.ui = {
+            message : new ui.Text({
+                text: "Game Over - Please Retry, 'Glitch' needs to escape!",
                 position: graphics.canvas_center_position().translate({x:-200, y:0}),
-            });
+            }),
+            button_retry : new ui.TextButton({
+                text: "Retry [SPACE]",
+                position: Vector2_origin,
+                sprite_def: sprite_defs.button_menu,
+                action: ()=> { this.retry_new_game(); },
+            }),
+            button_back : new ui.TextButton({
+                text: "Main Menu [ESC]",
+                position: Vector2_origin,
+                sprite_def: sprite_defs.button_menu,
+                action: ()=> { this.back_to_main_menu(); }
+            }),
+        };
+        // Center the buttons in the screen.
+        let button_pad_y = 0;
+        const next_pad_y = () => {
+            const result = button_pad_y;
+            button_pad_y += 80;
+            return result;
+        };
+        Object.values(this.ui).forEach(button => {
+            const center_pos = graphics.centered_rectangle_in_screen(button.area).position;
+            button.position = center_pos.translate({ x:0, y: next_pad_y() });
+        });
+    }
+
+    *enter(){
+        if(!this.ui){
+            this._init_ui();
         }
         yield* this.fader.generate_fade_in();
     }
@@ -79,24 +145,39 @@ class GameOverScreen_Failure extends fsm.State {
         yield* this.fader.generate_fade_out();
     }
 
+    back_to_main_menu(){
+        this.state_machine.push_action("back");
+    }
+
+    retry_new_game(){
+        this.state_machine.push_action("retry");
+    }
+
     update(delta_time){
         if(!this.fader.is_fading){
-            if(input.keyboard.is_any_key_just_down() || input.mouse.buttons.is_any_key_just_down()){
-                this.state_machine.push_action("ok");
+            if(input.keyboard.is_just_down(KEY.ESCAPE)){
+                this.back_to_main_menu();
+            } else if(input.keyboard.is_just_down(KEY.SPACE)){
+                this.retry_new_game();
+            } else{
+                invoke_on_members(this.ui, "update", delta_time);
             }
         }
-
-        this.message.update(delta_time);
-
         this.fader.update(delta_time);
     }
 
     display(canvas_context){
         graphics.draw_rectangle(canvas_context, graphics.canvas_rect(), "red");
 
-        this.message.draw(canvas_context);
+        invoke_on_members(this.ui, "draw", canvas_context);
 
         this.fader.display(canvas_context);
+    }
+
+
+    on_canvas_resized(){
+        delete this.ui;
+        this._init_ui();
     }
 
 };

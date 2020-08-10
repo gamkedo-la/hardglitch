@@ -2,6 +2,7 @@
 export {
     Character,
     CharacterStats,
+    StatValue,
 }
 
 import * as concepts from "./concepts.js";
@@ -73,7 +74,7 @@ class StatValue {
 
     set min(new_value) {
         console.assert(Number.isInteger(new_value) && new_value < this.max);
-        this._max = new_value;
+        this._min = new_value;
     }
 
     increase(value_to_add){
@@ -169,8 +170,9 @@ class Character extends concepts.Body {
         console.assert(world instanceof concepts.World);
 
         // Pay for this action
-        console.assert(Number.isInteger(action.cost) && action.cost >= 0);
-        this.stats.action_points.decrease(action.cost);
+        console.assert(action.costs instanceof Object);
+        console.assert(Number.isInteger(action.costs.action_points) && action.costs.action_points >= 0);
+        this.stats.action_points.decrease(action.costs.action_points);
 
         // Then execute the action:
         return action.execute(world, this);

@@ -16,6 +16,7 @@ import { ScreenFader } from "./system/screenfader.js";
 import { GameSession } from "./game-session.js";
 import { Color } from "./system/color.js";
 import { sprite_defs } from "./game-assets.js";
+import { Vector2_origin } from "./system/spatial.js";
 
 class PlayingGame extends fsm.State{
 
@@ -130,19 +131,17 @@ class InGameMenu extends fsm.State {
         console.assert(this.ui === undefined);
 
         this.ui = {
-            resume_button: new ui.Button({
+            resume_button: new ui.TextButton({
+                text: "Resume Game",
                 action: ()=>{ this.go_back(); },
-                position: graphics.canvas_center_position(),
-                width: 256, height: 64,
+                position: Vector2_origin,
                 sprite_def: sprite_defs.button_menu,
-                frames: { up: 0, down: 1, over: 2, disabled: 3 },
             }),
-            exit_button: new ui.Button({
+            exit_button: new ui.TextButton({
+                text: "Exit Game",
                 action: ()=>{ this.exit_game(); },
-                position: graphics.canvas_center_position().translate({ x:0, y: 100 }),
-                width: 256, height: 64,
+                position: Vector2_origin,
                 sprite_def: sprite_defs.button_menu,
-                frames: { up: 0, down: 1, over: 2, disabled: 3 },
             }),
             update: function(delta_time){
                 this.resume_button.update(delta_time);
@@ -155,6 +154,16 @@ class InGameMenu extends fsm.State {
                 graphics.camera.end_in_screen_rendering();
             }
         };
+
+        // Center the buttons in the screen.
+        let button_pad_y = 0;
+        const next_pad_y = () => button_pad_y += 80;
+        Object.values(this.ui).filter(element => element instanceof ui.Button)
+            .forEach(button => {
+                const center_pos = graphics.centered_rectangle_in_screen(button.area).position;
+                button.position = center_pos.translate({ x:0, y: next_pad_y() });
+            });
+
     }
 
     go_back(){
@@ -204,6 +213,11 @@ class InGameMenu extends fsm.State {
 
         // Draw the UI OVER the fader:
         this.ui.display(canvas_context);
+    }
+
+    on_canvas_resized(){
+        delete this.ui;
+        this._init_ui();
     }
 
 };
@@ -284,6 +298,13 @@ class GameScreen extends fsm.StateMachine {
 
     horrible_death(){
         this.state_machine.push_action("died");
+    }
+
+    on_canvas_resized(){
+        if(this.current_state.on_canvas_resized){
+            this.this.current_state.on_canvas_resized();
+        }
+        this.game_session.on_canvas_resized();
     }
 
 };

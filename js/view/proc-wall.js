@@ -30,7 +30,7 @@ class ProcWallSystem {
             }
         }
         canvas_context.restore();
-        console.log("poks: " + poks);
+        // console.log("poks: " + poks);
     }
 
     add(pwall) {

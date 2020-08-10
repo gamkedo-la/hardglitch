@@ -164,6 +164,17 @@ class Rectangle {
     }
 
     get width(){ return this.size.x; }
+    set width(new_value){
+        console.assert(typeof new_value === "number");
+        console.assert(new_value >= 0);
+        return this.size.x = new_value;
+    }
+
+    set height(new_value){
+        console.assert(typeof new_value === "number");
+        console.assert(new_value >= 0);
+        return this.size.y = new_value;
+    }
     get height(){ return this.size.y; }
 
     get top_left() { return new Vector2(this.position); }

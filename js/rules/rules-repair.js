@@ -20,7 +20,9 @@ class Repair extends concepts.Action {
         super(`repair_${target_position.x}_${target_position.y}`,
                 `Repair ${repair_points} Integrity at ${JSON.stringify(target_position)}`,
                 target_position,
-                repair_ap_cost
+                { // costs
+                    action_points: repair_ap_cost
+                }
                 );
         this.repair_points = repair_points;
     }

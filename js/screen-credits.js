@@ -21,11 +21,12 @@ class Credits {
             position: { x: 30, y: 30 }
         });
 
-        this.back_button = new ui.Button({
+        this.back_button = new ui.TextButton({
+            text: "Back",
             action: on_back_button,
             position: this.title.position.translate({x: 500, y: 0 }),
-            width: 64, height: 64,
-            sprite_def: sprite_defs.button_cancel_action_target_selection,
+            width: 256, height: 64,
+            sprite_def: sprite_defs.button_menu,
             frames: { up: 0, down: 1, over: 2, disabled: 3 },
         });
     }
@@ -44,9 +45,13 @@ class Credits {
 class CreditsScreen extends fsm.State {
     fader = new ScreenFader();
 
+    create_ui(){
+        this.credits = new Credits(()=> this.go_back());
+    }
+
     *enter(){
         if(!this.credits){
-            this.credits = new Credits(()=> this.go_back());
+            this.create_ui();
         }
         yield* this.fader.generate_fade_in();
     }
@@ -75,6 +80,10 @@ class CreditsScreen extends fsm.State {
         this.credits.draw(canvas_context);
 
         this.fader.display(canvas_context);
+    }
+
+    on_canvas_resized(){
+        this.create_ui();
     }
 
 };

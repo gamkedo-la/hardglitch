@@ -5,7 +5,7 @@ export {
     GameInterface,
 };
 
-import { group_per_type } from "./system/utility.js";
+import { group_per_type, invoke_on_members } from "./system/utility.js";
 import * as audio from "./system/audio.js"
 import * as graphics from "./system/graphics.js";
 import * as ui from "./system/ui.js";
@@ -14,6 +14,7 @@ import * as concepts from "./core/concepts.js";
 import { play_action, mouse_grid_position, KEY } from "./game-input.js";
 import { keyboard, mouse, MOUSE_BUTTON } from "./system/input.js";
 import { Vector2, center_in_rectangle } from "./system/spatial.js";
+import { Character, StatValue } from "./core/character.js";
 
 const action_button_size = 50;
 
@@ -21,9 +22,7 @@ class ActionButton extends ui.Button {
     constructor(position, icon_def, action_name, key_name, on_clicked, on_begin_mouse_over, on_end_mouse_over){
         super({ // TODO: add a way to identify the action visually, text + icon
             position: position,
-            width: action_button_size, height: action_button_size,
             sprite_def: sprite_defs.button_select_action,
-            frames: { up: 0, down: 1, over: 2, disabled: 3 },
             action: on_clicked
         });
 
@@ -71,9 +70,7 @@ class CancelActionButton extends ui.Button {
     constructor(action){
         super({ // TODO: add a way to identify the action visually, text + icon
             position: { x: 0, y: 0 },
-            width: action_button_size, height: action_button_size,
             sprite_def: sprite_defs.button_cancel_action_target_selection,
-            frames: { up: 0, down: 1, over: 2, disabled: 3 },
             visible: false,
             action: action,
         });
@@ -105,12 +102,9 @@ class MuteAudioButton extends ui.Button {
     constructor() {
         super({
             sprite_def: sprite_defs.button_mute_audio,
-            frames: { up: 0, down: 1, over: 2, disabled: 3},
             action: audio.toggleMute,
             is_action_on_up: true,
             position: {x: 32, y: 32},
-            width: action_button_size,
-            height: action_button_size,
         });
 
         this.icons = {
@@ -146,12 +140,9 @@ class AutoFocusButton extends ui.Button {
     constructor(toggle_autofocus, is_autofocus_enabled) {
         super({
             sprite_def: sprite_defs.button_mute_audio,
-            frames: { up: 0, down: 1, over: 2, disabled: 3},
             action: toggle_autofocus,
             is_action_on_up: true,
             position: {x: 32, y: 32 + action_button_size + 8 },
-            width: action_button_size,
-            height: action_button_size,
         });
 
         this.is_autofocus_enabled = is_autofocus_enabled;
@@ -183,6 +174,60 @@ class AutoFocusButton extends ui.Button {
 
 }
 
+function update_stat_bar(bar, stat){
+    console.assert(bar instanceof ui.Bar);
+    console.assert(stat instanceof StatValue);
+    bar.max_value = stat.max;
+    bar.value = stat.value;
+}
+
+class CharacterStatus{
+
+    health_bar = new ui.Bar({
+        position: { x: 80, y: graphics.canvas_rect().bottom_right.y - 160 },
+        width: 300, height: 32,
+        bar_name: "Integrity",
+    });
+
+    action_bar = new ui.Bar({
+        position: { x: 80, y: graphics.canvas_rect().bottom_right.y - 100 },
+        width: 300, height: 32,
+        bar_name: "Action Points",
+    });
+
+    constructor(){
+
+    }
+
+    update(delta_time, character){
+        this.character = character;
+        if(!(this.character instanceof Character))
+            return;
+
+        update_stat_bar(this.health_bar, this.character.stats.integrity);
+        update_stat_bar(this.action_bar, this.character.stats.action_points);
+
+        invoke_on_members(this, "update", delta_time);
+    }
+
+    draw(canvas_context){
+        if(!(this.character instanceof Character))
+            return;
+        invoke_on_members(this, "draw", canvas_context);
+    }
+
+    begin_preview_costs(preview_values){
+        this.health_bar.show_preview_value(preview_values.integrity);
+        this.action_bar.show_preview_value(preview_values.action_points);
+    }
+
+    end_preview_costs(){
+        invoke_on_members(this, "hide_preview_value");
+    }
+
+};
+
+
 
 // The interface used by the player when inside the game.
 // NOTE: it's a class instead of just globals because we need to initialize and destroy it
@@ -197,6 +242,7 @@ class GameInterface {
 
     button_mute_audio = new MuteAudioButton();
 
+    character_status = new CharacterStatus();
 
     constructor(config){
         console.assert(config instanceof Object);
@@ -215,7 +261,8 @@ class GameInterface {
     get elements(){
         return Object.values(this)
             .concat(this._action_buttons)
-            .filter(element => element instanceof ui.UIElement);
+            .filter(element => element instanceof ui.UIElement)
+            .concat([ this.character_status ]);
     }
 
     is_under(position){
@@ -230,8 +277,8 @@ class GameInterface {
         return this._selected_action !== undefined;
     }
 
-    update(delta_time){
-        this.elements.map(element => element.update(delta_time));
+    update(delta_time, current_character){
+        this.elements.map(element => element.update(delta_time, current_character));
         this._handle_action_target_selection(delta_time);
     }
 
@@ -253,7 +300,7 @@ class GameInterface {
 
         // ... then we build the buttons with the associated informations.
 
-        const space_between_buttons = action_button_size + 5;
+        const space_between_buttons = action_button_size + 8;
         const canvas_rect = graphics.canvas_rect();
         const line_y = canvas_rect.bottom_right.y - 160;
         let line_x = (canvas_rect.width / 2) - (Math.floor((Object.keys(actions_per_types).length / 2) + 1) * space_between_buttons);

@@ -18,13 +18,6 @@ const game_assets = { // Description of the assets to load.
         asset_loader : asset_system.image_loader, // This is the function that will be used to convert the following data into usable objects.
         player: "./images/virus.png",
         test_enemy: "./images/test_enemy.png",
-        warrior: "./images/warrior.png",
-        door : "./images/world_door.png",
-        goal : "./images/world_goal.png",
-        ground : "./images/world_ground.png",
-        void : "./images/world_void.png",
-        key : "./images/world_key.png",
-        wall : "./images/world_wall.png",
         tileset_entry_exit : "./images/portalinout.png",
         ground_template : "./images/ground_template.png",
         void_template : "./images/void_template.png",

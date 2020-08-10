@@ -46,6 +46,10 @@ class GameSession {
         this.view.render_graphics(canvas_context);
     }
 
+    on_canvas_resized(){
+        this.view.on_canvas_resized();
+    }
+
 };
 
 
