@@ -231,7 +231,7 @@ function not(predicate){
 
 // Invoke a function with parametters to all members of an object that have that function.
 function invoke_on_members(object, function_name, ...args){
-    Object.values(object)
-        .filter(member => member instanceof Object && member[function_name] instanceof Function)
-        .map(member => member[function_name](...args));
+    return Object.values(object)
+            .filter(member => member instanceof Object && member[function_name] instanceof Function)
+            .map(member => member[function_name](...args));
 }

@@ -19,6 +19,8 @@ import { mouse_grid_position, mouse_game_position, KEY, play_action } from "./ga
 import { Character } from "./core/character.js";
 import { random_float } from "./system/utility.js";
 import { GameSession } from "./game-session.js";
+import { sprite_defs } from "./game-assets.js";
+import { Vector2_origin } from "./system/spatial.js";
 
 let is_enabled = false; // TURN THIS ON TO SEE THE EDITOR, see the update() function below
 let is_editing = false; // True if we are doing an edition manipulation and no other input should be handled.
@@ -113,9 +115,109 @@ function display_mouse_position(){
     draw_text(`FRAMES LEFT MOUSE BUTTON ${lmb_down_frames}`, {x: display_x, y: next_line() });
 }
 
-function update_world_edition(game_session){
+class EditPaletteButton extends ui.Button {
+    constructor(button_def){
+        super(Object.assign(button_def, {
+            position: Vector2_origin,
+            sprite_def: sprite_defs.button_select_action,
+        }));
+
+        console.assert(typeof button_def.text === "string");
+
+        this.helptext = new ui.HelpText({
+            text: button_def.text,
+            area_to_help: this.area,
+            delay_ms: 0,
+        });
+
+    }
+
+    get position() { return super.position; }
+    set position(new_pos) {
+        super.position = new_pos;
+        this.helptext.area_to_help = this.area;
+    }
+
+};
+
+class EditionPaletteUI {
+
+    button_no_selection = new EditPaletteButton({
+        text: "No Selection",
+        action: ()=>{ console.log("EDITOR: SELECTED 'NO SELECTION'"); }
+    });
+
+    button_remove_entity = new EditPaletteButton({
+        text: "Remove Entity",
+        action: ()=>{ console.log("EDITOR: SELECTED 'REMOVE ENTITY'"); }
+    });
+
+    constructor(){
+
+        this.palette_buttons = [];
+
+        // TODO: add buttons for each thing you can do here.
+        for(let idx = 0; idx < 20; ++idx){
+            this.palette_buttons.push(new EditPaletteButton({
+                text: `button_${idx}`,
+                action: ()=>{
+                    console.log(`EDITOR: SELECTED '${idx}'`);
+                }
+            }));
+        }
+
+        // Make sure these buttons are at the end. (TODO: consider moving them to a separate position)
+        this.palette_buttons.push(this.button_remove_entity, this.button_no_selection);
+
+
+        // Place all the palette buttons in columns.
+        const buttons_per_column = 8;
+        const column_width = this.button_no_selection.width + 4;
+        const row_height = this.button_no_selection.height + 4;
+        const initial_position = { x: 20, y: 200 };
+        let next_button_x = initial_position.x;
+        let next_button_y = initial_position.y;
+        let buttons_count = 0;
+
+        const next_button_position = ()=>{
+            const new_position = { x: next_button_x, y: next_button_y };
+            ++buttons_count;
+            if(buttons_count > 1 && buttons_count % buttons_per_column === 0){
+                next_button_x += column_width;
+                next_button_y = initial_position.y;
+            } else {
+                next_button_y += row_height;
+            }
+            return new_position;
+        };
+
+        this.palette_buttons.forEach(palette_button => {
+            palette_button.position = next_button_position();
+        });
+
+    }
+
+    update(delta_time){
+        this.palette_buttons.forEach(palette_button =>  palette_button.update(delta_time));
+    }
+
+    display(canvas_context){
+        graphics.camera.begin_in_screen_rendering();
+        this.palette_buttons.forEach(palette_button =>  palette_button.draw(canvas_context));
+        graphics.camera.end_in_screen_rendering();
+    }
+
+};
+
+let edition_palette;
+
+function update_world_edition(game_session, delta_time){
     console.assert(game_session instanceof GameSession);
+    console.assert(typeof delta_time === "number");
+    console.assert(edition_palette instanceof EditionPaletteUI);
     // TODO: use a map of input pattern => action
+
+    edition_palette.update(delta_time);
 
     is_editing = input.keyboard.is_any_key_down();
     if(!is_editing)
@@ -343,6 +445,9 @@ function display_debug_info(game_session){
 
 function display(game_session){
     display_debug_info(game_session);
+    if(edition_palette){
+        edition_palette.display(graphics.screen_canvas_context);
+    }
 }
 
 function update_debug_keys(game_session){
@@ -410,16 +515,18 @@ function update_debug_keys(game_session){
     }
 }
 
-function update(game_session){
+function update(game_session, delta_time){
     update_debug_keys(game_session);
     if(is_enabled)
-        update_world_edition(game_session);
+        update_world_edition(game_session, delta_time);
 }
 
 function begin_edition(game_session){
     console.assert(game_session instanceof GameSession);
 
     game_session.view.enable_edition = true;
+
+    edition_palette = new EditionPaletteUI();
 
     is_enabled = true;
 
@@ -434,6 +541,8 @@ function end_edition(game_session){
     game_session.view.enable_fog_of_war = was_fog_of_war_activated;
     game_session.view.enable_tile_rendering_debug = false;
     game_session.view.enable_edition = false;
+
+    edition_palette = undefined;
 
     is_enabled = false;
 }
