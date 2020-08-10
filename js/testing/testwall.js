@@ -221,19 +221,20 @@ class Env {
 
         // test wall model
         this.ctx.fillStyle = "black";
-        this.ctx.fillRect(32*20,0, 32*12,32*8);
-        drawGrid(this.ctx, 32*20, 0, 12, 8, 32, 32, "gray");
+        this.ctx.fillRect(32*8,0, 32*24,32*8);
+        drawGrid(this.ctx, 32*8, 0, 24, 8, 32, 32, "gray");
         let models = [ 
             new WallModel(4, 16, 0),
             new WallModel(8, 16, 0),
             new WallModel(16, 16, 0),
             new WallModel(8, 16, 4),
             new WallModel(16, 16, 4),
+            new WallModel(4, 16, 2),
         ];
-        let shapes = ["ttl", "t", "l", "ltts", "ltt", "oltt", "ltte", "ltb", "b"];
+        let shapes = ["ttl", "t", "l", "ltts", "ltt", "oltt", "ltte", "ltb", "b", "btls", "btl", "obtl", "btle", "btr", "r", "rtbs", "rtb", "ortb", "rtbe", "rtt", "ttrs", "ttr", "ottr", "ttre"];
         for (let j=0; j<models.length; j++) {
             for (let i=0; i<shapes.length; i++) {
-                let pos = {x:32*(20+i), y:32*j};
+                let pos = {x:32*(8+i), y:32*j};
                 let walls = models[j].getBottomFaces(pos, shapes[i]);
                 for (const wall of walls) {
                     this.ctx.fillStyle = "red";
@@ -241,19 +242,7 @@ class Env {
                 }
             }
         }
-        drawGrid(this.ctx, 32*20, 0, 24, 16, 16, 16, new Color(127,127,127,.25));
-
-        /*
-        this.ctx.fillRect(32*20,32*4, 32, 32);
-        let path = new Path2D();
-        path.moveTo(32*20, 32*5);
-        path.lineTo(32*20+32, 32*5);
-        path.lineTo(32*20+32, 32*5+32);
-        path.lineTo(32*20, 32*5+32);
-        path.closePath();
-        this.ctx.fillRect(32*20,32*4, 32, 32);
-        this.ctx.fill(path);
-        */
+        drawGrid(this.ctx, 32*8, 0, 48, 16, 16, 16, new Color(127,127,127,.25));
 
     }
 }
