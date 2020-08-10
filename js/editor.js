@@ -20,7 +20,7 @@ import { Character } from "./core/character.js";
 import { random_float } from "./system/utility.js";
 import { GameSession } from "./game-session.js";
 import { sprite_defs } from "./game-assets.js";
-import { Vector2_origin } from "./system/spatial.js";
+import { Vector2_origin, Vector2 } from "./system/spatial.js";
 
 let is_enabled = false; // TURN THIS ON TO SEE THE EDITOR, see the update() function below
 let is_editing = false; // True if we are doing an edition manipulation and no other input should be handled.
@@ -115,21 +115,33 @@ function display_mouse_position(){
     draw_text(`FRAMES LEFT MOUSE BUTTON ${lmb_down_frames}`, {x: display_x, y: next_line() });
 }
 
+let edit_action; // Function that will be called when we click on something IFF we selected an action.
+
 class EditPaletteButton extends ui.Button {
-    constructor(button_def){
-        super(Object.assign(button_def, {
+    constructor(text, edit_action){
+        console.assert(typeof text === "string");
+        console.assert(edit_action === undefined || edit_action instanceof Function);
+
+        super({
             position: Vector2_origin,
             sprite_def: sprite_defs.button_select_action,
-        }));
-
-        console.assert(typeof button_def.text === "string");
+            action: ()=> { this.on_selected(); }
+        });
 
         this.helptext = new ui.HelpText({
-            text: button_def.text,
+            text: text,
             area_to_help: this.area,
             delay_ms: 0,
         });
 
+        this._edit_action = edit_action;
+
+    }
+
+    on_selected(){
+        edition_palette.unlock_buttons();
+        this.enabled = false;
+        console.log(`EDITOR PALETTE BUTTON SELECTED : ${this.text}`);
     }
 
     get position() { return super.position; }
@@ -138,19 +150,15 @@ class EditPaletteButton extends ui.Button {
         this.helptext.area_to_help = this.area;
     }
 
+    get text() { return this.helptext.text; }
+
 };
 
 class EditionPaletteUI {
 
-    button_no_selection = new EditPaletteButton({
-        text: "No Selection",
-        action: ()=>{ console.log("EDITOR: SELECTED 'NO SELECTION'"); }
-    });
+    button_no_selection = new EditPaletteButton("No Selection");
 
-    button_remove_entity = new EditPaletteButton({
-        text: "Remove Entity",
-        action: ()=>{ console.log("EDITOR: SELECTED 'REMOVE ENTITY'"); }
-    });
+    button_remove_entity = new EditPaletteButton("Remove Entity");
 
     constructor(){
 
@@ -158,12 +166,7 @@ class EditionPaletteUI {
 
         // TODO: add buttons for each thing you can do here.
         for(let idx = 0; idx < 20; ++idx){
-            this.palette_buttons.push(new EditPaletteButton({
-                text: `button_${idx}`,
-                action: ()=>{
-                    console.log(`EDITOR: SELECTED '${idx}'`);
-                }
-            }));
+            this.palette_buttons.push(new EditPaletteButton(`button_${idx}`));
         }
 
         // Make sure these buttons are at the end. (TODO: consider moving them to a separate position)
@@ -172,9 +175,9 @@ class EditionPaletteUI {
 
         // Place all the palette buttons in columns.
         const buttons_per_column = 8;
-        const column_width = this.button_no_selection.width + 4;
-        const row_height = this.button_no_selection.height + 4;
-        const initial_position = { x: 20, y: 200 };
+        const column_width = this.button_no_selection.width /*+ 4*/;
+        const row_height = this.button_no_selection.height /*+ 4*/;
+        const initial_position = new Vector2({ x: 20, y: 200 });
         let next_button_x = initial_position.x;
         let next_button_y = initial_position.y;
         let buttons_count = 0;
@@ -193,8 +196,8 @@ class EditionPaletteUI {
 
         this.palette_buttons.forEach(palette_button => {
             palette_button.position = next_button_position();
+            palette_button.helptext.position = initial_position.translate({ x: 0, y: -40 });
         });
-
     }
 
     update(delta_time){
@@ -205,6 +208,10 @@ class EditionPaletteUI {
         graphics.camera.begin_in_screen_rendering();
         this.palette_buttons.forEach(palette_button =>  palette_button.draw(canvas_context));
         graphics.camera.end_in_screen_rendering();
+    }
+
+    unlock_buttons(){
+        this.palette_buttons.forEach(palette_button=> palette_button.enabled = true);
     }
 
 };
@@ -527,6 +534,7 @@ function begin_edition(game_session){
     game_session.view.enable_edition = true;
 
     edition_palette = new EditionPaletteUI();
+    edition_palette.button_no_selection.on_selected(); // No palette button selected by default.
 
     is_enabled = true;
 
