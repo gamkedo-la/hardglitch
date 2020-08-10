@@ -37,6 +37,10 @@ class MainMenu {
             action: ()=> { state_machine.push_action("new_game", "test"); },
             position: Vector2_origin,
             sprite_def: sprite_defs.button_menu,
+            sounds:{
+                over: 'selectButton',
+                down: 'clickButton',
+            }
         });
 
         this.button_credits = new ui.TextButton({
@@ -44,6 +48,10 @@ class MainMenu {
             action: ()=> { state_machine.push_action("credits"); },
             position: Vector2_origin,
             sprite_def: sprite_defs.button_menu,
+            sounds:{
+                over: 'selectButton',
+                down: 'clickButton',
+            }
         });
 
 
