@@ -20,6 +20,7 @@ import { in_parallel } from "./system/animation.js";
 import { Vector2 } from "./system/spatial.js";
 import { GameView } from "./game-view.js";
 import { GameFxView } from "./game-effects.js";
+import * as audio from "./system/audio.js";
 
 const default_move_duration_ms = 250;
 const default_destruction_duration_ms = 666;
@@ -33,6 +34,7 @@ function* translate(thing_with_position, target_gfx_pos, duration_ms, easing){
 function* move(entity_view, target_game_position, duration_ms=default_move_duration_ms){
     console.assert(entity_view instanceof EntityView);
     const target_gfx_pos = graphic_position(target_game_position);
+    audio.playEvent('moveAction');
     yield* translate(entity_view, target_gfx_pos, duration_ms);
     entity_view.game_position = target_game_position;
 }
