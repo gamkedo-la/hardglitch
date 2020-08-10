@@ -211,7 +211,9 @@ class Swap extends concepts.Action {
 
     constructor(target){
         console.assert(target instanceof concepts.Position);
-        super(`swap_${target.x}_${target.y}`, `Swap with ${JSON.stringify(target)}`, target, 10);
+        super(`swap_${target.x}_${target.y}`, `Swap with ${JSON.stringify(target)}`, target, {
+            action_points: 10
+        });
         this.target = target
     }
 
