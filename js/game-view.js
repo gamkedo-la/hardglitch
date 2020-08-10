@@ -57,8 +57,6 @@ class Highlight{
         }
         this.position = position;
         this.events = events;
-
-
     }
 
     set position(new_pos) {
@@ -94,18 +92,6 @@ class Highlight{
                 this._help_text.position = text_pos;
             }
         }
-    }
-
-    draw(canvas_context){
-        // if(!graphics.camera.can_see(this._sprite.area)) // TODO: this is buggy, check why
-        //     return;
-        console.assert(!graphics.camera.is_rendering_in_screen);
-        if(!this.enabled)
-            return;
-
-        this._sprite.position = graphic_position(this._position); // BEWARE: We share the sprite with other highlights so we need to reposition it before each redraw.
-        this._sprite.draw(canvas_context);
-        this._drawn_since_last_update = true;
 
         if(this.events){
             if(this._help_text.is_mouse_over_area_to_help){
@@ -120,6 +106,19 @@ class Highlight{
                 }
             }
         }
+    }
+
+    draw(canvas_context){
+        // if(!graphics.camera.can_see(this._sprite.area)) // TODO: this is buggy, check why
+        //     return;
+        console.assert(!graphics.camera.is_rendering_in_screen);
+        if(!this.enabled)
+            return;
+
+        this._sprite.position = graphic_position(this._position); // BEWARE: We share the sprite with other highlights so we need to reposition it before each redraw.
+        this._sprite.draw(canvas_context);
+        this._drawn_since_last_update = true;
+
     }
 
     draw_help(){
@@ -301,6 +300,7 @@ class GameView {
     }
 
     clear_highlights_basic_actions(){
+        this.ui.character_status.end_preview_costs();
         this.player_actions_highlights = [];
     }
 

@@ -664,16 +664,5 @@ class Bar extends UIElement {
         delete this._preview_rect;
     }
 
-    // Called when this.visible is changed from hidden (false) to visible (true).
-    _on_visible(){  }
-
-    // Called when this.visible is changed from visible (true) to hidden (false).
-    _on_hidden(){  }
-
-    // Called when this.enabled is changed from disabled (false) to enabled (true).
-    _on_enabled(){  }
-
-    // Called when this.enabled is changed from enabled (true) to disabled (false).
-    _on_disabled(){  }
 }
 
