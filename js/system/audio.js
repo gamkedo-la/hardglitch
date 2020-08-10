@@ -26,6 +26,87 @@ const event_defs = {
         unique: false,
     },
 
+    'selectButton': {
+        source_type: 'audiobuffer',
+        source_name: 'select',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
+    'clickButton': {
+        source_type: 'audiobuffer',
+        source_name: 'click',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
+    'deleteAction': {
+        source_type: 'audiobuffer',
+        source_name: 'delete',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
+    'destroyAction': {
+        source_type: 'audiobuffer',
+        source_name: 'destroy',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
+    'errorAction': {
+        source_type: 'audiobuffer',
+        source_name: 'error',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
+    'exit_bus': {
+        source_type: 'audiobuffer',
+        source_name: 'exitbus',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
+    'jumpAction': {
+        source_type: 'audiobuffer',
+        source_name: 'jump',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
+    'moveAction': {
+        source_type: 'audiobuffer',
+        source_name: 'move',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
+    'repairAction': {
+        source_type: 'audiobuffer',
+        source_name: 'repair',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
     'streamtest': {
         source_type: 'audiostream',
         source_name: 'test',
