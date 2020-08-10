@@ -54,6 +54,15 @@ const game_assets = { // Description of the assets to load.
     audio_buffers: { // Short audio assets held in memory. No hard limit on duplicates/overlaps.
         asset_loader: asset_system.audiobuffer_loader,
         test: './audio/test.mp3',
+        click: './audio/Click.mp3',
+        delete: './audio/Delete.mp3',
+        destroy: './audio/Destroy.mp3',
+        error: './audio/Error.mp3',
+        exitbus: './audio/ExitBus.mp3',
+        jump: './audio/Jump.mp3',
+        move: './audio/Move.mp3',
+        repair: './audio/Repair-001.mp3',
+        select: './audio/Select-001.mp3',
     },
 
     audio_streams: { // Longer audio assets streamed from disk/server. Currently limited to one unique event per audio source.
