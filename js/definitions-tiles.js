@@ -4,6 +4,7 @@
 export {
     ID, defs, tile_sprite_defs as sprite_defs,
     is_walkable, is_safely_walkable, is_safe, is_blocking_view, info_text,
+    floor_tiles, surface_tiles
 }
 
 import { sprite_defs, tile_id, tile_defs } from "./game-assets.js";
@@ -20,6 +21,14 @@ const ID = {
     VOID: 30,
     HOLE: 40,
 };
+
+const floor_tiles = [
+    ID.GROUND, ID.WALL, ID.VOID, ID.HOLE
+];
+
+const surface_tiles = [
+    ID.ENTRY, ID.EXIT,
+];
 
 
 // Tile Types Descritions:

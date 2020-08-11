@@ -23,6 +23,7 @@ import { GameSession } from "./game-session.js";
 import { sprite_defs } from "./game-assets.js";
 import { Vector2_origin, Vector2 } from "./system/spatial.js";
 import { Grid } from "./system/grid.js";
+import { all_characters_types } from "./deflinitions-characters.js";
 
 let is_enabled = false; // TURN THIS ON TO SEE THE EDITOR, see the update() function below
 let is_editing = false; // True if we are doing an edition manipulation and no other input should be handled.
@@ -147,13 +148,15 @@ function make_edit_operation_add_entity_at(entity_type){
 }
 
 
-function make_edit_operation_change_tile(tile_id, tile_grid){
-    console.assert(tile_id);
-    console.assert(tile_grid instanceof Grid);
+function make_edit_operation_change_tile(tile_id, worl_tile_grid_id){
+    console.assert(Number.isInteger(tile_id));
+    console.assert(typeof worl_tile_grid_id === "string");
     return (game_session, position) => {
         console.assert(game_session instanceof GameSession);
         console.assert(position);
 
+        const tile_grid = game_session.world[worl_tile_grid_id];
+        console.assert(tile_grid instanceof Grid);
         if(tile_grid.get_at(position) != tile_id){
             tile_grid.set_at(tile_id, position);
             console.assert(`CHANGE TILE TO ${tile_id} ENTITY`);
@@ -209,14 +212,28 @@ class EditionPaletteUI {
 
     button_remove_entity = new EditPaletteButton("Remove Entity", make_edit_operation_remove_any_entity_at());
 
-    constructor(){
+    constructor(game_session){
+        console.assert(game_session instanceof GameSession);
 
         this.palette_buttons = [];
 
-        // TODO: add buttons for each thing you can do here.
-        for(let idx = 0; idx < 20; ++idx){
-            this.palette_buttons.push(new EditPaletteButton(`button_${idx}`));
-        }
+        // Fill our palette with buttons!
+        this.palette_buttons.push( ...tiles.floor_tiles.map(tile_id => {
+            return new EditPaletteButton(`Floor Tile: ${tiles.defs[tile_id].description}`, make_edit_operation_change_tile(tile_id, "_floor_tile_grid"));
+        }));
+
+        this.palette_buttons.push( ...tiles.surface_tiles.map(tile_id => {
+            return new EditPaletteButton(`Surface Tile: ${tiles.defs[tile_id].description}`, make_edit_operation_change_tile(tile_id, "_surface_tile_grid"));
+        }));
+
+        this.palette_buttons.push( ...items.all_item_types().map(item_type => {
+            return new EditPaletteButton(`Item: ${item_type.name}`, make_edit_operation_add_entity_at(item_type));
+        }));
+
+        this.palette_buttons.push( ...all_characters_types().map(character_type => {
+            return new EditPaletteButton(`Character: ${character_type.name}`, make_edit_operation_add_entity_at(character_type));
+        }));
+
 
         // Make sure these buttons are at the end. (TODO: consider moving them to a separate position)
         this.palette_buttons.push(this.button_remove_entity, this.button_no_selection);
@@ -525,7 +542,7 @@ function begin_edition(game_session){
 
     game_session.view.enable_edition = true;
 
-    edition_palette = new EditionPaletteUI();
+    edition_palette = new EditionPaletteUI(game_session);
     edition_palette.button_no_selection.on_selected(); // No palette button selected by default.
 
     is_enabled = true;

@@ -3,10 +3,22 @@ export {
     CryptoFile,
     CryptoKey,
     MovableWall,
+    all_item_types,
 }
 
 import * as concepts from "./core/concepts.js";
 import { sprite_defs } from "./game-assets.js";
+
+
+
+function all_item_types(){
+    return [
+        CryptoFile,
+        CryptoKey,
+        MovableWall,
+    ];
+}
+
 
 
 // TODO: maybe have a separate file for cryptyfile & cryptokey
@@ -57,3 +69,4 @@ class MovableWall extends concepts.Item {
     }
 
 };
+
