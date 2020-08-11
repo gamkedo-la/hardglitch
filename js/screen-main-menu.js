@@ -26,9 +26,8 @@ class MainMenu {
             position: Vector2_origin,
             sprite_def: sprite_defs.button_menu,
             sounds:{
-                over: 'buffertest',
-                down: 'buffertest',
-                action: 'buffertest',
+                over: 'selectButton',
+                down: 'clickButton',
             },
         });
 
