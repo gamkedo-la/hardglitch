@@ -280,6 +280,10 @@ class EditionPaletteUI {
         this.palette_buttons.forEach(palette_button=> palette_button.enabled = true);
     }
 
+    unselect_edit_action(){
+        this.button_no_selection.on_selected();
+    }
+
 };
 
 let edition_palette;
@@ -292,18 +296,26 @@ function update_world_edition(game_session, delta_time){
 
     edition_palette.update(delta_time);
 
+    is_editing = false;
+
     const mouse_grid_pos = mouse_grid_position();
     if(!mouse_grid_pos)
         return;
 
     if(current_edit_action){
-        if(input.mouse.buttons.is_down(input.MOUSE_BUTTON.LEFT)){
+        is_editing = !input.keyboard.is_down(KEY.SPACE); // Allow grabbing the camera if [SPACE] is pressed.
+
+        if(is_editing && input.mouse.buttons.is_down(input.MOUSE_BUTTON.LEFT)){
             const world_was_edited = current_edit_action(game_session, mouse_grid_pos);
             if(world_was_edited)
                 game_session.view.notify_edition();
         }
-    }
 
+        if(input.keyboard.is_just_down(KEY.ESCAPE)){
+            edition_palette.unselect_edit_action();
+        }
+
+    }
 }
 
 const help_text_x_from_right_side = 500;
@@ -372,7 +384,15 @@ function display_editor_help(){
     if(!input.mouse.is_dragging)
 
     draw_text("[F1]  - HELP", {x: display_x, y: next_line() });
-    draw_text("[F2] OR [ESC] - EXIT EDITOR MODE", {x: display_x, y: next_line() });
+
+    if(current_edit_action){
+        draw_text("[F2] - EXIT EDITOR MODE", {x: display_x, y: next_line() });
+        draw_text("[ESC] - DESELECT EDIT ACTION", {x: display_x, y: next_line() });
+        draw_text("[SPACE] TO DRAG THE CAMERA", {x: display_x, y: next_line() });
+    } else {
+        draw_text("[F2] OR [ESC] - EXIT EDITOR MODE", {x: display_x, y: next_line() });
+    }
+
     if(!display_help_info)
         return;
 
@@ -543,7 +563,7 @@ function begin_edition(game_session){
     game_session.view.enable_edition = true;
 
     edition_palette = new EditionPaletteUI(game_session);
-    edition_palette.button_no_selection.on_selected(); // No palette button selected by default.
+    edition_palette.unselect_edit_action(); // No palette button selected by default.
 
     is_enabled = true;
 

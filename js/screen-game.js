@@ -99,14 +99,17 @@ class EditorMode extends fsm.State {
     update(delta_time){
         this.fader.update(delta_time);
 
-        this.game_session.update(delta_time, {
-            is_player_action_allowed: false,
-            is_camera_dragging_allowed: true,
-        });
-
         editor.update(this.game_session, delta_time);
 
-        if(input.keyboard.is_just_down(KEY.ESCAPE) || input.keyboard.is_just_down(KEY.F2)){
+        this.game_session.update(delta_time, {
+            is_player_action_allowed: false,
+            is_camera_dragging_allowed: !editor.is_editing,
+        });
+
+
+        if(input.keyboard.is_just_down(KEY.F2)
+        || (input.keyboard.is_just_down(KEY.ESCAPE) && !editor.is_editing)
+        ){
             this.state_machine.push_action("back");
         }
     }
