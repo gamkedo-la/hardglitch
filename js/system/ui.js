@@ -639,7 +639,7 @@ class Bar extends UIElement {
     }
 
     show_preview_value(value){
-        if(value === undefined)
+        if(value === undefined || !this._value_rect)
             return;
 
         this.hide_preview_value();
