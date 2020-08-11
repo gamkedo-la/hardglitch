@@ -682,9 +682,13 @@ class GameView {
         this._require_tiles_update = true;
 
         this.highlight_available_basic_actions();
-        this.ui.show_action_buttons(Object.values(this.game.turn_info.possible_actions));
+        this.update_ui();
 
         this._requires_reset = false;
+    }
+
+    update_ui(){
+        this.ui.show_action_buttons(Object.values(this.game.turn_info.possible_actions));
     }
 
     on_canvas_resized(){

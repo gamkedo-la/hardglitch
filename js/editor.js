@@ -578,6 +578,7 @@ function end_edition(game_session){
     game_session.view.enable_fog_of_war = was_fog_of_war_activated;
     game_session.view.enable_tile_rendering_debug = false;
     game_session.view.enable_edition = false;
+    game_session.view.update_ui();
 
     current_edit_action = undefined;
     edition_palette = undefined;
