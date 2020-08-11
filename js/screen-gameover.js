@@ -33,7 +33,11 @@ class GameOverScreen_Success extends fsm.State {
                 text: "Continue [ANY KEY]",
                 position: Vector2_origin,
                 sprite_def: sprite_defs.button_menu,
-                action: ()=> { this.go_to_next_screen(); }
+                action: ()=> { this.go_to_next_screen(); },
+                sounds:{
+                    over: 'selectButton',
+                    down: 'clickButton',
+                }
             }),
         };
         // Center the buttons in the screen.
@@ -113,12 +117,20 @@ class GameOverScreen_Failure extends fsm.State {
                 position: Vector2_origin,
                 sprite_def: sprite_defs.button_menu,
                 action: ()=> { this.retry_new_game(); },
+                sounds:{
+                    over: 'selectButton',
+                    down: 'clickButton',
+                }
             }),
             button_back : new ui.TextButton({
                 text: "Main Menu [ESC]",
                 position: Vector2_origin,
                 sprite_def: sprite_defs.button_menu,
-                action: ()=> { this.back_to_main_menu(); }
+                action: ()=> { this.back_to_main_menu(); },
+                sounds:{
+                    over: 'selectButton',
+                    down: 'clickButton',
+                }
             }),
         };
         // Center the buttons in the screen.
