@@ -35,6 +35,7 @@ const KEY = {
     LEFT_CTRL:17,
     ESCAPE:27,
     ENTER: 13,
+    TAB: 9,
     W: 87,
     A: 65,
     S: 83,

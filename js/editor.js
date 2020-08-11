@@ -311,7 +311,7 @@ function update_world_edition(game_session, delta_time){
                 game_session.view.notify_edition();
         }
 
-        if(input.keyboard.is_just_down(KEY.ESCAPE)){
+        if(input.keyboard.is_just_down(KEY.TAB)){
             edition_palette.unselect_edit_action();
         }
 
@@ -336,14 +336,14 @@ function display_help(game_session){
 
     const is_selecting_action_target = game_session.view.ui.is_selecting_action_target;
     if(!is_selecting_action_target){
-        draw_text("[ESC]  - MENU", {x: display_x, y: next_line() });
+        draw_text("[TAB]  - MENU", {x: display_x, y: next_line() });
     }
 
     if(!display_help_info)
         return;
 
     if(is_selecting_action_target){
-        draw_text("[ESC] - CANCEL TARGET SELECTION", {x: display_x, y: next_line() });
+        draw_text("[TAB] - CANCEL TARGET SELECTION", {x: display_x, y: next_line() });
     } else {
         if(game_session.view.is_time_for_player_to_chose_action
         && !input.mouse.is_dragging
@@ -387,10 +387,10 @@ function display_editor_help(){
 
     if(current_edit_action){
         draw_text("[F2] - EXIT EDITOR MODE", {x: display_x, y: next_line() });
-        draw_text("[ESC] - DESELECT EDIT ACTION", {x: display_x, y: next_line() });
+        draw_text("[TAB] - DESELECT EDIT ACTION", {x: display_x, y: next_line() });
         draw_text("[SPACE] TO DRAG THE CAMERA", {x: display_x, y: next_line() });
     } else {
-        draw_text("[F2] OR [ESC] - EXIT EDITOR MODE", {x: display_x, y: next_line() });
+        draw_text("[F2] OR [TAB] - EXIT EDITOR MODE", {x: display_x, y: next_line() });
     }
 
     if(!display_help_info)

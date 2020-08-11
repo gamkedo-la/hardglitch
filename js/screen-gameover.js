@@ -123,7 +123,7 @@ class GameOverScreen_Failure extends fsm.State {
                 }
             }),
             button_back : new ui.TextButton({
-                text: "Main Menu [ESC]",
+                text: "Main Menu [TAB]",
                 position: Vector2_origin,
                 sprite_def: sprite_defs.button_menu,
                 action: ()=> { this.back_to_main_menu(); },
