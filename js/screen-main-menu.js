@@ -65,8 +65,8 @@ class MainMenu {
         });
 
 
-        const space_between_buttons = 80;
-        let next_button_y_drift = 100;
+        const space_between_buttons = this.button_new_game.height + 6;
+        let next_button_y_drift = 40;
         const button_y_drift = () => next_button_y_drift += space_between_buttons;
         const bottom_y = graphics.canvas_rect().bottom_right.y;
         Object.values(this).filter(element => element instanceof ui.Button)
