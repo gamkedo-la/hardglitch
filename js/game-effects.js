@@ -116,7 +116,7 @@ class GameFxView {
     }
 
     deleteBall(position){
-        const effect = new ParticleEmitter(this.particleSystem, 0, 0, (emitter) => {
+        const effect = new ParticleEmitter(this.particleSystem, position.x, position.y, (emitter) => {
             let angle = random_float(0,Math.PI*2);
             let distance = random_int(35,50);
             let targetx = position.x + Math.cos(angle) * distance;
