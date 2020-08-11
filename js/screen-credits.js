@@ -28,6 +28,10 @@ class Credits {
             width: 256, height: 64,
             sprite_def: sprite_defs.button_menu,
             frames: { up: 0, down: 1, over: 2, disabled: 3 },
+            sounds:{
+                over: 'selectButton',
+                down: 'clickButton',
+            }
         });
     }
 
