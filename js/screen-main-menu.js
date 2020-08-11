@@ -22,7 +22,7 @@ class MainMenu {
         this.button_new_game = new ui.TextButton({
             text: "New Game",
             color: "#ffffff",
-            action: ()=> { state_machine.push_action("new_game"); },
+            action: ()=> { state_machine.push_action("new_game", "test"); },
             position: Vector2_origin,
             sprite_def: sprite_defs.button_menu,
             sounds:{
@@ -31,8 +31,19 @@ class MainMenu {
             },
         });
 
+        this.button_empty_level = new ui.TextButton({
+            text: "Empty Small Level",
+            action: ()=> { state_machine.push_action("new_game"); },
+            position: Vector2_origin,
+            sprite_def: sprite_defs.button_menu,
+            sounds:{
+                over: 'selectButton',
+                down: 'clickButton',
+            }
+        });
+
         this.button_test_level = new ui.TextButton({
-            text: "Test Level",
+            text: "Random Test Level",
             action: ()=> { state_machine.push_action("new_game", "test"); },
             position: Vector2_origin,
             sprite_def: sprite_defs.button_menu,
