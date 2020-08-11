@@ -291,10 +291,23 @@ class World
     }
 
     remove_entity(...ids){
+        let removed_count = 0;
+
+        const remove = (entity_id, entity_set)=>{
+            if(entity_set[entity_id] instanceof Entity){
+                delete entity_set[entity_id];
+                ++removed_count;
+                return true;
+            }
+            else return false;
+        };
+
         for(const entity_id of ids){
-            delete this._bodies[entity_id];
-            delete this._items[entity_id];
+            if(!remove(entity_id, this._items))
+                remove(entity_id, this._bodies);
         }
+
+        return removed_count;
     }
 
     remove_entity_at(...positions){
@@ -304,7 +317,7 @@ class World
             if(entity)
                 entity_ids_to_remove.push(entity.id);
         }
-        this.remove_entity(...entity_ids_to_remove);
+        return this.remove_entity(...entity_ids_to_remove);
     }
 
     // Set a list of rules that should be ordered as they should be applied.

@@ -28,6 +28,8 @@ class GameSession {
     get is_game_finished() { return this.game.is_finished; }
     get is_any_player_character_alive() { return this.game.player_characters.length > 0; }
 
+    get world() { return this.game.world; }
+
     start(){
         game_input.begin_game(this);
     }

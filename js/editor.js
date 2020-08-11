@@ -8,6 +8,7 @@ export {
     clear,
 };
 
+import * as concepts from "./core/concepts.js";
 import * as audio from "./system/audio.js";
 import * as graphics from "./system/graphics.js";
 import * as input from "./system/input.js";
@@ -21,6 +22,7 @@ import { random_float } from "./system/utility.js";
 import { GameSession } from "./game-session.js";
 import { sprite_defs } from "./game-assets.js";
 import { Vector2_origin, Vector2 } from "./system/spatial.js";
+import { Grid } from "./system/grid.js";
 
 let is_enabled = false; // TURN THIS ON TO SEE THE EDITOR, see the update() function below
 let is_editing = false; // True if we are doing an edition manipulation and no other input should be handled.
@@ -115,7 +117,53 @@ function display_mouse_position(){
     draw_text(`FRAMES LEFT MOUSE BUTTON ${lmb_down_frames}`, {x: display_x, y: next_line() });
 }
 
-let edit_action; // Function that will be called when we click on something IFF we selected an action.
+
+function make_edit_operation_remove_any_entity_at(){
+    return (game_session, position)=>{
+        console.assert(game_session instanceof GameSession);
+        console.assert(position);
+
+        const entities_removed_count = game_session.world.remove_entity_at(position);
+        console.assert(`REMOVED ${entities_removed_count} ENTITIES`);
+        return entities_removed_count > 0;
+    };
+}
+
+function make_edit_operation_add_entity_at(entity_type){
+    console.assert(entity_type.prototype instanceof concepts.Entity);
+    return (game_session, position) => {
+        console.assert(game_session instanceof GameSession);
+        console.assert(position);
+
+        if(game_session.game.is_walkable(position)){
+            const entity = new entity_type();
+            entity.position = position;
+            game_session.world.add(entity);
+            console.assert(`ADDED ${entity_type.prototype.name} ENTITY`);
+            return true;
+        }
+        else return false;
+    };
+}
+
+
+function make_edit_operation_change_tile(tile_id, tile_grid){
+    console.assert(tile_id);
+    console.assert(tile_grid instanceof Grid);
+    return (game_session, position) => {
+        console.assert(game_session instanceof GameSession);
+        console.assert(position);
+
+        if(tile_grid.get_at(position) != tile_id){
+            tile_grid.set_at(tile_id, position);
+            console.assert(`CHANGE TILE TO ${tile_id} ENTITY`);
+            return true;
+        }
+        else return false;
+    };
+}
+
+let current_edit_action; // Function that will be called when we click on something IFF we selected an action.
 
 class EditPaletteButton extends ui.Button {
     constructor(text, edit_action){
@@ -141,6 +189,7 @@ class EditPaletteButton extends ui.Button {
     on_selected(){
         edition_palette.unlock_buttons();
         this.enabled = false;
+        current_edit_action = this._edit_action;
         console.log(`EDITOR PALETTE BUTTON SELECTED : ${this.text}`);
     }
 
@@ -158,7 +207,7 @@ class EditionPaletteUI {
 
     button_no_selection = new EditPaletteButton("No Selection");
 
-    button_remove_entity = new EditPaletteButton("Remove Entity");
+    button_remove_entity = new EditPaletteButton("Remove Entity", make_edit_operation_remove_any_entity_at());
 
     constructor(){
 
@@ -226,75 +275,18 @@ function update_world_edition(game_session, delta_time){
 
     edition_palette.update(delta_time);
 
-    is_editing = input.keyboard.is_any_key_down();
-    if(!is_editing)
-        return;
-
     const mouse_grid_pos = mouse_grid_position();
     if(!mouse_grid_pos)
         return;
 
-    function change_pointed_tile_if_key_down(key_code, tile_id){
-        if(input.keyboard.is_down(key_code)
-        && game_session.game.world._floor_tile_grid.get_at(mouse_grid_pos) != tile_id){
-            game_session.game.world._floor_tile_grid.set_at(tile_id, mouse_grid_pos);
-            return true;
+    if(current_edit_action){
+        if(input.mouse.buttons.is_down(input.MOUSE_BUTTON.LEFT)){
+            const world_was_edited = current_edit_action(game_session, mouse_grid_pos);
+            if(world_was_edited)
+                game_session.view.notify_edition();
         }
-        return false;
-    };
-
-    function add_player_character_if_ctrl_keys(key_code){
-        const key_pattern = [
-            { key_code: KEY.LEFT_CTRL, states: [input.KEY_STATE.DOWN, input.KEY_STATE.HOLD] },
-            { key_code: key_code, states: [input.KEY_STATE.DOWN] },
-        ];
-
-        if(input.keyboard.keys_matches_pattern(...key_pattern)){
-            if(game_session.game.is_walkable(mouse_grid_pos)){
-                game_session.game.add_player_character(mouse_grid_pos);
-                return true;
-            }
-        }
-        return false;
     }
 
-
-    function add_cryptofile_if_ctrl_keys(key_code){
-        const key_pattern = [
-            { key_code: KEY.LEFT_CTRL, states: [input.KEY_STATE.DOWN, input.KEY_STATE.HOLD] },
-            { key_code: key_code, states: [input.KEY_STATE.DOWN] },
-        ];
-
-        if(input.keyboard.keys_matches_pattern(...key_pattern)){
-            if(game_session.game.is_walkable(mouse_grid_pos)){
-                const file = new items.CryptoFile();
-                file.position = mouse_grid_pos;
-                game_session.game.world.add(file);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    let world_was_edited = false;
-
-    // EDIT TILES
-    if(input.mouse.buttons.is_down(input.MOUSE_BUTTON.LEFT)){
-        world_was_edited = world_was_edited || change_pointed_tile_if_key_down(KEY.NUMBER_0, tiles.ID.HOLE);
-        world_was_edited = world_was_edited || change_pointed_tile_if_key_down(KEY.NUMBER_1, tiles.ID.GROUND);
-        world_was_edited = world_was_edited || change_pointed_tile_if_key_down(KEY.NUMBER_2, tiles.ID.WALL);
-        world_was_edited = world_was_edited || change_pointed_tile_if_key_down(KEY.NUMBER_3, tiles.ID.VOID);
-    }
-
-    // EDIT CHARACTERS
-    world_was_edited = world_was_edited || add_player_character_if_ctrl_keys(KEY.C);
-
-    // EDIT ITEMS
-    world_was_edited = world_was_edited || add_cryptofile_if_ctrl_keys(KEY.X);
-
-
-    if(world_was_edited)
-        game_session.view.notify_edition();
 }
 
 const help_text_x_from_right_side = 500;
@@ -396,7 +388,7 @@ function display_stats_of_pointed_character(game_session){
     if(!mouse_grid_pos)
         return;
 
-    const character = game_session.game.world.body_at(mouse_grid_pos);
+    const character = game_session.world.body_at(mouse_grid_pos);
     if(!(character instanceof Character)){
         draw_text("No Character - Point square with character", { x: stats_x, y: next_line() });
         return;
@@ -500,15 +492,15 @@ function update_debug_keys(game_session){
 
     if(input.keyboard.is_just_down(KEY.RIGHT_BRACKET)){
         game_session.game.turn_info.player_character.stats.view_distance.increase(1);
-        game_session.game.turn_info.player_character.update_perception(game_session.game.world);
-        game_session.view.fog_of_war.refresh(game_session.game.world);
+        game_session.game.turn_info.player_character.update_perception(game_session.world);
+        game_session.view.fog_of_war.refresh(game_session.world);
         game_session.view._require_tiles_update = true;
     }
 
     if(input.keyboard.is_just_down(KEY.LEFT_BRACKET)){
         game_session.game.turn_info.player_character.stats.view_distance.decrease(1);
-        game_session.game.turn_info.player_character.update_perception(game_session.game.world);
-        game_session.view.fog_of_war.refresh(game_session.game.world);
+        game_session.game.turn_info.player_character.update_perception(game_session.world);
+        game_session.view.fog_of_war.refresh(game_session.world);
         game_session.view._require_tiles_update = true;
     }
 
@@ -550,6 +542,7 @@ function end_edition(game_session){
     game_session.view.enable_tile_rendering_debug = false;
     game_session.view.enable_edition = false;
 
+    current_edit_action = undefined;
     edition_palette = undefined;
 
     is_enabled = false;
