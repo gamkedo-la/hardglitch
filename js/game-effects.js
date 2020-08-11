@@ -119,10 +119,10 @@ class GameFxView {
         const effect = new ParticleEmitter(this.particleSystem, position.x, position.y, (emitter) => {
             let angle = random_float(0,Math.PI*2);
             let distance = random_int(35,50);
-            let targetx = position.x + Math.cos(angle) * distance;
-            let targety = position.y + Math.sin(angle) * distance;
-            let originx = position.x;
-            let originy = position.y;
+            let targetx = emitter.x + Math.cos(angle) * distance;
+            let targety = emitter.y + Math.sin(angle) * distance;
+            let originx = emitter.x;
+            let originy = emitter.y;
             let segments = random_int(10,15);
             let width = random_int(1,2);
             let color = new Color(0,255,255, random_float(.25,1));
@@ -130,7 +130,7 @@ class GameFxView {
             let endWidth = 10;
             let ttl = .5;
             let emergePct = .5;
-            return new LightningParticle({x: originx+ emitter.x, y:originy + emitter.y}, {x: targetx + emitter.x, y: targety+ emitter.y}, segments, width, color, endWidth, variance, ttl, emergePct);
+            return new LightningParticle({x: originx, y:originy}, {x: targetx, y: targety}, segments, width, color, endWidth, variance, ttl, emergePct);
         }, .05, 25, 0, 5);
         this.particleSystem.add(effect);
         let fx = new GameFx(position);
