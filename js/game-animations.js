@@ -161,7 +161,7 @@ function* missile(missile_effect, target_gfx_position, speed = 4.0){
 
 function* deleting_missile(fx_view, source_position, target_position){
     console.assert(fx_view instanceof GameFxView);
-    const missile_effect = fx_view.missile(graphic_position(source_position));
+    const missile_effect = fx_view.deleteBall(graphic_position(source_position));
     audio.playEvent('deleteAction');
     yield* missile(missile_effect, graphic_position(target_position));
 }

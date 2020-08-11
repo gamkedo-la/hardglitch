@@ -115,6 +115,30 @@ class GameFxView {
         return fx;
     }
 
+    deleteBall(position){
+        const effect = new ParticleEmitter(this.particleSystem, 0, 0, (emitter) => {
+            let angle = random_float(0,Math.PI*2);
+            let distance = random_int(35,50);
+            let targetx = position.x + Math.cos(angle) * distance;
+            let targety = position.y + Math.sin(angle) * distance;
+            let originx = position.x;
+            let originy = position.y;
+            let segments = random_int(10,15);
+            let width = random_int(1,2);
+            let color = new Color(0,255,255, random_float(.25,1));
+            let variance = 1.5;
+            let endWidth = 10;
+            let ttl = .5;
+            let emergePct = .5;
+            return new LightningParticle({x: originx+ emitter.x, y:originy + emitter.y}, {x: targetx + emitter.x, y: targety+ emitter.y}, segments, width, color, endWidth, variance, ttl, emergePct);
+        }, .05, 25, 0, 5);
+        this.particleSystem.add(effect);
+        let fx = new GameFx(position);
+        fx.sentinels.push(effect);
+        fx.relocatables.push(effect);
+        return fx;
+    }
+
     exitPortal(position) {
         let particles = this.particleSystem;
         // FIXME: need to replace blip particle here... it sets global alpha, which is interfering w/ drawing of other particles
