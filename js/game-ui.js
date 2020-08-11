@@ -397,6 +397,11 @@ class GameInterface {
         this._end_target_selection();
     }
 
+    on_canvas_resized(){
+        // TODO: check if we need to do more.
+        this.character_status = new CharacterStatus();
+    }
+
 };
 
 

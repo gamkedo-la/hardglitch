@@ -693,6 +693,7 @@ class GameView {
 
     on_canvas_resized(){
         this.ui.cancel_action_target_selection();
+        this.ui.on_canvas_resized();
         this.notify_edition();
         this.center_on_player();
     }
