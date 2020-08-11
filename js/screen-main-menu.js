@@ -57,10 +57,12 @@ class MainMenu {
         const space_between_buttons = 80;
         let next_button_y_drift = 100;
         const button_y_drift = () => next_button_y_drift += space_between_buttons;
+        const bottom_y = graphics.canvas_rect().bottom_right.y;
         Object.values(this).filter(element => element instanceof ui.Button)
+            .reverse()
             .forEach(button => {
                 const center_pos = graphics.centered_rectangle_in_screen(button.area).position;
-                button.position = center_pos.translate({ x:0, y: button_y_drift() });
+                button.position = { x: center_pos.x, y: bottom_y - button_y_drift() };
             });
 
     }
