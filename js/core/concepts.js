@@ -260,6 +260,7 @@ class World
     _bodies = {};    // Bodies are always in the space of the world. They can be controlled by Actors.
     _rules = [];     // Rules that will be applied through this game.
     is_finished = false; // True if this world is in a finished state, in which case it should not be updated anymore. TODO: protect against manipulations
+    has_entity_list_changed = true; // True if the list of entities existing have changed since the last turn update.
 
     constructor(width, height, floor_tiles, surface_tiles){
         console.assert(Number.isInteger(width) && width > 2);
@@ -279,6 +280,7 @@ class World
     add(entity){
         console.assert(entity instanceof Entity);
         console.assert(entity.position);
+        this.has_entity_list_changed = true;
         if(entity instanceof Body){
             this._bodies[entity.id] = entity;
             if(entity.update_perception) // HACK! TODO: find a way to avoid this code to know that this function exits...
@@ -297,6 +299,7 @@ class World
             if(entity_set[entity_id] instanceof Entity){
                 delete entity_set[entity_id];
                 ++removed_count;
+                this.has_entity_list_changed = true;
                 return true;
             }
             else return false;

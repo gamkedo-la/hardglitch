@@ -149,6 +149,11 @@ function* execute_turns(world) {
                 if(action == null){ // No decision taken? Only players can hesitate!!!!
                     // This is a player: let the player decide what to do (they will store the action in the world state).
                     action = yield* request_player_action(character, possible_actions); // Give back the control and the list of events done since last turn.
+                    if(!action){ // Still no action? OK we need to update the world.
+                        // Update the world according to it's rules, in case someone is dead etc.
+                        const rules_events = world.apply_rules_end_of_characters_turn(character);
+                        yield* rules_events;
+                    }
                 }
             }
 
@@ -178,12 +183,22 @@ function* execute_turns(world) {
 // TODO: specify an order! maybe depending on stats? initiative points?
 function *characters_that_can_act_now(world){
     console.assert(world instanceof concepts.World);
-    for(const character_body of world.bodies){
+
+    let character_body_list = world.bodies;
+    while(character_body_list.length > 0){
+        const character_body = character_body_list.shift(); // Pop from the front
         console.assert(character_body instanceof Character);
         if (character_body.can_perform_actions) {
             yield character_body;
+            character_body_list.push(character_body); // Push back at the end
+            if(world.has_entity_list_changed){
+                // Removes characters that have been removed - the other characters will be taken into account next turn.
+                character_body_list = character_body_list.filter(body=> world.bodies.includes(body));
+
+                world.has_entity_list_changed = false; // OK changes have been taken into account.
+            }
         }
-    };
+    }
 }
 
 
