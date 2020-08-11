@@ -8,6 +8,7 @@ import { GameView } from "../game-view.js";
 import { Character } from "../core/character.js";
 import * as anim from "../system/animation.js";
 import { destroy_entity } from "./destruction.js";
+import * as audio from "../system/audio.js";
 
 export {
     Rule_GameOver,
@@ -161,6 +162,7 @@ class Rule_LevelExit extends concepts.Rule {
             const exit_positions = world._surface_tile_grid.matching_positions(tile_id => tile_id == tiles.ID.EXIT); // TODO: keep a cache until the world's tiles have changed?
             if(exit_positions.some(position => character_body.position.equals(position))){
                 world.is_finished = true;
+                audio.playEvent("exit_bus"); // thought this was when player exit, but plays when entering exit bus.
                 return [ new PlayerExitLevel(character_body) ];
             }
         }
