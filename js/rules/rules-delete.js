@@ -53,12 +53,13 @@ class Delete extends concepts.Action {
         console.assert(world instanceof concepts.World);
         console.assert(deleter instanceof Character);
 
-        const deleted =  world.body_at(this.target_position);
-        console.assert(deleted instanceof Character);
-        deleted.take_damage(this.delete_damage);
-        const events = [
-            new Damaged(deleted.id, deleted.position, this.delete_damage),
-        ];
+
+        const deleted =  world.entity_at(this.target_position);
+        console.assert(deleted instanceof concepts.Entity);
+        if(deleted instanceof Character){
+            deleted.take_damage(this.delete_damage);
+        }
+        const events = [ new Damaged(deleted.id, deleted.position, this.delete_damage) ];
         if(!deleted.position.equals(deleter.position)){
             events.unshift(new Deleted(deleter, deleted));
         }

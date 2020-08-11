@@ -29,11 +29,13 @@ class Repair extends concepts.Action {
 
     execute(world){
         console.assert(world instanceof concepts.World);
-        const character =  world.body_at(this.target_position);
-        console.assert(character instanceof Character);
-        character.repair(this.repair_points);
+        const repaired =  world.entity_at(this.target_position);
+        console.assert(repaired instanceof concepts.Entity);
+        if(repaired instanceof Character){
+            repaired.repair(this.repair_points);
+        }
         return [
-            new Repaired(character.id, character.position, this.repair_points),
+            new Repaired(repaired.id, repaired.position, this.repair_points),
         ];
     }
 };
