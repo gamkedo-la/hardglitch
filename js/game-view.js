@@ -678,16 +678,16 @@ class GameView {
         this.entity_views = Object.assign({}, this._create_entity_views(this.game.world.items, ItemView)
                                             , this._create_entity_views(this.game.world.bodies, CharacterView));
 
-        this.fog_of_war.refresh(world);
-        this._require_tiles_update = true;
-
-        this.highlight_available_basic_actions();
-        this.update_ui();
+        this.refresh();
 
         this._requires_reset = false;
     }
 
-    update_ui(){
+    refresh(){
+        this.fog_of_war.refresh(this.game.world);
+        this._require_tiles_update = true;
+
+        this.highlight_available_basic_actions();
         this.ui.show_action_buttons(Object.values(this.game.turn_info.possible_actions));
     }
 
