@@ -324,10 +324,10 @@ class GameInterface {
 
         // ... then we build the buttons with the associated informations.
 
-        const space_between_buttons = action_button_size + 8;
+        const space_between_buttons = action_button_size;
         const canvas_rect = graphics.canvas_rect();
         const line_y = canvas_rect.height - player_ui_top_from_bottom;
-        let line_x = (canvas_rect.width / 2) - (Math.floor((Object.keys(actions_per_types).length / 2) + 1) * space_between_buttons);
+        let line_x = (canvas_rect.width / 2) - (Math.floor((Object.keys(actions_per_types).length / 2)) * space_between_buttons);
         const next_x = ()=> line_x += space_between_buttons;
 
         let key_number = 0;
