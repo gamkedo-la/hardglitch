@@ -162,7 +162,7 @@ class Button extends UIElement {
     //   (See UIElement constructor for more parametters.)
     //   sprite_def: ..., // graphics.Sprite definition to use, with all the frames defined.
     //   frames: { up: 0, down: 1, over: 2, disabled:3 }, // Which sprite frame for which situation. Use 0 for any unspecified frame.
-    //   is_action_on_up: false, // If true, the action is triggered on releasing the button, not on pressing it. False if not specified.
+    //   is_action_on_up: true, // If true, the action is triggered on releasing the button, not on pressing it. True if not specified.
     //   action: ()=> {}, // Function to call when you press that button. Calls nothing if undefined.
     //   sounds: { // Optional sounds to play when the state change.
     //      up: "sound_a", down: "sound_b", etc.
@@ -240,7 +240,7 @@ class Button extends UIElement {
                 this._on_end_over();
         }
 
-        if(mouse_is_over_now){
+        if(mouse_is_over_now && !mouse.was_dragging){
             const is_time_to_trigger_action = this.is_action_on_up ? mouse.buttons.is_just_released(MOUSE_BUTTON.LEFT) : mouse.buttons.is_just_down(MOUSE_BUTTON.LEFT);
             if(is_time_to_trigger_action && this.action != undefined){
                 this.action();

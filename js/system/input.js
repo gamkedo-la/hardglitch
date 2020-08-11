@@ -82,6 +82,9 @@ class Mouse{
         && this._dragging_start_position.distance(this.position) >= this._dragging_radius;
   }
 
+  get was_dragging() { return this._dragging_end_position !== undefined
+                           && this._dragging_start_position.distance(this._dragging_end_position) >= this._dragging_radius; }
+
   get dragging_positions(){
     return {
       begin: this._dragging_start_position,
@@ -107,8 +110,8 @@ class Mouse{
         this._dragging_end_position = new spatial.Vector2(this.position);
         break;
       case(KEY_STATE.NOT_USED):
-        this._dragging_start_position = undefined;
-        this._dragging_end_position = undefined;
+        delete this._dragging_start_position;
+        delete this._dragging_end_position;
         break;
       default:
         break;
