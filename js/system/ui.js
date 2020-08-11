@@ -500,6 +500,7 @@ class Bar extends UIElement {
             text: this._name,
             area_to_help: this.area,
             position: this.position,
+            font: bar_def.font,
             delay_ms: 0,
         });
 

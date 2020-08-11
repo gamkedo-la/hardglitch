@@ -17,6 +17,8 @@ import { Vector2, center_in_rectangle } from "./system/spatial.js";
 import { Character, StatValue } from "./core/character.js";
 
 const action_button_size = 50;
+const player_ui_top_from_bottom = 100;
+const bar_text_font = "18px Arial";
 
 class ActionButton extends ui.Button {
     constructor(position, icon_def, action_name, key_name, on_clicked, on_begin_mouse_over, on_end_mouse_over){
@@ -103,8 +105,7 @@ class MuteAudioButton extends ui.Button {
         super({
             sprite_def: sprite_defs.button_mute_audio,
             action: audio.toggleMute,
-            is_action_on_up: true,
-            position: {x: 32, y: 32},
+            position: {x: 8, y: 8},
         });
 
         this.icons = {
@@ -118,6 +119,7 @@ class MuteAudioButton extends ui.Button {
         this.icons.unmute.position = icon_position;
 
         this.help_text = new ui.HelpText({
+            position: { x: 80, y: this.position.y },
             width: this.width, height: this.height,
             area_to_help: this.area,
             text: "Mute",
@@ -141,8 +143,7 @@ class AutoFocusButton extends ui.Button {
         super({
             sprite_def: sprite_defs.button_mute_audio,
             action: toggle_autofocus,
-            is_action_on_up: true,
-            position: {x: 32, y: 32 + action_button_size + 8 },
+            position: {x: 8, y: action_button_size + 8 },
         });
 
         this.is_autofocus_enabled = is_autofocus_enabled;
@@ -157,6 +158,7 @@ class AutoFocusButton extends ui.Button {
         // this.icons.off.position = icon_position;
 
         this.help_text = new ui.HelpText({
+            position: { x: 80, y: this.position.y },
             width: this.width, height: this.height,
             area_to_help: this.area,
             text: "Auto-Focus ([F] to focus manually)",
@@ -184,6 +186,7 @@ class MenuButton extends ui.Button {
         });
 
         this.help_text = new ui.HelpText({
+            position: this.position.translate({x:-this.width - 100, y:0 }),
             width: this.width, height: this.height,
             area_to_help: this.area,
             text: "Menu [TAB]",
@@ -203,15 +206,17 @@ function update_stat_bar(bar, stat){
 class CharacterStatus{
 
     health_bar = new ui.Bar({
-        position: { x: 80, y: graphics.canvas_rect().bottom_right.y - 160 },
-        width: 300, height: 32,
+        position: { x: 12, y: graphics.canvas_rect().height - player_ui_top_from_bottom },
+        width: 200, height: 30,
         bar_name: "Integrity",
+        font: bar_text_font,
     });
 
     action_bar = new ui.Bar({
-        position: { x: 80, y: graphics.canvas_rect().bottom_right.y - 100 },
-        width: 300, height: 32,
+        position: { x: 12, y: graphics.canvas_rect().height - player_ui_top_from_bottom + 36 },
+        width: 200, height: 30,
         bar_name: "Action Points",
+        font: bar_text_font,
     });
 
     constructor(){
@@ -260,7 +265,6 @@ class GameInterface {
     });
 
     button_mute_audio = new MuteAudioButton();
-
     character_status = new CharacterStatus();
 
     constructor(config){
@@ -322,7 +326,7 @@ class GameInterface {
 
         const space_between_buttons = action_button_size + 8;
         const canvas_rect = graphics.canvas_rect();
-        const line_y = canvas_rect.bottom_right.y - 160;
+        const line_y = canvas_rect.height - player_ui_top_from_bottom;
         let line_x = (canvas_rect.width / 2) - (Math.floor((Object.keys(actions_per_types).length / 2) + 1) * space_between_buttons);
         const next_x = ()=> line_x += space_between_buttons;
 
