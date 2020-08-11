@@ -174,6 +174,25 @@ class AutoFocusButton extends ui.Button {
 
 }
 
+
+class MenuButton extends ui.Button {
+    constructor(open_menu) {
+        super({
+            sprite_def: sprite_defs.button_ingame_menu,
+            action: open_menu,
+            position: {x: graphics.canvas_rect().width - action_button_size - 8, y: 8 },
+        });
+
+        this.help_text = new ui.HelpText({
+            width: this.width, height: this.height,
+            area_to_help: this.area,
+            text: "Menu [TAB]",
+            delay_ms: 0,
+        });
+    }
+}
+
+
 function update_stat_bar(bar, stat){
     console.assert(bar instanceof ui.Bar);
     console.assert(stat instanceof StatValue);
@@ -252,10 +271,11 @@ class GameInterface {
         console.assert(config.on_action_pointed_end instanceof Function);
         console.assert(config.toggle_autofocus instanceof Function);
         console.assert(config.is_autofocus_enabled instanceof Function);
+        console.assert(config.open_menu instanceof Function);
         this._action_buttons = [];
         this.config = config;
 
-        this.button_auto_focus = new AutoFocusButton(this.config.toggle_autofocus, this.config.is_autofocus_enabled);
+        this.on_canvas_resized();
     }
 
     get elements(){
@@ -399,6 +419,8 @@ class GameInterface {
 
     on_canvas_resized(){
         // TODO: check if we need to do more.
+        this.button_main_menu = new MenuButton(this.config.open_menu);
+        this.button_auto_focus = new AutoFocusButton(this.config.toggle_autofocus, this.config.is_autofocus_enabled);
         this.character_status = new CharacterStatus();
     }
 

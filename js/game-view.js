@@ -165,7 +165,7 @@ class GameView {
 
     enable_auto_camera_center = true;
 
-    constructor(game){
+    constructor(game, open_menu){
         console.assert(game instanceof Game);
         this.game = game;
         this._requires_reset = true;
@@ -183,6 +183,7 @@ class GameView {
                 if(this.enable_auto_camera_center)
                     this.center_on_player(500);
             },
+            open_menu: open_menu,
             is_autofocus_enabled: () => this.enable_auto_camera_center,
         };
 

@@ -14,14 +14,14 @@ import * as level1 from "./levels/level1.js";
 // This is manipulated by some other systems, like the screen state, the game-input system, the editor etc.
 class GameSession {
 
-    constructor(level){
+    constructor(level, open_menu){
         if(level === "test"){
             this.game = new Game(make_test_world());
         } else {
             this.game = new Game(level1.generate_world());
         }
 
-        this.view = new GameView(this.game);
+        this.view = new GameView(this.game, open_menu);
         this.view.update(0); // Update the camera state.
     }
 

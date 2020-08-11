@@ -253,7 +253,7 @@ class GameScreen extends fsm.StateMachine {
         graphics.reset();
 
         if(!this.game_session){
-            this.game_session = new GameSession(level);
+            this.game_session = new GameSession(level, ()=>{ this.ingame_menu(); });
         } else {
             console.assert(level === undefined);
         }
@@ -293,6 +293,10 @@ class GameScreen extends fsm.StateMachine {
         this.state_machine.push_action("exit");
     }
 
+    ingame_menu(){
+        this.push_action("back");
+    }
+
     escape(){
         // TODO, pass the next level
         const next_level = undefined;
@@ -305,7 +309,7 @@ class GameScreen extends fsm.StateMachine {
 
     on_canvas_resized(){
         if(this.current_state.on_canvas_resized){
-            this.this.current_state.on_canvas_resized();
+            this.current_state.on_canvas_resized();
         }
         this.game_session.on_canvas_resized();
     }
