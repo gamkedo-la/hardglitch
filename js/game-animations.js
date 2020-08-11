@@ -105,6 +105,7 @@ function* destroyed(fx_view, entity_view, duration_ms=default_destruction_durati
     const effect = fx_view.destruction(entity_view.position.translate(square_half_unit_vector));
     entity_view.sprite.move_origin_to_center();
     // WwhwhhiiiiiiiiiIIIIIIIIIiiiizzzzzzzzzzZZZZZZZZZZZZZ
+    audio.playEvent('destroyAction');
     yield* tween( {
                 scale_x: entity_view.scale.x,
                 scale_y: entity_view.scale.y,
@@ -160,6 +161,7 @@ function* missile(missile_effect, target_gfx_position, speed = 4.0){
 function* deleting_missile(fx_view, source_position, target_position){
     console.assert(fx_view instanceof GameFxView);
     const missile_effect = fx_view.missile(graphic_position(source_position));
+    audio.playEvent('deleteAction');
     yield* missile(missile_effect, graphic_position(target_position));
 }
 
