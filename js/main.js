@@ -12,10 +12,12 @@ import { MainMenuScreen } from "./screen-main-menu.js";
 import { GameScreen } from "./screen-game.js";
 import { CreditsScreen } from "./screen-credits.js";
 import { GameOverScreen_Success, GameOverScreen_Failure } from "./screen-gameover.js";
+import { MuteAudioButton } from "./game-ui.js";
 
 
 let last_update_time = performance.now();
 const max_delta_time = 1000 / 26; // Always assume at worst that we are at 26fps
+let mute_button;
 
 // This describe the different states/screens the game can go through.
 // There can be inner states too.
@@ -89,6 +91,7 @@ window.onload = async function() {
 }
 
 function start() { // Now we can start the game!
+  mute_button = new MuteAudioButton();
   window.requestAnimationFrame(update_cycle);
   game_state_machine.push_action("game_ready");
   console.log("GAME READY - STARTING");
@@ -108,8 +111,13 @@ function update_cycle(highres_timestamp){
   const delta_time = get_delta_time(highres_timestamp);
 
   input.update(delta_time);
+  mute_button.update(delta_time);
   game_state_machine.update(delta_time);
   game_state_machine.display(graphics.screen_canvas_context);
+
+  graphics.camera.begin_in_screen_rendering();
+  mute_button.draw(graphics.screen_canvas_context); // Always on screen
+  graphics.camera.end_in_screen_rendering();
 
   window.requestAnimationFrame(update_cycle);
 }

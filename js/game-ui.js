@@ -3,6 +3,7 @@
 
 export {
     GameInterface,
+    MuteAudioButton,
 };
 
 import { group_per_type, invoke_on_members } from "./system/utility.js";
@@ -264,7 +265,6 @@ class GameInterface {
             this.button_cancel_action_selection.visible = false;
     });
 
-    button_mute_audio = new MuteAudioButton();
     character_status = new CharacterStatus();
 
     constructor(config){
