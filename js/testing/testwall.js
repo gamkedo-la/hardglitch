@@ -4,7 +4,7 @@ import { tile_defs } from "../game-assets.js";
 import * as tiledefs from "../definitions-tiles.js";
 import { procWallGenSelector } from "../view/proc-wall.js";
 import { parse_tile_id } from "../game-assets.js";
-import { WallModel } from "../view/wall-model.js";
+import { WallModel, sides } from "../view/wall-model.js";
 import { Color } from "../system/color.js";
 
 const templatesToLoad = [
@@ -221,8 +221,8 @@ class Env {
 
         // test wall model
         this.ctx.fillStyle = "black";
-        this.ctx.fillRect(32*8,0, 32*24,32*8);
-        drawGrid(this.ctx, 32*8, 0, 24, 8, 32, 32, "gray");
+        this.ctx.fillRect(32*8,0, 32*24,32*16);
+        drawGrid(this.ctx, 32*8, 0, 24, 16, 32, 32, "gray");
         let models = [ 
             new WallModel(4, 16, 0),
             new WallModel(8, 16, 0),
@@ -234,15 +234,56 @@ class Env {
         let shapes = ["ttl", "t", "l", "ltts", "ltt", "oltt", "ltte", "ltb", "b", "btls", "btl", "obtl", "btle", "btr", "r", "rtbs", "rtb", "ortb", "rtbe", "rtt", "ttrs", "ttr", "ottr", "ttre"];
         for (let j=0; j<models.length; j++) {
             for (let i=0; i<shapes.length; i++) {
-                let pos = {x:32*(8+i), y:32*j};
-                let walls = models[j].getBottomFaces(pos, shapes[i]);
-                for (const wall of walls) {
-                    this.ctx.fillStyle = "red";
-                    this.ctx.fill(wall);
+                let pos = {x:32*(8+i), y:32*((j*2)+1)};
+                for (const face of models[j].getFaces(pos, shapes[i], sides.bottom)) {
+                    this.ctx.fillStyle = new Color(255,0,0,1).asRGB();
+                    this.ctx.fill(face.toPath());
                 }
+                // back left
+                for (const face of models[j].getFaces(pos, shapes[i], sides.bl)) {
+                    this.ctx.fillStyle = new Color(0,127,63,.75).asRGB();
+                    this.ctx.fill(face.toPath());
+                }
+                // back
+                for (const face of models[j].getFaces(pos, shapes[i], sides.back)) {
+                    this.ctx.fillStyle = new Color(0,255,127,.75).asRGB();
+                    this.ctx.fill(face.toPath());
+                }
+                // back right
+                for (const face of models[j].getFaces(pos, shapes[i], sides.br)) {
+                    this.ctx.fillStyle = new Color(0,127,190,.75).asRGB();
+                    this.ctx.fill(face.toPath());
+                }
+
+                // front left
+                for (const face of models[j].getFaces(pos, shapes[i], sides.fl)) {
+                    this.ctx.fillStyle = new Color(155,155,0,.5).asRGB();
+                    this.ctx.fill(face.toPath());
+                }
+                // front
+                for (const face of models[j].getFaces(pos, shapes[i], sides.front)) {
+                    this.ctx.fillStyle = new Color(200,200,0,.5).asRGB();
+                    this.ctx.fill(face.toPath());
+                }
+                // front right
+                for (const face of models[j].getFaces(pos, shapes[i], sides.fr)) {
+                    this.ctx.fillStyle = new Color(255,255,0,.5).asRGB();
+                    this.ctx.fill(face.toPath());
+                }
+
+                // top
+                /*
+                for (const face of models[j].getFaces(pos, shapes[i], sides.top)) {
+                    this.ctx.fillStyle = new Color(0,0,255,.25).asRGB();
+                    this.ctx.fill(face.toPath());
+                }
+                */
+                let edges = models[j].getEdges(pos, shapes[i], sides.vertical|sides.bottom|sides.top|sides.back|sides.bl|sides.br|sides.fr|sides.front|sides.fl|sides.left|sides.right);
+                this.ctx.strokeStyle = new Color(0,255,255,.75).asRGB();
+                this.ctx.stroke(edges.toPath());
             }
         }
-        drawGrid(this.ctx, 32*8, 0, 48, 16, 16, 16, new Color(127,127,127,.25));
+        drawGrid(this.ctx, 32*8, 0, 48, 32, 16, 16, new Color(127,127,127,.25));
 
     }
 }
