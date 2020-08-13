@@ -1,5 +1,7 @@
 export { sides, WallModel };
 
+import { ofmt } from "../system/utility.js";
+
 const sides = {
     front:      1,
     back:       1<<1,
@@ -32,7 +34,7 @@ class ModelFace {
     }
 
     toString() {
-        return "ModelFace[" + this.vertices.toString() + "]";
+        return "ModelFace[" + this.vertices.map(ofmt) + "]";
     }
 }
 
@@ -52,7 +54,7 @@ class ModelEdge {
     }
 
     toString() {
-        return "ModelEdge[" + this.vertices.toString() + "]";
+        return "ModelEdge[" + this.vertices.map(ofmt) + "]";
     }
 }
 
@@ -180,7 +182,7 @@ class WallModel {
         if (verts) {
             // iterate around vertices of bottom face
             for (let i=0; i<verts.length; i++) {
-                if (verts[i].side&mask) {
+                if (verts[i].corner&mask) {
                     edges.push(new ModelEdge(
                         {x:pos.x+verts[i].x, y:pos.y+verts[i].y}, 
                         {x:pos.x+verts[i].x, y:pos.y+verts[i].y-this.height}, 
@@ -247,7 +249,7 @@ class WallModel {
 
         // --- TTL ---
         vmap["ttl"] = [ 
-            {x:offset, y:15+offset, side:sides.bl|sides.outer, corner:sides.bl|sides.outer}, 
+            {x:offset, y:15+offset, side:sides.br|sides.outer, corner:sides.br|sides.outer}, 
             {x:15+offset, y:offset, side:sides.back|sides.outer, corner:sides.back|sides.outer}, 
             {x:32, y:offset}, 
         ];
@@ -279,158 +281,144 @@ class WallModel {
 
         // --- LTTS ---
         vmap["ltts"] = [
+            {x:offset, y:16+offset, side:sides.left|sides.outer, corner:(offset>0)?(sides.left|sides.outer):0},
             {x:offset,  y:0}, 
             {x:offset+width, y:0, side:sides.right|sides.inner}, 
         ];
-        if (offset+width > 16) {
-            vmap["ltts"].push({x:offset+width, y:32});
+        if (offset+width >= 16) {
+            vmap["ltts"].push({x:offset+width, y:32, corner:(offset+width===16)?sides.fr|sides.inner:0});
+            vmap["ltts"].push({x:0, y:32});
+        } else if (offset+width>=8) {
+            vmap["ltts"].push({x:offset+width, y:16+width+offset, side:sides.fr|sides.inner, corner:sides.fr|sides.inner})
+            vmap["ltts"].push({x:offset*2, y:32});
+            vmap["ltts"].push({x:0, y:32});
         } else {
             vmap["ltts"].push({x:offset+width, y:16+width+offset, side:sides.fr|sides.inner, corner:sides.fr|sides.inner})
-        }
-        if ((offset+width)>=8 && offset+width < 16) {
-            vmap["ltts"].push({x:offset*2, y:32, side:sides.fr});
-        } else if (offset+width<8) {
-            vmap["ltts"].push({x:0, y:16+(offset+width)*2, side:sides.fr});
-        }
-        if (offset<8 && offset+width>8) {
-            vmap["ltts"].push({x:0, y:32});
+            vmap["ltts"].push({x:0, y:16+(offset+width)*2});
         }
         if (offset>0) {
-            vmap["ltts"].push({x:0, y:16+offset*2, side:sides.bl|sides.outer});
+            vmap["ltts"].push({x:0, y:16+offset*2, side:sides.br|sides.outer});
         }
-        vmap["ltts"].push({x:offset, y:16+offset, side:sides.l|sides.outer, corner:sides.l|sides.outer});
 
         // --- LTT ---
         if (offset + width > 16) {
             vmap["ltt"] = [
                 {x:0,  y:0}, 
-                {x:offset+width, y:0}, 
-                {x:offset+width, y:(offset+width)-16, side:"front", corner:true},
-                {x:(offset+width)-16, y:offset+width, side:"front", corner:true},
+                {x:offset+width, y:0, side:sides.right|sides.inner}, 
+                {x:offset+width, y:(offset+width)-16, side:sides.fr|sides.inner, corner:sides.fr|sides.inner},
+                {x:(offset+width)-16, y:offset+width, side:sides.front|sides.inner, corner:sides.front|sides.inner},
                 {x:0, y:offset+width}, 
             ];
         } else if (offset+width > 8) {
             vmap["ltt"] = [
                 {x:0,  y:0}, 
-                {x:(offset+width)*2-16, y:0, side:"front", corner:(offset+width===16)}, 
-                {x:0, y:(offset+width)*2-16, side:"front", corner:(offset+width===16)}, 
+                {x:(offset+width)*2-16, y:0, side:sides.fr|sides.inner}, 
+                {x:0, y:(offset+width)*2-16}, 
             ];
         }
 
         // --- OLTT ---
         if (offset<8) {
             vmap["oltt"] = [
-                {x:16+offset*2,  y:32, side:"back", corner:(offset==0)}, 
-                {x:32,  y:16+offset*2, side:"front", corner:(offset==0)}, 
+                {x:16+offset*2,  y:32, side:sides.br|sides.outer, corner:(offset===0)?sides.br|sides.outer:0}, 
+                {x:32,  y:16+offset*2, corner:(offset==0)?sides.br|sides.outer:0}, 
             ];
             if (width+offset >= 8) {
                 vmap["oltt"].push({x:32, y:32});
             } else {
                 vmap["oltt"].push(...[
-                    {x:32, y:16+(offset+width)*2, side:"front"},
-                    {x:16+(offset+width)*2, side:"front", y:32},
+                    {x:32, y:16+(offset+width)*2, side:sides.fr|sides.inner},
+                    {x:16+(offset+width)*2, y:32},
                 ])
             }
         }
 
         // --- LTTE ---
         vmap["ltte"] = [
-            {y:offset,  x:0}, 
-            {y:offset+width, x:0}, 
+            {x:0, y:offset+width}, 
+            {x:0, y:offset, side:sides.back|sides.outer}, 
+            {x:16+offset, y:offset, side:(offset)?sides.br|sides.outer:0, corner:(offset)?(sides.br|sides.outer):0},
         ];
-        // lower right corner or intersection of right edge w/ bottom
-        if (offset+width > 16) {
-            vmap["ltte"].push({y:offset+width, x:32});
-        } else {
-            vmap["ltte"].push({y:offset+width, x:16+width+offset, side:"front", corner:true})
-        }
-        // intersection of front angled edge w/ bottom
-        if ((offset+width)>=8 && offset+width < 16) {
-            vmap["ltte"].push({y:offset*2, x:32, side:"front"});
-        // intersection of front angled edge w/ left
-        } else if (offset+width<8) {
-            vmap["ltte"].push({y:0, x:16+(offset+width)*2, side:"front"});
-        }
-        // interior lower-left grid corner
-        if (offset<8 && offset+width>8) {
-            vmap["ltte"].push({y:0, x:32});
-        }
-        // intersection of back angled edge w/ left
         if (offset>0) {
-            vmap["ltte"].push({y:0, x:16+offset*2, side:"back"});
+            vmap["ltte"].push({x:16+offset*2, y:0});
         }
-        // corner of back angled edge to left
-        vmap["ltte"].push({y:offset, x:16+offset, side:"back", corner:true});
+        if (offset+width >= 16) {
+            vmap["ltte"].push({x:32, y:0});
+            vmap["ltte"].push({x:32, y:offset+width, side:sides.front|sides.inner, corner:(offset+width===16)?sides.front|sides.inner:0});
+        } else if (offset+width>=8) {
+            vmap["ltte"].push({x:32, y:0});
+            vmap["ltte"].push({x:32, y:offset*2, side:sides.fr|sides.inner});
+            vmap["ltte"].push({x:16+width+offset, y:offset+width, side:sides.front|sides.inner, corner:sides.front|sides.inner})
+        } else {
+            vmap["ltte"].push({x:16+(offset+width)*2, y:0, side:sides.fr|sides.inner});
+            vmap["ltte"].push({x:16+width+offset, y:offset+width, side:sides.front|sides.inner, corner:sides.front|sides.inner})
+        }
 
         // --- LTB ---
         vmap["ltb"] = [ 
+            {x:32, y:32-(offset), side:sides.front|sides.outer}, 
+            {x:16+offset, y:32-(offset), side:sides.fl|sides.outer, corner:sides.fl|sides.outer}, 
+            {x:offset, y:16-(offset), side:sides.left|sides.outer, corner:(offset)?sides.left|sides.outer:0}, 
             {x:offset, y:0}, 
         ];
         if (offset+width >= 16) {
             vmap["ltb"].push(...[
-                {x:offset+width, y:0, side:"back", corner:true}, 
-                {x:32, y:32-(offset+width), side:"back", corner:true}, 
+                {x:offset+width, y:0, side:sides.bl|sides.inner}, 
+                {x:32, y:32-(offset+width), corner:sides.bl|sides.inner}, 
             ]);
         } else {
             vmap["ltb"].push(...[
-                {x:offset+width, y:0}, 
-                {x:offset+width, y:16-(width+offset), side:"back", corner:true}, 
-                {x:16+(width+offset), y:32-(width+offset), side:"back", corner:true}, 
+                {x:offset+width, y:0, side:sides.right|sides.inner}, 
+                {x:offset+width, y:16-(width+offset), side:sides.bl|sides.inner, corner:sides.bl|sides.inner}, 
+                {x:16+(width+offset), y:32-(width+offset), side:sides.back|sides.inner, corner:sides.back|sides.inner}, 
                 {x:32, y:32-(width+offset), side:"back"}, 
             ]);
         }
-        vmap["ltb"].push(...[
-            {x:32, y:32-(offset), side:"front"}, 
-            {x:16+offset, y:32-(offset), side:"front", corner:true}, 
-            {x:offset, y:16-(offset), side:"front", corner:true}, 
-        ]);
 
         // --- B ---
         vmap["b"] = [ 
-            {x:0, y:32-(offset+width), side:"back"}, 
-            {x:32, y:32-(offset+width), side:"back"}, 
-            {x:32, y:32-offset, side:"front"}, 
-            {x:0, y:32-offset, side:"front"},
+            {x:0, y:32-(offset+width), side:sides.back|sides.inner}, 
+            {x:32, y:32-(offset+width)}, 
+            {x:32, y:32-offset, side:sides.front|sides.outer}, 
+            {x:0, y:32-offset},
         ];
         vmap["ltbe"] = vmap.b;
         vmap["btrs"] = vmap.b;
 
         // --- BTLS ---
         vmap["btls"] = [
-            {x:0, y:32-(offset+width), side:"back"}, 
+            {x:16+offset, y:32-offset, side:sides.front|sides.outer, corner:sides.front|sides.outer},
+            {x:0, y:32-offset},
+            {x:0, y:32-(offset+width), side:sides.back|sides.inner}, 
         ];
         if (offset+width >= 16) {
-            vmap["btls"].push({x:32, y:32-(offset+width), side:"back", corner: (offset+width === 16)});
+            vmap["btls"].push({x:32, y:32-(offset+width), corner: (offset+width===16)?sides.back|sides.outer:0});
             vmap["btls"].push({x:32, y:32});
         } else if (offset+width >= 8) {
-            vmap["btls"].push({x:16+(offset+width), y:32-(offset+width), side:"back", corner:true});
-            vmap["btls"].push({x:32, y:48-(offset+width)*2, side:"back"});
-            if (offset+width > 8) {
-                vmap["btls"].push({x:32, y:32});
-            }
+            vmap["btls"].push({x:16+(offset+width), y:32-(offset+width), side:sides.bl|sides.inner, corner:sides.bl|sides.inner});
+            vmap["btls"].push({x:32, y:48-(offset+width)*2});
+            vmap["btls"].push({x:32, y:32});
         } else {
-            vmap["btls"].push({x:16+(offset+width), y:32-(offset+width), side:"back", corner:true});
-            vmap["btls"].push({x:16+(offset+width)*2, y:32, side:"back"});
+            vmap["btls"].push({x:16+(offset+width), y:32-(offset+width), side:sides.bl|sides.inner, corner:sides.bl|sides.inner});
+            vmap["btls"].push({x:16+(offset+width)*2, y:32});
         }
         if (offset>0) {
-            vmap["btls"].push({x:16+offset*2, y:32, side:"front"});
+            vmap["btls"].push({x:16+offset*2, y:32, side:sides.fl|sides.outer});
         }
-        vmap["btls"].push({x:16+offset, y:32-offset, side:"front", corner:true});
-        vmap["btls"].push({x:0, y:32-offset, side:"front"});
 
         // --- BTL ---
         if (offset + width > 16) {
             vmap["btl"] = [
-                {x:0,  y:32-(offset+width), side:"back"}, 
-                {x:(offset+width)-16,  y:32-(offset+width), side:"back", corner:true}, 
-                {x:offset+width,  y:32-((offset+width)-16), side:"back", corner:true}, 
+                {x:0,  y:32-(offset+width), side:sides.back|sides.inner}, 
+                {x:(offset+width)-16,  y:32-(offset+width), side:sides.bl|sides.inner, corner:sides.bl|sides.inner}, 
+                {x:offset+width,  y:32-((offset+width)-16), side:sides.right|sides.inner, corner:sides.right|sides.inner},
                 {x:offset+width,  y:32}, 
                 {x:0,  y:32}, 
             ];
         } else if (offset+width > 8) {
             vmap["btl"] = [
-                {x:0,  y:48-2*(offset+width), side:"back", corner:(offset+width===16)}, 
-                {x:(offset+width)*2-16, y:32, side:"back", corner:(offset+width===16)}, 
+                {x:0,  y:48-2*(offset+width), side:sides.bl|sides.inner}, 
+                {x:(offset+width)*2-16, y:32, corner:(offset+width===16)?sides.bl|sides.inner:0}, 
                 {x:0, y:32}, 
             ];
         }
@@ -438,107 +426,103 @@ class WallModel {
         // --- OBTL ---
         if (offset<8) {
             vmap["obtl"] = [
-                {x:16+offset*2,  y:0, side:"front", corner:(offset==0)}, 
+                {x:32, y:32-(16+(offset)*2), side:sides.fl|sides.outer, corner:(offset==0)?sides.fl|sides.outer:0},
+                {x:16+offset*2, y:0}, 
             ];
             if (width+offset >= 8) {
                 vmap["obtl"].push({x:32, y:0});
             } else {
-                vmap["obtl"].push({x:16+(offset+width)*2, y:0, side:"back"});
-                vmap["obtl"].push({x:32, y:32-(16+(offset+width)*2), side:"back"});
+                vmap["obtl"].push({x:16+(offset+width)*2, y:0, side:sides.bl|sides.inner});
+                vmap["obtl"].push({x:32, y:32-(16+(offset+width)*2)});
             }
-            vmap["obtl"].push({x:32, y:32-(16+(offset)*2), side:"front"});
         }
 
         // --- BTLE ---
-        if (offset+width>=16) {
-            vmap["btle"] = [
-                {x:0, y:0}, 
-                {x:offset+width, y:0, side:(offset+width === 16) ? "back" : "", corner:(offset+width === 16)}, 
-            ];
-        } else if (offset+width>=8) {
-            vmap["btle"] = [
-                {x:0, y:0}, 
-                {x:(offset+width)*2-16, y:0, side:"back"}, 
-                {x:(offset+width), y:16-(offset+width), side:"back", corner:true}, 
-            ];
-        } else {
-            vmap["btle"] = [
-                {x:0, y:16-(offset+width)*2, side:"back"}, 
-                {x:(offset+width), y:16-(offset+width), side:"back", corner:true}, 
-            ];
-        }
-        vmap["btle"].push({x:offset+width, y:32});
-        vmap["btle"].push({x:offset, y:32});
-        vmap["btle"].push({x:offset, y:16-offset, side:"front", corner:true});
+        vmap["btle"] = [
+            {x:offset+width, y:32},
+            {x:offset, y:32, side:sides.left|sides.outer},
+            {x:offset, y:16-offset, side:(offset)?sides.fl|sides.outer:0, corner:(offset)?sides.fl|sides.outer:0},
+        ];
         if (offset > 0) {
             vmap["btle"].push({x:0, y:16-offset*2});
         }
+        if (offset+width>=16) {
+            vmap["btle"].push({x:0, y:0}); 
+            vmap["btle"].push({x:offset+width, y:0, side:sides.right|sides.inner});
+        } else if (offset+width>=8) {
+            vmap["btle"].push({x:0, y:0});
+            vmap["btle"].push({x:(offset+width)*2-16, y:0, side:sides.bl|sides.inner});
+            vmap["btle"].push({x:(offset+width), y:16-(offset+width), side:sides.right|sides.inner, corner:sides.right|sides.inner});
+        } else {
+            vmap["btle"].push({x:0, y:16-(offset+width)*2, side:sides.bl|sides.inner});
+            vmap["btle"].push({x:(offset+width), y:16-(offset+width), side:sides.right|sides.inner, corner:sides.right|sides.inner});
+        }
 
         // --- BTR ---
+        vmap["btr"] = [
+            {x:32-offset, y:0, side:sides.right|sides.outer},
+            {x:32-offset, y:16-offset, side:sides.fr|sides.outer, corner:sides.fr|sides.outer},
+            {x:16-offset, y:32-offset, side:sides.front|sides.outer, corner:sides.front|sides.outer},
+            {x:0, y:32-offset},
+        ];
         if (width+offset >= 16) {
-            vmap["btr"] = [
-                {x:0, y:32-(width+offset), side:"back", corner:(width+offset===16)},
-                {x:32-(width+offset), y:0, side:"back", corner:(width+offset===16)},
-            ];
-        } else {
-            vmap["btr"] = [
-                {x:0, y:32-(width+offset), side:"back"},
-                {x:16-(width+offset), y:32-(width+offset), side:"back", corner:true},
-                {x:32-(width+offset), y:16-(width+offset), side:"back", corner:true},
+            vmap["btr"].push(...[
+                {x:0, y:32-(width+offset), side:sides.br|sides.inner},
                 {x:32-(width+offset), y:0},
-            ];
+            ]);
+        } else {
+            vmap["btr"].push(...[
+                {x:0, y:32-(width+offset), side:sides.back|sides.inner},
+                {x:16-(width+offset), y:32-(width+offset), side:sides.br|sides.inner, corner:sides.br|sides.inner},
+                {x:32-(width+offset), y:16-(width+offset), side:sides.left|sides.inner, corner:sides.left|sides.inner},
+                {x:32-(width+offset), y:0},
+            ]);
         }
-        vmap["btr"].push(...[
-            {x:32-offset, y:0},
-            {x:32-offset, y:16-offset, side:"front", corner:true},
-            {x:16-offset, y:32-offset, side:"front", corner:true},
-            {x:0, y:32-offset, side:"front"},
-        ]);
 
         // --- R ---
         vmap["r"] = [ 
             {x:32-(offset+width), y:0}, 
-            {x:32-offset, y:0}, 
+            {x:32-offset, y:0, side:sides.right|sides.outer}, 
             {x:32-offset, y:32}, 
-            {x:32-(offset+width), y:32}, 
+            {x:32-(offset+width), y:32, side:sides.left|sides.inner}, 
         ];
         vmap["btre"] = vmap.r;
         vmap["rtts"] = vmap.r;
 
         // --- RTBS ---
         vmap["rtbs"] = [
+            {x:32-offset, y:16-(offset), side:sides.right|sides.outer, corner:sides.right|sides.outer},
             {x:32-offset,y:32},
-            {x:32-(offset+width),y:32},
+            {x:32-(offset+width),y:32, side:sides.left|sides.inner},
         ];
         if (offset+width>=16) {
-            vmap["rtbs"].push({x:32-(offset+width),y:0, side:(offset+width)===16?"back":"", corner:(offset+width)===16});
+            vmap["rtbs"].push({x:32-(offset+width),y:0});
             vmap["rtbs"].push({x:32,y:0});
         } else if (offset+width>=8) {
-            vmap["rtbs"].push({x:32-(offset+width), y:16-(offset+width), side:"back", corner:true});
-            vmap["rtbs"].push({x:48-2*(offset+width), y:0, side:"back"});
+            vmap["rtbs"].push({x:32-(offset+width), y:16-(offset+width), side:sides.br|sides.inner, corner:sides.br|sides.inner});
+            vmap["rtbs"].push({x:48-2*(offset+width), y:0});
             vmap["rtbs"].push({x:32,y:0});
         } else {
-            vmap["rtbs"].push({x:32-(offset+width),y:16-(offset+width), side:"back", corner:true});
-            vmap["rtbs"].push({x:32, y:16-(offset+width)*2, side:"back"});
+            vmap["rtbs"].push({x:32-(offset+width),y:16-(offset+width), side:sides.br|sides.inner, corner:sides.br|sides.inner});
+            vmap["rtbs"].push({x:32, y:16-(offset+width)*2});
         }
-        vmap["rtbs"].push({x:32, y:16-offset*2, side:"front", corner:(offset == 0)});
         if (offset>0) {
-            vmap["rtbs"].push({x:32-offset, y:16-(offset), side:"front", corner:true});
+            vmap["rtbs"].push({x:32, y:16-offset*2, side:sides.fl|sides.outer});
         }
 
         // --- RTB ---
         if (offset + width > 16) {
             vmap["rtb"] = [
-                {x:32-(offset+width),  y:32, side:"back"}, 
-                {x:32-(offset+width),  y:48-(offset+width), side:"back", corner:true}, 
-                {x:48-(offset+width),  y:32-(offset+width), side:"back", corner:true}, 
+                {x:32-(offset+width),  y:32, side:sides.left|sides.outer}, 
+                {x:32-(offset+width),  y:48-(offset+width), side:sides.br|sides.outer, corner:sides.br|sides.outer}, 
+                {x:48-(offset+width),  y:32-(offset+width), side:sides.back|sides.outer, corner:sides.back|sides.outer}, 
                 {x:32,  y:32-(offset+width)}, 
                 {x:32,  y:32}, 
             ];
         } else if (offset+width > 8) {
             vmap["rtb"] = [
-                {x:48-2*(offset+width), y:32, side:"back", corner:(offset+width===16)}, 
-                {x:32, y:48-(offset+width)*2, side:"back", corner:(offset+width===16)}, 
+                {x:48-2*(offset+width), y:32, side:sides.br|sides.outer, corner:(offset+width===16)?sides.br|sides.outer:0}, 
+                {x:32, y:48-(offset+width)*2, corner:(offset+width===16)?sides.bl|sides.outer:0}, 
                 {x:32, y:32}, 
             ];
         }
@@ -546,130 +530,130 @@ class WallModel {
         // --- ORTB ---
         if (offset<8) {
             vmap["ortb"] = [
-                {x:16-offset*2,  y:0, side:"front", corner:(offset==0)}, 
+                {x:0, y:16-(offset)*2, side:sides.fr|sides.inner},
+                {x:16-offset*2,  y:0}, 
             ];
             if (width+offset >= 8) {
                 vmap["ortb"].push({x:0, y:0});
             } else {
-                vmap["ortb"].push({x:16-(offset+width)*2, y:0, side:"back"});
-                vmap["ortb"].push({x:0, y:16-(offset+width)*2, side:"back"});
+                vmap["ortb"].push({x:16-(offset+width)*2, y:0, side:sides.bl|sides.outer});
+                vmap["ortb"].push({x:0, y:16-(offset+width)*2});
             }
-            vmap["ortb"].push({x:0, y:16-(offset)*2, side:"front"});
         }
 
         // --- RTBE ---
         vmap["rtbe"] = [
-            {x:32, y:32-(offset+width), side:"back"}, 
-            {x:32, y:32-offset, side:"front"}, 
-            {x:16-offset, y:32-offset, side:"front", corner:true}, 
+            {x:32, y:32-(offset+width)}, 
+            {x:32, y:32-offset, side:sides.front|sides.outer}, 
+            {x:16-offset, y:32-offset, side:(offset)?sides.fr|sides.outer:0, corner:sides.fr|sides.outer}, 
         ];
-        if (offset+0) {
-            vmap["rtbe"].push({x:16-offset*2, y:32, side:"front"});
+        if (offset>0) {
+            vmap["rtbe"].push({x:16-offset*2, y:32});
         }
         if (offset+width>=16) {
             vmap["rtbe"].push({x:0, y:32});
-            vmap["rtbe"].push({x:0, y:32-(offset+width), side:"back", corner:(offset+width)===16});
+            vmap["rtbe"].push({x:0, y:32-(offset+width), side:sides.back|sides.inner});
         } else if (offset+width>=8) {
             vmap["rtbe"].push({x:0, y:32});
-            vmap["rtbe"].push({x:0, y:48-2*(offset+width), side:"back"});
-            vmap["rtbe"].push({x:16-(offset+width), y:32-(offset+width), side:"back", corner:true});
+            vmap["rtbe"].push({x:0, y:48-2*(offset+width), side:sides.br|sides.inner});
+            vmap["rtbe"].push({x:16-(offset+width), y:32-(offset+width), side:sides.back|sides.inner, corner:sides.back|sides.inner});
         } else {
-            vmap["rtbe"].push({x:16-(offset+width)*2, y:32, side:"back"});
-            vmap["rtbe"].push({x:16-(offset+width), y:32-(offset+width), side:"back", corner:true});
+            vmap["rtbe"].push({x:16-(offset+width)*2, y:32, side:sides.br|sides.inner});
+            vmap["rtbe"].push({x:16-(offset+width), y:32-(offset+width), side:sides.back|sides.inner, corner:sides.back|sides.inner});
         }
 
         // --- RTT ---
         vmap["rtt"] = [
-            {x:0, y:offset, side:"back"},
-            {x:16-offset, y:offset, side:"back", corner:true},
-            {x:32-offset, y:16+offset, side:"back", corner:true},
+            {x:0, y:offset, side:sides.back|sides.outer},
+            {x:16-offset, y:offset, side:sides.bl|sides.outer, corner:sides.bl|sides.outer},
+            {x:32-offset, y:16+offset, side:sides.right|sides.outer, corner:sides.right|sides.outer},
             {x:32-offset, y:32},
         ];
-
         if (width+offset >= 16) {
-            vmap["rtt"].push({x:32-(width+offset), y:32, side:"front", corner:(width+offset===16)});
-            vmap["rtt"].push({x:0, y:width+offset, side:"front", corner:(width+offset===16)});
+            vmap["rtt"].push({x:32-(width+offset), y:32, side:sides.fl|sides.inner, corner:(width+offset===16)?sides.fl|sides.inner:0});
+            vmap["rtt"].push({x:0, y:width+offset});
         } else {
             vmap["rtt"].push(...[
-                {x:32-(width+offset), y:32},
-                {x:32-(width+offset), y:16+(width+offset), side:"front", corner:true},
-                {x:16-(width+offset), y:width+offset, side:"front", corner:true},
-                {x:0, y:width+offset, side:"front"},
+                {x:32-(width+offset), y:32, side:sides.left|sides.inner},
+                {x:32-(width+offset), y:16+(width+offset), side:sides.fl|sides.inner, corner:sides.fl|sides.inner},
+                {x:16-(width+offset), y:width+offset, side:sides.front|sides.inner, corner:sides.fl|sides.inner},
+                {x:0, y:width+offset},
             ]);
         }
 
         // --- TTRS ---
         vmap["ttrs"] = [
-            {x:16-offset, y:offset, back:true, right:true, corner:true}, 
+            {x:16-offset, y:offset, side:sides.back|sides.inner, corner:sides.back|sides.inner}, 
             {x:32, y:offset, back:true}, 
-            {x:32, y:offset+width, front:true, inner:true}, 
+            {x:32, y:offset+width, side:sides.front|sides.outer}, 
         ];
         if (offset+width>=16) {
-            vmap["ttrs"].push({x:0, y:offset+width, front:true, left:(offset+width)===16, inner:true, corner:(offset+width)===16});
+            vmap["ttrs"].push({x:0, y:offset+width, corner:(offset+width===16)?sides.back|sides.outer:0});
             vmap["ttrs"].push({x:0, y:0});
         } else if (offset+width>=8) {
-            vmap["ttrs"].push({x:16-(offset+width), y:offset+width, front:true, left:true, inner:true, corner:true});
-            vmap["ttrs"].push({x:0, y:2*(offset+width)-16, front:true, left:true, inner:true});
+            vmap["ttrs"].push({x:16-(offset+width), y:offset+width, side:sides.fl|sides.outer, corner:sides.fl|sides.outer});
+            vmap["ttrs"].push({x:0, y:2*(offset+width)-16});
             vmap["ttrs"].push({x:0, y:0});
         } else {
-            vmap["ttrs"].push({x:16-(offset+width), y:offset+width, front:true, left:true, inner:true, corner:true});
-            vmap["ttrs"].push({x:16-(offset+width)*2, y:0, front:true, left:true, inner:true});
+            vmap["ttrs"].push({x:16-(offset+width), y:offset+width, side:sides.fl|sides.outer, corner:sides.fl|sides.outer});
+            vmap["ttrs"].push({x:16-(offset+width)*2, y:0});
         }
-        if (offset+0) {
-            vmap["ttrs"].push({x:16-offset*2, y:0, back:true, right:true});
+        if (offset>0) {
+            vmap["ttrs"].push({x:16-offset*2, y:0, side:sides.bl|sides.inner});
         }
 
         // --- TTR ---
         if (offset + width > 16) {
             vmap["ttr"] = [
                 {x:32,  y:0}, 
-                {x:32,  y:offset+width, front:true, inner:true}, 
-                {x:48-(offset+width),  y:offset+width, front:true, left:true, inner:true, corner:true}, 
-                {x:32-(offset+width),  y:(offset+width)-16, front:true, left:true, inner:true, corner:true}, 
-                {x:32-(offset+width),  y:0, left:true, inner:true, corner:true}, 
+                {x:32,  y:offset+width, side:sides.front|sides.outer}, 
+                {x:48-(offset+width),  y:offset+width, side:sides.fl|sides.outer, corner:sides.fl|sides.outer}, 
+                {x:32-(offset+width),  y:(offset+width)-16, side:sides.left|sides.outer, corner:sides.left|sides.outer}, 
+                {x:32-(offset+width),  y:0}, 
             ];
         } else if (offset+width > 8) {
             vmap["ttr"] = [
                 {x:32,  y:0}, 
-                {x:32, y:(offset+width)*2-16, front:true, left:true, inner:true, corner:(offset+width===16)}, 
-                {x:48-2*(offset+width), y:0, front:true, left:true, inner:true, corner:(offset+width===16)}, 
+                {x:32, y:(offset+width)*2-16, side:sides.fl|sides.outer, corner:(offset+width===16)?sides.fl|sides.outer:0}, 
+                {x:48-2*(offset+width), y:0}, 
             ];
         }
 
         // --- OTTR ---
         if (offset<8) {
             vmap["ottr"] = [
-                {x:0, y:16+(offset)*2, right:true, back:true, corner:(offset===0)},
-                {x:16-offset*2, y:32, right:true, back:true, corner:(offset==0)}, 
+                {x:0, y:16+(offset)*2, side:sides.bl|sides.inner},
+                {x:16-offset*2, y:32, corner:(offset===0)?sides.bl|sides.inner:0}, 
             ];
             if (width+offset >= 8) {
                 vmap["ottr"].push({x:0, y:32});
             } else {
-                vmap["ottr"].push({x:16-(offset+width)*2, y:32, left:true, front:true});
-                vmap["ottr"].push({x:0, y:16+(offset+width)*2, left:true, front:true});
+                vmap["ottr"].push({x:16-(offset+width)*2, y:32, side:sides.fl|sides.outer});
+                vmap["ottr"].push({x:0, y:16+(offset+width)*2});
             }
         }
 
         // --- TTRE ---
         vmap["ttre"] = [
-            {x:32-(offset+width), y:0, left:true, inner:true}, 
-            {x:32-offset, y:0, right:true}, 
-            {x:32-offset, y:16+offset, right:true, back:true, corner:true}, 
+            {x:32-(offset+width), y:0}, 
+            {x:32-offset, y:0, side:sides.right|sides.outer}, 
+            {x:32-offset, y:16+offset, side:(offset)?sides.bl|sides.outer:0, corner:sides.bl|sides.outer}, 
         ];
-        if (offset+0) {
-            vmap["ttre"].push({x:32, y:16+offset*2, back:true, right:true});
+        if (offset>0) {
+            vmap["ttre"].push({x:32, y:16+offset*2});
         }
         if (offset+width>=16) {
             vmap["ttre"].push({x:32, y:32});
-            vmap["ttre"].push({x:32-(offset+width), y:32, front:(offset+width===16), left:true, inner:true, corner:(offset+width===16)});
+            vmap["ttre"].push({x:32-(offset+width), y:32, side:sides.left|sides.inner, corner:(offset+width===16)?sides.left|sides.inner:0});
         } else if (offset+width>=8) {
             vmap["ttre"].push({x:32, y:32});
-            vmap["ttre"].push({x:48-2*(offset+width), y:32, front:true, left:true, inner:true});
-            vmap["ttre"].push({x:32-(offset+width), y: 16+(offset+width), front:true, left:true, inner:true, corner:true});
+            vmap["ttre"].push({x:48-2*(offset+width), y:32, side:sides.fl|sides.inner});
+            vmap["ttre"].push({x:32-(offset+width), y: 16+(offset+width), side:sides.left|sides.inner});
         } else {
-            vmap["ttre"].push({x:32, y:16+(offset+width)*2, front:true, left:true, inner:true});
-            vmap["ttre"].push({x:32-(offset+width), y: 16+(offset+width), front:true, left:true, inner:true, corner:true});
+            vmap["ttre"].push({x:32, y:16+(offset+width)*2, side:sides.fl|sides.inner});
+            vmap["ttre"].push({x:32-(offset+width), y: 16+(offset+width), side:sides.left|sides.inner});
         }
+
     }
 }
 

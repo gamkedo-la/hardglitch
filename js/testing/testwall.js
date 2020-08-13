@@ -235,23 +235,24 @@ class Env {
         for (let j=0; j<models.length; j++) {
             for (let i=0; i<shapes.length; i++) {
                 let pos = {x:32*(8+i), y:32*((j*2)+1)};
+                // bottom
                 for (const face of models[j].getFaces(pos, shapes[i], sides.bottom)) {
                     this.ctx.fillStyle = new Color(255,0,0,1).asRGB();
                     this.ctx.fill(face.toPath());
                 }
                 // back left
                 for (const face of models[j].getFaces(pos, shapes[i], sides.bl)) {
-                    this.ctx.fillStyle = new Color(0,127,63,.75).asRGB();
+                    this.ctx.fillStyle = new Color(0,127,63,.5).asRGB();
                     this.ctx.fill(face.toPath());
                 }
                 // back
                 for (const face of models[j].getFaces(pos, shapes[i], sides.back)) {
-                    this.ctx.fillStyle = new Color(0,255,127,.75).asRGB();
+                    this.ctx.fillStyle = new Color(0,255,127,.5).asRGB();
                     this.ctx.fill(face.toPath());
                 }
                 // back right
                 for (const face of models[j].getFaces(pos, shapes[i], sides.br)) {
-                    this.ctx.fillStyle = new Color(0,127,190,.75).asRGB();
+                    this.ctx.fillStyle = new Color(0,127,190,.5).asRGB();
                     this.ctx.fill(face.toPath());
                 }
 
@@ -281,6 +282,18 @@ class Env {
                 let edges = models[j].getEdges(pos, shapes[i], sides.vertical|sides.bottom|sides.top|sides.back|sides.bl|sides.br|sides.fr|sides.front|sides.fl|sides.left|sides.right);
                 this.ctx.strokeStyle = new Color(0,255,255,.75).asRGB();
                 this.ctx.stroke(edges.toPath());
+            }
+        }
+        // test inner/outer
+        for (let i=0; i<shapes.length; i++) {
+            let pos = {x:32*(8+i), y:32*((6*2)+1)};
+            for (const face of models[4].getFaces(pos, shapes[i], sides.outer)) {
+                this.ctx.fillStyle = new Color(0,255,0,.5).asRGB();
+                this.ctx.fill(face.toPath());
+            }
+            for (const face of models[4].getFaces(pos, shapes[i], sides.inner)) {
+                this.ctx.fillStyle = new Color(255,0,0,.5).asRGB();
+                this.ctx.fill(face.toPath());
             }
         }
         drawGrid(this.ctx, 32*8, 0, 48, 32, 16, 16, new Color(127,127,127,.25));
