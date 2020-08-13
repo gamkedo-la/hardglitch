@@ -121,6 +121,20 @@ class TileGridView {
                 if (pwall) this.procWallSys.add(pwall);
             }
         }
+        for (let i=0; i<seam_grid.elements.length; i++) {
+            let id = seam_grid.elements[i];
+            if (!id) continue;
+            let coords = position_from_index(size.x*2, size.y*2, i);
+            let pos = {x: coords.x*PIXELS_PER_HALF_SIDE, y:coords.y*PIXELS_PER_HALF_SIDE};
+            let sid = parse_tile_id(id);
+            if (sid.layer === "wall") {
+                let pwall = pwallgen.create(pos, sid.name, 32);
+                if (pwall) this.procWallSys.add(pwall);
+            } else if (sid.layer === "hole") {
+                let pwall = pholegen.create(pos, sid.name, 16);
+                if (pwall) this.procWallSys.add(pwall);
+            }
+        }
 
         // add blip effects to walls
         let addblip = true;
