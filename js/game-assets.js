@@ -63,7 +63,7 @@ const game_assets = { // Description of the assets to load.
         jump: './audio/Jump.mp3',
         move: './audio/Move.mp3',
         repair: './audio/Repair-001.mp3',
-        select: './audio/Select-001.mp3',
+        select: './audio/Select.mp3',
     },
 
     audio_streams: { // Longer audio assets streamed from disk/server. Currently limited to one unique event per audio source.
