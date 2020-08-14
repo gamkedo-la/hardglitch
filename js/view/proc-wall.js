@@ -89,7 +89,7 @@ class ProcWall {
 }
 
 class ProcWallGenerator {
-    constructor(model, colormap, faceMask=sides.top|sides.bottom|sides.allAround, edgeMask=sides.top|sides.bottom|sides.vertical|sides.allAround) {
+    constructor(model, colormap, faceMask=sides.top|sides.bottom|sides.allFront|sides.allBack, edgeMask=sides.top|sides.bottom|sides.vertical|sides.allAround) {
         this.model = model;
         this.colormap = colormap;
         this.faceMask = faceMask;
@@ -104,6 +104,7 @@ class ProcWallGenerator {
 
     create(pos, id, height) {
         let shapes = [];
+        let iomask = (sides.inner|sides.outer)&this.edgeMask;
         // bottom faces
         if (this.faceMask & sides.bottom) {
             let color = this.colormap[sides.bottom];
@@ -113,7 +114,8 @@ class ProcWallGenerator {
         }
         // bottom highlights
         if (this.edgeMask & sides.bottom && (this.highlights.major | this.highlights.minor)) {
-            let edges = this.model.getEdges(pos, id, sides.bottom|(this.edgeMask&sides.allAround));
+            let mask = (iomask) ? sides.allAround: sides.allAround&this.edgeMask;
+            let edges = this.model.getEdges(pos, id, sides.bottom|mask, iomask);
             if (edges.length) {
                 if (this.highlights.major) shapes.push(new PathShape(edges.toPath(), false, this.colormap[sides.hlM], this.highlights.majorWidth));
                 if (this.highlights.minor) shapes.push(new PathShape(edges.toPath(), false, this.colormap[sides.hlm], this.highlights.minorWidth));
@@ -122,13 +124,15 @@ class ProcWallGenerator {
         // back faces
         for (const side of [sides.br, sides.back, sides.bl]) {
             let color = this.colormap[side];
-            for (const face of this.model.getFaces(pos, id, side)) {
+            let mask = (iomask) ? side: side&this.faceMask;
+            for (const face of this.model.getFaces(pos, id, mask, iomask)) {
                 shapes.push(new PathShape(face.toPath(), true, color));
             }
         }
         // back highlights
         if (this.edgeMask & sides.vertical && (this.highlights.major | this.highlights.minor)) {
-            let edges = this.model.getEdges(pos, id, sides.vertical|(this.edgeMask&sides.allBack));
+            let mask = (iomask) ? sides.allBack: sides.allBack&this.edgeMask;
+            let edges = this.model.getEdges(pos, id, sides.vertical|mask, iomask);
             if (edges.length) {
                 if (this.highlights.major) shapes.push(new PathShape(edges.toPath(), false, this.colormap[sides.hlM], this.highlights.majorWidth));
                 if (this.highlights.minor) shapes.push(new PathShape(edges.toPath(), false, this.colormap[sides.hlm], this.highlights.minorWidth));
@@ -137,13 +141,15 @@ class ProcWallGenerator {
         // front faces
         for (const side of [sides.fl, sides.front, sides.fr]) {
             let color = this.colormap[side];
-            for (const face of this.model.getFaces(pos, id, side)) {
+            let mask = (iomask) ? side: side&this.faceMask;
+            for (const face of this.model.getFaces(pos, id, mask, iomask)) {
                 shapes.push(new PathShape(face.toPath(), true, color));
             }
         }
         // front highlights
         if (this.edgeMask & sides.vertical && (this.highlights.major | this.highlights.minor)) {
-            let edges = this.model.getEdges(pos, id, sides.vertical|(this.edgeMask&sides.allFront));
+            let mask = (iomask) ? sides.allFront: sides.allFront&this.edgeMask;
+            let edges = this.model.getEdges(pos, id, sides.vertical|mask, iomask);
             if (edges.length) {
                 if (this.highlights.major) shapes.push(new PathShape(edges.toPath(), false, this.colormap[sides.hlM], this.highlights.majorWidth));
                 if (this.highlights.minor) shapes.push(new PathShape(edges.toPath(), false, this.colormap[sides.hlm], this.highlights.minorWidth));
@@ -158,7 +164,8 @@ class ProcWallGenerator {
         }
         // top highlights
         if (this.edgeMask & sides.top && (this.highlights.major | this.highlights.minor)) {
-            let edges = this.model.getEdges(pos, id, sides.top|(this.edgeMask&sides.allAround));
+            let mask = (iomask) ? sides.allAround: sides.allAround&this.edgeMask;
+            let edges = this.model.getEdges(pos, id, sides.top|mask, iomask);
             if (edges.length) {
                 if (this.highlights.major) shapes.push(new PathShape(edges.toPath(), false, this.colormap[sides.hlM], this.highlights.majorWidth));
                 if (this.highlights.minor) shapes.push(new PathShape(edges.toPath(), false, this.colormap[sides.hlm], this.highlights.minorWidth));
@@ -171,20 +178,6 @@ class ProcWallGenerator {
 
 function procWallGenSelector(kind) {
     let gen;
-    // FIXME
-    let colorMap = {
-        [sides.top]: new Color(0,255,0,.25),
-        [sides.bottom]: new Color(255,0,0),
-        [sides.fl]: new Color(200,200,200,.5),
-        [sides.front]: new Color(175,175,175,.5),
-        [sides.fr]: new Color(125,125,125,.5),
-        [sides.bl]: new Color(75,75,75,.5),
-        [sides.back]: new Color(50,50,50,.5),
-        [sides.br]: new Color(25,25,25,.5),
-        [sides.hlm]: new Color(0,222,164,.25),
-        [sides.hlM]: new Color(0,222,164,.85),
-    }
-
     if (kind == "wall") {
         let model = new WallModel(16,32);
         gen = new ProcWallGenerator(model, wallColorMap);
@@ -193,6 +186,10 @@ function procWallGenSelector(kind) {
         let model = new WallModel(8,16);
         gen = new ProcWallGenerator(model, holeColorMap);
         gen.highlights.minor = true;
+        //gen.faceMask=sides.outer;
+        //gen.edgeMask=sides.outer|sides.top|sides.vertical|sides.bottom;
+        gen.faceMask=sides.inner;
+        gen.edgeMask=sides.inner|sides.top|sides.vertical|sides.bottom;
     }
     return gen;
 }

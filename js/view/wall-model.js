@@ -124,14 +124,15 @@ class WallModel {
         return new ModelFace(...fv);
     }
 
-    _bottomEdges(pos, id, mask) {
+    _bottomEdges(pos, id, mask, iomask) {
         let verts = this.vertexMap[id];
         let edges = new ModelEdges();
         if (verts) {
             let vlen = verts.length;
             // filter and translate verts to position
             for (let i=0; i<verts.length; i++) {
-                if (!(verts[i].side & mask)) continue;
+                let match = (iomask) ? (verts[i].side&mask && verts[i].side&iomask) : verts[i].side&mask;
+                if (!match) continue;
                 edges.push(new ModelEdge(
                     {x:pos.x+verts[i].x, y:pos.y+verts[i].y}, 
                     {x:pos.x+verts[(i+1)%vlen].x, y:pos.y+verts[(i+1)%vlen].y}, 
@@ -153,14 +154,15 @@ class WallModel {
         return new ModelFace(...fv);
     }
 
-    _topEdges(pos, id, mask) {
+    _topEdges(pos, id, mask, iomask) {
         let verts = this.vertexMap[id];
         let edges = new ModelEdges();
         if (verts) {
             let vlen = verts.length;
             // filter and translate verts to position
             for (let i=0; i<verts.length; i++) {
-                if (!(verts[i].side & mask)) continue;
+                let match = (iomask) ? (verts[i].side&mask && verts[i].side&iomask) : verts[i].side&mask;
+                if (!match) continue;
                 edges.push(new ModelEdge(
                     {x:pos.x+verts[i].x, y:pos.y+verts[i].y-this.height}, 
                     {x:pos.x+verts[(i+1)%vlen].x, y:pos.y+verts[(i+1)%vlen].y-this.height}, 
@@ -170,14 +172,15 @@ class WallModel {
         return edges;
     }
 
-    _otherFaces(pos, id, mask) {
+    _otherFaces(pos, id, mask, iomask) {
         let faces = [];
         let verts = this.vertexMap[id];
         if (!verts) return faces;
         let vlen = verts.length;
         // iterate around vertices of bottom face
         for (let i=0; i<verts.length; i++) {
-            if (verts[i].side&mask) {
+            let match = (iomask) ? (verts[i].side&mask && verts[i].side&iomask) : verts[i].side&mask;
+            if (match) {
                 let fv = [
                     {x:pos.x+verts[i].x, y:pos.y+verts[i].y},
                     {x:pos.x+verts[(i+1)%vlen].x, y:pos.y+verts[(i+1)%vlen].y},
@@ -190,13 +193,14 @@ class WallModel {
         return faces;
     }
 
-    _otherEdges(pos, id, mask) {
+    _otherEdges(pos, id, mask, iomask) {
         let edges = new ModelEdges();
         let verts = this.vertexMap[id];
         if (verts) {
             // iterate around vertices of bottom face
             for (let i=0; i<verts.length; i++) {
-                if (verts[i].corner&mask) {
+                let match = (iomask) ? (verts[i].corner&mask && verts[i].corner&iomask) : verts[i].corner&mask;
+                if (match) {
                     edges.push(new ModelEdge(
                         {x:pos.x+verts[i].x, y:pos.y+verts[i].y}, 
                         {x:pos.x+verts[i].x, y:pos.y+verts[i].y-this.height}, 
@@ -207,7 +211,7 @@ class WallModel {
         return edges;
     }
 
-    getFaces(pos, id, mask) {
+    getFaces(pos, id, mask, iomask=0) {
         let faces = [];
         // faces are added to list starting with bottom, then middle, then top
         if (mask&sides.bottom) {
@@ -215,7 +219,7 @@ class WallModel {
             if (face) faces.push(face);
         }
         if (mask) {
-            faces = faces.concat(this._otherFaces(pos, id, mask));
+            faces = faces.concat(this._otherFaces(pos, id, mask, iomask));
         }
         if (mask&sides.top) {
             let face = this._topFace(pos,id);
@@ -224,17 +228,17 @@ class WallModel {
         return faces;
     }
 
-    getEdges(pos, id, mask) {
+    getEdges(pos, id, mask, iomask=0) {
         let edges = new ModelEdges();
         // edges are added to list starting with bottom, then middle, then top
         if (mask&sides.bottom) {
-            edges.push(this._bottomEdges(pos, id, mask));
+            edges.push(this._bottomEdges(pos, id, mask, iomask));
         }
         if (mask&sides.vertical) {
-            edges.push(this._otherEdges(pos, id, mask));
+            edges.push(this._otherEdges(pos, id, mask, iomask));
         }
         if (mask&sides.top) {
-            edges.push(this._topEdges(pos, id, mask));
+            edges.push(this._topEdges(pos, id, mask, iomask));
         }
         return edges;
     }
@@ -259,7 +263,12 @@ class WallModel {
             {x:0, y:offset+width},
         ];
         vmap["ttls"] = vmap.t;
-        vmap["rtte"] = vmap.t;
+        vmap["rtte"] = [ 
+            {x:0, y:offset, side:sides.back|sides.outer}, 
+            {x:32, y:offset}, 
+            {x:32, y:offset+width, side:sides.front|sides.inner, corner:(offset===0 && (offset+width===16))?sides.front|sides.inner:0}, 
+            {x:0, y:offset+width},
+        ];
 
         // --- TTL ---
         vmap["ttl"] = [ 
@@ -547,13 +556,13 @@ class WallModel {
         // --- ORTB ---
         if (offset<8) {
             vmap["ortb"] = [
-                {x:0, y:16-(offset)*2, side:sides.fr|sides.inner},
+                {x:0, y:16-(offset)*2, side:sides.fr|sides.outer},
                 {x:16-offset*2,  y:0}, 
             ];
             if (width+offset >= 8) {
                 vmap["ortb"].push({x:0, y:0});
             } else {
-                vmap["ortb"].push({x:16-(offset+width)*2, y:0, side:sides.bl|sides.outer});
+                vmap["ortb"].push({x:16-(offset+width)*2, y:0, side:sides.bl|sides.inner});
                 vmap["ortb"].push({x:0, y:16-(offset+width)*2});
             }
         }
@@ -601,23 +610,23 @@ class WallModel {
 
         // --- TTRS ---
         vmap["ttrs"] = [
-            {x:16-offset, y:offset, side:sides.back|sides.inner, corner:sides.back|sides.inner}, 
-            {x:32, y:offset, back:true}, 
-            {x:32, y:offset+width, side:sides.front|sides.outer}, 
+            {x:16-offset, y:offset, side:sides.back|sides.outer, corner:sides.back|sides.outer}, 
+            {x:32, y:offset}, 
+            {x:32, y:offset+width, side:sides.front|sides.inner}, 
         ];
         if (offset+width>=16) {
-            vmap["ttrs"].push({x:0, y:offset+width, corner:(offset+width===16)?sides.back|sides.outer:0});
+            vmap["ttrs"].push({x:0, y:offset+width, corner:(offset+width===16)?sides.back|sides.inner:0});
             vmap["ttrs"].push({x:0, y:0});
         } else if (offset+width>=8) {
-            vmap["ttrs"].push({x:16-(offset+width), y:offset+width, side:sides.fl|sides.outer, corner:sides.fl|sides.outer});
+            vmap["ttrs"].push({x:16-(offset+width), y:offset+width, side:sides.fl|sides.inner, corner:sides.fl|sides.inner});
             vmap["ttrs"].push({x:0, y:2*(offset+width)-16});
             vmap["ttrs"].push({x:0, y:0});
         } else {
-            vmap["ttrs"].push({x:16-(offset+width), y:offset+width, side:sides.fl|sides.outer, corner:sides.fl|sides.outer});
+            vmap["ttrs"].push({x:16-(offset+width), y:offset+width, side:sides.fl|sides.inner, corner:sides.fl|sides.inner});
             vmap["ttrs"].push({x:16-(offset+width)*2, y:0});
         }
         if (offset>0) {
-            vmap["ttrs"].push({x:16-offset*2, y:0, side:sides.bl|sides.inner});
+            vmap["ttrs"].push({x:16-offset*2, y:0, side:sides.bl|sides.outer});
         }
 
         // --- TTR ---
@@ -640,13 +649,13 @@ class WallModel {
         // --- OTTR ---
         if (offset<8) {
             vmap["ottr"] = [
-                {x:0, y:16+(offset)*2, side:sides.bl|sides.inner},
-                {x:16-offset*2, y:32, corner:(offset===0)?sides.bl|sides.inner:0}, 
+                {x:0, y:16+(offset)*2, side:sides.bl|sides.outer},
+                {x:16-offset*2, y:32, corner:(offset===0)?sides.bl|sides.outer:0}, 
             ];
             if (width+offset >= 8) {
                 vmap["ottr"].push({x:0, y:32});
             } else {
-                vmap["ottr"].push({x:16-(offset+width)*2, y:32, side:sides.fl|sides.outer});
+                vmap["ottr"].push({x:16-(offset+width)*2, y:32, side:sides.fl|sides.inner});
                 vmap["ottr"].push({x:0, y:16+(offset+width)*2});
             }
         }

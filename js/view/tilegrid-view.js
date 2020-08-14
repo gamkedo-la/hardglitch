@@ -108,31 +108,27 @@ class TileGridView {
         let pwallgen = procWallGenSelector("wall");
         let pholegen = procWallGenSelector("hole");
         for (let i=0; i<floor_grid.elements.length; i++) {
-            let id = floor_grid.elements[i];
-            if (!id) continue;
             let coords = position_from_index(size.x*2, size.y*2, i);
             let pos = {x: coords.x*PIXELS_PER_HALF_SIDE, y:coords.y*PIXELS_PER_HALF_SIDE};
-            let sid = parse_tile_id(id);
-            if (sid.layer === "wall") {
-                let pwall = pwallgen.create(pos, sid.name, 32);
-                if (pwall) this.procWallSys.add(pwall);
-            } else if (sid.layer === "hole") {
-                let pwall = pholegen.create(pos, sid.name, 16);
-                if (pwall) this.procWallSys.add(pwall);
+            let id = parse_tile_id(floor_grid.elements[i]);
+            if (id) {
+                if (id.layer === "wall") {
+                    let pwall = pwallgen.create(pos, id.name, 32);
+                    if (pwall) this.procWallSys.add(pwall);
+                } else if (id.layer === "hole") {
+                    let pwall = pholegen.create(pos, id.name, 16);
+                    if (pwall) this.procWallSys.add(pwall);
+                }
             }
-        }
-        for (let i=0; i<seam_grid.elements.length; i++) {
-            let id = seam_grid.elements[i];
-            if (!id) continue;
-            let coords = position_from_index(size.x*2, size.y*2, i);
-            let pos = {x: coords.x*PIXELS_PER_HALF_SIDE, y:coords.y*PIXELS_PER_HALF_SIDE};
-            let sid = parse_tile_id(id);
-            if (sid.layer === "wall") {
-                let pwall = pwallgen.create(pos, sid.name, 32);
-                if (pwall) this.procWallSys.add(pwall);
-            } else if (sid.layer === "hole") {
-                let pwall = pholegen.create(pos, sid.name, 16);
-                if (pwall) this.procWallSys.add(pwall);
+            id = parse_tile_id(seam_grid.elements[i]);
+            if (id) {
+                if (id.layer === "wall") {
+                    let pwall = pwallgen.create(pos, id.name, 32);
+                    if (pwall) this.procWallSys.add(pwall);
+                } else if (id.layer === "hole") {
+                    let pwall = pholegen.create(pos, id.name, 16);
+                    if (pwall) this.procWallSys.add(pwall);
+                }
             }
         }
 

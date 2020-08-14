@@ -154,8 +154,8 @@ class Env {
         let tsize = 32;
         let width = 16;
         let height = 12;
-        //let width = 8;
-        //let height = 8;
+        //let width = 2;
+        //let height = 2;
         // generate the test grid and level data
         let grid = new Grid(width, height);
         gen(grid);
@@ -175,9 +175,6 @@ class Env {
         genSeamOverlay("lvl1", bg_grid, seam_grid);
 
         // draw background overlay
-        let pwalls = [];
-        let pwallgen = new procWallGenSelector("wall");
-        let pholegen = new procWallGenSelector("hole");
         for (let j=0; j<bg_grid.height; j++) {
             for (let i=0; i<bg_grid.width; i++) {
                 let id = parse_tile_id(bg_grid.get_at(i,j));
@@ -187,18 +184,6 @@ class Env {
                 let img = template[id.name];
                 if (!img) continue;
                 this.ctx.drawImage(img, tsize*i, tsize*j);
-
-                // walls
-                if (id.layer === "wall") {
-                    let pos = {x:32*i, y:32*j};
-                    let pwall = pwallgen.create(pos, id.name, 32);
-                    if (pwall) pwalls.push(pwall);
-                } else if (id.layer === "hole") {
-                    let pos = {x:32*i, y:32*j};
-                    let pwall = pholegen.create(pos, id.name, 20);
-                    if (pwall) pwalls.push(pwall);
-                }
-
             }
         }
 
@@ -213,16 +198,35 @@ class Env {
                 let img = template[id.name];
                 if (!img) continue;
                 this.ctx.drawImage(img, tsize*i, tsize*j);
+            }
+        }
 
-                // walls
-                if (id.layer === "wall") {
-                    let pos = {x:32*i, y:32*j};
-                    let pwall = pwallgen.create(pos, id.name, 32);
-                    if (pwall) pwalls.push(pwall);
-                } else if (id.layer === "hole") {
-                    let pos = {x:32*i, y:32*j};
-                    let pwall = pholegen.create(pos, id.name, 20);
-                    if (pwall) pwalls.push(pwall);
+        // procedural walls
+        let pwalls = [];
+        let pwallgen = procWallGenSelector("wall");
+        let pholegen = procWallGenSelector("hole");
+        for (let j=0; j<bg_grid.height; j++) {
+            for (let i=0; i<bg_grid.width; i++) {
+                let pos = {x:32*i, y:32*j};
+                let id = parse_tile_id(bg_grid.get_at(i,j));
+                if (id) {
+                    if (id.layer === "wall") {
+                        let pwall = pwallgen.create(pos, id.name, 32);
+                        if (pwall) pwalls.push(pwall);
+                    } else if (id.layer === "hole") {
+                        let pwall = pholegen.create(pos, id.name, 16);
+                        if (pwall) pwalls.push(pwall);
+                    }
+                }
+                id = parse_tile_id(seam_grid.get_at(i,j));
+                if (id) {
+                    if (id.layer === "wall") {
+                        let pwall = pwallgen.create(pos, id.name, 32);
+                        if (pwall) pwalls.push(pwall);
+                    } else if (id.layer === "hole") {
+                        let pwall = pholegen.create(pos, id.name, 16);
+                        if (pwall) pwalls.push(pwall);
+                    }
                 }
             }
         }
@@ -236,7 +240,7 @@ class Env {
         if (testModel) {
             this.ctx.fillStyle = "black";
             this.ctx.fillRect(32*8,0, 32*24,32*16);
-            drawGrid(this.ctx, 32*8, 0, 24, 16, 32, 32, "gray");
+            //drawGrid(this.ctx, 32*8, 0, 24, 16, 32, 32, "gray");
             let models = [ 
                 new WallModel(4, 16, 0),
                 new WallModel(8, 16, 0),
@@ -293,7 +297,9 @@ class Env {
                         this.ctx.fill(face.toPath());
                     }
                     */
-                    let edges = models[j].getEdges(pos, shapes[i], sides.vertical|sides.bottom|sides.top|sides.back|sides.bl|sides.br|sides.fr|sides.front|sides.fl|sides.left|sides.right);
+                    let edges = models[j].getEdges(pos, shapes[i], sides.top|sides.back|sides.bl|sides.br|sides.fr|sides.front|sides.fl|sides.left|sides.right);
+                    this.ctx.lineWidth = 2;
+                    //this.ctx.lineJoin = "round";
                     this.ctx.strokeStyle = new Color(0,255,255,.75).asRGB();
                     this.ctx.stroke(edges.toPath());
                 }
@@ -310,7 +316,7 @@ class Env {
                     this.ctx.fill(face.toPath());
                 }
             }
-            drawGrid(this.ctx, 32*8, 0, 48, 32, 16, 16, new Color(127,127,127,.25));
+            //drawGrid(this.ctx, 32*8, 0, 48, 32, 16, 16, new Color(127,127,127,.25));
         }
 
     }
