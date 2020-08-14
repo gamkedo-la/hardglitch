@@ -105,7 +105,7 @@ function* destroyed(fx_view, entity_view, duration_ms=default_destruction_durati
     const effect = fx_view.destruction(entity_view.position.translate(square_half_unit_vector));
     entity_view.sprite.move_origin_to_center();
     // WwhwhhiiiiiiiiiIIIIIIIIIiiiizzzzzzzzzzZZZZZZZZZZZZZ
-    audio.playEvent('destroyAction');
+    audio.playEvent('explode');
     yield* tween( {
                 scale_x: entity_view.scale.x,
                 scale_y: entity_view.scale.y,
