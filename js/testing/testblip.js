@@ -3,6 +3,7 @@ import { initialize } from "../system/graphics.js";
 import { random_int, random_float } from "../system/utility.js";
 import { BlipEdgeParticle, ParticleGroup } from "../system/particles.js";
 import { TileGraphBuilder } from "../view/particle-graph.js";
+import { procWallGenSelector } from "../view/proc-wall.js";
 
 let last_update_time = Date.now();
 const tileImg = new Image();
@@ -35,7 +36,8 @@ class Env {
         this.FPS = 30;
         this.INTERVAL = 1000 / this.FPS; // milliseconds
         this.STEP = this.INTERVAL / 1000 // second
-        this.gb = new TileGraphBuilder(1024);
+        let wallgen = procWallGenSelector("wall");
+        this.gb = new TileGraphBuilder(1024, wallgen.model);
         this.blips = [];
         this.groups = [];
     }
@@ -60,9 +62,9 @@ class Env {
             return undefined;
         };
         if (Math.random() > .5) {
-            blip = new BlipEdgeParticle(this.ctx, verts[idx], verts[idx+1], radius, speed, group, nextEdgeFcn);
+            blip = new BlipEdgeParticle(verts[idx], verts[idx+1], radius, speed, group, nextEdgeFcn);
         } else {
-            blip = new BlipEdgeParticle(this.ctx, verts[idx+1], verts[idx], radius, speed, group, nextEdgeFcn);
+            blip = new BlipEdgeParticle(verts[idx+1], verts[idx], radius, speed, group, nextEdgeFcn);
         }
         if (group) group.add(blip);
         //console.log("blip: " + blip);
@@ -199,7 +201,7 @@ class Env {
 
         for (let i=0; i<this.blips.length; i++) {
             this.blips[i].update(delta_time);
-            this.blips[i].draw();
+            this.blips[i].draw(this.ctx);
         }
 
         this.ctx.drawImage(tileImg, 128, 128);

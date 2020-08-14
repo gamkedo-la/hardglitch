@@ -8,7 +8,7 @@ import { config } from "../game-config.js";
 
 import { Grid } from "../system/grid.js";
 import * as tiledefs from "../definitions-tiles.js";
-import { SeamSelector, genFloorOverlay, genFgOverlay, genSeamOverlay } from "./tile-select.js";
+import { SeamSelector, genFloorOverlay, genSeamOverlay } from "./tile-select.js";
 
 import * as graphics from "../system/graphics.js";
 import { Vector2 } from "../system/spatial.js";
@@ -137,10 +137,9 @@ class TileGridView {
         if (addblip) {
             for (let i=0; i<floor_grid.elements.length; i++) {
                 let pos = position_from_index(size.x*2, size.y*2, i);
-                let id = floor_grid.elements[i];
-                if (!id) continue;
-                id = id.slice(8);
-                this.fx_view.edgeBlip({x: pos.x*PIXELS_PER_HALF_SIDE, y:pos.y*PIXELS_PER_HALF_SIDE}, this.gb, id);
+                let id = parse_tile_id(floor_grid.elements[i]);
+                if (!id || id.layer != "wall") continue;
+                this.fx_view.edgeBlip({x: pos.x*PIXELS_PER_HALF_SIDE, y:pos.y*PIXELS_PER_HALF_SIDE}, this.gb, id.name);
             }
         }
 

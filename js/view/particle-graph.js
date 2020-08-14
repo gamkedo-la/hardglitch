@@ -367,8 +367,9 @@ class TileGraphBuilder extends GraphBuilder {
         ],
     }
 
-    constructor(width) {
+    constructor(width, model) {
         super(width);
+        this.model = model;
     }
 
     addTile(x,y,id) {
