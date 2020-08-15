@@ -56,7 +56,7 @@ const game_assets = { // Description of the assets to load.
         asset_loader: asset_system.audiobuffer_loader,
         test: './audio/test.mp3',
         click: './audio/Click.mp3',
-        delete: './audio/Delete.mp3',
+        delete: './audio/Delete3.mp3',
         destroy: './audio/Destroy.mp3',
         error: './audio/Error.mp3',
         exitbus: './audio/ExitBus.mp3',

@@ -263,6 +263,7 @@ class GameInterface {
             console.log("CANCEL ACTION BUTTON");
             this.cancel_action_target_selection();
             this.button_cancel_action_selection.visible = false;
+            
     });
 
     character_status = new CharacterStatus();
