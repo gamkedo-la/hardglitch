@@ -64,7 +64,7 @@ const game_assets = { // Description of the assets to load.
         move: './audio/Move.mp3',
         repair: './audio/Repair-001.mp3',
         select: './audio/Select.mp3',
-        destoryExplode: './audio/DestroyExplode_2.mp3',
+        destoryExplode: './audio/DestroyExplode_4.mp3',
     },
 
     audio_streams: { // Longer audio assets streamed from disk/server. Currently limited to one unique event per audio source.
