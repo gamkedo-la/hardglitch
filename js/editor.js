@@ -176,7 +176,11 @@ class EditPaletteButton extends ui.Button {
         super({
             position: Vector2_origin,
             sprite_def: sprite_defs.button_select_action,
-            action: ()=> { this.on_selected(); }
+            action: ()=> { this.on_selected(); },
+            sounds:{
+                over: 'actionSelect',
+                down: 'actionClick',
+            }
         });
 
         this.helptext = new ui.HelpText({
