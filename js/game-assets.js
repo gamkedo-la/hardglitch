@@ -60,7 +60,7 @@ const game_assets = { // Description of the assets to load.
         destroy: './audio/Destroy.mp3',
         error: './audio/Error.mp3',
         exitbus: './audio/ExitBus.mp3',
-        jump: './audio/Jump.mp3',
+        jump: './audio/Jump3.mp3',
         move: './audio/Move.mp3',
         repair: './audio/Repair-001.mp3',
         select: './audio/Select.mp3',
