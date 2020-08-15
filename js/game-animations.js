@@ -26,6 +26,7 @@ import { GameFxView } from "./game-effects.js";
 import * as audio from "./system/audio.js";
 import { CharacterView } from "./view/character-view.js";
 import { ItemView } from "./view/item-view.js";
+import { Position } from "./core/concepts.js";
 
 const default_move_duration_ms = 250;
 const default_destruction_duration_ms = 666;
@@ -192,7 +193,7 @@ function* pushed(entity_view, to_position){
     console.assert(entity_view instanceof EntityView);
     console.assert(to_position instanceof Position);
     audio.playEvent('pushPull');
-    yield* animations.move(entity_view, to_position);
+    yield* move(entity_view, to_position);
 }
 
 const pulled = pushed;
