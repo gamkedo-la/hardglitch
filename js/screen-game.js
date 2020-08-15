@@ -138,13 +138,21 @@ class InGameMenu extends fsm.State {
                 text: "Resume Game",
                 action: ()=>{ this.go_back(); },
                 position: Vector2_origin,
-                sprite_def: sprite_defs.button_menu,
+                sprite_def: sprite_defs.button_menu,            
+                sounds:{
+                    over: 'selectButton',
+                    down: 'clickButton',
+                }
             }),
             exit_button: new ui.TextButton({
                 text: "Exit Game",
                 action: ()=>{ this.exit_game(); },
                 position: Vector2_origin,
                 sprite_def: sprite_defs.button_menu,
+                sounds:{
+                    over: 'selectButton',
+                    down: 'clickButton',
+                }
             }),
             update: function(delta_time){
                 this.resume_button.update(delta_time);

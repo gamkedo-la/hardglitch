@@ -114,6 +114,9 @@ class MuteAudioButton extends ui.Button {
             sprite_def: sprite_defs.button_mute_audio,
             action: audio.toggleMute,
             position: {x: 8, y: 8},
+            sounds:{
+                over: 'actionSelect'
+            }
         });
 
         this.icons = {
@@ -152,6 +155,10 @@ class AutoFocusButton extends ui.Button {
             sprite_def: sprite_defs.button_mute_audio,
             action: toggle_autofocus,
             position: {x: 8, y: action_button_size + 8 },
+            sounds:{
+                over: 'actionSelect',
+                down: 'actionClick',
+            }
         });
 
         this.is_autofocus_enabled = is_autofocus_enabled;
@@ -191,6 +198,10 @@ class MenuButton extends ui.Button {
             sprite_def: sprite_defs.button_ingame_menu,
             action: open_menu,
             position: {x: graphics.canvas_rect().width - action_button_size - 8, y: 8 },
+            sounds:{
+                over: 'actionSelect',
+                down: 'clickButton',
+            }
         });
 
         this.help_text = new ui.HelpText({
