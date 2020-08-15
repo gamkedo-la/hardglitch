@@ -17,6 +17,7 @@ import { GameView } from "../game-view.js";
 import { Vector2 } from "../system/spatial.js";
 import { Character } from "../core/character.js";
 import * as visibility from "../core/visibility.js";
+import * as audio from "../system/audio.js";
 
 // Set the action as unsafe if the target tile is unsafe.
 function safe_if_safe_arrival(move_action, world){
@@ -47,6 +48,7 @@ class Moved extends concepts.Event {
         const entity_view = game_view.get_entity_view(this.entity_id);
         console.assert(entity_view instanceof EntityView);
         console.assert(this.to_pos instanceof concepts.Position);
+        audio.playEvent('moveAction');
         yield* animations.move(entity_view, this.to_pos, this.duration);
     }
 

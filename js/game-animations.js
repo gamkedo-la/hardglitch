@@ -34,7 +34,7 @@ function* translate(thing_with_position, target_gfx_pos, duration_ms, easing){
 function* move(entity_view, target_game_position, duration_ms=default_move_duration_ms){
     console.assert(entity_view instanceof EntityView);
     const target_gfx_pos = graphic_position(target_game_position);
-    audio.playEvent('moveAction');
+    //audio.playEvent('moveAction');
     yield* translate(entity_view, target_gfx_pos, duration_ms);
     entity_view.game_position = target_game_position;
 }
