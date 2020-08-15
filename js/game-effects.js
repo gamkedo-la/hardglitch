@@ -212,7 +212,7 @@ class GameFxView {
     edgeBlip(position, graphBuilder, tile) {
         // add tile verts/edges to graph
         let verts = graphBuilder.addTile(position.x, position.y, tile);
-        if (!verts) return;
+        if (!verts || verts.length === 0) return;
         // create one random blip per tile
         let idx = random_int(0,(verts.length/2)-1)*2;
         // lookup graph

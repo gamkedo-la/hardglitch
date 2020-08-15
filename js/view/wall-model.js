@@ -77,6 +77,10 @@ class ModelEdges {
         return this.edges.length;
     }
 
+    *[Symbol.iterator]() {
+        yield *this.edges;
+    }
+
     toPath() {
         let path = new Path2D();
         for (let i=0; i<this.edges.length; i++) {
@@ -382,7 +386,7 @@ class WallModel {
         vmap["ltb"] = [ 
             {x:32, y:32-(offset), side:sides.front|sides.outer}, 
             {x:16+offset, y:32-(offset), side:sides.fl|sides.outer, corner:sides.fl|sides.outer}, 
-            {x:offset, y:16-(offset), side:sides.left|sides.outer, corner:(offset)?sides.left|sides.outer:0}, 
+            {x:offset, y:16-(offset), side:sides.left|sides.outer, corner:sides.left|sides.outer}, 
             {x:offset, y:0}, 
         ];
         if (offset+width >= 16) {
@@ -633,15 +637,15 @@ class WallModel {
         if (offset + width > 16) {
             vmap["ttr"] = [
                 {x:32,  y:0}, 
-                {x:32,  y:offset+width, side:sides.front|sides.outer}, 
-                {x:48-(offset+width),  y:offset+width, side:sides.fl|sides.outer, corner:sides.fl|sides.outer}, 
-                {x:32-(offset+width),  y:(offset+width)-16, side:sides.left|sides.outer, corner:sides.left|sides.outer}, 
+                {x:32,  y:offset+width, side:sides.front|sides.inner}, 
+                {x:48-(offset+width),  y:offset+width, side:sides.fl|sides.inner, corner:sides.fl|sides.inner}, 
+                {x:32-(offset+width),  y:(offset+width)-16, side:sides.left|sides.inner, corner:sides.left|sides.inner}, 
                 {x:32-(offset+width),  y:0}, 
             ];
         } else if (offset+width > 8) {
             vmap["ttr"] = [
                 {x:32,  y:0}, 
-                {x:32, y:(offset+width)*2-16, side:sides.fl|sides.outer, corner:(offset+width===16)?sides.fl|sides.outer:0}, 
+                {x:32, y:(offset+width)*2-16, side:sides.fl|sides.inner, corner:(offset+width===16)?sides.fl|sides.inner:0}, 
                 {x:48-2*(offset+width), y:0}, 
             ];
         }

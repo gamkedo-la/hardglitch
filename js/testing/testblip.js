@@ -4,6 +4,7 @@ import { random_int, random_float } from "../system/utility.js";
 import { BlipEdgeParticle, ParticleGroup } from "../system/particles.js";
 import { TileGraphBuilder } from "../view/particle-graph.js";
 import { procWallGenSelector } from "../view/proc-wall.js";
+import { GameFxView } from "../game-effects.js";
 
 let last_update_time = Date.now();
 const tileImg = new Image();
@@ -40,35 +41,13 @@ class Env {
         this.gb = new TileGraphBuilder(1024, wallgen.model);
         this.blips = [];
         this.groups = [];
+        this.gfx = new GameFxView();
+        this.gfx.particleSystem.alwaysActive = true;
     }
 
     addBlip(x,y,tile) {
-        // add tile verts/edges to graph
-        let verts = this.gb.addTile(x, y, tile);
-        if (!verts) return;
-        // create one random blip per tile
-        let idx = random_int(0,(verts.length/2)-1)*2;
-        // lookup graph
-        //console.log("verts: " + verts)
-        let graph = this.gb.getGraph(verts[idx]);
-        let group = this.gb.getGroup(graph);
-        let blip;
-        //let speed = random_int(40,75);
-        let speed = 50;
-        let radius = 2;
-        let nextEdgeFcn = (v1, v2) => {
-            let g = this.gb.getGraph(v1);
-            if (g) return g.getRandEdge(v1, v2);
-            return undefined;
-        };
-        if (Math.random() > .5) {
-            blip = new BlipEdgeParticle(verts[idx], verts[idx+1], radius, speed, group, nextEdgeFcn);
-        } else {
-            blip = new BlipEdgeParticle(verts[idx+1], verts[idx], radius, speed, group, nextEdgeFcn);
-        }
-        if (group) group.add(blip);
-        //console.log("blip: " + blip);
-        this.blips.push(blip);
+        let position = {x:x, y:y};
+        let fx = this.gfx.edgeBlip(position, this.gb, tile);
     }
 
     setup() {
@@ -101,11 +80,8 @@ class Env {
         }
 
         this.addBlip(300+32*1, 300+32*9, "ltbs");
-        this.addBlip(300+32*2, 300+32*9, "ltbi");
-        this.addBlip(300+32*3, 300+32*9, "bi");
-        this.addBlip(300+32*4, 300+32*9, "btlsi");
-        this.addBlip(300+32*5, 300+32*9, "btli");
-        this.addBlip(300+32, 300+32*10, "ltb");
+        //this.addBlip(300+32*2, 300+32*9, "ltbi");
+        this.addBlip(300+32*1, 300+32*10, "ltb");
         this.addBlip(300+32*2, 300+32*10, "ltbe");
         this.addBlip(300+32*3, 300+32*10, "b");
         this.addBlip(300+32*4, 300+32*10, "btls");
@@ -114,17 +90,13 @@ class Env {
         this.addBlip(300+32*5, 300+32*11, "btle");
         this.addBlip(300+32*5, 300+32*12, "l");
         this.addBlip(300+32*5, 300+32*13, "ltbs");
-        this.addBlip(300+32*6, 300+32*13, "ltbi");
-        this.addBlip(300+32*7, 300+32*13, "bi");
-        this.addBlip(300+32*8, 300+32*13, "bi");
-        this.addBlip(300+32*9, 300+32*13, "btri");
-        this.addBlip(300+32*10, 300+32*13, "btre");
         this.addBlip(300+32*5, 300+32*14, "ltb");
         this.addBlip(300+32*6, 300+32*14, "ltbe");
         this.addBlip(300+32*7, 300+32*14, "b");
         this.addBlip(300+32*8, 300+32*14, "b");
         this.addBlip(300+32*9, 300+32*14, "btrs");
         this.addBlip(300+32*10, 300+32*14, "btr");
+        this.addBlip(300+32*10, 300+32*13, "btre");
         this.addBlip(300+32*10, 300+32*12, "r");
         this.addBlip(300+32*10, 300+32*11, "rtbs");
         this.addBlip(300+32*11, 300+32*11, "ortb");
@@ -133,45 +105,40 @@ class Env {
         this.addBlip(300+32*12, 300+32*10, "b");
         this.addBlip(300+32*13, 300+32*10, "btrs");
         this.addBlip(300+32*14, 300+32*10, "btr");
-        this.addBlip(300+32*10, 300+32*9, "rtbi");
-        this.addBlip(300+32*11, 300+32*9, "rtbei");
-        this.addBlip(300+32*12, 300+32*9, "bi");
-        this.addBlip(300+32*13, 300+32*9, "btri");
         this.addBlip(300+32*14, 300+32*9, "btre");
         this.addBlip(300+32*14, 300+32*8, "r");
         this.addBlip(300+32*14, 300+32*7, "r");
         this.addBlip(300+32*14, 300+32*6, "rtts");
         this.addBlip(300+32*14, 300+32*5, "rtt");
-        this.addBlip(300+32*14, 300+32*4, "ortt");
-        this.addBlip(300+32*13, 300+32*4, "ot");
-        this.addBlip(300+32*12, 300+32*4, "ot");
+        this.addBlip(300+32*13, 300+32*5, "rtte");
+        this.addBlip(300+32*12, 300+32*5, "t");
+        this.addBlip(300+32*11, 300+32*5, "ttrs");
+        this.addBlip(300+32*10, 300+32*5, "ttr");
         this.addBlip(300+32*11, 300+32*4, "ottr");
         this.addBlip(300+32*10, 300+32*4, "ttre");
-        this.addBlip(300+32*11, 300+32*3, "ottre");
-        this.addBlip(300+32*10, 300+32*3, "ttri");
+        this.addBlip(300+32*10, 300+32*3, "r");
         this.addBlip(300+32*10, 300+32*2, "rtts");
         this.addBlip(300+32*10, 300+32*1, "rtt");
-        this.addBlip(300+32*10, 300+32*0, "ortt");
-        this.addBlip(300+32*9, 300+32*0, "ot");
-        this.addBlip(300+32*8, 300+32*0, "ot");
-        this.addBlip(300+32*7, 300+32*0, "ot");
-        this.addBlip(300+32*6, 300+32*0, "ot");
-        this.addBlip(300+32*5, 300+32*0, "ottl");
+        this.addBlip(300+32*9, 300+32*1, "rtte");
+        this.addBlip(300+32*8, 300+32*1, "t");
+        this.addBlip(300+32*7, 300+32*1, "t");
+        this.addBlip(300+32*6, 300+32*1, "ttls");
         this.addBlip(300+32*5, 300+32*1, "ttl");
         this.addBlip(300+32*5, 300+32*2, "ttle");
-        this.addBlip(300+32*4, 300+32*3, "oltts");
-        this.addBlip(300+32*5, 300+32*3, "ltti");
-        this.addBlip(300+32*5, 300+32*4, "ltts");
+        this.addBlip(300+32*5, 300+32*3, "l");
         this.addBlip(300+32*4, 300+32*4, "oltt");
-        this.addBlip(300+32*3, 300+32*4, "ot");
-        this.addBlip(300+32*2, 300+32*4, "ot");
-        this.addBlip(300+32*1, 300+32*4, "ottl");
+        this.addBlip(300+32*5, 300+32*4, "ltts");
+        this.addBlip(300+32*5, 300+32*5, "ltt");
+        this.addBlip(300+32*4, 300+32*5, "ltte");
+        this.addBlip(300+32*3, 300+32*5, "t");
+        this.addBlip(300+32*2, 300+32*5, "ttls");
         this.addBlip(300+32*1, 300+32*5, "ttl");
         this.addBlip(300+32*1, 300+32*6, "ttle");
         this.addBlip(300+32*1, 300+32*7, "l");
         this.addBlip(300+32*1, 300+32*8, "l");
-        this.addBlip(300+32*1, 300+32*13, "ltbsc");
-        this.addBlip(300+32*2, 300+32*13, "btrec");
+
+        this.addBlip(300+32*1, 300+32*13, "ltbc");
+        this.addBlip(300+32*2, 300+32*13, "btrc");
 
         console.log("gb.graphs.length: " + this.gb.graphs.length);
 
@@ -197,12 +164,17 @@ class Env {
         this.ctx.drawImage(sparkMaxImg, 200, 250);
         this.ctx.drawImage(this.bgimg, 300, 300);
 
-        //this.gb.draw(this.ctx);
+        this.gb.draw(this.ctx);
 
+        this.gfx.update(delta_time);
+        this.gfx.draw(this.ctx);
+
+        /*
         for (let i=0; i<this.blips.length; i++) {
             this.blips[i].update(delta_time);
             this.blips[i].draw(this.ctx);
         }
+        */
 
         this.ctx.drawImage(tileImg, 128, 128);
         for (let i=0; i<8; i++) {

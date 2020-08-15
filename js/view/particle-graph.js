@@ -1,6 +1,7 @@
 import { Color } from "../system/color.js";
 import { ofmt, random_int } from "../system/utility.js";
 import { ParticleGroup } from "../system/particles.js";
+import { sides } from "./wall-model.js";
 
 export { Graph, TileGraphBuilder }
 
@@ -189,198 +190,29 @@ class GraphBuilder {
 }
 
 class TileGraphBuilder extends GraphBuilder {
-    edgeMap = {
-        "ltb": [
-            {x:0,y:0}, {x:0,y:16}, 
-            {x:0,y:16}, {x:16,y:31}, 
-            {x:16,y:31}, {x:32,y:31},
-            {x:16,y:0}, {x:16,y:31},
-            {x:16,y:0}, {x:32,y:0},
-        ],
-        "ltbe": [
-            {x:0,y:0}, {x:32,y:0}, 
-            {x:0,y:31}, {x:32,y:31}, 
-        ],
-        "b": [
-            {x:0,y:0}, {x:32,y:0}, 
-            {x:0,y:31}, {x:32,y:31}, 
-        ],
-        "btrs": [
-            {x:0,y:0}, {x:32,y:0}, 
-            {x:0,y:31}, {x:32,y:31}, 
-        ],
-        "btls": [
-            {x:0,y:0}, {x:16,y:0}, 
-            {x:16,y:0}, {x:16,y:31}, 
-            {x:16,y:0}, {x:32,y:15}, 
-            {x:0,y:31}, {x:16,y:31}, 
-        ],
-        "btl": [
-            {x:0,y:15}, {x:0,y:32}, 
-            {x:15,y:0}, {x:15,y:32}, 
-        ],
-        "ltbs": [
-            {x:0,y:0}, {x:0,y:16}, 
-            {x:0,y:16}, {x:0,y:32}, 
-            {x:0,y:16}, {x:16,y:32}, 
-            {x:15,y:0}, {x:32,y:16}, 
-        ],
-        "ltbsc": [
-            {x:0,y:0}, {x:0,y:16}, 
-            {x:0,y:16}, {x:0,y:32}, 
-            {x:0,y:16}, {x:16,y:32}, 
-            {x:15,y:0}, {x:32,y:16}, 
-        ],
-        "ltbi": [
-            {x:0,y:16}, {x:32,y:16}, 
-        ],
-        "bi": [
-            {x:0,y:16}, {x:32,y:16}, 
-        ],
-        "btri": [
-            {x:0,y:16}, {x:32,y:16}, 
-        ],
-        "btlsi": [
-            {x:0,y:16}, {x:32,y:17}, 
-        ],
-        "btli": [
-            {x:0,y:17}, {x:15,y:32}, 
-        ],
-        "obtl": [
-            {x:16,y:-1}, {x:32,y:16}, 
-        ],
-        "btle": [
-            {x:0,y:0}, {x:0,y:16}, 
-            {x:0,y:16}, {x:0,y:32}, 
-            {x:15,y:0}, {x:15,y:32}, 
-        ],
-        "l": [
-            {x:0,y:0}, {x:0,y:32}, 
-            {x:15,y:0}, {x:15,y:32}, 
-        ],
-        "btre": [
-            {x:0,y:16}, {x:16,y:0}, 
-            {x:15,y:32}, {x:31,y:16}, 
-            {x:31,y:32}, {x:31,y:16}, 
-            {x:31,y:16}, {x:31,y:0}, 
-        ],
-        "btrec": [
-            {x:0,y:16}, {x:16,y:0}, 
-            {x:15,y:32}, {x:31,y:16}, 
-            {x:31,y:32}, {x:31,y:16}, 
-            {x:31,y:16}, {x:31,y:0}, 
-        ],
-        "btr": [
-            {x:0,y:0}, {x:15,y:0}, 
-            {x:15,y:0}, {x:15,y:31}, 
-            {x:0,y:31}, {x:15,y:31}, 
-            {x:15,y:31}, {x:31,y:16}, 
-            {x:31,y:16}, {x:31,y:0}, 
-        ],
-        "r": [
-            {x:16,y:0}, {x:16,y:32}, 
-            {x:31,y:0}, {x:31,y:32}, 
-        ],
-        "rtts": [
-            {x:16,y:0}, {x:16,y:32}, 
-            {x:31,y:0}, {x:31,y:32}, 
-        ],
-        "rtt": [
-            {x:16,y:0}, {x:16,y:32}, 
-            {x:31,y:0}, {x:31,y:32}, 
-        ],
-        "rtbs": [
-            {x:16,y:0}, {x:16,y:32}, 
-            {x:31,y:0}, {x:31,y:16}, 
-            {x:31,y:16}, {x:31,y:32}, 
-        ],
-        "ortb": [
-            {x:-1,y:16}, {x:15,y:-1}, 
-        ],
-        "rtb": [
-            {x:16,y:0}, {x:16,y:32}, 
-            {x:31,y:15}, {x:31,y:32}, 
-        ],
-        "rtbi": [
-            {x:16,y:32}, {x:32,y:16}, 
-        ],
-        "rtbe": [
-            {x:-1,y:15}, {x:15,y:0}, 
-            {x:15,y:31}, {x:31,y:31}, 
-            {x:15,y:31}, {x:15,y:0}, 
-            {x:15,y:0}, {x:31,y:0}, 
-        ],
-        "rtbei": [
-            {x:0,y:16}, {x:31,y:16}, 
-        ],
-        "ortt": [
-            {x:0,y:15}, {x:16,y:32}, 
-            {x:0,y:0}, {x:15,y:0}, 
-            {x:15,y:0}, {x:31,y:16}, 
-            {x:31,y:16}, {x:31,y:32}, 
-        ],
-        "ot": [
-            {x:0,y:15}, {x:32,y:15}, 
-            {x:0,y:0}, {x:32,y:0}, 
-        ],
-        "ottr": [
-            {x:0,y:15}, {x:32,y:15}, 
-            {x:15,y:0}, {x:32,y:0}, 
-        ],
-        "ottre": [
-            {x:-1,y:16}, {x:15,y:32}, 
-        ],
-        "ttre": [
-            {x:16,y:0}, {x:32,y:15}, 
-        ],
-        "ttri": [
-            {x:16,y:0}, {x:16,y:32}, 
-            {x:31,y:0}, {x:31,y:16}, 
-        ],
-        "ottl": [
-            {x:0,y:32}, {x:0,y:15}, 
-            {x:0,y:15}, {x:15,y:0}, 
-            {x:15,y:0}, {x:32,y:0}, 
-            {x:15,y:32}, {x:32,y:15}, 
-        ],
-        "ttl": [
-            {x:0,y:0}, {x:0,y:32}, 
-            {x:15,y:0}, {x:15,y:32}, 
-        ],
-        "ttle": [
-            {x:0,y:0}, {x:0,y:32}, 
-            {x:15,y:0}, {x:15,y:32}, 
-        ],
-        "ltti": [
-            {x:0,y:0}, {x:0,y:16}, 
-            {x:15,y:0}, {x:15,y:32}, 
-        ],
-        "ltts": [
-            {x:15,y:0}, {x:0,y:15}, 
-        ],
-        "oltts": [
-            {x:32,y:16}, {x:16,y:32}, 
-        ],
-        "oltt": [
-            {x:0,y:0}, {x:16,y:0}, 
-            {x:0,y:15}, {x:32,y:15}, 
-        ],
-    }
-
     constructor(width, model) {
         super(width);
         this.model = model;
     }
 
     addTile(x,y,id) {
-        let edgeInfo = this.edgeMap[id];
-        if (!edgeInfo) return;
         let verts = [];
-        for (let i=0; i<edgeInfo.length; i+=2) {
-            let v1 = {x: x+edgeInfo[i].x, y:y+edgeInfo[i].y};
-            let v2 = {x: x+edgeInfo[i+1].x, y:y+edgeInfo[i+1].y};
-            this.addEdge(v1, v2);
-            verts.push(v1, v2);
+        // pull edges
+        let pos = {x:x, y:y};
+        // all top
+        for (const edge of this.model.getEdges(pos, id, sides.top|sides.allAround)) {
+            this.addEdge(edge.vertices[0], edge.vertices[1]);
+            verts.push(edge.vertices[0], edge.vertices[1]);
+        }
+        // front vertical
+        for (const edge of this.model.getEdges(pos, id, sides.vertical|sides.allFront|sides.left, sides.outer)) {
+            this.addEdge(edge.vertices[0], edge.vertices[1]);
+            verts.push(edge.vertices[0], edge.vertices[1]);
+        }
+        // front bottom
+        for (const edge of this.model.getEdges(pos, id, sides.bottom|sides.allFront, sides.outer)) {
+            this.addEdge(edge.vertices[0], edge.vertices[1]);
+            verts.push(edge.vertices[0], edge.vertices[1]);
         }
         return verts;
     }

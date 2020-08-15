@@ -1139,8 +1139,6 @@ class FlashParticle extends Particle {
         canvas_context.fillStyle = this.centerColor.asHSL();
         canvas_context.fill();
         canvas_context.closePath();
-
-
     }
 
 }

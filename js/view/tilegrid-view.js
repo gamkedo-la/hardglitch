@@ -68,7 +68,9 @@ class TileGridView {
         console.assert(size instanceof Vector2 && size.x > 2 && size.y > 2);
         this.position = position;
         this.size = size;
-        this.gb = new TileGraphBuilder(size.x*PIXELS_PER_TILES_SIDE);
+        // FIXME: figure out better way of allocating wall model
+        let wallgen = procWallGenSelector("wall");
+        this.gb = new TileGraphBuilder(size.x*PIXELS_PER_TILES_SIDE, wallgen.model);
         this.procWallSys = new ProcWallSystem();
 
         // translate given grids to display grids

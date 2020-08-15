@@ -186,8 +186,6 @@ function procWallGenSelector(kind) {
         let model = new WallModel(8,16);
         gen = new ProcWallGenerator(model, holeColorMap);
         gen.highlights.minor = true;
-        //gen.faceMask=sides.outer;
-        //gen.edgeMask=sides.outer|sides.top|sides.vertical|sides.bottom;
         gen.faceMask=sides.inner;
         gen.edgeMask=sides.inner|sides.top|sides.vertical|sides.bottom;
     }
