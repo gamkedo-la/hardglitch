@@ -46,6 +46,7 @@ function* jump(fx_view, entity_view, target_game_position){
 
     const jump_height = 50;
     const jump_duration_ms = 500;
+    audio.playEvent('hoverAction');
 
     const top_initial_pos = entity_view.position.translate({ x:0, y: -jump_height });
     const top_target_pos = target_gfx_pos.translate({ x:0, y: -jump_height });
@@ -133,6 +134,7 @@ function* take_damage(fx_view, entity_view){
     const time_per_move = Math.round(500 / 4);
     const initial_position = new Vector2(entity_view.position);
     const effect = fx_view.damage(initial_position.translate(square_half_unit_vector));
+    audio.playEvent('takeDamage');
     yield* translate(entity_view, initial_position.translate({ x: intensity, y: 0}), time_per_move);
     yield* translate(entity_view, initial_position.translate({ x: -intensity, y: 0}), time_per_move);
     yield* translate(entity_view, initial_position.translate({ x: 0, y: -intensity}), time_per_move);

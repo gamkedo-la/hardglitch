@@ -65,6 +65,8 @@ const game_assets = { // Description of the assets to load.
         repair: './audio/Repair-001.mp3',
         select: './audio/Select.mp3',
         destoryExplode: './audio/DestroyExplode_4.mp3',
+        hover: './audio/Hover.mp3',
+        damage: './audio/TakeDmg.mp3',
     },
 
     audio_streams: { // Longer audio assets streamed from disk/server. Currently limited to one unique event per audio source.
@@ -573,6 +575,24 @@ const sound_event_defs = {
     'explode': {
         source_type: 'audiobuffer',
         source_name: 'destoryExplode',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
+    'hoverAction': {
+        source_type: 'audiobuffer',
+        source_name: 'hover',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
+    'takeDamage': {
+        source_type: 'audiobuffer',
+        source_name: 'damage',
         group_name: 'SoundEffects',
         loop: false,
         volume: 1,
