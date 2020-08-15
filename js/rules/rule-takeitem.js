@@ -13,6 +13,7 @@ import { GameView } from "../game-view.js";
 import { EntityView } from "../view/entity-view.js";
 import { CharacterView } from "../view/character-view.js";
 import { sprite_defs } from "../game-assets.js";
+import * as audio from "../system/audio.js";
 
 
 class ItemTaken extends concepts.Event {
@@ -38,6 +39,7 @@ class ItemTaken extends concepts.Event {
         console.assert(character_view instanceof CharacterView);
         const item_view = game_view.get_entity_view(this.item_id);
         console.assert(item_view instanceof EntityView);
+        audio.playEvent('item');
         yield* anim.move(item_view, character_view.game_position, 500);
         game_view.remove_entity_view(this.item_id);
     }

@@ -69,6 +69,7 @@ const game_assets = { // Description of the assets to load.
         damage: './audio/TakeDmg.mp3',
         pusher: './audio/PushPull.mp3',
         bouncer: './audio/Bounce.mp3',
+        takeItem: './audio/TakeItem.mp3',
     },
 
     audio_streams: { // Longer audio assets streamed from disk/server. Currently limited to one unique event per audio source.
@@ -613,6 +614,15 @@ const sound_event_defs = {
     'bounce': {
         source_type: 'audiobuffer',
         source_name: 'bouncer',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
+    'item': {
+        source_type: 'audiobuffer',
+        source_name: 'takeItem',
         group_name: 'SoundEffects',
         loop: false,
         volume: 1,
