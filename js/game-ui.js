@@ -26,7 +26,11 @@ class ActionButton extends ui.Button {
         super({ // TODO: add a way to identify the action visually, text + icon
             position: position,
             sprite_def: sprite_defs.button_select_action,
-            action: on_clicked
+            action: on_clicked,
+            sounds:{
+                over: 'actionSelect',
+                down: 'actionClick',
+            }
         });
 
         console.assert(on_begin_mouse_over instanceof Function);
@@ -76,6 +80,9 @@ class CancelActionButton extends ui.Button {
             sprite_def: sprite_defs.button_cancel_action_target_selection,
             visible: false,
             action: action,
+            sounds:{
+                down: 'actionCancel',
+            }
         });
 
         this.icon = new graphics.Sprite(sprite_defs.icon_action_cancel);
