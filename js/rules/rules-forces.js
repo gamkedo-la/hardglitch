@@ -13,7 +13,6 @@ import { EntityView } from "../view/entity-view.js";
 import { GameView } from "../game-view.js";
 import { Character } from "../core/character.js";
 import * as visibility from "../core/visibility.js";
-import * as audio from "../system/audio.js";
 
 class Pushed extends concepts.Event {
     constructor(entity, from, to){
@@ -27,13 +26,12 @@ class Pushed extends concepts.Event {
     }
 
     get focus_positions() { return [ this.from_pos, this.to_pos ]; }
-    
+
     *animation(game_view){
-        audio.playEvent('pushPull');
         console.assert(game_view instanceof GameView);
         const entity_view = game_view.get_entity_view(this.target_entity_id);
         console.assert(entity_view instanceof EntityView);
-        yield* animations.move(entity_view, this.to_pos);
+        yield* animations.pushed(entity_view, this.to_pos);
     }
 };
 
@@ -56,7 +54,6 @@ class Bounced extends concepts.Event {
         console.assert(game_view instanceof GameView);
         const entity_view = game_view.get_entity_view(this.target_entity_id);
         console.assert(entity_view instanceof EntityView);
-        audio.playEvent('bounce');
         yield* animations.bounce(entity_view, this.to_pos);
     }
 }

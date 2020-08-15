@@ -20,7 +20,7 @@ import {
 import { TileGridView } from "./view/tilegrid-view.js";
 import { CharacterView } from "./view/character-view.js";
 import { GameInterface } from "./game-ui.js";
-import { mouse_grid_position, mouse_game_position, game_position_from_graphic_position, } from "./game-input.js";
+import { mouse_grid_position, mouse_game_position, } from "./game-input.js";
 import { sprite_defs } from "./game-assets.js";
 import { mouse } from "./system/input.js";
 import { Move } from "./rules/rules-movement.js";
@@ -388,7 +388,7 @@ class GameView {
             const is_visible_to_player = this.fog_of_war.is_any_visible(...animation.focus_positions);
             if(!is_visible_to_player && !animation.is_world_event){
                 // No need to play the action in a visible way, just skip it (but still play it).
-                this.skipped_animations.play(animation.iterator)
+                this.skipped_animations.play(animation.iterator);
                 continue;
             }
 

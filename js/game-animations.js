@@ -3,6 +3,7 @@
 export {
     default_move_duration_ms,
     default_destruction_duration_ms,
+    wait,
     move,
     jump,
     bounce,
@@ -12,15 +13,19 @@ export {
     repaired,
     missile,
     deleting_missile,
+    take_item,
+    pushed,
+    pulled,
 }
 
 import { graphic_position, EntityView, PIXELS_PER_HALF_SIDE, square_half_unit_vector, PIXELS_PER_TILES_SIDE } from "./view/entity-view.js";
 import { tween, easing } from "./system/tweening.js";
-import { in_parallel } from "./system/animation.js";
+import * as animation from "./system/animation.js";
 import { Vector2 } from "./system/spatial.js";
-import { GameView } from "./game-view.js";
 import { GameFxView } from "./game-effects.js";
 import * as audio from "./system/audio.js";
+import { CharacterView } from "./view/character-view.js";
+import { ItemView } from "./view/item-view.js";
 
 const default_move_duration_ms = 250;
 const default_destruction_duration_ms = 666;
@@ -34,9 +39,16 @@ function* translate(thing_with_position, target_gfx_pos, duration_ms, easing){
 function* move(entity_view, target_game_position, duration_ms=default_move_duration_ms){
     console.assert(entity_view instanceof EntityView);
     const target_gfx_pos = graphic_position(target_game_position);
-    //audio.playEvent('moveAction');
+    audio.playEvent('moveAction');
     yield* translate(entity_view, target_gfx_pos, duration_ms);
     entity_view.game_position = target_game_position;
+}
+
+function* wait(character_view, duration_ms){
+    console.assert(character_view instanceof CharacterView);
+    // TODO: add some kind of animation here to show that the character is passing their turn.
+    audio.playEvent('wait');
+    yield* animation.wait(duration_ms);
 }
 
 function* jump(fx_view, entity_view, target_game_position){
@@ -81,6 +93,7 @@ function* bounce(entity_view, target_game_position, duration_ms=default_move_dur
     const target_gfx_pos = graphic_position(target_game_position);
     const translation = target_gfx_pos.substract(initial_gfx_pos).normalize().multiply(PIXELS_PER_HALF_SIDE / 2);
     const bounce_limit_gfx_pos = initial_gfx_pos.translate(translation);
+    audio.playEvent('bounce');
     yield* translate(entity_view, bounce_limit_gfx_pos, duration_ms / 2);
     yield* translate(entity_view, initial_gfx_pos, duration_ms / 2);
     entity_view.game_position = initial_position;
@@ -93,7 +106,7 @@ function* swap(fx_view, left_entity_view, right_entity_view){
 
     const left_final_pos = right_entity_view.game_position;
     const right_final_pos = left_entity_view.game_position;
-    yield* in_parallel(
+    yield* animation.in_parallel(
         jump(fx_view, left_entity_view, left_final_pos),
         jump(fx_view, right_entity_view, right_final_pos)
     );
@@ -167,4 +180,21 @@ function* deleting_missile(fx_view, source_position, target_position){
     audio.playEvent('deleteAction');
     yield* missile(missile_effect, graphic_position(target_position));
 }
+
+function* take_item(taker_view, item_view){
+    console.assert(taker_view instanceof CharacterView);
+    console.assert(item_view instanceof ItemView);
+    audio.playEvent('item');
+    yield* move(item_view, taker_view.game_position, 500);
+}
+
+function* pushed(entity_view, to_position){
+    console.assert(entity_view instanceof EntityView);
+    console.assert(to_position instanceof Position);
+    audio.playEvent('pushPull');
+    yield* animations.move(entity_view, to_position);
+}
+
+const pulled = pushed;
+
 

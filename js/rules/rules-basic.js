@@ -6,7 +6,7 @@ import * as editor from "../editor.js";
 import { CharacterView } from "../view/character-view.js";
 import { GameView } from "../game-view.js";
 import { Character } from "../core/character.js";
-import * as anim from "../system/animation.js";
+import * as anim from "../game-animations.js";
 import { destroy_entity } from "./destruction.js";
 import * as audio from "../system/audio.js";
 
@@ -39,8 +39,7 @@ class Waited extends concepts.Event {
         console.assert(game_view instanceof GameView);
         const character_view = game_view.get_entity_view(this.character_id);
         console.assert(character_view instanceof CharacterView);
-        audio.playEvent('wait');
-        yield* anim.wait(333);
+        yield* anim.wait(character_view, 333);
     }
 };
 
@@ -150,6 +149,7 @@ class PlayerExitLevel extends concepts.Event {
         game_view.clear_focus();
         let ready_to_exit = false;
         game_view.center_on_position(character_view.game_position, 500).then(()=> ready_to_exit = true );
+        audio.playEvent("exit_bus");
         while(!ready_to_exit) yield;
         while(true) yield;
     }
@@ -163,7 +163,6 @@ class Rule_LevelExit extends concepts.Rule {
             const exit_positions = world._surface_tile_grid.matching_positions(tile_id => tile_id == tiles.ID.EXIT); // TODO: keep a cache until the world's tiles have changed?
             if(exit_positions.some(position => character_body.position.equals(position))){
                 world.is_finished = true;
-                audio.playEvent("exit_bus"); // thought this was when player exit, but plays when entering exit bus.
                 return [ new PlayerExitLevel(character_body) ];
             }
         }
