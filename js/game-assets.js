@@ -69,7 +69,8 @@ const game_assets = { // Description of the assets to load.
         damage: './audio/TakeDmg.mp3',
         pusher: './audio/PushPull.mp3',
         bouncer: './audio/Bounce.mp3',
-        takeItem: './audio/TakeItem.mp3',
+        takeItem: './audio/TakeItem.mp3',        
+        waitTurn: './audio/Wait.mp3',
     },
 
     audio_streams: { // Longer audio assets streamed from disk/server. Currently limited to one unique event per audio source.
@@ -485,6 +486,9 @@ update_sprite_defs("wall_template", "lvl1", "wall", 32);
 // Sound events descriptions here.
 // Describe here all the sounds of the game and how to play them (not when).
 const sound_event_defs = {
+
+    // SOUND EFFECTS //
+
     'buffertest': {
         source_type: 'audiobuffer',
         source_name: 'test',
@@ -628,6 +632,17 @@ const sound_event_defs = {
         volume: 1,
         unique: false,
     },
+
+    'wait': {
+        source_type: 'audiobuffer',
+        source_name: 'waitTurn',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
+    // MUSIC EVENTS //
 
     'streamtest': {
         source_type: 'audiostream',

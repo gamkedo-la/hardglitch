@@ -39,6 +39,7 @@ class Waited extends concepts.Event {
         console.assert(game_view instanceof GameView);
         const character_view = game_view.get_entity_view(this.character_id);
         console.assert(character_view instanceof CharacterView);
+        audio.playEvent('wait');
         yield* anim.wait(333);
     }
 };
