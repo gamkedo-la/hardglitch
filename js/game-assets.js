@@ -63,7 +63,8 @@ const game_assets = { // Description of the assets to load.
         jump: './audio/Jump.mp3',
         move: './audio/Move.mp3',
         repair: './audio/Repair-001.mp3',
-        select: './audio/Select-001.mp3',
+        select: './audio/Select.mp3',
+        destoryExplode: './audio/DestroyExplode_2.mp3',
     },
 
     audio_streams: { // Longer audio assets streamed from disk/server. Currently limited to one unique event per audio source.
@@ -563,6 +564,15 @@ const sound_event_defs = {
     'repairAction': {
         source_type: 'audiobuffer',
         source_name: 'repair',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
+    'explode': {
+        source_type: 'audiobuffer',
+        source_name: 'destoryExplode',
         group_name: 'SoundEffects',
         loop: false,
         volume: 1,
