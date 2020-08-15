@@ -10,7 +10,7 @@ export {
     set_events_enabled,
 };
 
-import { clamp } from "./utility.js";
+import { clamp, is_number } from "./utility.js";
 
 let muted = false;
 let audio_context, mix_groups, audio_buffers, audio_streams;
@@ -129,6 +129,9 @@ class AudioBufferEvent {
         this.vol.connect(output);
 
         this.loop = event_def.loop ? event_def.loop : false;
+
+        console.assert(is_number(event_def.volume));
+        this.volume = event_def.volume;
     }
 
     play() {
@@ -183,6 +186,9 @@ class AudioStreamEvent {
         this.vol.connect(output);
 
         this.loop = event_def.loop ? event_def.loop : false;
+
+        console.assert(is_number(event_def.volume));
+        this.volume = event_def.volume;
     }
 
     play() {
