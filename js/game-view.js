@@ -7,12 +7,21 @@
 export { GameView, CharacterView, graphic_position };
 
 import * as graphics from "./system/graphics.js";
+import * as audio from "./system/audio.js";
+import * as ui from "./system/ui.js";
+import * as anim from "./system/animation.js";
+import * as visibility from "./core/visibility.js";
+import { mouse } from "./system/input.js";
+import { tween, easing } from "./system/tweening.js";
+
+import * as concepts from "./core/concepts.js";
+import { Character } from "./core/character.js";
 
 import { Game } from "./game.js";
 import { Vector2, Rectangle } from "./system/spatial.js";
 
-import * as concepts from "./core/concepts.js";
 
+import * as tiles from "./definitions-tiles.js";
 import {
     graphic_position, PIXELS_PER_TILES_SIDE, square_half_unit_vector,
     EntityView,
@@ -22,19 +31,11 @@ import { CharacterView } from "./view/character-view.js";
 import { GameInterface } from "./game-ui.js";
 import { mouse_grid_position, mouse_game_position, } from "./game-input.js";
 import { sprite_defs } from "./game-assets.js";
-import { mouse } from "./system/input.js";
 import { Move } from "./rules/rules-movement.js";
 import { ItemView } from "./view/item-view.js";
-import * as ui from "./system/ui.js";
-import * as tiles from "./definitions-tiles.js";
-import * as visibility from "./core/visibility.js";
-import * as anim from "./system/animation.js";
 import { FogOfWar } from "./view/fogofwar.js";
-import { tween, easing } from "./system/tweening.js";
 import { TakeItem } from "./rules/rule-takeitem.js";
-import { ParticleSystem } from "./system/particles.js";
 import { GameFxView } from "./game-effects.js";
-import { Character } from "./core/character.js";
 
 const a_very_long_time = 99999999999999;
 
@@ -346,7 +347,13 @@ class GameView {
 
     update(delta_time){
 
-        this.skipped_animations.update(a_very_long_time); // Any animation in this group should be iterated just once and be done.
+        ///////////////////////////////////////////////////////////////////////////
+        // Any animation in this group should be iterated just once and be done.
+        audio.set_events_enabled(false); // We want to hear no audio coming from the animation.
+        this.skipped_animations.update(a_very_long_time);
+        audio.set_events_enabled(true);
+        ///////////////////////////////////////////////////////////////////////////
+
         this.camera_animations.update(delta_time);
 
         this._update_highlights(delta_time);
@@ -381,16 +388,18 @@ class GameView {
             if(!animation) // End of event/animation sequences.
                 break;
 
-            animation.iterator = animation.start_animation();
-            if(animation.iterator.next().done) // Skip non-animations.
-                continue;
-
             const is_visible_to_player = this.fog_of_war.is_any_visible(...animation.focus_positions);
             if(!is_visible_to_player && !animation.is_world_event){
                 // No need to play the action in a visible way, just skip it (but still play it).
-                this.skipped_animations.play(animation.iterator);
+                audio.set_events_enabled(false); // Don't play audio coming from skipped animations
+                this.skipped_animations.play(animation.start_animation());
+                audio.set_events_enabled(true);
                 continue;
             }
+
+            animation.iterator = animation.start_animation();
+            if(animation.iterator.next().done) // Skip non-animations.
+                continue;
 
             // Start the animation, delayed by the previous parallel one:
             if(this.delay_between_animations_ms > 0){

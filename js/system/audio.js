@@ -6,6 +6,8 @@ export {
     setVolume,
     toggleMute,
     is_muted,
+    are_events_enabled,
+    set_events_enabled,
 };
 
 import { clamp } from "./utility.js";
@@ -14,8 +16,16 @@ let muted = false;
 let audio_context, mix_groups, audio_buffers, audio_streams;
 let audio_events = [];
 let event_defs;
+let events_enabled = true;
 
 function is_muted() { return muted; }
+
+function are_events_enabled() { return events_enabled; }
+function set_events_enabled(is_enabled) {
+    console.assert(typeof is_enabled === "boolean");
+    events_enabled = is_enabled;
+    return events_enabled;
+}
 
 function initialize(assets, sound_event_defs) {
     console.assert(assets instanceof Object);
@@ -39,6 +49,10 @@ function initialize(assets, sound_event_defs) {
 
 function playEvent(name, pan) {
     console.assert(event_defs instanceof Object);
+
+    if(!events_enabled)
+        return;
+
     let event_def = event_defs[name];
     let event;
 
