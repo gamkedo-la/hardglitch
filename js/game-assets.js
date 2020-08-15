@@ -506,7 +506,7 @@ const sound_event_defs = {
         source_name: 'select',
         group_name: 'SoundEffects',
         loop: false,
-        volume: 1,
+        volume: 0.5,
         unique: false,
     },
 
@@ -515,7 +515,7 @@ const sound_event_defs = {
         source_name: 'click',
         group_name: 'SoundEffects',
         loop: false,
-        volume: 1,
+        volume: 0.5,
         unique: false,
     },
 
@@ -524,7 +524,7 @@ const sound_event_defs = {
         source_name: 'delete',
         group_name: 'SoundEffects',
         loop: false,
-        volume: 1,
+        volume: 0.5,
         unique: false,
     },
 
@@ -533,7 +533,7 @@ const sound_event_defs = {
         source_name: 'destroy',
         group_name: 'SoundEffects',
         loop: false,
-        volume: 1,
+        volume: 0.5,
         unique: false,
     },
 
@@ -542,7 +542,7 @@ const sound_event_defs = {
         source_name: 'error',
         group_name: 'SoundEffects',
         loop: false,
-        volume: 1,
+        volume: 0.5,
         unique: false,
     },
 
@@ -560,7 +560,7 @@ const sound_event_defs = {
         source_name: 'jump',
         group_name: 'SoundEffects',
         loop: false,
-        volume: 1,
+        volume: 0.5,
         unique: false,
     },
 
@@ -569,7 +569,7 @@ const sound_event_defs = {
         source_name: 'move',
         group_name: 'SoundEffects',
         loop: false,
-        volume: 1,
+        volume: 0.7,
         unique: false,
     },
 
@@ -587,7 +587,7 @@ const sound_event_defs = {
         source_name: 'destoryExplode',
         group_name: 'SoundEffects',
         loop: false,
-        volume: 1,
+        volume: 0.7,
         unique: false,
     },
 
@@ -596,7 +596,7 @@ const sound_event_defs = {
         source_name: 'hover',
         group_name: 'SoundEffects',
         loop: false,
-        volume: 1,
+        volume: 0.5,
         unique: false,
     },
 
@@ -605,7 +605,7 @@ const sound_event_defs = {
         source_name: 'damage',
         group_name: 'SoundEffects',
         loop: false,
-        volume: 1,
+        volume: 0.7,
         unique: false,
     },
 
@@ -614,7 +614,7 @@ const sound_event_defs = {
         source_name: 'pusher',
         group_name: 'SoundEffects',
         loop: false,
-        volume: 1,
+        volume: 0.5,
         unique: false,
     },
 
@@ -623,7 +623,7 @@ const sound_event_defs = {
         source_name: 'bouncer',
         group_name: 'SoundEffects',
         loop: false,
-        volume: 1,
+        volume: 0.5,
         unique: false,
     },
 
@@ -632,7 +632,7 @@ const sound_event_defs = {
         source_name: 'takeItem',
         group_name: 'SoundEffects',
         loop: false,
-        volume: 1,
+        volume: 0.5,
         unique: false,
     },
 
@@ -641,7 +641,7 @@ const sound_event_defs = {
         source_name: 'waitTurn',
         group_name: 'SoundEffects',
         loop: false,
-        volume: 1,
+        volume: 0.5,
         unique: false,
     },
 
@@ -650,7 +650,7 @@ const sound_event_defs = {
         source_name: 'aSelect',
         group_name: 'SoundEffects',
         loop: false,
-        volume: 1,
+        volume: 0.5,
         unique: false,
     },
 
@@ -659,7 +659,7 @@ const sound_event_defs = {
         source_name: 'aClick',
         group_name: 'SoundEffects',
         loop: false,
-        volume: 1,
+        volume: 0.5,
         unique: false,
     },
 
@@ -668,7 +668,7 @@ const sound_event_defs = {
         source_name: 'aCancel',
         group_name: 'SoundEffects',
         loop: false,
-        volume: 1,
+        volume: 0.5,
         unique: false,
     },
 
