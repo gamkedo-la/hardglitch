@@ -56,6 +56,7 @@ class Bounced extends concepts.Event {
         console.assert(game_view instanceof GameView);
         const entity_view = game_view.get_entity_view(this.target_entity_id);
         console.assert(entity_view instanceof EntityView);
+        audio.playEvent('bounce');
         yield* animations.bounce(entity_view, this.to_pos);
     }
 }
