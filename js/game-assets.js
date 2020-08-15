@@ -70,7 +70,9 @@ const game_assets = { // Description of the assets to load.
         pusher: './audio/PushPull.mp3',
         bouncer: './audio/Bounce.mp3',
         takeItem: './audio/TakeItem.mp3',        
-        waitTurn: './audio/Wait.mp3',
+        waitTurn: './audio/Wait.mp3',        
+        aSelect: './audio/actionHover.mp3',        
+        aClick: './audio/actionClick.mp3',
     },
 
     audio_streams: { // Longer audio assets streamed from disk/server. Currently limited to one unique event per audio source.
@@ -636,6 +638,24 @@ const sound_event_defs = {
     'wait': {
         source_type: 'audiobuffer',
         source_name: 'waitTurn',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
+    'actionSelect': {
+        source_type: 'audiobuffer',
+        source_name: 'aSelect',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
+    'actionClick': {
+        source_type: 'audiobuffer',
+        source_name: 'aClick',
         group_name: 'SoundEffects',
         loop: false,
         volume: 1,
