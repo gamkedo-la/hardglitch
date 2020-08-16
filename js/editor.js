@@ -239,10 +239,6 @@ class EditionPaletteUI {
         }));
 
 
-        // Make sure these buttons are at the end. (TODO: consider moving them to a separate position)
-        this.palette_buttons.push(this.button_remove_entity, this.button_no_selection);
-
-
         // Place all the palette buttons in columns.
         const buttons_per_column = 8;
         const column_width = this.button_no_selection.width /*+ 4*/;
@@ -266,8 +262,20 @@ class EditionPaletteUI {
 
         this.palette_buttons.forEach(palette_button => {
             palette_button.position = next_button_position();
+        });
+
+
+        // Make sure these buttons are over all the buttons.
+        const vertical_space_between_special_buttons_and_other_buttons = 46;
+        this.button_remove_entity.position = { x: initial_position.x, y: initial_position.y - this.button_remove_entity.height - vertical_space_between_special_buttons_and_other_buttons };
+        this.button_no_selection.position = { x: initial_position.x + this.button_no_selection.width, y: initial_position.y - this.button_no_selection.height - vertical_space_between_special_buttons_and_other_buttons };
+        this.palette_buttons.push(this.button_remove_entity, this.button_no_selection);
+
+        // Place the help text always at the same relative position:
+        this.palette_buttons.forEach(palette_button => {
             palette_button.helptext.position = initial_position.translate({ x: 0, y: -40 });
         });
+
     }
 
     update(delta_time){
