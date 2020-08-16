@@ -81,7 +81,7 @@ const game_assets = { // Description of the assets to load.
     audio_streams: { // Longer audio assets streamed from disk/server. Currently limited to one unique event per audio source.
         asset_loader: asset_system.audiostream_loader,
         test: './audio/test.mp3',
-        level1: './audio/music/HardGlitchLevel1.mp3',
+        glitchlife: './audio/music/HardGlitch_GlitchyLife.mp3',
     }
 };
 
@@ -696,9 +696,9 @@ const sound_event_defs = {
         unique: true, // Will not create a new event instance if true
     },
 
-    'level_1': {
+    'GlitchyLife': {
         source_type: 'audiostream',
-        source_name: 'level1',
+        source_name: 'glitchlife',
         group_name: 'Music',
         loop: true,
         volume: 0.5,
