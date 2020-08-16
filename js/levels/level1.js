@@ -5,6 +5,7 @@ export {
 import * as tiles from "../definitions-tiles.js";
 import * as concepts from "../core/concepts.js";
 import { world_grid, default_rules } from "../definitions-world.js";
+import * as audio from "../system/audio.js";
 
 function generate_world(){
     const world_width = 10;
@@ -17,6 +18,8 @@ function generate_world(){
 
     const world = new concepts.World( 10, 10, floor_tile_grid, surface_tile_grid );
     world.set_rules(...default_rules);
+
+    audio.playEvent('level_1');
 
     return world;
 }

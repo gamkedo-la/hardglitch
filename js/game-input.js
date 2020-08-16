@@ -19,6 +19,7 @@ import * as concepts from "./core/concepts.js";
 import { Game } from "./game.js";
 import { GameView } from "./game-view.js";
 import { GameSession } from "./game-session.js";
+import * as audio from "./system/audio.js";
 
 let current_game;
 let current_game_view;
@@ -208,6 +209,7 @@ function begin_game(game_session){
 function end_game(){
     current_game = undefined;
     current_game_view = undefined;
+    audio.stopEvent('level_1');
 }
 
 
