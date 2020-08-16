@@ -17,22 +17,29 @@ class Credits {
 
         this.title = new ui.Text({
             text: "CREDITS",
-            font: "36px arial",
-            position: { x: 30, y: 30 }
+            font: "80px ZingDiddlyDooZapped",
+            background_color: "#ffffff00",
         });
 
+        this.title.position = {
+                                x: graphics.canvas_center_position().translate({ x: -(this.title.width / 2), y: 8 }).x,
+                                y: 8,
+                              };
+
         this.back_button = new ui.TextButton({
-            text: "Back",
+            text: "Back To Title",
             action: on_back_button,
-            position: this.title.position.translate({x: 500, y: 0 }),
-            width: 256, height: 64,
+            position: {x:0, y:0},
             sprite_def: sprite_defs.button_menu,
-            frames: { up: 0, down: 1, over: 2, disabled: 3 },
             sounds:{
                 over: 'selectButton',
                 down: 'clickButton',
             }
         });
+        this.back_button.position = {
+                                        x: graphics.canvas_rect().width - this.back_button.width - 8,
+                                        y: 8,
+                                    };
     }
 
 
