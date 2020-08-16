@@ -138,8 +138,9 @@ function* execute_turns(world) {
             const actor = character.actor;
             console.assert(actor instanceof concepts.Actor); // At this point we have to have a decision maker.
 
+            let player_character_exists = true;
             let action = null;
-            while(!action){ // Update the current possible actions and request an action from the character
+            while(!action && player_character_exists){ // Update the current possible actions and request an action from the character
                 // until we obtain a usable action.
                 character.update_perception(world); // Make sure decisions are taken relative to an up to date view of the world.
                 yield new VisionUpdate();
@@ -153,9 +154,16 @@ function* execute_turns(world) {
                         // Update the world according to it's rules, in case someone is dead etc.
                         const rules_events = world.apply_rules_end_of_characters_turn(character);
                         yield* rules_events;
+                        // At this point, it is possible that the player character was destroyed.
+                        // In this case we must continue to the next character.
+                        if(!world.find_body(character.id))
+                            player_character_exists = false;
                     }
                 }
             }
+
+            if(!player_character_exists) // The player character disappeared while selection was occuring (through events or through edition of the world).
+                continue; // Just pass to the next character.
 
             console.assert(action instanceof concepts.Action);// Ath this point, an action MUST have been defined (even if it's just Wait)
 
