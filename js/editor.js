@@ -341,29 +341,30 @@ function update_world_edition(game_session, delta_time){
     }
 }
 
-const help_text_x_from_right_side = 500;
+const help_text_top_left = new Vector2({x: 200, y: 34 });
 
 function display_help(game_session){
     console.assert(game_session instanceof GameSession);
 
-    const canvas_rect = graphics.canvas_rect();
-    const display_x = canvas_rect.bottom_right.x - help_text_x_from_right_side;
+    const display_x = help_text_top_left.x;
 
-    let line = 10;
+    let line = help_text_top_left.y;
     function next_line(){
-        return line += 30;
+        const new_value = line;
+        line += 30;
+        return new_value;
     }
 
 
     draw_text("[F1]  - HELP", {x: display_x, y: next_line() });
 
+    if(!display_help_info)
+        return;
+
     const is_selecting_action_target = game_session.view.ui.is_selecting_action_target;
     if(!is_selecting_action_target){
         draw_text("[TAB]  - MENU", {x: display_x, y: next_line() });
     }
-
-    if(!display_help_info)
-        return;
 
     if(is_selecting_action_target){
         draw_text("[TAB] - CANCEL TARGET SELECTION", {x: display_x, y: next_line() });
@@ -396,11 +397,13 @@ function display_help(game_session){
 
 function display_editor_help(){
     const canvas_rect = graphics.canvas_rect();
-    const display_x = canvas_rect.bottom_right.x - help_text_x_from_right_side;
+    const display_x = help_text_top_left.x;
 
-    let line = 10;
+    let line = help_text_top_left.y;
     function next_line(){
-        return line += 30;
+        const new_value = line;
+        line += 30;
+        return new_value;
     }
 
 
@@ -493,7 +496,7 @@ function display_debug_info(game_session){
         display_stats_of_pointed_character(game_session);
 
     if(is_enabled){ // Specific to editor mode.
-        draw_text("---====::::  EDITOR MODE  ::::====---", {x: center.x - 200, y: 40 });
+        draw_text("---====::::  EDITOR MODE  ::::====---", {x: center.x - 200, y: 4 });
         display_editor_help();
     } else {
         display_help(game_session);
