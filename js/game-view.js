@@ -271,9 +271,11 @@ class GameView {
     _action_highlitgh_events(action){
         const events = {
             on_mouse_over_begin: () => {
-                this.ui.character_status.begin_preview_costs({
-                    action_points: this.player_character.stats.action_points.value - action.costs.action_points,
-                });
+                if(this.player_character){
+                    this.ui.character_status.begin_preview_costs({
+                        action_points: this.player_character.stats.action_points.value - action.costs.action_points,
+                    });
+                }
             },
             on_mouse_over_end: () => {
                 this.ui.character_status.end_preview_costs();
