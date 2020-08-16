@@ -149,7 +149,7 @@ function make_edit_operation_add_entity_at(entity_type){
 
 
 function make_edit_operation_change_tile(tile_id, worl_tile_grid_id){
-    console.assert(Number.isInteger(tile_id));
+    console.assert(Number.isInteger(tile_id) || tile_id === undefined);
     console.assert(typeof worl_tile_grid_id === "string");
     return (game_session, position) => {
         console.assert(game_session instanceof GameSession);
@@ -213,7 +213,7 @@ class EditPaletteButton extends ui.Button {
 class EditionPaletteUI {
 
     button_no_selection = new EditPaletteButton("No Selection");
-
+    button_remove_surface_tile = new EditPaletteButton("Remove Surface Tile", make_edit_operation_change_tile(undefined, "_surface_tile_grid"));
     button_remove_entity = new EditPaletteButton("Remove Entity", make_edit_operation_remove_any_entity_at());
 
     constructor(game_session){
@@ -240,10 +240,12 @@ class EditionPaletteUI {
 
 
         // Place all the palette buttons in columns.
+        const button_palette_top_left = new Vector2({ x: 20, y: 100 });
+
         const buttons_per_column = 8;
         const column_width = this.button_no_selection.width /*+ 4*/;
         const row_height = this.button_no_selection.height /*+ 4*/;
-        const initial_position = new Vector2({ x: 20, y: 200 });
+        const initial_position = button_palette_top_left.translate({ x: 0, y: 100 });
         let next_button_x = initial_position.x;
         let next_button_y = initial_position.y;
         let buttons_count = 0;
@@ -267,13 +269,22 @@ class EditionPaletteUI {
 
         // Make sure these buttons are over all the buttons.
         const vertical_space_between_special_buttons_and_other_buttons = 46;
-        this.button_remove_entity.position = { x: initial_position.x, y: initial_position.y - this.button_remove_entity.height - vertical_space_between_special_buttons_and_other_buttons };
-        this.button_no_selection.position = { x: initial_position.x + this.button_no_selection.width, y: initial_position.y - this.button_no_selection.height - vertical_space_between_special_buttons_and_other_buttons };
-        this.palette_buttons.push(this.button_remove_entity, this.button_no_selection);
+        const initial_special_buttons_position = button_palette_top_left;
+        let x_special_button = 0;
+        const next_special_button_position = ()=>{
+            const new_position = initial_special_buttons_position.translate({ x: x_special_button, y: 0 });
+            x_special_button += this.button_no_selection.width;
+            return new_position;
+        };
+        this.button_remove_surface_tile.position = next_special_button_position();
+        this.button_remove_entity.position = next_special_button_position();
+        this.button_no_selection.position = next_special_button_position();
+        this.palette_buttons.push(this.button_remove_surface_tile, this.button_remove_entity, this.button_no_selection);
 
         // Place the help text always at the same relative position:
+        const help_text_position = initial_special_buttons_position.translate({ x: 0, y: 60 });
         this.palette_buttons.forEach(palette_button => {
-            palette_button.helptext.position = initial_position.translate({ x: 0, y: -40 });
+            palette_button.helptext.position = help_text_position;
         });
 
     }
