@@ -140,7 +140,7 @@ function genFloorOverlay(lvl, grid, overlay, selectors) {
             let v = grid.get_at(i,j);
             let p = {x:i, y:j};
             // consider top-left
-            // - possible tiles are: ttl, t, rtte, l, ltbs, m, btle, ttrs, btrc, ltt, btri, rtbi, bi, rtbei, btli
+            // - possible tiles are: ttl, t, rtte, l, ltbs, m, btle, ttrs, ltt, btri, rtbi, bi, rtbei, btli
             // FIXME: not currently assigning btri, rtbi, bi, rtbei, btli
             // pick best selector based on bordering tiles
             let selector = pickSelector(selectors, v, grid.up(p), grid.ul(p), grid.left(p));
@@ -159,7 +159,7 @@ function genFloorOverlay(lvl, grid, overlay, selectors) {
                     tl = (baseMask & DOWN) ? "l" : "ltbs";
                     break;
                 case UL:
-                    tl = "btrc";
+                    tl = "ttl";
                     break;
                 case UP|UL:
                     tl = "btle";
@@ -177,7 +177,7 @@ function genFloorOverlay(lvl, grid, overlay, selectors) {
             let layer = selector.name;
             if (tl) overlay.set_at(tile_id(lvl, layer, tl), i*2, j*2);
             // consider top-right
-            // - possible tiles are: rtt, t, ttls, r, btre, m, rtbs, ltte, ltbc, ttr, ltbi, btli, bi, btlsi, rtbi
+            // - possible tiles are: rtt, t, ttls, r, btre, m, rtbs, ltte, ttr, ltbi, btli, bi, btlsi, rtbi
             // FIXME: not currently assigning ltbi, btli, bi, btlsi, rtbi
             // pick best selector based on bordering tiles
             selector = pickSelector(selectors, v, grid.up(p), grid.ur(p), grid.right(p));
@@ -196,7 +196,7 @@ function genFloorOverlay(lvl, grid, overlay, selectors) {
                     tr = (baseMask & DOWN) ? "r" : "btre";
                     break;
                 case UR:
-                    tr = "ltbc";
+                    tr = "rtt";
                     break;
                 case UP|UR:
                     tr = "rtbs";
@@ -214,7 +214,7 @@ function genFloorOverlay(lvl, grid, overlay, selectors) {
             layer = selector.name;
             if (tr) overlay.set_at(tile_id(lvl, layer, tr), i*2+1, j*2);
             // consider bottom-left
-            // - possible tiles are: ltb, b, btrs, l, ttle, m, ltts, rtbe, rttc, btl
+            // - possible tiles are: ltb, b, btrs, l, ttle, m, ltts, rtbe, btl
             // pick best selector based on bordering tiles
             selector = pickSelector(selectors, v, grid.down(p), grid.dl(p), grid.left(p));
             if (!selector) continue;
@@ -232,7 +232,7 @@ function genFloorOverlay(lvl, grid, overlay, selectors) {
                     bl = (baseMask & UP) ? "l" : "ttle";
                     break;
                 case DL:
-                    bl = "rttc";
+                    bl = "ltb";
                     break;
                 case DOWN|DL:
                     bl = "ltts";
@@ -250,8 +250,7 @@ function genFloorOverlay(lvl, grid, overlay, selectors) {
             layer = selector.name;
             if (bl) overlay.set_at(tile_id(lvl, layer, bl), i*2, j*2+1);
             // consider bottom-right
-            // - possible tiles are: btr, b, ltbe, r, rtts, m, ttre, btls, ttlc, rtb
-            // - possible tiles are: rtt, t, ttls, r, btre, m, rtbs, ltte, ltbc, ttr
+            // - possible tiles are: btr, b, ltbe, r, rtts, m, ttre, btls, rtb
             // pick best selector based on bordering tiles
             selector = pickSelector(selectors, v, grid.down(p), grid.dr(p), grid.right(p));
             if (!selector) continue;
@@ -269,7 +268,7 @@ function genFloorOverlay(lvl, grid, overlay, selectors) {
                     br = (baseMask & UP) ? "r" : "rtts";
                     break;
                 case DR:
-                    br = "ttlc";
+                    br = "btr";
                     break;
                 case DOWN|DR:
                     br = "ttre";

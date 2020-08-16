@@ -80,6 +80,7 @@ class TileGridView {
             new SeamSelector("wall", (fg) => (fg==tiledefs.ID.WALL), (bg) => (bg != tiledefs.ID.WALL)),
             new SeamSelector("void", (fg) => (fg==tiledefs.ID.VOID), (bg) => (bg != tiledefs.ID.VOID)),
             new SeamSelector("hole", (fg) => (fg==tiledefs.ID.HOLE), (bg) => (bg != tiledefs.ID.HOLE)),
+            new SeamSelector("ground2", (fg) => (fg==tiledefs.ID.GROUND2), (bg) => (bg != tiledefs.ID.GROUND2)),
             new SeamSelector("ground", (fg) => (fg==tiledefs.ID.GROUND), (bg) => (bg != tiledefs.ID.GROUND)),
         ];
 

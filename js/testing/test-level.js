@@ -76,7 +76,7 @@ function make_test_world(){ // The game assets must have been initialized first.
                 tileID = tiles.ID.VOID;
             // otherwise ground
             } else {
-                tileID = tiles.ID.GROUND;
+                tileID = (Math.random() > .8) ? tiles.ID.GROUND2 : tiles.ID.GROUND;
             }
             // hole/ground/wall tiles get assigned to floor layer (wall gets assigned to both surface/floor)
             set_floor_tile(new concepts.Position({x:i, y:j}), tileID);

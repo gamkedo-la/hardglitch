@@ -21,6 +21,7 @@ const game_assets = { // Description of the assets to load.
         test_enemy: "./images/test_enemy.png",
         tileset_entry_exit : "./images/portalinout.png",
         ground_template : "./images/ground_template.png",
+        ground2_template : "./images/ground2_template.png",
         void_template : "./images/void_template.png",
         hole_template : "./images/hole_template.png",
         wall_template : "./images/wall_template.png",
@@ -479,6 +480,7 @@ function update_anim_defs(imgname, lvl, layer, tilesize, templatesize, frames, d
 }
 
 update_sprite_defs("ground_template", "lvl1", "ground", 32);
+update_sprite_defs("ground2_template", "lvl1", "ground2", 32);
 update_sprite_defs("hole_template", "lvl1", "hole", 32);
 update_sprite_defs("void_template", "lvl1", "void", 32);
 update_sprite_defs("wall_template", "lvl1", "wall", 32);

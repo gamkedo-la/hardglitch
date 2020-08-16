@@ -17,13 +17,14 @@ const ID = {
     EXIT : 1,
 
     GROUND: 10,
+    GROUND2: 11,
     WALL: 20,
     VOID: 30,
     HOLE: 40,
 };
 
 const floor_tiles = [
-    ID.GROUND, ID.WALL, ID.VOID, ID.HOLE
+    ID.GROUND, ID.GROUND2, ID.WALL, ID.VOID, ID.HOLE
 ];
 
 const surface_tiles = [
@@ -34,6 +35,13 @@ const surface_tiles = [
 // Tile Types Descritions:
 const defs = {
     [ID.GROUND] : {
+        sprite_def: sprite_defs.ground,
+        is_walkable: true,
+        is_safe: true,
+        is_view_blocking: false,
+        description: "Walkable ground.",
+    },
+    [ID.GROUND2] : {
         sprite_def: sprite_defs.ground,
         is_walkable: true,
         is_safe: true,
@@ -95,6 +103,7 @@ function update_id_defs(lvl, layer) {
 }
 // update ID/defs for level 1 tiles
 update_id_defs("lvl1", "ground");
+update_id_defs("lvl1", "ground2");
 update_id_defs("lvl1", "wall");
 update_id_defs("lvl1", "void");
 update_id_defs("lvl1", "hole");
