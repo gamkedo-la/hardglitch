@@ -64,10 +64,20 @@ const game_state_machine = new class extends fsm.StateMachine{
     this.current_state.display(canvas_context);
   }
 
+  update(delta_time){
+    if(this.current_state.screen_size_change){ // The screen size changed in a different state, so we need to update the current one (which we just entered).
+      this.current_state.on_canvas_resized();
+      this.current_state.screen_size_change = false;
+    }
+    super.update(delta_time);
+  }
+
   make_ready_for_canvas_resize(){
     console.assert(Object.values(this.states).every(state => state.on_canvas_resized instanceof Function));
     window.addEventListener('resize', ()=>{
       this.current_state.on_canvas_resized();
+      Object.values(this.states).filter(state => state !== this.current_state)
+        .forEach(state => state.screen_size_change = true); // Make the other states be aware the screen size changed if we switch to them.
     });
   }
 };
