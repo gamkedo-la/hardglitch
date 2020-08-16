@@ -74,11 +74,13 @@ const game_assets = { // Description of the assets to load.
         aSelect: './audio/actionHover.mp3',        
         aClick: './audio/actionClick.mp3',        
         aCancel: './audio/Cancel.mp3',
+        lower: './audio/Lower.mp3',
     },
 
     audio_streams: { // Longer audio assets streamed from disk/server. Currently limited to one unique event per audio source.
         asset_loader: asset_system.audiostream_loader,
         test: './audio/test.mp3',
+        level1: './audio/music/HardGlitchLevel1.mp3',
     }
 };
 
@@ -672,6 +674,15 @@ const sound_event_defs = {
         unique: false,
     },
 
+    'lowerAction': {
+        source_type: 'audiobuffer',
+        source_name: 'lower',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 0.4,
+        unique: false,
+    },
+
     // MUSIC EVENTS //
 
     'streamtest': {
@@ -680,6 +691,15 @@ const sound_event_defs = {
         group_name: 'Music',
         loop: true,
         volume: 1,
+        unique: true, // Will not create a new event instance if true
+    },
+
+    'level_1': {
+        source_type: 'audiostream',
+        source_name: 'level1',
+        group_name: 'Music',
+        loop: true,
+        volume: 0.5,
         unique: true, // Will not create a new event instance if true
     }
 }

@@ -82,6 +82,7 @@ function* jump(fx_view, entity_view, target_game_position){
 
     entity_view.position = top_target_pos;
     entity_view.is_visible = true;
+    audio.playEvent('lowerAction');
     yield* translate(entity_view, target_gfx_pos, jump_duration_ms, easing.in_out_quad);
 
     entity_view.game_position = target_game_position;
