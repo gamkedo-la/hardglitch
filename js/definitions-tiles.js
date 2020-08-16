@@ -46,7 +46,7 @@ const defs = {
         is_walkable: true,
         is_safe: true,
         is_view_blocking: false,
-        description: "Walkable ground.",
+        description: "Walkable ground 2.",
     },
     [ID.WALL] : {
         sprite_def: sprite_defs.wall,
