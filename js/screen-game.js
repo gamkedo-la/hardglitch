@@ -138,7 +138,7 @@ class InGameMenu extends fsm.State {
                 text: "Resume Game",
                 action: ()=>{ this.go_back(); },
                 position: Vector2_origin,
-                sprite_def: sprite_defs.button_menu,            
+                sprite_def: sprite_defs.button_menu,
                 sounds:{
                     over: 'selectButton',
                     down: 'clickButton',
@@ -316,9 +316,11 @@ class GameScreen extends fsm.StateMachine {
     }
 
     on_canvas_resized(){
-        if(this.current_state.on_canvas_resized){
-            this.current_state.on_canvas_resized();
-        }
+        Object.values(this.states)
+            .forEach(state => {
+                if(state.on_canvas_resized)
+                    state.on_canvas_resized();
+            });
         this.game_session.on_canvas_resized();
     }
 
