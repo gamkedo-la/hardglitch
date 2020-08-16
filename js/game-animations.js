@@ -48,7 +48,11 @@ function* move(entity_view, target_game_position, duration_ms=default_move_durat
 function* wait(character_view, duration_ms){
     console.assert(character_view instanceof CharacterView);
     // TODO: add some kind of animation here to show that the character is passing their turn.
-    audio.playEvent('wait');
+    if(character_view.is_player){
+        audio.playEvent('wait');
+    } else {
+        // TODO: here play the sound of NPCs (probably just the same sound but lower volume)
+    }
     yield* animation.wait(duration_ms);
 }
 
