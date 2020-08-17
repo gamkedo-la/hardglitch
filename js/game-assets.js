@@ -636,7 +636,7 @@ const sound_event_defs = {
         source_name: 'takeItem',
         group_name: 'SoundEffects',
         loop: false,
-        volume: 0.5,
+        volume: 0.2,
         unique: false,
     },
 
@@ -654,7 +654,7 @@ const sound_event_defs = {
         source_name: 'aSelect',
         group_name: 'SoundEffects',
         loop: false,
-        volume: 0.5,
+        volume: 0.3,
         unique: false,
     },
 
