@@ -64,7 +64,7 @@ const defs = {
         is_wall: true,
         tile_layer: "wall",
         tile_match_predicate: (v) => (v===ID.WALL), 
-        tile_same_predicate: (v) => (v.is_wall), 
+        tile_same_predicate: (v) => (defs[v].is_wall), 
     },
     [ID.HOLE] : {
         sprite_def: sprite_defs.void,
