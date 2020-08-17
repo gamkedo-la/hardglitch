@@ -76,13 +76,11 @@ class TileGridView {
         // translate given grids to display grids
         const floor_grid = new Grid(size.x*2, size.y*2);
         const seam_grid = new Grid(size.x*2, size.y*2);
-        let selectors = [
-            new SeamSelector("wall", (fg) => (fg==tiledefs.ID.WALL), (bg) => (bg != tiledefs.ID.WALL)),
-            new SeamSelector("void", (fg) => (fg==tiledefs.ID.VOID), (bg) => (bg != tiledefs.ID.VOID)),
-            new SeamSelector("hole", (fg) => (fg==tiledefs.ID.HOLE), (bg) => (bg != tiledefs.ID.HOLE)),
-            new SeamSelector("ground2", (fg) => (fg==tiledefs.ID.GROUND2), (bg) => (bg != tiledefs.ID.GROUND2)),
-            new SeamSelector("ground", (fg) => (fg==tiledefs.ID.GROUND), (bg) => (bg != tiledefs.ID.GROUND)),
-        ];
+        let selectors = [];
+        for (const def of Object.values(tiledefs.defs)) {
+            if (!def.tile_layer) continue;
+            selectors.push(new SeamSelector(def.tile_layer, def.tile_match_predicate, def.tile_same_predicate));
+        }
 
         // generate floor
         genFloorOverlay("lvl1", ground_tile_grid, floor_grid, selectors);

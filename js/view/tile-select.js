@@ -24,17 +24,19 @@ function same(...values) {
 }
 
 class SeamSelector {
-    constructor(name, baseCmp, otherCmp) {
+    constructor(name, matchPred, samePred) {
         this.name = name;
-        this.baseCmp = baseCmp;
-        this.otherCmp = otherCmp;
+        this.matchPred = matchPred;
+        this.samePred = samePred;
+        console.log("matchPred: " + matchPred)
+        console.log("samePred: " + samePred)
     }
 
     match(base, ...others) {
-        if (!this.baseCmp(base)) return 0;
+        if (!this.matchPred(base)) return 0;
         let score = 1;
         for (const other of others) {
-            if (this.baseCmp(other) || this.otherCmp(other)) score++;
+            if (this.matchPred(other) || this.samePred(other)) score++;
         }
         return score;
     }
@@ -143,10 +145,10 @@ function genFloorOverlay(lvl, grid, overlay, selectors) {
             // - possible tiles are: ttl, t, rtte, l, ltbs, m, btle, ttrs, ltt, btri, rtbi, bi, rtbei, btli
             // FIXME: not currently assigning btri, rtbi, bi, rtbei, btli
             // pick best selector based on bordering tiles
-            let selector = pickSelector(selectors, v, grid.up(p), grid.ul(p), grid.left(p));
+            let selector = pickSelector(selectors, v);
             if (!selector) continue;
             // compute base mask of surrounding tiles based on selector
-            let baseMask = getMask(grid, p, selector.baseCmp);
+            let baseMask = getMask(grid, p, selector.samePred);
             let tl = "";
             switch (baseMask & (LEFT|UL|UP)) {
                 case 0:
@@ -183,7 +185,7 @@ function genFloorOverlay(lvl, grid, overlay, selectors) {
             selector = pickSelector(selectors, v, grid.up(p), grid.ur(p), grid.right(p));
             if (!selector) continue;
             // compute base mask of surrounding tiles based on selector
-            baseMask = getMask(grid, p, selector.baseCmp);
+            baseMask = getMask(grid, p, selector.samePred);
             let tr = "";
             switch (baseMask & (RIGHT|UR|UP)) {
                 case 0:
@@ -219,7 +221,7 @@ function genFloorOverlay(lvl, grid, overlay, selectors) {
             selector = pickSelector(selectors, v, grid.down(p), grid.dl(p), grid.left(p));
             if (!selector) continue;
             // compute base mask of surrounding tiles based on selector
-            baseMask = getMask(grid, p, selector.baseCmp);
+            baseMask = getMask(grid, p, selector.samePred);
             let bl = "";
             switch (baseMask & (LEFT|DL|DOWN)) {
                 case 0:
@@ -255,7 +257,7 @@ function genFloorOverlay(lvl, grid, overlay, selectors) {
             selector = pickSelector(selectors, v, grid.down(p), grid.dr(p), grid.right(p));
             if (!selector) continue;
             // compute base mask of surrounding tiles based on selector
-            baseMask = getMask(grid, p, selector.baseCmp);
+            baseMask = getMask(grid, p, selector.samePred);
             let br = "";
             switch (baseMask & (RIGHT|DR|DOWN)) {
                 case 0:

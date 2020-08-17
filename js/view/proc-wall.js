@@ -21,16 +21,13 @@ class ProcWallSystem {
         // make sure they don't impact the rest of the drawing code
         canvas_context.save();
         // iterate through tracked items
-        let poks = 0;
         for (let i=0; i<this.items.length; i++) {
             const item = this.items[i];
             if (position_predicate(item.position)){
-                poks++;
                 item.draw(canvas_context);
             }
         }
         canvas_context.restore();
-        // console.log("poks: " + poks);
     }
 
     add(pwall) {
