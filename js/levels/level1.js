@@ -19,7 +19,5 @@ function generate_world(){
     const world = new concepts.World( 10, 10, floor_tile_grid, surface_tile_grid );
     world.set_rules(...default_rules);
 
-    audio.playEvent('GlitchyLife');
-
     return world;
 }

@@ -209,7 +209,6 @@ function begin_game(game_session){
 function end_game(){
     current_game = undefined;
     current_game_view = undefined;
-    audio.stopEvent('GlitchyLife');
 }
 
 

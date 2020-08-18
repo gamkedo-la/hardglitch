@@ -6,6 +6,7 @@ export {
 import * as fsm from "./system/finite-state-machine.js";
 import * as graphics from "./system/graphics.js";
 import * as ui from "./system/ui.js";
+import * as audio from "./system/audio.js";
 
 import { sprite_defs } from "./game-assets.js";
 import { invoke_on_members } from "./system/utility.js";
@@ -115,10 +116,13 @@ class MainMenuScreen extends fsm.State {
         }
 
         yield* this.fader.generate_fade_in();
+
+        audio.playEvent('GlitchyLife');
     }
 
     *leave(){
         yield* this.fader.generate_fade_out();
+        audio.stopEvent('GlitchyLife');
     }
 
     update(delta_time){
