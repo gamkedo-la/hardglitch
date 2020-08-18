@@ -3,8 +3,7 @@ export {
 }
 
 import * as tiles from "../definitions-tiles.js";
-import * as concepts from "../core/concepts.js";
-import { world_grid, default_rules } from "../definitions-world.js";
+import { generate_empty_world } from "./edit_level.js";
 
 const defaults = {
     ground : tiles.ID.GROUND,
@@ -17,16 +16,5 @@ function generate_world(){
     // CPU Caches: https://trello.com/c/wgMFsGbN/76-level-3-cpu-caches
     //
 
-    const world_width = 30;
-    const world_height = 30;
-    const grid_size = world_width * world_height;
-    const floor_tile_grid = new Array(grid_size).fill(defaults.ground);
-    const surface_tile_grid = new Array(grid_size).fill(undefined);
-    surface_tile_grid[0] = tiles.ID.ENTRY;
-    surface_tile_grid[grid_size-1] = tiles.ID.EXIT;
-
-    const world = new concepts.World( world_width, world_height, floor_tile_grid, surface_tile_grid );
-    world.set_rules(...default_rules);
-
-    return world;
+    return generate_empty_world(30, 30, defaults);
 }

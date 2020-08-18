@@ -18,6 +18,8 @@ import { Color } from "./system/color.js";
 import { sprite_defs } from "./game-assets.js";
 import { Vector2_origin } from "./system/spatial.js";
 
+import * as level_1 from "./levels/level_1.js";
+
 class PlayingGame extends fsm.State{
 
     *enter(){
@@ -257,14 +259,16 @@ class GameScreen extends fsm.StateMachine {
         });
     }
 
-    *enter(level){
+    *enter(level_generator){
         graphics.reset();
 
+        if(!level_generator)
+            level_generator = level_1.generate_world;
+
         if(!this.game_session){
-            this.game_session = new GameSession(level, ()=>{ this.ingame_menu(); });
-        } else {
-            console.assert(level === undefined);
+            this.game_session = new GameSession(level_generator, ()=>{ this.ingame_menu(); });
         }
+
         yield* this.fader.generate_fade_in();
 
         this.game_session.start();

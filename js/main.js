@@ -16,14 +16,13 @@ import { MuteAudioButton } from "./game-ui.js";
 import {defs as tiledefs} from "./definitions-tiles.js";
 import {initialize as tile_select_initialize} from "./view/tile-select.js";
 
-
 let last_update_time = performance.now();
 const max_delta_time = 1000 / 26; // Always assume at worst that we are at 26fps
 let mute_button;
 
 // This describe the different states/screens the game can go through.
 // There can be inner states too.
-const game_state_machine = new class extends fsm.StateMachine{
+const game_state_machine = new class extends fsm.StateMachine {
   constructor(){
     super({
       loading_game: new LoadingGameScreen(),
@@ -35,6 +34,10 @@ const game_state_machine = new class extends fsm.StateMachine{
     },{
       // This is the transition table, stating which action from one state leads to which other state.
       initial_state: "loading_game",
+      "*" : { // From any state - TODO: consider removing me before release?
+        load_game: "game",
+      },
+
       loading_game: {
         game_ready: "main_menu"
       },
@@ -134,3 +137,37 @@ function update_cycle(highres_timestamp){
 
   window.requestAnimationFrame(update_cycle);
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+// The following code allows us to use the console to load specific levels.
+
+import * as level_1 from "./levels/level_1.js";
+import * as level_2 from "./levels/level_2.js";
+import * as level_3 from "./levels/level_3.js";
+import * as level_4 from "./levels/level_4.js";
+import * as random_test_level from "./testing/test-level.js";
+import { generate_empty_world } from "./levels/edit_level.js";
+
+
+const game_levels = [
+  level_1, level_2, level_3, level_4,
+];
+
+function load_level(level_number){
+  const level = game_levels[level_number];
+  console.assert(level);
+  game_state_machine.push_action("load_game", level.generate_world);
+}
+
+function load_test_level(width, height){
+  game_state_machine.push_action("load_game", ()=> generate_empty_world(width, height) );
+}
+
+function load_random_test_level(){
+  game_state_machine.push_action("load_game", random_test_level.make_test_world);
+}
+
+window.load_level = load_level;
+window.load_test_level = load_test_level;
+window.load_random_test_level = load_random_test_level;

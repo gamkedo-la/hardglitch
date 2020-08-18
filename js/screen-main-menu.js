@@ -6,12 +6,14 @@ export {
 import * as fsm from "./system/finite-state-machine.js";
 import * as graphics from "./system/graphics.js";
 import * as ui from "./system/ui.js";
-import * as audio from "./system/audio.js";
 
 import { sprite_defs } from "./game-assets.js";
 import { invoke_on_members } from "./system/utility.js";
 import { Vector2, Vector2_origin } from "./system/spatial.js";
 import { ScreenFader } from "./system/screenfader.js";
+
+import * as random_test_level from "./testing/test-level.js";
+import { generate_empty_world } from "./levels/edit_level.js";
 
 class MainMenu {
 
@@ -23,7 +25,7 @@ class MainMenu {
         this.button_new_game = new ui.TextButton({
             text: "New Game",
             color: "#ffffff",
-            action: ()=> { state_machine.push_action("new_game", "test"); },
+            action: ()=> { state_machine.push_action("new_game"); },
             position: Vector2_origin,
             sprite_def: sprite_defs.button_menu,
             sounds:{
@@ -34,7 +36,7 @@ class MainMenu {
 
         this.button_empty_level = new ui.TextButton({
             text: "Empty Small Level",
-            action: ()=> { state_machine.push_action("new_game"); },
+            action: ()=> { state_machine.push_action("new_game", ()=> generate_empty_world(10, 10)); },
             position: Vector2_origin,
             sprite_def: sprite_defs.button_menu,
             sounds:{
@@ -45,7 +47,7 @@ class MainMenu {
 
         this.button_test_level = new ui.TextButton({
             text: "Random Test Level",
-            action: ()=> { state_machine.push_action("new_game", "test"); },
+            action: ()=> { state_machine.push_action("new_game", random_test_level.make_test_world); },
             position: Vector2_origin,
             sprite_def: sprite_defs.button_menu,
             sounds:{

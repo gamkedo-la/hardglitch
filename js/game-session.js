@@ -5,22 +5,16 @@ export {
 import * as game_input from "./game-input.js";
 import { Game } from "./game.js";
 import { GameView } from "./game-view.js";
-import { make_test_world } from "./testing/test-level.js";
-
-
-import * as level_1 from "./levels/level_1.js";
+import { World } from "./core/concepts.js";
 
 // Gather all the data and systems that are needed to play a game level.
 // This is manipulated by some other systems, like the screen state, the game-input system, the editor etc.
 class GameSession {
 
-    constructor(level, open_menu){
-        if(level === "test"){
-            this.game = new Game(make_test_world());
-        } else {
-            this.game = new Game(level_1.generate_world());
-        }
-
+    constructor(level_generator, open_menu){
+        const world = level_generator();
+        console.assert(world instanceof World);
+        this.game = new Game(world);
         this.view = new GameView(this.game, open_menu);
         this.view.update(0); // Update the camera state.
     }
