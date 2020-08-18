@@ -8,7 +8,7 @@ import { GameView } from "./game-view.js";
 import { make_test_world } from "./testing/test-level.js";
 
 
-import * as level1 from "./levels/level1.js";
+import * as level_1 from "./levels/level_1.js";
 
 // Gather all the data and systems that are needed to play a game level.
 // This is manipulated by some other systems, like the screen state, the game-input system, the editor etc.
@@ -18,7 +18,7 @@ class GameSession {
         if(level === "test"){
             this.game = new Game(make_test_world());
         } else {
-            this.game = new Game(level1.generate_world());
+            this.game = new Game(level_1.generate_world());
         }
 
         this.view = new GameView(this.game, open_menu);
