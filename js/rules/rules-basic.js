@@ -159,6 +159,9 @@ class PlayerExitLevel extends concepts.Event {
 
 class Rule_LevelExit extends concepts.Rule {
     update_world_after_character_turn(world, character_body){
+        if(world.is_finished) // The game is already finished.
+            return [];
+
         if(character_body.is_player_actor){ // Only check player bodies (only the player can exit the level).
             const exit_positions = world._surface_tile_grid.matching_positions(tile_id => tile_id == tiles.ID.EXIT); // TODO: keep a cache until the world's tiles have changed?
             if(exit_positions.some(position => character_body.position.equals(position))){
