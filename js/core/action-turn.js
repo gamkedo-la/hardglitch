@@ -55,7 +55,7 @@ class NewTurn extends concepts.Event {
 
     get is_world_event() { return true; }
 
-    *animation(){}
+    animation = null;
 };
 
 // Event: New turn phase begins!
@@ -71,7 +71,7 @@ class NewTurnPhase extends concepts.Event {
 
     get is_world_event() { return true; }
 
-    *animation(){}
+    animation = null;
 };
 
 
@@ -80,7 +80,7 @@ class VisionUpdate extends concepts.Event {
 
     get is_world_event() { return true; }
 
-    *animation(){}
+    animation = null;
 };
 
 // This is the function defining how each character's turn is processed. Basically, a "turn solver".

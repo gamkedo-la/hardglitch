@@ -32,9 +32,9 @@ function* wait(duration_ms){
     return time_since_start;
 }
 
-function* delay(duration_ms, animation_iterator){
+function* delay(duration_ms, animation_function){
     yield* wait(duration_ms);
-    yield* animation_iterator;
+    yield* animation_function();
 }
 
 // Animations that must be executed together.

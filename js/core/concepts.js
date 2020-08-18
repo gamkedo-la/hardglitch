@@ -78,7 +78,7 @@ class Event{
     // Array of Position that are important for this event.
     get focus_positions() { throw "focus_positions not implemented"; }
 
-    // Animation to perform when viewing this event.
+    // Animation to perform when viewing this event. Set to null to disable animation.
     // view: object representing the view of the game to be manipulated by this event.
     *animation(view){ throw "animation not implemented"; }
 };

@@ -18,9 +18,8 @@ class Event_ActionPointsRestored extends concepts.Event {
 
     get focus_positions() { return [ this.character_position ]; }
 
-    *animation(){
-        // TODO: display the restored points or something?
-    }
+    animation = null; // TODO: display the restored points or something?
+
 };
 
 class Rule_ActionPoints extends concepts.Rule {

@@ -224,20 +224,24 @@ class GameView {
     _pop_next_event_animation(){
         this.next_event = this.event_sequence.next();
 
-        if(!this.next_event.done){
+        while(!this.next_event.done){
             const event = this.next_event.value;
             console.assert(event instanceof concepts.Event);
-            console.assert(event.focus_positions);
-            const animation = {
-                    start_animation: ()=> this._start_event_animation(event),
-                    parallel: event.allow_parallel_animation,
-                    focus_positions: event.focus_positions,
-                    is_world_event: event.is_world_event,
-                };
-            return animation;
-        } else {
-            this.next_event = undefined;
+            if(event.animation){
+                console.assert(event.focus_positions);
+                const animation = {
+                        start_animation: ()=> this._start_event_animation(event),
+                        parallel: event.allow_parallel_animation,
+                        focus_positions: event.focus_positions,
+                        is_world_event: event.is_world_event,
+                    };
+                return animation;
+            }
+
+            this.next_event = this.event_sequence.next();
         }
+
+        delete this.next_event;
     }
 
     *_start_event_animation(event){
@@ -399,21 +403,24 @@ class GameView {
                 continue;
             }
 
-            animation.iterator = animation.start_animation();
-            if(animation.iterator.next().done) // Skip non-animations.
-                continue;
-
             // Start the animation, delayed by the previous parallel one:
             if(this.delay_between_animations_ms > 0){
-                if(delay_for_next_animation > 0)
-                    animation.iterator = anim.delay(delay_for_next_animation, animation.start_animation());
+                if(delay_for_next_animation > 0){
+                    animation.iterator = anim.delay(delay_for_next_animation, ()=>{ return animation.start_animation(); });
+                }
                 delay_for_next_animation += this.delay_between_animations_ms;
             }
+
+            if(!animation.iterator){
+                animation.iterator = animation.start_animation();
+            }
+
             this.current_animations.play(animation.iterator)
                 .then(()=> {
+                    // Refresh the FOW after each event, to make sure we always see the most up to date world.
                     this.fog_of_war.refresh(this.game.world);
                     this._require_tiles_update = true;
-                }); // Refresh the FOW after each event, to make sure we always see the most up to date world.
+                });
 
             if(animation.parallel === false)
                 break; // We need to only play the animations that are next to each other and parallel.
