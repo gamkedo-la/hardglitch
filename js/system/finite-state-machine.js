@@ -50,7 +50,10 @@ class State {
 //     },
 //     credits : {
 //         back: "main_menu"
-//     }
+//     },
+//     "*" : {  // From any state
+//         "game": "game_session",
+//    }
 // };
 
 // This is a Finite State Machine that is also a State.
@@ -64,7 +67,7 @@ class StateMachine extends State {
         console.assert(Object.values(states).every(state => state instanceof State));
         console.assert(states[transition_table.initial_state] instanceof State); // The initial state must exist in the provided state objects.
         console.assert(Object.keys(transition_table)             // Transition table requirements:
-            .filter(state_id=> state_id !== "initial_state")     // keys that are not "initial_state" (which is used to specify which state to start with),
+            .filter(state_id=> state_id !== "initial_state" && state_id !== "*")     // keys that are not "initial_state" (which is used to specify which state to start with),
             .every(state_id => states[state_id] instanceof State // must exist in the provided states names,
                 && Object.values(transition_table[state_id])     // and for each action of a state...
                          .every(next_state_id => states[next_state_id] instanceof State)) // ... we must find the corresponding State to transition to in the provided states.
@@ -156,6 +159,14 @@ class StateMachine extends State {
         const state_transitions = this.transition_table[state_id];
         if(state_transitions instanceof Object){
             const new_state_id = state_transitions[action];
+            if(new_state_id)
+                return new_state_id;
+        }
+
+        // We need to check global transitions too.
+        const global_state_transitions = this.transition_table["*"];
+        if(global_state_transitions instanceof Object){
+            const new_state_id = global_state_transitions[action];
             return new_state_id; // Could be undefined.
         }
     }
