@@ -116,13 +116,10 @@ class MainMenuScreen extends fsm.State {
         }
 
         yield* this.fader.generate_fade_in();
-
-        audio.playEvent('GlitchyLife');
     }
 
     *leave(){
         yield* this.fader.generate_fade_out();
-        audio.stopEvent('GlitchyLife');
     }
 
     update(delta_time){
