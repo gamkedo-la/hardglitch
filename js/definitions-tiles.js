@@ -38,8 +38,8 @@ const defs = {
         is_ground: true,
         tile_layer: "ground",
         shape_template: "ground_template",
-        tile_match_predicate: (v) => (v===ID.GROUND), 
-        tile_same_predicate: (v) => (defs[v].is_ground), 
+        tile_match_predicate: (v) => (v===ID.GROUND),
+        tile_same_predicate: (v) => (defs[v].is_ground),
     },
     [ID.GROUND2] : {
         sprite_def: sprite_defs.ground,
@@ -50,8 +50,8 @@ const defs = {
         is_ground: true,
         tile_layer: "ground2",
         shape_template: "ground2_template",
-        tile_match_predicate: (v) => (v===ID.GROUND2), 
-        tile_same_predicate: (v) => (defs[v].is_ground), 
+        tile_match_predicate: (v) => (v===ID.GROUND2),
+        tile_same_predicate: (v) => (defs[v].is_ground),
     },
     [ID.WALL] : {
         sprite_def: sprite_defs.wall,
@@ -61,8 +61,8 @@ const defs = {
         is_wall: true,
         tile_layer: "wall",
         shape_template: "wall_template",
-        tile_match_predicate: (v) => (v===ID.WALL), 
-        tile_same_predicate: (v) => (defs[v].is_wall), 
+        tile_match_predicate: (v) => (v===ID.WALL),
+        tile_same_predicate: (v) => (defs[v].is_wall),
     },
     [ID.HOLE] : {
         sprite_def: sprite_defs.void,
@@ -71,8 +71,8 @@ const defs = {
         description: "Hole",
         tile_layer: "hole",
         shape_template: "hole_template",
-        tile_match_predicate: (v) => (v===ID.HOLE), 
-        tile_same_predicate: (v) => (v===ID.HOLE), 
+        tile_match_predicate: (v) => (v===ID.HOLE),
+        tile_same_predicate: (v) => (v===ID.HOLE),
     },
     [ID.VOID] : {
         sprite_def: sprite_defs.void,
@@ -82,8 +82,8 @@ const defs = {
         description: "Void",
         tile_layer: "void",
         shape_template: "void_template",
-        tile_match_predicate: (v) => (v===ID.VOID), 
-        tile_same_predicate: (v) => (v===ID.VOID), 
+        tile_match_predicate: (v) => (v===ID.VOID),
+        tile_same_predicate: (v) => (v===ID.VOID),
     },
     [ID.ENTRY] : {
         sprite_def: sprite_defs.entry,
@@ -103,7 +103,8 @@ const defs = {
     },
 };
 
-for (const [id, def] of Object.entries(defs)) {
+for (const id of Object.values(ID)) {
+    const def = defs[id];
     if (def.is_surface) {
         surface_tiles.push(id);
     } else {
