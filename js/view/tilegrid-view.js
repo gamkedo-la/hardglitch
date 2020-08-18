@@ -15,8 +15,8 @@ import { Vector2 } from "../system/spatial.js";
 import { PIXELS_PER_TILES_SIDE, PIXELS_PER_HALF_SIDE, graphic_position } from "./entity-view.js";
 import { TileGraphBuilder } from "./particle-graph.js";
 import { GameFxView } from "../game-effects.js";
-import { position_from_index, ofmt } from "../system/utility.js";
-import { parse_tile_id } from "../game-assets.js";
+import { position_from_index } from "../system/utility.js";
+import { shape_defs, parse_tile_id } from "./tile-select.js";
 import { procWallGenSelector, ProcWallSystem } from "./proc-wall.js";
 
 // Display tiles.
@@ -146,8 +146,8 @@ class TileGridView {
 
         const dsize = new Vector2({x: size.x*2, y: size.y*2});
         // TODO: replace this by just tiles we use, not all tiles in the world
-        this.floor_tile_grid = new graphics.TileGrid(position, dsize, PIXELS_PER_HALF_SIDE, tiledefs.sprite_defs, floor_grid.elements);
-        this.seam_tile_grid = new graphics.TileGrid(position, dsize, PIXELS_PER_HALF_SIDE, tiledefs.sprite_defs, seam_grid.elements);
+        this.floor_tile_grid = new graphics.TileGrid(position, dsize, PIXELS_PER_HALF_SIDE, shape_defs, floor_grid.elements);
+        this.seam_tile_grid = new graphics.TileGrid(position, dsize, PIXELS_PER_HALF_SIDE, shape_defs, seam_grid.elements);
         this.floor_top_tile_grid = new graphics.TileGrid(position, size, PIXELS_PER_TILES_SIDE, tiledefs.sprite_defs, surface_tile_grid.elements);
 
         this._redraw_floor_requested = true;

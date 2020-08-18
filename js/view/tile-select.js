@@ -1,9 +1,8 @@
 // This file contains the code that knows how to select tiles sprites
 // depending on a grid of tiles.
 
-export { SeamSelector, genFloorOverlay, genFgOverlay, genSeamOverlay };
-
-import { tile_id, parse_tile_id } from "../game-assets.js";
+export { initialize, shape_defs, SeamSelector, genFloorOverlay, genFgOverlay, genSeamOverlay, tile_id, parse_tile_id, shape_map };
+import { PIXELS_PER_HALF_SIDE } from "./entity-view.js";
 import { ofmt } from "../system/utility.js";
 
 const RIGHT = 1;
@@ -14,6 +13,22 @@ const UR = 16;
 const UL = 32;
 const DL = 64;
 const DR = 128;
+
+
+const shape_defs = {}
+
+function initialize(tiledefs) {
+    // iterate through tile definitions, looking for tiles with shape template specified
+    for (const def of Object.values(tiledefs)) {
+        if (def.tile_layer && def.shape_template) {
+            // FIXME: level definitions
+            update_sprite_defs(def.shape_template, "lvl1", def.tile_layer, PIXELS_PER_HALF_SIDE);
+            // FIXME: re-eval subtile animations
+            // update_anim_defs("void_template", "lvl1", "void", 32, 512, 8, 100);
+        }
+    }
+}
+
 
 function same(...values) {
     let same = true;
@@ -28,8 +43,6 @@ class SeamSelector {
         this.name = name;
         this.matchPred = matchPred;
         this.samePred = samePred;
-        console.log("matchPred: " + matchPred)
-        console.log("samePred: " + samePred)
     }
 
     match(base, ...others) {
@@ -489,5 +502,170 @@ function genFgOverlay(lvl, layer, grid, overlay, wallCmp) {
             if (bl) overlay.set_at(tile_id(lvl, layer, bl), i*2, j*2+1);
             if (br) overlay.set_at(tile_id(lvl, layer, br), i*2+1, j*2+1);
         }
+    }
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////
+// Tile template images are used to render the background/foreground tiles for the game.  Each image represents all the possible combinations
+// of tiles for a specific view based on foreground/background and level.  This allows different tiles for different levels, but they all use the
+// same template.
+// The shape_map below defines all of the different tile combinations and the positions of each tile within the template image.  Indices are
+// given in a grid index format {i,j}, representing the row/column of each tile within the image.  Multiply by the tilesize to get pixel coordinates.
+const shape_map = {
+    t:      {i:7,   j:1},
+    ot:     {i:7,   j:0},
+    m:      {i:7,   j:2},
+    om:     {i:3,   j:3},
+    ttls:   {i:6,   j:1},
+    ttl:    {i:5,   j:1},
+    ttlc:   {i:7,   j:3},
+    ttle:   {i:5,   j:2},
+    ottls:  {i:5,   j:0},
+    ottl:   {i:5,   j:0},
+    ottle:  {i:4,   j:1},
+    l:      {i:1,   j:7},
+    ol:     {i:0,   j:7},
+    ltts:   {i:5,   j:4},
+    ltt:    {i:5,   j:5},
+    ltte:   {i:4,   j:5},
+    ltti:   {i:5,   j:3},
+    oltts:  {i:4,   j:3},
+    oltt:   {i:4,   j:4},
+    oltte:  {i:3,   j:4},
+    olttc:  {i:1,   j:1},
+    ltbs:   {i:1,   j:9},
+    ltbsc:  {i:1,   j:13},
+    ltb:    {i:1,   j:10},
+    ltbc:   {i:7,   j:4},
+    ltbe:   {i:2,   j:10},
+    ltbi:   {i:2,   j:9},
+    oltbs:  {i:0,   j:10},
+    oltb:   {i:0,   j:11},
+    oltbe:  {i:1,   j:11},
+    b:      {i:3,   j:10},
+    ob:     {i:2,   j:11},
+    bi:     {i:3,   j:9},
+    btls:   {i:4,   j:10},
+    btlsi:  {i:4,   j:9},
+    btl:    {i:5,   j:10},
+    btle:   {i:5,   j:11},
+    btli:   {i:5,   j:9},
+    obtls:  {i:3,   j:11},
+    obtl:   {i:4,   j:11},
+    obtle:  {i:4,   j:12},
+    obtlc:  {i:1,   j:2},
+    btrs:   {i:9,   j:14},
+    btr:    {i:10,  j:14},
+    btrc:   {i:8,   j:4},
+    btre:   {i:10,  j:13},
+    btrec:  {i:2,   j:13},
+    btri:   {i:9,   j:13},
+    obtrs:  {i:10,  j:15},
+    obtr:   {i:11,  j:15},
+    obtre:  {i:11,  j:14},
+    r:      {i:10,  j:12},
+    or:     {i:15,  j:6},
+    rtbs:   {i:10,  j:11},
+    rtb:    {i:10,  j:10},
+    rtbei:  {i:11,  j:9},
+    rtbe:   {i:11,  j:10},
+    rtbi:   {i:10,  j:9},
+    ortbs:  {i:11,  j:12},
+    ortb:   {i:11,  j:11},
+    ortbe:  {i:12,  j:11},
+    ortbc:  {i:2,   j:2},
+    rtts:   {i:10,  j:2},
+    rtt:    {i:10,  j:1},
+    rttc:   {i:8,   j:3},
+    rtte:   {i:9,   j:1},
+    ortts:  {i:11,  j:1},
+    ortt:   {i:10,  j:0},
+    ortte:  {i:10,  j:0},
+    ttrs:   {i:11,  j:5},
+    ttr:    {i:10,  j:5},
+    ttre:   {i:10,  j:4},
+    ttri:   {i:10,  j:3},
+    ottrs:  {i:12,  j:4},
+    ottr:   {i:11,  j:4},
+    ottre:  {i:11,  j:3},
+    ottrc:  {i:2,   j:1},
+};
+
+/**
+ * return the full tile id given level, layer and tile name
+ * @param {*} lvl
+ * @param {*} layer
+ * @param {*} name
+ */
+function tile_id(lvl, layer, name) {
+    return lvl + "_" + layer + "_" + name;
+}
+
+function parse_tile_id(id) {
+    if (!id) return {};
+    let fields = id.split("_", 3);
+    if (!fields || fields.length != 3) return {};
+    return {lvl: fields[0], layer: fields[1], name: fields[2]};
+}
+
+function update_sprite_defs(imgname, lvl, layer, tilesize) {
+    for (const k of Object.keys(shape_map)) {
+        let p = shape_map[k];
+        let def = {
+            image: imgname,
+            frames: [
+                {
+                    x: p.i*tilesize,
+                    y: p.j*tilesize,
+                    width: tilesize,
+                    height: tilesize
+                },
+            ],
+        };
+        let id = tile_id(lvl, layer, k);
+        shape_defs[id] = def;
+    }
+}
+
+/**
+ * split up a sprite sheet representing animated tiles
+ * @param {*} imgname - template tilesheet reference
+ * @param {*} lvl - level associated w/ tilesheet
+ * @param {*} layer - layer associated w/ tilesheet
+ * @param {*} tilesize - base size of a single tile
+ * @param {*} templatesize - base size of the template
+ * @param {*} frames - number of frames
+ * @param {*} duration - duration to apply for each frame
+ */
+function update_anim_defs(imgname, lvl, layer, tilesize, templatesize, frames, duration) {
+    // build animation
+    const anim = {
+        idle: {
+            loop: true,
+            timeline: []
+        },
+    }
+    for (let i=0; i<frames; i++) {
+        anim.idle.timeline.push( { frame: i, duration: duration } );
+    }
+
+    // for each possible tile definition from template, build out asset
+    for (const [k, p] of Object.entries(shape_map)) {
+        let def = {
+            image: imgname,
+            frames: [],
+            animations: anim,
+        }
+        for (let i=0; i<frames; i++) {
+            def.frames.push({
+                x: p.i*tilesize + i*templatesize,
+                y: p.j*tilesize,
+                width: tilesize,
+                height: tilesize
+            });
+        }
+        let id = tile_id(lvl, layer, k);
+        shape_defs[id] = def;
     }
 }

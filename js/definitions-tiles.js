@@ -7,7 +7,7 @@ export {
     floor_tiles, surface_tiles
 }
 
-import { sprite_defs, tile_id, tile_defs } from "./game-assets.js";
+import { sprite_defs } from "./game-assets.js";
 
 ////////////////////////////////////////////////////////////////////////////////
 // TILES DEFINITIONS
@@ -23,14 +23,9 @@ const ID = {
     HOLE: 40,
 };
 
-const floor_tiles = [
-    ID.GROUND, ID.GROUND2, ID.WALL, ID.VOID, ID.HOLE
-];
-
-const surface_tiles = [
-    ID.ENTRY, ID.EXIT,
-];
-
+// NOTE: these are filled out by iterating through the definitions below.  if is_surface is included, the tile type is added to surface_tiles, otherwise to floor tiles
+const floor_tiles = [];
+const surface_tiles = [];
 
 // Tile Types Descritions:
 const defs = {
@@ -42,6 +37,7 @@ const defs = {
         description: "Walkable ground.",
         is_ground: true,
         tile_layer: "ground",
+        shape_template: "ground_template",
         tile_match_predicate: (v) => (v===ID.GROUND), 
         tile_same_predicate: (v) => (defs[v].is_ground), 
     },
@@ -53,6 +49,7 @@ const defs = {
         description: "Walkable ground 2.",
         is_ground: true,
         tile_layer: "ground2",
+        shape_template: "ground2_template",
         tile_match_predicate: (v) => (v===ID.GROUND2), 
         tile_same_predicate: (v) => (defs[v].is_ground), 
     },
@@ -63,6 +60,7 @@ const defs = {
         description: "Wall",
         is_wall: true,
         tile_layer: "wall",
+        shape_template: "wall_template",
         tile_match_predicate: (v) => (v===ID.WALL), 
         tile_same_predicate: (v) => (defs[v].is_wall), 
     },
@@ -72,6 +70,7 @@ const defs = {
         is_view_blocking: false,
         description: "Hole",
         tile_layer: "hole",
+        shape_template: "hole_template",
         tile_match_predicate: (v) => (v===ID.HOLE), 
         tile_same_predicate: (v) => (v===ID.HOLE), 
     },
@@ -82,6 +81,7 @@ const defs = {
         is_view_blocking: false,
         description: "Void",
         tile_layer: "void",
+        shape_template: "void_template",
         tile_match_predicate: (v) => (v===ID.VOID), 
         tile_same_predicate: (v) => (v===ID.VOID), 
     },
@@ -91,6 +91,7 @@ const defs = {
         is_safe: true,
         is_view_blocking: false,
         description: "Entry",
+        is_surface: true,
     },
     [ID.EXIT] : {
         sprite_def: sprite_defs.exit,
@@ -98,33 +99,17 @@ const defs = {
         is_safe: true,
         is_view_blocking: false,
         description: "Exit",
+        is_surface: true,
     },
 };
 
-/**
- * update ID/defs for tile definitions based on given level layer
- * @param {*} lvl - level to be associated w/ ID/defs (e.g.: "lvl1")
- * @param {*} layer  - layer to be associated w/ ID/defs update (e.g.: "fg"|"bg")
- */
-function update_id_defs(lvl, layer) {
-    for (const k of Object.keys(tile_defs)) {
-        // add tile ID
-        let id = tile_id(lvl, layer, k);
-        ID[id] = id;
-        // add def
-        let def = {
-            sprite_def: sprite_defs[id],
-            is_walkable: false,
-        }
-        defs[id] = def;
+for (const [id, def] of Object.entries(defs)) {
+    if (def.is_surface) {
+        surface_tiles.push(id);
+    } else {
+        floor_tiles.push(id);
     }
 }
-// update ID/defs for level 1 tiles
-update_id_defs("lvl1", "ground");
-update_id_defs("lvl1", "ground2");
-update_id_defs("lvl1", "wall");
-update_id_defs("lvl1", "void");
-update_id_defs("lvl1", "hole");
 
 // All the tile sprites definitions (as described by tiles definitions).
 const tile_sprite_defs = {};

@@ -13,6 +13,8 @@ import { GameScreen } from "./screen-game.js";
 import { CreditsScreen } from "./screen-credits.js";
 import { GameOverScreen_Success, GameOverScreen_Failure } from "./screen-gameover.js";
 import { MuteAudioButton } from "./game-ui.js";
+import {defs as tiledefs} from "./definitions-tiles.js";
+import {initialize as tile_select_initialize} from "./view/tile-select.js";
 
 
 let last_update_time = performance.now();
@@ -89,6 +91,7 @@ window.onload = async function() {
 
   const assets = await load_all_assets();
   game_state_machine.update();
+  tile_select_initialize(tiledefs);
   const canvas_context = graphics.initialize(assets);
   game_state_machine.update();
   audio.initialize(assets, sound_event_defs);
