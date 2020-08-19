@@ -78,6 +78,8 @@ class AnimationGroup {
         return promise;
     }
 
+    clear() { this.animations = []; }
+
     get animation_count() { return this.animations.length; }
 
 };

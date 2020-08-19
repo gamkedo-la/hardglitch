@@ -17,8 +17,10 @@ import { GameSession } from "./game-session.js";
 import { Color } from "./system/color.js";
 import { sprite_defs } from "./game-assets.js";
 import { Vector2_origin } from "./system/spatial.js";
+import { AnimationGroup, wait } from "./system/animation.js";
 
 import * as level_1 from "./levels/level_1.js";
+import { tween, easing } from "./system/tweening.js";
 
 class PlayingGame extends fsm.State{
 
@@ -194,9 +196,11 @@ class InGameMenu extends fsm.State {
         }
 
         yield* this.fader.generate_fade_out(0.3);
+        this.state_machine.show_title();
     }
 
     *leave(){
+        this.state_machine.hide_title();
         yield* this.fader.generate_fade_in();
     }
 
@@ -238,6 +242,7 @@ class InGameMenu extends fsm.State {
 
 class GameScreen extends fsm.StateMachine {
     fader = new ScreenFader();
+    animations = new AnimationGroup();
 
     constructor(){
         super({
@@ -257,6 +262,8 @@ class GameScreen extends fsm.StateMachine {
                 back: "playing",
             },
         });
+
+        this.fader.duration_ms = 2000;
     }
 
     *enter(level_generator){
@@ -265,28 +272,49 @@ class GameScreen extends fsm.StateMachine {
         if(!level_generator)
             level_generator = level_1.generate_world;
 
-        if(!this.game_session){
-            this.game_session = new GameSession(level_generator, ()=>{ this.ingame_menu(); });
-        }
+        console.assert(!this.game_session);
+        console.assert(!this.level_title);
+        this.game_session = new GameSession(level_generator, ()=>{ this.ingame_menu(); });
+        this.level_title = new ui.Text({
+            text: this.game_session.world.name,
+            font: "64px ZingDiddlyDooZapped",
+            color: "white",
+            background_color: "#ffffff00",
+        });
 
+        console.assert(this.game_session);
+        console.assert(this.level_title);
+        this._replace_title();
+
+        this.animations.play(this._title_fade());
+
+        this.ready = false;
+        yield* wait(1000);
         yield* this.fader.generate_fade_in();
 
         this.game_session.start();
+        this.ready = true;
     }
 
     *leave(){
-
+        console.assert(this.game_session);
+        console.assert(this.level_title);
+        this.ready = false;
         yield* this.fader.generate_fade_out();
         this.game_session.stop();
         // ...
+        delete this.level_title;
         delete this.game_session;
         editor.clear()
         graphics.reset();
+        this.animations.clear();
     }
 
     update(delta_time){
+        this.animations.update(delta_time);
         this.fader.update(delta_time);
-        if(this.fader.is_fading) // No input handled until the fades are done.
+        this.level_title.update(delta_time);
+        if(!this.ready) // No input handled until the fades are done.
             return;
 
         super.update(delta_time); // Updates the sub-states
@@ -299,6 +327,12 @@ class GameScreen extends fsm.StateMachine {
         this.current_state.display(canvas_context);
 
         this.fader.display(canvas_context);
+
+        if(this.level_title.visible){
+            graphics.camera.begin_in_screen_rendering();
+            this.level_title.draw(canvas_context);
+            graphics.camera.end_in_screen_rendering();
+        }
     }
 
     exit(){
@@ -326,6 +360,51 @@ class GameScreen extends fsm.StateMachine {
                     state.on_canvas_resized();
             });
         this.game_session.on_canvas_resized();
+        this._replace_title();
+    }
+
+    _replace_title(){
+        console.assert(this.level_title);
+        this.level_title.position = this.ready ? this._menu_title_position : this._entry_title_position;
+    }
+
+    get _entry_title_position(){
+        return graphics.centered_rectangle_in_screen(this.level_title.area).position;
+    }
+
+    get _menu_title_position(){
+        return {
+                x: graphics.centered_rectangle_in_screen(this.level_title.area).position.x,
+                y: 60,
+            };
+    }
+
+    *_title_fade() {
+        console.assert(this.level_title);
+        const color = new Color(255, 255, 255);
+
+        const update_fade = (fade_value)=>{
+            // console.log( `title fade = ${fade_value}`);
+            color.a = fade_value;
+            this.level_title.color = color;
+        };
+
+        this.level_title.visible = true;
+        yield* tween(0, 1, 500, update_fade, easing.in_out_quad);
+        yield* wait(3000);
+        yield* tween(1, 0, 2000, update_fade, easing.in_out_quad);
+        this.level_title.visible = false;
+    }
+
+    show_title(){
+        this._replace_title();
+        this.animations.clear();
+        this.level_title.color = new Color(255, 255, 255);
+        this.level_title.visible = true;
+    }
+
+    hide_title(){
+        this.level_title.visible = false;
     }
 
 };

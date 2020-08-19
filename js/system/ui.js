@@ -18,6 +18,7 @@ import { mouse, MOUSE_BUTTON } from "./input.js";
 import { is_number } from "./utility.js";
 import * as anim from "./animation.js";
 import { tween } from "./tweening.js";
+import { Color } from "./color.js";
 
 function is_point_under(position, area, origin){
     console.assert(position.x != undefined && position.y != undefined );
@@ -345,6 +346,16 @@ class Text extends UIElement {
         console.assert(typeof new_text === 'string');
         this._text = new_text;
         this._request_reset = true;
+    }
+
+    get color() { return this._color; }
+    set color(new_color) {
+        console.assert(new_color instanceof Color || typeof new_color === "string");
+        if(new_color instanceof Color){
+            this._color = new_color.toString();
+        } else {
+            this._color = new_color;
+        }
     }
 
     _reset(canvas_context = graphics.screen_canvas_context){
