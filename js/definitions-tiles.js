@@ -8,6 +8,8 @@ export {
 }
 
 import { sprite_defs } from "./game-assets.js";
+import { sides } from "./view/wall-model.js";
+import { Color } from "./system/color.js";
 
 ////////////////////////////////////////////////////////////////////////////////
 // TILES DEFINITIONS
@@ -36,7 +38,6 @@ const defs = {
         is_view_blocking: false,
         description: "Walkable ground.",
         is_ground: true,
-        tile_layer: "ground",
         shape_template: "ground_template",
         tile_match_predicate: (v) => (v===ID.GROUND),
         tile_same_predicate: (v) => (defs[v].is_ground),
@@ -48,7 +49,6 @@ const defs = {
         is_view_blocking: false,
         description: "Walkable ground 2.",
         is_ground: true,
-        tile_layer: "ground2",
         shape_template: "ground2_template",
         tile_match_predicate: (v) => (v===ID.GROUND2),
         tile_same_predicate: (v) => (defs[v].is_ground),
@@ -59,20 +59,58 @@ const defs = {
         is_view_blocking: true,
         description: "Wall",
         is_wall: true,
-        tile_layer: "wall",
         shape_template: "wall_template",
         tile_match_predicate: (v) => (v===ID.WALL),
         tile_same_predicate: (v) => (defs[v].is_wall),
+        pwall: {
+            width: 16,
+            height: 32,
+            colormap: {
+                [sides.top]:    new Color(98,129,189,.75),
+                [sides.bottom]: new Color(98,129,189,.75),
+                [sides.fl]:     new Color(70,85,175,.75),
+                [sides.front]:  new Color(49,60,123,.75),
+                [sides.fr]:     new Color(36,45,91,.75),
+                [sides.br]:     new Color(70,85,175,.25),
+                [sides.back]:   new Color(49,60,123,.25),
+                [sides.bl]:     new Color(36,45,91,.25),
+                [sides.hlm]:    new Color(0,222,164,.25),
+                [sides.hlM]:    new Color(0,222,164,.85),
+            },
+            highlights : {
+                minor: true,
+            }
+        }
     },
     [ID.HOLE] : {
         sprite_def: sprite_defs.void,
         is_walkable: false,
         is_view_blocking: false,
         description: "Hole",
-        tile_layer: "hole",
         shape_template: "hole_template",
         tile_match_predicate: (v) => (v===ID.HOLE),
         tile_same_predicate: (v) => (v===ID.HOLE),
+        pwall: {
+            width: 8,
+            height: 16,
+            faceMask: sides.inner,
+            edgeMask: sides.inner|sides.top|sides.vertical|sides.bottom,
+            colormap: {
+                [sides.top]:    new Color(90,24,90,.3),
+                [sides.bottom]: new Color(90,24,90,.3),
+                [sides.fl]:     new Color(156,36,222,.2),
+                [sides.front]:  new Color(156,36,222,.3),
+                [sides.fr]:     new Color(156,36,222,.4),
+                [sides.br]:     new Color(156,36,222,.2),
+                [sides.back]:   new Color(156,36,222,.3),
+                [sides.bl]:     new Color(156,36,222,.4),
+                [sides.hlm]:    new Color(200,50,200,.25),
+                [sides.hlM]:    new Color(200,50,200,.85),
+            },
+            highlights : {
+                minor: true,
+            }
+        }
     },
     [ID.VOID] : {
         sprite_def: sprite_defs.void,
@@ -80,7 +118,6 @@ const defs = {
         is_safe: false,
         is_view_blocking: false,
         description: "Void",
-        tile_layer: "void",
         shape_template: "void_template",
         tile_match_predicate: (v) => (v===ID.VOID),
         tile_same_predicate: (v) => (v===ID.VOID),

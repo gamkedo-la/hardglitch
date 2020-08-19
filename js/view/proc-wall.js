@@ -1,8 +1,11 @@
 import { Color } from "../system/color.js";
 import { ofmt } from "../system/utility.js";
 import { WallModel, sides } from "./wall-model.js";
+import { defs as tile_defs } from "../definitions-tiles.js";
 
 export { ProcWallSystem, PathShape, ProcWall, ProcWallGenerator, procWallGenSelector }
+
+const generators = {};
 
 class ProcWallSystem {
     constructor() {
@@ -99,7 +102,7 @@ class ProcWallGenerator {
         }
     }
 
-    create(pos, id, height) {
+    create(pos, id) {
         let shapes = [];
         let iomask = (sides.inner|sides.outer)&this.edgeMask;
         // bottom faces
@@ -173,19 +176,21 @@ class ProcWallGenerator {
 
 }
 
-function procWallGenSelector(kind) {
-    let gen;
-    if (kind == "wall") {
-        let model = new WallModel(16,32);
-        gen = new ProcWallGenerator(model, wallColorMap);
-        gen.highlights.minor = true;
-    } else if (kind == "hole") {
-        let model = new WallModel(8,16);
-        gen = new ProcWallGenerator(model, holeColorMap);
-        gen.highlights.minor = true;
-        gen.faceMask=sides.inner;
-        gen.edgeMask=sides.inner|sides.top|sides.vertical|sides.bottom;
+function procWallGenSelector(id) {
+    if (id in generators) {
+        return generators[id];
     }
+    // create new generator -- look up definition
+    let def = tile_defs[id];
+    if (!def || !def.pwall) return undefined;
+    let width = def.pwall.width || 16;
+    let height = def.pwall.height || 32;
+    let offset = def.pwall.offset || 0;
+    let model = new WallModel(width, height, offset);
+    let gen = new ProcWallGenerator(model, def.pwall.colormap);
+    if (def.pwall.faceMask) gen.faceMask = def.pwall.faceMask;
+    if (def.pwall.edgeMask) gen.edgeMask = def.pwall.edgeMask;
+    if (def.pwall.highlights) gen.highlights.assign = Object.assign(gen.highlights, def.pwall.highlights);
     return gen;
 }
 

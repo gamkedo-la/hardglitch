@@ -3,6 +3,7 @@
 
 export { initialize, shape_defs, SeamSelector, genFloorOverlay, genFgOverlay, genSeamOverlay, tile_id, parse_tile_id, shape_map };
 import { PIXELS_PER_HALF_SIDE } from "./entity-view.js";
+import * as tiledefs from "../definitions-tiles.js";
 
 const RIGHT = 1;
 const UP = 2;
@@ -18,12 +19,13 @@ const shape_defs = {}
 
 function initialize(tiledefs) {
     // iterate through tile definitions, looking for tiles with shape template specified
-    for (const def of Object.values(tiledefs)) {
-        if (def.tile_layer && def.shape_template) {
+    for (const [id, def] of Object.entries(tiledefs)) {
+    //for (const def of Object.values(tiledefs)) {
+        if (def.shape_template) {
             // FIXME: level definitions
-            update_sprite_defs(def.shape_template, def.tile_layer, PIXELS_PER_HALF_SIDE);
+            update_sprite_defs(def.shape_template, id, PIXELS_PER_HALF_SIDE);
             // FIXME: re-eval subtile animations
-            // update_anim_defs("void_template", "lvl1", "void", 32, 512, 8, 100);
+            // update_anim_defs("void_template", "void", 32, 512, 8, 100);
         }
     }
 }
@@ -133,7 +135,7 @@ function genSeamOverlay(grid, overlay) {
             if (same(...neighbors)) {
                 cornerLayer = neighbors[0];
             } else {
-                cornerLayer = "ground";
+                cornerLayer = tiledefs.ID.GROUND;
             }
             if (!cornerLayer) continue;
             overlay.set_at(tile_id(cornerLayer, cid), i, j);

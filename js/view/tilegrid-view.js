@@ -69,7 +69,7 @@ class TileGridView {
         this.position = position;
         this.size = size;
         // FIXME: figure out better way of allocating wall model
-        let wallgen = procWallGenSelector("wall");
+        let wallgen = procWallGenSelector(tiledefs.ID.WALL);
         this.gb = new TileGraphBuilder(size.x*PIXELS_PER_TILES_SIDE, wallgen.model);
         this.procWallSys = new ProcWallSystem();
 
@@ -77,9 +77,9 @@ class TileGridView {
         const floor_grid = new Grid(size.x*2, size.y*2);
         const seam_grid = new Grid(size.x*2, size.y*2);
         let selectors = [];
-        for (const def of Object.values(tiledefs.defs)) {
-            if (!def.tile_layer) continue;
-            selectors.push(new SeamSelector(def.tile_layer, def.tile_match_predicate, def.tile_same_predicate));
+        for (const [id, def] of Object.entries(tiledefs.defs)) {
+            if (!def.shape_template) continue;
+            selectors.push(new SeamSelector(id, def.tile_match_predicate, def.tile_same_predicate));
         }
 
         // generate floor
@@ -106,28 +106,24 @@ class TileGridView {
         }
 
         // generate walls
-        let pwallgen = procWallGenSelector("wall");
-        let pholegen = procWallGenSelector("hole");
+        //let pwallgen = procWallGenSelector("wall");
+        //let pholegen = procWallGenSelector("hole");
         for (let i=0; i<floor_grid.elements.length; i++) {
             let coords = position_from_index(size.x*2, size.y*2, i);
             let pos = {x: coords.x*PIXELS_PER_HALF_SIDE, y:coords.y*PIXELS_PER_HALF_SIDE};
             let id = parse_tile_id(floor_grid.elements[i]);
             if (id) {
-                if (id.layer === "wall") {
-                    let pwall = pwallgen.create(pos, id.name, 32);
-                    if (pwall) this.procWallSys.add(pwall);
-                } else if (id.layer === "hole") {
-                    let pwall = pholegen.create(pos, id.name, 16);
+                let gen = procWallGenSelector(id.layer);
+                if (gen) {
+                    let pwall = gen.create(pos, id.name);
                     if (pwall) this.procWallSys.add(pwall);
                 }
             }
             id = parse_tile_id(seam_grid.elements[i]);
             if (id) {
-                if (id.layer === "wall") {
-                    let pwall = pwallgen.create(pos, id.name, 32);
-                    if (pwall) this.procWallSys.add(pwall);
-                } else if (id.layer === "hole") {
-                    let pwall = pholegen.create(pos, id.name, 16);
+                let gen = procWallGenSelector(id.layer);
+                if (gen) {
+                    let pwall = gen.create(pos, id.name);
                     if (pwall) this.procWallSys.add(pwall);
                 }
             }
@@ -139,7 +135,7 @@ class TileGridView {
             for (let i=0; i<floor_grid.elements.length; i++) {
                 let pos = position_from_index(size.x*2, size.y*2, i);
                 let id = parse_tile_id(floor_grid.elements[i]);
-                if (!id || id.layer != "wall") continue;
+                if (!id || id.layer != tiledefs.ID.WALL) continue;
                 this.fx_view.edgeBlip({x: pos.x*PIXELS_PER_HALF_SIDE, y:pos.y*PIXELS_PER_HALF_SIDE}, this.gb, id.name);
             }
         }
