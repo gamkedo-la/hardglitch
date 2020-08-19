@@ -16,5 +16,5 @@ function generate_world(){
     // RAM: https://trello.com/c/wQCJeRfn/75-level-2-ram
     //
 
-    return generate_empty_world(20, 20, defaults);
+    return generate_empty_world("Level 2 - RAM", 20, 20, defaults);
 }

@@ -16,5 +16,5 @@ function generate_world(){
     // Network Bus: https://trello.com/c/pbKyK5TJ/78-level-4-network-bus
     //
 
-    return generate_empty_world(40, 40, defaults);
+    return generate_empty_world("Level 4 - Network Bus", 40, 40, defaults);
 }

@@ -86,7 +86,7 @@ function make_test_world(){ // The game assets must have been initialized first.
     const entry_point_position = set_surface_tile(random_position(), tiles.ID.ENTRY);
     console.assert(is_floor_walkable(entry_point_position));
 
-    const world = new concepts.World( test_world_size.width, test_world_size.height, floor_tile_grid, surface_tile_grid );
+    const world = new concepts.World("Random Test Level", test_world_size.width, test_world_size.height, floor_tile_grid, surface_tile_grid );
     console.assert(world._surface_tile_grid.matching_positions(tileid=> tileid == tiles.ID.ENTRY).length > 0);
 
     world.set_rules(...default_rules, ...test_rules);

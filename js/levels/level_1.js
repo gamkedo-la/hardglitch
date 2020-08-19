@@ -16,5 +16,5 @@ function generate_world(){
     // Buggy Program: https://trello.com/c/wEnOf3hQ/74-level-1-buggy-program
     //
 
-    return generate_empty_world(10, 10, defaults);
+    return generate_empty_world("Level 1 - Buggy Program", 10, 10, defaults);
 }

@@ -11,7 +11,7 @@ const default_defaults = {
     wall : tiles.ID.WALL,
 };
 
-function generate_empty_world(width, height, defaults = default_defaults){
+function generate_empty_world(name, width, height, defaults = default_defaults){
 
     const world_width = width;
     const world_height = height;
@@ -21,7 +21,7 @@ function generate_empty_world(width, height, defaults = default_defaults){
     surface_tile_grid[0] = tiles.ID.ENTRY;
     surface_tile_grid[grid_size-1] = tiles.ID.EXIT;
 
-    const world = new concepts.World( world_width, world_height, floor_tile_grid, surface_tile_grid );
+    const world = new concepts.World(`Test Level \"${name}\" ${world_width} x ${world_height}`, world_width, world_height, floor_tile_grid, surface_tile_grid );
     world.set_rules(...default_rules);
 
     return world;

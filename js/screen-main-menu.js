@@ -36,7 +36,7 @@ class MainMenu {
 
         this.button_empty_level = new ui.TextButton({
             text: "Empty Small Level",
-            action: ()=> { state_machine.push_action("new_game", ()=> generate_empty_world(10, 10)); },
+            action: ()=> { state_machine.push_action("new_game", ()=> generate_empty_world("testing", 10, 10)); },
             position: Vector2_origin,
             sprite_def: sprite_defs.button_menu,
             sounds:{

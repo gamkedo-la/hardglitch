@@ -262,9 +262,11 @@ class World
     is_finished = false; // True if this world is in a finished state, in which case it should not be updated anymore. TODO: protect against manipulations
     has_entity_list_changed = true; // True if the list of entities existing have changed since the last turn update.
 
-    constructor(width, height, floor_tiles, surface_tiles){
+    constructor(name, width, height, floor_tiles, surface_tiles){
+        console.assert(typeof name === "string" && name.length > 0);
         console.assert(Number.isInteger(width) && width > 2);
         console.assert(Number.isInteger(height) && height > 2);
+        this.name = name;
         this.width = width;
         this.height = height;
         this.size = this.width * this.height;

@@ -161,7 +161,7 @@ function load_level(level_number){
 }
 
 function load_test_level(width, height){
-  game_state_machine.push_action("load_game", ()=> generate_empty_world(width, height) );
+  game_state_machine.push_action("load_game", ()=> generate_empty_world("testing", width, height) );
 }
 
 function load_random_test_level(){
