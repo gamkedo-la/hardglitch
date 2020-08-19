@@ -3,7 +3,6 @@
 
 export { initialize, shape_defs, SeamSelector, genFloorOverlay, genFgOverlay, genSeamOverlay, tile_id, parse_tile_id, shape_map };
 import { PIXELS_PER_HALF_SIDE } from "./entity-view.js";
-import { ofmt } from "../system/utility.js";
 
 const RIGHT = 1;
 const UP = 2;
@@ -22,7 +21,7 @@ function initialize(tiledefs) {
     for (const def of Object.values(tiledefs)) {
         if (def.tile_layer && def.shape_template) {
             // FIXME: level definitions
-            update_sprite_defs(def.shape_template, "lvl1", def.tile_layer, PIXELS_PER_HALF_SIDE);
+            update_sprite_defs(def.shape_template, def.tile_layer, PIXELS_PER_HALF_SIDE);
             // FIXME: re-eval subtile animations
             // update_anim_defs("void_template", "lvl1", "void", 32, 512, 8, 100);
         }
@@ -103,7 +102,7 @@ function getMask(grid, p, fcn) {
     return m;
 }
 
-function genSeamOverlay(lvl, grid, overlay) {
+function genSeamOverlay(grid, overlay) {
     for (let j=0; j<grid.height; j++) {
         for (let i=0; i<grid.width; i++) {
             let id = parse_tile_id(grid.get_at(i,j));
@@ -137,19 +136,18 @@ function genSeamOverlay(lvl, grid, overlay) {
                 cornerLayer = "ground";
             }
             if (!cornerLayer) continue;
-            overlay.set_at(tile_id(lvl, cornerLayer, cid), i, j);
+            overlay.set_at(tile_id(cornerLayer, cid), i, j);
         }
     }
 }
 
 /**
  * create an overlay of images for the level data represented in given grid
- * @param {*} lvl - level associated w/ selection
  * @param {*} grid - the level data in grid form
  * @param {*} overlay - the overlay grid which should be twice as big as the grid
  * @param {*} selectors - list of Selector instances used to define comparision functions for tile seams
  */
-function genFloorOverlay(lvl, grid, overlay, selectors) {
+function genFloorOverlay(grid, overlay, selectors) {
     for (let j=0; j<grid.height; j++) {
         for (let i=0; i<grid.width; i++) {
             let v = grid.get_at(i,j);
@@ -190,7 +188,7 @@ function genFloorOverlay(lvl, grid, overlay, selectors) {
                     break;
             }
             let layer = selector.name;
-            if (tl) overlay.set_at(tile_id(lvl, layer, tl), i*2, j*2);
+            if (tl) overlay.set_at(tile_id(layer, tl), i*2, j*2);
             // consider top-right
             // - possible tiles are: rtt, t, ttls, r, btre, m, rtbs, ltte, ttr, ltbi, btli, bi, btlsi, rtbi
             // FIXME: not currently assigning ltbi, btli, bi, btlsi, rtbi
@@ -227,7 +225,7 @@ function genFloorOverlay(lvl, grid, overlay, selectors) {
                     break;
             }
             layer = selector.name;
-            if (tr) overlay.set_at(tile_id(lvl, layer, tr), i*2+1, j*2);
+            if (tr) overlay.set_at(tile_id(layer, tr), i*2+1, j*2);
             // consider bottom-left
             // - possible tiles are: ltb, b, btrs, l, ttle, m, ltts, rtbe, btl
             // pick best selector based on bordering tiles
@@ -263,7 +261,7 @@ function genFloorOverlay(lvl, grid, overlay, selectors) {
                     break;
             }
             layer = selector.name;
-            if (bl) overlay.set_at(tile_id(lvl, layer, bl), i*2, j*2+1);
+            if (bl) overlay.set_at(tile_id(layer, bl), i*2, j*2+1);
             // consider bottom-right
             // - possible tiles are: btr, b, ltbe, r, rtts, m, ttre, btls, rtb
             // pick best selector based on bordering tiles
@@ -299,7 +297,7 @@ function genFloorOverlay(lvl, grid, overlay, selectors) {
                     break;
             }
             layer = selector.name;
-            if (br) overlay.set_at(tile_id(lvl, layer, br), i*2+1, j*2+1);
+            if (br) overlay.set_at(tile_id(layer, br), i*2+1, j*2+1);
         }
     }
 }
@@ -309,7 +307,7 @@ function genFloorOverlay(lvl, grid, overlay, selectors) {
  * @param {*} grid - the level data in grid form
  * @param {*} overlay - the overlay grid which should be twice as big as the grid
  */
-function genFgOverlay(lvl, layer, grid, overlay, wallCmp) {
+function genFgOverlay(layer, grid, overlay, wallCmp) {
     for (let j=0; j<grid.height; j++) {
         for (let i=0; i<grid.width; i++) {
             let v = grid.get_at(i,j);
@@ -497,10 +495,10 @@ function genFgOverlay(lvl, layer, grid, overlay, wallCmp) {
                     break;
             }
             // add to overlay grid
-            if (tl) overlay.set_at(tile_id(lvl, layer, tl), i*2, j*2);
-            if (tr) overlay.set_at(tile_id(lvl, layer, tr), i*2+1, j*2);
-            if (bl) overlay.set_at(tile_id(lvl, layer, bl), i*2, j*2+1);
-            if (br) overlay.set_at(tile_id(lvl, layer, br), i*2+1, j*2+1);
+            if (tl) overlay.set_at(tile_id(layer, tl), i*2, j*2);
+            if (tr) overlay.set_at(tile_id(layer, tr), i*2+1, j*2);
+            if (bl) overlay.set_at(tile_id(layer, bl), i*2, j*2+1);
+            if (br) overlay.set_at(tile_id(layer, br), i*2+1, j*2+1);
         }
     }
 }
@@ -594,22 +592,21 @@ const shape_map = {
 
 /**
  * return the full tile id given level, layer and tile name
- * @param {*} lvl
  * @param {*} layer
  * @param {*} name
  */
-function tile_id(lvl, layer, name) {
-    return lvl + "_" + layer + "_" + name;
+function tile_id(layer, name) {
+    return layer + "_" + name;
 }
 
 function parse_tile_id(id) {
     if (!id) return {};
-    let fields = id.split("_", 3);
-    if (!fields || fields.length != 3) return {};
-    return {lvl: fields[0], layer: fields[1], name: fields[2]};
+    let fields = id.split("_", 2);
+    if (!fields || fields.length != 2) return {};
+    return {layer: fields[0], name: fields[1]};
 }
 
-function update_sprite_defs(imgname, lvl, layer, tilesize) {
+function update_sprite_defs(imgname, layer, tilesize) {
     for (const k of Object.keys(shape_map)) {
         let p = shape_map[k];
         let def = {
@@ -623,7 +620,7 @@ function update_sprite_defs(imgname, lvl, layer, tilesize) {
                 },
             ],
         };
-        let id = tile_id(lvl, layer, k);
+        let id = tile_id(layer, k);
         shape_defs[id] = def;
     }
 }
@@ -631,14 +628,13 @@ function update_sprite_defs(imgname, lvl, layer, tilesize) {
 /**
  * split up a sprite sheet representing animated tiles
  * @param {*} imgname - template tilesheet reference
- * @param {*} lvl - level associated w/ tilesheet
  * @param {*} layer - layer associated w/ tilesheet
  * @param {*} tilesize - base size of a single tile
  * @param {*} templatesize - base size of the template
  * @param {*} frames - number of frames
  * @param {*} duration - duration to apply for each frame
  */
-function update_anim_defs(imgname, lvl, layer, tilesize, templatesize, frames, duration) {
+function update_anim_defs(imgname, layer, tilesize, templatesize, frames, duration) {
     // build animation
     const anim = {
         idle: {
@@ -665,7 +661,7 @@ function update_anim_defs(imgname, lvl, layer, tilesize, templatesize, frames, d
                 height: tilesize
             });
         }
-        let id = tile_id(lvl, layer, k);
+        let id = tile_id(layer, k);
         shape_defs[id] = def;
     }
 }

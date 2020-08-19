@@ -83,8 +83,8 @@ class TileGridView {
         }
 
         // generate floor
-        genFloorOverlay("lvl1", ground_tile_grid, floor_grid, selectors);
-        genSeamOverlay("lvl1", floor_grid, seam_grid);
+        genFloorOverlay(ground_tile_grid, floor_grid, selectors);
+        genSeamOverlay(floor_grid, seam_grid);
 
         // generate tile-specific effects
         for (let i=0; i<surface_tile_grid.elements.length; i++) {

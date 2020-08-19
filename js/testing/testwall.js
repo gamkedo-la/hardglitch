@@ -1,9 +1,7 @@
-import { SeamSelector, genFloorOverlay, genSeamOverlay } from "../view/tile-select.js";
+import { parse_tile_id, shape_map, SeamSelector, genFloorOverlay, genSeamOverlay } from "../view/tile-select.js";
 import { Grid } from "../system/grid.js";
-import { tile_defs } from "../game-assets.js";
 import * as tiledefs from "../definitions-tiles.js";
 import { procWallGenSelector } from "../view/proc-wall.js";
-import { parse_tile_id } from "../game-assets.js";
 import { WallModel, sides } from "../view/wall-model.js";
 import { Color } from "../system/color.js";
 
@@ -138,7 +136,7 @@ class Env {
             Promise.all(promises).then((imgRecs) => {
                 let promises = [];
                 for (const rec of imgRecs) {
-                    promises.push(loadTemplateSheet(rec.tag, rec.img, tile_defs, 32));
+                    promises.push(loadTemplateSheet(rec.tag, rec.img, shape_map, 32));
                 }
                 Promise.all(promises).then((tmpRecs) => {
                     for (const rec of tmpRecs) {
@@ -163,16 +161,16 @@ class Env {
         // generate the bg overlay based on level data
         let bg_grid = new Grid(width*2, height*2);
         let selectors = [
-            new SeamSelector("wall", (fg) => (fg==tiledefs.ID.WALL), (bg) => (bg != tiledefs.ID.WALL)),
-            new SeamSelector("hole", (fg) => (fg==tiledefs.ID.HOLE), (bg) => (bg != tiledefs.ID.HOLE)),
-            new SeamSelector("void", (fg) => (fg==tiledefs.ID.VOID), (bg) => (bg != tiledefs.ID.VOID)),
-            new SeamSelector("ground", (fg) => (fg==tiledefs.ID.GROUND), (bg) => (bg != tiledefs.ID.GROUND)),
+            new SeamSelector("wall", (fg) => (fg==tiledefs.ID.WALL), (bg) => (bg == tiledefs.ID.WALL)),
+            new SeamSelector("hole", (fg) => (fg==tiledefs.ID.HOLE), (bg) => (bg == tiledefs.ID.HOLE)),
+            new SeamSelector("void", (fg) => (fg==tiledefs.ID.VOID), (bg) => (bg == tiledefs.ID.VOID)),
+            new SeamSelector("ground", (fg) => (fg==tiledefs.ID.GROUND), (bg) => (bg == tiledefs.ID.GROUND)),
         ];
-        genFloorOverlay("lvl1", grid, bg_grid, selectors);
+        genFloorOverlay(grid, bg_grid, selectors);
 
         // generate the perspective overlay based on level data
         let seam_grid = new Grid(width*2, height*2);
-        genSeamOverlay("lvl1", bg_grid, seam_grid);
+        genSeamOverlay(bg_grid, seam_grid);
 
         // draw background overlay
         for (let j=0; j<bg_grid.height; j++) {

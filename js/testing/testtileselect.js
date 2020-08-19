@@ -101,11 +101,11 @@ class Game {
             new SeamSelector("g2v", (fg) => (fg==tiledefs.ID.GROUND), (bg) => (bg == tiledefs.ID.VOID)),
             new SeamSelector("g2o", (fg) => (fg==tiledefs.ID.GROUND), (bg) => (bg != tiledefs.ID.GROUND)),
         ];
-        genFloorOverlay("lvl1", grid, bg_grid, selectors);
+        genFloorOverlay(grid, bg_grid, selectors);
 
         // generate the perspective overlay based on level data
         let fg_grid = new Grid(width*2, height*2);
-        genFgOverlay("lvl1", "fg", grid, fg_grid, (v) => (v == tiledefs.ID.WALL) ? 1 : 0);
+        genFgOverlay("fg", grid, fg_grid, (v) => (v == tiledefs.ID.WALL) ? 1 : 0);
 
         // draw grid
         for (let j=0; j<height; j++) {
