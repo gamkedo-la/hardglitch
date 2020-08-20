@@ -12,13 +12,12 @@ export {
 
 import { clamp, is_number } from "./utility.js";
 
-let muted = false;
 let audio_context, mix_groups, audio_buffers, audio_streams;
 let audio_events = [];
 let event_defs;
 let events_enabled = true;
 
-function is_muted() { return muted; }
+function is_muted() { return mix_groups.Mute.gain.value == 0; }
 
 function are_events_enabled() { return events_enabled; }
 function set_events_enabled(is_enabled) {
@@ -38,11 +37,13 @@ function initialize(assets, sound_event_defs) {
     audio_streams = assets.audio_streams;
 
     mix_groups = {};
+    mix_groups['Mute'] = audio_context.createGain();
     mix_groups['Master'] = audio_context.createGain();
     mix_groups['Music'] = audio_context.createGain();
     mix_groups['SoundEffects'] = audio_context.createGain();
 
-    mix_groups.Master.connect(audio_context.destination);
+    mix_groups.Mute.connect(audio_context.destination);
+    mix_groups.Master.connect(mix_groups.Mute);
     mix_groups.Music.connect(mix_groups.Master);
     mix_groups.SoundEffects.connect(mix_groups.Master);
 }
@@ -90,13 +91,13 @@ function stopEvent(name) {
 }
 
 function toggleMute() {
-    if (!muted) {
-        mix_groups.Master.disconnect();
-        muted = true;
+    if (mix_groups.Mute.gain.value) {
+        mix_groups.Mute.gain.cancelScheduledValues(audio_context.currentTime);
+        mix_groups.Mute.gain.setValueAtTime(0, audio_context.currentTime + 0.2);
         console.log("Audio muted.")
     } else {
-        mix_groups.Master.connect(audio_context.destination);
-        muted = false;
+        mix_groups.Mute.gain.cancelScheduledValues(audio_context.currentTime);
+        mix_groups.Mute.gain.setValueAtTime(1, audio_context.currentTime + 0.2);
         console.log("Audio unmuted.")
     }
 }
