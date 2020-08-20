@@ -1156,8 +1156,8 @@ class BlipEdgeParticle extends Particle {
         this.velocity = new Vector2({x:v2.x-v1.x, y: v2.y-v1.y})
         this.velocity.length = this.speed;
         let hue = 127;
-        this.armColor = Color.fromHSL(hue, 100, random_int(50,80), 1);
-        this.centerColor = Color.fromHSL(hue, 100, random_int(90,100), 1);
+        this.armColor = Color.fromHSL(hue, 100, random_int(50,80), .5);
+        this.centerColor = Color.fromHSL(hue, 100, random_int(90,100), .5);
         this.angle1 = Math.random() * Math.PI;
         this.angle2 = this.angle1 + (Math.PI * .5);
         this.rotateStep = random_float(-2,2) * .001;
