@@ -7,7 +7,7 @@ import { generate_empty_world } from "./edit_level.js";
 
 const defaults = {
     ground : tiles.ID.GROUND2,
-    wall : tiles.ID.WALL,
+    wall : tiles.ID.WALL2,
 };
 
 function generate_world(){

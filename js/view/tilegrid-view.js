@@ -135,7 +135,7 @@ class TileGridView {
             for (let i=0; i<floor_grid.elements.length; i++) {
                 let pos = position_from_index(size.x*2, size.y*2, i);
                 let id = parse_tile_id(floor_grid.elements[i]);
-                if (!id || id.layer != tiledefs.ID.WALL) continue;
+                if (!id || !(id.layer in tiledefs.defs && tiledefs.defs[id.layer].is_wall)) continue;
                 this.fx_view.edgeBlip({x: pos.x*PIXELS_PER_HALF_SIDE, y:pos.y*PIXELS_PER_HALF_SIDE}, this.gb, id.name);
             }
         }

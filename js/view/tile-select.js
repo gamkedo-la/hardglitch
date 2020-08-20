@@ -39,6 +39,16 @@ function same(...values) {
     return same;
 }
 
+function sameTiles(...values) {
+    let match = true;
+    let samePred = (values[0]) ? tiledefs.defs[values[0]].tile_same_predicate : undefined;
+    if (!samePred) return same(...values);
+    for (let i=1; match && i<arguments.length; i++) {
+        if (!samePred(values[i])) match = false;
+    }
+    return match;
+}
+
 class SeamSelector {
     constructor(name, matchPred, samePred) {
         this.name = name;
@@ -132,7 +142,7 @@ function genSeamOverlay(grid, overlay) {
                     break;
             }
             if (!neighbors) continue;
-            if (same(...neighbors)) {
+            if (sameTiles(...neighbors)) {
                 cornerLayer = neighbors[0];
             } else {
                 cornerLayer = tiledefs.ID.GROUND;

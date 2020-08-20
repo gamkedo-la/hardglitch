@@ -21,6 +21,7 @@ const ID = {
     GROUND: 10,
     GROUND2: 11,
     WALL: 20,
+    WALL2: 21,
     VOID: 30,
     HOLE: 40,
 };
@@ -74,6 +75,35 @@ const defs = {
                 [sides.br]:     new Color(70,85,175,.25),
                 [sides.back]:   new Color(49,60,123,.25),
                 [sides.bl]:     new Color(36,45,91,.25),
+                [sides.hlm]:    new Color(0,222,164,.25),
+                [sides.hlM]:    new Color(0,222,164,.85),
+            },
+            highlights : {
+                minor: true,
+            }
+        }
+    },
+    [ID.WALL2] : {
+        sprite_def: sprite_defs.wall,
+        is_walkable: false,
+        is_view_blocking: true,
+        description: "Test Wall",
+        is_wall: true,
+        shape_template: "wall_template",
+        tile_match_predicate: (v) => (v===ID.WALL2),
+        tile_same_predicate: (v) => (defs[v].is_wall),
+        pwall: {
+            width: 16,
+            height: 32,
+            colormap: {
+                [sides.top]:    new Color(98,129,0,.75),
+                [sides.bottom]: new Color(98,129,0,.75),
+                [sides.fl]:     new Color(70,85,0,.75),
+                [sides.front]:  new Color(49,60,0,.75),
+                [sides.fr]:     new Color(36,45,0,.75),
+                [sides.br]:     new Color(70,85,0,.25),
+                [sides.back]:   new Color(49,60,0,.25),
+                [sides.bl]:     new Color(36,45,0,.25),
                 [sides.hlm]:    new Color(0,222,164,.25),
                 [sides.hlM]:    new Color(0,222,164,.85),
             },
