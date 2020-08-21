@@ -141,6 +141,7 @@ class GameView {
     player_actions_highlights = []; // Must contain Highlight objects for the currently playable actions.
     action_range_highlights = []; // Must contain Highlight objects for the currently pointed action's range.
     delay_between_animations_ms = Math.round(1000 / 5); // we'll try to keep a little delay between each beginning of parallel animation.
+    enable_parallel_animations = false;
 
     enable_edition = false; // Turn on to limit view for editor mode.
 
@@ -384,11 +385,14 @@ class GameView {
     }
 
     _launch_next_animation_batch(){
+        console.assert(this.current_animations.animation_count === 0);
         // Get the next animations that are allowed to happen in parallel.
         let delay_for_next_animation = 0;
         const max_frame_time = 1000.0 / 30.0;
         const begin_time = performance.now();
         while(performance.now() - begin_time < max_frame_time){ // timeout!
+
+            console.assert(this.enable_parallel_animations || this.current_animations.animation_count === 0);
 
             const animation = this._pop_next_event_animation();
             if(!animation) // End of event/animation sequences.
@@ -404,7 +408,7 @@ class GameView {
             }
 
             // Start the animation, delayed by the previous parallel one:
-            if(this.delay_between_animations_ms > 0){
+            if(this.enable_parallel_animations && this.delay_between_animations_ms > 0){
                 if(delay_for_next_animation > 0){
                     animation.iterator = anim.delay(delay_for_next_animation, ()=>{ return animation.start_animation(); });
                 }
@@ -422,7 +426,7 @@ class GameView {
                     this._require_tiles_update = true;
                 });
 
-            if(animation.parallel === false)
+            if(!this.enable_parallel_animations || animation.parallel === false)
                 break; // We need to only play the animations that are next to each other and parallel.
 
         }
@@ -437,14 +441,14 @@ class GameView {
                 this.clear_focus();
             }
 
-            if(this.current_animations.animation_count == 0){
+            if(this.current_animations.animation_count === 0){
                 this._launch_next_animation_batch();
             }
 
             this.current_animations.update(delta_time);
 
             if(!this.is_time_for_player_to_chose_action
-            && this.current_animations.animation_count == 0
+            && this.current_animations.animation_count === 0
             && this.next_event === undefined
             ){
                 this._start_player_turn();

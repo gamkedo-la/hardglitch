@@ -374,6 +374,7 @@ function display_help(game_session){
         )
             draw_text("[F2] - EDITOR MODE", {x: display_x, y: next_line() });
     }
+    draw_text("[F3]  - ENABLE/DISABLE PARALELL ANIMS", {x: display_x, y: next_line() });
     draw_text("[F8]  - SHOW/HIDE FOV", {x: display_x, y: next_line() });
     draw_text("[F9]  - MOUSE INFO", {x: display_x, y: next_line() });
     draw_text("[F10]  - CHARACTER INFO (pointed)", {x: display_x, y: next_line() });
@@ -389,6 +390,7 @@ function display_help(game_session){
     draw_text("Click on squares around PC to move or act", {x: display_x, y: next_line() });
     next_line();
     draw_text(`AUTO CAMERA CENTER = ${game_session.view.enable_auto_camera_center ? "enabled" : "disabled"}`, {x: display_x, y: next_line() });
+    draw_text(`PARALLEL ANIMATIONS = ${game_session.view.enable_parallel_animations ? "enabled" : "disabled"}`, {x: display_x, y: next_line() });
     next_line();
     draw_text(`TURN: ${game_session.game.turn_info.turn_id}`, {x: display_x, y: next_line() });
 
@@ -574,6 +576,10 @@ function update_debug_keys(game_session){
         audio.playEvent('buffertest', random_float(-1, 1));
     } else if (input.keyboard.is_just_released(KEY.O)) {
         audio.stopEvent('streamtest');
+    }
+
+    if (input.keyboard.is_just_down(KEY.F3)) {
+        game_session.view.enable_parallel_animations = !game_session.view.enable_parallel_animations;
     }
 }
 
