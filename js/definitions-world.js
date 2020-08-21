@@ -39,9 +39,9 @@ const default_rules = [ // BEWARE: rules will be applied in-order.
     new Rule_Void(),
     new basic_rules.Rule_Destroy_NoIntegrity(),
     new basic_rules.Rule_GameOver(),
-    new Rule_ActionPoints(),
     new basic_rules.Rule_LevelExit(),
 
+    new Rule_ActionPoints(), // TODO: check that it's in the right order
 ];
 
 

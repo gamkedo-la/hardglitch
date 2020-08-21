@@ -9,7 +9,8 @@ import { destroy_at } from "./destruction.js";
 
 
 class Rule_Void extends concepts.Rule {
-    update_world_after_character_turn(world){
+
+    destroy_anything_in_void_tiles(world){
         console.assert(world instanceof concepts.World);
         const events = [];
 
@@ -19,6 +20,14 @@ class Rule_Void extends concepts.Rule {
             });
 
         return events;
+    }
+
+    update_world_after_character_turn(world){
+        return this.destroy_anything_in_void_tiles(world);
+    }
+
+    update_world_at_the_beginning_of_game_turn(world){
+        return this.destroy_anything_in_void_tiles(world);
     }
 };
 

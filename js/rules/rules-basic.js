@@ -158,20 +158,34 @@ class PlayerExitLevel extends concepts.Event {
 
 
 class Rule_LevelExit extends concepts.Rule {
-    update_world_after_character_turn(world, character_body){
+
+    any_player_character_on_exit_tile_exits_level(world){
+        console.assert(world instanceof concepts.World);
+
         if(world.is_finished) // The game is already finished.
             return [];
 
-        if(character_body.is_player_actor){ // Only check player bodies (only the player can exit the level).
-            const exit_positions = world._surface_tile_grid.matching_positions(tile_id => tile_id == tiles.ID.EXIT); // TODO: keep a cache until the world's tiles have changed?
-            if(exit_positions.some(position => character_body.position.equals(position))){
+        const exit_positions = world._surface_tile_grid.matching_positions(tile_id => tile_id == tiles.ID.EXIT);
+        const player_characters = world.bodies.filter(character => character.is_player_actor);
+
+        for(const player_character of player_characters){
+            console.assert(player_character instanceof Character)
+            const player_position = player_character.position;
+            if(exit_positions.some(position => player_position.equals(position))){
                 world.is_finished = true;
-                return [ new PlayerExitLevel(character_body) ];
+                return [ new PlayerExitLevel(player_character) ];
             }
         }
         return [];
     }
 
+    update_world_after_character_turn(world){
+        return this.any_player_character_on_exit_tile_exits_level(world);
+    }
+
+    update_world_at_the_beginning_of_game_turn(world){
+        return this.any_player_character_on_exit_tile_exits_level(world);
+    }
 
 }
 
