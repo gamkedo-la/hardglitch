@@ -31,6 +31,7 @@ const game_assets = { // Description of the assets to load.
         life_form: "./images/life_form.png",
         life_form_weak: "./images/life_form_weak.png",
         menu_button: "./images/wordmenu1.png",
+        stream_buffer: "./images/streambuffer.png",
 
         // TODO: merge icons into one image
         icon_volume_mute: "./images/iconmute.png",
@@ -113,6 +114,22 @@ const highlight_animations = {
             timeline: [
                         { frame: 0, duration: 333 },
                         { frame: 1, duration: 333 }
+                      ],
+          },
+};
+
+const stream_animations = {
+    idle: {
+            loop: true,
+            timeline: [
+                        { frame: 0, duration: 50 },
+                        { frame: 1, duration: 50 },
+                        { frame: 2, duration: 50 },
+                        { frame: 3, duration: 50 },
+                        { frame: 4, duration: 50 },
+                        { frame: 5, duration: 50 },
+                        { frame: 6, duration: 50 },
+                        { frame: 7, duration: 50 },
                       ],
           },
 };
@@ -222,6 +239,62 @@ const sprite_defs = {
         frames: [
             { x:64, y:0, width:64, height:64 }
          ]
+    },
+    stream_right : {
+        image: "stream_buffer",
+        frames: [
+            { x:0, y:0, width:64, height:64 },
+            { x:0, y:1*64, width:64, height:64 },
+            { x:0, y:2*64, width:64, height:64 },
+            { x:0, y:3*64, width:64, height:64 },
+            { x:0, y:4*64, width:64, height:64 },
+            { x:0, y:5*64, width:64, height:64 },
+            { x:0, y:6*64, width:64, height:64 },
+            { x:0, y:7*64, width:64, height:64 },
+         ],
+        animations: stream_animations,
+    },
+    stream_left : {
+        image: "stream_buffer",
+        frames: [
+            { x:3*64, y:0, width:64, height:64 },
+            { x:3*64, y:1*64, width:64, height:64 },
+            { x:3*64, y:2*64, width:64, height:64 },
+            { x:3*64, y:3*64, width:64, height:64 },
+            { x:3*64, y:4*64, width:64, height:64 },
+            { x:3*64, y:5*64, width:64, height:64 },
+            { x:3*64, y:6*64, width:64, height:64 },
+            { x:3*64, y:7*64, width:64, height:64 },
+         ],
+        animations: stream_animations,
+    },
+    stream_up : {
+        image: "stream_buffer",
+        frames: [
+            { x:2*64, y:0, width:64, height:64 },
+            { x:2*64, y:1*64, width:64, height:64 },
+            { x:2*64, y:2*64, width:64, height:64 },
+            { x:2*64, y:3*64, width:64, height:64 },
+            { x:2*64, y:4*64, width:64, height:64 },
+            { x:2*64, y:5*64, width:64, height:64 },
+            { x:2*64, y:6*64, width:64, height:64 },
+            { x:2*64, y:7*64, width:64, height:64 },
+         ],
+        animations: stream_animations,
+    },
+    stream_down : {
+        image: "stream_buffer",
+        frames: [
+            { x:1*64, y:0, width:64, height:64 },
+            { x:1*64, y:1*64, width:64, height:64 },
+            { x:1*64, y:2*64, width:64, height:64 },
+            { x:1*64, y:3*64, width:64, height:64 },
+            { x:1*64, y:4*64, width:64, height:64 },
+            { x:1*64, y:5*64, width:64, height:64 },
+            { x:1*64, y:6*64, width:64, height:64 },
+            { x:1*64, y:7*64, width:64, height:64 },
+         ],
+        animations: stream_animations,
     },
     crypto_file : {
         image: "crypto_file",

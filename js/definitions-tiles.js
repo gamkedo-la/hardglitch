@@ -24,6 +24,11 @@ const ID = {
     WALL2: 21,
     VOID: 30,
     HOLE: 40,
+
+    STREAM_LEFT: 50,
+    STREAM_RIGHT: 51,
+    STREAM_UP: 52,
+    STREAM_DOWN: 53,
 };
 
 // NOTE: these are filled out by iterating through the definitions below.  if is_surface is included, the tile type is added to surface_tiles, otherwise to floor tiles
@@ -168,6 +173,43 @@ const defs = {
         description: "Exit",
         is_surface: true,
     },
+
+    [ID.STREAM_LEFT] : {
+        sprite_def: sprite_defs.stream_left,
+        is_walkable: true,
+        is_safe: true,
+        is_view_blocking: false,
+        description: "Stream Left",
+        is_surface: true,
+    },
+
+    [ID.STREAM_RIGHT] : {
+        sprite_def: sprite_defs.stream_right,
+        is_walkable: true,
+        is_safe: true,
+        is_view_blocking: false,
+        description: "Stream Right",
+        is_surface: true,
+    },
+
+    [ID.STREAM_UP] : {
+        sprite_def: sprite_defs.stream_up,
+        is_walkable: true,
+        is_safe: true,
+        is_view_blocking: false,
+        description: "Stream Up",
+        is_surface: true,
+    },
+
+    [ID.STREAM_DOWN] : {
+        sprite_def: sprite_defs.stream_down,
+        is_walkable: true,
+        is_safe: true,
+        is_view_blocking: false,
+        description: "Stream Down",
+        is_surface: true,
+    },
+
 };
 
 for (const id of Object.values(ID)) {
