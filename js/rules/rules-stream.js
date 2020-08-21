@@ -4,39 +4,31 @@ export {
 
 import * as concepts from "../core/concepts.js";
 import * as tiles from "../definitions-tiles.js";
+import * as spatial from "../system/spatial.js";
 import { apply_directional_force, Pushed } from "./rules-forces.js";
-import { PIXELS_PER_TILES_SIDE } from "../view/entity-view.js";
-import { Vector2 } from "../system/spatial.js";
 
 class Rule_Stream extends concepts.Rule {
-    update_world_after_character_turn(world){
+
+    apply_stream_rule(world, stream_tile_id, translation) {
         console.assert(world instanceof concepts.World);
+        console.assert(Number.isInteger(stream_tile_id));
+        console.assert(translation instanceof spatial.Vector2);
         const events = [];
-
-        world.entities.filter(entity => world.tiles_at(entity.position).some(tile_id => tile_id === tiles.ID.STREAM_RIGHT))
+        world.entities.filter(entity => world.tiles_at(entity.position).some(tile_id => tile_id === stream_tile_id))
             .map((entity) => {
-                const translation = new Vector2({x: 1, y:0});
                 events.push(...apply_directional_force(world, entity.position, translation, Pushed));
             });
+        return events;
+    }
 
-        world.entities.filter(entity => world.tiles_at(entity.position).some(tile_id => tile_id === tiles.ID.STREAM_LEFT))
-            .map((entity) => {
-                const translation = new Vector2({x: -1, y:0});
-                events.push(...apply_directional_force(world, entity.position, translation, Pushed));
-            });
-
-        world.entities.filter(entity => world.tiles_at(entity.position).some(tile_id => tile_id === tiles.ID.STREAM_UP))
-            .map((entity) => {
-                const translation = new Vector2({x: 0, y:-1});
-                events.push(...apply_directional_force(world, entity.position, translation, Pushed));
-            });
-
-        world.entities.filter(entity => world.tiles_at(entity.position).some(tile_id => tile_id === tiles.ID.STREAM_DOWN))
-            .map((entity) => {
-                const translation = new Vector2({x: 0, y:1});
-                events.push(...apply_directional_force(world, entity.position, translation, Pushed));
-            });
-
+    update_world_at_the_beginning_of_game_turn(world){
+        console.assert(world instanceof concepts.World);
+        const events = [
+            ...this.apply_stream_rule(world, tiles.ID.STREAM_RIGHT, spatial.Vector2_unit_x),
+            ...this.apply_stream_rule(world, tiles.ID.STREAM_LEFT, spatial.Vector2_negative_unit_x),
+            ...this.apply_stream_rule(world, tiles.ID.STREAM_UP, spatial.Vector2_negative_unit_y),
+            ...this.apply_stream_rule(world, tiles.ID.STREAM_DOWN, spatial.Vector2_unit_y),
+        ];
         return events;
     }
 };
