@@ -19,7 +19,11 @@ import { Character, StatValue } from "./core/character.js";
 
 const action_button_size = 50;
 const player_ui_top_from_bottom = 100;
-const bar_text_font = "18px Arial";
+const bar_text = {
+    font: "18px Arial",
+    color: "white",
+    background_color: "#ffffff00",
+};
 
 class ActionButton extends ui.Button {
     constructor(position, icon_def, action_name, key_name, on_clicked, on_begin_mouse_over, on_end_mouse_over){
@@ -228,18 +232,19 @@ class CharacterStatus{
         position: { x: 12, y: graphics.canvas_rect().height - player_ui_top_from_bottom },
         width: 200, height: 30,
         bar_name: "Integrity",
-        font: bar_text_font,
+        help_text: bar_text,
     });
 
     action_bar = new ui.Bar({
         position: { x: 12, y: graphics.canvas_rect().height - player_ui_top_from_bottom + 36 },
         width: 200, height: 30,
         bar_name: "Action Points",
-        font: bar_text_font,
+        help_text: bar_text,
     });
 
     constructor(){
-
+        this.health_bar.helptext_always_visible = true;
+        this.action_bar.helptext_always_visible = true;
     }
 
     update(delta_time, character){
@@ -281,7 +286,7 @@ class GameInterface {
             console.log("CANCEL ACTION BUTTON");
             this.cancel_action_target_selection();
             this.button_cancel_action_selection.visible = false;
-            
+
     });
 
     character_status = new CharacterStatus();

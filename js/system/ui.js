@@ -482,6 +482,7 @@ class Bar extends UIElement {
     //     bar_name: "Health", // Text to use when displaying the helptext.
     //     change_delay_ms: 0, // Milliseconds after a value change after which we start animation the change bar.
     //     change_duration_ms: 0, // Duration in milliseconds of the change bar animation.
+    //     helptext: { ... } // Parameters for the helptext.
     // });
     constructor(bar_def){
         super(bar_def);
@@ -503,17 +504,17 @@ class Bar extends UIElement {
         this._name = bar_def.bar_name;
         this._is_horizontal_bar = bar_def.is_horizontal_bar ? bar_def.is_horizontal_bar : true;
         this._animations = new anim.AnimationGroup();
+        this._text_always_visible = false;
 
         if(this._is_horizontal_bar === false)
             throw "VERTICAL BARS NOT IMPLEMENTED YET";
 
-        this.helptext = new HelpText({
+        this.helptext = new HelpText(Object.assign({
             text: this._name,
             area_to_help: this.area,
             position: this.position,
-            font: bar_def.font,
             delay_ms: 0,
-        });
+        }, bar_def.help_text));
 
         this._require_update = true;
     }
@@ -548,6 +549,12 @@ class Bar extends UIElement {
         }
     }
 
+    get helptext_always_visible() { return this._text_always_visible; }
+    set helptext_always_visible(must_be_visible) {
+        console.assert(typeof must_be_visible === "boolean");
+        this._text_always_visible = must_be_visible;
+    }
+
     get range_length() { return this._max_value - this._min_value; }
     get value_ratio() { return this._ratio(this._value, this._min_value); }
 
@@ -576,7 +583,8 @@ class Bar extends UIElement {
             delete this._previous_value;
         }
 
-        this.helptext.text = `${this._name} ${this.value} / ${this.max_value}`
+        this.helptext.text = this.preview_value === undefined ? `${this._name} ${this.value} / ${this.max_value}` : `${this._name} (${this.preview_value}) / ${this.max_value}`;
+
     }
 
     _cancel_change_animation(){
@@ -648,6 +656,9 @@ class Bar extends UIElement {
         } else if(this._preview_rect){
             graphics.draw_rectangle(canvas_context, this._preview_rect, this.colors.preview);
         }
+
+        if(this._text_always_visible)
+            this.helptext.visible = true;
     }
 
     show_preview_value(value){
@@ -661,6 +672,8 @@ class Bar extends UIElement {
 
         if(current_value === preview_value)
             return;
+
+        this.preview_value = value;
 
         const current_x = this.graphic_width(current_value);
         const preview_x = this.graphic_width(preview_value);
@@ -677,6 +690,7 @@ class Bar extends UIElement {
 
     hide_preview_value(){
         delete this._preview_rect;
+        delete this.preview_value;
     }
 
 }
