@@ -77,7 +77,7 @@ function apply_directional_force(world, target_pos, direction, force_action){
         const next_pos = target_pos.translate(direction);
         if(world.is_blocked_position(next_pos, tiles.is_walkable)){ // Something is behind, we'll bounce against it.
             // TODO: only bounce IFF the kind of entity will not moved if second-pushed XD
-            events.push(new Bounced(target_entity, target_entity.position, next_pos));
+            events.push(new Bounced(target_entity, target_pos, next_pos));
             if(world.is_valid_position(next_pos)){
                 const next_entity = world.entity_at(next_pos);
                 console.assert(!next_entity || next_entity instanceof concepts.Entity);
@@ -88,7 +88,7 @@ function apply_directional_force(world, target_pos, direction, force_action){
             }
         } else {
             // Nothing behind, just move there.
-            const new_position = new Vector2(target_entity.position).translate(direction);
+            const new_position = next_pos;
             const initial_position = target_entity.position;
             target_entity.position = new_position;
             events.push(new force_action(target_entity, initial_position, new concepts.Position(next_pos)));
