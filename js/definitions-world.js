@@ -33,8 +33,10 @@ const default_rules = [ // BEWARE: rules will be applied in-order.
     new Rule_Destroy(),
     new Rule_Delete(),
 
-    new Rule_Void(),
     new Rule_Stream(),
+
+    // The rules below check for the state of the game, so anything that modifies the game should be run before.
+    new Rule_Void(),
     new basic_rules.Rule_Destroy_NoIntegrity(),
     new basic_rules.Rule_GameOver(),
     new Rule_ActionPoints(),
