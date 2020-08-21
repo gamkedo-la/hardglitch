@@ -19,8 +19,9 @@ import { sprite_defs } from "./game-assets.js";
 import { Vector2_origin } from "./system/spatial.js";
 import { AnimationGroup, wait } from "./system/animation.js";
 
-import * as level_1 from "./levels/level_1.js";
+import { game_levels } from "./definitions-world.js";
 import { tween, easing } from "./system/tweening.js";
+import { is_number } from "./system/utility.js";
 
 class PlayingGame extends fsm.State{
 
@@ -266,15 +267,33 @@ class GameScreen extends fsm.StateMachine {
         this.fader.duration_ms = 2000;
     }
 
-    *enter(level_generator){
+    *enter(level_to_play){
+        console.assert(Number.isInteger(level_to_play) || level_to_play !== undefined);
+
         graphics.reset();
 
-        if(!level_generator)
-            level_generator = level_1.generate_world;
+        const level_generator = (level_idx) => {
+            const level = game_levels[level_idx];
+            console.assert(level);
+            return level.generate_world;
+        };
+
+        var level_world_generator;
+        if(is_number(level_to_play)){
+            console.assert(Number.isInteger(level_to_play) && level_to_play < game_levels.length);
+            this.current_level_idx = level_to_play;
+            level_world_generator = level_generator(level_to_play);
+        }
+        else {
+
+            level_world_generator = level_to_play;
+        }
+
+
 
         console.assert(!this.game_session);
         console.assert(!this.level_title);
-        this.game_session = new GameSession(level_generator, ()=>{ this.ingame_menu(); });
+        this.game_session = new GameSession(level_world_generator, ()=>{ this.ingame_menu(); });
         this.level_title = new ui.Text({
             text: this.game_session.world.name,
             font: "64px ZingDiddlyDooZapped",
@@ -344,9 +363,13 @@ class GameScreen extends fsm.StateMachine {
     }
 
     escape(){
-        // TODO, pass the next level
-        const next_level = undefined;
-        this.state_machine.push_action("escape", next_level);
+        const next_level = Number.isInteger(this.current_level_idx) ? this.current_level_idx + 1 : undefined;
+        if(next_level == undefined || next_level >= game_levels.length){
+            this.state_machine.push_action("escape");
+        }
+        else {
+            this.state_machine.push_action(`level_${next_level}`);
+        }
     }
 
     horrible_death(){

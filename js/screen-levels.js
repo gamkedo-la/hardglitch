@@ -11,6 +11,7 @@ import * as fsm from "./system/finite-state-machine.js";
 import * as ui from "./system/ui.js";
 import { ScreenFader } from "./system/screenfader.js";
 import { invoke_on_members } from "./system/utility.js";
+import { game_levels } from "./definitions-world.js";
 
 class LevelInfoDisplay {
     constructor(title){
@@ -39,9 +40,12 @@ class LevelInfoDisplay {
 class LevelIntroScreen extends fsm.State {
     fader = new ScreenFader();
 
-    constructor(level_title){
+    constructor(level_title, level_idx){
         super();
+        console.assert(typeof level_title ===  "string");
+        console.assert(Number.isInteger(level_idx) && level_idx < game_levels.length);
         this.title = level_title;
+        this.level_idx = level_idx;
     }
 
     *enter(){
@@ -75,7 +79,7 @@ class LevelIntroScreen extends fsm.State {
     }
 
     continue() {
-        this.state_machine.push_action("continue");
+        this.state_machine.push_action("continue", this.level_idx);
     }
 
     on_canvas_resized(){
@@ -86,24 +90,25 @@ class LevelIntroScreen extends fsm.State {
 
 class Level_1_IntroScreen extends LevelIntroScreen {
     constructor(){
-        super("Intro to Level 1 - WIP (need your help)");
+        super("Intro to Level 1 - WIP (need your help)", 0);
     }
 };
 
 class Level_2_IntroScreen extends LevelIntroScreen {
     constructor(){
-        super("Intro to Level 2 - WIP (need your help)");
+        super("Intro to Level 2 - WIP (need your help)", 1);
     }
 };
 
 class Level_3_IntroScreen extends LevelIntroScreen {
     constructor(){
-        super("Intro to Level 3 - WIP (need your help)");
+        super("Intro to Level 3 - WIP (need your help)", 2);
     }
 };
 
 class Level_4_IntroScreen extends LevelIntroScreen {
     constructor(){
-        super("Intro to Level 4 - WIP (need your help)");
+        super("Intro to Level 4 - WIP (need your help)", 3);
     }
 };
+

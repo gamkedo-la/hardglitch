@@ -1,5 +1,12 @@
 // This file contains the main loop and initialization code for this game, and the global game state machine.
 
+export {
+  load_level,
+  load_test_level,
+  load_random_test_level,
+}
+
+
 // save the canvas for dimensions, and its 2d context for drawing to it
 import * as audio from "./system/audio.js";
 import * as graphics from "./system/graphics.js";
@@ -55,8 +62,11 @@ const game_state_machine = new class extends fsm.StateMachine {
       },
       game: {
         exit: "main_menu",
-        escape: "intro_level_2",
+        escape: "gameover_success",
         died: "gameover_failure",
+        level_1: "intro_level_2",
+        level_2: "intro_level_3",
+        level_3: "intro_level_4",
       },
       gameover_success: {
         ok: "credits",
@@ -75,7 +85,7 @@ const game_state_machine = new class extends fsm.StateMachine {
         continue: "game"
       },
       intro_level_4: {
-        continue: "gameover_success"
+        continue: "game"
       },
     });
 
@@ -155,26 +165,16 @@ function update_cycle(highres_timestamp){
   window.requestAnimationFrame(update_cycle);
 }
 
+
 //////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////
 // The following code allows us to use the console to load specific levels.
 
-import * as level_1 from "./levels/level_1.js";
-import * as level_2 from "./levels/level_2.js";
-import * as level_3 from "./levels/level_3.js";
-import * as level_4 from "./levels/level_4.js";
 import * as random_test_level from "./testing/test-level.js";
 import { generate_empty_world } from "./levels/edit_level.js";
 
-
-const game_levels = [
-  level_1, level_2, level_3, level_4,
-];
-
 function load_level(level_number){
-  const level = game_levels[level_number];
-  console.assert(level);
-  game_state_machine.push_action("load_game", level.generate_world);
+  game_state_machine.push_action("load_game", level_number);
 }
 
 function load_test_level(width, height){
@@ -188,3 +188,4 @@ function load_random_test_level(){
 window.load_level = load_level;
 window.load_test_level = load_test_level;
 window.load_random_test_level = load_random_test_level;
+

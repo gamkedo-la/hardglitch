@@ -12,8 +12,8 @@ import { invoke_on_members } from "./system/utility.js";
 import { Vector2, Vector2_origin } from "./system/spatial.js";
 import { ScreenFader } from "./system/screenfader.js";
 
-import * as random_test_level from "./testing/test-level.js";
-import { generate_empty_world } from "./levels/edit_level.js";
+import { load_test_level, load_random_test_level } from "./main.js";
+
 
 class MainMenu {
 
@@ -36,7 +36,7 @@ class MainMenu {
 
         this.button_empty_level = new ui.TextButton({
             text: "Empty Small Level",
-            action: ()=> { state_machine.push_action("new_game", ()=> generate_empty_world("testing", 10, 10)); },
+            action: ()=> { load_test_level(10, 10); },
             position: Vector2_origin,
             sprite_def: sprite_defs.button_menu,
             sounds:{
@@ -47,7 +47,7 @@ class MainMenu {
 
         this.button_test_level = new ui.TextButton({
             text: "Random Test Level",
-            action: ()=> { state_machine.push_action("new_game", random_test_level.make_test_world); },
+            action: ()=> { load_random_test_level(); },
             position: Vector2_origin,
             sprite_def: sprite_defs.button_menu,
             sounds:{
