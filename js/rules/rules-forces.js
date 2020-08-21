@@ -2,6 +2,8 @@
 export {
     Rule_Push,
     Rule_Pull,
+    apply_directional_force,
+    Pushed,
 }
 
 import * as concepts from "../core/concepts.js";

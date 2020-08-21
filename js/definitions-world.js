@@ -8,6 +8,7 @@ import { Rule_Movements, Rule_Jump, Rule_Swap } from "./rules/rules-movement.js"
 import { Rule_ActionPoints } from "./rules/rules-actionpoints.js";
 import { Rule_Push, Rule_Pull } from "./rules/rules-forces.js";
 import { Rule_Void } from "./rules/rules-void.js";
+import { Rule_Stream } from "./rules/rules-stream.js";
 import { Rule_Destroy } from "./rules/rules-destroy.js";
 import { Rule_Delete } from "./rules/rules-delete.js";
 import { Rule_Repair } from "./rules/rules-repair.js";
@@ -33,6 +34,7 @@ const default_rules = [ // BEWARE: rules will be applied in-order.
     new Rule_Delete(),
 
     new Rule_Void(),
+    new Rule_Stream(),
     new basic_rules.Rule_Destroy_NoIntegrity(),
     new basic_rules.Rule_GameOver(),
     new Rule_ActionPoints(),
