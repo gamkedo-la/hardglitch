@@ -33,8 +33,8 @@ function restore_characters_action_points(world){
     const events = [];
     for(const character of world.bodies){
         console.assert(character instanceof Character);
-        character.stats.action_points.increase(character.stats.ap_recovery.value);
-        events.push( new Event_ActionPointsRestored(character, character.stats.ap_recovery.value) ); // TODO: set the real action points restored here.
+        const restored_points = character.restore_action_points();
+        events.push( new Event_ActionPointsRestored(character, restored_points) );
     }
     return events;
 }

@@ -390,7 +390,7 @@ function display_help(game_session){
     next_line();
     draw_text(`AUTO CAMERA CENTER = ${game_session.view.enable_auto_camera_center ? "enabled" : "disabled"}`, {x: display_x, y: next_line() });
     next_line();
-    draw_text(`TURN: ${game_session.game.turn_info.turn_id} PHASE: ${game_session.game.turn_info.turn_phase_id}`, {x: display_x, y: next_line() });
+    draw_text(`TURN: ${game_session.game.turn_info.turn_id}`, {x: display_x, y: next_line() });
 
 
 }

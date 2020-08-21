@@ -121,6 +121,7 @@ class Character extends concepts.Body {
 
     constructor(name){
         super(name);
+        this.skip_turn = false;
     }
 
     get position() { return super.position; }
@@ -142,6 +143,7 @@ class Character extends concepts.Body {
     get can_perform_actions(){
         return this.actor // Cannot perform actions if we don't have an actor to decide which action to perform.
             && this.stats.action_points.value > 0 // Perform actions until there is 0 points or less left.
+            && this.skip_turn !== true
             ;
     }
 
@@ -184,6 +186,13 @@ class Character extends concepts.Body {
 
     repair(integrity_amount){
         this.stats.integrity.increase(integrity_amount);
+    }
+
+    restore_action_points(){
+        this.skip_turn = false;
+        const ap_to_recover = this.stats.ap_recovery.value;
+        this.stats.action_points.increase(ap_to_recover);
+        return ap_to_recover;
     }
 
 };
