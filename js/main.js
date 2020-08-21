@@ -12,6 +12,7 @@ import { MainMenuScreen } from "./screen-main-menu.js";
 import { GameScreen } from "./screen-game.js";
 import { CreditsScreen } from "./screen-credits.js";
 import { GameOverScreen_Success, GameOverScreen_Failure } from "./screen-gameover.js";
+import { Level_1_IntroScreen, Level_2_IntroScreen, Level_3_IntroScreen, Level_4_IntroScreen } from "./screen-levels.js";
 import { MuteAudioButton } from "./game-ui.js";
 import {defs as tiledefs} from "./definitions-tiles.js";
 import {initialize as tile_select_initialize} from "./view/tile-select.js";
@@ -31,6 +32,10 @@ const game_state_machine = new class extends fsm.StateMachine {
       game: new GameScreen(),
       gameover_success: new GameOverScreen_Success(),
       gameover_failure: new GameOverScreen_Failure(),
+      intro_level_1: new Level_1_IntroScreen(),
+      intro_level_2: new Level_2_IntroScreen(),
+      intro_level_3: new Level_3_IntroScreen(),
+      intro_level_4: new Level_4_IntroScreen(),
     },{
       // This is the transition table, stating which action from one state leads to which other state.
       initial_state: "loading_game",
@@ -42,7 +47,7 @@ const game_state_machine = new class extends fsm.StateMachine {
         game_ready: "main_menu"
       },
       main_menu: {
-        new_game: "game",
+        new_game: "intro_level_1",
         credits: "credits",
       },
       credits: {
@@ -50,7 +55,7 @@ const game_state_machine = new class extends fsm.StateMachine {
       },
       game: {
         exit: "main_menu",
-        escape: "gameover_success",
+        escape: "intro_level_2",
         died: "gameover_failure",
       },
       gameover_success: {
@@ -59,7 +64,19 @@ const game_state_machine = new class extends fsm.StateMachine {
       gameover_failure: {
         back: "main_menu",
         retry: "game",
-      }
+      },
+      intro_level_1: {
+        continue: "game"
+      },
+      intro_level_2: {
+        continue: "game"
+      },
+      intro_level_3: {
+        continue: "game"
+      },
+      intro_level_4: {
+        continue: "gameover_success"
+      },
     });
 
   }
