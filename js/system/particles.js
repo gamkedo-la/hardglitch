@@ -597,8 +597,6 @@ class OffsetGlitchParticle extends Particle {
         let data = canvas_context.getImageData(this.x, this.y, this.width, this.height);
         if (this.fillColor) canvas_context.fillStyle = this.fillColor.toString();
         canvas_context.fillRect(this.x, this.y, this.width, this.height);
-        //canvas_context.putImageData(data, this.x, this.y, Math.max(0, this.dx), Math.max(0,this.dy), this.width-this.dx, this.height-this.dy);
-        //canvas_context.putImageData(data, this.x+this.dx, this.y+this.dy, Math.max(0, this.dx), Math.max(0,this.dy), this.width-this.dx, this.height-this.dy);
         canvas_context.putImageData(data, this.x+this.dx, this.y+this.dy);
     }
 
@@ -615,6 +613,109 @@ class OffsetGlitchParticle extends Particle {
 
 }
 
+class ColorShiftDataXForm {
+    constructor(dx, dy, rshift, gshift, bshift) {
+        this.dx = dx;
+        this.dy = dy;
+        this.rshift = rshift;
+        this.gshift = gshift;
+        this.bshift = bshift;
+    }
+    xform(idata) {
+        // create empty data array
+        let xdata = new ImageData(idata.width, idata.height);
+        // shift color data
+        for (let j=0; j<idata.height; j++) {
+            for (let i=0; i<idata.width; i++) {
+                let idx = (j*idata.width+i)*4;
+                let r = idata.data[idx];
+                let g = idata.data[idx+1];
+                let b = idata.data[idx+2];
+                let a = idata.data[idx+3];
+                // color loss to shift
+                r -= r*this.rshift;
+                g -= g*this.gshift;
+                b -= b*this.bshift;
+                // target index
+                let xi = Math.round(i-this.dx);
+                let xj = Math.round(j-this.dy);
+                if (xi>=0 && xi<idata.width && xj>=0 && xj<idata.height) {
+                    let xidx = (xj*idata.width+xi)*4;
+                    let xr = idata.data[xidx];
+                    let xg = idata.data[xidx+1];
+                    let xb = idata.data[xidx+2];
+                    let xa = idata.data[xidx+3];
+                    // color gained from shift
+                    r += xr*this.rshift;
+                    g += xg*this.gshift;
+                    b += xb*this.bshift;
+                    a = Math.max(xa,a);
+                }
+                // set xdata
+                xdata.data[idx] = Math.round(r);
+                xdata.data[idx+1] = Math.round(g);
+                xdata.data[idx+2] = Math.round(b);
+                xdata.data[idx+3] = Math.round(a);
+            }
+        }
+        return xdata;
+    }
+}
+
+// =============================================================================
+const glitchCanvas = document.createElement('canvas');
+class CanvasGlitchParticle extends Particle {
+    constructor(x, y, width, height, dx, dy, xforms, ttl) {
+        super(x, y);
+        this.width = width;
+        this.height = height;
+        this.dx = dx;
+        this.dy = dy;
+        this.xforms = xforms || [];
+        this.idata;
+        this.needData = true;
+        this.ttl = ttl * 1000; // milliseconds
+        this.currentXform;
+    }
+
+    update(delta_time) {
+        if (this.done) return;
+        // run data transformations
+        if (this.idata) {
+            if (!this.currentXform) {
+                if (this.xforms.length) {
+                    this.currentXform = this.xforms[0].xform()
+                }
+            }
+            let xform = this.xforms[0];
+            let xfn = xform.next
+        }
+        // time-to-live
+        this.ttl -= delta_time;
+        if (this.ttl <= 0) {
+            this.done = true;
+        }
+    }
+
+    draw(canvas_context) {
+        // output image data
+        if (this.idata) {
+            let data = idata.data;
+            glitchCanvas.width = this.width;
+            glitchCanvas.height = this.height;
+            glitchCanvas.getContext("2d").putImageData(idata, 0, 0);
+            canvas_context.drawImage(glitchCanvas, this.x, this.y);
+        }
+        // pull image data (if needed)
+        if (this.needData) {
+            this.idata = canvas_context.getImageData(this.x, this.y, this.width, this.height);
+            return;
+        }
+    }
+
+}
+
+// =============================================================================
 class ColorGlitchParticle extends Particle {
     constructor(x, y, width, height, roff, goff, boff, ttl) {
         super(x, y);
@@ -627,7 +728,6 @@ class ColorGlitchParticle extends Particle {
     }
 
     draw(canvas_context) {
-
         // pull area
         let idata = canvas_context.getImageData(this.x, this.y, this.width, this.height);
         let data = idata.data;
@@ -641,7 +741,6 @@ class ColorGlitchParticle extends Particle {
           data[i + 2] = (data[i + 2] + this.goff) % 255;
         }
         canvas_context.putImageData(idata, this.x, this.y);
-
     }
 
     update(delta_time) {
