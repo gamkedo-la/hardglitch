@@ -1,4 +1,3 @@
-
 export {
     Vector2,
     Vector2_origin,
@@ -13,6 +12,8 @@ export {
     is_intersection,
     center_in_rectangle,
 };
+
+import { is_number } from "./utility.js";
 
 /////////////////////////////////////////////
 // Source: http://cwestblog.com/2012/11/12/javascript-degree-and-radian-conversion/
@@ -86,8 +87,9 @@ class Vector2{
     }
 
     translate(translation){
-        console.assert(typeof translation.x === "number" && typeof translation.y === "number");
-        return new Vector2({ x: this.x + translation.x, y: this.y + translation.y });
+        const translate_x = is_number(translation.x) ? translation.x : 0;
+        const translate_y = is_number(translation.y) ? translation.y : 0;
+        return new Vector2({ x: this.x + translate_x, y: this.y + translate_y });
     }
 
     rotate(degrees) {

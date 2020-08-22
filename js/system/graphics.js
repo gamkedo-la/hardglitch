@@ -147,6 +147,7 @@ class Sprite {
   //                                ],
   //                     },
   //                  },
+  //      position: { x: 0, y: 0 },
   //    };
   //
   // By default we use the first frame if specified, or the whole image if not.
@@ -161,6 +162,9 @@ class Sprite {
       if(this.animations){
         // Use the first animation by default. TODO: reconsider...
         this.start_animation(Object.keys(this.animations)[0]);
+      }
+      if(sprite_def.position){
+        this.position = sprite_def.position;
       }
     }
   }
@@ -265,7 +269,7 @@ class Sprite {
       // We don't have an image so we draw a colored rectangle instead.
       // TODO: handle scaling and other deformations
       const empty_sprite_color = "#ff00ff";
-      draw_rectangle(new spatial.Rectangle( { position: this.position.translate(this.origin.inverse), size: size } ), empty_sprite_color);
+      draw_rectangle(canvas_context, new spatial.Rectangle( { position: this.position, size: size } ), empty_sprite_color);
     }
   }
 

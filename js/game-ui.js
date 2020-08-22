@@ -16,6 +16,7 @@ import { play_action, mouse_grid_position, KEY } from "./game-input.js";
 import { keyboard, mouse, MOUSE_BUTTON } from "./system/input.js";
 import { Vector2, center_in_rectangle } from "./system/spatial.js";
 import { Character, StatValue } from "./core/character.js";
+import { InventoryUI } from "./ui/ui-inventory.js";
 
 const action_button_size = 50;
 const player_ui_top_from_bottom = 100;
@@ -24,6 +25,10 @@ const bar_text = {
     color: "white",
     background_color: "#ffffff00",
 };
+
+function inventory_position() {
+    return new Vector2({ x: 0, y: graphics.canvas_rect().height - (player_ui_top_from_bottom + 80) });
+}
 
 class ActionButton extends ui.Button {
     constructor(position, icon_def, action_name, key_name, on_clicked, on_begin_mouse_over, on_end_mouse_over){
@@ -290,6 +295,7 @@ class GameInterface {
     });
 
     character_status = new CharacterStatus();
+    inventory = new InventoryUI(inventory_position());
 
     constructor(config){
         console.assert(config instanceof Object);
@@ -310,7 +316,7 @@ class GameInterface {
         return Object.values(this)
             .concat(this._action_buttons)
             .filter(element => element instanceof ui.UIElement)
-            .concat([ this.character_status ]);
+            .concat([ this.inventory, this.character_status ]);
     }
 
     is_under(position){
@@ -450,6 +456,7 @@ class GameInterface {
         this.button_main_menu = new MenuButton(this.config.open_menu);
         this.button_auto_focus = new AutoFocusButton(this.config.toggle_autofocus, this.config.is_autofocus_enabled);
         this.character_status = new CharacterStatus();
+        this.inventory = new InventoryUI(inventory_position());
     }
 
 };

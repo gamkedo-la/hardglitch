@@ -9,6 +9,7 @@ import * as concepts from "./concepts.js";
 import { FieldOfVision } from "./visibility.js";
 
 const default_view_distance = 1;
+const default_inventory_size = 4;
 
 // Character's inventory, where to store Items.
 class Inventory {
@@ -109,6 +110,7 @@ class CharacterStats{
     ap_recovery = new StatValue(10);            // How much AP to restore each turn.
 
     view_distance = new StatValue(default_view_distance); // How far can the character perceive.
+    inventory_size = new StatValue(default_inventory_size, undefined, 0); // How many items a character can store in inventory.
 };
 
 // All characters types from the game must derive from this type.

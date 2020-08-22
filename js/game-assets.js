@@ -32,6 +32,7 @@ const game_assets = { // Description of the assets to load.
         life_form_weak: "./images/life_form_weak.png",
         menu_button: "./images/wordmenu1.png",
         stream_buffer: "./images/streambuffer.png",
+        item_slot: "./images/itemslot.png",
 
         // TODO: merge icons into one image
         icon_volume_mute: "./images/iconmute.png",
@@ -68,10 +69,10 @@ const game_assets = { // Description of the assets to load.
         damage: './audio/TakeDmg.mp3',
         pusher: './audio/PushPull.mp3',
         bouncer: './audio/Bounce.mp3',
-        takeItem: './audio/TakeItem.mp3',        
-        waitTurn: './audio/Wait.mp3',        
-        aSelect: './audio/actionHover.mp3',        
-        aClick: './audio/actionClick.mp3',        
+        takeItem: './audio/TakeItem.mp3',
+        waitTurn: './audio/Wait.mp3',
+        aSelect: './audio/actionHover.mp3',
+        aClick: './audio/actionClick.mp3',
         aCancel: './audio/Cancel.mp3',
         lower: './audio/Lower.mp3',
     },
@@ -295,6 +296,12 @@ const sprite_defs = {
             { x:1*64, y:7*64, width:64, height:64 },
          ],
         animations: stream_animations,
+    },
+    item_slot : {
+        image: "item_slot",
+        frames: [
+            { x:0, y:0, width:64, height:64 }
+         ]
     },
     crypto_file : {
         image: "crypto_file",
