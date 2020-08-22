@@ -270,6 +270,8 @@ class GameScreen extends fsm.StateMachine {
     *enter(level_to_play){
         console.assert(Number.isInteger(level_to_play) || level_to_play !== undefined);
 
+        this._level_to_play = level_to_play;
+
         graphics.reset();
 
         const level_generator = (level_idx) => {
@@ -373,7 +375,7 @@ class GameScreen extends fsm.StateMachine {
     }
 
     horrible_death(){
-        this.state_machine.push_action("died");
+        this.state_machine.push_action("died", this._level_to_play);
     }
 
     on_canvas_resized(){

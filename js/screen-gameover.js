@@ -146,7 +146,9 @@ class GameOverScreen_Failure extends fsm.State {
         });
     }
 
-    *enter(){
+    *enter(level_to_play){
+        console.assert(Number.isInteger(level_to_play) || level_to_play !== undefined);
+        this._level_to_play = level_to_play;
         if(!this.ui){
             this._init_ui();
         }
@@ -162,7 +164,7 @@ class GameOverScreen_Failure extends fsm.State {
     }
 
     retry_new_game(){
-        this.state_machine.push_action("retry");
+        this.state_machine.push_action("retry", this._level_to_play);
     }
 
     update(delta_time){
