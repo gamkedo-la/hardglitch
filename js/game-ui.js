@@ -62,7 +62,6 @@ class ActionButton extends ui.Button {
         }
 
         this.help_text = new ui.HelpText({
-            width: action_button_size, height: action_button_size,
             area_to_help: this.area,
             text: action_name,
             delay_ms: 0, // Display the help text immediately when pointed.

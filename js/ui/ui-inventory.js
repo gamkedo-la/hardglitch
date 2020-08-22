@@ -9,6 +9,7 @@ import { Character } from "../core/character.js";
 import { sprite_defs } from "../game-assets.js";
 import { Item } from "../core/concepts.js";
 import { Vector2 } from "../system/spatial.js";
+import { HelpText } from "../system/ui.js";
 
 const item_slot_vertical_space = 0;
 
@@ -31,22 +32,34 @@ class ItemIcon {
 class ItemSlot {
     _sprite = new graphics.Sprite(sprite_defs.item_slot);
 
-    constructor(){
-        this._sprite.position = graphics.canvas_center_position();
+    constructor(position){
+        this._help_text = new HelpText({
+            text: "Item Slot",
+            area_to_help: this._sprite.area,
+            delay_ms: 0, // Display the help text immediately when pointed.
+        });
+
+        if(position)
+            this.position = position;
     }
 
     update(delta_time){
         this._sprite.update(delta_time);
-
+        this._help_text.update(delta_time);
     }
 
 
     draw(canvas_context){
         this._sprite.draw(canvas_context);
+        this._help_text.draw(canvas_context);
     }
 
     get position() { return this._sprite.position; }
-    set position(new_position) { this._sprite.position = new_position; }
+    set position(new_position) {
+        this._sprite.position = new_position;
+        this._help_text.position = this.position.translate({ x: this.size.width });
+        this._help_text.area_to_help = this._sprite.area;
+    }
     get size() { return this._sprite.size; }
 };
 
@@ -101,8 +114,8 @@ class InventoryUI {
         this.slots = [];
         while(slot_count > 0){
             const item_slot = new ItemSlot();
-            this.slots.push(item_slot);
             item_slot.position = this.position.translate({ y: -slot_count * item_slot.size.height });
+            this.slots.push(item_slot);
             --slot_count;
         }
     }
