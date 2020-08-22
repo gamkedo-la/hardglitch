@@ -300,7 +300,7 @@ const sprite_defs = {
     item_slot : {
         image: "item_slot",
         frames: [
-            { x:0, y:0, width:64, height:64 }
+            { x:0, y:0, width:72, height:72 }
          ]
     },
     crypto_file : {
