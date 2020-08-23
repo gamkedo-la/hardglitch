@@ -471,9 +471,10 @@ function display_stats_of_pointed_character(game_session){
     line = stats_line;
     const inventory_x = 400;
     draw_text(`INVENTORY:`, { x: inventory_x, y: stats_line });
-    for(const item of character.inventory.stored_items){
-        draw_text(` - ${item.name}`, { x: inventory_x, y: next_line() });
-    }
+    character.inventory.stored_items.filter(item => item !== undefined)
+        .forEach(item => {
+            draw_text(` - ${item.name}`, { x: inventory_x, y: next_line() });
+        });
 
 }
 
