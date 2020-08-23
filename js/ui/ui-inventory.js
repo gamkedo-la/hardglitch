@@ -16,6 +16,8 @@ import { ItemView } from "../view/item-view.js";
 import { play_action } from "../game-input.js";
 import { SwapItemSlots } from "../rules/rules-items.js";
 
+import { CharacterStatus } from "./ui-characterstatus.js";
+
 const item_slot_vertical_space = 0;
 const item_slot_name = "Item Slot";
 
@@ -107,10 +109,11 @@ class InventoryUI {
 
     visible = true;
 
-    constructor(position){
-        if(position){
-            this.position = position;
-        }
+    constructor(position, character_status){
+        console.assert(position instanceof spatial.Vector2);
+        console.assert(character_status instanceof CharacterStatus);
+        this.position = position;
+        this.character_status = character_status;
     }
 
     get position() { return this._position; }
@@ -126,7 +129,7 @@ class InventoryUI {
         } else {
             if(this.slots.length != 0){
                 this.slots = [];
-                delete this._last_character;
+                delete this._current_character;
             }
         }
 
@@ -144,21 +147,51 @@ class InventoryUI {
         return this.slots.find(slot => spatial.is_point_under(position, slot._sprite.area))
     }
 
+    _clear_slot_swaping(){
+        delete this._dragging_item.destination_slot_idx;
+        delete this._dragging_item.swap_action;
+        this.character_status.end_preview_costs();
+    }
+
     _update_item_dragging(){
 
         if(this._dragging_item){
             if(this._dragging_item.item){ // Ignore dragging from empty slots.
                 if(input.mouse.is_dragging) { // Still dragging
-                    this._dragging_item.item.position = input.mouse.position;
+                    const mouse_position = input.mouse.position;
+                    this._dragging_item.item.position = mouse_position; // Keep the Item under the mouse.
+
+                    const destination_slot = this._find_slot_under(mouse_position);
+                    if(destination_slot){
+                        // We are over a slot
+                        const destination_slot_idx = this.slots.indexOf(destination_slot);
+                        if(destination_slot_idx !== this._dragging_item.source_slot_idx){
+                            if(destination_slot_idx !== this._dragging_item.destination_slot_idx){
+                                console.assert(this._current_character instanceof Character);
+                                this._dragging_item.destination_slot_idx = destination_slot_idx;
+                                this._dragging_item.swap_action = new SwapItemSlots(this._dragging_item.source_slot_idx, this._dragging_item.destination_slot_idx);
+                                this.character_status.begin_preview_costs({
+                                    action_points: this._current_character.stats.action_points.value - this._dragging_item.swap_action.costs.action_points,
+                                });
+                            }
+                        } else {
+                            // Same slot than source
+                            this._clear_slot_swaping();
+                        }
+                    } else {
+                        // We are not over a slot
+                        this._clear_slot_swaping();
+                    }
                 } else {
                     const destination_slot = this._find_slot_under(input.mouse.dragging_positions.end);
                     if(destination_slot){
-                        const source_slot_idx = this.slots.indexOf(this._dragging_item.slot);
                         const destination_slot_idx = this.slots.indexOf(destination_slot);
-                        if(source_slot_idx === destination_slot_idx){
+                        if(this._dragging_item.source_slot_idx === destination_slot_idx){
                             this._dragging_item.slot._update_item_position(); // Reset the item position.
                         } else {
-                            play_action(new SwapItemSlots(source_slot_idx, destination_slot_idx));
+                            console.assert(this._dragging_item.swap_action instanceof concepts.Action);
+                            console.assert(this._dragging_item.destination_slot_idx === destination_slot_idx);
+                            play_action(this._dragging_item.swap_action);
                         }
                     } else {
                         // Dropped outside in the world - TODO: do we remove the item?
@@ -167,6 +200,7 @@ class InventoryUI {
                 }
             }
             if(!input.mouse.is_dragging){
+                this._clear_slot_swaping();
                 delete this._dragging_item;
             }
         }
@@ -179,6 +213,7 @@ class InventoryUI {
                 this._dragging_item.slot = slot;
                 if(slot){
                     console.assert(slot instanceof ItemSlot);
+                    this._dragging_item.source_slot_idx = this.slots.indexOf(this._dragging_item.slot);
                     const item_view = slot.item;
                     if(item_view){
                         this._dragging_item.item = item_view;
@@ -198,8 +233,8 @@ class InventoryUI {
     refresh(character){
         console.assert(character instanceof Character);
 
-        const previous_character = this._last_character;
-        this._last_character = character;
+        const previous_character = this._current_character;
+        this._current_character = character;
 
         const inventory_size = character.stats.inventory_size.value;
         if(this.slots.length != inventory_size){
