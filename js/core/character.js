@@ -203,7 +203,7 @@ class Inventory {
 
     remove_listener(listener_id){
         console.assert(typeof listener_id === "string");
-        delete this._listeners[modifier_id];
+        delete this._listeners[listener_id];
     }
 
     _notify_listeners(){

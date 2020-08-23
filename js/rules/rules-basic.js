@@ -53,6 +53,7 @@ class Wait extends concepts.Action {
         { // costs
             action_points: 0
         }); // Costs the rest of the current AP of the character
+        this.is_generated = true;
     }
 
     execute(world, character) {
