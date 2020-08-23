@@ -4,15 +4,17 @@ export {
 
 
 
+import * as spatial from "../system/spatial.js";
 import * as graphics from "../system/graphics.js";
 import * as concepts from "../core/concepts.js";
+
 import { Character, Inventory } from "../core/character.js";
 import { sprite_defs } from "../game-assets.js";
-import { Vector2 } from "../system/spatial.js";
 import { HelpText } from "../system/ui.js";
 import { ItemView } from "../view/item-view.js";
 
 const item_slot_vertical_space = 0;
+const item_slot_name = "Item Slot";
 
 class ItemSlot {
     _sprite = new graphics.Sprite(sprite_defs.item_slot);
@@ -20,7 +22,7 @@ class ItemSlot {
 
     constructor(position){
         this._help_text = new HelpText({
-            text: "Item Slot",
+            text: item_slot_name,
             area_to_help: this._sprite.area,
             delay_ms: 0, // Display the help text immediately when pointed.
         });
@@ -60,11 +62,15 @@ class ItemSlot {
     get size() { return this._sprite.size; }
 
     get item() { return this._item; }
-    set item(new_item){
+
+
+    set_item(item_name, new_item){
+        console.assert(typeof item_name === "string");
         console.assert(this._item === null);
         console.assert(new_item instanceof ItemView);
         this._item = new_item;
         this._item._item_slot = this;
+        this._help_text.text = item_name;
         this._update_item_position();
     }
 
@@ -74,6 +80,7 @@ class ItemSlot {
             delete item._item_slot;
         }
         this._item = null;
+        this._help_text.text = item_slot_name;
         return item;
     }
 
@@ -82,7 +89,7 @@ class ItemSlot {
             return;
 
         console.assert(this._item instanceof ItemView);
-        this._item.position = this.position;
+        this._item.position = spatial.center_in_rectangle(this._item.sprite.area, this._sprite.area).position;
     }
 };
 
@@ -90,7 +97,7 @@ class ItemSlot {
 
 class InventoryUI {
     slots = [];
-    _position = new Vector2();
+    _position = new spatial.Vector2();
 
     constructor(position){
         if(position){
@@ -100,7 +107,7 @@ class InventoryUI {
 
     get position() { return this._position; }
     set position(new_position){
-        this._position = new Vector2(new_position);
+        this._position = new spatial.Vector2(new_position);
     }
 
     update(delta_time, current_character){
@@ -167,7 +174,7 @@ class InventoryUI {
 
         for (const [item_idx, item] of items.entries()){
             if(item instanceof concepts.Item){
-                this.slots[item_idx].item = new ItemView(item);
+                this.slots[item_idx].set_item(item.name, new ItemView(item));
             } else {
                 console.assert(!item);
                 console.assert(!this.slots[item_idx].item);
