@@ -145,6 +145,19 @@ class Inventory {
         throw "Couldn't find slot for item in inventory";
     }
 
+    set_item_at(idx, item){
+        console.assert(idx >= 0 && idx < this._items_stored.length);
+        console.assert(item instanceof concepts.Item);
+        console.assert(this._items_stored[idx] === undefined);
+        this._items_stored[idx] = item;
+        this._notify_listeners();
+    }
+
+    get_item_at(idx){
+        console.assert(idx >= 0 && idx < this._items_stored.length);
+        return this._items_stored[idx];
+    }
+
     remove(idx){
         console.assert(idx >= 0 && idx < this._items_stored.length);
         const item = this._items_stored[idx];

@@ -13,6 +13,8 @@ import { Character, Inventory } from "../core/character.js";
 import { sprite_defs } from "../game-assets.js";
 import { HelpText } from "../system/ui.js";
 import { ItemView } from "../view/item-view.js";
+import { play_action } from "../game-input.js";
+import { SwapItemSlots } from "../rules/rules-items.js";
 
 const item_slot_vertical_space = 0;
 const item_slot_name = "Item Slot";
@@ -149,7 +151,19 @@ class InventoryUI {
                 if(input.mouse.is_dragging) { // Still dragging
                     this._dragging_item.item.position = input.mouse.position;
                 } else {
-                    this._dragging_item.slot._update_item_position(); // Reset the item position.
+                    const destination_slot = this._find_slot_under(input.mouse.dragging_positions.end);
+                    if(destination_slot){
+                        const source_slot_idx = this.slots.indexOf(this._dragging_item.slot);
+                        const destination_slot_idx = this.slots.indexOf(destination_slot);
+                        if(source_slot_idx === destination_slot_idx){
+                            this._dragging_item.slot._update_item_position(); // Reset the item position.
+                        } else {
+                            play_action(new SwapItemSlots(source_slot_idx, destination_slot_idx));
+                        }
+                    } else {
+                        // Dropped outside in the world - TODO: do we remove the item?
+                        this._dragging_item.slot._update_item_position(); // Reset the item position.
+                    }
                 }
             }
             if(!input.mouse.is_dragging){
