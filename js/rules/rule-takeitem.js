@@ -77,7 +77,8 @@ class Rule_TakeItem extends concepts.Rule {
         if(!character.is_player_actor) // TODO: temporary (otherwise the player will be bushed lol)
             return {};
 
-        // TODO: check that the character have enough space in the invent
+        if(character.inventory.is_full)
+            return {};
 
         const actions = {};
         visibility.valid_target_positions(world, character, this.range)
