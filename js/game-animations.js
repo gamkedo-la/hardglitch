@@ -193,6 +193,7 @@ function* take_item(taker_view, item_view){
     const take_duration_ms = 500;
     audio.playEvent('item');
     item_view.sprite.move_origin_to_center();
+    const initial_scale = item_view.scale;
     yield* animation.in_parallel(
         tween( { scale_x: item_view.scale.x, scale_y: item_view.scale.y, }, { scale_x: 0, scale_y: 0, },
                 take_duration_ms,
@@ -201,6 +202,8 @@ function* take_item(taker_view, item_view){
             ),
         translate(item_view, taker_view.position.translate(square_half_unit_vector), take_duration_ms),
     );
+    item_view.sprite.reset_origin();
+    item_view.scale = initial_scale;
 }
 
 function* pushed(entity_view, to_position){
