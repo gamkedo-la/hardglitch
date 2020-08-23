@@ -530,7 +530,9 @@ class GameView {
             highlight.update(delta_time);
         }
 
+        const is_mouse_dragging = mouse.is_dragging;
         for(const highlight of this.player_actions_highlights){
+            highlight.enabled = !is_mouse_dragging;
             highlight.update(delta_time);
         }
         this._pointed_highlight.update(delta_time);
