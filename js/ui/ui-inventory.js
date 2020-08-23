@@ -45,11 +45,14 @@ class ItemSlot {
 
     draw(canvas_context){
         this._sprite.draw(canvas_context);
+        this._help_text.draw(canvas_context);
+    }
+
+    draw_item(canvas_context){
         if(this._item){
             console.assert(this._item instanceof ItemView);
             this._item.render_graphics(canvas_context);
         }
-        this._help_text.draw(canvas_context);
     }
 
     get position() { return this._sprite.position; }
@@ -175,6 +178,7 @@ class InventoryUI {
     draw(canvas_context){
         console.assert(graphics.camera.is_rendering_in_screen);
         this.slots.forEach(slot=>slot.draw(canvas_context));
+        this.slots.forEach(slot=>slot.draw_item(canvas_context));
     }
 
     refresh(character){
