@@ -34,7 +34,7 @@ import { sprite_defs } from "./game-assets.js";
 import { Move } from "./rules/rules-movement.js";
 import { ItemView } from "./view/item-view.js";
 import { FogOfWar } from "./view/fogofwar.js";
-import { TakeItem } from "./rules/rule-takeitem.js";
+import { TakeItem } from "./rules/rules-items.js";
 import { GameFxView } from "./game-effects.js";
 
 const a_very_long_time = 99999999999999;
