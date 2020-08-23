@@ -94,7 +94,8 @@ class StatValue {
         console.assert(typeof listener_id === "string");
         console.assert(listener instanceof Function);
         console.assert(this._listeners[listener_id] === undefined);
-        this._listeners[listener_id];
+        this._listeners[listener_id] = listener;
+        listener(this); // Make sure the listner is up to date.
     }
 
     remove_listener(listener_id){
@@ -128,6 +129,7 @@ class CharacterStats{
 class Inventory {
     _items_stored = [];
     _equipped_items = [];
+    _listeners = {};
 
     add(item){
         console.assert(item instanceof concepts.Item);
@@ -136,6 +138,7 @@ class Inventory {
         for(let idx = 0; idx < this._items_stored.length; ++idx){
             if(!this._items_stored[idx]){
                 this._items_stored[idx] = item;
+                this._notify_listeners();
                 return idx;
             }
         }
@@ -146,18 +149,18 @@ class Inventory {
         console.assert(idx >= 0 && idx < this._items_stored.length);
         const item = this._items_stored[idx];
         this._items_stored[idx] = undefined;
+        this._notify_listeners();
         return item;
     }
 
     resize(new_size){
         console.assert(Number.isInteger(new_size) && new_size >= 0);
         const previous_items = this._items_stored;
-        this._items_stored = new Array(new_size);
+        this._items_stored = new Array(new_size).fill(undefined);
         Object.seal(this._items_stored);
-        this._items_stored.fill(undefined, 0, new_size);
 
         // Preserve as many items we can from the previous set
-        for(let item_idx = 0; item_idx < _items_stored.length; ++item_idx){
+        for(let item_idx = 0; item_idx < this._items_stored.length; ++item_idx){
             if(item_idx === previous_items.length){
                 // Return the items we couldn't put in the new inventory.
                 return previous_items;
@@ -166,6 +169,7 @@ class Inventory {
             this._items_stored[item_idx] = item;
             previous_items[item_idx] = undefined;
         }
+        this._notify_listeners();
     }
 
     get stored_items() { return this._items_stored; }
@@ -173,6 +177,25 @@ class Inventory {
 
     get have_empty_slots() { return this._items_stored.some(item => item === undefined); }
     get is_full() { return !this.have_empty_slots; }
+
+
+
+    add_listener(listener_id, listener){
+        console.assert(typeof listener_id === "string");
+        console.assert(listener instanceof Function);
+        console.assert(this._listeners[listener_id] === undefined);
+        this._listeners[listener_id] = listener;
+        listener(this); // Make sure the listner is up to date.
+    }
+
+    remove_listener(listener_id){
+        console.assert(typeof listener_id === "string");
+        delete this._listeners[modifier_id];
+    }
+
+    _notify_listeners(){
+        Object.values(this._listeners).forEach(listener => listener(this));
+    }
 
 };
 

@@ -10,28 +10,13 @@ import { Character, Inventory } from "../core/character.js";
 import { sprite_defs } from "../game-assets.js";
 import { Vector2 } from "../system/spatial.js";
 import { HelpText } from "../system/ui.js";
+import { ItemView } from "../view/item-view.js";
 
 const item_slot_vertical_space = 0;
 
-class ItemIcon {
-    _sprite = new graphics.Sprite({  });
-
-
-    update(delta_time){
-        this._sprite.update(delta_time);
-
-    }
-
-
-    draw(canvas_context){
-        this._sprite.draw(canvas_context);
-    }
-
-};
-
 class ItemSlot {
     _sprite = new graphics.Sprite(sprite_defs.item_slot);
-    _item = null
+    _item = null;
 
     constructor(position){
         this._help_text = new HelpText({
@@ -48,11 +33,19 @@ class ItemSlot {
         console.assert(!this._item || this._item._item_slot === this);
         this._sprite.update(delta_time);
         this._help_text.update(delta_time);
+        if(this._item){
+            console.assert(this._item instanceof ItemView);
+            this._item.update(delta_time);
+        }
     }
 
 
     draw(canvas_context){
         this._sprite.draw(canvas_context);
+        if(this._item){
+            console.assert(this._item instanceof ItemView);
+            this._item.render_graphics(canvas_context);
+        }
         this._help_text.draw(canvas_context);
     }
 
@@ -61,15 +54,18 @@ class ItemSlot {
         this._sprite.position = new_position;
         this._help_text.position = this.position.translate({ x: this.size.width });
         this._help_text.area_to_help = this._sprite.area;
+        this._update_item_position();
+
     }
     get size() { return this._sprite.size; }
 
     get item() { return this._item; }
     set item(new_item){
         console.assert(this._item === null);
-        console.assert(item instanceof concepts.Item);
+        console.assert(new_item instanceof ItemView);
         this._item = new_item;
         this._item._item_slot = this;
+        this._update_item_position();
     }
 
     remove_item(){
@@ -79,6 +75,14 @@ class ItemSlot {
         }
         this._item = null;
         return item;
+    }
+
+    _update_item_position(){
+        if(!this._item)
+            return;
+
+        console.assert(this._item instanceof ItemView);
+        this._item.position = this.position;
     }
 };
 
@@ -105,11 +109,11 @@ class InventoryUI {
         if(current_character){
             this.refresh(current_character);
         } else {
-            if(slots.length != 0){
+            if(this.slots.length != 0){
                 slots = [];
+                delete this._last_character;
             }
         }
-
 
         this.slots.forEach(slot=>slot.update(delta_time));
     }
@@ -122,9 +126,23 @@ class InventoryUI {
 
     refresh(character){
         console.assert(character instanceof Character);
+
+        const previous_character = this._last_character;
+        this._last_character = character;
+
         const inventory_size = character.stats.inventory_size.value;
         if(this.slots.length != inventory_size){
             this._reset_slots(inventory_size);
+        }
+
+        if(character !== previous_character){
+            const listener_id = "inventory_ui";
+            if(previous_character){
+                previous_character.inventory.remove_listener(listener_id);
+            }
+            character.inventory.add_listener(listener_id, inventory =>{
+                this._reset_items(inventory);
+            });
         }
     }
 
@@ -141,13 +159,20 @@ class InventoryUI {
 
     _reset_items(inventory){
         console.assert(inventory instanceof Inventory);
-        const items = inventory.items;
+        const items = inventory.stored_items;
+        console.assert(items instanceof Array);
         console.assert(this.slots.length >= items.length);
 
-        items.forEach(item => {
-            console.assert(item instanceof concepts.Item);
-            this.slots.item
-        });
+        this.slots.forEach(slot => slot.remove_item());
+
+        for (const [item_idx, item] of items.entries()){
+            if(item instanceof concepts.Item){
+                this.slots[item_idx].item = new ItemView(item);
+            } else {
+                console.assert(!item);
+                console.assert(!this.slots[item_idx].item);
+            }
+        }
 
     }
 
