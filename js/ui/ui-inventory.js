@@ -6,6 +6,7 @@ export {
 
 import * as spatial from "../system/spatial.js";
 import * as graphics from "../system/graphics.js";
+import * as input from "../system/input.js";
 import * as concepts from "../core/concepts.js";
 
 import { Character, Inventory } from "../core/character.js";
@@ -99,6 +100,8 @@ class InventoryUI {
     slots = [];
     _position = new spatial.Vector2();
 
+    visible = true;
+
     constructor(position){
         if(position){
             this.position = position;
@@ -117,12 +120,55 @@ class InventoryUI {
             this.refresh(current_character);
         } else {
             if(this.slots.length != 0){
-                slots = [];
+                this.slots = [];
                 delete this._last_character;
             }
         }
 
+        this._update_item_dragging();
+
         this.slots.forEach(slot=>slot.update(delta_time));
+    }
+
+    get is_dragging_item() { return this._dragging_item && this._dragging_item.item; }
+
+    is_under(position){ return this._find_slot_under(position) !== undefined; }
+
+    _find_slot_under(position){
+        console.assert(position instanceof spatial.Vector2);
+        return this.slots.find(slot => spatial.is_point_under(position, slot._sprite.area))
+    }
+
+    _update_item_dragging(){
+
+        if(this._dragging_item){
+            if(this._dragging_item.item){ // Ignore dragging from empty slots.
+                if(input.mouse.is_dragging) { // Still dragging
+                    this._dragging_item.item.position = input.mouse.position;
+                } else {
+                    this._dragging_item.slot._update_item_position(); // Reset the item position.
+                }
+            }
+            if(!input.mouse.is_dragging){
+                delete this._dragging_item;
+            }
+        }
+        else
+        {
+            if(input.mouse.is_dragging){ // Gather information about mouse dragging first time it does.
+                const dragging = input.mouse.dragging_positions;
+                this._dragging_item = {};
+                const slot = this._find_slot_under(dragging.begin);
+                this._dragging_item.slot = slot;
+                if(slot){
+                    console.assert(slot instanceof ItemSlot);
+                    const item_view = slot.item;
+                    if(item_view){
+                        this._dragging_item.item = item_view;
+                    }
+                }
+            }
+        }
     }
 
 
