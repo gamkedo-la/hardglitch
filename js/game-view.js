@@ -379,6 +379,9 @@ class GameView {
 
         this.fx_view.update(delta_time);
 
+        if(this.enable_edition)
+            return;
+
         this.fog_of_war.update(delta_time);
 
         this.ui.update(delta_time, this.player_character);
