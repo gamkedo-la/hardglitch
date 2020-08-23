@@ -229,7 +229,7 @@ function update(delta_time, input_config){
 
         } else {
             // Only handle input from the player when it's "visible" that it's player's turn.
-            if(!input.mouse.is_dragging
+            if(!input.mouse.is_dragging && !input.mouse.was_dragging
             && current_game_view.is_time_for_player_to_chose_action
             && !current_game_view.ui.is_mouse_over
             && input_config.is_player_action_allowed
