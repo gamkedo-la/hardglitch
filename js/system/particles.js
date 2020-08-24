@@ -17,6 +17,7 @@ export {
     BlipEdgeParticle,
     ThrobParticle,
     LightningParticle,
+    ColorOffsetGlitchParticle,
 }
 
 import { camera } from "./graphics.js";
@@ -614,14 +615,19 @@ class OffsetGlitchParticle extends Particle {
 }
 
 class ColorShiftDataXForm {
-    constructor(dx, dy, rshift, gshift, bshift) {
+    constructor(dx, dy, minx, miny, maxx, maxy, rshift, gshift, bshift) {
         this.dx = dx;
         this.dy = dy;
+        this.minx = minx;
+        this.miny = miny;
+        this.maxx = maxx;
+        this.maxy = maxy;
         this.rshift = rshift;
         this.gshift = gshift;
         this.bshift = bshift;
     }
-    xform(idata) {
+
+    do(idata) {
         // create empty data array
         let xdata = new ImageData(idata.width, idata.height);
         // shift color data
@@ -633,9 +639,11 @@ class ColorShiftDataXForm {
                 let b = idata.data[idx+2];
                 let a = idata.data[idx+3];
                 // color loss to shift
-                r -= r*this.rshift;
-                g -= g*this.gshift;
-                b -= b*this.bshift;
+                if (i>=this.minx && i<this.maxx && j>=this.miny && j<this.maxy) {
+                    r -= r*this.rshift;
+                    g -= g*this.gshift;
+                    b -= b*this.bshift;
+                }
                 // target index
                 let xi = Math.round(i-this.dx);
                 let xj = Math.round(j-this.dy);
@@ -662,57 +670,91 @@ class ColorShiftDataXForm {
     }
 }
 
+class LinearFadeInOutXForm {
+    constructor(target, name, max, ttl) {
+        this.target = target;
+        this.name = name;
+        this.ttl = ttl * 1000;
+        this.max = max;
+        this.rate = max*2/this.ttl;
+        this.increase = true;
+        target[name] = 0;
+    }
+
+    *run() {
+        do {
+            let delta_time = yield;
+            // increase
+            if (this.increase) {
+                this.target[this.name] += this.rate*delta_time;
+                if (this.target[this.name] >= this.max) {
+                    this.target[this.name] = this.max;
+                    this.increase = false;
+                }
+            } else {
+                this.target[this.name] -= this.rate*delta_time;
+                if (this.target[this.name] < 0) this.target[this.name] = 0;
+            }
+            // handle lifetime
+            this.ttl -= delta_time;
+        } while (this.ttl > 0);
+    }
+}
+
 // =============================================================================
 const glitchCanvas = document.createElement('canvas');
 class CanvasGlitchParticle extends Particle {
-    constructor(x, y, width, height, dx, dy, xforms, ttl) {
+    constructor(x, y, width, height, xforms) {
         super(x, y);
         this.width = width;
         this.height = height;
-        this.dx = dx;
-        this.dy = dy;
         this.xforms = xforms || [];
-        this.idata;
+        this.sdata;
         this.needData = true;
-        this.ttl = ttl * 1000; // milliseconds
         this.currentXform;
+        this.updatecount = 2;
     }
 
     update(delta_time) {
         if (this.done) return;
-        // run data transformations
-        if (this.idata) {
-            if (!this.currentXform) {
-                if (this.xforms.length) {
-                    this.currentXform = this.xforms[0].xform()
-                }
+        if (this.updatecount <= 0) return;
+        this.updatecount--;
+        // perform data transformations
+        if (this.sdata) {
+            this.xdata = this.sdata;
+            for (const xform of this.xforms) {
+                this.xdata = xform.do(this.xdata);
             }
-            let xform = this.xforms[0];
-            let xfn = xform.next
-        }
-        // time-to-live
-        this.ttl -= delta_time;
-        if (this.ttl <= 0) {
-            this.done = true;
         }
     }
 
     draw(canvas_context) {
-        // output image data
-        if (this.idata) {
-            let data = idata.data;
-            glitchCanvas.width = this.width;
-            glitchCanvas.height = this.height;
-            glitchCanvas.getContext("2d").putImageData(idata, 0, 0);
-            canvas_context.drawImage(glitchCanvas, this.x, this.y);
-        }
         // pull image data (if needed)
         if (this.needData) {
-            this.idata = canvas_context.getImageData(this.x, this.y, this.width, this.height);
-            return;
+            this.sdata = canvas_context.getImageData(this.x, this.y, this.width, this.height);
+        }
+        // output image data
+        if (this.xdata) {
+            let xoffset = this.width*.5;
+            let yoffset = this.height*.5;
+            glitchCanvas.width = this.width*2;
+            glitchCanvas.height = this.height*2;
+            let gctx = glitchCanvas.getContext("2d");
+            //gctx.clearRect(0, 0, glitchCanvas.width, glitchCanvas.height);
+            //gctx.fillStyle = "red";
+            //gctx.fillRect(0, 0, glitchCanvas.width, glitchCanvas.height);
+            gctx.putImageData(this.xdata, xoffset, yoffset);
+            canvas_context.drawImage(glitchCanvas, this.x-xoffset, this.y-yoffset);
         }
     }
 
+}
+
+class ColorOffsetGlitchParticle extends CanvasGlitchParticle {
+    constructor(x, y, dx, dy, width, height, rshift, gshift, bshift) {
+        let xform = new ColorShiftDataXForm(dx, dy, dx, dy, width-dx, height-dy, rshift, gshift, bshift);
+        super(x, y, width, height, [xform]);
+    }
 }
 
 // =============================================================================
