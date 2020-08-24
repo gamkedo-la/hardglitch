@@ -10,6 +10,7 @@ export {
     Angle,
     Rectangle,
     is_intersection,
+    is_point_under,
     center_in_rectangle,
 };
 
@@ -160,6 +161,16 @@ function is_intersection(rect_a, rect_b){
         ;
 }
 
+function is_point_under(position, area, origin={}){
+    console.assert(position.x != undefined && position.y != undefined );
+    console.assert(area);
+    console.assert(origin);
+    const real_position = (new Vector2(position)).translate(origin);
+    return is_intersection(area, { position: real_position, width:0, height:0 });
+}
+
+
+
 
 // BEWARE, THIS RECTANGLE CANNOT BE ROTATED
 class Rectangle {
@@ -206,3 +217,4 @@ function center_in_rectangle(inner_rectangle, outter_rectangle){
         size: inner_rectangle.size,
     });
 }
+

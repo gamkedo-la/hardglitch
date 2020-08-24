@@ -3,29 +3,14 @@ export {
     Character,
     CharacterStats,
     StatValue,
+    Inventory,
 }
 
 import * as concepts from "./concepts.js";
 import { FieldOfVision } from "./visibility.js";
 
 const default_view_distance = 1;
-const default_inventory_size = 4;
-
-// Character's inventory, where to store Items.
-class Inventory {
-    _items_stored = [];
-    _equipped_items = [];
-
-    add(item){
-        console.assert(item instanceof concepts.Item);
-        this._items_stored.push(item);
-    }
-
-    get stored_items() { return this._items_stored; }
-
-    get is_full() { return false; } // TODO: add a limit to how many stuffs we can store in a character's body.
-
-};
+const default_inventory_size = 5;
 
 class StatValue {
 
@@ -36,23 +21,27 @@ class StatValue {
         this._value = initial_value;
         this._max = initial_max;
         this._min = initial_min;
-        this.modifiers = {};
+        this._modifiers = {};
+        this._listeners = {};
     }
 
     get real_value() { return this.value; }
-    get accumulated_modifiers() { return Object.values(this.modifiers).reduce((accumulated, value)=> accumulated + value, 0); }
+    get accumulated_modifiers() { return Object.values(this._modifiers).reduce((accumulated, value)=> accumulated + value, 0); }
     get value() { return this._value + this.accumulated_modifiers; }
     get max() { return this._max; }
     get min() { return this._min; }
 
     add_modifier(modifier_id, modifier_value){
-        console.assert(Number.isInteger(modifier_id));
+        console.assert(typeof modifier_id === "string");
         console.assert(Number.isInteger(modifier_value));
+        console.assert(this._modifiers[modifier_id] === undefined);
+        this._modifiers[modifier_id] = modifier_value;
+        this._notify_listeners();
     }
 
     remove_modifier(modifier_id){
-        console.assert(Number.isInteger(modifier_id));
-        delete this.modifiers[modifier_id];
+        console.assert(typeof modifier_id === "string");
+        delete this._modifiers[modifier_id];
     }
 
     set value(new_value) {
@@ -66,16 +55,19 @@ class StatValue {
         }
 
         this._value = new_value;
+        this._notify_listeners();
     }
 
     set max(new_value) {
         console.assert(Number.isInteger(new_value) && new_value >= 0);
         this._max = new_value;
+        this._notify_listeners();
     }
 
     set min(new_value) {
         console.assert(Number.isInteger(new_value) && new_value < this.max);
         this._min = new_value;
+        this._notify_listeners();
     }
 
     increase(value_to_add){
@@ -85,6 +77,7 @@ class StatValue {
             this._value = Math.min(new_value, this._max);
         else
             this._value = new_value;
+        this._notify_listeners();
     }
 
     decrease(value_to_sub){
@@ -94,6 +87,24 @@ class StatValue {
             this._value = Math.max(new_value, this._min);
         else
             this._value = new_value;
+        this._notify_listeners();
+    }
+
+    add_listener(listener_id, listener){
+        console.assert(typeof listener_id === "string");
+        console.assert(listener instanceof Function);
+        console.assert(this._listeners[listener_id] === undefined);
+        this._listeners[listener_id] = listener;
+        listener(this); // Make sure the listner is up to date.
+    }
+
+    remove_listener(listener_id){
+        console.assert(typeof listener_id === "string");
+        delete this._listeners[modifier_id];
+    }
+
+    _notify_listeners(){
+        Object.values(this._listeners).forEach(listener => listener(this));
     }
 
 };
@@ -113,6 +124,95 @@ class CharacterStats{
     inventory_size = new StatValue(default_inventory_size, undefined, 0); // How many items a character can store in inventory.
 };
 
+
+// Character's inventory, where to store Items.
+class Inventory {
+    _items_stored = [];
+    _equipped_items = [];
+    _listeners = {};
+
+    add(item){
+        console.assert(item instanceof concepts.Item);
+        console.assert(this.have_empty_slots);
+
+        for(let idx = 0; idx < this._items_stored.length; ++idx){
+            if(!this._items_stored[idx]){
+                this._items_stored[idx] = item;
+                this._notify_listeners();
+                return idx;
+            }
+        }
+        throw "Couldn't find slot for item in inventory";
+    }
+
+    set_item_at(idx, item){
+        console.assert(idx >= 0 && idx < this._items_stored.length);
+        console.assert(item instanceof concepts.Item);
+        console.assert(this._items_stored[idx] === undefined);
+        this._items_stored[idx] = item;
+        this._notify_listeners();
+    }
+
+    get_item_at(idx){
+        console.assert(idx >= 0 && idx < this._items_stored.length);
+        return this._items_stored[idx];
+    }
+
+    remove(idx){
+        console.assert(idx >= 0 && idx < this._items_stored.length);
+        const item = this._items_stored[idx];
+        this._items_stored[idx] = undefined;
+        this._notify_listeners();
+        return item;
+    }
+
+    resize(new_size){
+        console.assert(Number.isInteger(new_size) && new_size >= 0);
+        const previous_items = this._items_stored;
+        this._items_stored = new Array(new_size).fill(undefined);
+        Object.seal(this._items_stored);
+
+        // Preserve as many items we can from the previous set
+        for(let item_idx = 0; item_idx < this._items_stored.length; ++item_idx){
+            if(item_idx === previous_items.length){
+                // Return the items we couldn't put in the new inventory.
+                return previous_items;
+            }
+            const item = previous_items[item_idx];
+            this._items_stored[item_idx] = item;
+            previous_items[item_idx] = undefined;
+        }
+        this._notify_listeners();
+    }
+
+    get stored_items() { return this._items_stored; }
+    get size() { return this._items_stored.length; }
+
+    get have_empty_slots() { return this._items_stored.some(item => item === undefined); }
+    get is_full() { return !this.have_empty_slots; }
+
+
+
+    add_listener(listener_id, listener){
+        console.assert(typeof listener_id === "string");
+        console.assert(listener instanceof Function);
+        console.assert(this._listeners[listener_id] === undefined);
+        this._listeners[listener_id] = listener;
+        listener(this); // Make sure the listner is up to date.
+    }
+
+    remove_listener(listener_id){
+        console.assert(typeof listener_id === "string");
+        delete this._listeners[listener_id];
+    }
+
+    _notify_listeners(){
+        Object.values(this._listeners).forEach(listener => listener(this));
+    }
+
+};
+
+
 // All characters types from the game must derive from this type.
 // Provides everything common to all characters.
 // Some rules will rely on properties provided there.
@@ -124,6 +224,13 @@ class Character extends concepts.Body {
     constructor(name){
         super(name);
         this.skip_turn = false;
+
+        this.stats.inventory_size.add_listener("inventory", (inventory_size)=>{
+            console.assert(inventory_size instanceof StatValue);
+            if(this.inventory.size !== inventory_size.value){
+                this.inventory.resize(inventory_size.value);
+            }
+        });
     }
 
     get position() { return super.position; }
@@ -147,10 +254,6 @@ class Character extends concepts.Body {
             && this.stats.action_points.value > 0 // Perform actions until there is 0 points or less left.
             && this.skip_turn !== true
             ;
-    }
-
-    disable_further_actions(){
-        this.action_points.value = 0;
     }
 
     // Describe the possible positions relative to the current ones that could be reached in one step,

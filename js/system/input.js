@@ -62,6 +62,7 @@ class Mouse{
 
     this.buttons.time_until_pressed_becomes_hold = 8; // We'll use the hold state for dragging.
     this._dragging_radius = 32; // Pixels distance from the dragging start position where
+    this._is_dragging = false;
   }
 
   // Returns the position in the canvas.
@@ -78,8 +79,21 @@ class Mouse{
   get time_since_position_changed() { return duration(this._last_update_time, Date.now()); }
 
   get is_dragging() {
-    return this.buttons.is_hold(MOUSE_BUTTON.LEFT)
-        && this._dragging_start_position.distance(this.position) >= this._dragging_radius;
+
+    const mouse_left_is_down = this.buttons.is_hold(MOUSE_BUTTON.LEFT);
+    if(this._is_dragging){
+      if(!mouse_left_is_down){
+        this._is_dragging = false;
+      }
+    } else {
+      if(mouse_left_is_down
+      && this._dragging_start_position.distance(this.position) >= this._dragging_radius
+      ){
+        this._is_dragging = true;
+      }
+    }
+
+    return this._is_dragging;
   }
 
   get was_dragging() { return this._dragging_end_position !== undefined

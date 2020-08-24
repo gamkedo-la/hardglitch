@@ -29,6 +29,8 @@ class CryptoFile extends concepts.Item {
         }
     };
 
+    get can_be_taken() { return true; }
+
     constructor(){
         super("Crypto File");
         this.is_blocking_vision = true;

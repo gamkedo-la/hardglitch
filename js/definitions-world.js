@@ -12,7 +12,7 @@ import { Rule_Stream } from "./rules/rules-stream.js";
 import { Rule_Destroy } from "./rules/rules-destroy.js";
 import { Rule_Delete } from "./rules/rules-delete.js";
 import { Rule_Repair } from "./rules/rules-repair.js";
-import { Rule_TakeItem } from "./rules/rule-takeitem.js";
+import { Rule_TakeItem } from "./rules/rules-items.js";
 
 
 import * as level_1 from "./levels/level_1.js";

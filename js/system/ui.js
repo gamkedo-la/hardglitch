@@ -13,20 +13,19 @@ export {
 
 import * as audio from "./audio.js";
 import * as graphics from "./graphics.js";
-import { Vector2, Rectangle, is_intersection, Vector2_origin, center_in_rectangle } from "./spatial.js";
+import {
+    Vector2,
+    Rectangle,
+    is_intersection,
+    Vector2_origin,
+    center_in_rectangle,
+    is_point_under,
+} from "./spatial.js";
 import { mouse, MOUSE_BUTTON } from "./input.js";
 import { is_number } from "./utility.js";
 import * as anim from "./animation.js";
 import { tween } from "./tweening.js";
 import { Color } from "./color.js";
-
-function is_point_under(position, area, origin){
-    console.assert(position.x != undefined && position.y != undefined );
-    console.assert(area);
-    console.assert(origin);
-    const real_position = (new Vector2(position)).translate(origin);
-    return is_intersection(area, { position: real_position, width:0, height:0 });
-}
 
 function is_mouse_pointing(area, origin){
     console.assert(area);

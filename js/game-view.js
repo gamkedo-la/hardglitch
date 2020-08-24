@@ -34,7 +34,7 @@ import { sprite_defs } from "./game-assets.js";
 import { Move } from "./rules/rules-movement.js";
 import { ItemView } from "./view/item-view.js";
 import { FogOfWar } from "./view/fogofwar.js";
-import { TakeItem } from "./rules/rule-takeitem.js";
+import { TakeItem } from "./rules/rules-items.js";
 import { GameFxView } from "./game-effects.js";
 
 const a_very_long_time = 99999999999999;
@@ -379,6 +379,9 @@ class GameView {
 
         this.fx_view.update(delta_time);
 
+        if(this.enable_edition)
+            return;
+
         this.fog_of_war.update(delta_time);
 
         this.ui.update(delta_time, this.player_character);
@@ -527,7 +530,9 @@ class GameView {
             highlight.update(delta_time);
         }
 
+        const is_mouse_dragging = mouse.is_dragging;
         for(const highlight of this.player_actions_highlights){
+            highlight.enabled = !is_mouse_dragging;
             highlight.update(delta_time);
         }
         this._pointed_highlight.update(delta_time);

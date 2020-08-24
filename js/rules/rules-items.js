@@ -3,6 +3,7 @@ export {
     Rule_TakeItem,
     ItemTaken,
     TakeItem,
+    SwapItemSlots,
 }
 
 import * as concepts from "../core/concepts.js";
@@ -69,6 +70,33 @@ class TakeItem extends concepts.Action {
 };
 
 
+class SwapItemSlots extends concepts.Action {
+    constructor(slot_a_idx, slot_b_idx){
+        console.assert(Number.isInteger(slot_a_idx) && slot_a_idx >= 0);
+        console.assert(Number.isInteger(slot_b_idx) && slot_b_idx >= 0);
+        super(`swap_items_from_slot_${slot_a_idx}_to_${slot_b_idx}`, "THIS SHOULD NEVER BE DISPLAYED", undefined,
+            { // costs
+                action_points: 1,
+            }
+        );
+        this.is_generated = true;
+
+        this.slot_a_idx = slot_a_idx;
+        this.slot_b_idx = slot_b_idx;
+    }
+
+    execute(world, character){
+        console.assert(world instanceof concepts.World);
+        console.assert(character instanceof Character);
+        const item_a = character.inventory.remove(this.slot_a_idx);
+        const item_b = character.inventory.remove(this.slot_b_idx);
+        if(item_a) character.inventory.set_item_at(this.slot_b_idx, item_a);
+        if(item_b) character.inventory.set_item_at(this.slot_a_idx, item_b);
+        // TODO: consider doing the update of the InventoryUI through an event.
+        return [];
+    }
+};
+
 class Rule_TakeItem extends concepts.Rule {
     range = new visibility.Range_Cross_Axis(1,2);
 
@@ -77,7 +105,8 @@ class Rule_TakeItem extends concepts.Rule {
         if(!character.is_player_actor) // TODO: temporary (otherwise the player will be bushed lol)
             return {};
 
-        // TODO: check that the character have enough space in the invent
+        if(character.inventory.is_full)
+            return {};
 
         const actions = {};
         visibility.valid_target_positions(world, character, this.range)
