@@ -598,6 +598,10 @@ function update_debug_keys(game_session){
     if (input.keyboard.is_just_down(KEY.F3)) {
         game_session.view.enable_parallel_animations = !game_session.view.enable_parallel_animations;
     }
+
+    if (input.keyboard.is_just_down(KEY.F4)) {
+        export_world(game_session.world);
+    }
 }
 
 function update(game_session, delta_time){
@@ -636,3 +640,9 @@ function end_edition(game_session){
     is_enabled = false;
 }
 
+function export_world(world){
+    console.assert(world instanceof concepts.World);
+
+    console.log(`WORLD: ${JSON.stringify(world, null, 2)}`);
+
+}
