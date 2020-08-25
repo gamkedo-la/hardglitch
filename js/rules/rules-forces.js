@@ -4,6 +4,9 @@ export {
     Rule_Pull,
     apply_directional_force,
     Pushed,
+    Pulled,
+    Push,
+    Pull,
 }
 
 import * as concepts from "../core/concepts.js";

@@ -140,7 +140,7 @@ function make_edit_operation_add_entity_at(entity_type){
             const entity = new entity_type();
             entity.position = position;
             game_session.world.add(entity);
-            console.assert(`ADDED ${entity_type.prototype.name} ENTITY`);
+            console.assert(`ADDED ${entity.name} ENTITY`);
             return true;
         }
         else return false;
@@ -231,11 +231,11 @@ class EditionPaletteUI {
         }));
 
         this.palette_buttons.push( ...items.all_item_types().map(item_type => {
-            return new EditPaletteButton(`Item: ${item_type.name}`, make_edit_operation_add_entity_at(item_type));
+            return new EditPaletteButton(`Item: ${new item_type().name}`, make_edit_operation_add_entity_at(item_type));
         }));
 
         this.palette_buttons.push( ...all_characters_types().map(character_type => {
-            return new EditPaletteButton(`Character: ${character_type.name}`, make_edit_operation_add_entity_at(character_type));
+            return new EditPaletteButton(`Character: ${new character_type().name}`, make_edit_operation_add_entity_at(character_type));
         }));
 
 

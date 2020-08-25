@@ -5,7 +5,11 @@ export {
     Rule_Jump,
     Rule_Swap,
     Move,
-    Moved
+    Moved,
+    Jump,
+    Jumped,
+    Swap,
+    Swaped,
 }
 
 import * as concepts from "../core/concepts.js";

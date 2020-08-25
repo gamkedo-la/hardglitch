@@ -2,6 +2,7 @@
 export {
     Rule_Repair,
     Repair,
+    Repaired,
 }
 
 import { Character } from "../core/character.js";

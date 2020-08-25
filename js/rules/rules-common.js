@@ -23,7 +23,7 @@ function actions_for_each_target(character, parent_action_type, valid_target_gen
     for(const target of valid_target_generator){
         console.assert(target instanceof concepts.Position);
         enabled_action_types.forEach(action_type => {
-                console.assert(action_type && action_type.prototype instanceof parent_action_type);
+                console.assert(action_type && (action_type === parent_action_type || action_type.prototype instanceof parent_action_type));
                 const action = action_maker(action_type, target);
                 actions[action.id] = action;
             });

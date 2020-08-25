@@ -8,11 +8,13 @@ export {
 
 import * as concepts from "./core/concepts.js";
 import { sprite_defs } from "./game-assets.js";
+import { all_uncommon_action_types } from "./definitions-actions.js";
 
 
 
 function all_item_types(){
     return [
+        DebugItem,
         CryptoFile,
         CryptoKey,
         MovableWall,
@@ -59,7 +61,7 @@ class CryptoKey extends concepts.Item {
 class MovableWall extends concepts.Item {
     assets = {
         graphics : {
-            sprite_def : sprite_defs.movable_wall, // FIXME: use something else.
+            sprite_def : sprite_defs.movable_wall,
         }
     };
 
@@ -72,3 +74,24 @@ class MovableWall extends concepts.Item {
 
 };
 
+class DebugItem extends concepts.Item {
+    assets = {
+        graphics : {
+            sprite_def : sprite_defs.item_generic_1,
+        }
+    };
+
+    get can_be_taken() { return true; }
+
+    constructor(){
+        super("Debug: Enable All Actions");
+    }
+
+    get_enabled_action_types(action_type){
+        return [ action_type,
+            ...Object.values(all_uncommon_action_types)
+                    .filter(type => type.prototype instanceof action_type), // All action types inheriting from that action type.
+        ];
+    }
+
+}

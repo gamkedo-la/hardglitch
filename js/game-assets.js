@@ -33,6 +33,8 @@ const game_assets = { // Description of the assets to load.
         menu_button: "./images/wordmenu1.png",
         stream_buffer: "./images/streambuffer.png",
         item_slot: "./images/itemslot.png",
+        item_generic_1: "./images/genericitem1.png",
+        item_generic_2: "./images/genericitem2.png",
 
         // TODO: merge icons into one image
         icon_volume_mute: "./images/iconmute.png",
@@ -311,6 +313,18 @@ const sprite_defs = {
     },
     crypto_key : {
         image: "crypto_key",
+        frames: [
+            { x:0, y:0, width:64, height:64 }
+         ]
+    },
+    item_generic_1 : {
+        image: "item_generic_1",
+        frames: [
+            { x:0, y:0, width:64, height:64 }
+         ]
+    },
+    item_generic_2 : {
+        image: "item_generic_1",
         frames: [
             { x:0, y:0, width:64, height:64 }
          ]
