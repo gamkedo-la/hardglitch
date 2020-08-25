@@ -225,7 +225,7 @@ class Sprite {
   }
 
   reset_origin(){
-    if(this._current_frame.origin){
+    if(this._current_frame && this._current_frame.origin){
       this._frame_origin = new spatial.Vector2(this._current_frame.origin);
     } else {
       this._frame_origin = new spatial.Vector2();
