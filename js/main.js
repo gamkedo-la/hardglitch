@@ -181,8 +181,8 @@ function load_test_level(width, height){
   game_state_machine.push_action("load_game", ()=> generate_empty_world("testing", width, height) );
 }
 
-function load_random_test_level(){
-  game_state_machine.push_action("load_game", random_test_level.make_test_world);
+function load_random_test_level(width, height){
+  game_state_machine.push_action("load_game", () => random_test_level.make_test_world({ width: width ? width : 64, height:height ? height : 64 }));
 }
 
 window.load_level = load_level;
