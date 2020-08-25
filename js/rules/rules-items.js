@@ -102,6 +102,7 @@ class Rule_TakeItem extends concepts.Rule {
 
     get_actions_for(character, world){
         console.assert(character instanceof Character);
+
         if(!character.is_player_actor) // TODO: temporary (otherwise the player will be bushed lol)
             return {};
 

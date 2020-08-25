@@ -8,6 +8,7 @@ export {
 
 import * as concepts from "./concepts.js";
 import { FieldOfVision } from "./visibility.js";
+import { TakeItem } from "../rules/rules-items.js";
 
 const default_view_distance = 1;
 const default_inventory_size = 5;
@@ -210,6 +211,14 @@ class Inventory {
         Object.values(this._listeners).forEach(listener => listener(this));
     }
 
+    get_enabled_action_types(action_type){
+        console.assert(action_type && action_type.prototype instanceof concepts.Action);
+        const enabled_action_types = [];
+        this._items_stored.filter(item => item instanceof concepts.Item)
+            .forEach(item => enabled_action_types.push(...item.get_enabled_action_types(action_type)));
+        return enabled_action_types;
+    }
+
 };
 
 
@@ -268,7 +277,6 @@ class Character extends concepts.Body {
             move_south: this.position.south
         };
     }
-
 
     // Properly performs an action after having spent the action points from the body etc.
     // Returns events resulting from performing the action.
