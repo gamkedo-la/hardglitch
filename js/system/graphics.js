@@ -287,6 +287,8 @@ class Sprite {
     let need_to_change_frame = false;
     while(true){ // Try to find the right keyframe to display
       const current_keyframe = this._current_animation.timeline[this.animation_keyframe_idx];
+      if(current_keyframe.duration <= 0 && this._current_animation.timeline.length === 1)
+        break; // Only one frame, so  it's basically just that frame, do nothing.
       if(this.animation_time < current_keyframe.duration)
         break; // nothing to do, we are in the right keyframe
       // We need to switch to the next frame if any, and take into account the time passed beyond the time required.
