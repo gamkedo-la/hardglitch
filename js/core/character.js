@@ -210,6 +210,14 @@ class Inventory {
         Object.values(this._listeners).forEach(listener => listener(this));
     }
 
+    get_enabled_action_types(action_type){
+        console.assert(action_type && action_type.prototype instanceof concepts.Action);
+        const enabled_action_types = [];
+        this._items_stored.filter(item => item instanceof concepts.Item)
+            .forEach(item => enabled_action_types.push(...item.get_enabled_action_types(action_type)));
+        return enabled_action_types;
+    }
+
 };
 
 
@@ -269,6 +277,10 @@ class Character extends concepts.Body {
         };
     }
 
+    // Describe the possible positions relative to the current one where an item can be dropped by this character.
+    allowed_drops() {
+        return this.field_of_vision.filter_visible(...Object.values(this.allowed_moves())); // Close to the character, and visible (which means valid to walk in, even if it's lethal).
+    }
 
     // Properly performs an action after having spent the action points from the body etc.
     // Returns events resulting from performing the action.

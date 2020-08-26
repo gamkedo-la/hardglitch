@@ -8,13 +8,14 @@ import * as spatial from "../system/spatial.js";
 import * as graphics from "../system/graphics.js";
 import * as input from "../system/input.js";
 import * as concepts from "../core/concepts.js";
+import * as game_input from "../game-input.js";
+import * as tiles from "../definitions-tiles.js";
 
 import { Character, Inventory } from "../core/character.js";
 import { sprite_defs } from "../game-assets.js";
 import { HelpText } from "../system/ui.js";
 import { ItemView } from "../view/item-view.js";
-import { play_action } from "../game-input.js";
-import { SwapItemSlots } from "../rules/rules-items.js";
+import { SwapItemSlots, DropItem } from "../rules/rules-items.js";
 
 import { CharacterStatus } from "./ui-characterstatus.js";
 
@@ -109,11 +110,13 @@ class InventoryUI {
 
     visible = true;
 
-    constructor(position, character_status){
+    constructor(position, character_status, events){
         console.assert(position instanceof spatial.Vector2);
         console.assert(character_status instanceof CharacterStatus);
+        console.assert(!events || events instanceof Object);
         this.position = position;
         this.character_status = character_status;
+        this.events = events;
     }
 
     get position() { return this._position; }
@@ -121,8 +124,10 @@ class InventoryUI {
         this._position = new spatial.Vector2(new_position);
     }
 
-    update(delta_time, current_character){
+    update(delta_time, current_character, world){
         console.assert(current_character instanceof Character || current_character === undefined);
+        console.assert(world instanceof concepts.World);
+        this.world = world;
 
         if(current_character){
             this.refresh(current_character);
@@ -150,6 +155,7 @@ class InventoryUI {
     _clear_slot_swaping(){
         delete this._dragging_item.destination_slot_idx;
         delete this._dragging_item.swap_action;
+        delete this._dragging_item.drop_action;
         this.character_status.end_preview_costs();
     }
 
@@ -180,9 +186,29 @@ class InventoryUI {
                         }
                     } else {
                         // We are not over a slot
-                        this._clear_slot_swaping();
+                        // If the item was dropped next to the character, drop it.
+                        const mouse_grid_position = game_input.mouse_grid_position();
+                        if(mouse_grid_position){ // Pointing at an actual position in the world.
+                            if(!this._dragging_item.drop_action || !this._dragging_item.drop_action.target.equals(mouse_grid_position)){
+                                // We didn't point this position before, check if it's a droppable position...
+                                if(this._possible_drop_positions.some(position => position.equals(mouse_grid_position))){
+                                    // It's a droppable position!
+                                    this._dragging_item.drop_action = new DropItem(mouse_grid_position, this._dragging_item.source_slot_idx);
+                                    this.character_status.begin_preview_costs({
+                                        action_points: this._current_character.stats.action_points.value - this._dragging_item.drop_action.costs.action_points,
+                                    });
+                                } else {
+                                    // Not droppable, ignore.
+                                    this._clear_slot_swaping();
+                                }
+                            } // Do nothing if we are still pointing at the same droppable position.
+                        } else {
+                            // Pointing outside the world.
+                            this._clear_slot_swaping();
+                        }
+
                     }
-                } else {
+                } else { // Stopped dragging.
                     const destination_slot = this._find_slot_under(input.mouse.dragging_positions.end);
                     if(destination_slot){
                         const destination_slot_idx = this.slots.indexOf(destination_slot);
@@ -191,12 +217,20 @@ class InventoryUI {
                         } else {
                             console.assert(this._dragging_item.swap_action instanceof concepts.Action);
                             console.assert(this._dragging_item.destination_slot_idx === destination_slot_idx);
-                            play_action(this._dragging_item.swap_action);
+                            game_input.play_action(this._dragging_item.swap_action);
                         }
                     } else {
-                        // Dropped outside in the world - TODO: do we remove the item?
-                        this._dragging_item.slot._update_item_position(); // Reset the item position.
+                        // Dropped outside in the world
+                        if(this._dragging_item.drop_action)
+                        { // Dropped in a droppable position!
+                            console.assert(this._dragging_item.drop_action instanceof concepts.Action);
+                            game_input.play_action(this._dragging_item.drop_action);
+                        } else { // Dropped too far or in an invalid position.
+                            this._dragging_item.slot._update_item_position(); // Reset the item position.
+                        }
                     }
+                    if(this.events)
+                        this.events.on_item_dragging_end();
                 }
             }
             if(!input.mouse.is_dragging){
@@ -215,8 +249,16 @@ class InventoryUI {
                     console.assert(slot instanceof ItemSlot);
                     this._dragging_item.source_slot_idx = this.slots.indexOf(this._dragging_item.slot);
                     const item_view = slot.item;
-                    if(item_view){
+                    if(item_view){ // Begin dragging an item from a slot.
                         this._dragging_item.item = item_view;
+
+                        console.assert(this._current_character instanceof Character);
+                        console.assert(this.world instanceof concepts.World);
+                        this._possible_drop_positions = this._current_character.allowed_drops()
+                            .filter(position => !this.world.is_blocked_position(position, tiles.is_walkable));
+
+                        if(this.events)
+                            this.events.on_item_dragging_begin(this._possible_drop_positions);
                     }
                 }
             }

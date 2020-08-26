@@ -14,8 +14,7 @@ import { test_rules } from "./test-rules.js";
 import * as visibility from "../core/visibility.js";
 import { LifeForm_Strong, LifeForm_Weak } from "../characters/lifeform.js";
 
-function make_test_world(){ // The game assets must have been initialized first.
-    const test_world_size = world_grid;
+function make_test_world(test_world_size = world_grid){ // The game assets must have been initialized first.
     const grid_size = test_world_size.height * test_world_size.width;
 
     const floor_tile_grid = new Array(grid_size);
@@ -86,7 +85,8 @@ function make_test_world(){ // The game assets must have been initialized first.
     const entry_point_position = set_surface_tile(random_position(), tiles.ID.ENTRY);
     console.assert(is_floor_walkable(entry_point_position));
 
-    const world = new concepts.World("Random Test Level", test_world_size.width, test_world_size.height, floor_tile_grid, surface_tile_grid );
+    const world = new concepts.World(`Random Test Level ${test_world_size.width} x ${test_world_size.height}`,
+        test_world_size.width, test_world_size.height, floor_tile_grid, surface_tile_grid );
     console.assert(world._surface_tile_grid.matching_positions(tileid=> tileid == tiles.ID.ENTRY).length > 0);
 
     world.set_rules(...default_rules, ...test_rules);

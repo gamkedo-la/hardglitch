@@ -140,7 +140,7 @@ function make_edit_operation_add_entity_at(entity_type){
             const entity = new entity_type();
             entity.position = position;
             game_session.world.add(entity);
-            console.assert(`ADDED ${entity_type.prototype.name} ENTITY`);
+            console.assert(`ADDED ${entity.name} ENTITY`);
             return true;
         }
         else return false;
@@ -224,19 +224,19 @@ class EditionPaletteUI {
         // Fill our palette with buttons!
         this.palette_buttons.push( ...tiles.floor_tiles.map(tile_id => {
             return new EditPaletteButton(`Floor Tile: ${tiles.defs[tile_id].description}`, make_edit_operation_change_tile(tile_id, "_floor_tile_grid"));
-        }));
+        }), null);
 
         this.palette_buttons.push( ...tiles.surface_tiles.map(tile_id => {
             return new EditPaletteButton(`Surface Tile: ${tiles.defs[tile_id].description}`, make_edit_operation_change_tile(tile_id, "_surface_tile_grid"));
-        }));
+        }), null);
 
         this.palette_buttons.push( ...items.all_item_types().map(item_type => {
-            return new EditPaletteButton(`Item: ${item_type.name}`, make_edit_operation_add_entity_at(item_type));
-        }));
+            return new EditPaletteButton(`Item: ${new item_type().name}`, make_edit_operation_add_entity_at(item_type));
+        }), null);
 
         this.palette_buttons.push( ...all_characters_types().map(character_type => {
-            return new EditPaletteButton(`Character: ${character_type.name}`, make_edit_operation_add_entity_at(character_type));
-        }));
+            return new EditPaletteButton(`Character: ${new character_type().name}`, make_edit_operation_add_entity_at(character_type));
+        }), null);
 
 
         // Place all the palette buttons in columns.
@@ -248,23 +248,30 @@ class EditionPaletteUI {
         const initial_position = button_palette_top_left.translate({ x: 0, y: 100 });
         let next_button_x = initial_position.x;
         let next_button_y = initial_position.y;
-        let buttons_count = 0;
-
+        let buttons_column_count = 0;
+        const next_column = ()=> {
+            next_button_x += column_width;
+            next_button_y = initial_position.y;
+            buttons_column_count = 0;
+        };
         const next_button_position = ()=>{
             const new_position = { x: next_button_x, y: next_button_y };
-            ++buttons_count;
-            if(buttons_count > 1 && buttons_count % buttons_per_column === 0){
-                next_button_x += column_width;
-                next_button_y = initial_position.y;
+            ++buttons_column_count;
+            if(buttons_column_count > 1 && buttons_column_count % buttons_per_column === 0){
+                next_column();
             } else {
                 next_button_y += row_height;
             }
             return new_position;
         };
 
-        this.palette_buttons.forEach(palette_button => {
-            palette_button.position = next_button_position();
-        });
+        this.palette_buttons
+            .forEach(palette_button => {
+                if(palette_button)
+                    palette_button.position = next_button_position();
+                else
+                    next_column();
+            });
 
 
         // Make sure these buttons are over all the buttons.
@@ -283,10 +290,11 @@ class EditionPaletteUI {
 
         // Place the help text always at the same relative position:
         const help_text_position = initial_special_buttons_position.translate({ x: 0, y: 60 });
-        this.palette_buttons.forEach(palette_button => {
-            palette_button.helptext.position = help_text_position;
-        });
+        this.palette_buttons
+            .filter(button=>button)
+            .forEach(palette_button => { palette_button.helptext.position = help_text_position; });
 
+        this.palette_buttons = this.palette_buttons.filter(button=>button);
     }
 
     update(delta_time){

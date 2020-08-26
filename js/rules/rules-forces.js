@@ -4,6 +4,9 @@ export {
     Rule_Pull,
     apply_directional_force,
     Pushed,
+    Pulled,
+    Push,
+    Pull,
 }
 
 import * as concepts from "../core/concepts.js";
@@ -15,6 +18,7 @@ import { EntityView } from "../view/entity-view.js";
 import { GameView } from "../game-view.js";
 import { Character } from "../core/character.js";
 import * as visibility from "../core/visibility.js";
+import { ranged_actions_for_each_target } from "./rules-common.js";
 
 class Pushed extends concepts.Event {
     constructor(entity, from, to){
@@ -154,17 +158,7 @@ class Rule_Push extends concepts.Rule {
 
     get_actions_for(character, world){
         console.assert(character instanceof Character);
-        if(!character.is_player_actor) // TODO: temporary (otherwise the player will be bushed lol)
-            return {};
-
-        const push_actions = {};
-        visibility.valid_target_positions(world, character, this.range)
-            .forEach(target => {
-                const push = new Push(target);
-                push.range = this.range;
-                push_actions[`push_${target.x}_${target.y}`] = push;
-            });
-        return push_actions;
+        return ranged_actions_for_each_target(world, character, Push, this.range);
     }
 };
 
@@ -174,17 +168,7 @@ class Rule_Pull extends concepts.Rule {
 
     get_actions_for(character, world){
         console.assert(character instanceof Character);
-        if(!character.is_player_actor) // TODO: temporary (otherwise the player will be bushed lol)
-            return {};
-
-        const pull_actions = {};
-        visibility.valid_target_positions(world, character, this.range)
-            .forEach(target => {
-                const pull = new Pull(target);
-                pull.range = this.range;
-                pull_actions[`pull_${target.x}_${target.y}`] = pull;
-            });
-        return pull_actions;
+        return ranged_actions_for_each_target(world, character, Pull, this.range);
     }
 };
 

@@ -140,6 +140,7 @@ class GameView {
     camera_animations = new anim.AnimationGroup(); // Plays camera animations.
     player_actions_highlights = []; // Must contain Highlight objects for the currently playable actions.
     action_range_highlights = []; // Must contain Highlight objects for the currently pointed action's range.
+    item_drop_highlights = []; // Must contain Highlight objects for possible item drop positions.
     delay_between_animations_ms = Math.round(1000 / 5); // we'll try to keep a little delay between each beginning of parallel animation.
     enable_parallel_animations = false;
 
@@ -187,6 +188,8 @@ class GameView {
             },
             open_menu: open_menu,
             is_autofocus_enabled: () => this.enable_auto_camera_center,
+            on_item_dragging_begin: (drop_positions)=> this.highlight_item_drops(drop_positions),
+            on_item_dragging_end: ()=> this.clear_item_drop_highlight(),
         };
 
         this.ui = new GameInterface(ui_config);
@@ -194,7 +197,8 @@ class GameView {
         this._highlight_sprites = {
             neutral: new graphics.Sprite(sprite_defs.highlight_blue),
             movement: new graphics.Sprite(sprite_defs.highlight_green),
-            take: new graphics.Sprite(sprite_defs.highlight_green),
+            take: new graphics.Sprite(sprite_defs.highlight_blue),
+            drop: new graphics.Sprite(sprite_defs.highlight_blue),
             basic_action: new graphics.Sprite(sprite_defs.highlight_yellow),
             action_range: new graphics.Sprite(sprite_defs.highlight_yellow),
             action: new graphics.Sprite(sprite_defs.highlight_red),
@@ -273,7 +277,7 @@ class GameView {
         return `${action.name} -${action.costs.action_points} AP`;
     }
 
-    _action_highlitgh_events(action){
+    _action_highlight_events(action){
         const events = {
             on_mouse_over_begin: () => {
                 if(this.player_character){
@@ -298,11 +302,11 @@ class GameView {
             console.assert(this.player_character instanceof Character);
             if(action.is_basic && action.is_safe){
                 if(action instanceof Move)
-                    this._add_highlight(action.target_position, this._highlight_sprites.movement, this._action_description(action),this._action_highlitgh_events(action));
+                    this._add_highlight(action.target_position, this._highlight_sprites.movement, this._action_description(action),this._action_highlight_events(action));
                 else if(action instanceof TakeItem)
-                    this._add_highlight(action.target_position, this._highlight_sprites.take, this._action_description(action),this._action_highlitgh_events(action));
+                    this._add_highlight(action.target_position, this._highlight_sprites.take, this._action_description(action),this._action_highlight_events(action));
                 else
-                    this._add_highlight(action.target_position, this._highlight_sprites.basic_action, this._action_description(action),this._action_highlitgh_events(action));
+                    this._add_highlight(action.target_position, this._highlight_sprites.basic_action, this._action_description(action),this._action_highlight_events(action));
             }
         }
 
@@ -319,7 +323,7 @@ class GameView {
         for(const action of action_info.actions){
             console.assert(this.player_character instanceof Character);
             if(action.target_position){
-                this._add_highlight(action.target_position, this._highlight_sprites.action, this._action_description(action), this._action_highlitgh_events(action));
+                this._add_highlight(action.target_position, this._highlight_sprites.action, this._action_description(action), this._action_highlight_events(action));
             }
         }
     }
@@ -340,6 +344,19 @@ class GameView {
     clear_action_range_highlight(){
         this.action_range_highlights = [];
     }
+
+    highlight_item_drops(possible_drops){
+        console.assert(possible_drops instanceof Array);
+        this.clear_item_drop_highlight();
+        possible_drops.forEach(drop_position => {
+            this.item_drop_highlights.push(new Highlight(drop_position, this._highlight_sprites.drop));
+        });
+    }
+
+    clear_item_drop_highlight(){
+        this.item_drop_highlights = [];
+    }
+
 
     on_action_selection_begin(action_info){
         this.highlight_selected_action_targets(action_info);
@@ -384,7 +401,7 @@ class GameView {
 
         this.fog_of_war.update(delta_time);
 
-        this.ui.update(delta_time, this.player_character);
+        this.ui.update(delta_time, this.player_character, this.game.world);
     }
 
     _launch_next_animation_batch(){
@@ -530,6 +547,10 @@ class GameView {
             highlight.update(delta_time);
         }
 
+        for(const highlight of this.item_drop_highlights){
+            highlight.update(delta_time);
+        }
+
         const is_mouse_dragging = mouse.is_dragging;
         for(const highlight of this.player_actions_highlights){
             highlight.enabled = !is_mouse_dragging;
@@ -647,6 +668,8 @@ class GameView {
                 this._pointed_highlight_edit.draw();
             }
         }
+
+        this.item_drop_highlights.forEach(highlight => highlight.draw());
     }
 
     _render_help(){
@@ -701,14 +724,19 @@ class GameView {
 
         this._reset_tilegrid(world);
 
+        this.reset_entities();
+
+        this.refresh();
+
+        this._requires_reset = false;
+    }
+
+    reset_entities(){
         this.fog_of_war.clear_fovs();
 
         this.entity_views = Object.assign({}, this._create_entity_views(this.game.world.items, ItemView)
                                             , this._create_entity_views(this.game.world.bodies, CharacterView));
 
-        this.refresh();
-
-        this._requires_reset = false;
     }
 
     refresh(){

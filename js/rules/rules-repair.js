@@ -2,6 +2,7 @@
 export {
     Rule_Repair,
     Repair,
+    Repaired,
 }
 
 import { Character } from "../core/character.js";
@@ -9,6 +10,7 @@ import * as concepts from "../core/concepts.js";
 import * as visibility from "../core/visibility.js";
 import { sprite_defs } from "../game-assets.js";
 import { Repaired } from "./recovery.js";
+import { ranged_actions_for_each_target } from "./rules-common.js";
 
 const repair_points = 5;
 const repair_ap_cost = 5;
@@ -46,17 +48,7 @@ class Rule_Repair extends concepts.Rule {
 
     get_actions_for(character, world){
         console.assert(character instanceof Character);
-        if(!character.is_player_actor) // TODO: temporary (otherwise the player will be bushed lol)
-            return {};
-
-        const actions = {};
-        visibility.valid_target_positions(world, character, this.range)
-            .forEach((target)=>{
-                    const action = new Repair(target);
-                    action.range = this.range;
-                    actions[action.id] = action;
-                });
-        return actions;
+        return ranged_actions_for_each_target(world, character, Repair, this.range);;
     }
 };
 

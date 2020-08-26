@@ -230,9 +230,16 @@ class Entity {
 // They provide Actions and modifiers for the body stats that equip them.
 class Item extends Entity {
     actions = [];
-    // TODO: Action mechanisms here.
 
     get item_id() { return this.id; }
+
+    // Return all the types of Action that this item provides to it's owner.
+    // Must return an array of types inheriting from the provided Action type.
+    get_enabled_action_types(action_type) {
+        console.assert(action_type && action_type.prototype instanceof Action);
+        return [];
+    }
+
 };
 
 

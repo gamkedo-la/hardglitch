@@ -17,6 +17,7 @@ export {
     ofmt,
     not,
     invoke_on_members,
+    lazy_call,
 }
 
 
@@ -234,4 +235,11 @@ function invoke_on_members(object, function_name, ...args){
     return Object.values(object)
             .filter(member => member instanceof Object && member[function_name] instanceof Function)
             .map(member => member[function_name](...args));
+}
+
+// Creates a generator function that will yield the value(s) returned by the call to that function with the provided arguments.
+// This will also work if the function returns an iterable, like an array, and will then provide each value one by one.
+// The function will only be called at the first iteration of the generator.
+function* lazy_call(function_to_call, ...args){
+    yield* function_to_call(...args);
 }

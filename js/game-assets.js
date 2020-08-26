@@ -33,6 +33,8 @@ const game_assets = { // Description of the assets to load.
         menu_button: "./images/wordmenu1.png",
         stream_buffer: "./images/streambuffer.png",
         item_slot: "./images/itemslot.png",
+        item_generic_1: "./images/genericitem1.png",
+        item_generic_2: "./images/genericitem2.png",
 
         // TODO: merge icons into one image
         icon_volume_mute: "./images/iconmute.png",
@@ -67,8 +69,8 @@ const game_assets = { // Description of the assets to load.
         destoryExplode: './audio/DestroyExplode_4.mp3',
         hover: './audio/Hover.mp3',
         damage: './audio/TakeDmg.mp3',
-        pusher: './audio/PushPull.mp3',
-        bouncer: './audio/Bounce.mp3',
+        pusher: './audio/Bounce.mp3',
+        bouncer: './audio/Pushpull.mp3',
         takeItem: './audio/TakeItem.mp3',
         waitTurn: './audio/Wait.mp3',
         aSelect: './audio/actionHover.mp3',
@@ -81,6 +83,7 @@ const game_assets = { // Description of the assets to load.
         asset_loader: asset_system.audiostream_loader,
         test: './audio/test.mp3',
         glitchlife: './audio/music/HardGlitch_GlitchyLife.mp3',
+        radream: './audio/music/HardGlitch_RandomAccessDream_Loop.mp3',
     }
 };
 
@@ -311,6 +314,18 @@ const sprite_defs = {
     },
     crypto_key : {
         image: "crypto_key",
+        frames: [
+            { x:0, y:0, width:64, height:64 }
+         ]
+    },
+    item_generic_1 : {
+        image: "item_generic_1",
+        frames: [
+            { x:0, y:0, width:64, height:64 }
+         ]
+    },
+    item_generic_2 : {
+        image: "item_generic_1",
         frames: [
             { x:0, y:0, width:64, height:64 }
          ]
@@ -603,6 +618,15 @@ const sound_event_defs = {
     'GlitchyLife': {
         source_type: 'audiostream',
         source_name: 'glitchlife',
+        group_name: 'Music',
+        loop: true,
+        volume: 0.5,
+        unique: true, // Will not create a new event instance if true
+    },
+
+    'RandomAccessDream': {
+        source_type: 'audiostream',
+        source_name: 'radream',
         group_name: 'Music',
         loop: true,
         volume: 0.5,
