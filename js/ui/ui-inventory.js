@@ -307,15 +307,16 @@ class InventoryUI {
             this._reset_slots(inventory_size);
         }
 
-        // if(character !== previous_character){
-        //     const listener_id = "inventory_ui";
-        //     if(previous_character){
-        //         previous_character.inventory.remove_listener(listener_id);
-        //     }
-        //     character.inventory.add_listener(listener_id, inventory =>{
-        //         this._reset_items(inventory);
-        //     });
-        // }
+        if(character !== previous_character){
+            this._reset_items(character.inventory);
+            // const listener_id = "inventory_ui";
+            // if(previous_character){
+            //     previous_character.inventory.remove_listener(listener_id);
+            // }
+            // character.inventory.add_listener(listener_id, inventory =>{
+            //      this._reset_items(inventory);
+            // });
+        }
     }
 
     _reset_slots(slot_count){

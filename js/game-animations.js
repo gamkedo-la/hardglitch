@@ -14,6 +14,7 @@ export {
     missile,
     deleting_missile,
     take_item,
+    decrypt_file,
     pushed,
     pulled,
 }
@@ -27,6 +28,7 @@ import * as audio from "./system/audio.js";
 import { CharacterView } from "./view/character-view.js";
 import { ItemView } from "./view/item-view.js";
 import { Position } from "./core/concepts.js";
+import { GameView } from "./game-view.js";
 
 const default_move_duration_ms = 250;
 const default_destruction_duration_ms = 666;
@@ -207,7 +209,34 @@ function* take_item(taker_view, item_view){
     item_view.sprite.reset_origin();
 }
 
+function* dissolve_item(item_view){
+    const duration_ms = 500;
+    audio.playEvent('item'); // TODO: Replace by another sound?
+    item_view.sprite.move_origin_to_center();
+    const initial_scale = item_view.scale;
+    yield* tween( item_view.scale.y, 0, duration_ms,
+                (value) => { item_view.scale = { x: initial_scale.x, y: value }; },
+                easing.in_out_quad
+            );
+    item_view.sprite.visible = false;
     item_view.scale = initial_scale;
+    item_view.sprite.reset_origin();
+}
+
+function* decrypt_file(game_view, character_view, file_view, key_view){
+    console.assert(game_view instanceof GameView);
+    console.assert(character_view instanceof CharacterView);
+    console.assert(file_view instanceof ItemView);
+    console.assert(key_view instanceof ItemView);
+    // TODO: maybe add an effect on the character too?
+    // 1. Dissolve the key
+    // TODO: replace this by something better :/
+    yield* dissolve_item(key_view);
+    // 2. Decrypt animation of the file
+    file_view.sprite.start_animation("decrypt");
+    yield* animation.wait_while(()=> file_view.sprite.is_playing_animation === true);
+    // 3. Effect for spawing a new object?
+    // TODO: add an effect here
 }
 
 function* pushed(entity_view, to_position){

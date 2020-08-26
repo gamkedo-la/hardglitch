@@ -1,13 +1,17 @@
 // This file provides tools for animating stuffs procedurally,
 // it uses coroutines for combining and sequencing animations.
 
+
 export {
     AnimationGroup,
     in_parallel,
     wait,
     delay,
+    wait_until,
+    wait_while,
 }
 
+import { not } from "./utility.js";
 
 
 function* in_parallel(...animations){
@@ -31,6 +35,23 @@ function* wait(duration_ms){
     }
     return time_since_start;
 }
+
+
+function* wait_while(predicate){
+    console.assert(predicate instanceof Function);
+    let time_since_start = 0;
+    while(predicate()){
+        const delta_time = yield;
+        console.assert(typeof(delta_time) === 'number');
+        time_since_start += delta_time;
+    }
+    return time_since_start;
+}
+
+function* wait_until(predicate){
+    return wait_while(not(predicate));
+}
+
 
 function* delay(duration_ms, animation_function){
     yield* wait(duration_ms);

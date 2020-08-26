@@ -13,6 +13,7 @@ import { Rule_Destroy } from "./rules/rules-destroy.js";
 import { Rule_Delete } from "./rules/rules-delete.js";
 import { Rule_Repair } from "./rules/rules-repair.js";
 import { Rule_TakeItem } from "./rules/rules-items.js";
+import { Rule_Decrypt } from "./rules/rules-decrypt.js";
 
 
 import * as level_1 from "./levels/level_1.js";
@@ -29,6 +30,7 @@ const default_rules = [ // BEWARE: rules will be applied in-order.
     new basic_rules.Rule_BasicActions(),
     new Rule_Movements(),
     new Rule_TakeItem(),
+    new Rule_Decrypt(),
 
     new Rule_Jump(),
     new Rule_Push(),

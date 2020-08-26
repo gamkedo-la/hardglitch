@@ -50,7 +50,7 @@ class CryptoFile extends concepts.Item {
         console.assert(Number.isInteger(kind));
         console.assert(Object.values(crypto_kind).includes(kind));
         super(`Crypto File ${crypto_names[kind]}`);
-
+        this.crypto_kind = kind;
         this.assets = {
             graphics : {
                 sprite_def : sprite_defs[`crypto_file_${kind}`],
@@ -60,6 +60,11 @@ class CryptoFile extends concepts.Item {
     }
 
     get can_be_taken() { return false; }
+
+    // Decrypting can return (or not) an object
+    decrypt(){
+        return new DebugItem();
+    }
 
 };
 
@@ -97,7 +102,7 @@ class CryptoKey extends concepts.Item {
         console.assert(Number.isInteger(kind));
         console.assert(Object.values(crypto_kind).includes(kind));
         super(`Crypto Key ${crypto_names[kind]}`);
-
+        this.crypto_kind = kind;
         this.assets = {
             graphics : {
                 sprite_def : sprite_defs[`crypto_key_${kind}`],

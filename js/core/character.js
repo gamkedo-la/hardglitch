@@ -190,6 +190,7 @@ class Inventory {
 
     get have_empty_slots() { return this._items_stored.some(item => item === undefined); }
     get is_full() { return !this.have_empty_slots; }
+    get is_empty() { return this._items_stored.length === 0; }
 
 
 
