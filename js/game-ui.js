@@ -273,8 +273,8 @@ class GameInterface {
         return this._selected_action !== undefined;
     }
 
-    update(delta_time, current_character){
-        this.elements.map(element => element.update(delta_time, current_character));
+    update(delta_time, current_character, world){
+        this.elements.map(element => element.update(delta_time, current_character, world));
         this._handle_action_target_selection(delta_time);
     }
 

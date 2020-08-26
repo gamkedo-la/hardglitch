@@ -384,7 +384,7 @@ class GameView {
 
         this.fog_of_war.update(delta_time);
 
-        this.ui.update(delta_time, this.player_character);
+        this.ui.update(delta_time, this.player_character, this.game.world);
     }
 
     _launch_next_animation_batch(){
@@ -701,14 +701,19 @@ class GameView {
 
         this._reset_tilegrid(world);
 
+        this.reset_entities();
+
+        this.refresh();
+
+        this._requires_reset = false;
+    }
+
+    reset_entities(){
         this.fog_of_war.clear_fovs();
 
         this.entity_views = Object.assign({}, this._create_entity_views(this.game.world.items, ItemView)
                                             , this._create_entity_views(this.game.world.bodies, CharacterView));
 
-        this.refresh();
-
-        this._requires_reset = false;
     }
 
     refresh(){

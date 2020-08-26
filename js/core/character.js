@@ -8,7 +8,6 @@ export {
 
 import * as concepts from "./concepts.js";
 import { FieldOfVision } from "./visibility.js";
-import { TakeItem } from "../rules/rules-items.js";
 
 const default_view_distance = 1;
 const default_inventory_size = 5;
@@ -276,6 +275,11 @@ class Character extends concepts.Body {
             move_north: this.position.north,
             move_south: this.position.south
         };
+    }
+
+    // Describe the possible positions relative to the current one where an item can be dropped by this character.
+    allowed_drops() {
+        return this.field_of_vision.filter_visible(...Object.values(this.allowed_moves())); // Close to the character, and visible (which means valid to walk in, even if it's lethal).
     }
 
     // Properly performs an action after having spent the action points from the body etc.
