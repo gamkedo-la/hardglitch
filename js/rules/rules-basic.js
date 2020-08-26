@@ -100,7 +100,7 @@ class GameOver extends concepts.Event {
     get is_world_event() { return true; }
 
     *animation(){ // TEMPORARY ANIMATION
-        editor.set_central_text("GAME OVER! - PRESS [SPACE]");
+        editor.set_central_text("GAME OVER! - PRESS ANY KEY");
         while(true) yield;
     }
 }
@@ -149,7 +149,7 @@ class PlayerExitLevel extends concepts.Event {
         const character_view = game_view.get_entity_view(this.character_id);
         console.assert(character_view instanceof CharacterView);
 
-        editor.set_central_text("YOU FOUND THE EXIT BUS! - [SPACE] NEXT LEVEL");
+        editor.set_central_text("YOU FOUND THE EXIT BUS! - PRESS ANY KEY");
         game_view.clear_focus();
         let ready_to_exit = false;
         game_view.center_on_position(character_view.game_position, 500).then(()=> ready_to_exit = true );
