@@ -5,7 +5,11 @@ export {
     Rule_Jump,
     Rule_Swap,
     Move,
-    Moved
+    Moved,
+    Jump,
+    Jumped,
+    Swap,
+    Swaped,
 }
 
 import * as concepts from "../core/concepts.js";
@@ -16,6 +20,8 @@ import { EntityView } from "../view/entity-view.js";
 import { GameView } from "../game-view.js";
 import { Character } from "../core/character.js";
 import * as visibility from "../core/visibility.js";
+import { ranged_actions_for_each_target, actions_for_each_target } from "./rules-common.js";
+import { lazy_call } from "../system/utility.js";
 
 // Set the action as unsafe if the target tile is unsafe.
 function safe_if_safe_arrival(move_action, world){
@@ -156,17 +162,14 @@ class Rule_Jump extends concepts.Rule {
 
     get_actions_for(character, world){
         console.assert(character instanceof Character);
-        if(!character.is_player_actor) // TODO: temporary
-            return {};
 
-        const possible_jumps = {};
-        visibility.valid_move_positions(world, character, this.range, tiles.is_walkable)
-            .forEach( (target)=>{
-                const jump = new Jump(target);
-                safe_if_safe_arrival(jump, world);
-                jump.range = this.range;
-                possible_jumps[jump.id] = jump;
-            });
+        const valid_targets = lazy_call(visibility.valid_move_positions, world, character, this.range, tiles.is_walkable);
+        const possible_jumps = actions_for_each_target(character, Jump, valid_targets, (jump_type, target)=>{
+            const jump = new jump_type(target);
+            safe_if_safe_arrival(jump, world);
+            jump.range = this.range;
+            return jump;
+        });
         return possible_jumps;
     }
 };
@@ -240,16 +243,6 @@ class Rule_Swap extends concepts.Rule {
 
     get_actions_for(character, world){
         console.assert(character instanceof Character);
-        if(!character.is_player_actor) // TODO: temporary
-            return {};
-
-        const possible_swaps = {};
-        visibility.valid_target_positions(world, character, this.range)
-            .forEach(target => {
-                const swap = new Swap(target);
-                swap.range = this.range;
-                possible_swaps[`swap_${target.x}_${target.y}`] = swap;
-            });
-        return possible_swaps;
+        return ranged_actions_for_each_target(world, character, Swap, this.range);
     }
 };

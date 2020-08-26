@@ -115,7 +115,7 @@ class LifeForm_Weak extends Character {
         super("Weak Life Form", );
         const behavior_type = random_sample(lifeform_possible_behavior);
         this.actor = new behavior_type();
-        this.stats.integrity.value = 1;
+        this.stats.inventory_size.value = 1;
     }
 
 };
@@ -133,5 +133,6 @@ class LifeForm_Strong extends Character {
         this.actor = new behavior_type();
         this.stats.integrity.max = 20;
         this.stats.integrity.value = 20;
+        this.stats.inventory_size.value = 2;
     }
 };

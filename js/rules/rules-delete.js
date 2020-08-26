@@ -9,8 +9,9 @@ import * as concepts from "../core/concepts.js";
 import * as visibility from "../core/visibility.js";
 import { sprite_defs } from "../game-assets.js";
 import { Damaged } from "./destruction.js";
-import { graphic_position } from "../view/entity-view.js";
 import * as anim from "../game-animations.js";
+import { lazy_call } from "../system/utility.js";
+import { actions_for_each_target, ranged_actions_for_each_target } from "./rules-common.js";
 
 const delete_damage = 5;
 const delete_ap_cost = 5;
@@ -73,17 +74,7 @@ class Rule_Delete extends concepts.Rule {
 
     get_actions_for(character, world){
         console.assert(character instanceof Character);
-        if(!character.is_player_actor) // TODO: temporary (otherwise the player will be bushed lol)
-            return {};
-
-        const actions = {};
-        visibility.valid_target_positions(world, character, this.range)
-            .forEach((target)=>{
-                    const delete_action = new Delete(target);
-                    delete_action.range = this.range;
-                    actions[delete_action.id] = delete_action;
-                });
-        return actions;
+        return ranged_actions_for_each_target(world, character, Delete, this.range);
     }
 };
 

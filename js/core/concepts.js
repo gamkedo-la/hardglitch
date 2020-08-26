@@ -47,6 +47,7 @@ class Action {
         this.target_position = target_position; // Position of the target of this action. Could refer to the acting character, another character, an item or a tile at that position.
         this.name = name,                   // Name that will be displayed to the player.
         this.is_basic = false;              // Basic actions are visible directly in the game.
+        this.is_generated = false;          // Generated actions might not be part of the previsible set of actions.
         this.is_safe = true;                // If false, means that this action should not be available unless explicitely attempted.
         this.costs = costs;                 // Description of the costs for this action.
     }
@@ -229,9 +230,16 @@ class Entity {
 // They provide Actions and modifiers for the body stats that equip them.
 class Item extends Entity {
     actions = [];
-    // TODO: Action mechanisms here.
 
     get item_id() { return this.id; }
+
+    // Return all the types of Action that this item provides to it's owner.
+    // Must return an array of types inheriting from the provided Action type.
+    get_enabled_action_types(action_type) {
+        console.assert(action_type && action_type.prototype instanceof Action);
+        return [];
+    }
+
 };
 
 

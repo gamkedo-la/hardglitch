@@ -17,6 +17,8 @@ export {
     BlipEdgeParticle,
     ThrobParticle,
     LightningParticle,
+    ColorOffsetGlitchParticle,
+    BandingGlitchParticle,
 }
 
 import { camera } from "./graphics.js";
@@ -614,14 +616,21 @@ class OffsetGlitchParticle extends Particle {
 }
 
 class ColorShiftDataXForm {
-    constructor(dx, dy, rshift, gshift, bshift) {
+    constructor(dx, dy, minx, miny, maxx, maxy, rshift, gshift, bshift) {
         this.dx = dx;
         this.dy = dy;
+        this.minx = minx;
+        this.miny = miny;
+        this.maxx = maxx;
+        this.maxy = maxy;
         this.rshift = rshift;
         this.gshift = gshift;
         this.bshift = bshift;
+        console.log("dx: " + dx + " dy: " + dy + " minx: " + minx + " miny: " + miny + " maxx: " + maxx + " maxy: " + maxy);
     }
-    xform(idata) {
+
+    do(idata) {
+        //console.log("data transform on idata: " + idata.width + "," + idata.height);
         // create empty data array
         let xdata = new ImageData(idata.width, idata.height);
         // shift color data
@@ -632,10 +641,15 @@ class ColorShiftDataXForm {
                 let g = idata.data[idx+1];
                 let b = idata.data[idx+2];
                 let a = idata.data[idx+3];
+                let lb = 0;
                 // color loss to shift
-                r -= r*this.rshift;
-                g -= g*this.gshift;
-                b -= b*this.bshift;
+                if (i>=this.minx && i<this.maxx && j>=this.miny && j<this.maxy) {
+                    r -= r*this.rshift;
+                    g -= g*this.gshift;
+                    b -= b*this.bshift;
+                    // FIXME
+                    lb = idata.data[idx+2]*this.bshift;
+                }
                 // target index
                 let xi = Math.round(i-this.dx);
                 let xj = Math.round(j-this.dy);
@@ -646,73 +660,214 @@ class ColorShiftDataXForm {
                     let xb = idata.data[xidx+2];
                     let xa = idata.data[xidx+3];
                     // color gained from shift
+                    //r = (r+xr*this.rshift)*.5;
+                    //g = (g+xg*this.gshift)*.5;
+                    //b = (b+xb*this.bshift)*.5;
                     r += xr*this.rshift;
                     g += xg*this.gshift;
                     b += xb*this.bshift;
                     a = Math.max(xa,a);
+                    //console.log("i: " + i + " xi: " + xi + " xb: " + xb + " b: " + idata.data[idx+2] + " fb: " + b + " a: " + idata.data[idx+3] + " fa: " + a + " lb: " + lb);
                 }
                 // set xdata
-                xdata.data[idx] = Math.round(r);
-                xdata.data[idx+1] = Math.round(g);
-                xdata.data[idx+2] = Math.round(b);
-                xdata.data[idx+3] = Math.round(a);
+                xdata.data[idx] = Math.min(Math.round(r), 255);
+                xdata.data[idx+1] = Math.min(Math.round(g), 255);
+                xdata.data[idx+2] = Math.min(Math.round(b), 255);
+                xdata.data[idx+3] = Math.min(Math.round(a), 255);
             }
         }
         return xdata;
     }
 }
 
+class HorizontalBandingDataXForm {
+    constructor(maxOffset, affinity, minx, miny, maxx, maxy) {
+        this.maxOffset = maxOffset;
+        this.affinity = affinity;
+        this.minx = minx;
+        this.miny = miny;
+        this.maxx = maxx;
+        this.maxy = maxy;
+    }
+
+    do(idata) {
+        // create empty data array
+        let xdata = new ImageData(idata.width, idata.height);
+        // pick initial banding offset
+        let offset = random_float(-this.maxOffset, this.maxOffset);
+        let sign = 1;
+        // shift entire rows...
+        for (let j=0; j<idata.height; j++) {
+            // affinity check...
+            if (Math.random() > this.affinity) {
+                if (sign > 0) {
+                    offset = random_float(-this.maxOffset, offset);
+                } else {
+                    offset = random_float(offset, this.maxOffset);
+                }
+                sign *= -1;
+            }
+            for (let i=0; i<idata.width; i++) {
+                // only copy pixels within the window...
+                if (i>=this.minx && i<this.maxx && j>=this.miny && j<this.maxy) {
+                    let idx = (j*idata.width+i)*4;
+                    let r = idata.data[idx];
+                    let g = idata.data[idx+1];
+                    let b = idata.data[idx+2];
+                    let a = idata.data[idx+3];
+                    // target index
+                    let xi = Math.round(i-offset);
+                    let xj = j;
+                    if (xi>=0 && xi<idata.width && xj>=0 && xj<idata.height) {
+                        let xidx = (xj*idata.width+xi)*4;
+                        xdata.data[xidx] = Math.round(r);
+                        xdata.data[xidx+1] = Math.round(g);
+                        xdata.data[xidx+2] = Math.round(b);
+                        xdata.data[xidx+3] = Math.round(a);
+                    }
+                }
+            }
+        }
+        return xdata;
+    }
+}
+
+function *linearFade(target, name, min, max, ttl) {
+    ttl *= 1000;
+    let rate = (max-min)/ttl;
+    target[name] = min;
+    do {
+        let delta_time = yield;
+        // increase
+        target[name] += rate*delta_time;
+        if (target[name] >= max) target[name] = max;
+        // handle lifetime
+        ttl -= delta_time;
+    } while (ttl > 0);
+    target[name] = max;
+}
+
+function *linearFadeInOut(target, name, max, ttl) {
+    ttl *= 1000;
+    let rate = max*2/ttl;
+    let increase = true;
+    target[name] = 0;
+    do {
+        let delta_time = yield;
+        // increase
+        if (increase) {
+            target[name] += rate*delta_time;
+            if (target[name] >= max) {
+                target[name] = max;
+                increase = false;
+            }
+        } else {
+            target[name] -= rate*delta_time;
+            if (target[name] < 0) target[name] = 0;
+        }
+        // handle lifetime
+        ttl -= delta_time;
+    } while (ttl > 0);
+}
+
+function *translate(target, from, to, ttl) {
+    ttl *= 1000;
+    let dx = (to.x-from.x)/ttl;
+    let dy = (to.y-from.y)/ttl;
+    target.x = from.x;
+    target.y = from.y;
+    do {
+        let delta_time = yield;
+        // move along
+        target.x += dx * delta_time;
+        target.y += dy * delta_time;
+        // handle lifetime
+        ttl -= delta_time;
+    } while (ttl > 0);
+    target.x = to.x;
+    target.y = to.y;
+}
+
 // =============================================================================
 const glitchCanvas = document.createElement('canvas');
 class CanvasGlitchParticle extends Particle {
-    constructor(x, y, width, height, dx, dy, xforms, ttl) {
+    constructor(x, y, width, height, xforms) {
         super(x, y);
         this.width = width;
         this.height = height;
-        this.dx = dx;
-        this.dy = dy;
         this.xforms = xforms || [];
-        this.idata;
+        this.sdata;
         this.needData = true;
-        this.ttl = ttl * 1000; // milliseconds
-        this.currentXform;
+        //this.updatecount = 2;
     }
 
     update(delta_time) {
         if (this.done) return;
-        // run data transformations
-        if (this.idata) {
-            if (!this.currentXform) {
-                if (this.xforms.length) {
-                    this.currentXform = this.xforms[0].xform()
-                }
+        //if (this.updatecount <= 0) return;
+        //this.updatecount--;
+        // perform data transformations
+        if (this.sdata && this.xforms && this.xforms.length) {
+            this.xdata = this.sdata;
+            for (const xform of this.xforms) {
+                this.xdata = xform.do(this.xdata);
             }
-            let xform = this.xforms[0];
-            let xfn = xform.next
-        }
-        // time-to-live
-        this.ttl -= delta_time;
-        if (this.ttl <= 0) {
-            this.done = true;
         }
     }
 
     draw(canvas_context) {
-        // output image data
-        if (this.idata) {
-            let data = idata.data;
-            glitchCanvas.width = this.width;
-            glitchCanvas.height = this.height;
-            glitchCanvas.getContext("2d").putImageData(idata, 0, 0);
-            canvas_context.drawImage(glitchCanvas, this.x, this.y);
-        }
         // pull image data (if needed)
         if (this.needData) {
-            this.idata = canvas_context.getImageData(this.x, this.y, this.width, this.height);
-            return;
+            this.sdata = canvas_context.getImageData(this.x, this.y, this.width, this.height);
+        }
+        // output image data
+        if (this.xdata) {
+            let xoffset = this.width*.5;
+            let yoffset = this.height*.5;
+            glitchCanvas.width = this.width*2;
+            glitchCanvas.height = this.height*2;
+            let gctx = glitchCanvas.getContext("2d");
+            //gctx.clearRect(0, 0, glitchCanvas.width, glitchCanvas.height);
+            //gctx.fillStyle = "red";
+            //gctx.fillRect(0, 0, glitchCanvas.width, glitchCanvas.height);
+            gctx.putImageData(this.xdata, xoffset, yoffset);
+            canvas_context.drawImage(glitchCanvas, this.x-xoffset, this.y-yoffset);
         }
     }
 
+}
+
+class ColorOffsetGlitchParticle extends CanvasGlitchParticle {
+    constructor(x, y, dx, dy, width, height, rshift, gshift, bshift) {
+        let adx = Math.abs(dx);
+        let ady = Math.abs(dy);
+        let xforms = [
+            new ColorShiftDataXForm(dx, dy, adx, ady, width+adx, height+ady, rshift, gshift, bshift),
+            new ColorShiftDataXForm(-dx, dy, adx, ady, width+adx, height+ady, 1-rshift, 1-gshift, 1-bshift),
+            new HorizontalBandingDataXForm(dx, .75, adx, 0, width+adx, height),
+        ]
+        //console.log("x: " + (x-dx) + " y: " + (y-dy) + " width: " + (width+dx*2) + " height: " + (height+dy*2));
+        super(x-adx, y-ady, width+adx*2, height+ady*2, xforms);
+        this.xform = linearFade(this, "height", 1, height, .5);
+    }
+
+    update(delta_time) {
+        super.update(delta_time);
+        if (this.xform) {
+            let state = this.xform.next(delta_time);
+            if (state.done) {
+                this.xform = undefined;
+                //this.xforms = [];
+            }
+            //console.log("this.height: " + this.height);
+        }
+    }
+}
+
+class BandingGlitchParticle extends CanvasGlitchParticle {
+    constructor(x, y, maxOffset, affinity, width, height) {
+        let xform = new HorizontalBandingDataXForm(maxOffset, affinity, maxOffset, 0, width+maxOffset, height);
+        super(x-maxOffset, y, width+maxOffset*2, height, [xform]);
+    }
 }
 
 // =============================================================================

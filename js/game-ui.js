@@ -15,16 +15,16 @@ import * as concepts from "./core/concepts.js";
 import { play_action, mouse_grid_position, KEY } from "./game-input.js";
 import { keyboard, mouse, MOUSE_BUTTON } from "./system/input.js";
 import { Vector2, center_in_rectangle } from "./system/spatial.js";
-import { Character, StatValue } from "./core/character.js";
+import { CharacterStatus } from "./ui/ui-characterstatus.js";
 import { InventoryUI } from "./ui/ui-inventory.js";
 
 const action_button_size = 50;
 const player_ui_top_from_bottom = 100;
-const bar_text = {
-    font: "18px Arial",
-    color: "white",
-    background_color: "#ffffff00",
-};
+
+
+function character_status_position() {
+    return new Vector2({ x: 12, y: graphics.canvas_rect().height - player_ui_top_from_bottom });
+}
 
 function inventory_position() {
     return new Vector2({ x: 0, y: graphics.canvas_rect().height - (player_ui_top_from_bottom + 80) });
@@ -223,63 +223,6 @@ class MenuButton extends ui.Button {
 }
 
 
-function update_stat_bar(bar, stat){
-    console.assert(bar instanceof ui.Bar);
-    console.assert(stat instanceof StatValue);
-    bar.max_value = stat.max;
-    bar.value = stat.value;
-}
-
-class CharacterStatus{
-
-    health_bar = new ui.Bar({
-        position: { x: 12, y: graphics.canvas_rect().height - player_ui_top_from_bottom },
-        width: 200, height: 30,
-        bar_name: "Integrity",
-        help_text: bar_text,
-    });
-
-    action_bar = new ui.Bar({
-        position: { x: 12, y: graphics.canvas_rect().height - player_ui_top_from_bottom + 36 },
-        width: 200, height: 30,
-        bar_name: "Action Points",
-        help_text: bar_text,
-    });
-
-    constructor(){
-        this.health_bar.helptext_always_visible = true;
-        this.action_bar.helptext_always_visible = true;
-    }
-
-    update(delta_time, character){
-        this.character = character;
-        if(!(this.character instanceof Character))
-            return;
-
-        update_stat_bar(this.health_bar, this.character.stats.integrity);
-        update_stat_bar(this.action_bar, this.character.stats.action_points);
-
-        invoke_on_members(this, "update", delta_time);
-    }
-
-    draw(canvas_context){
-        if(!(this.character instanceof Character))
-            return;
-        invoke_on_members(this, "draw", canvas_context);
-    }
-
-    begin_preview_costs(preview_values){
-        this.health_bar.show_preview_value(preview_values.integrity);
-        this.action_bar.show_preview_value(preview_values.action_points);
-    }
-
-    end_preview_costs(){
-        invoke_on_members(this, "hide_preview_value");
-    }
-
-};
-
-
 
 // The interface used by the player when inside the game.
 // NOTE: it's a class instead of just globals because we need to initialize and destroy it
@@ -293,8 +236,7 @@ class GameInterface {
 
     });
 
-    character_status = new CharacterStatus();
-    inventory = new InventoryUI(inventory_position());
+    character_status = new CharacterStatus(character_status_position());
 
     constructor(config){
         console.assert(config instanceof Object);
@@ -305,8 +247,12 @@ class GameInterface {
         console.assert(config.toggle_autofocus instanceof Function);
         console.assert(config.is_autofocus_enabled instanceof Function);
         console.assert(config.open_menu instanceof Function);
+        console.assert(config.on_item_dragging_begin instanceof Function);
+        console.assert(config.on_item_dragging_end instanceof Function);
         this._action_buttons = [];
         this.config = config;
+
+        this.inventory = new InventoryUI(inventory_position(), this.character_status, config);
 
         this.on_canvas_resized();
     }
@@ -330,8 +276,8 @@ class GameInterface {
         return this._selected_action !== undefined;
     }
 
-    update(delta_time, current_character){
-        this.elements.map(element => element.update(delta_time, current_character));
+    update(delta_time, current_character, world){
+        this.elements.map(element => element.update(delta_time, current_character, world));
         this._handle_action_target_selection(delta_time);
     }
 
@@ -454,8 +400,8 @@ class GameInterface {
         // TODO: check if we need to do more.
         this.button_main_menu = new MenuButton(this.config.open_menu);
         this.button_auto_focus = new AutoFocusButton(this.config.toggle_autofocus, this.config.is_autofocus_enabled);
-        this.character_status = new CharacterStatus();
-        this.inventory = new InventoryUI(inventory_position());
+        this.character_status = new CharacterStatus(character_status_position());
+        this.inventory = new InventoryUI(inventory_position(), this.character_status, this.config);
     }
 
 };

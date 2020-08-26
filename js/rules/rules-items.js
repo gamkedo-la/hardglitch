@@ -2,7 +2,10 @@
 export {
     Rule_TakeItem,
     ItemTaken,
+    ItemDropped,
     TakeItem,
+    SwapItemSlots,
+    DropItem,
 }
 
 import * as concepts from "../core/concepts.js";
@@ -43,6 +46,29 @@ class ItemTaken extends concepts.Event {
     }
 };
 
+class ItemDropped extends concepts.Event {
+    constructor(dropper, item, target){
+        console.assert(dropper instanceof Character);
+        console.assert(item instanceof concepts.Item);
+
+        super({
+            description: `Character ${dropper.id} dropped item ${item.id} at ${JSON.stringify(target)}`,
+            allow_parallel_animation: false,
+        });
+        this.dropper_id = dropper.id;
+        this.dropper_position = dropper.position;
+        this.item_id = item.id;
+        this.drop_position = target;
+    }
+
+    get focus_positions() { return [ this.drop_position, this.dropper_position ]; }
+
+    *animation(game_view){
+        console.assert(game_view instanceof GameView);
+        game_view.reset_entities(); // TODO: only add the entity view, instead of recreating all the entity views.
+    }
+};
+
 
 class TakeItem extends concepts.Action {
     icon_def = sprite_defs.icon_action_take;
@@ -69,15 +95,70 @@ class TakeItem extends concepts.Action {
 };
 
 
+class SwapItemSlots extends concepts.Action {
+    constructor(slot_a_idx, slot_b_idx){
+        console.assert(Number.isInteger(slot_a_idx) && slot_a_idx >= 0);
+        console.assert(Number.isInteger(slot_b_idx) && slot_b_idx >= 0);
+        super(`swap_items_from_slot_${slot_a_idx}_to_${slot_b_idx}`, "THIS SHOULD NEVER BE DISPLAYED", undefined,
+            { // costs
+                action_points: 1,
+            }
+        );
+        this.is_generated = true;
+
+        this.slot_a_idx = slot_a_idx;
+        this.slot_b_idx = slot_b_idx;
+    }
+
+    execute(world, character){
+        console.assert(world instanceof concepts.World);
+        console.assert(character instanceof Character);
+        const item_a = character.inventory.remove(this.slot_a_idx);
+        const item_b = character.inventory.remove(this.slot_b_idx);
+        if(item_a) character.inventory.set_item_at(this.slot_b_idx, item_a);
+        if(item_b) character.inventory.set_item_at(this.slot_a_idx, item_b);
+        // TODO: consider doing the update of the InventoryUI through an event.
+        return [];
+    }
+};
+
+class DropItem extends concepts.Action {
+    constructor(target, inventory_idx){
+        console.assert(target instanceof concepts.Position);
+        console.assert(Number.isInteger(inventory_idx) && inventory_idx >= 0);
+        super(`drom_item_at_${target.x}_${target.y}`, "THIS SHOULD NEVER BE DISPLAYED", undefined,
+            { // costs
+                action_points: 1,
+            }
+        );
+        this.is_generated = true;
+
+        this.target = target;
+        this.item_idx = inventory_idx;
+    }
+
+    execute(world, character){
+        console.assert(world instanceof concepts.World);
+        console.assert(character instanceof Character);
+        const item = character.inventory.remove(this.item_idx);
+        item.position = this.target;
+        world.add(item);
+        console.assert(item instanceof concepts.Item);
+        return [new ItemDropped(character, item, this.target)];
+    }
+};
+
 class Rule_TakeItem extends concepts.Rule {
     range = new visibility.Range_Cross_Axis(1,2);
 
     get_actions_for(character, world){
         console.assert(character instanceof Character);
+
         if(!character.is_player_actor) // TODO: temporary (otherwise the player will be bushed lol)
             return {};
 
-        // TODO: check that the character have enough space in the invent
+        if(character.inventory.is_full)
+            return {};
 
         const actions = {};
         visibility.valid_target_positions(world, character, this.range)
@@ -92,8 +173,6 @@ class Rule_TakeItem extends concepts.Rule {
             });
         return actions;
     }
-
-
 };
 
 

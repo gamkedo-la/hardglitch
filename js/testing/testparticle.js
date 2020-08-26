@@ -14,6 +14,8 @@ import {
     FlashParticle,
     ThrobParticle,
     LightningParticle,
+    ColorOffsetGlitchParticle,
+    BandingGlitchParticle,
 } from "../system/particles.js";
 import { GameFxView } from "../game-effects.js";
 import { random_int, random_float } from "../system/utility.js";
@@ -216,6 +218,22 @@ class Tests {
         }], 2, 0, 0));
     }
 
+    colorshift(x,y) {
+        let dx = 4;
+        let dy = 0;
+        let width = 64;
+        let height = 64;
+        let rshift = 0;
+        let gshift = .5;
+        let bshift = .25;
+        let bandingOffset = 5;
+        let affinity = .5;
+        this.particles.add(new ColorOffsetGlitchParticle(x-(32+bandingOffset), y-64, dx, dy, width+bandingOffset*2, height, rshift, gshift, bshift));
+        //this.particles.add(new BandingGlitchParticle(x-32, y-64, bandingOffset, affinity, width, height));
+        //this.particles.add(new ColorOffsetGlitchParticle(x-(32+dx), y-(64+dy), -dx, -dy, width, height, 0, 0, 1));
+        //this.particles.add(new ColorOffsetGlitchParticle(x-40, y-72, 64+16, 64+16, 1, 0, 1));
+    }
+
 }
 
 class Env {
@@ -246,6 +264,7 @@ class Env {
         this.tests.missile(1000,300);
         this.tests.lightningorb(200,400);
         this.tests.lightningstrike(200,500);
+        this.tests.colorshift(400, 400);
 
         this.gfx.destruction({x:500,y:400});
         let damageFx = this.gfx.damage({x:600,y:400});
@@ -262,11 +281,19 @@ class Env {
         last_update_time = now;
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.drawImage(this.bgimg, 368, 236);
+        this.ctx.drawImage(this.groundimg, 368, 336);
         // run particle system update
         this.particles.update(delta_time);
         this.particles.draw(this.ctx);
         this.gfx.update(delta_time);
         this.gfx.draw(this.ctx);
+
+        /*
+        this.ctx.strokeStyle = "red";
+        this.ctx.rect(338,336,94,1);
+        this.ctx.stroke();
+        */
+
     }
 
     setup() {
@@ -274,6 +301,9 @@ class Env {
             let promises = [];
             let promise = loadImage("srcref/circuit.png");
             promise.then(img => this.bgimg = img);
+            promises.push(promise);
+            promise = loadImage("srcref/exampleground.png");
+            promise.then(img => this.groundimg = img);
             promises.push(promise);
             Promise.all(promises).then(() => {
                 console.log("setup complete");
