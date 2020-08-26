@@ -106,7 +106,7 @@ class ItemSlot {
 
 
 class InventoryUI {
-    slots = [];
+    _slots = [];
     _position = new spatial.Vector2();
 
     visible = true;
@@ -133,15 +133,15 @@ class InventoryUI {
         if(current_character){
             this.refresh(current_character);
         } else {
-            if(this.slots.length != 0){
-                this.slots = [];
+            if(this._slots.length != 0){
+                this._slots = [];
                 delete this._current_character;
             }
         }
 
         this._update_item_dragging();
 
-        this.slots.forEach(slot=>slot.update(delta_time));
+        this._slots.forEach(slot=>slot.update(delta_time));
     }
 
     get is_dragging_item() { return this._dragging_item && this._dragging_item.item; }
@@ -150,26 +150,26 @@ class InventoryUI {
 
     get_item_view_at(idx) {
         console.assert(Number.isInteger(idx));
-        console.assert(idx < this.slots.length);
-        return this.slots[idx].item;
+        console.assert(idx < this._slots.length);
+        return this._slots[idx].item;
     }
 
     set_item_view_at(idx, item_view){
         console.assert(Number.isInteger(idx));
-        console.assert(idx < this.slots.length);
+        console.assert(idx < this._slots.length);
         console.assert(item_view instanceof ItemView);
-        this.slots[idx].set_item(item_view);
+        this._slots[idx].set_item(item_view);
     }
 
     remove_item_view_at(idx){
         console.assert(Number.isInteger(idx));
-        console.assert(idx < this.slots.length);
-        return this.slots[idx].remove_item();
+        console.assert(idx < this._slots.length);
+        return this._slots[idx].remove_item();
     }
 
     _find_slot_under(position){
         console.assert(position instanceof spatial.Vector2);
-        return this.slots.find(slot => spatial.is_point_under(position, slot._sprite.area))
+        return this._slots.find(slot => spatial.is_point_under(position, slot._sprite.area))
     }
 
     _clear_slot_swaping(){
@@ -190,7 +190,7 @@ class InventoryUI {
                     const destination_slot = this._find_slot_under(mouse_position);
                     if(destination_slot){
                         // We are over a slot
-                        const destination_slot_idx = this.slots.indexOf(destination_slot);
+                        const destination_slot_idx = this._slots.indexOf(destination_slot);
                         if(destination_slot_idx !== this._dragging_item.source_slot_idx){
                             if(destination_slot_idx !== this._dragging_item.destination_slot_idx){
                                 console.assert(this._current_character instanceof Character);
@@ -231,7 +231,7 @@ class InventoryUI {
                 } else { // Stopped dragging.
                     const destination_slot = this._find_slot_under(input.mouse.dragging_positions.end);
                     if(destination_slot){
-                        const destination_slot_idx = this.slots.indexOf(destination_slot);
+                        const destination_slot_idx = this._slots.indexOf(destination_slot);
                         if(this._dragging_item.source_slot_idx === destination_slot_idx){
                             this._dragging_item.slot._update_item_position(); // Reset the item position.
                         } else {
@@ -270,7 +270,7 @@ class InventoryUI {
                 this._dragging_item.slot = slot;
                 if(slot){
                     console.assert(slot instanceof ItemSlot);
-                    this._dragging_item.source_slot_idx = this.slots.indexOf(this._dragging_item.slot);
+                    this._dragging_item.source_slot_idx = this._slots.indexOf(this._dragging_item.slot);
                     const item_view = slot.item;
                     if(item_view){ // Begin dragging an item from a slot.
                         this._dragging_item.item = item_view;
@@ -292,8 +292,8 @@ class InventoryUI {
 
     draw(canvas_context){
         console.assert(graphics.camera.is_rendering_in_screen);
-        this.slots.forEach(slot=>slot.draw(canvas_context));
-        this.slots.forEach(slot=>slot.draw_item(canvas_context));
+        this._slots.forEach(slot=>slot.draw(canvas_context));
+        this._slots.forEach(slot=>slot.draw_item(canvas_context));
     }
 
     refresh(character){
@@ -303,7 +303,7 @@ class InventoryUI {
         this._current_character = character;
 
         const inventory_size = character.stats.inventory_size.value;
-        if(this.slots.length != inventory_size){
+        if(this._slots.length != inventory_size){
             this._reset_slots(inventory_size);
         }
 
@@ -320,13 +320,12 @@ class InventoryUI {
     }
 
     _reset_slots(slot_count){
-        console.assert(Number.isInteger(slot_count));
-        this.slots = [];
-        while(slot_count > 0){
+        console.assert(Number.isInteger(slot_count) && slot_count >= 0);
+        this._slots = [];
+        while(this._slots.length !== slot_count){
             const item_slot = new ItemSlot();
-            item_slot.position = this.position.translate({ y: -slot_count * item_slot.size.height + item_slot_vertical_space });
-            this.slots.push(item_slot);
-            --slot_count;
+            item_slot.position = this.position.translate({ y: -(((this._slots.length + 1) * item_slot.size.height) + item_slot_vertical_space) });
+            this._slots.push(item_slot);
         }
     }
 
@@ -334,16 +333,16 @@ class InventoryUI {
         console.assert(inventory instanceof Inventory);
         const items = inventory.stored_items;
         console.assert(items instanceof Array);
-        console.assert(this.slots.length >= items.length);
+        console.assert(this._slots.length >= items.length);
 
-        this.slots.forEach(slot => slot.remove_item());
+        this._slots.forEach(slot => slot.remove_item());
 
         for (const [item_idx, item] of items.entries()){
             if(item instanceof concepts.Item){
                 this.set_item_view_at(item_idx, new ItemView(item));
             } else {
                 console.assert(!item);
-                console.assert(!this.slots[item_idx].item);
+                console.assert(!this._slots[item_idx].item);
             }
         }
 

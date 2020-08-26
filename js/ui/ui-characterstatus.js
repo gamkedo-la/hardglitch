@@ -29,14 +29,14 @@ class CharacterStatus{
 
         this.health_bar = new ui.Bar({
             position: position,
-            width: 200, height: 30,
+            width: 300, height: 24,
             bar_name: "Integrity",
             help_text: bar_text,
         });
 
         this.action_bar = new ui.Bar({
-            position: position.translate({ y: 36 }),
-            width: 200, height: 30,
+            position: position.translate({ y: 28 }),
+            width: 300, height: 24,
             bar_name: "Action Points",
             help_text: bar_text,
         });
