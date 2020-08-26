@@ -241,7 +241,7 @@ class Keyboard {
   // Example:
   //    if(keyboard.keys_matches_pattern(
   //       { key_code: KEYCODE_LCTRL, states: [KEY_STATE.DOWN, KEY_STATE.HOLD], min_duration: 500 },
-  //       { key_code: KEYCODE_SPACE], states: [KEY_STATE.DOWN] }
+  //       { key_code: KEYCODE_SPACE, states: [KEY_STATE.DOWN] }
   //    )) { do_something(); }
   keys_matches_pattern(...patterns){
     for(const pattern of patterns){

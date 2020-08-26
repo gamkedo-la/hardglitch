@@ -76,7 +76,7 @@ class CreditsScreen extends fsm.State {
     }
 
     update(delta_time){
-        if(input.keyboard.is_just_down(KEY.ESCAPE)){
+        if(input.keyboard.is_just_down(KEY.ESCAPE) || input.keyboard.is_just_down(KEY.SPACE)){
             this.go_back();
         }
 
