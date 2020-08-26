@@ -23,10 +23,15 @@ const item_slot_vertical_space = 0;
 const item_slot_name = "Item Slot";
 
 class ItemSlot {
-    _sprite = new graphics.Sprite(sprite_defs.item_slot);
-    _item = null;
 
-    constructor(position){
+    constructor(position, is_equipable){
+        console.assert(typeof is_equipable === "boolean");
+        console.assert(position === undefined || position instanceof spatial.Vector2);
+
+        const sprite_def = is_equipable ? sprite_defs.item_equipped_slot : sprite_defs.item_slot;
+        this._sprite = new graphics.Sprite(sprite_def);
+        this._item = null;
+
         this._help_text = new HelpText({
             text: item_slot_name,
             area_to_help: this._sprite.area,
@@ -35,6 +40,8 @@ class ItemSlot {
 
         if(position)
             this.position = position;
+
+        this.is_equipable = is_equipable;
     }
 
     update(delta_time){
@@ -323,7 +330,8 @@ class InventoryUI {
         console.assert(Number.isInteger(slot_count) && slot_count >= 0);
         this._slots = [];
         while(this._slots.length !== slot_count){
-            const item_slot = new ItemSlot();
+            const is_equipable = this._slots.length < this._current_character.stats.equipable_items.value;
+            const item_slot = new ItemSlot(undefined, is_equipable);
             item_slot.position = this.position.translate({ y: -(((this._slots.length + 1) * item_slot.size.height) + item_slot_vertical_space) });
             this._slots.push(item_slot);
         }

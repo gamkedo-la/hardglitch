@@ -483,22 +483,16 @@ class GameView {
     _start_player_turn(){
         this.is_time_for_player_to_chose_action = true;
         if(this.player_character){
-            this.ui.show_action_buttons(Object.values(this.game.turn_info.possible_actions));
-            this.clear_highlights_basic_actions();
-            const player_position = this.player_character.position;
-            const setup = ()=>{
-                this.focus_on_position(player_position);
-                this.fog_of_war.refresh(this.game.world);
-                this._require_tiles_update = true;
+            const setup = ()=> {
+                this.focus_on_position(this.player_character.position);
                 this.ui.unlock_actions();
-                this.highlight_available_basic_actions();
-            };
+                this.refresh();
+            }
             if(this.enable_auto_camera_center && this.player_character){
-                this.center_on_player(500).then(setup);
+                this.center_on_player(250).then(setup);
             } else {
                 setup();
             }
-
         } else {
             this.clear_focus();
             this.lock_actions();
@@ -742,7 +736,6 @@ class GameView {
     refresh(){
         this.fog_of_war.refresh(this.game.world);
         this._require_tiles_update = true;
-
         this.highlight_available_basic_actions();
         this.ui.show_action_buttons(Object.values(this.game.turn_info.possible_actions));
     }

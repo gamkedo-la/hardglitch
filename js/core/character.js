@@ -10,7 +10,8 @@ import * as concepts from "./concepts.js";
 import { FieldOfVision } from "./visibility.js";
 
 const default_view_distance = 1;
-const default_inventory_size = 5;
+const default_inventory_size = 6;
+const default_equipable_items = 2;
 
 class StatValue {
 
@@ -122,13 +123,20 @@ class CharacterStats{
 
     view_distance = new StatValue(default_view_distance); // How far can the character perceive.
     inventory_size = new StatValue(default_inventory_size, undefined, 0); // How many items a character can store in inventory.
+    equipable_items = new StatValue(default_equipable_items, undefined, 0); // How many items a character can store in inventory.
+
+    constructor(){
+        this.inventory_size.add_listener("equipable_items", (inventory_size)=>{
+            this.equipable_items.max = inventory_size.value;
+        });
+    }
 };
 
 
 // Character's inventory, where to store Items.
 class Inventory {
     _items_stored = [];
-    _equipped_items = [];
+    _equipable_items = 1;
     _listeners = {};
 
     add(item){
@@ -214,7 +222,7 @@ class Inventory {
     get_enabled_action_types(action_type){
         console.assert(action_type && action_type.prototype instanceof concepts.Action);
         const enabled_action_types = [];
-        this._items_stored.filter(item => item instanceof concepts.Item)
+        this._items_stored.slice(0, this._equipable_items).filter(item => item instanceof concepts.Item)
             .forEach(item => enabled_action_types.push(...item.get_enabled_action_types(action_type)));
         return enabled_action_types;
     }
@@ -239,6 +247,11 @@ class Character extends concepts.Body {
             if(this.inventory.size !== inventory_size.value){
                 this.inventory.resize(inventory_size.value);
             }
+        });
+
+        this.stats.equipable_items.add_listener("inventory", (equipable_items)=>{
+            console.assert(equipable_items instanceof StatValue);
+            this.inventory._equipable_items = equipable_items.value;
         });
     }
 
