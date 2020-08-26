@@ -73,7 +73,7 @@ const game_assets = { // Description of the assets to load.
         hover: './audio/Hover.mp3',
         damage: './audio/TakeDmg.mp3',
         pusher: './audio/Bounce.mp3',
-        bouncer: './audio/Pushpull.mp3',
+        bouncer: './audio/PushPull.mp3',
         takeItem: './audio/TakeItem.mp3',
         waitTurn: './audio/Wait.mp3',
         aSelect: './audio/actionHover.mp3',
