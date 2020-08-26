@@ -220,15 +220,15 @@ class Tests {
 
     colorshift(x,y) {
         let dx = 4;
-        let dy = 0;
+        let dy = 1;
         let width = 64;
         let height = 64;
-        let rshift = 0;
+        let rshift = .5;
         let gshift = .5;
         let bshift = .25;
         let bandingOffset = 5;
         let affinity = .5;
-        this.particles.add(new ColorOffsetGlitchParticle(x-(32+bandingOffset), y-64, dx, dy, width+bandingOffset*2, height, rshift, gshift, bshift));
+        this.particles.add(new ColorOffsetGlitchParticle(x-32, y-64, dx, dy, width, height, rshift, gshift, bshift));
         //this.particles.add(new BandingGlitchParticle(x-32, y-64, bandingOffset, affinity, width, height));
         //this.particles.add(new ColorOffsetGlitchParticle(x-(32+dx), y-(64+dy), -dx, -dy, width, height, 0, 0, 1));
         //this.particles.add(new ColorOffsetGlitchParticle(x-40, y-72, 64+16, 64+16, 1, 0, 1));
@@ -282,6 +282,7 @@ class Env {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.drawImage(this.bgimg, 368, 236);
         this.ctx.drawImage(this.groundimg, 368, 336);
+        //this.ctx.drawImage(this.groundimg, 368-64, 336);
         // run particle system update
         this.particles.update(delta_time);
         this.particles.draw(this.ctx);

@@ -22,9 +22,11 @@ export {
 }
 
 import { camera } from "./graphics.js";
-import { random_int, random_float, ofmt } from "../system/utility.js";
-import { Color } from "../system/color.js";
-import { Vector2 } from "../system/spatial.js";
+import { random_int, random_float, ofmt } from "./utility.js";
+import { Color } from "./color.js";
+import { Vector2 } from "./spatial.js";
+import { linearFade, linearFadeInOut } from "../view/xforms.js";
+import { ColorShiftDataXForm, HorizontalBandingDataXForm, ColorSwapDataXForm } from "../view/img_data_fx.js";
 
 
 // This object is reused for optimization, do not move it into the functions using it.
@@ -615,179 +617,6 @@ class OffsetGlitchParticle extends Particle {
 
 }
 
-class ColorShiftDataXForm {
-    constructor(dx, dy, minx, miny, maxx, maxy, rshift, gshift, bshift) {
-        this.dx = dx;
-        this.dy = dy;
-        this.minx = minx;
-        this.miny = miny;
-        this.maxx = maxx;
-        this.maxy = maxy;
-        this.rshift = rshift;
-        this.gshift = gshift;
-        this.bshift = bshift;
-        console.log("dx: " + dx + " dy: " + dy + " minx: " + minx + " miny: " + miny + " maxx: " + maxx + " maxy: " + maxy);
-    }
-
-    do(idata) {
-        //console.log("data transform on idata: " + idata.width + "," + idata.height);
-        // create empty data array
-        let xdata = new ImageData(idata.width, idata.height);
-        // shift color data
-        for (let j=0; j<idata.height; j++) {
-            for (let i=0; i<idata.width; i++) {
-                let idx = (j*idata.width+i)*4;
-                let r = idata.data[idx];
-                let g = idata.data[idx+1];
-                let b = idata.data[idx+2];
-                let a = idata.data[idx+3];
-                let lb = 0;
-                // color loss to shift
-                if (i>=this.minx && i<this.maxx && j>=this.miny && j<this.maxy) {
-                    r -= r*this.rshift;
-                    g -= g*this.gshift;
-                    b -= b*this.bshift;
-                    // FIXME
-                    lb = idata.data[idx+2]*this.bshift;
-                }
-                // target index
-                let xi = Math.round(i-this.dx);
-                let xj = Math.round(j-this.dy);
-                if (xi>=0 && xi<idata.width && xj>=0 && xj<idata.height) {
-                    let xidx = (xj*idata.width+xi)*4;
-                    let xr = idata.data[xidx];
-                    let xg = idata.data[xidx+1];
-                    let xb = idata.data[xidx+2];
-                    let xa = idata.data[xidx+3];
-                    // color gained from shift
-                    //r = (r+xr*this.rshift)*.5;
-                    //g = (g+xg*this.gshift)*.5;
-                    //b = (b+xb*this.bshift)*.5;
-                    r += xr*this.rshift;
-                    g += xg*this.gshift;
-                    b += xb*this.bshift;
-                    a = Math.max(xa,a);
-                    //console.log("i: " + i + " xi: " + xi + " xb: " + xb + " b: " + idata.data[idx+2] + " fb: " + b + " a: " + idata.data[idx+3] + " fa: " + a + " lb: " + lb);
-                }
-                // set xdata
-                xdata.data[idx] = Math.min(Math.round(r), 255);
-                xdata.data[idx+1] = Math.min(Math.round(g), 255);
-                xdata.data[idx+2] = Math.min(Math.round(b), 255);
-                xdata.data[idx+3] = Math.min(Math.round(a), 255);
-            }
-        }
-        return xdata;
-    }
-}
-
-class HorizontalBandingDataXForm {
-    constructor(maxOffset, affinity, minx, miny, maxx, maxy) {
-        this.maxOffset = maxOffset;
-        this.affinity = affinity;
-        this.minx = minx;
-        this.miny = miny;
-        this.maxx = maxx;
-        this.maxy = maxy;
-    }
-
-    do(idata) {
-        // create empty data array
-        let xdata = new ImageData(idata.width, idata.height);
-        // pick initial banding offset
-        let offset = random_float(-this.maxOffset, this.maxOffset);
-        let sign = 1;
-        // shift entire rows...
-        for (let j=0; j<idata.height; j++) {
-            // affinity check...
-            if (Math.random() > this.affinity) {
-                if (sign > 0) {
-                    offset = random_float(-this.maxOffset, offset);
-                } else {
-                    offset = random_float(offset, this.maxOffset);
-                }
-                sign *= -1;
-            }
-            for (let i=0; i<idata.width; i++) {
-                // only copy pixels within the window...
-                if (i>=this.minx && i<this.maxx && j>=this.miny && j<this.maxy) {
-                    let idx = (j*idata.width+i)*4;
-                    let r = idata.data[idx];
-                    let g = idata.data[idx+1];
-                    let b = idata.data[idx+2];
-                    let a = idata.data[idx+3];
-                    // target index
-                    let xi = Math.round(i-offset);
-                    let xj = j;
-                    if (xi>=0 && xi<idata.width && xj>=0 && xj<idata.height) {
-                        let xidx = (xj*idata.width+xi)*4;
-                        xdata.data[xidx] = Math.round(r);
-                        xdata.data[xidx+1] = Math.round(g);
-                        xdata.data[xidx+2] = Math.round(b);
-                        xdata.data[xidx+3] = Math.round(a);
-                    }
-                }
-            }
-        }
-        return xdata;
-    }
-}
-
-function *linearFade(target, name, min, max, ttl) {
-    ttl *= 1000;
-    let rate = (max-min)/ttl;
-    target[name] = min;
-    do {
-        let delta_time = yield;
-        // increase
-        target[name] += rate*delta_time;
-        if (target[name] >= max) target[name] = max;
-        // handle lifetime
-        ttl -= delta_time;
-    } while (ttl > 0);
-    target[name] = max;
-}
-
-function *linearFadeInOut(target, name, max, ttl) {
-    ttl *= 1000;
-    let rate = max*2/ttl;
-    let increase = true;
-    target[name] = 0;
-    do {
-        let delta_time = yield;
-        // increase
-        if (increase) {
-            target[name] += rate*delta_time;
-            if (target[name] >= max) {
-                target[name] = max;
-                increase = false;
-            }
-        } else {
-            target[name] -= rate*delta_time;
-            if (target[name] < 0) target[name] = 0;
-        }
-        // handle lifetime
-        ttl -= delta_time;
-    } while (ttl > 0);
-}
-
-function *translate(target, from, to, ttl) {
-    ttl *= 1000;
-    let dx = (to.x-from.x)/ttl;
-    let dy = (to.y-from.y)/ttl;
-    target.x = from.x;
-    target.y = from.y;
-    do {
-        let delta_time = yield;
-        // move along
-        target.x += dx * delta_time;
-        target.y += dy * delta_time;
-        // handle lifetime
-        ttl -= delta_time;
-    } while (ttl > 0);
-    target.x = to.x;
-    target.y = to.y;
-}
-
 // =============================================================================
 const glitchCanvas = document.createElement('canvas');
 class CanvasGlitchParticle extends Particle {
@@ -798,18 +627,19 @@ class CanvasGlitchParticle extends Particle {
         this.xforms = xforms || [];
         this.sdata;
         this.needData = true;
-        //this.updatecount = 2;
+        this.needXform = true;
     }
 
     update(delta_time) {
         if (this.done) return;
-        //if (this.updatecount <= 0) return;
-        //this.updatecount--;
         // perform data transformations
-        if (this.sdata && this.xforms && this.xforms.length) {
-            this.xdata = this.sdata;
+        if (this.needXform && this.sdata && this.xforms && this.xforms.length) {
+            // create copy of source data
+            let data = Uint8ClampedArray.from(this.sdata.data);
+            this.xdata = new ImageData(data, this.sdata.width);
+            //this.needXform = false;
             for (const xform of this.xforms) {
-                this.xdata = xform.do(this.xdata);
+                xform.do(this.xdata);
             }
         }
     }
@@ -818,6 +648,7 @@ class CanvasGlitchParticle extends Particle {
         // pull image data (if needed)
         if (this.needData) {
             this.sdata = canvas_context.getImageData(this.x, this.y, this.width, this.height);
+            this.needData = false;
         }
         // output image data
         if (this.xdata) {
@@ -840,14 +671,33 @@ class ColorOffsetGlitchParticle extends CanvasGlitchParticle {
     constructor(x, y, dx, dy, width, height, rshift, gshift, bshift) {
         let adx = Math.abs(dx);
         let ady = Math.abs(dy);
-        let xforms = [
-            new ColorShiftDataXForm(dx, dy, adx, ady, width+adx, height+ady, rshift, gshift, bshift),
-            new ColorShiftDataXForm(-dx, dy, adx, ady, width+adx, height+ady, 1-rshift, 1-gshift, 1-bshift),
-            new HorizontalBandingDataXForm(dx, .75, adx, 0, width+adx, height),
-        ]
+        let ixforms = [];
+        // blue is shifted vertically (if dy and bshift is given)
+        let blueShift = new ColorShiftDataXForm(0, dy, adx, ady, width+adx, height+ady, 0, 0, bshift);
+        if (bshift && dy) ixforms.push(blueShift);
+        // green is shifted horizontally (if dx and gshift is given)
+        let greenShift = new ColorShiftDataXForm(dx, 0, adx, ady, width+adx, height+ady, 0, gshift, 0);
+        if (gshift && dx) ixforms.push(greenShift);
+        // red is shifted horizontally (if dx and gshift is given)
+        let redShift = new ColorShiftDataXForm(-dx, 0, adx, ady, width+adx, height+ady, rshift, 0, 0);
+        if (rshift && dx) ixforms.push(redShift);
+        let banding = new HorizontalBandingDataXForm(dx, .75, adx, 0, width+adx, height)
+        ixforms.push(banding);
+        let syncOffset = 0;
+        let syncLineWidth = 2;
+        let syncLine1 = new ColorSwapDataXForm(adx, ady+syncOffset, width+adx, ady+syncOffset+syncLineWidth, 55, 55, 55);
+        let syncLine2 = new ColorSwapDataXForm(adx, ady+syncOffset+1, width+adx, ady+syncOffset+syncLineWidth+1, 55, 0, 0);
+        ixforms.push(syncLine1);
+        ixforms.push(syncLine2);
         //console.log("x: " + (x-dx) + " y: " + (y-dy) + " width: " + (width+dx*2) + " height: " + (height+dy*2));
-        super(x-adx, y-ady, width+adx*2, height+ady*2, xforms);
-        this.xform = linearFade(this, "height", 1, height, .5);
+        super(x-adx, y-ady, width+adx*2, height+ady*2, ixforms);
+        this.xform = linearFadeInOut(0, height-syncLineWidth, 1, (v) => {
+            //console.log("v: " + v);
+            syncLine1.miny = v;
+            syncLine1.maxy = v+syncLineWidth;
+            syncLine2.miny = v+1;
+            syncLine2.maxy = v+syncLineWidth+1;
+        });
     }
 
     update(delta_time) {
