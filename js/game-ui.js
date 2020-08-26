@@ -121,7 +121,7 @@ class MuteAudioButton extends ui.Button {
         super({
             sprite_def: sprite_defs.button_mute_audio,
             action: audio.toggleMute,
-            position: {x: 8, y: 8},
+            position: {x: 0, y: 0},
             sounds:{
                 over: 'actionSelect'
             }
@@ -138,7 +138,7 @@ class MuteAudioButton extends ui.Button {
         this.icons.unmute.position = icon_position;
 
         this.help_text = new ui.HelpText({
-            position: { x: 80, y: this.position.y },
+            position: { x: 0, y: this.height },
             width: this.width, height: this.height,
             area_to_help: this.area,
             text: "Mute",
@@ -162,7 +162,7 @@ class AutoFocusButton extends ui.Button {
         super({
             sprite_def: sprite_defs.button_mute_audio,
             action: toggle_autofocus,
-            position: {x: 8, y: action_button_size + 8 },
+            position: {x: 0 + action_button_size, y: 0 },
             sounds:{
                 over: 'actionSelect',
                 down: 'actionClick',
@@ -181,7 +181,7 @@ class AutoFocusButton extends ui.Button {
         // this.icons.off.position = icon_position;
 
         this.help_text = new ui.HelpText({
-            position: { x: 80, y: this.position.y },
+            position: { x: 0, y: this.height },
             width: this.width, height: this.height,
             area_to_help: this.area,
             text: "Auto-Focus ([F] to focus manually)",
@@ -205,7 +205,7 @@ class MenuButton extends ui.Button {
         super({
             sprite_def: sprite_defs.button_ingame_menu,
             action: open_menu,
-            position: {x: graphics.canvas_rect().width - action_button_size - 8, y: 8 },
+            position: {x: graphics.canvas_rect().width - action_button_size, y: 0 },
             sounds:{
                 over: 'actionSelect',
                 down: 'clickButton',
