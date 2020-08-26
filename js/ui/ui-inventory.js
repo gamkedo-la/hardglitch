@@ -79,7 +79,7 @@ class ItemSlot {
         console.assert(typeof new_item.name === "string");
         this._item = new_item;
         this._item._item_slot = this;
-        this._item.visible = true;
+        this._item.is_visible = true;
         this._help_text.text = new_item.name;
         this._update_item_position();
     }
