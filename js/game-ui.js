@@ -6,7 +6,7 @@ export {
     MuteAudioButton,
 };
 
-import { group_per_type, invoke_on_members } from "./system/utility.js";
+import { group_per_type } from "./system/utility.js";
 import * as audio from "./system/audio.js"
 import * as graphics from "./system/graphics.js";
 import * as ui from "./system/ui.js";
@@ -19,15 +19,15 @@ import { CharacterStatus } from "./ui/ui-characterstatus.js";
 import { InventoryUI } from "./ui/ui-inventory.js";
 
 const action_button_size = 50;
-const player_ui_top_from_bottom = 100;
+const player_ui_top_from_bottom = 80;
 
 
 function character_status_position() {
-    return new Vector2({ x: 12, y: graphics.canvas_rect().height - player_ui_top_from_bottom });
+    return new Vector2({ x: 8, y: graphics.canvas_rect().height - player_ui_top_from_bottom });
 }
 
 function inventory_position() {
-    return character_status_position().translate({ y: -10 });
+    return new Vector2({ x:0, y: character_status_position().y - 10 });
 }
 
 class ActionButton extends ui.Button {
