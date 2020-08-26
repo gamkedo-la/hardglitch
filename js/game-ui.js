@@ -237,7 +237,6 @@ class GameInterface {
     });
 
     character_status = new CharacterStatus(character_status_position());
-    inventory = new InventoryUI(inventory_position(), this.character_status);
 
     constructor(config){
         console.assert(config instanceof Object);
@@ -248,8 +247,12 @@ class GameInterface {
         console.assert(config.toggle_autofocus instanceof Function);
         console.assert(config.is_autofocus_enabled instanceof Function);
         console.assert(config.open_menu instanceof Function);
+        console.assert(config.on_item_dragging_begin instanceof Function);
+        console.assert(config.on_item_dragging_end instanceof Function);
         this._action_buttons = [];
         this.config = config;
+
+        this.inventory = new InventoryUI(inventory_position(), this.character_status, config);
 
         this.on_canvas_resized();
     }
@@ -398,7 +401,7 @@ class GameInterface {
         this.button_main_menu = new MenuButton(this.config.open_menu);
         this.button_auto_focus = new AutoFocusButton(this.config.toggle_autofocus, this.config.is_autofocus_enabled);
         this.character_status = new CharacterStatus(character_status_position());
-        this.inventory = new InventoryUI(inventory_position(), this.character_status);
+        this.inventory = new InventoryUI(inventory_position(), this.character_status, this.config);
     }
 
 };

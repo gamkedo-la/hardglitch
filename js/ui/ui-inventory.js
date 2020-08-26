@@ -110,11 +110,13 @@ class InventoryUI {
 
     visible = true;
 
-    constructor(position, character_status){
+    constructor(position, character_status, events){
         console.assert(position instanceof spatial.Vector2);
         console.assert(character_status instanceof CharacterStatus);
+        console.assert(!events || events instanceof Object);
         this.position = position;
         this.character_status = character_status;
+        this.events = events;
     }
 
     get position() { return this._position; }
@@ -206,7 +208,7 @@ class InventoryUI {
                         }
 
                     }
-                } else {
+                } else { // Stopped dragging.
                     const destination_slot = this._find_slot_under(input.mouse.dragging_positions.end);
                     if(destination_slot){
                         const destination_slot_idx = this.slots.indexOf(destination_slot);
@@ -227,6 +229,8 @@ class InventoryUI {
                             this._dragging_item.slot._update_item_position(); // Reset the item position.
                         }
                     }
+                    if(this.events)
+                        this.events.on_item_dragging_end();
                 }
             }
             if(!input.mouse.is_dragging){
@@ -245,19 +249,20 @@ class InventoryUI {
                     console.assert(slot instanceof ItemSlot);
                     this._dragging_item.source_slot_idx = this.slots.indexOf(this._dragging_item.slot);
                     const item_view = slot.item;
-                    if(item_view){
+                    if(item_view){ // Begin dragging an item from a slot.
                         this._dragging_item.item = item_view;
+
+                        console.assert(this._current_character instanceof Character);
+                        console.assert(this.world instanceof concepts.World);
+                        this._possible_drop_positions = this._current_character.allowed_drops()
+                            .filter(position => !this.world.is_blocked_position(position, tiles.is_walkable));
+
+                        if(this.events)
+                            this.events.on_item_dragging_begin(this._possible_drop_positions);
                     }
                 }
             }
         }
-    }
-
-    get _possible_drop_positions() {
-        console.assert(this._current_character instanceof Character);
-        console.assert(this.world instanceof concepts.World);
-        return this._current_character.allowed_drops()
-            .filter(position => !this.world.is_blocked_position(position, tiles.is_walkable));
     }
 
 
