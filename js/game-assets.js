@@ -72,8 +72,8 @@ const game_assets = { // Description of the assets to load.
         destoryExplode: './audio/DestroyExplode_4.mp3',
         hover: './audio/Hover.mp3',
         damage: './audio/TakeDmg.mp3',
-        pusher: './audio/Bounce.mp3',
-        bouncer: './audio/PushPull.mp3',
+        push: './audio/PushPull.mp3',
+        bounce: './audio/Bounce.mp3',
         takeItem: './audio/TakeItem.mp3',
         waitTurn: './audio/Wait.mp3',
         aSelect: './audio/actionHover.mp3',
@@ -575,7 +575,7 @@ const sound_event_defs = {
 
     'pushPull': {
         source_type: 'audiobuffer',
-        source_name: 'pusher',
+        source_name: 'push',
         group_name: 'SoundEffects',
         loop: false,
         volume: 0.5,
@@ -584,7 +584,7 @@ const sound_event_defs = {
 
     'bounce': {
         source_type: 'audiobuffer',
-        source_name: 'bouncer',
+        source_name: 'push', // Trying this sound for this case, not sure if we'll keep it
         group_name: 'SoundEffects',
         loop: false,
         volume: 0.5,
