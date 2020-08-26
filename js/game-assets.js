@@ -26,7 +26,10 @@ const game_assets = { // Description of the assets to load.
         highlights : "./images/highlights.png",
         laserwalltemplate : "./images/laserwall.png",
         crypto_file: "./images/allcryptofiles.png",
-        crypto_key: "./images/cryptokeycircle2.png",
+        crypto_key_0: "./images/cryptokeytriangle2.png",
+        crypto_key_1: "./images/cryptokeyequal2.png",
+        crypto_key_2: "./images/cryptokeyplus2.png",
+        crypto_key_3: "./images/cryptokeycircle2.png",
         movable_wall: "./images/column5.png",
         life_form: "./images/life_form.png",
         life_form_weak: "./images/life_form_weak.png",
@@ -175,6 +178,15 @@ function crypto_file_def(line){
                 ],
             },
         },
+    };
+}
+
+function crypto_key_def(kind){
+    return {
+        image: `crypto_key_${kind}`,
+        frames: [
+            { x:0, y:0, width:64, height:64 }
+         ]
     };
 }
 
@@ -342,12 +354,11 @@ const sprite_defs = {
     crypto_file_1 : crypto_file_def(1),
     crypto_file_2 : crypto_file_def(2),
     crypto_file_3 : crypto_file_def(3),
-    crypto_key : {
-        image: "crypto_key",
-        frames: [
-            { x:0, y:0, width:64, height:64 }
-         ]
-    },
+    crypto_key_0 : crypto_key_def(0),
+    crypto_key_1 : crypto_key_def(1),
+    crypto_key_2 : crypto_key_def(2),
+    crypto_key_3 : crypto_key_def(3),
+
     item_generic_1 : {
         image: "item_generic_1",
         frames: [

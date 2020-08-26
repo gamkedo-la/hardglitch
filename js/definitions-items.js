@@ -17,25 +17,28 @@ function all_item_types(){
     return [
         DebugItem,
         CryptoFile_Triangle,
-        CryptoFile_Bars,
-        CryptoFile_Cross,
+        CryptoFile_Equal,
+        CryptoFile_Plus,
         CryptoFile_Circle,
-        CryptoKey,
+        CryptoKey_Triangle,
+        CryptoKey_Equal,
+        CryptoKey_Plus,
+        CryptoKey_Circle,
         MovableWall,
     ];
 }
 
 const crypto_kind = {
     triangle: 0,
-    bars: 1,
-    cross: 2,
+    equal: 1,
+    plus: 2,
     circle: 3,
 };
 
 const crypto_names = {
     [crypto_kind.triangle]: "Triangle",
-    [crypto_kind.bars]: "Bars",
-    [crypto_kind.cross]: "Cross",
+    [crypto_kind.equal]: "Equal",
+    [crypto_kind.plus]: "Plus",
     [crypto_kind.circle]: "Circle",
 };
 
@@ -66,15 +69,15 @@ class CryptoFile_Triangle extends CryptoFile {
     }
 }
 
-class CryptoFile_Bars extends CryptoFile {
+class CryptoFile_Equal extends CryptoFile {
     constructor(){
-        super(crypto_kind.bars);
+        super(crypto_kind.equal);
     }
 }
 
-class CryptoFile_Cross extends CryptoFile {
+class CryptoFile_Plus extends CryptoFile {
     constructor(){
-        super(crypto_kind.cross);
+        super(crypto_kind.plus);
     }
 }
 
@@ -86,22 +89,39 @@ class CryptoFile_Circle extends CryptoFile {
 
 
 class CryptoKey extends concepts.Item {
-    assets = {
-        graphics : {
-            sprite_def : sprite_defs.crypto_key,
-        }
-    };
+
 
     get can_be_taken() { return true; }
 
+    constructor(kind){
+        console.assert(Number.isInteger(kind));
+        console.assert(Object.values(crypto_kind).includes(kind));
+        super(`Crypto Key ${crypto_names[kind]}`);
 
-    constructor(){
-        super("Crypto Key");
+        this.assets = {
+            graphics : {
+                sprite_def : sprite_defs[`crypto_key_${kind}`],
+            }
+        };
     }
 
 };
 
+class CryptoKey_Triangle extends CryptoKey{
+    constructor() { super(crypto_kind.triangle); }
+};
 
+class CryptoKey_Equal extends CryptoKey{
+    constructor() { super(crypto_kind.equal); }
+};
+
+class CryptoKey_Plus extends CryptoKey{
+    constructor() { super(crypto_kind.plus); }
+};
+
+class CryptoKey_Circle extends CryptoKey{
+    constructor() { super(crypto_kind.circle); }
+};
 
 class MovableWall extends concepts.Item {
     assets = {
