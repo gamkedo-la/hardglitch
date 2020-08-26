@@ -3,7 +3,7 @@
 export { make_test_world }
 
 import * as concepts from "../core/concepts.js";
-import { random_int, index_from_position } from "../system/utility.js";
+import { random_int, index_from_position, random_sample } from "../system/utility.js";
 import { RandomActionEnemy } from "../characters/test-enemy.js";
 
 import * as tiles from "../definitions-tiles.js";
@@ -108,25 +108,25 @@ function make_test_world(test_world_size = world_grid){ // The game assets must 
         }
     }
 
-    let file_count = 4;
-    while(file_count > 0){
+    const crypto_file_types = items.all_crypto_file_types();
+    while(crypto_file_types.length !== 0){
         const position = random_position();
         if(can_insert_something_there(position)){
-            const file = new items.CryptoFile();
+            const file_type = crypto_file_types.pop();
+            const file = new file_type();
             file.position = position;
             world.add(file);
-            --file_count;
         }
     }
 
-    let key_count = 4;
-    while(key_count > 0){
+    const crypto_key_types = items.all_crypto_key_types();
+    while(crypto_key_types.length !== 0){
         const position = random_position();
         if(can_insert_something_there(position)){
-            const key = new items.CryptoKey();
+            const key_type = crypto_key_types.pop();
+            const key = new key_type();
             key.position = position;
             world.add(key);
-            --key_count;
         }
     }
 
@@ -171,10 +171,10 @@ function make_test_world(test_world_size = world_grid){ // The game assets must 
     visibility.positions_in_range(entry_point_position, inner_shape, valid_positions_filter)
         .filter(position => world.is_valid_position(position))
         .forEach(position=>{
-            const item_type = random_int(0, 100) >= 70 ? LifeForm_Weak : items.CryptoKey;
-            const file = new item_type();
-            file.position = position;
-            world.add(file);
+            const item_type = random_int(0, 100) >= 70 ? LifeForm_Weak : random_sample([...items.all_crypto_key_types(), ...items.all_crypto_file_types()]);
+            const entity = new item_type();
+            entity.position = position;
+            world.add(entity);
         });
 
     // farther voids

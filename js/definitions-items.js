@@ -3,6 +3,8 @@ export {
     CryptoFile,
     CryptoKey,
     MovableWall,
+    all_crypto_file_types,
+    all_crypto_key_types,
     all_item_types,
     crypto_kind,
 }
@@ -11,19 +13,32 @@ import * as concepts from "./core/concepts.js";
 import { sprite_defs } from "./game-assets.js";
 import { all_uncommon_action_types } from "./definitions-actions.js";
 
+function all_crypto_file_types() {
+    return [
+        CryptoFile_Triangle,
+        CryptoFile_Equal,
+        CryptoFile_Plus,
+        CryptoFile_Circle,
+    ];
+}
+
+function all_crypto_key_types() {
+    return [
+        CryptoKey_Triangle,
+        CryptoKey_Equal,
+        CryptoKey_Plus,
+        CryptoKey_Circle,
+    ];
+}
 
 
 function all_item_types(){
     return [
         DebugItem,
-        CryptoFile_Triangle,
-        CryptoFile_Equal,
-        CryptoFile_Plus,
-        CryptoFile_Circle,
-        CryptoKey_Triangle,
-        CryptoKey_Equal,
-        CryptoKey_Plus,
-        CryptoKey_Circle,
+
+        ...all_crypto_file_types(),
+        ...all_crypto_key_types(),
+
         MovableWall,
     ];
 }
