@@ -4,6 +4,7 @@ export {
     CryptoKey,
     MovableWall,
     all_item_types,
+    crypto_kind,
 }
 
 import * as concepts from "./core/concepts.js";
@@ -15,30 +16,74 @@ import { all_uncommon_action_types } from "./definitions-actions.js";
 function all_item_types(){
     return [
         DebugItem,
-        CryptoFile,
+        CryptoFile_Triangle,
+        CryptoFile_Bars,
+        CryptoFile_Cross,
+        CryptoFile_Circle,
         CryptoKey,
         MovableWall,
     ];
 }
 
+const crypto_kind = {
+    triangle: 0,
+    bars: 1,
+    cross: 2,
+    circle: 3,
+};
+
+const crypto_names = {
+    [crypto_kind.triangle]: "Triangle",
+    [crypto_kind.bars]: "Bars",
+    [crypto_kind.cross]: "Cross",
+    [crypto_kind.circle]: "Circle",
+};
 
 
 // TODO: maybe have a separate file for cryptyfile & cryptokey
 class CryptoFile extends concepts.Item {
-    assets = {
-        graphics : {
-            sprite_def : sprite_defs.crypto_file,
-        }
-    };
 
-    get can_be_taken() { return true; }
+    constructor(kind){
+        console.assert(Number.isInteger(kind));
+        console.assert(Object.values(crypto_kind).includes(kind));
+        super(`Crypto File ${crypto_names[kind]}`);
 
-    constructor(){
-        super("Crypto File");
-        this.is_blocking_vision = true;
+        this.assets = {
+            graphics : {
+                sprite_def : sprite_defs[`crypto_file_${kind}`],
+            }
+        };
+
     }
 
+    get can_be_taken() { return false; }
+
 };
+
+class CryptoFile_Triangle extends CryptoFile {
+    constructor(){
+        super(crypto_kind.triangle);
+    }
+}
+
+class CryptoFile_Bars extends CryptoFile {
+    constructor(){
+        super(crypto_kind.bars);
+    }
+}
+
+class CryptoFile_Cross extends CryptoFile {
+    constructor(){
+        super(crypto_kind.cross);
+    }
+}
+
+class CryptoFile_Circle extends CryptoFile {
+    constructor(){
+        super(crypto_kind.circle);
+    }
+}
+
 
 class CryptoKey extends concepts.Item {
     assets = {

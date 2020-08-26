@@ -145,6 +145,38 @@ function icon_def_from_image(image){
     };
 }
 
+function crypto_file_def(line){
+    console.assert(Number.isInteger(line));
+    const y = line * 64;
+    const width = 64;
+    const height = 64;
+    const animation_speed = 1000 / 24;
+    return  {
+        image: "crypto_file",
+        frames: [
+            { x: 0,             y, width, height },
+            { x: width,         y, width, height },
+            { x: width * 2,     y, width, height },
+            { x: width * 3,     y, width, height },
+            { x: width * 4,     y, width, height },
+        ],
+        animations: {
+            idle: {
+                loop: false,
+                timeline: [ { frame: 0, duration: 0 } ],
+            },
+            decrypt: {
+                loop: false,
+                timeline: [
+                    { frame: 1, duration: animation_speed },
+                    { frame: 2, duration: animation_speed },
+                    { frame: 3, duration: animation_speed },
+                    { frame: 4, duration: animation_speed },
+                ],
+            },
+        },
+    };
+}
 
 //////////////////////////////////////////////////////////////////////////////////////
 // Sprite descriptions here.
@@ -306,12 +338,10 @@ const sprite_defs = {
             { x:0, y:0, width:72, height:72 }
          ]
     },
-    crypto_file : {
-        image: "crypto_file",
-        frames: [
-            { x:0, y:0, width:64, height:64 }
-         ]
-    },
+    crypto_file_0 : crypto_file_def(0),
+    crypto_file_1 : crypto_file_def(1),
+    crypto_file_2 : crypto_file_def(2),
+    crypto_file_3 : crypto_file_def(3),
     crypto_key : {
         image: "crypto_key",
         frames: [
