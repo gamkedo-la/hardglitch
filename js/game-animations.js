@@ -202,7 +202,11 @@ function* take_item(taker_view, item_view){
             ),
         translate(item_view, taker_view.position.translate(square_half_unit_vector), take_duration_ms),
     );
+    item_view.sprite.visible = false;
+    item_view.scale = initial_scale;
     item_view.sprite.reset_origin();
+}
+
     item_view.scale = initial_scale;
 }
 

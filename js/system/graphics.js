@@ -122,7 +122,6 @@ const camera = new Camera();
 
 class Sprite {
   transform = new spatial.Transform();
-  animation_time = 0.0;
   animation_keyframe_idx = 0;
   origin = new spatial.Vector2(); // Point in the sprite that corresponds to the origin
 
@@ -230,6 +229,7 @@ class Sprite {
     } else {
       this._frame_origin = new spatial.Vector2();
     }
+    this.origin = new spatial.Vector2();
   }
 
   _draw_translation_from_origin() {
@@ -283,6 +283,7 @@ class Sprite {
     if(!this._current_animation)
       return ;
 
+    console.assert(is_number(this.animation_time));
     this.animation_time += delta_time;
     let need_to_change_frame = false;
     while(true){ // Try to find the right keyframe to display
@@ -302,6 +303,7 @@ class Sprite {
          }else{
            // stay on the last frame
           this.animation_keyframe_idx = this._current_animation.timeline.length - 1;
+          delete this.animation_time;
          }
       }
       need_to_change_frame = true;
@@ -311,9 +313,17 @@ class Sprite {
     if(need_to_change_frame){
       const current_keyframe = this._current_animation.timeline[this.animation_keyframe_idx];
       this.force_frame(current_keyframe.frame);
+      if(this.animation_time === undefined) // Stop the current animation.
+        delete this._current_animation;
     }
 
   }
+
+  get is_playing_animation() {
+    return this._current_animation
+        && this._current_animation.timeline.length > 1;
+  }
+
 };
 
 function create_canvas_context(width, height){

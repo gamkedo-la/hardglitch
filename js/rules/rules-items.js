@@ -19,9 +19,10 @@ import { ItemView } from "../view/item-view.js";
 
 
 class ItemTaken extends concepts.Event {
-    constructor(taker, item){
+    constructor(taker, item, inventory_idx){
         console.assert(taker instanceof Character);
         console.assert(item instanceof concepts.Item);
+        console.assert(Number.isInteger(inventory_idx));
 
         super({
             description: `Character ${taker.id} took item ${item.id}`,
@@ -31,6 +32,7 @@ class ItemTaken extends concepts.Event {
         this.taker_position = taker.position;
         this.item_id = item.id;
         this.item_position = item.position;
+        this.inventory_idx = inventory_idx;
     }
 
     get focus_positions() { return [ this.item_position, this.taker_position ]; }
@@ -43,21 +45,22 @@ class ItemTaken extends concepts.Event {
         console.assert(item_view instanceof ItemView);
         yield* anim.take_item(character_view, item_view);
         game_view.remove_entity_view(this.item_id);
+        game_view.ui.inventory.set_item_view_at(this.inventory_idx, item_view);
     }
 };
 
 class ItemDropped extends concepts.Event {
-    constructor(dropper, item, target){
+    constructor(dropper, item_idx, target){
         console.assert(dropper instanceof Character);
-        console.assert(item instanceof concepts.Item);
+        console.assert(Number.isInteger(item_idx));
 
         super({
-            description: `Character ${dropper.id} dropped item ${item.id} at ${JSON.stringify(target)}`,
+            description: `Character ${dropper.id} dropped item from slot ${item_idx} at ${JSON.stringify(target)}`,
             allow_parallel_animation: false,
         });
         this.dropper_id = dropper.id;
         this.dropper_position = dropper.position;
-        this.item_id = item.id;
+        this.item_idx = item_idx;
         this.drop_position = target;
     }
 
@@ -65,6 +68,7 @@ class ItemDropped extends concepts.Event {
 
     *animation(game_view){
         console.assert(game_view instanceof GameView);
+        game_view.ui.inventory.remove_item_view_at(this.item_idx);
         game_view.reset_entities(); // TODO: only add the entity view, instead of recreating all the entity views.
     }
 };
@@ -80,7 +84,7 @@ class TakeItem extends concepts.Action {
             { // costs
                 action_points: 1
             });
-        this.is_basic = true; // Items occupy positions that cannot be moved into, so it's safe to assume that we will take them by default.
+        this.is_basic = true;
     }
 
     execute(world, character){
@@ -89,11 +93,37 @@ class TakeItem extends concepts.Action {
         const item = world.item_at(this.target_position);
         console.assert(item instanceof concepts.Item);
         world.remove_entity(item.id);
-        character.inventory.add(item);
-        return [ new ItemTaken(character, item) ];
+        const item_idx = character.inventory.add(item);
+        return [ new ItemTaken(character, item, item_idx) ];
     }
 };
 
+
+class SwappedItemsSlots extends concepts.Event {
+    constructor(left_item_idx, right_item_idx){
+
+        super({
+            description: `Character swaped inventory items ${left_item_idx} and ${right_item_idx}`,
+            allow_parallel_animation: false,
+        });
+        this.left_item_idx = left_item_idx;
+        this.right_item_idx = right_item_idx;
+    }
+
+    get focus_positions() { return [ this.drop_position, this.dropper_position ]; }
+
+    *animation(game_view){
+        console.assert(game_view instanceof GameView);
+        const inventory = game_view.ui.inventory;
+        const left_item_view = inventory.remove_item_view_at(this.left_item_idx);
+        const right_item_view = inventory.remove_item_view_at(this.right_item_idx);
+        if(left_item_view)
+            inventory.set_item_view_at(this.right_item_idx, left_item_view);
+        if(right_item_view)
+            inventory.set_item_view_at(this.left_item_idx, right_item_view);
+
+    }
+}
 
 class SwapItemSlots extends concepts.Action {
     constructor(slot_a_idx, slot_b_idx){
@@ -117,8 +147,8 @@ class SwapItemSlots extends concepts.Action {
         const item_b = character.inventory.remove(this.slot_b_idx);
         if(item_a) character.inventory.set_item_at(this.slot_b_idx, item_a);
         if(item_b) character.inventory.set_item_at(this.slot_a_idx, item_b);
-        // TODO: consider doing the update of the InventoryUI through an event.
-        return [];
+
+        return [ new SwappedItemsSlots(this.slot_a_idx, this.slot_b_idx)];
     }
 };
 
@@ -144,7 +174,7 @@ class DropItem extends concepts.Action {
         item.position = this.target;
         world.add(item);
         console.assert(item instanceof concepts.Item);
-        return [new ItemDropped(character, item, this.target)];
+        return [new ItemDropped(character, this.item_idx, this.target)];
     }
 };
 
@@ -154,7 +184,7 @@ class Rule_TakeItem extends concepts.Rule {
     get_actions_for(character, world){
         console.assert(character instanceof Character);
 
-        if(!character.is_player_actor) // TODO: temporary (otherwise the player will be bushed lol)
+        if(!character.is_player_actor)
             return {};
 
         if(character.inventory.is_full)

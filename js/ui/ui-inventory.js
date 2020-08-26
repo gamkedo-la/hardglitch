@@ -73,13 +73,14 @@ class ItemSlot {
     get item() { return this._item; }
 
 
-    set_item(item_name, new_item){
-        console.assert(typeof item_name === "string");
+    set_item(new_item){
         console.assert(this._item === null);
         console.assert(new_item instanceof ItemView);
+        console.assert(typeof new_item.name === "string");
         this._item = new_item;
         this._item._item_slot = this;
-        this._help_text.text = item_name;
+        this._item.visible = true;
+        this._help_text.text = new_item.name;
         this._update_item_position();
     }
 
@@ -146,6 +147,25 @@ class InventoryUI {
     get is_dragging_item() { return this._dragging_item && this._dragging_item.item; }
 
     is_under(position){ return this._find_slot_under(position) !== undefined; }
+
+    get_item_view_at(idx) {
+        console.assert(Number.isInteger(idx));
+        console.assert(idx < this.slots.length);
+        return this.slots[idx].item;
+    }
+
+    set_item_view_at(idx, item_view){
+        console.assert(Number.isInteger(idx));
+        console.assert(idx < this.slots.length);
+        console.assert(item_view instanceof ItemView);
+        this.slots[idx].set_item(item_view);
+    }
+
+    remove_item_view_at(idx){
+        console.assert(Number.isInteger(idx));
+        console.assert(idx < this.slots.length);
+        return this.slots[idx].remove_item();
+    }
 
     _find_slot_under(position){
         console.assert(position instanceof spatial.Vector2);
@@ -229,8 +249,11 @@ class InventoryUI {
                             this._dragging_item.slot._update_item_position(); // Reset the item position.
                         }
                     }
-                    if(this.events)
+                    if(this.events){
+                        console.assert(this._dragging_item.item);
+                        this._dragging_item.item.sprite.reset_origin();
                         this.events.on_item_dragging_end();
+                    }
                 }
             }
             if(!input.mouse.is_dragging){
@@ -251,6 +274,7 @@ class InventoryUI {
                     const item_view = slot.item;
                     if(item_view){ // Begin dragging an item from a slot.
                         this._dragging_item.item = item_view;
+                        this._dragging_item.item.sprite.move_origin_to_center();
 
                         console.assert(this._current_character instanceof Character);
                         console.assert(this.world instanceof concepts.World);
@@ -283,15 +307,15 @@ class InventoryUI {
             this._reset_slots(inventory_size);
         }
 
-        if(character !== previous_character){
-            const listener_id = "inventory_ui";
-            if(previous_character){
-                previous_character.inventory.remove_listener(listener_id);
-            }
-            character.inventory.add_listener(listener_id, inventory =>{
-                this._reset_items(inventory);
-            });
-        }
+        // if(character !== previous_character){
+        //     const listener_id = "inventory_ui";
+        //     if(previous_character){
+        //         previous_character.inventory.remove_listener(listener_id);
+        //     }
+        //     character.inventory.add_listener(listener_id, inventory =>{
+        //         this._reset_items(inventory);
+        //     });
+        // }
     }
 
     _reset_slots(slot_count){
@@ -315,7 +339,7 @@ class InventoryUI {
 
         for (const [item_idx, item] of items.entries()){
             if(item instanceof concepts.Item){
-                this.slots[item_idx].set_item(item.name, new ItemView(item));
+                this.set_item_view_at(item_idx, new ItemView(item));
             } else {
                 console.assert(!item);
                 console.assert(!this.slots[item_idx].item);

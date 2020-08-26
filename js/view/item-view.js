@@ -13,6 +13,7 @@ class ItemView extends EntityView {
     constructor(item){
         console.assert(item instanceof concepts.Item);
         super(item.position, item.assets);
+        this.name = item.name;
     }
 };
 
