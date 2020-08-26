@@ -100,17 +100,18 @@ class TakeItem extends concepts.Action {
 
 
 class SwappedItemsSlots extends concepts.Event {
-    constructor(left_item_idx, right_item_idx){
-
+    constructor(character, left_item_idx, right_item_idx){
+        console.assert(character instanceof Character);
         super({
             description: `Character swaped inventory items ${left_item_idx} and ${right_item_idx}`,
             allow_parallel_animation: false,
         });
         this.left_item_idx = left_item_idx;
         this.right_item_idx = right_item_idx;
+        this.character_position = character.position;
     }
 
-    get focus_positions() { return [ this.drop_position, this.dropper_position ]; }
+    get focus_positions() { return [ this.character_position ]; }
 
     *animation(game_view){
         console.assert(game_view instanceof GameView);
@@ -121,7 +122,6 @@ class SwappedItemsSlots extends concepts.Event {
             inventory.set_item_view_at(this.right_item_idx, left_item_view);
         if(right_item_view)
             inventory.set_item_view_at(this.left_item_idx, right_item_view);
-
     }
 }
 
@@ -148,7 +148,7 @@ class SwapItemSlots extends concepts.Action {
         if(item_a) character.inventory.set_item_at(this.slot_b_idx, item_a);
         if(item_b) character.inventory.set_item_at(this.slot_a_idx, item_b);
 
-        return [ new SwappedItemsSlots(this.slot_a_idx, this.slot_b_idx)];
+        return [ new SwappedItemsSlots(character, this.slot_a_idx, this.slot_b_idx)];
     }
 };
 
