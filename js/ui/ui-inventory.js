@@ -324,7 +324,7 @@ class InventoryUI {
         this.slots = [];
         while(slot_count > 0){
             const item_slot = new ItemSlot();
-            item_slot.position = this.position.translate({ y: -slot_count * item_slot.size.height });
+            item_slot.position = this.position.translate({ y: -slot_count * item_slot.size.height + item_slot_vertical_space });
             this.slots.push(item_slot);
             --slot_count;
         }

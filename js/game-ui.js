@@ -27,7 +27,7 @@ function character_status_position() {
 }
 
 function inventory_position() {
-    return new Vector2({ x: 0, y: graphics.canvas_rect().height - (player_ui_top_from_bottom + 80) });
+    return character_status_position().translate({ y: -10 });
 }
 
 class ActionButton extends ui.Button {
