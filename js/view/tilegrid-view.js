@@ -106,8 +106,6 @@ class TileGridView {
         }
 
         // generate walls
-        //let pwallgen = procWallGenSelector("wall");
-        //let pholegen = procWallGenSelector("hole");
         for (let i=0; i<floor_grid.elements.length; i++) {
             let coords = position_from_index(size.x*2, size.y*2, i);
             let pos = {x: coords.x*PIXELS_PER_HALF_SIDE, y:coords.y*PIXELS_PER_HALF_SIDE};

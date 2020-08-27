@@ -20,9 +20,7 @@ const shape_defs = {}
 function initialize(tiledefs) {
     // iterate through tile definitions, looking for tiles with shape template specified
     for (const [id, def] of Object.entries(tiledefs)) {
-    //for (const def of Object.values(tiledefs)) {
         if (def.shape_template) {
-            // FIXME: level definitions
             update_sprite_defs(def.shape_template, id, PIXELS_PER_HALF_SIDE);
             // FIXME: re-eval subtile animations
             // update_anim_defs("void_template", "void", 32, 512, 8, 100);

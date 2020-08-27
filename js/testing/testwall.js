@@ -1,15 +1,16 @@
-import { parse_tile_id, shape_map, SeamSelector, genFloorOverlay, genSeamOverlay } from "../view/tile-select.js";
+import { initialize, parse_tile_id, shape_map, SeamSelector, genFloorOverlay, genSeamOverlay } from "../view/tile-select.js";
 import { Grid } from "../system/grid.js";
 import * as tiledefs from "../definitions-tiles.js";
 import { procWallGenSelector } from "../view/proc-wall.js";
 import { WallModel, sides } from "../view/wall-model.js";
 import { Color } from "../system/color.js";
+import { position_from_index } from "../system/utility.js";
 
 const templatesToLoad = [
-    {path: "srcref/ground_template.png", tag: "ground"},
-    {path: "srcref/hole_template.png", tag: "hole"},
-    {path: "srcref/wall_template.png", tag: "wall"},
-    {path: "srcref/void_template.png", tag: "void"},
+    {path: "srcref/ground_template.png", tag: tiledefs.ID.GROUND},
+    {path: "srcref/hole_template.png", tag: tiledefs.ID.HOLE},
+    {path: "srcref/wall_template.png", tag: tiledefs.ID.WALL},
+    {path: "srcref/void_template.png", tag: tiledefs.ID.VOID},
 ];
 
 const templates = {};
@@ -127,6 +128,7 @@ class Env {
     }
 
     setup() {
+        initialize(tiledefs.defs);
         return new Promise((resolve) => {
             // load tileset images
             let promises = [];
@@ -160,12 +162,11 @@ class Env {
 
         // generate the bg overlay based on level data
         let bg_grid = new Grid(width*2, height*2);
-        let selectors = [
-            new SeamSelector("wall", (fg) => (fg==tiledefs.ID.WALL), (bg) => (bg == tiledefs.ID.WALL)),
-            new SeamSelector("hole", (fg) => (fg==tiledefs.ID.HOLE), (bg) => (bg == tiledefs.ID.HOLE)),
-            new SeamSelector("void", (fg) => (fg==tiledefs.ID.VOID), (bg) => (bg == tiledefs.ID.VOID)),
-            new SeamSelector("ground", (fg) => (fg==tiledefs.ID.GROUND), (bg) => (bg == tiledefs.ID.GROUND)),
-        ];
+        let selectors = [];
+        for (const [id, def] of Object.entries(tiledefs.defs)) {
+            if (!def.shape_template) continue;
+            selectors.push(new SeamSelector(id, def.tile_match_predicate, def.tile_same_predicate));
+        }
         genFloorOverlay(grid, bg_grid, selectors);
 
         // generate the perspective overlay based on level data
@@ -201,28 +202,23 @@ class Env {
 
         // procedural walls
         let pwalls = [];
-        let pwallgen = procWallGenSelector("wall");
-        let pholegen = procWallGenSelector("hole");
         for (let j=0; j<bg_grid.height; j++) {
             for (let i=0; i<bg_grid.width; i++) {
-                let pos = {x:32*i, y:32*j};
+                let pos = {x: i*32, y:j*32};
                 let id = parse_tile_id(bg_grid.get_at(i,j));
+                //let id = parse_tile_id(bg_grid.elements[i]);
                 if (id) {
-                    if (id.layer === "wall") {
-                        let pwall = pwallgen.create(pos, id.name, 32);
-                        if (pwall) pwalls.push(pwall);
-                    } else if (id.layer === "hole") {
-                        let pwall = pholegen.create(pos, id.name, 16);
+                    let gen = procWallGenSelector(id.layer);
+                    if (gen) {
+                        let pwall = gen.create(pos, id.name);
                         if (pwall) pwalls.push(pwall);
                     }
                 }
-                id = parse_tile_id(seam_grid.get_at(i,j));
+                id = parse_tile_id(seam_grid.elements[i]);
                 if (id) {
-                    if (id.layer === "wall") {
-                        let pwall = pwallgen.create(pos, id.name, 32);
-                        if (pwall) pwalls.push(pwall);
-                    } else if (id.layer === "hole") {
-                        let pwall = pholegen.create(pos, id.name, 16);
+                    let gen = procWallGenSelector(id.layer);
+                    if (gen) {
+                        let pwall = gen.create(pos, id.name);
                         if (pwall) pwalls.push(pwall);
                     }
                 }
