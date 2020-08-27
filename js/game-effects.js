@@ -244,7 +244,7 @@ class GameFxView {
         let emitInterval = .1;
         let emitJitter = 25;
         let emitTTL = 0;
-        let emitCount = 1;
+        let emitCount = 4;
         let emitter = new ParticleEmitter(this.particleSystem, origin.x, origin.y, (e) => {
             let segments = random_int(10,15);
             let width = random_int(1,2);
