@@ -601,30 +601,38 @@ function reset() {
 }
 
 const text_defaults = {
-  text_align: "left", text_baseline: "top",
-  font: "24px arial", color: "black",
+  text_align: "left",
+  text_baseline: "top",
+  font: "24px arial",
+  color: "black",
+  stroke_color: undefined,
 };
 
-function text_operation(canvas_context, font, color, operation){
+function text_operation(canvas_context, options, operation){
+  console.assert(options instanceof Object)
   canvas_context.save();
-  canvas_context.font = font;
-  canvas_context.fillStyle = color;
-  canvas_context.textAlign = text_defaults.text_align;
-  canvas_context.textBaseline = text_defaults.text_baseline;
+  canvas_context.font = options.font ? options.font : text_defaults.font;
+  canvas_context.fillStyle = options.color ? options.color : text_defaults.color;
+  canvas_context.strokeStyle = options.stroke_color ? options.stroke_color : text_defaults.strole_color;
+  canvas_context.textAlign = options.text_align ? options.text_align : text_defaults.text_align;
+  canvas_context.textBaseline = options.text_baseline ? options.text_baseline: text_defaults.text_baseline;
   const result = operation();
   canvas_context.restore();
   return result;
 }
 
-function measure_text(canvas_context, text, font=text_defaults.font, color=text_defaults.color){
-  return text_operation(canvas_context, font, color, ()=>{
+function measure_text(canvas_context, text, options = text_defaults){
+  return text_operation(canvas_context, options, ()=>{
     return canvas_context.measureText(text);
   });
 }
 
-function draw_text(canvas_context, text, position, font=text_defaults.font, color=text_defaults.color){
-  return text_operation(canvas_context, font, color, ()=>{
+function draw_text(canvas_context, text, position, options = text_defaults){
+  return text_operation(canvas_context, options, ()=>{
     canvas_context.fillText(text, position.x, position.y);
+    if(options.stroke_color){
+      canvas_context.strokeText(text, position.x, position.y);
+    }
   });
 }
 

@@ -200,6 +200,8 @@ class Rectangle {
 
     get top_left() { return new Vector2(this.position); }
     get bottom_right() { return new Vector2({x: this.position.x + this.width, y: this.position.y + this.height}); }
+
+    get center() { return this.position.translate({ x: this.width / 2.0, y: this.height / 2.0 }); }
 };
 
 // Returns the re-positionned inner rectangle which should be centerred in the outter rectangle.

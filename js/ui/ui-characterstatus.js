@@ -8,11 +8,18 @@ import * as ui from "../system/ui.js";
 import { invoke_on_members } from "../system/utility.js";
 import { Character, StatValue } from "../core/character.js";
 import { Vector2 } from "../system/spatial.js";
+import { config } from "../game-config.js";
 
 const bar_text = {
-    font: "18px Arial",
+    font: "22px Verdana",
     color: "white",
-    background_color: "#ffffff00",
+    background_color: "#00000030",
+};
+
+const bar_size = {
+    width: 300,
+    height: 32,
+    space_between: 8,
 };
 
 function update_stat_bar(bar, stat){
@@ -29,26 +36,34 @@ class CharacterStatus{
 
         this.health_bar = new ui.Bar({
             position: position,
-            width: 300, height: 24,
+            width: bar_size.width, height: bar_size.height,
             bar_name: "Integrity",
             help_text: bar_text,
         });
 
         this.action_bar = new ui.Bar({
-            position: position.translate({ y: 28 }),
-            width: 300, height: 24,
+            position: position.translate({ y: bar_size.height + bar_size.space_between }),
+            width: bar_size.width, height: bar_size.height,
             bar_name: "Action Points",
             help_text: bar_text,
         });
 
-        this.health_bar.helptext_always_visible = true;
-        this.action_bar.helptext_always_visible = true;
     }
 
     update(delta_time, character){
         this.character = character;
-        if(!(this.character instanceof Character))
+
+        if(this.character instanceof Character){
+            this.health_bar.visible = true;
+            this.action_bar.visible = true;
+        } else {
+            this.health_bar.visible = false;
+            this.action_bar.visible = false;
             return;
+        }
+
+        this.health_bar.helptext_always_visible = config.enable_stats_bar_value_always_visible;
+        this.action_bar.helptext_always_visible = config.enable_stats_bar_value_always_visible;
 
         update_stat_bar(this.health_bar, this.character.stats.integrity);
         update_stat_bar(this.action_bar, this.character.stats.action_points);

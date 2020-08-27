@@ -331,8 +331,13 @@ class Text extends UIElement {
             width:1, height:1, // Width and height will be recalculated based on the real size of the text.
         }));
         this._text = text_def.text;
-        this._font = text_def.font;
-        this._color = text_def.color;
+        this._font_options = {
+            font: text_def.font,
+            color: text_def.color,
+            stroke_color: text_def.stroke_color,
+            text_align: text_def.text_align,
+            text_baseline: text_def.text_baseline,
+        };
         this._margin_horizontal = text_def.margin_horizontal ? text_def.margin_horizontal : 4;
         this._margin_vertical = text_def.margin_vertical ? text_def.margin_vertical : 4;
         this._background_color = text_def.background_color ? text_def.background_color : "#ffffffaa";
@@ -347,20 +352,20 @@ class Text extends UIElement {
         this._request_reset = true;
     }
 
-    get color() { return this._color; }
+    get color() { return this._font_options.color; }
     set color(new_color) {
         console.assert(new_color instanceof Color || typeof new_color === "string");
         if(new_color instanceof Color){
-            this._color = new_color.toString();
+            this._font_options.color = new_color.toString();
         } else {
-            this._color = new_color;
+            this._font_options.color = new_color;
         }
     }
 
     _reset(canvas_context = graphics.screen_canvas_context){
         console.assert(canvas_context);
         // Force resize to the actual size of the text graphically.
-        const text_metrics = graphics.measure_text(canvas_context, this._text, this._font, this._color);
+        const text_metrics = graphics.measure_text(canvas_context, this._text, this._font_options );
         const actual_width = Math.abs(text_metrics.actualBoundingBoxLeft) + Math.abs(text_metrics.actualBoundingBoxRight);
         const actual_height = Math.abs(text_metrics.actualBoundingBoxAscent ) + Math.abs(text_metrics.actualBoundingBoxDescent);
         this._area.size = new Vector2({
@@ -377,7 +382,9 @@ class Text extends UIElement {
         if(this._request_reset)
             this._reset(canvas_context);
         graphics.draw_rectangle(canvas_context, this.area, this._background_color);
-        graphics.draw_text(canvas_context, this._text, this.position.translate({x:this._margin_horizontal, y:this._margin_vertical}), this._font, this._color);
+        graphics.draw_text(canvas_context, this._text,
+            this.position.translate({x:this._margin_horizontal, y:this._margin_vertical}),
+            this._font_options);
     }
 };
 
@@ -508,11 +515,17 @@ class Bar extends UIElement {
         if(this._is_horizontal_bar === false)
             throw "VERTICAL BARS NOT IMPLEMENTED YET";
 
+        const center_position = this.area.center;
         this.helptext = new HelpText(Object.assign({
             text: this._name,
             area_to_help: this.area,
-            position: this.position,
             delay_ms: 0,
+            position: this.position,
+        }, bar_def.help_text));
+
+        this.short_text = new Text(Object.assign({
+            text: this._name,
+            position: this.position,
         }, bar_def.help_text));
 
         this._require_update = true;
@@ -582,8 +595,30 @@ class Bar extends UIElement {
             delete this._previous_value;
         }
 
-        this.helptext.text = this.preview_value === undefined ? `${this._name} ${this.value} / ${this.max_value}` : `${this._name} (${this.preview_value}) / ${this.max_value}`;
+        this._update_text();
 
+        // this._require_update = false; // FIXME: reactivating this will cause some graphic issues.
+    }
+
+    _replace_helptext(){
+        this.helptext.position = center_in_rectangle(this.helptext.area, this.area).position;
+        this.short_text.position = center_in_rectangle(this.short_text.area, this.area).position;
+    }
+
+    _update_text(){
+
+        if(this.preview_value !== undefined){
+            const difference = this.preview_value - this.value;
+            const preview_text = ` (${difference}) ${this.preview_value} / ${this.max_value}`;
+            this.helptext.text = `${this._name} ${preview_text}`;
+            this.short_text.text = preview_text;
+        } else {
+            const value_text = `${this.value} / ${this.max_value}`;
+            this.helptext.text =  `${this._name} ${value_text}`;
+            this.short_text.text = value_text;
+        }
+
+        this._replace_helptext();
     }
 
     _cancel_change_animation(){
@@ -656,8 +691,9 @@ class Bar extends UIElement {
             graphics.draw_rectangle(canvas_context, this._preview_rect, this.colors.preview);
         }
 
-        if(this._text_always_visible)
-            this.helptext.visible = true;
+        if(this._text_always_visible){
+            this.short_text.visible = !this.helptext.visible; // Display the short text if we are not displaying the helptext already.
+        }
     }
 
     show_preview_value(value){
@@ -685,11 +721,14 @@ class Bar extends UIElement {
             width: preview_width,
             height: this._value_rect.height,
         });
+
+        this._require_update = true;
     }
 
     hide_preview_value(){
         delete this._preview_rect;
         delete this.preview_value;
+        this._require_update = true;
     }
 
 }
