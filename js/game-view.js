@@ -197,8 +197,8 @@ class GameView {
         this._highlight_sprites = {
             neutral: new graphics.Sprite(sprite_defs.highlight_blue),
             movement: new graphics.Sprite(sprite_defs.highlight_green),
-            take: new graphics.Sprite(sprite_defs.highlight_blue),
-            drop: new graphics.Sprite(sprite_defs.highlight_blue),
+            take: new graphics.Sprite(sprite_defs.highlight_gray),
+            drop: new graphics.Sprite(sprite_defs.highlight_gray),
             basic_action: new graphics.Sprite(sprite_defs.highlight_yellow),
             action_range: new graphics.Sprite(sprite_defs.highlight_yellow),
             action: new graphics.Sprite(sprite_defs.highlight_red),

@@ -451,6 +451,14 @@ const sprite_defs = {
         ],
         animations: highlight_animations,
     },
+    highlight_gray : {
+        image: "highlights",
+        frames: [
+            { x:320, y:0, width:64, height:64 },
+            { x:320, y:64, width:64, height:64 },
+        ],
+        animations: highlight_animations,
+    },
 
 };
 
