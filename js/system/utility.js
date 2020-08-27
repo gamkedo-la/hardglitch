@@ -17,6 +17,7 @@ export {
     ofmt,
     not,
     invoke_on_members,
+    set_on_members,
     lazy_call,
 }
 
@@ -235,6 +236,13 @@ function invoke_on_members(object, function_name, ...args){
     return Object.values(object)
             .filter(member => member instanceof Object && member[function_name] instanceof Function)
             .map(member => member[function_name](...args));
+}
+
+// Set a value to all the member of an objects which are objects and have that member name.
+function set_on_members(object, member_name, value){
+    return Object.values(object)
+            .filter(member => member instanceof Object && member[member_name] !== undefined)
+            .forEach(member => member[member_name] = value);
 }
 
 // Creates a generator function that will yield the value(s) returned by the call to that function with the provided arguments.

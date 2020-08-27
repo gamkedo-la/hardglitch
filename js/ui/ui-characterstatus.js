@@ -5,7 +5,7 @@ export {
 }
 
 import * as ui from "../system/ui.js";
-import { invoke_on_members } from "../system/utility.js";
+import { invoke_on_members, set_on_members } from "../system/utility.js";
 import { Character, StatValue } from "../core/character.js";
 import { Vector2 } from "../system/spatial.js";
 import { config } from "../game-config.js";
@@ -15,6 +15,8 @@ const bar_text = {
     color: "white",
     background_color: "#00000030",
 };
+
+const stats_text = bar_text; // For now, use the same.
 
 const bar_size = {
     width: 300,
@@ -33,32 +35,57 @@ class CharacterStatus{
     constructor(position){
         console.assert(position instanceof Vector2);
 
+        this.character_name = new ui.Text(Object.assign(stats_text, {
+            text: "Unknown Character Name",
+            position: position.translate({ x: 80, y: -36 }),
+        }));
 
         this.health_bar = new ui.Bar({
             position: position,
             width: bar_size.width, height: bar_size.height,
             bar_name: "Integrity",
             help_text: bar_text,
+            visible: false,
         });
+
+        this.health_recovery_text = new ui.Text(Object.assign(stats_text, {
+            text: "+0 per Turn",
+            position: this.health_bar.position.translate({ x: this.health_bar.width + 4 }),
+            visible: false,
+        }));
 
         this.action_bar = new ui.Bar({
             position: position.translate({ y: bar_size.height + bar_size.space_between }),
             width: bar_size.width, height: bar_size.height,
             bar_name: "Action Points",
             help_text: bar_text,
+            visible: false,
         });
 
+        this.action_recovery_text = new ui.Text(Object.assign(stats_text, {
+            text: "+0 per Turn",
+            position: this.action_bar.position.translate({ x: this.action_bar.width + 4 }),
+            visible: false
+        }));
+
+
+    }
+
+    hide(){
+        set_on_members(this, "visible", false);
+    }
+
+    show(){
+        set_on_members(this, "visible", true);
     }
 
     update(delta_time, character){
         this.character = character;
 
         if(this.character instanceof Character){
-            this.health_bar.visible = true;
-            this.action_bar.visible = true;
+            this.show();
         } else {
-            this.health_bar.visible = false;
-            this.action_bar.visible = false;
+            this.hide();
             return;
         }
 
@@ -67,6 +94,12 @@ class CharacterStatus{
 
         update_stat_bar(this.health_bar, this.character.stats.integrity);
         update_stat_bar(this.action_bar, this.character.stats.action_points);
+
+        this.character_name.text = this.character.name;
+        const health_recovery = this.character.stats.int_recovery.value;
+        const action_recovery = this.character.stats.ap_recovery.value;
+        this.health_recovery_text.text = `${ health_recovery >= 0 ? "+":""}${health_recovery} per Turn`;
+        this.action_recovery_text.text = `${ action_recovery >= 0 ? "+":""}${action_recovery} per Turn`;
 
         invoke_on_members(this, "update", delta_time);
     }
