@@ -8,7 +8,7 @@ import { Character } from "../core/character.js";
 import * as concepts from "../core/concepts.js";
 import * as visibility from "../core/visibility.js";
 import { sprite_defs } from "../game-assets.js";
-import { Damaged } from "./destruction.js";
+import { Damaged, deal_damage } from "./destruction.js";
 import * as anim from "../game-animations.js";
 import { lazy_call } from "../system/utility.js";
 import { actions_for_each_target, ranged_actions_for_each_target } from "./rules-common.js";
@@ -54,13 +54,9 @@ class Delete extends concepts.Action {
         console.assert(world instanceof concepts.World);
         console.assert(deleter instanceof Character);
 
-
         const deleted =  world.entity_at(this.target_position);
-        console.assert(deleted instanceof concepts.Entity);
-        if(deleted instanceof Character){
-            deleted.take_damage(this.delete_damage);
-        }
-        const events = [ new Damaged(deleted.id, deleted.position, this.delete_damage) ];
+
+        const events = deal_damage(deleted, this.delete_damage);
         if(!deleted.position.equals(deleter.position)){
             events.unshift(new Deleted(deleter, deleted));
         }

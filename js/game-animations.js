@@ -169,6 +169,7 @@ function* repaired(entity_view){
     const intensity = 32;
     const time_per_move = Math.round(500 / 2);
     const initial_position = new Vector2(entity_view.position);
+    // TODO: Insert effect here
     audio.playEvent('repairAction');
     yield* translate(entity_view, initial_position.translate({ x: 0, y: -intensity}), time_per_move);
     yield* translate(entity_view, initial_position, time_per_move);

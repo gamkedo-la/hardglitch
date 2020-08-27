@@ -2,6 +2,7 @@
 export {
     destroy_entity,
     destroy_at,
+    deal_damage,
     Destroyed,
     Damaged,
 }
@@ -10,6 +11,7 @@ import * as concepts from "../core/concepts.js";
 import { GameView } from "../game-view.js";
 import { EntityView } from "../view/entity-view.js";
 import { destroyed, take_damage } from "../game-animations.js";
+import { Character } from "../core/character.js";
 
 
 class Damaged extends concepts.Event {
@@ -77,4 +79,13 @@ function destroy_at(position, world){
     } else {
         return [];
     }
+}
+
+function deal_damage(entity, damage){
+    console.assert(Number.isInteger(damage) && damage >= 0);
+    console.assert(entity instanceof concepts.Entity);
+    if(entity instanceof Character){
+        entity.take_damage(damage);
+    }
+    return [ new Damaged(entity.id, entity.position, damage) ];
 }

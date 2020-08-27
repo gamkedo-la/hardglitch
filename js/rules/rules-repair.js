@@ -9,8 +9,9 @@ import { Character } from "../core/character.js";
 import * as concepts from "../core/concepts.js";
 import * as visibility from "../core/visibility.js";
 import { sprite_defs } from "../game-assets.js";
-import { Repaired } from "./recovery.js";
+import { Repaired, repair } from "./recovery.js";
 import { ranged_actions_for_each_target } from "./rules-common.js";
+import { deal_damage } from "./destruction.js";
 
 const repair_points = 5;
 const repair_ap_cost = 5;
@@ -50,5 +51,21 @@ class Rule_Repair extends concepts.Rule {
         console.assert(character instanceof Character);
         return ranged_actions_for_each_target(world, character, Repair, this.range);;
     }
+
+    update_world_at_the_beginning_of_game_turn(world){
+        // Characters natural recovery (or hurt).
+        const events = [];
+        world.bodies.forEach(character => {
+            console.assert(character instanceof Character);
+            const recovery_amount = character.stats.int_recovery.value;
+            if(recovery_amount > 0){
+                events.push(...repair(character, recovery_amount));
+            } else if(recovery_amount < 0) {
+                events.push(...deal_damage(character, Math.abs(recovery_amount)) );
+            }
+        });
+        return events;
+    }
+
 };
 
