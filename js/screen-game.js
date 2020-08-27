@@ -336,7 +336,11 @@ class GameScreen extends fsm.StateMachine {
         this.fader.update(delta_time);
         this.level_title.update(delta_time);
         if(!this.ready) // No input handled until the fades are done.
+        {
+            // Just make sure that the game ui is working correctly.
+            this.game_session.view.update(delta_time);
             return;
+        }
 
         super.update(delta_time); // Updates the sub-states
     }

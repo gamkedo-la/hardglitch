@@ -16,7 +16,9 @@ class GameSession {
         console.assert(world instanceof World);
         this.game = new Game(world);
         this.view = new GameView(this.game, open_menu);
-        this.view.update(0); // Update the camera state.
+        // Lock the actions interfaces until we are ready.
+        this.view.ui.lock_actions();
+        this.view.clear_highlights_basic_actions();
     }
 
     get is_game_finished() { return this.game.is_finished; }
@@ -26,6 +28,7 @@ class GameSession {
 
     start(){
         game_input.begin_game(this);
+        this.view.refresh();
     }
 
     stop(){
