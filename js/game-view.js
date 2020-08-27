@@ -364,7 +364,10 @@ class GameView {
     }
 
     on_action_selection_end(action){
-        if(!action){ // Action selection was cancelled.
+        if(action instanceof concepts.Action){
+            this.clear_highlights_basic_actions();
+        } else {
+            // Action selection was cancelled.
             this.highlight_available_basic_actions();
         }
     }
@@ -456,9 +459,7 @@ class GameView {
         // Update the current animation, if any, or switch to the next one, until there isn't any left.
         if(this.current_animations.animation_count != 0 || (this.next_event && !this.next_event.done)){
             if(this.is_time_for_player_to_chose_action){
-                this.is_time_for_player_to_chose_action = false;
-                this.ui.lock_actions();
-                this.clear_focus();
+                this._stop_player_turn();
             }
 
             if(this.current_animations.animation_count === 0){
@@ -480,20 +481,27 @@ class GameView {
         return this.game.turn_info.player_character;
     }
 
+    _stop_player_turn(){
+        this.is_time_for_player_to_chose_action = false;
+        this.clear_highlights_basic_actions();
+        this.ui.lock_actions();
+        this.clear_focus();
+    }
+
     _start_player_turn(){
         this.is_time_for_player_to_chose_action = true;
         if(this.player_character){
-            const setup = ()=> {
-                this.focus_on_position(this.player_character.position);
-                this.ui.unlock_actions();
-                this.refresh();
-            }
+
             if(this.enable_auto_camera_center && this.player_character){
-                this.center_on_player(250).then(setup);
-            } else {
-                setup();
+                this.center_on_player(250);
             }
+
+            this.focus_on_position(this.player_character.position);
+            this.ui.unlock_actions();
+            this.refresh();
+
         } else {
+            // Case where there is no player character at all.
             this.clear_focus();
             this.lock_actions();
         }
