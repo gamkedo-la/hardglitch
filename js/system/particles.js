@@ -25,8 +25,9 @@ import { camera } from "./graphics.js";
 import { random_int, random_float, ofmt } from "./utility.js";
 import { Color } from "./color.js";
 import { Vector2 } from "./spatial.js";
-import { linearFade, linearFadeInOut } from "../view/xforms.js";
-import { ColorShiftDataXForm, HorizontalBandingDataXForm, ColorSwapDataXForm } from "../view/img_data_fx.js";
+import { lifetime, linearFadeInOut } from "../view/xforms.js";
+import { ColorShiftDataXForm, HorizontalBandingDataXForm, ColorSwapDataXForm, ClearOutsideWindowDataXForm } from "../view/img_data_fx.js";
+import { in_parallel } from "./animation.js";
 
 
 // This object is reused for optimization, do not move it into the functions using it.
@@ -620,7 +621,7 @@ class OffsetGlitchParticle extends Particle {
 // =============================================================================
 const glitchCanvas = document.createElement('canvas');
 class CanvasGlitchParticle extends Particle {
-    constructor(x, y, width, height, xforms) {
+    constructor(x, y, width, height, xforms, xformTTL=0) {
         super(x, y);
         this.width = width;
         this.height = height;
@@ -628,16 +629,25 @@ class CanvasGlitchParticle extends Particle {
         this.sdata;
         this.needData = true;
         this.needXform = true;
+        this.elapsed = 0;
+        this.xformTTL = xformTTL * 1000;
     }
 
     update(delta_time) {
         if (this.done) return;
+        // determine
+        this.elapsed += delta_time;
+        if (this.elapsed > this.xformTTL) {
+            this.needXform = true;
+            this.needData = true;
+            this.elapsed = 0;
+        }
         // perform data transformations
         if (this.needXform && this.sdata && this.xforms && this.xforms.length) {
             // create copy of source data
             let data = Uint8ClampedArray.from(this.sdata.data);
             this.xdata = new ImageData(data, this.sdata.width);
-            //this.needXform = false;
+            this.needXform = false;
             for (const xform of this.xforms) {
                 xform.do(this.xdata);
             }
@@ -668,10 +678,11 @@ class CanvasGlitchParticle extends Particle {
 }
 
 class ColorOffsetGlitchParticle extends CanvasGlitchParticle {
-    constructor(x, y, dx, dy, width, height, rshift, gshift, bshift) {
+    constructor(x, y, dx, dy, width, height, rshift, gshift, bshift, bandingAffinity, scanCycle, xformCycle, eolPredicate = () => false ) {
         let adx = Math.abs(dx);
         let ady = Math.abs(dy);
         let ixforms = [];
+        ixforms.push(new ClearOutsideWindowDataXForm(adx, ady, width+adx, height+ady));
         // blue is shifted vertically (if dy and bshift is given)
         let blueShift = new ColorShiftDataXForm(0, dy, adx, ady, width+adx, height+ady, 0, 0, bshift);
         if (bshift && dy) ixforms.push(blueShift);
@@ -681,7 +692,7 @@ class ColorOffsetGlitchParticle extends CanvasGlitchParticle {
         // red is shifted horizontally (if dx and gshift is given)
         let redShift = new ColorShiftDataXForm(-dx, 0, adx, ady, width+adx, height+ady, rshift, 0, 0);
         if (rshift && dx) ixforms.push(redShift);
-        let banding = new HorizontalBandingDataXForm(dx, .75, adx, 0, width+adx, height)
+        let banding = new HorizontalBandingDataXForm(dx, bandingAffinity, adx, 0, width+adx, height)
         ixforms.push(banding);
         let syncOffset = 0;
         let syncLineWidth = 2;
@@ -689,26 +700,27 @@ class ColorOffsetGlitchParticle extends CanvasGlitchParticle {
         let syncLine2 = new ColorSwapDataXForm(adx, ady+syncOffset+1, width+adx, ady+syncOffset+syncLineWidth+1, 55, 0, 0);
         ixforms.push(syncLine1);
         ixforms.push(syncLine2);
-        //console.log("x: " + (x-dx) + " y: " + (y-dy) + " width: " + (width+dx*2) + " height: " + (height+dy*2));
-        super(x-adx, y-ady, width+adx*2, height+ady*2, ixforms);
-        this.xform = linearFadeInOut(0, height-syncLineWidth, 1, (v) => {
-            //console.log("v: " + v);
-            syncLine1.miny = v;
-            syncLine1.maxy = v+syncLineWidth;
-            syncLine2.miny = v+1;
-            syncLine2.maxy = v+syncLineWidth+1;
-        });
+        super(x-adx, y-ady, width+adx*2, height+ady*2, ixforms, xformCycle);
+        self = this;
+        this.xform = linearFadeInOut(0, height-syncLineWidth, scanCycle, true, (v) => {
+                syncLine1.miny = v;
+                syncLine1.maxy = v+syncLineWidth;
+                syncLine2.miny = v+1;
+                syncLine2.maxy = v+syncLineWidth+1;
+            });
+        this.eolPredicate = eolPredicate;
     }
 
     update(delta_time) {
+        if (this.eolPredicate()) {
+            this.done = true;
+        }
         super.update(delta_time);
         if (this.xform) {
             let state = this.xform.next(delta_time);
             if (state.done) {
                 this.xform = undefined;
-                //this.xforms = [];
             }
-            //console.log("this.height: " + this.height);
         }
     }
 }
@@ -1106,7 +1118,6 @@ class ShootUpParticle extends Particle {
                 this.radius = Math.min(this.radiusMax, this.radius + this.radiusStep);
             }
             this.shootTTL = Math.max(0, this.shootTTL - delta_time);
-            //if (this.shootTTL == 0) console.log("shoot is done");
         } else if (this.fadeTTL) {
             this.fadeTTL = Math.max(0, this.fadeTTL - delta_time);
             this.headColor.a = Math.max(0, this.headColor.a - this.headAlphaStep*delta_time);

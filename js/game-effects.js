@@ -12,6 +12,7 @@ import {
     FadeLineParticle,
     BlipEdgeParticle,
     LightningParticle,
+    ColorOffsetGlitchParticle,
 } from "./system/particles.js";
 import { Color } from "./system/color.js";
 import { Vector2 } from "./system/spatial.js";
@@ -262,6 +263,25 @@ class GameFxView {
         let fx = new GameFx(origin);
         fx.sentinels.push(emitter);
         fx.relocatables.push(emitter);
+        return fx;
+    }
+
+    unstable(position, eolPredicate) {
+        let scanCycle = random_float(.75,1.25);
+        let xformCycle = .1;
+        let dx = 3;
+        let dy = 0;
+        let width = 64;
+        let height = 64;
+        let rshift = .5;
+        let gshift = .5;
+        let bshift = .25;
+        let bandingAffinity = .5;
+        let particle = new ColorOffsetGlitchParticle(position.x, position.y, dx, dy, width, height, rshift, gshift, bshift, bandingAffinity, scanCycle, xformCycle, eolPredicate);
+        this.particleSystem.add(particle);
+        let fx = new GameFx(origin);
+        fx.sentinels.push(particle);
+        fx.relocatables.push(particle);
         return fx;
     }
 

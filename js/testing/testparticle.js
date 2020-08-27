@@ -15,7 +15,6 @@ import {
     ThrobParticle,
     LightningParticle,
     ColorOffsetGlitchParticle,
-    BandingGlitchParticle,
 } from "../system/particles.js";
 import { GameFxView } from "../game-effects.js";
 import { random_int, random_float } from "../system/utility.js";
@@ -219,19 +218,17 @@ class Tests {
     }
 
     colorshift(x,y) {
-        let dx = 4;
-        let dy = 1;
+        let scanCycle = 1;
+        let xformCycle = .1;
+        let dx = 3;
+        let dy = 0;
         let width = 64;
         let height = 64;
         let rshift = .5;
         let gshift = .5;
         let bshift = .25;
-        let bandingOffset = 5;
-        let affinity = .5;
-        this.particles.add(new ColorOffsetGlitchParticle(x-32, y-64, dx, dy, width, height, rshift, gshift, bshift));
-        //this.particles.add(new BandingGlitchParticle(x-32, y-64, bandingOffset, affinity, width, height));
-        //this.particles.add(new ColorOffsetGlitchParticle(x-(32+dx), y-(64+dy), -dx, -dy, width, height, 0, 0, 1));
-        //this.particles.add(new ColorOffsetGlitchParticle(x-40, y-72, 64+16, 64+16, 1, 0, 1));
+        let bandingAffinity = .5;
+        this.particles.add(new ColorOffsetGlitchParticle(x-32, y-64, dx, dy, width, height, rshift, gshift, bshift, bandingAffinity, scanCycle, xformCycle));
     }
 
 }
@@ -273,6 +270,9 @@ class Env {
         let lfx = this.gfx.lightningJump({x:500,y:500}, {x:600,y:600});
         setTimeout(() => {lfx.done = true;}, 1000);
 
+        let ufx = this.gfx.unstable({x:400+32,y:400-64});
+        setTimeout(() => {ufx.done = true;}, 1000);
+
     }
 
     loop() {
@@ -282,7 +282,8 @@ class Env {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.drawImage(this.bgimg, 368, 236);
         this.ctx.drawImage(this.groundimg, 368, 336);
-        //this.ctx.drawImage(this.groundimg, 368-64, 336);
+        this.ctx.drawImage(this.groundimg, 368-64, 336);
+        this.ctx.drawImage(this.groundimg, 368+64, 336);
         // run particle system update
         this.particles.update(delta_time);
         this.particles.draw(this.ctx);

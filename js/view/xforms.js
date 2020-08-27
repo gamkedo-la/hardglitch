@@ -33,8 +33,9 @@ function *lifetime(ttl, cb) {
     if (cb) cb();
 }
 
-function *linearFadeInOut(min, max, ttl, cb) {
+function *linearFadeInOut(min, max, ttl, loop, cb) {
     ttl *= 1000;
+    let maxttl = ttl;
     let rate = (max-min)*2/ttl;
     let increase = true;
     let value = min;
@@ -54,6 +55,10 @@ function *linearFadeInOut(min, max, ttl, cb) {
         if (cb) cb(value);
         // handle lifetime
         ttl -= delta_time;
+        if (loop && ttl <= 0) {
+            ttl = maxttl;
+            increase = true;
+        }
     } while (ttl > 0);
     value = min;
     if (cb) cb(value);

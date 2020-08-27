@@ -1,10 +1,33 @@
 export {
+    ClearOutsideWindowDataXForm,
     ColorShiftDataXForm,
     HorizontalBandingDataXForm,
     ColorSwapDataXForm,
 };
 
-import { random_float } from "../system/utility.js";
+import { random_int } from "../system/utility.js";
+
+class ClearOutsideWindowDataXForm {
+    constructor(minx, miny, maxx, maxy) {
+        this.minx = minx;
+        this.miny = miny;
+        this.maxx = maxx;
+        this.maxy = maxy;
+    }
+    do(idata) {
+        for (let j=0; j<idata.height; j++) {
+            for (let i=0; i<idata.width; i++) {
+                if (i<this.minx || i>=this.maxx || j<this.miny || j>=this.maxy) {
+                    let idx = (j*idata.width+i)*4;
+                    idata.data[idx] = 0;
+                    idata.data[idx+1] = 0;
+                    idata.data[idx+2] = 0;
+                    idata.data[idx+3] = 0;
+                }
+            }
+        }
+    }
+}
 
 class ColorShiftDataXForm {
     constructor(dx, dy, minx, miny, maxx, maxy, rshift, gshift, bshift) {
@@ -17,7 +40,6 @@ class ColorShiftDataXForm {
         this.rshift = rshift;
         this.gshift = gshift;
         this.bshift = bshift;
-        console.log("dx: " + dx + " dy: " + dy + " minx: " + minx + " miny: " + miny + " maxx: " + maxx + " maxy: " + maxy);
     }
 
     do(idata) {
@@ -78,18 +100,38 @@ class HorizontalBandingDataXForm {
 
     do(idata) {
         // pick initial banding offset
-        let offset = random_float(-this.maxOffset, this.maxOffset);
-        let sign = 1;
+        let offset = random_int(-this.maxOffset, this.maxOffset);
+        let sign = (offset > 0) ? 1 : -1;
         // shift entire rows...
         for (let j=0; j<idata.height; j++) {
             // affinity check...
             if (Math.random() > this.affinity) {
                 if (sign > 0) {
-                    offset = random_float(-this.maxOffset, offset);
+                    offset = random_int(-this.maxOffset, offset);
                 } else {
-                    offset = random_float(offset, this.maxOffset);
+                    offset = random_int(offset, this.maxOffset);
                 }
                 sign *= -1;
+            }
+            if (offset) {
+                for (let step=0; step<(this.maxx-this.minx); step++) {
+                    let i = (offset > 0) ? this.maxx-step : this.minx+step;
+                    let xi = i+offset;
+                    let idx = (j*idata.width+i)*4;
+                    let xidx = (j*idata.width+xi)*4;
+                    idata.data[xidx] = idata.data[idx];
+                    idata.data[xidx+1] = idata.data[idx+1];
+                    idata.data[xidx+2] = idata.data[idx+2];
+                    idata.data[xidx+3] = idata.data[idx+3];
+                }
+            }
+            /*
+            if (j>=this.miny && j<this.maxy) {
+                for (let i=(sign>0)?this.maxx-1; i>this.minx; i--) {
+                if (sign > 0) {
+                    }
+                } else {
+                    for (let i=this.maxx-1; i>this.minx; i--) {
             }
             for (let i=0; i<idata.width; i++) {
                 // only copy pixels within the window...
@@ -104,13 +146,15 @@ class HorizontalBandingDataXForm {
                     let xj = j;
                     if (xi>=0 && xi<idata.width && xj>=0 && xj<idata.height) {
                         let xidx = (xj*idata.width+xi)*4;
+                        if (j===3) console.log("idx: " + idx + " xidx: " + xidx);
                         idata.data[xidx] = Math.round(r);
-                        idata.data[xidx+1] = Math.round(g);
+                        //idata.data[xidx+1] = Math.round(g);
                         idata.data[xidx+2] = Math.round(b);
                         idata.data[xidx+3] = Math.round(a);
                     }
                 }
             }
+            */
         }
     }
 }
