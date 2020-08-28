@@ -13,6 +13,7 @@ import {
     BlipEdgeParticle,
     LightningParticle,
     ColorOffsetGlitchParticle,
+    ThrobParticle,
 } from "./system/particles.js";
 import { Color } from "./system/color.js";
 import { Vector2 } from "./system/spatial.js";
@@ -282,6 +283,29 @@ class GameFxView {
         let fx = new GameFx(origin);
         fx.sentinels.push(particle);
         fx.relocatables.push(particle);
+        return fx;
+    }
+
+    repair(position) {
+        let emitInterval = .1;
+        let emitJitter = 25;
+        let emitTTL = 0;
+        let emitCount = 4;
+        let emitter = new ParticleEmitter(this.particleSystem, position.x, position.y, (e) => {
+            let angle = random_float(0,Math.PI*2);
+            let distance = random_int(32,64);
+            let originx = e.x + Math.cos(angle) * distance;
+            let originy = e.y + Math.sin(angle) * distance;
+            let targetx = e.x;
+            let targety = e.y;
+            let speed = random_int(50,100);
+            let radius = 4;
+            return new ThrobParticle({x: originx, y:originy}, {x: targetx, y: targety}, radius, speed, radius * .5);
+        }, emitInterval, emitJitter, emitTTL, emitCount);
+        this.particleSystem.add(emitter);
+        let fx = new GameFx(origin);
+        fx.sentinels.push(emitter);
+        fx.relocatables.push(emitter);
         return fx;
     }
 

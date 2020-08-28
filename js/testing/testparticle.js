@@ -273,6 +273,9 @@ class Env {
         let ufx = this.gfx.unstable({x:400+32,y:400-64});
         setTimeout(() => {ufx.done = true;}, 1000);
 
+        let rfx = this.gfx.repair({x:700,y:400});
+        setTimeout(() => {rfx.done = true;}, 2000);
+
     }
 
     loop() {

@@ -164,15 +164,18 @@ function* take_damage(fx_view, entity_view){
     effect.done = true;
 }
 
-function* repaired(entity_view){
+function* repaired(fx_view, entity_view){
     console.assert(entity_view instanceof EntityView);
     const intensity = 32;
     const time_per_move = Math.round(500 / 2);
     const initial_position = new Vector2(entity_view.position);
+    const fx = fx_view.repair(initial_position.translate(square_half_unit_vector));
     // TODO: Insert effect here
     audio.playEvent('repairAction');
     yield* translate(entity_view, initial_position.translate({ x: 0, y: -intensity}), time_per_move);
     yield* translate(entity_view, initial_position, time_per_move);
+    //yield* translate(fx, fx_target, fx_duration, easing.in_out_quad);
+    fx.done = true;
 }
 
 // Speed is square per seconds
