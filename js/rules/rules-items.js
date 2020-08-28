@@ -145,8 +145,11 @@ class SwapItemSlots extends concepts.Action {
         console.assert(character instanceof Character);
         const item_a = character.inventory.remove(this.slot_a_idx);
         const item_b = character.inventory.remove(this.slot_b_idx);
-        if(item_a) character.inventory.set_item_at(this.slot_b_idx, item_a);
-        if(item_b) character.inventory.set_item_at(this.slot_a_idx, item_b);
+        // Beware: the inventory size can change because we equipped items changing it.
+        if(item_a && this.slot_b_idx < character.inventory.size) character.inventory.set_item_at(this.slot_b_idx, item_a);
+        if(item_b && this.slot_a_idx < character.inventory.size) character.inventory.set_item_at(this.slot_a_idx, item_b);
+
+        // TODO: put the items in an item limbo, handle them afterwards (drop or destroy)
 
         return [ new SwappedItemsSlots(character, this.slot_a_idx, this.slot_b_idx)];
     }
@@ -204,6 +207,5 @@ class Rule_TakeItem extends concepts.Rule {
         return actions;
     }
 };
-
 
 

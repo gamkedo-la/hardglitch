@@ -451,7 +451,7 @@ function display_stats_of_pointed_character(game_session){
     console.assert(game_session instanceof GameSession);
 
     const stats_x = 50;
-    let line = graphics.canvas_center_position().y;
+    let line = 0;
     function next_line(){
         return line += 30;
     }
@@ -473,7 +473,7 @@ function display_stats_of_pointed_character(game_session){
     const stats_line = next_line();
     draw_text(`STATISTICS:`, { x: stats_x, y: stats_line });
     for(const [stat_name, stat] of Object.entries(character.stats)){
-        draw_text(` - ${stat_name} = ${stat.value}${stat.max ? ` / ${stat.max}` : ""} ${stat.accumulated_modifiers !== 0 ? `(real = ${stat.real_value}, mod = ${stat.accumulated_modifiers}")` : ""}${stat.min? ` [min = ${stat.min}]` : ""}`, { x: stats_x, y: next_line() });
+        draw_text(` - ${stat_name} = ${stat.value}${stat.max ? ` / ${stat.max}` : ""} ${stat.accumulated_modifiers !== 0 ? `(real = ${stat.real_value}, mod = ${stat.accumulated_modifiers})` : ""}${stat.min? ` [min = ${stat.min}]` : ""}`, { x: stats_x, y: next_line() });
     }
 
     line = stats_line;

@@ -10,8 +10,8 @@ import * as concepts from "./concepts.js";
 import { FieldOfVision } from "./visibility.js";
 
 const default_view_distance = 1;
-const default_inventory_size = 6;
-const default_equipable_items = 2;
+const default_inventory_size = 1;
+const default_equipable_items = 1;
 
 class StatValue {
 
@@ -26,56 +26,97 @@ class StatValue {
         this._listeners = {};
     }
 
-    get real_value() { return this.value; }
-    get accumulated_modifiers() { return Object.values(this._modifiers).reduce((accumulated, value)=> accumulated + value, 0); }
-    get value() { return this._value + this.accumulated_modifiers; }
-    get max() { return this._max; }
-    get min() { return this._min; }
+    get real_value() { return this._value; }
+    get real_max() { return this._max; }
+    get real_min() { return this._min; }
 
-    add_modifier(modifier_id, modifier_value){
+    _accumulate_modifiers(field_name) {
+        console.assert(field_name === "value" || field_name === "max" || field_name === "min");
+        return Object.values(this._modifiers)
+                    .filter(modifier => modifier[field_name] !== undefined)
+                    .reduce((accumulated, modifier)=> accumulated + modifier[field_name], 0);
+    }
+
+    get accumulated_value_modifiers() {
+        return this._accumulate_modifiers("value");
+    }
+
+    get accumulated_max_modifiers() {
+        return this._accumulate_modifiers("max");
+    }
+
+    get accumulated_min_modifiers() {
+        return this._accumulate_modifiers("min");
+    }
+
+    get value() { return this._value + this.accumulated_value_modifiers; }
+    get max() { return this._max === undefined ? undefined : this._max + this.accumulated_max_modifiers; }
+    get min() { return this._min === undefined ? undefined : this._min + this.accumulated_min_modifiers; }
+
+    _refresh_values(){
+        if(this.value > this.max)
+            this.value = this.max;
+        if(this.value < this.min)
+            this.value = this.min;
+    }
+
+    add_modifier(modifier_id, modifier){
         console.assert(typeof modifier_id === "string");
-        console.assert(Number.isInteger(modifier_value));
         console.assert(this._modifiers[modifier_id] === undefined);
-        this._modifiers[modifier_id] = modifier_value;
+
+        console.assert(modifier instanceof Object);
+        console.assert(modifier.value === undefined || Number.isInteger(modifier.value));
+        // Min and Max must have been set for this stat to be able to be modified.
+        console.assert(modifier.max === undefined || (Number.isInteger(modifier.max) && this._max !== undefined));
+        console.assert(modifier.min === undefined || (Number.isInteger(modifier.min) && this._min !== undefined));
+
+        this._modifiers[modifier_id] = modifier;
+        this._refresh_values();
         this._notify_listeners();
     }
 
     remove_modifier(modifier_id){
         console.assert(typeof modifier_id === "string");
         delete this._modifiers[modifier_id];
+        console.assert(this.max === undefined || this.min === undefined || this.min <= this.max);
+        this._refresh_values();
+        this._notify_listeners();
     }
 
     set value(new_value) {
         console.assert(Number.isInteger(new_value) && new_value >= 0);
 
-        if(this._max){
+        if(this._max !== undefined){
             console.assert(new_value <= this.max);
         }
-        if(this._min){
+        if(this._min !== undefined){
             console.assert(new_value >= this.min);
         }
 
-        this._value = new_value;
+        this._value = new_value - this.accumulated_value_modifiers;
+        this._refresh_values();
         this._notify_listeners();
     }
 
     set max(new_value) {
         console.assert(Number.isInteger(new_value) && new_value >= 0);
-        this._max = new_value;
+        this._max = new_value - this.accumulated_max_modifiers;
+        this._refresh_values();
         this._notify_listeners();
     }
 
     set min(new_value) {
         console.assert(Number.isInteger(new_value) && new_value < this.max);
-        this._min = new_value;
+        this._min = new_value - this.accumulated_min_modifiers;
+        this._refresh_values();
         this._notify_listeners();
     }
 
     increase(value_to_add){
         console.assert(Number.isInteger(value_to_add) && value_to_add >= 0);
         const new_value = this.value + value_to_add;
-        if(this._max !== undefined)
-            this._value = Math.min(new_value, this._max);
+        if(this.max !== undefined)
+            this._value = Math.min(new_value, this.max);
         else
             this._value = new_value;
         this._notify_listeners();
@@ -84,8 +125,8 @@ class StatValue {
     decrease(value_to_sub){
         console.assert(Number.isInteger(value_to_sub) && value_to_sub >= 0);
         const new_value = this.value - value_to_sub;
-        if(this._min !== undefined)
-            this._value = Math.max(new_value, this._min);
+        if(this.min !== undefined)
+            this._value = Math.max(new_value, this.min);
         else
             this._value = new_value;
         this._notify_listeners();
@@ -116,7 +157,7 @@ class StatValue {
 class CharacterStats{
 
     integrity = new StatValue(10, 10, 0);       // Health, but for software.
-    int_recovery = new StatValue(1);            // How much Integrity to restore each turn.
+    int_recovery = new StatValue(0);            // How much Integrity to restore each turn.
 
     action_points = new StatValue(10, 10);      // Action points (AP) are spent to perform actions. Can be negative.
     ap_recovery = new StatValue(10);            // How much AP to restore each turn.
@@ -139,14 +180,33 @@ class Inventory {
     _equipable_items = 1;
     _listeners = {};
 
+    constructor(stats){
+        console.assert(stats instanceof CharacterStats);
+        this.stats = stats;
+
+        this._is_updating_equipable_depth = false;
+
+        this.stats.inventory_size.add_listener("inventory", (inventory_size)=>{
+            console.assert(inventory_size instanceof StatValue);
+            if(this.size !== inventory_size.value){
+                const left_items = this.resize(inventory_size.value);
+                // TODO: put the items in an item limbo, handle them afterwards (drop or destroy)
+            }
+        });
+
+        this.stats.equipable_items.add_listener("inventory", (equipable_items)=>{
+            console.assert(equipable_items instanceof StatValue);
+            this._update_equipable_items(equipable_items.value);
+        });
+    }
+
     add(item){
         console.assert(item instanceof concepts.Item);
         console.assert(this.have_empty_slots);
 
-        for(let idx = 0; idx < this._items_stored.length; ++idx){
+        for(let idx = this._items_stored.length -1; idx >= 0; --idx){
             if(!this._items_stored[idx]){
-                this._items_stored[idx] = item;
-                this._notify_listeners();
+                this.set_item_at(idx, item);
                 return idx;
             }
         }
@@ -158,6 +218,8 @@ class Inventory {
         console.assert(item instanceof concepts.Item);
         console.assert(this._items_stored[idx] === undefined);
         this._items_stored[idx] = item;
+        if(idx < this._equipable_items)
+            this._apply_modifiers(item);
         this._notify_listeners();
     }
 
@@ -166,9 +228,59 @@ class Inventory {
         return this._items_stored[idx];
     }
 
+
+    _apply_modifiers(item){
+        console.assert(item instanceof concepts.Item);
+        console.assert(this._items_stored.includes(item));
+        if(item.stats_modifiers instanceof Object){
+            const modifier_id = `item_${item.id}`;
+            for(const [stat_name, modifier_value] of Object.entries(item.stats_modifiers)){
+                console.assert(this.stats[stat_name] instanceof StatValue);
+                this.stats[stat_name].add_modifier(modifier_id, modifier_value);
+            }
+        }
+    }
+
+    _reverse_modifiers(item){
+        console.assert(item instanceof concepts.Item);
+        console.assert(this._items_stored.includes(item));
+        if(item.stats_modifiers instanceof Object){
+            const modifier_id = `item_${item.id}`;
+            Object.keys(item.stats_modifiers).forEach(stat_name =>{
+                console.assert(this.stats[stat_name] instanceof StatValue);
+                this.stats[stat_name].remove_modifier(modifier_id);
+            });
+        }
+    }
+
+    _update_equipable_items(new_value){
+        console.assert(Number.isInteger(new_value));
+        console.assert(Number.isInteger(this._equipable_items));
+        if(this._is_updating_equipable_depth) // Protection against recursive calls (when removing an item that changes a stat that remove equiped etc.)
+            return;
+        this._is_updating_equipable_depth = true;
+        if(this._equipable_items !== new_value){
+            if(new_value > this._equipable_items){
+                this._items_stored.slice(this._equipable_items, new_value)
+                    .filter(item => item)
+                    .forEach(item => this._apply_modifiers(item));
+            } else {
+                this._items_stored.slice(new_value, this._equipable_items)
+                    .filter(item => item)
+                    .forEach(item => this._reverse_modifiers(item));
+            }
+            this._equipable_items = new_value;
+        }
+        this._is_updating_equipable_depth = false;
+    }
+
     remove(idx){
         console.assert(idx >= 0 && idx < this._items_stored.length);
         const item = this._items_stored[idx];
+        if(item instanceof concepts.Item
+        && this.is_equipable_slot(idx)){
+            this._reverse_modifiers(item);
+        }
         this._items_stored[idx] = undefined;
         this._notify_listeners();
         return item;
@@ -177,20 +289,27 @@ class Inventory {
     resize(new_size){
         console.assert(Number.isInteger(new_size) && new_size >= 0);
         const previous_items = this._items_stored;
-        this._items_stored = new Array(new_size).fill(undefined);
-        Object.seal(this._items_stored);
+        const new_item_storage = new Array(new_size).fill(undefined);
 
         // Preserve as many items we can from the previous set
-        for(let item_idx = 0; item_idx < this._items_stored.length; ++item_idx){
+        for(let item_idx = 0; item_idx < new_item_storage.length; ++item_idx){
             if(item_idx === previous_items.length){
-                // Return the items we couldn't put in the new inventory.
-                return previous_items;
+                break;
             }
             const item = previous_items[item_idx];
-            this._items_stored[item_idx] = item;
+            new_item_storage[item_idx] = item;
             previous_items[item_idx] = undefined;
         }
+
+        previous_items.slice(0, this._equipable_items)
+            .filter(item => item instanceof concepts.Item)
+            .forEach(item => this._reverse_modifiers(item));
+
+        this._items_stored = new_item_storage;
+        Object.seal(this._items_stored);
         this._notify_listeners();
+        // Return the items we couldn't put in the new inventory.
+        return previous_items.filter(item => item instanceof concepts.Item);
     }
 
     get stored_items() { return this._items_stored; }
@@ -200,7 +319,10 @@ class Inventory {
     get is_full() { return !this.have_empty_slots; }
     get is_empty() { return this._items_stored.length === 0; }
 
-
+    is_equipable_slot(idx){
+        console.assert(idx >= 0 && idx < this._items_stored.length);
+        return idx < this._equipable_items;
+    }
 
     add_listener(listener_id, listener){
         console.assert(typeof listener_id === "string");
@@ -235,24 +357,12 @@ class Inventory {
 // Some rules will rely on properties provided there.
 class Character extends concepts.Body {
     stats = new CharacterStats();
-    inventory = new Inventory();
+    inventory = new Inventory(this.stats);
     field_of_vision = new FieldOfVision(this.position, default_view_distance);
 
     constructor(name){
         super(name);
         this.skip_turn = false;
-
-        this.stats.inventory_size.add_listener("inventory", (inventory_size)=>{
-            console.assert(inventory_size instanceof StatValue);
-            if(this.inventory.size !== inventory_size.value){
-                this.inventory.resize(inventory_size.value);
-            }
-        });
-
-        this.stats.equipable_items.add_listener("inventory", (equipable_items)=>{
-            console.assert(equipable_items instanceof StatValue);
-            this.inventory._equipable_items = equipable_items.value;
-        });
     }
 
     get position() { return super.position; }

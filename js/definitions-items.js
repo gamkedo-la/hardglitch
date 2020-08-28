@@ -31,11 +31,30 @@ function all_crypto_key_types() {
     ];
 }
 
+function all_debug_item_types(){
+    return [
+        Debug_AllActions,
+        Debug_AugmentHealth,
+        Debug_ReduceHealth,
+        Debug_AugmentActionPoints,
+        Debug_ReduceActionPoints,
+        Debug_HealthRecovery,
+        Debut_NegativeHealthRecovery,
+        Debug_ActionPointsRecovery,
+        Debug_NegativeActionPointsRecovery,
+        Debug_BiggerInventory,
+        Debut_SmallerInventory,
+        Debug_AddEquipableItem,
+        Debug_RemoveEquipableItem,
+        Debug_AugmentViewDistance,
+        Debug_ReduceViewDistance,
+    ];
+}
+
 
 function all_item_types(){
     return [
-        DebugItem,
-
+        ...all_debug_item_types(),
         ...all_crypto_file_types(),
         ...all_crypto_key_types(),
 
@@ -78,7 +97,7 @@ class CryptoFile extends concepts.Item {
 
     // Decrypting can return (or not) an object
     decrypt(){
-        return new DebugItem();
+        return new Debug_AllActions();
     }
 
 };
@@ -159,7 +178,7 @@ class MovableWall extends concepts.Item {
 
 };
 
-class DebugItem extends concepts.Item {
+class Debug_AllActions extends concepts.Item {
     assets = {
         graphics : {
             sprite_def : sprite_defs.item_generic_1,
@@ -180,3 +199,263 @@ class DebugItem extends concepts.Item {
     }
 
 }
+
+class Debug_HealthRecovery extends concepts.Item {
+    assets = {
+        graphics : {
+            sprite_def : sprite_defs.item_generic_1,
+        }
+    };
+
+    get can_be_taken() { return true; }
+
+    stats_modifiers = {
+        int_recovery: { value: +2 },
+    }
+
+    constructor(){
+        super("Debug: Health Recovery +2");
+    }
+};
+
+class Debut_NegativeHealthRecovery extends concepts.Item {
+    assets = {
+        graphics : {
+            sprite_def : sprite_defs.item_generic_1,
+        }
+    };
+
+    get can_be_taken() { return true; }
+
+    stats_modifiers = {
+        int_recovery: { value: -2 },
+    }
+
+    constructor(){
+        super("Debug: Health Recovery -2");
+    }
+};
+
+
+class Debug_ActionPointsRecovery extends concepts.Item {
+    assets = {
+        graphics : {
+            sprite_def : sprite_defs.item_generic_1,
+        }
+    };
+
+    get can_be_taken() { return true; }
+
+    stats_modifiers = {
+        ap_recovery: { value: +10 },
+    }
+
+    constructor(){
+        super("Debug: Action Points Recovery +10");
+    }
+};
+
+class Debug_NegativeActionPointsRecovery extends concepts.Item {
+    assets = {
+        graphics : {
+            sprite_def : sprite_defs.item_generic_1,
+        }
+    };
+
+    get can_be_taken() { return true; }
+
+    stats_modifiers = {
+        ap_recovery: { value: -5 },
+    }
+
+    constructor(){
+        super("Debug: Action Points Recovery -5");
+    }
+};
+
+
+class Debug_AugmentHealth extends concepts.Item {
+    assets = {
+        graphics : {
+            sprite_def : sprite_defs.item_generic_1,
+        }
+    };
+
+    get can_be_taken() { return true; }
+
+    stats_modifiers = {
+        integrity: { max: +10 },
+    }
+
+    constructor(){
+        super("Debug: Health Max +10");
+    }
+};
+
+class Debug_ReduceHealth extends concepts.Item {
+    assets = {
+        graphics : {
+            sprite_def : sprite_defs.item_generic_1,
+        }
+    };
+
+    get can_be_taken() { return true; }
+
+    stats_modifiers = {
+        integrity: { max: -5 },
+    }
+
+    constructor(){
+        super("Debug: Health Max -5");
+    }
+};
+
+
+class Debug_AugmentActionPoints extends concepts.Item {
+    assets = {
+        graphics : {
+            sprite_def : sprite_defs.item_generic_1,
+        }
+    };
+
+    get can_be_taken() { return true; }
+
+    stats_modifiers = {
+        action_points: { max: +10 },
+    }
+
+    constructor(){
+        super("Debug: Action Points +10");
+    }
+};
+
+class Debug_ReduceActionPoints extends concepts.Item {
+    assets = {
+        graphics : {
+            sprite_def : sprite_defs.item_generic_1,
+        }
+    };
+
+    get can_be_taken() { return true; }
+
+    stats_modifiers = {
+        action_points: { max: -5 },
+    }
+
+    constructor(){
+        super("Debug: Action Points -5");
+    }
+};
+
+
+
+class Debug_BiggerInventory extends concepts.Item {
+    assets = {
+        graphics : {
+            sprite_def : sprite_defs.item_generic_1,
+        }
+    };
+
+    get can_be_taken() { return true; }
+
+    stats_modifiers = {
+        inventory_size: { value: +4 },
+    }
+
+    constructor(){
+        super("Debug: +4 Inventory Size");
+    }
+};
+
+class Debut_SmallerInventory extends concepts.Item {
+    assets = {
+        graphics : {
+            sprite_def : sprite_defs.item_generic_1,
+        }
+    };
+
+    get can_be_taken() { return true; }
+
+    stats_modifiers = {
+        inventory_size: { value: -1 },
+    }
+
+    constructor(){
+        super("Debug: -1 Inventory Size");
+    }
+};
+
+
+class Debug_AddEquipableItem extends concepts.Item {
+    assets = {
+        graphics : {
+            sprite_def : sprite_defs.item_generic_1,
+        }
+    };
+
+    get can_be_taken() { return true; }
+
+    stats_modifiers = {
+        equipable_items: { value: +3 },
+    }
+
+    constructor(){
+        super("Debug: +3 Equipable Item");
+    }
+};
+
+class Debug_RemoveEquipableItem extends concepts.Item {
+    assets = {
+        graphics : {
+            sprite_def : sprite_defs.item_generic_1,
+        }
+    };
+
+    get can_be_taken() { return true; }
+
+    stats_modifiers = {
+        equipable_items: { value: -1 },
+    }
+
+    constructor(){
+        super("Debug: -1 Equipable Item");
+    }
+};
+
+
+class Debug_AugmentViewDistance extends concepts.Item {
+    assets = {
+        graphics : {
+            sprite_def : sprite_defs.item_generic_1,
+        }
+    };
+
+    get can_be_taken() { return true; }
+
+    stats_modifiers = {
+        view_distance: { value: +4 },
+    }
+
+    constructor(){
+        super("Debug: +4 View Distance");
+    }
+};
+
+class Debug_ReduceViewDistance extends concepts.Item {
+    assets = {
+        graphics : {
+            sprite_def : sprite_defs.item_generic_1,
+        }
+    };
+
+    get can_be_taken() { return true; }
+
+    stats_modifiers = {
+        view_distance: { value: -3 },
+    }
+
+    constructor(){
+        super("Debug: -3 View Distance");
+    }
+};
+

@@ -503,12 +503,19 @@ class Bar extends UIElement {
 
         this.colors = bar_def.bar_colors ? bar_def.bar_colors : default_bar_colors;
         this.change_delay_ms = bar_def.change_delay_ms !== undefined ? bar_def.change_delay_ms : 500;
+        console.assert(Number.isInteger(this.change_delay_ms));
         this.change_duration_ms = bar_def.change_duration_ms !== undefined ? bar_def.change_duration_ms : 800;
-        this._min_value = bar_def.min_value ? bar_def.min_value : 0;
-        this._max_value = bar_def.max_value ? bar_def.max_value : 100;
-        this._value = bar_def.value ? bar_def.value : 50;
+        console.assert(Number.isInteger(this.change_duration_ms));
+        this._min_value = bar_def.min_value !== undefined ? bar_def.min_value : 0;
+        console.assert(Number.isInteger(this._min_value));
+        this._max_value = bar_def.max_value !== undefined ? bar_def.max_value : 100;
+        console.assert(Number.isInteger(this._max_value));
+        this._value = bar_def.value !== undefined ? bar_def.value : 50;
+        console.assert(Number.isInteger(this._value));
         this._name = bar_def.bar_name;
+        console.assert(typeof this._name === "string");
         this._is_horizontal_bar = bar_def.is_horizontal_bar ? bar_def.is_horizontal_bar : true;
+        console.assert(typeof this._is_horizontal_bar === "boolean");
         this._animations = new anim.AnimationGroup();
         this._text_always_visible = false;
 
@@ -534,7 +541,7 @@ class Bar extends UIElement {
     get value() { return this._value; }
     set value(new_value){
         console.assert(typeof new_value === "number");
-        if(new_value != this._value){
+        if(new_value !== this._value){
             this._previous_value = this._value;
             this._value = new_value;
             this._require_update = true;

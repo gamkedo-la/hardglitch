@@ -310,30 +310,32 @@ class InventoryUI {
         this._current_character = character;
 
         const inventory_size = character.stats.inventory_size.value;
-        if(this._slots.length != inventory_size){
-            this._reset_slots(inventory_size);
+        const equipable_slot_count = character.stats.equipable_items.value;
+        if(this._slots.length != inventory_size
+        || this._equipable_slot_count != equipable_slot_count){
+            this._reset_slots(inventory_size, equipable_slot_count);
         }
 
         if(character !== previous_character){
             this._reset_items(character.inventory);
-            // const listener_id = "inventory_ui";
-            // if(previous_character){
-            //     previous_character.inventory.remove_listener(listener_id);
-            // }
-            // character.inventory.add_listener(listener_id, inventory =>{
-            //      this._reset_items(inventory);
-            // });
         }
     }
 
-    _reset_slots(slot_count){
+    _reset_slots(slot_count, equipable_slots_count){
         console.assert(Number.isInteger(slot_count) && slot_count >= 0);
+        const previous_items = this._slots.map(slot=> slot.remove_item());
         this._slots = [];
+        this._equipable_slots_count = equipable_slots_count;
         while(this._slots.length !== slot_count){
-            const is_equipable = this._slots.length < this._current_character.stats.equipable_items.value;
+            const is_equipable = this._slots.length < this._equipable_slots_count;
             const item_slot = new ItemSlot(undefined, is_equipable);
             item_slot.position = this.position.translate({ y: -(((this._slots.length + 1) * item_slot.size.height) + item_slot_vertical_space) });
             this._slots.push(item_slot);
+            if(this._slots.length <= previous_items.length){
+                const previous_item = previous_items[this._slots.length -1];
+                if(previous_item)
+                    item_slot.set_item(previous_item);
+            }
         }
     }
 
@@ -355,6 +357,7 @@ class InventoryUI {
         }
 
     }
+
 
 };
 
