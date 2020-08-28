@@ -21,9 +21,9 @@ class GlitchyGlitchMacGlitchy extends Character {
     constructor(){
         super("\"Glitch\"", new CharacterStats());
         this.actor = new concepts.Player();
-        this.stats.view_distance.value = default_player_view_distance;
-        this.stats.inventory_size.value = default_player_interface_slots;
-        this.stats.equipable_items.value = default_player_equipable_items
+        this.stats.view_distance.real_value = default_player_view_distance;
+        this.stats.inventory_size.real_value = default_player_interface_slots;
+        this.stats.equipable_items.real_value = default_player_equipable_items
     }
 }
 

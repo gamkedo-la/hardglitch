@@ -49,20 +49,22 @@ class StatValue {
         return this._accumulate_modifiers("min");
     }
 
-    get value() { return this._value + this.accumulated_value_modifiers; }
+    get value() {
+        let value = this._value + this.accumulated_value_modifiers;
+        if(this.max){
+            value = Math.min(value, this.max);
+        }
+        if(this.min){
+            value = Math.max(value, this.min);
+        }
+        return value;
+     }
     get max() { return this._max === undefined ? undefined : this._max + this.accumulated_max_modifiers; }
     get min() { return this._min === undefined ? undefined : this._min + this.accumulated_min_modifiers; }
 
-    _refresh_values(){
-        if(this.value > this.max)
-            this.value = this.max;
-        if(this.value < this.min)
-            this.value = this.min;
-    }
-
     add_modifier(modifier_id, modifier){
+
         console.assert(typeof modifier_id === "string");
-        console.assert(this._modifiers[modifier_id] === undefined);
 
         console.assert(modifier instanceof Object);
         console.assert(modifier.value === undefined || Number.isInteger(modifier.value));
@@ -71,19 +73,19 @@ class StatValue {
         console.assert(modifier.min === undefined || (Number.isInteger(modifier.min) && this._min !== undefined));
 
         this._modifiers[modifier_id] = modifier;
-        this._refresh_values();
         this._notify_listeners();
     }
 
     remove_modifier(modifier_id){
+
         console.assert(typeof modifier_id === "string");
         delete this._modifiers[modifier_id];
         console.assert(this.max === undefined || this.min === undefined || this.min <= this.max);
-        this._refresh_values();
         this._notify_listeners();
     }
 
-    set value(new_value) {
+    set real_value(new_value) {
+
         console.assert(Number.isInteger(new_value) && new_value >= 0);
 
         if(this._max !== undefined){
@@ -93,43 +95,45 @@ class StatValue {
             console.assert(new_value >= this.min);
         }
 
-        this._value = new_value - this.accumulated_value_modifiers;
-        this._refresh_values();
+        this._value = new_value;
         this._notify_listeners();
     }
 
-    set max(new_value) {
+    set real_max(new_value) {
         console.assert(Number.isInteger(new_value) && new_value >= 0);
-        this._max = new_value - this.accumulated_max_modifiers;
-        this._refresh_values();
+        this._max = new_value;
         this._notify_listeners();
     }
 
-    set min(new_value) {
+    set real_min(new_value) {
+
         console.assert(Number.isInteger(new_value) && new_value < this.max);
-        this._min = new_value - this.accumulated_min_modifiers;
-        this._refresh_values();
+        this._min = new_value;
         this._notify_listeners();
     }
 
     increase(value_to_add){
+
         console.assert(Number.isInteger(value_to_add) && value_to_add >= 0);
         const new_value = this.value + value_to_add;
         if(this.max !== undefined)
             this._value = Math.min(new_value, this.max);
         else
             this._value = new_value;
+
         this._notify_listeners();
     }
 
     decrease(value_to_sub){
+
         console.assert(Number.isInteger(value_to_sub) && value_to_sub >= 0);
         const new_value = this.value - value_to_sub;
         if(this.min !== undefined)
             this._value = Math.max(new_value, this.min);
         else
             this._value = new_value;
-        this._notify_listeners();
+
+            this._notify_listeners();
     }
 
     add_listener(listener_id, listener){
@@ -142,7 +146,7 @@ class StatValue {
 
     remove_listener(listener_id){
         console.assert(typeof listener_id === "string");
-        delete this._listeners[modifier_id];
+        delete this._listeners[listener_id];
     }
 
     _notify_listeners(){
@@ -168,9 +172,10 @@ class CharacterStats{
 
     constructor(){
         this.inventory_size.add_listener("equipable_items", (inventory_size)=>{
-            this.equipable_items.max = inventory_size.value;
+            this.equipable_items.real_max = inventory_size.value;
         });
     }
+
 };
 
 
@@ -196,11 +201,16 @@ class Inventory {
 
         this.stats.equipable_items.add_listener("inventory", (equipable_items)=>{
             console.assert(equipable_items instanceof StatValue);
-            this._update_equipable_items(equipable_items.value);
+            if(this._equipable_items !== equipable_items.value){
+                this._equipable_items = equipable_items.value;
+                console.assert(Number.isInteger(this._equipable_items));
+            }
+
         });
     }
 
     add(item){
+
         console.assert(item instanceof concepts.Item);
         console.assert(this.have_empty_slots);
 
@@ -214,13 +224,13 @@ class Inventory {
     }
 
     set_item_at(idx, item){
+        //
         console.assert(idx >= 0 && idx < this._items_stored.length);
         console.assert(item instanceof concepts.Item);
         console.assert(this._items_stored[idx] === undefined);
         this._items_stored[idx] = item;
-        if(idx < this._equipable_items)
+        if(this.is_equipable_slot(idx))
             this._apply_modifiers(item);
-        this._notify_listeners();
     }
 
     get_item_at(idx){
@@ -228,10 +238,8 @@ class Inventory {
         return this._items_stored[idx];
     }
 
-
     _apply_modifiers(item){
         console.assert(item instanceof concepts.Item);
-        console.assert(this._items_stored.includes(item));
         if(item.stats_modifiers instanceof Object){
             const modifier_id = `item_${item.id}`;
             for(const [stat_name, modifier_value] of Object.entries(item.stats_modifiers)){
@@ -243,7 +251,6 @@ class Inventory {
 
     _reverse_modifiers(item){
         console.assert(item instanceof concepts.Item);
-        console.assert(this._items_stored.includes(item));
         if(item.stats_modifiers instanceof Object){
             const modifier_id = `item_${item.id}`;
             Object.keys(item.stats_modifiers).forEach(stat_name =>{
@@ -253,25 +260,13 @@ class Inventory {
         }
     }
 
-    _update_equipable_items(new_value){
-        console.assert(Number.isInteger(new_value));
-        console.assert(Number.isInteger(this._equipable_items));
-        if(this._is_updating_equipable_depth) // Protection against recursive calls (when removing an item that changes a stat that remove equiped etc.)
-            return;
-        this._is_updating_equipable_depth = true;
-        if(this._equipable_items !== new_value){
-            if(new_value > this._equipable_items){
-                this._items_stored.slice(this._equipable_items, new_value)
-                    .filter(item => item)
-                    .forEach(item => this._apply_modifiers(item));
-            } else {
-                this._items_stored.slice(new_value, this._equipable_items)
-                    .filter(item => item)
-                    .forEach(item => this._reverse_modifiers(item));
-            }
-            this._equipable_items = new_value;
-        }
-        this._is_updating_equipable_depth = false;
+    update_modifiers(){
+        this._items_stored.slice(0, this._equipable_items)
+            .filter(item => item instanceof concepts.Item)
+            .forEach(item => this._apply_modifiers(item));
+        this._items_stored.slice(this._equipable_items)
+            .filter(item => item instanceof concepts.Item)
+            .forEach(item => this._reverse_modifiers(item));
     }
 
     remove(idx){
@@ -282,8 +277,32 @@ class Inventory {
             this._reverse_modifiers(item);
         }
         this._items_stored[idx] = undefined;
-        this._notify_listeners();
         return item;
+    }
+
+    swap(idx_a, idx_b){
+        console.assert(idx_a >= 0 && idx_a < this._items_stored.length);
+        console.assert(idx_b >= 0 && idx_b < this._items_stored.length);
+        const a = this._items_stored[idx_a];
+        const b = this._items_stored[idx_b];
+        this._items_stored[idx_b] = a;
+        this._items_stored[idx_a] = b;
+        const is_slot_a_equipable = this.is_equipable_slot(idx_a);
+        const is_slot_b_equipable = this.is_equipable_slot(idx_b);
+        if(is_slot_a_equipable !== is_slot_b_equipable){
+            if(is_slot_a_equipable){
+                if(b instanceof concepts.Item)
+                    this._apply_modifiers(b);
+                if(a instanceof concepts.Item)
+                    this._reverse_modifiers(a);
+            } else {
+                if(a instanceof concepts.Item)
+                    this._apply_modifiers(a);
+                if(b instanceof concepts.Item)
+                    this._reverse_modifiers(b);
+            }
+        }
+        // TODO: return objects from limbo because of listeners.
     }
 
     resize(new_size){
@@ -307,7 +326,7 @@ class Inventory {
 
         this._items_stored = new_item_storage;
         Object.seal(this._items_stored);
-        this._notify_listeners();
+
         // Return the items we couldn't put in the new inventory.
         return previous_items.filter(item => item instanceof concepts.Item);
     }
@@ -322,23 +341,6 @@ class Inventory {
     is_equipable_slot(idx){
         console.assert(idx >= 0 && idx < this._items_stored.length);
         return idx < this._equipable_items;
-    }
-
-    add_listener(listener_id, listener){
-        console.assert(typeof listener_id === "string");
-        console.assert(listener instanceof Function);
-        console.assert(this._listeners[listener_id] === undefined);
-        this._listeners[listener_id] = listener;
-        listener(this); // Make sure the listner is up to date.
-    }
-
-    remove_listener(listener_id){
-        console.assert(typeof listener_id === "string");
-        delete this._listeners[listener_id];
-    }
-
-    _notify_listeners(){
-        Object.values(this._listeners).forEach(listener => listener(this));
     }
 
     get_enabled_action_types(action_type){

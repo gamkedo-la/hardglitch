@@ -21,6 +21,7 @@ import { CharacterStatus } from "./ui-characterstatus.js";
 
 const item_slot_vertical_space = 0;
 const item_slot_name = "Item Slot";
+const equipable_item_slot_name = "Equipable Item Slot";
 
 class ItemSlot {
 
@@ -33,7 +34,7 @@ class ItemSlot {
         this._item = null;
 
         this._help_text = new HelpText({
-            text: item_slot_name,
+            text: is_equipable ? equipable_item_slot_name : item_slot_name,
             area_to_help: this._sprite.area,
             delay_ms: 0, // Display the help text immediately when pointed.
         });
@@ -97,7 +98,7 @@ class ItemSlot {
             delete item._item_slot;
         }
         this._item = null;
-        this._help_text.text = item_slot_name;
+        this._help_text.text = this.is_equipable ? equipable_item_slot_name : item_slot_name;
         return item;
     }
 

@@ -94,6 +94,7 @@ class TakeItem extends concepts.Action {
         console.assert(item instanceof concepts.Item);
         world.remove_entity(item.id);
         const item_idx = character.inventory.add(item);
+        character.inventory.update_modifiers();
         return [ new ItemTaken(character, item, item_idx) ];
     }
 };
@@ -143,12 +144,9 @@ class SwapItemSlots extends concepts.Action {
     execute(world, character){
         console.assert(world instanceof concepts.World);
         console.assert(character instanceof Character);
-        const item_a = character.inventory.remove(this.slot_a_idx);
-        const item_b = character.inventory.remove(this.slot_b_idx);
+        const item_a = character.inventory.swap(this.slot_a_idx, this.slot_b_idx);
+        character.inventory.update_modifiers();
         // Beware: the inventory size can change because we equipped items changing it.
-        if(item_a && this.slot_b_idx < character.inventory.size) character.inventory.set_item_at(this.slot_b_idx, item_a);
-        if(item_b && this.slot_a_idx < character.inventory.size) character.inventory.set_item_at(this.slot_a_idx, item_b);
-
         // TODO: put the items in an item limbo, handle them afterwards (drop or destroy)
 
         return [ new SwappedItemsSlots(character, this.slot_a_idx, this.slot_b_idx)];
@@ -174,9 +172,10 @@ class DropItem extends concepts.Action {
         console.assert(world instanceof concepts.World);
         console.assert(character instanceof Character);
         const item = character.inventory.remove(this.item_idx);
+        console.assert(item instanceof concepts.Item);
         item.position = this.target;
         world.add(item);
-        console.assert(item instanceof concepts.Item);
+        character.inventory.update_modifiers();
         return [new ItemDropped(character, this.item_idx, this.target)];
     }
 };
