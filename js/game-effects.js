@@ -270,13 +270,13 @@ class GameFxView {
         let scanCycle = random_float(.75,1.25);
         let xformCycle = .1;
         let dx = 3;
-        let dy = 0;
+        let dy = 2;
         let width = 64;
         let height = 64;
         let rshift = .5;
         let gshift = .5;
-        let bshift = .25;
-        let bandingAffinity = .5;
+        let bshift = .5;
+        let bandingAffinity = .85;
         let particle = new ColorOffsetGlitchParticle(position.x, position.y, dx, dy, width, height, rshift, gshift, bshift, bandingAffinity, scanCycle, xformCycle, eolPredicate);
         this.particleSystem.add(particle);
         let fx = new GameFx(origin);
