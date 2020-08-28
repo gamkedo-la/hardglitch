@@ -171,7 +171,7 @@ function make_test_world(test_world_size = world_grid){ // The game assets must 
     visibility.positions_in_range(entry_point_position, inner_shape, valid_positions_filter)
         .filter(position => world.is_valid_position(position))
         .forEach(position=>{
-            const item_type = random_int(0, 100) >= 70 ? LifeForm_Weak : random_sample([...items.all_crypto_key_types(), ...items.all_crypto_file_types()]);
+            const item_type = random_int(0, 100) >= 70 ? LifeForm_Weak : random_sample([...items.all_item_types()]);
             const entity = new item_type();
             entity.position = position;
             world.add(entity);
