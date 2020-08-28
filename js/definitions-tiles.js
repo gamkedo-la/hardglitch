@@ -45,7 +45,7 @@ const defs = {
         description: "Walkable ground.",
         is_ground: true,
         shape_template: "ground_template",
-        tile_match_predicate: (v) => (v===ID.GROUND),
+        tile_match_predicate: (v) => (v==ID.GROUND),
         tile_same_predicate: (v) => (defs[v].is_ground),
     },
     [ID.GROUND2] : {
@@ -56,7 +56,7 @@ const defs = {
         description: "Walkable ground 2.",
         is_ground: true,
         shape_template: "ground2_template",
-        tile_match_predicate: (v) => (v===ID.GROUND2),
+        tile_match_predicate: (v) => (v==ID.GROUND2),
         tile_same_predicate: (v) => (defs[v].is_ground),
     },
     [ID.WALL] : {
@@ -66,7 +66,7 @@ const defs = {
         description: "Wall",
         is_wall: true,
         shape_template: "wall_template",
-        tile_match_predicate: (v) => (v===ID.WALL),
+        tile_match_predicate: (v) => (v==ID.WALL),
         tile_same_predicate: (v) => (defs[v].is_wall),
         pwall: {
             width: 16,
@@ -95,7 +95,7 @@ const defs = {
         description: "Test Wall",
         is_wall: true,
         shape_template: "wall_template",
-        tile_match_predicate: (v) => (v===ID.WALL2),
+        tile_match_predicate: (v) => (v==ID.WALL2),
         tile_same_predicate: (v) => (defs[v].is_wall),
         pwall: {
             width: 16,
@@ -123,11 +123,11 @@ const defs = {
         is_view_blocking: false,
         description: "Hole",
         shape_template: "hole_template",
-        tile_match_predicate: (v) => (v===ID.HOLE),
-        tile_same_predicate: (v) => (v===ID.HOLE),
+        tile_match_predicate: (v) => (v==ID.HOLE),
+        tile_same_predicate: (v) => (v==ID.HOLE),
         pwall: {
             width: 8,
-            height: 16,
+            height: 15,
             faceMask: sides.inner,
             edgeMask: sides.inner|sides.top|sides.vertical|sides.bottom,
             colormap: {
@@ -154,8 +154,8 @@ const defs = {
         is_view_blocking: false,
         description: "Void",
         shape_template: "void_template",
-        tile_match_predicate: (v) => (v===ID.VOID),
-        tile_same_predicate: (v) => (v===ID.VOID),
+        tile_match_predicate: (v) => (v==ID.VOID),
+        tile_same_predicate: (v) => (v==ID.VOID),
     },
     [ID.ENTRY] : {
         sprite_def: sprite_defs.entry,
