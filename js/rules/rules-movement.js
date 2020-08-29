@@ -49,7 +49,7 @@ class Moved extends concepts.Event {
 
     *animation(game_view){
         console.assert(game_view instanceof GameView);
-        const entity_view = game_view.get_entity_view(this.entity_id);
+        const entity_view = game_view.focus_on_entity(this.entity_id);
         console.assert(entity_view instanceof EntityView);
         console.assert(this.to_pos instanceof concepts.Position);
         yield* animations.move(entity_view, this.to_pos, this.duration);
@@ -128,7 +128,7 @@ class Jumped extends concepts.Event {
 
     *animation(game_view){
         console.assert(game_view instanceof GameView);
-        const entity_view = game_view.get_entity_view(this.entity_id);
+        const entity_view = game_view.focus_on_entity(this.entity_id);
         console.assert(entity_view instanceof EntityView);
         console.assert(this.to_pos instanceof concepts.Position);
         yield* animations.jump(game_view.fx_view, entity_view, this.to_pos);
@@ -196,14 +196,15 @@ class Swaped extends concepts.Event {
 
     *animation(game_view){
         console.assert(game_view instanceof GameView);
-        const entity_a_view = game_view.entity_views[this.entity_a_id];
+        const entity_a_view = game_view.focus_on_entity(this.entity_a_id);
         console.assert(entity_a_view instanceof EntityView);
-        const entity_b_view = game_view.entity_views[this.entity_b_id];
+        const entity_b_view = game_view.get_entity_view(this.entity_b_id);
         console.assert(entity_b_view instanceof EntityView);
         console.assert(this.pos_a.equals(entity_a_view.game_position));
         console.assert(this.pos_b.equals(entity_b_view.game_position));
 
         yield* animations.swap(game_view.fx_view, entity_a_view, entity_b_view, animations.default_move_duration_ms * 2);
+        game_view.focus_on_entity(this.entity_a_id);
     }
 
 };

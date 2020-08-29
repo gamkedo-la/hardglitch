@@ -220,8 +220,6 @@ class GameView {
     interpret_turn_events(event_sequence) {
         console.assert(event_sequence);
 
-        this.clear_focus();
-
         this.event_sequence = event_sequence;
         this._launch_next_animation_batch();
     }
@@ -497,7 +495,6 @@ class GameView {
         this.is_time_for_player_to_chose_action = false;
         this.clear_highlights_basic_actions();
         this.ui.lock_actions();
-        this.clear_focus();
     }
 
     _start_player_turn(){

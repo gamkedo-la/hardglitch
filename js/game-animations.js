@@ -14,6 +14,7 @@ export {
     missile,
     deleting_missile,
     take_item,
+    dissolve_item,
     decrypt_file,
     pushed,
     pulled,
@@ -214,6 +215,8 @@ function* take_item(taker_view, item_view){
 }
 
 function* dissolve_item(item_view){
+    console.assert(item_view instanceof ItemView);
+    // TODO: replace this by something better :/
     const duration_ms = 500;
     audio.playEvent('item'); // TODO: Replace by another sound?
     item_view.sprite.move_origin_to_center();
@@ -227,19 +230,11 @@ function* dissolve_item(item_view){
     item_view.sprite.reset_origin();
 }
 
-function* decrypt_file(game_view, character_view, file_view, key_view){
-    console.assert(game_view instanceof GameView);
-    console.assert(character_view instanceof CharacterView);
+function* decrypt_file(file_view){
     console.assert(file_view instanceof ItemView);
-    console.assert(key_view instanceof ItemView);
-    // TODO: maybe add an effect on the character too?
-    // 1. Dissolve the key
-    // TODO: replace this by something better :/
-    yield* dissolve_item(key_view);
-    // 2. Decrypt animation of the file
     file_view.sprite.start_animation("decrypt");
     yield* animation.wait_while(()=> file_view.sprite.is_playing_animation === true);
-    // 3. Effect for spawing a new object?
+    // TODO: Effect for spawing a new object?
     // TODO: add an effect here
 }
 

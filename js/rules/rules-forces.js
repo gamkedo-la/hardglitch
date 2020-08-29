@@ -35,7 +35,7 @@ class Pushed extends concepts.Event {
 
     *animation(game_view){
         console.assert(game_view instanceof GameView);
-        const entity_view = game_view.get_entity_view(this.target_entity_id);
+        const entity_view = game_view.focus_on_entity(this.target_entity_id);
         console.assert(entity_view instanceof EntityView);
         yield* animations.pushed(entity_view, this.to_pos);
     }
@@ -58,7 +58,7 @@ class Bounced extends concepts.Event {
 
     *animation(game_view){
         console.assert(game_view instanceof GameView);
-        const entity_view = game_view.get_entity_view(this.target_entity_id);
+        const entity_view = game_view.focus_on_entity(this.target_entity_id);
         console.assert(entity_view instanceof EntityView);
         yield* animations.bounce(entity_view, this.to_pos);
     }

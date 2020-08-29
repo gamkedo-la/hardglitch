@@ -35,18 +35,25 @@ class DecryptedFile extends concepts.Event {
 
     *animation(game_view){
         console.assert(game_view instanceof GameView);
-        const character_view = game_view.get_entity_view(this.character_id);
+        // TODO: maybe add an effect on the character too?
+
+        const character_view = game_view.focus_on_entity(this.character_id);
         console.assert(character_view instanceof CharacterView);
 
-        const file_view = game_view.get_entity_view(this.file_id);
-        console.assert(file_view instanceof ItemView);
-
+        // 1. Dissolve the key
         const key_view = game_view.ui.inventory.get_item_view_at(this.key_idx);
         console.assert(key_view instanceof ItemView);
+        yield* anim.dissolve_item(key_view);
 
-        yield* anim.decrypt_file(game_view, character_view, file_view, key_view);
+        // 2. Decrypt animation of the file
+        const file_view = game_view.focus_on_entity(this.file_id);
+        console.assert(file_view instanceof ItemView);
+        yield* anim.decrypt_file(file_view);
+
         game_view.ui.inventory.remove_item_view_at(this.key_idx);
-        game_view.reset_entities(); // To make the potential new item visible.
+        game_view.reset_entities(); // To make the potential new item visible. // TODO: this might be a bit overkill...
+
+        game_view.clear_focus();
     }
 };
 

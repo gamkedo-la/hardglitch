@@ -30,7 +30,7 @@ class Damaged extends concepts.Event {
 
     *animation(game_view){
         console.assert(game_view instanceof GameView);
-        const entity_view = game_view.get_entity_view(this.entity_id);
+        const entity_view = game_view.focus_on_entity(this.entity_id);
         console.assert(entity_view instanceof EntityView);
         yield* take_damage(game_view.fx_view, entity_view);
     }
@@ -55,9 +55,10 @@ class Destroyed extends concepts.Event {
 
     *animation(game_view){
         console.assert(game_view instanceof GameView);
-        const entity_view = game_view.get_entity_view(this.entity_id);
+        const entity_view = game_view.focus_on_entity(this.entity_id);
         console.assert(entity_view instanceof EntityView);
         yield* destroyed(game_view.fx_view, entity_view);
+        game_view.clear_focus();
         game_view.remove_entity_view(this.entity_id);
     }
 

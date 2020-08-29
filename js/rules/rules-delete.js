@@ -10,8 +10,7 @@ import * as visibility from "../core/visibility.js";
 import { sprite_defs } from "../game-assets.js";
 import { Damaged, deal_damage } from "./destruction.js";
 import * as anim from "../game-animations.js";
-import { lazy_call } from "../system/utility.js";
-import { actions_for_each_target, ranged_actions_for_each_target } from "./rules-common.js";
+import { ranged_actions_for_each_target } from "./rules-common.js";
 
 const delete_damage = 5;
 const delete_ap_cost = 5;
@@ -25,11 +24,13 @@ class Deleted extends concepts.Event {
         this.allow_parallel_animation = false;
         this.deleter_position = deleter_character.position;
         this.deleted_position = deleted_character.position;
+        this._deleter_id = deleter_character.id;
     }
 
     get focus_positions() { return [ this.deleter_position, this.deleted_position ]; }
 
     *animation(game_view){
+        game_view.focus_on_entity(this._deleter_id);
         yield* anim.deleting_missile(game_view.fx_view, this.deleter_position, this.deleted_position);
     }
 };

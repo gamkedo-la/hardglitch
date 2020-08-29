@@ -41,11 +41,12 @@ class ItemTaken extends concepts.Event {
         console.assert(game_view instanceof GameView);
         const character_view = game_view.get_entity_view(this.taker_id);
         console.assert(character_view instanceof CharacterView);
-        const item_view = game_view.get_entity_view(this.item_id);
+        const item_view = game_view.focus_on_entity(this.item_id);
         console.assert(item_view instanceof ItemView);
         yield* anim.take_item(character_view, item_view);
         game_view.remove_entity_view(this.item_id);
         game_view.ui.inventory.set_item_view_at(this.inventory_idx, item_view);
+        game_view.clear_focus();
     }
 };
 
@@ -68,6 +69,7 @@ class ItemDropped extends concepts.Event {
 
     *animation(game_view){
         console.assert(game_view instanceof GameView);
+        game_view.focus_on_position(this.drop_position);
         game_view.ui.inventory.remove_item_view_at(this.item_idx);
         game_view.reset_entities(); // TODO: only add the entity view, instead of recreating all the entity views.
     }
@@ -116,6 +118,7 @@ class SwappedItemsSlots extends concepts.Event {
 
     *animation(game_view){
         console.assert(game_view instanceof GameView);
+        game_view.focus_on_position(this.character_position);
         const inventory = game_view.ui.inventory;
         const left_item_view = inventory.remove_item_view_at(this.left_item_idx);
         const right_item_view = inventory.remove_item_view_at(this.right_item_idx);
