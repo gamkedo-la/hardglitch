@@ -453,8 +453,8 @@ class World
     everything_at(position){
         console.assert(this.is_valid_position(position));
         const things = [
-            this._surface_tile_grid.get_at(position),
             this._floor_tile_grid.get_at(position),
+            this._surface_tile_grid.get_at(position),
             this.item_at(position),
             this.body_at(position),
         ];

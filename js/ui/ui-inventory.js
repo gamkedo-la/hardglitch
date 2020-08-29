@@ -23,6 +23,11 @@ const item_slot_vertical_space = 0;
 const item_slot_name = "Item Slot";
 const equipable_item_slot_name = "Equipable Item Slot";
 
+function slot_text(is_equipable){
+    console.assert(typeof is_equipable === "boolean");
+    return is_equipable ? equipable_item_slot_name : item_slot_name;
+}
+
 class ItemSlot {
 
     constructor(position, is_equipable){
@@ -34,7 +39,7 @@ class ItemSlot {
         this._item = null;
 
         this._help_text = new HelpText({
-            text: is_equipable ? equipable_item_slot_name : item_slot_name,
+            text: slot_text(is_equipable),
             area_to_help: this._sprite.area,
             delay_ms: 0, // Display the help text immediately when pointed.
         });
@@ -98,7 +103,7 @@ class ItemSlot {
             delete item._item_slot;
         }
         this._item = null;
-        this._help_text.text = this.is_equipable ? equipable_item_slot_name : item_slot_name;
+        this._help_text.text = slot_text(this.is_equipable);
         return item;
     }
 

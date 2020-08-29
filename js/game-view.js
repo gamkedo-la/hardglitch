@@ -214,6 +214,7 @@ class GameView {
 
         this.reset();
         this.center_on_player();
+        this.focus_on_current_player_character();
     }
 
     interpret_turn_events(event_sequence) {
@@ -269,6 +270,10 @@ class GameView {
         console.assert(entity_view instanceof EntityView);
         this.focus_on_position(entity_view.game_position);
         return entity_view;
+    }
+
+    focus_on_current_player_character(){
+        return this.focus_on_entity(this.player_character.id);
     }
 
     _action_description(action){ // TODO: make a general function for this AND make it handle also more general description and action icons.
@@ -503,7 +508,7 @@ class GameView {
                 this.center_on_player(250);
             }
 
-            this.focus_on_position(this.player_character.position);
+            this.focus_on_current_player_character();
             this.ui.unlock_actions();
             this.refresh();
 
@@ -710,15 +715,19 @@ class GameView {
                     continue;
 
                 const entity = entity_or_tileid;
-                if(entity instanceof concepts.Body && entity.is_player_actor){
-                    help_texts = add_text_line(help_texts, `${entity.name} (player)`);
+                if(entity instanceof Character ){
+                    if(entity.is_player_actor){
+                        help_texts = add_text_line(help_texts, `${entity.name} (player)`);
+                    } else {
+                        help_texts = add_text_line(help_texts, `${entity.name} (NPC)`);
+                    }
                 } else {
-                    help_texts = add_text_line(help_texts, `${entity.name}`);
+                    help_texts = add_text_line(help_texts, `Item: ${entity.name} (NPC)`);
                 }
             } else {
                 console.assert(Number.isInteger(entity_or_tileid));
                 const tile_id = entity_or_tileid;
-                help_texts = add_text_line(help_texts, `${tiles.info_text(tile_id)}`);
+                help_texts = add_text_line(help_texts, `[${tiles.info_text(tile_id)}]`);
             }
         }
         return help_texts;
@@ -751,6 +760,7 @@ class GameView {
     refresh(){
         this.fog_of_war.refresh(this.game.world);
         this._require_tiles_update = true;
+        this.focus_on_current_player_character();
         this.highlight_available_basic_actions();
         this.ui.show_action_buttons(Object.values(this.game.turn_info.possible_actions));
     }
