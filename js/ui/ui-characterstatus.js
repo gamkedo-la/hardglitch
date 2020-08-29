@@ -11,7 +11,7 @@ import { Vector2 } from "../system/spatial.js";
 import { config } from "../game-config.js";
 
 const bar_text = {
-    font: "22px Verdana",
+    font: "18px Verdana",
     color: "white",
     background_color: "#00000030",
 };
@@ -19,8 +19,8 @@ const bar_text = {
 const stats_text = bar_text; // For now, use the same.
 
 const bar_size = {
-    width: 300,
-    height: 32,
+    width: 260,
+    height: 24,
     space_between: 8,
 };
 

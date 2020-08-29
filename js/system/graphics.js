@@ -224,11 +224,6 @@ class Sprite {
   }
 
   reset_origin(){
-    if(this._current_frame && this._current_frame.origin){
-      this._frame_origin = new spatial.Vector2(this._current_frame.origin);
-    } else {
-      this._frame_origin = new spatial.Vector2();
-    }
     this.origin = new spatial.Vector2();
   }
 
@@ -603,7 +598,7 @@ function reset() {
 const text_defaults = {
   text_align: "left",
   text_baseline: "top",
-  font: "24px Verdana",
+  font: "20px Verdana",
   color: "black",
   stroke_color: undefined,
 };

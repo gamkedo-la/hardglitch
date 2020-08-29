@@ -19,7 +19,7 @@ import { CharacterStatus } from "./ui/ui-characterstatus.js";
 import { InventoryUI } from "./ui/ui-inventory.js";
 
 const action_button_size = 50;
-const player_ui_top_from_bottom = 80;
+const player_ui_top_from_bottom = 66;
 
 function character_status_position() {
     return new Vector2({ x: 8, y: graphics.canvas_rect().height - player_ui_top_from_bottom });
@@ -37,7 +37,6 @@ class ActionButton extends ui.Button {
             action: on_clicked,
             sounds:{
                 over: 'actionSelect',
-                down: 'actionClick',
             }
         });
 
@@ -87,9 +86,6 @@ class CancelActionButton extends ui.Button {
             sprite_def: sprite_defs.button_cancel_action_target_selection,
             visible: false,
             action: action,
-            sounds:{
-                down: 'actionCancel',
-            }
         });
 
         this.icon = new graphics.Sprite(sprite_defs.icon_action_cancel);
@@ -270,10 +266,11 @@ class GameInterface {
     }
 
     get elements(){
-        return Object.values(this)
-            .concat(this._action_buttons)
-            .filter(element => element instanceof ui.UIElement)
-            .concat([ this.inventory, this.character_status ]);
+        return [ // BEWARE: the order of the elements determine the order of update and DRAWING!
+            this.inventory, this.character_status,
+            ...Object.values(this).filter(element => element instanceof ui.UIElement),
+            ...this._action_buttons,
+        ];
     }
 
     is_under(position){
@@ -289,7 +286,7 @@ class GameInterface {
     }
 
     update(delta_time, current_character, world){
-        this.elements.map(element => element.update(delta_time, current_character, world));
+        this.elements.forEach(element => element.update(delta_time, current_character, world));
         this._handle_action_target_selection(delta_time);
     }
 
@@ -336,16 +333,17 @@ class GameInterface {
             const first_action = actions[0];
             const action_range = first_action.range;
             console.assert(first_action instanceof concepts.Action);
-            const key_name = key_number <= 10 ? `[${key_number === 0 ? "SPACE" : (key_number === 10 ? 0 : key_number) }] ` : "";
+            const key_name = key_number <= 10 ? `${key_number === 0 ? "SPACE" : (key_number === 10 ? 0 : key_number) }` : "";
             const action_button = new ActionButton(position, first_action.icon_def, action_name, key_name,
-                ()=>{ // on clicked
+                (clicked_button)=>{ // on clicked
                     if(actions.length == 1 && first_action.target_position === undefined){ // No need for targets
                         play_action(first_action); // Play the action immediately
                     } else {
                         // Need to select an highlited target!
-                        this.button_cancel_action_selection.position = new Vector2(position).translate({ y:-this.height });
+                        this.button_cancel_action_selection.position = clicked_button.cancel_button_position;
                         this._begin_target_selection(action_name, actions);
                     }
+                    audio.playEvent('actionClick');
                     this.lock_actions(); // Can be unlocked by clicking somewhere there is no action target.
                 },
                 ()=> this.config.on_action_pointed_begin(action_range, actions.map(action=>action.target_position)),
@@ -359,6 +357,7 @@ class GameInterface {
 
         this._action_buttons.forEach(action_button => {
             action_button.help_text.position = { x: action_button.position.x, y: line_y - action_button.help_text.height };
+            action_button.cancel_button_position = { x: action_button.position.x, y: line_y - this.button_cancel_action_selection.width };;
         });
 
     }
@@ -401,8 +400,6 @@ class GameInterface {
             return;
         }
 
-        this.button_cancel_action_selection.update(delta_time);
-
         if(this.is_selecting_action_target
          && mouse.buttons.is_just_down(MOUSE_BUTTON.LEFT)
          && !this.is_mouse_over
@@ -421,6 +418,7 @@ class GameInterface {
 
     cancel_action_target_selection(){
         // Cancel selection.
+        audio.playEvent('actionCancel');
         this.unlock_actions();
         this._end_target_selection();
     }

@@ -14,6 +14,7 @@ import { ScreenFader } from "./system/screenfader.js";
 
 import { load_test_level, load_random_test_level } from "./main.js";
 
+const buttons_font = "24px Verdana";
 
 class MainMenu {
 
@@ -25,6 +26,7 @@ class MainMenu {
         this.button_new_game = new ui.TextButton({
             text: "New Game",
             color: "#ffffff",
+            font: buttons_font,
             action: ()=> { state_machine.push_action("new_game"); },
             position: Vector2_origin,
             sprite_def: sprite_defs.button_menu,
@@ -36,6 +38,7 @@ class MainMenu {
 
         this.button_empty_level = new ui.TextButton({
             text: "Empty Small Level",
+            font: buttons_font,
             action: ()=> { load_test_level(10, 10); },
             position: Vector2_origin,
             sprite_def: sprite_defs.button_menu,
@@ -47,6 +50,7 @@ class MainMenu {
 
         this.button_test_level = new ui.TextButton({
             text: "Random Test Level",
+            font: buttons_font,
             action: ()=> { load_random_test_level(); },
             position: Vector2_origin,
             sprite_def: sprite_defs.button_menu,
@@ -58,6 +62,7 @@ class MainMenu {
 
         this.button_credits = new ui.TextButton({
             text: "Credits",
+            font: buttons_font,
             action: ()=> { state_machine.push_action("credits"); },
             position: Vector2_origin,
             sprite_def: sprite_defs.button_menu,

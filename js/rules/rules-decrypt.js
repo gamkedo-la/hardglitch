@@ -44,13 +44,13 @@ class DecryptedFile extends concepts.Event {
         const key_view = game_view.ui.inventory.get_item_view_at(this.key_idx);
         console.assert(key_view instanceof ItemView);
         yield* anim.dissolve_item(key_view);
+        game_view.ui.inventory.remove_item_view_at(this.key_idx);
 
         // 2. Decrypt animation of the file
         const file_view = game_view.focus_on_entity(this.file_id);
         console.assert(file_view instanceof ItemView);
         yield* anim.decrypt_file(file_view);
 
-        game_view.ui.inventory.remove_item_view_at(this.key_idx);
         game_view.reset_entities(); // To make the potential new item visible. // TODO: this might be a bit overkill...
 
         game_view.clear_focus();

@@ -252,7 +252,7 @@ class Button extends UIElement {
 
     action(){
         this._play_sound('action');
-        this._action();
+        this._action(this);
     }
 
     _play_sound(state_id){
