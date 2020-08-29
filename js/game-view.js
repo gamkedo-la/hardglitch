@@ -18,7 +18,7 @@ import * as concepts from "./core/concepts.js";
 import { Character } from "./core/character.js";
 
 import { Game } from "./game.js";
-import { Vector2, Rectangle } from "./system/spatial.js";
+import { Vector2, Rectangle, keep_in_rectangle } from "./system/spatial.js";
 
 
 import * as tiles from "./definitions-tiles.js";
@@ -86,11 +86,9 @@ class Highlight{
         if(this._help_text){
             this._help_text.update(delta_time);
             if(this._help_text.visible){
-                const text_pos = mouse_game_position().translate({x:0, y:-50}); // TODO: something less arbitrary?
-                if(text_pos.x > graphics.camera.rectangle.bottom_right.x - 60)
-                    text_pos.x = text_pos.x - 100;
-                if(text_pos.y < graphics.camera.rectangle.top_left.y + 60)
-                    text_pos.y = text_pos.y + 100;
+                let text_pos = mouse_game_position().translate({x:16, y:-50}); // TODO: something less arbitrary?
+                this._help_text.position = text_pos;
+                text_pos = keep_in_rectangle(this._help_text._area, graphics.camera.rectangle).position; // Adjust to always be in screen.
                 this._help_text.position = text_pos;
             }
         }

@@ -12,6 +12,7 @@ export {
     is_intersection,
     is_point_under,
     center_in_rectangle,
+    keep_in_rectangle,
 };
 
 import { is_number } from "./utility.js";
@@ -116,6 +117,11 @@ class Vector2{
     toString() {
         return "(" + this.x + "," + this.y + ")";
     }
+
+    equals(other_vec2){
+        console.assert(typeof other_vec2.x === "number" && typeof other_vec2.y === "number");
+        return this.x === other_vec2.x && this.y === other_vec2.y;
+    }
 };
 
 const Vector2_origin = new Vector2();
@@ -219,4 +225,42 @@ function center_in_rectangle(inner_rectangle, outter_rectangle){
         size: inner_rectangle.size,
     });
 }
+
+// Returns the re-positionned inner rectangle so that it's always in the outter rectangle.
+function keep_in_rectangle(inner_rectangle, outter_rectangle){
+    console.assert(inner_rectangle.width <= outter_rectangle.width);
+    console.assert(inner_rectangle.height <= outter_rectangle.height);
+
+    if(inner_rectangle.size.equals(outter_rectangle.size)){
+        return new Rectangle({
+            position: new Vector2(),
+            size: inner_rectangle.size,
+        });
+    }
+
+    const fixed_rectangle = new Rectangle(inner_rectangle);
+
+    if(fixed_rectangle.bottom_right.x > outter_rectangle.bottom_right.x){
+        const difference  = fixed_rectangle.bottom_right.x - outter_rectangle.bottom_right.x;
+        fixed_rectangle.position = fixed_rectangle.position.translate({ x: -difference });
+    }
+
+    if(fixed_rectangle.top_left.x < outter_rectangle.top_left.x){
+        const difference  = fixed_rectangle.top_left.x - outter_rectangle.top_left.x;
+        fixed_rectangle.position = fixed_rectangle.position.translate({ x: difference });
+    }
+
+    if(fixed_rectangle.bottom_right.y > outter_rectangle.bottom_right.y){
+        const difference  = fixed_rectangle.bottom_right.y - outter_rectangle.bottom_right.y;
+        fixed_rectangle.position = fixed_rectangle.position.translate({ y: difference });
+    }
+
+    if(fixed_rectangle.top_left.y < outter_rectangle.top_left.y){
+        const difference  = fixed_rectangle.top_left.y - outter_rectangle.top_left.y;
+        fixed_rectangle.position = fixed_rectangle.position.translate({ y: -difference });
+    }
+
+    return fixed_rectangle;
+}
+
 
