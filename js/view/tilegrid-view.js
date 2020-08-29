@@ -18,6 +18,7 @@ import { GameFxView } from "../game-effects.js";
 import { position_from_index } from "../system/utility.js";
 import { shape_defs, parse_tile_id } from "./tile-select.js";
 import { procWallGenSelector, ProcWallSystem } from "./proc-wall.js";
+import { Position } from "../core/concepts.js";
 
 // Display tiles.
 class TileGridView {
@@ -205,7 +206,7 @@ class TileGridView {
 
         for(let y = 0; y < this.height; ++y){
             for(let x = 0; x < this.width; ++x){
-                const position = {x, y};
+                const position = new Position({x, y});
                 if(!position_predicate(position))
                     continue;
 
@@ -223,7 +224,7 @@ class TileGridView {
         // The predicate assumes a tile grid normal but here we have tiles smaller by half, so we need to translate the position of the tile to the position it have in the real grid.
         if(!position_predicate)
             return undefined;
-        return (position)=> position_predicate({ x: Math.floor(position.x/2), y: Math.floor(position.y/2) });
+        return (position)=> position_predicate(new Position({ x: Math.floor(position.x/2), y: Math.floor(position.y/2) }));
     }
 
     _wall_visibility_predicate(position_predicate){

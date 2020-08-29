@@ -398,11 +398,17 @@ class Text extends UIElement {
     _on_draw(canvas_context){
         if(this._request_reset)
             this._reset(canvas_context);
+
+        if(this._text_lines.reduce((sum, text_line) => sum + text_line.text.length, 0) === 0){ // Draw nothing if there is no text to draw.
+            return;
+        }
+
         graphics.draw_rectangle(canvas_context, this.area, this._background_color);
 
         let line_position = this.position.translate({x:this._margin_horizontal, y:this._margin_vertical});
         this._text_lines.forEach(text_line => {
-            graphics.draw_text(canvas_context, text_line.text, line_position, this._font_options);
+            if(text_line.text.length > 0)
+                graphics.draw_text(canvas_context, text_line.text, line_position, this._font_options);
             line_position = line_position.translate({ y: text_line.line_height });
         });
 

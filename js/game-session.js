@@ -18,6 +18,7 @@ class GameSession {
         this.view = new GameView(this.game, open_menu);
         // Lock the actions interfaces until we are ready.
         this.view.ui.lock_actions();
+        this.view.clear_turn_message();
         this.view.clear_highlights_basic_actions();
     }
 
@@ -29,6 +30,7 @@ class GameSession {
     start(){
         game_input.begin_game(this);
         this.view.refresh();
+        this.view.show_turn_message();
     }
 
     stop(){

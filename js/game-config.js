@@ -9,7 +9,8 @@ export const config = {
 
     enable_particles: true,
     enable_stats_bar_value_always_visible: true,
+    enable_turn_message: true,
 };
 
-
+window.game_config = config;
 

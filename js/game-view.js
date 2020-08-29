@@ -37,8 +37,13 @@ import { FogOfWar } from "./view/fogofwar.js";
 import { TakeItem } from "./rules/rules-items.js";
 import { GameFxView } from "./game-effects.js";
 import { add_text_line } from "./system/utility.js";
+import { config } from "./game-config.js";
 
 const a_very_long_time = 99999999999999;
+const turn_message_player_turn = "Your Turn";
+const turn_message_processing_turns = "Their Turn...";
+const turn_message_display_begin_ms = 0;
+const turn_message_display_end_ms = 3000;
 
 class Highlight{
     enabled = true;
@@ -211,10 +216,18 @@ class GameView {
 
         this.fog_of_war = new FogOfWar(this.game.world);
 
+        this._turn_message = new ui.Text({
+            text: turn_message_player_turn,
+            font: "46px ZingDiddlyDooZapped",
+            background_color: "#000000a0",
+            color: "orange",
+            enabled: false,
+        });
+        this._time_since_beginning_turn_message = 0;
+        this._need_show_player_turn = true;
 
         this.reset();
-        this.center_on_player();
-        this.focus_on_current_player_character();
+        this._start_player_turn();
     }
 
     interpret_turn_events(event_sequence) {
@@ -415,6 +428,20 @@ class GameView {
         this.fog_of_war.update(delta_time);
 
         this.ui.update(delta_time, this.player_character, this.game.world);
+
+        this._update_turn_message(delta_time);
+    }
+
+    _update_turn_message(delta_time){
+        this._time_since_beginning_turn_message += delta_time;
+        if(this._turn_message.enabled){
+            if(this._time_since_beginning_turn_message < this._turn_message_end_ms){
+                this._turn_message.visible = this._time_since_beginning_turn_message > this._turn_message_begin_ms;
+            } else {
+                this._turn_message.enabled = false;
+            }
+        }
+        this._turn_message.update(delta_time);
     }
 
     _launch_next_animation_batch(){
@@ -483,8 +510,24 @@ class GameView {
             && this.next_event === undefined
             ){
                 this._start_player_turn();
+            } else {
+                if(this.player_character.stats.action_points.value <= 0
+                || this.player_character.skip_turn
+                ){
+                    if(this.is_any_npc_visible){ // Only show the turn message when there are other characters that needs to be displayed
+                        this.show_turn_message(turn_message_processing_turns, 0);
+                        this._need_show_player_turn = true;
+                    }
+                }
             }
         }
+    }
+
+    get is_any_npc_visible(){
+        const all_npcs_position = this.list_entity_views
+            .filter(entity=> entity instanceof CharacterView && !entity.is_player)
+            .map(character=>character.game_position);
+        return this.fog_of_war.is_any_visible(...all_npcs_position);
     }
 
     get player_character() {
@@ -508,12 +551,32 @@ class GameView {
             this.focus_on_current_player_character();
             this.ui.unlock_actions();
             this.refresh();
+            if(this._need_show_player_turn){
+                this.show_turn_message(turn_message_player_turn);
+                this._need_show_player_turn = false;
+            }
 
         } else {
             // Case where there is no player character at all.
             this.clear_focus();
             this.lock_actions();
         }
+    }
+
+    show_turn_message(message, begin_ms = turn_message_display_begin_ms, end_ms = turn_message_display_end_ms){
+        console.assert(message === undefined || typeof message === "string");
+        if(message !== undefined){
+            this._turn_message.text = message;
+        }
+
+        this._time_since_beginning_turn_message = 0;
+        this._turn_message.enabled = config.enable_turn_message;
+        this._turn_message_begin_ms = begin_ms;
+        this._turn_message_end_ms = end_ms;
+    }
+
+    clear_turn_message(){
+        this._turn_message.enabled = false;
     }
 
     _update_entities(delta_time){
@@ -636,9 +699,29 @@ class GameView {
         if(!this.enable_edition)
             this.ui.display();
 
+        this._render_turn_message();
+
         this._render_help(); // TODO: replace this by highlights being UI elements?
 
         this._require_tiles_update = false;
+    }
+
+    _render_turn_message(){
+        if(this._turn_message.enabled
+        && config.enable_turn_message
+        && !this.enable_edition
+        ){
+
+            this._turn_message.position = {
+                x: graphics.centered_rectangle_in_screen(this._turn_message.area).position.x,
+                y: 8
+            };
+
+            graphics.camera.begin_in_screen_rendering();
+            this._turn_message._reset(graphics.screen_canvas_context); // To make sure it's always at the right position.
+            this._turn_message.draw(graphics.screen_canvas_context);
+            graphics.camera.end_in_screen_rendering();
+        }
     }
 
     _render_ground_highlights(){

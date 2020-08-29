@@ -114,22 +114,26 @@ class FogOfWar {
 
 
     is_visible(...positions){
+        // console.assert(positions.every(position => position instanceof concepts.Position));
         return positions.every(position => this.world.is_valid_position(position)
                                         && this.current_visibility_grid[this.index(position)] === true
                                         );
     }
 
     is_any_visible(...positions){
+        // console.assert(positions.every(position => position instanceof concepts.Position));
         return positions.some(position => this.world.is_valid_position(position)
                                         && this.current_visibility_grid[this.index(position)] === true);
     }
 
     was_visible(...positions){
+        // console.assert(positions.every(position => position instanceof concepts.Position));
         return positions.every(position => this.world.is_valid_position(position)
                                         && this.viewed_at_least_once_grid[this.index(position)] === true);
     }
 
     was_any_visible(...positions){
+        // console.assert(positions.every(position => position instanceof concepts.Position));
         return positions.some(position => this.world.is_valid_position(position)
                                         && this.viewed_at_least_once_grid[this.index(position)] === true);
     }

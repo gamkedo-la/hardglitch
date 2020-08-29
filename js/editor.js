@@ -34,7 +34,7 @@ let display_help_info = false;
 let display_mouse_info = false;
 let display_character_info = false;
 
-let text_to_display = "READY";
+let text_to_display = "";
 let central_text = null;
 
 function clear(){
@@ -44,7 +44,7 @@ function clear(){
     display_help_info = false;
     display_mouse_info = false;
     display_character_info = false;
-    text_to_display = "READY";
+    text_to_display = "";
     central_text = null;
 }
 
@@ -620,6 +620,7 @@ function end_edition(game_session){
     game_session.view.enable_tile_rendering_debug = false;
     game_session.view.enable_edition = false;
     game_session.view.refresh();
+    game_session.view.clear_turn_message();
 
     current_edit_action = undefined;
     edition_palette = undefined;
