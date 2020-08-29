@@ -14,13 +14,12 @@ import { sprite_defs } from "./game-assets.js";
 import * as concepts from "./core/concepts.js";
 import { play_action, mouse_grid_position, KEY } from "./game-input.js";
 import { keyboard, mouse, MOUSE_BUTTON } from "./system/input.js";
-import { Vector2, center_in_rectangle } from "./system/spatial.js";
+import { Vector2, center_in_rectangle, Rectangle } from "./system/spatial.js";
 import { CharacterStatus } from "./ui/ui-characterstatus.js";
 import { InventoryUI } from "./ui/ui-inventory.js";
 
 const action_button_size = 50;
 const player_ui_top_from_bottom = 80;
-
 
 function character_status_position() {
     return new Vector2({ x: 8, y: graphics.canvas_rect().height - player_ui_top_from_bottom });
@@ -32,7 +31,7 @@ function inventory_position() {
 
 class ActionButton extends ui.Button {
     constructor(position, icon_def, action_name, key_name, on_clicked, on_begin_mouse_over, on_end_mouse_over){
-        super({ // TODO: add a way to identify the action visually, text + icon
+        super({
             position: position,
             sprite_def: sprite_defs.button_select_action,
             action: on_clicked,
@@ -48,17 +47,17 @@ class ActionButton extends ui.Button {
         this.on_end_mouse_over = on_end_mouse_over;
 
         this.icon = new graphics.Sprite(icon_def);
-        this.icon.position = center_in_rectangle(this.icon,
-            { position: this.position, width: action_button_size, height:action_button_size}).position;
+        this.icon.position = center_in_rectangle(this.icon, this.area).position;
 
         if(key_name !== ""){
             this.key_label = new ui.Text({
                 text: key_name,
-                font: "18px arial",
-                position: this.position.translate({x:action_button_size / 2, y:action_button_size + 4})
+                font: "12px Arial",
             });
-            const adjust_x = this.key_label.width > action_button_size ? 3 * (this.key_label.width / 4) : this.key_label.width / 2;
-            this.key_label.position = this.key_label.position.translate({x:-adjust_x, y:0});
+            this.key_label.position = this.position.translate({
+                x: this.width - this.key_label.width,
+                y: this.height - this.key_label.height,
+            });
         }
 
         this.help_text = new ui.HelpText({
@@ -96,7 +95,6 @@ class CancelActionButton extends ui.Button {
         this.icon = new graphics.Sprite(sprite_defs.icon_action_cancel);
 
         this.help_text = new ui.HelpText({
-            width: action_button_size, height: action_button_size,
             area_to_help: this.area,
             text: "Cancel",
             delay_ms: 0,
@@ -108,8 +106,7 @@ class CancelActionButton extends ui.Button {
         super.position = new_pos;
         this.help_text.position = super.position.translate({x:0, y: -this.help_text.height - 4 });
         this.help_text.area_to_help = this.area;
-        this.icon.position = center_in_rectangle(this.icon,
-            { position: this.position, width: action_button_size, height:action_button_size}).position;
+        this.icon.position = center_in_rectangle(this.icon, this.area).position;
     }
 
     get position() { return super.position; }
@@ -131,11 +128,6 @@ class MuteAudioButton extends ui.Button {
             mute: new graphics.Sprite(sprite_defs.icon_volume_mute),
             unmute: new graphics.Sprite(sprite_defs.icon_volume_unmute),
         };
-        const icon_position = center_in_rectangle(this.icons.mute,
-            { position: this.position, width: action_button_size, height:action_button_size}).position;
-
-        this.icons.mute.position = icon_position;
-        this.icons.unmute.position = icon_position;
 
         this.help_text = new ui.HelpText({
             position: { x: 0, y: this.height },
@@ -144,6 +136,8 @@ class MuteAudioButton extends ui.Button {
             text: "Mute",
             delay_ms: 0,
         });
+
+        this.position = { x: 0, y: 0 };
     }
 
     _on_update(delta_time){
@@ -154,6 +148,18 @@ class MuteAudioButton extends ui.Button {
         super._on_update(delta_time);
     }
 
+
+    get position() { return super.position; }
+    set position(new_pos){
+        super.position = new_pos;
+        const icon_position = center_in_rectangle(this.icons.mute, this.area).position;
+
+        this.icons.mute.position = icon_position;
+        this.icons.unmute.position = icon_position;
+        this.help_text.area_to_help = this.area;
+    }
+
+
 }
 
 
@@ -162,7 +168,6 @@ class AutoFocusButton extends ui.Button {
         super({
             sprite_def: sprite_defs.button_mute_audio,
             action: toggle_autofocus,
-            position: {x: 0 + action_button_size, y: 0 },
             sounds:{
                 over: 'actionSelect',
                 down: 'actionClick',
@@ -174,11 +179,6 @@ class AutoFocusButton extends ui.Button {
         this.icons = {
             on: new graphics.Sprite(sprite_defs.icon_action_observe),
         };
-        const icon_position = center_in_rectangle(this.icons.on,
-            { position: this.position, width: action_button_size, height:action_button_size}).position;
-
-        this.icons.on.position = icon_position;
-        // this.icons.off.position = icon_position;
 
         this.help_text = new ui.HelpText({
             position: { x: 0, y: this.height },
@@ -197,6 +197,13 @@ class AutoFocusButton extends ui.Button {
         super._on_update(delta_time);
     }
 
+    get position() { return super.position; }
+    set position(new_pos){
+        super.position = new_pos;
+        this.icons.on.position = center_in_rectangle(this.icons.on, this.area).position;
+        this.help_text.area_to_help = this.area;
+    }
+
 }
 
 
@@ -205,7 +212,6 @@ class MenuButton extends ui.Button {
         super({
             sprite_def: sprite_defs.button_ingame_menu,
             action: open_menu,
-            position: {x: graphics.canvas_rect().width - action_button_size, y: 0 },
             sounds:{
                 over: 'actionSelect',
                 down: 'clickButton',
@@ -213,12 +219,18 @@ class MenuButton extends ui.Button {
         });
 
         this.help_text = new ui.HelpText({
-            position: this.position.translate({x:-this.width - 100, y:0 }),
-            width: this.width, height: this.height,
             area_to_help: this.area,
             text: "Menu [TAB]",
             delay_ms: 0,
         });
+    }
+
+    get position() { return super.position; }
+    set position(new_pos){
+        super.position = new_pos;
+        // this.icons.on.position = center_in_rectangle(this.icons.on, this.area).position;
+        this.help_text.position = { x: graphics.canvas_rect().width - this.help_text.width, y: this.height };
+        this.help_text.area_to_help = this.area;
     }
 }
 
@@ -283,7 +295,7 @@ class GameInterface {
 
     display() {
         graphics.camera.begin_in_screen_rendering();
-        this.elements.map(element => element.draw(graphics.screen_canvas_context));
+        this.elements.forEach(element => element.draw(graphics.screen_canvas_context));
         graphics.camera.end_in_screen_rendering();
     }
 
@@ -298,27 +310,40 @@ class GameInterface {
         const actions_per_types = group_per_type(possible_actions);
 
         // ... then we build the buttons with the associated informations.
-
+        const action_entries = Object.entries(actions_per_types);
         const space_between_buttons = action_button_size;
         const canvas_rect = graphics.canvas_rect();
-        const line_y = canvas_rect.height - player_ui_top_from_bottom;
-        let line_x = (canvas_rect.width / 2) - (Math.floor((Object.keys(actions_per_types).length / 2)) * space_between_buttons);
+        const max_buttons_per_lines = Math.ceil(Math.ceil(canvas_rect.width / 4) / space_between_buttons);
+        const base_line_y = canvas_rect.height - space_between_buttons;
+        const base_line_x = graphics.centered_rectangle_in_screen(new Rectangle({
+            size: {
+                x: space_between_buttons * Math.min(action_entries.length, max_buttons_per_lines),
+                y: space_between_buttons
+            }
+        })).position.x - space_between_buttons;
+
+        let line_y = base_line_y;
+        let line_x = base_line_x;
         const next_x = ()=> line_x += space_between_buttons;
 
         let key_number = 0;
-        for(const [action_name, actions] of Object.entries(actions_per_types)){
+        for(const [action_name, actions] of action_entries){
+            if(key_number > 0 && key_number % max_buttons_per_lines === 0){
+                line_y -= space_between_buttons;
+                line_x = base_line_x;
+            }
             const position = { x: next_x(), y: line_y };
             const first_action = actions[0];
             const action_range = first_action.range;
             console.assert(first_action instanceof concepts.Action);
-            const key_name =  key_number <= 10 ? `[${key_number === 0 ? "SPACE" : key_number }] ` : "";
+            const key_name = key_number <= 10 ? `[${key_number === 0 ? "SPACE" : (key_number === 10 ? 0 : key_number) }] ` : "";
             const action_button = new ActionButton(position, first_action.icon_def, action_name, key_name,
                 ()=>{ // on clicked
                     if(actions.length == 1 && first_action.target_position === undefined){ // No need for targets
                         play_action(first_action); // Play the action immediately
                     } else {
                         // Need to select an highlited target!
-                        this.button_cancel_action_selection.position = new Vector2(position).translate({ x:0, y:-action_button_size });
+                        this.button_cancel_action_selection.position = new Vector2(position).translate({ y:-this.height });
                         this._begin_target_selection(action_name, actions);
                     }
                     this.lock_actions(); // Can be unlocked by clicking somewhere there is no action target.
@@ -331,6 +356,10 @@ class GameInterface {
             this._action_buttons.push(action_button);
             ++key_number;
         }
+
+        this._action_buttons.forEach(action_button => {
+            action_button.help_text.position = { x: action_button.position.x, y: line_y - action_button.help_text.height };
+        });
 
     }
 
@@ -399,7 +428,9 @@ class GameInterface {
     on_canvas_resized(){
         // TODO: check if we need to do more.
         this.button_main_menu = new MenuButton(this.config.open_menu);
+        this.button_main_menu.position = { x: graphics.canvas_rect().width - this.button_main_menu.width, y: 0 },
         this.button_auto_focus = new AutoFocusButton(this.config.toggle_autofocus, this.config.is_autofocus_enabled);
+        this.button_auto_focus.position = this.button_auto_focus.position.translate({ x: this.button_auto_focus.width }); // Assuming the mute button is the same size as the auto-focus button
         this.character_status = new CharacterStatus(character_status_position());
         this.inventory = new InventoryUI(inventory_position(), this.character_status, this.config);
     }
