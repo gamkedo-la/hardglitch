@@ -379,9 +379,12 @@ class Text extends UIElement {
             const actual_width = Math.abs(text_metrics.actualBoundingBoxLeft) + Math.abs(text_metrics.actualBoundingBoxRight);
             const actual_height = Math.abs(text_metrics.actualBoundingBoxAscent ) + Math.abs(text_metrics.actualBoundingBoxDescent);
 
-            area_size.y += actual_height + (this._margin_vertical * 2);
-            area_size.x = Math.max(actual_width + (this._margin_horizontal * 2), area_size.x);
-            text_line.line_height = actual_height;
+            const line_height = actual_height + (this._margin_vertical * 2);
+            const line_width = actual_width + (this._margin_horizontal * 2);
+            area_size.x = Math.max(line_width, area_size.x);
+            area_size.y += line_height;
+
+            text_line.line_height = line_height;
         });
 
         this._area.size = area_size;
