@@ -72,7 +72,7 @@ class GameStateMachine extends fsm.StateMachine {
 
     textbox = new ui.Text({
         text: "READY",
-        font: "20px arial",
+        font: "20px Verdana",
         position: graphics.canvas_center_position(),
     });
 

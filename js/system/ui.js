@@ -323,7 +323,7 @@ const line_jump = '\n';
 class Text extends UIElement {
     //
     //{
-    //    text:"Blah blah", font: "Arial 16pt", color:"#000000AA",
+    //    text:"Blah blah", font: "Verdana 16pt", color:"#000000AA",
     //    background_color: "#11111111",
     //    margin_horizontal: 4, margin_vertical: 4
     //}

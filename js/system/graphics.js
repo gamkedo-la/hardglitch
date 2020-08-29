@@ -603,7 +603,7 @@ function reset() {
 const text_defaults = {
   text_align: "left",
   text_baseline: "top",
-  font: "24px arial",
+  font: "24px Verdana",
   color: "black",
   stroke_color: undefined,
 };
