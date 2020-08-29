@@ -13,6 +13,7 @@ export {
     is_point_under,
     center_in_rectangle,
     keep_in_rectangle,
+    containing_rectangle,
 };
 
 import { is_number } from "./utility.js";
@@ -263,4 +264,14 @@ function keep_in_rectangle(inner_rectangle, outter_rectangle){
     return fixed_rectangle;
 }
 
-
+function containing_rectangle(...rectangles){
+    const position = new Vector2();
+    const size = new Vector2()
+    for(const  rectangle of rectangles){
+        position.x = Math.min(rectangle.position.x, position.x);
+        position.y = Math.min(rectangle.position.y, position.y);
+        size.x = Math.max(rectangle.width, size.x);
+        size.y = Math.max(rectangle.height, size.y);
+    }
+    return new Rectangle({ position, size });
+}

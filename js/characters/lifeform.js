@@ -106,9 +106,9 @@ const lifeform_possible_behavior = [
 
 class LifeForm_Weak extends Character {
     assets = {
-        graphics : {
+        graphics : { body: {
             sprite_def : sprite_defs.life_form_weak,
-        }
+        }}
     };
 
     constructor(){
@@ -122,9 +122,9 @@ class LifeForm_Weak extends Character {
 
 class LifeForm_Strong extends Character {
     assets = {
-        graphics : {
+        graphics : { body: {
             sprite_def : sprite_defs.life_form,
-        }
+        }}
     };
 
     constructor(){

@@ -37,7 +37,9 @@ const default_destruction_duration_ms = 666;
 function* translate(thing_with_position, target_gfx_pos, duration_ms, easing){
     console.assert(thing_with_position.position instanceof Vector2);
     yield* tween(thing_with_position.position, {x:target_gfx_pos.x, y:target_gfx_pos.y}, duration_ms,
-        (updated_position)=>{ thing_with_position.position = updated_position; }, easing);
+        (updated_position)=>{
+            thing_with_position.position = updated_position;
+        }, easing);
 }
 
 function* move(entity_view, target_game_position, duration_ms=default_move_duration_ms){
@@ -126,7 +128,7 @@ function* destroyed(fx_view, entity_view, duration_ms=default_destruction_durati
     console.assert(entity_view instanceof EntityView);
     // Center the sprite so that the rotation origin is in the center of it.
     const effect = fx_view.destruction(entity_view.position.translate(square_half_unit_vector));
-    entity_view.sprite.move_origin_to_center();
+    entity_view.for_each_sprite(sprite=>sprite.move_origin_to_center());
     // WwhwhhiiiiiiiiiIIIIIIIIIiiiizzzzzzzzzzZZZZZZZZZZZZZ
     audio.playEvent('explode');
     yield* tween( {
@@ -199,19 +201,24 @@ function* take_item(taker_view, item_view){
     console.assert(item_view instanceof ItemView);
     const take_duration_ms = 500;
     audio.playEvent('item');
-    item_view.sprite.move_origin_to_center();
+    const initial_position = item_view.position;
     const initial_scale = item_view.scale;
+    item_view.for_each_sprite(sprite=>sprite.move_origin_to_center());
+    item_view.position = initial_position.translate(square_half_unit_vector);
     yield* animation.in_parallel(
         tween( { scale_x: item_view.scale.x, scale_y: item_view.scale.y, }, { scale_x: 0, scale_y: 0, },
                 take_duration_ms,
-                (values) => { item_view.scale = { x: values.scale_x, y: values.scale_y }; },
+                (values) => {
+                    item_view.scale = { x: values.scale_x, y: values.scale_y };
+                },
                 easing.in_out_quad
             ),
         translate(item_view, taker_view.position.translate(square_half_unit_vector), take_duration_ms),
     );
     item_view.is_visible = false;
     item_view.scale = initial_scale;
-    item_view.sprite.reset_origin();
+    item_view.position = initial_position;
+    item_view.for_each_sprite(sprite => sprite.reset_origin());
 }
 
 function* dissolve_item(item_view){
@@ -219,21 +226,25 @@ function* dissolve_item(item_view){
     // TODO: replace this by something better :/
     const duration_ms = 500;
     audio.playEvent('item'); // TODO: Replace by another sound?
-    item_view.sprite.move_origin_to_center();
     const initial_scale = item_view.scale;
+    const initial_position = item_view.position;
+    item_view.for_each_sprite(sprite=>sprite.move_origin_to_center());
+    item_view.position = initial_position.translate(square_half_unit_vector);
     yield* tween( item_view.scale.y, 0, duration_ms,
                 (value) => { item_view.scale = { x: initial_scale.x, y: value }; },
                 easing.in_out_quad
             );
     item_view.is_visible = false;
     item_view.scale = initial_scale;
-    item_view.sprite.reset_origin();
+    item_view.position = initial_position;
+    item_view.for_each_sprite(sprite => sprite.reset_origin());
 }
 
 function* decrypt_file(file_view){
     console.assert(file_view instanceof ItemView);
-    file_view.sprite.start_animation("decrypt");
-    yield* animation.wait_while(()=> file_view.sprite.is_playing_animation === true);
+    const file_sprite = file_view.get_sprite("body");
+    file_sprite.start_animation("decrypt");
+    yield* animation.wait_while(()=> file_sprite.is_playing_animation === true);
     // TODO: Effect for spawing a new object?
     // TODO: add an effect here
 }

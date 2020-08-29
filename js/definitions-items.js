@@ -86,9 +86,9 @@ class CryptoFile extends concepts.Item {
         super(`Crypto File ${crypto_names[kind]}`);
         this.crypto_kind = kind;
         this.assets = {
-            graphics : {
+            graphics : { body: {
                 sprite_def : sprite_defs[`crypto_file_${kind}`],
-            }
+            }}
         };
 
     }
@@ -138,9 +138,9 @@ class CryptoKey extends concepts.Item {
         super(`Crypto Key ${crypto_names[kind]}`);
         this.crypto_kind = kind;
         this.assets = {
-            graphics : {
+            graphics : { body: {
                 sprite_def : sprite_defs[`crypto_key_${kind}`],
-            }
+            }}
         };
     }
 
@@ -164,9 +164,9 @@ class CryptoKey_Circle extends CryptoKey{
 
 class MovableWall extends concepts.Item {
     assets = {
-        graphics : {
+        graphics : { body: {
             sprite_def : sprite_defs.movable_wall,
-        }
+        }}
     };
 
     get can_be_taken() { return false; }
@@ -180,9 +180,9 @@ class MovableWall extends concepts.Item {
 
 class Debug_AllActions extends concepts.Item {
     assets = {
-        graphics : {
+        graphics : { body: {
             sprite_def : sprite_defs.item_generic_1,
-        }
+        }}
     };
 
     get can_be_taken() { return true; }
@@ -202,9 +202,9 @@ class Debug_AllActions extends concepts.Item {
 
 class Debug_HealthRecovery extends concepts.Item {
     assets = {
-        graphics : {
+        graphics : { body: {
             sprite_def : sprite_defs.item_generic_1,
-        }
+        }}
     };
 
     get can_be_taken() { return true; }
@@ -220,9 +220,9 @@ class Debug_HealthRecovery extends concepts.Item {
 
 class Debut_NegativeHealthRecovery extends concepts.Item {
     assets = {
-        graphics : {
+        graphics : { body: {
             sprite_def : sprite_defs.item_generic_1,
-        }
+        }}
     };
 
     get can_be_taken() { return true; }
@@ -239,9 +239,9 @@ class Debut_NegativeHealthRecovery extends concepts.Item {
 
 class Debug_ActionPointsRecovery extends concepts.Item {
     assets = {
-        graphics : {
+        graphics : { body: {
             sprite_def : sprite_defs.item_generic_1,
-        }
+        }}
     };
 
     get can_be_taken() { return true; }
@@ -257,9 +257,9 @@ class Debug_ActionPointsRecovery extends concepts.Item {
 
 class Debug_NegativeActionPointsRecovery extends concepts.Item {
     assets = {
-        graphics : {
+        graphics : { body: {
             sprite_def : sprite_defs.item_generic_1,
-        }
+        }}
     };
 
     get can_be_taken() { return true; }
@@ -276,9 +276,9 @@ class Debug_NegativeActionPointsRecovery extends concepts.Item {
 
 class Debug_AugmentHealth extends concepts.Item {
     assets = {
-        graphics : {
+        graphics : { body: {
             sprite_def : sprite_defs.item_generic_1,
-        }
+        }}
     };
 
     get can_be_taken() { return true; }
@@ -294,9 +294,9 @@ class Debug_AugmentHealth extends concepts.Item {
 
 class Debug_ReduceHealth extends concepts.Item {
     assets = {
-        graphics : {
+        graphics : { body: {
             sprite_def : sprite_defs.item_generic_1,
-        }
+        }}
     };
 
     get can_be_taken() { return true; }
@@ -313,9 +313,9 @@ class Debug_ReduceHealth extends concepts.Item {
 
 class Debug_AugmentActionPoints extends concepts.Item {
     assets = {
-        graphics : {
+        graphics : { body: {
             sprite_def : sprite_defs.item_generic_1,
-        }
+        }}
     };
 
     get can_be_taken() { return true; }
@@ -331,9 +331,9 @@ class Debug_AugmentActionPoints extends concepts.Item {
 
 class Debug_ReduceActionPoints extends concepts.Item {
     assets = {
-        graphics : {
+        graphics : { body: {
             sprite_def : sprite_defs.item_generic_1,
-        }
+        }}
     };
 
     get can_be_taken() { return true; }
@@ -351,9 +351,9 @@ class Debug_ReduceActionPoints extends concepts.Item {
 
 class Debug_BiggerInventory extends concepts.Item {
     assets = {
-        graphics : {
+        graphics : { body: {
             sprite_def : sprite_defs.item_generic_1,
-        }
+        }}
     };
 
     get can_be_taken() { return true; }
@@ -369,9 +369,9 @@ class Debug_BiggerInventory extends concepts.Item {
 
 class Debut_SmallerInventory extends concepts.Item {
     assets = {
-        graphics : {
+        graphics : { body: {
             sprite_def : sprite_defs.item_generic_1,
-        }
+        }}
     };
 
     get can_be_taken() { return true; }
@@ -388,9 +388,9 @@ class Debut_SmallerInventory extends concepts.Item {
 
 class Debug_AddEquipableItem extends concepts.Item {
     assets = {
-        graphics : {
+        graphics : { body: {
             sprite_def : sprite_defs.item_generic_1,
-        }
+        }}
     };
 
     get can_be_taken() { return true; }
@@ -406,9 +406,9 @@ class Debug_AddEquipableItem extends concepts.Item {
 
 class Debug_RemoveEquipableItem extends concepts.Item {
     assets = {
-        graphics : {
+        graphics : { body: {
             sprite_def : sprite_defs.item_generic_1,
-        }
+        }}
     };
 
     get can_be_taken() { return true; }
@@ -425,9 +425,9 @@ class Debug_RemoveEquipableItem extends concepts.Item {
 
 class Debug_AugmentViewDistance extends concepts.Item {
     assets = {
-        graphics : {
+        graphics : { body: {
             sprite_def : sprite_defs.item_generic_1,
-        }
+        }}
     };
 
     get can_be_taken() { return true; }
@@ -443,9 +443,9 @@ class Debug_AugmentViewDistance extends concepts.Item {
 
 class Debug_ReduceViewDistance extends concepts.Item {
     assets = {
-        graphics : {
+        graphics : { body: {
             sprite_def : sprite_defs.item_generic_1,
-        }
+        }}
     };
 
     get can_be_taken() { return true; }

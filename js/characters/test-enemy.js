@@ -28,9 +28,9 @@ class RandomActionSelector extends concepts.Actor {
 
 class RandomActionEnemy extends Character {
     assets = {
-        graphics : {
+        graphics : { body: {
             sprite_def : sprite_defs.test_enemy,
-        }
+        }}
     };
 
     constructor(){

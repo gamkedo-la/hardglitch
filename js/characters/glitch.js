@@ -13,9 +13,9 @@ const default_player_equipable_items = 1;
 
 class GlitchyGlitchMacGlitchy extends Character {
     assets = {
-        graphics : {
+        graphics : { body: {
             sprite_def : sprite_defs.player,
-        }
+        }}
     };
 
     constructor(){

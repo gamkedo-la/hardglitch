@@ -112,7 +112,7 @@ class ItemSlot {
             return;
 
         console.assert(this._item instanceof ItemView);
-        this._item.position = spatial.center_in_rectangle(this._item.sprite.area, this._sprite.area).position;
+        this._item.position = spatial.center_in_rectangle(this._item.area, this._sprite.area).position;
     }
 };
 
@@ -264,7 +264,7 @@ class InventoryUI {
                     }
                     if(this.events){
                         console.assert(this._dragging_item.item);
-                        this._dragging_item.item.sprite.reset_origin();
+                        this._dragging_item.item.for_each_sprite(sprite=>sprite.reset_origin());
                         this.events.on_item_dragging_end();
                     }
                 }
@@ -287,7 +287,7 @@ class InventoryUI {
                     const item_view = slot.item;
                     if(item_view){ // Begin dragging an item from a slot.
                         this._dragging_item.item = item_view;
-                        this._dragging_item.item.sprite.move_origin_to_center();
+                        this._dragging_item.item.for_each_sprite(sprite=>sprite.move_origin_to_center());
 
                         console.assert(this._current_character instanceof Character);
                         console.assert(this.world instanceof concepts.World);
@@ -317,8 +317,8 @@ class InventoryUI {
 
         const inventory_size = character.stats.inventory_size.value;
         const equipable_slot_count = character.stats.equipable_items.value;
-        if(this._slots.length != inventory_size
-        || this._equipable_slot_count != equipable_slot_count){
+        if(this._slots.length !== inventory_size
+        || this._equipable_slots_count !== equipable_slot_count){
             this._reset_slots(inventory_size, equipable_slot_count);
         }
 
