@@ -330,13 +330,13 @@ function update_world_edition(game_session, delta_time){
     is_editing = false;
 
     const mouse_grid_pos = mouse_grid_position();
-    if(!mouse_grid_pos)
-        return;
 
     if(current_edit_action){
         is_editing = !input.keyboard.is_down(KEY.SPACE); // Allow grabbing the camera if [SPACE] is pressed.
 
-        if(is_editing && input.mouse.buttons.is_down(input.MOUSE_BUTTON.LEFT)){
+        if(is_editing
+        && mouse_grid_pos !== undefined
+        && input.mouse.buttons.is_down(input.MOUSE_BUTTON.LEFT)){
             const world_was_edited = current_edit_action(game_session, mouse_grid_pos);
             if(world_was_edited)
                 game_session.view.notify_edition();
