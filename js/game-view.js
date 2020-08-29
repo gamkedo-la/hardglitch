@@ -802,7 +802,7 @@ class GameView {
                         help_texts = add_text_line(help_texts, `${entity.name} (NPC)`);
                     }
                 } else {
-                    help_texts = add_text_line(help_texts, `Item: ${entity.name} (NPC)`);
+                    help_texts = add_text_line(help_texts, `Item: ${entity.name}`);
                 }
             } else {
                 console.assert(Number.isInteger(entity_or_tileid));
