@@ -19,6 +19,7 @@ export {
     invoke_on_members,
     set_on_members,
     lazy_call,
+    add_text_line,
 }
 
 
@@ -251,3 +252,17 @@ function set_on_members(object, member_name, value){
 function* lazy_call(function_to_call, ...args){
     yield* function_to_call(...args);
 }
+
+// Adds a line with a jumpline character to a string, IFF that string have something already.
+function add_text_line(text, new_line_string = ""){
+    console.assert(typeof text === "string" || text instanceof String);
+    console.assert(typeof new_line_string === "string" || new_line_string instanceof String);
+
+    if(text.length > 0){
+        text += `\n${new_line_string}`
+    } else {
+        text += new_line_string;
+    }
+    return text;
+}
+

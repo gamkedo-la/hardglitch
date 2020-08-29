@@ -36,6 +36,7 @@ import { ItemView } from "./view/item-view.js";
 import { FogOfWar } from "./view/fogofwar.js";
 import { TakeItem } from "./rules/rules-items.js";
 import { GameFxView } from "./game-effects.js";
+import { add_text_line } from "./system/utility.js";
 
 const a_very_long_time = 99999999999999;
 
@@ -293,20 +294,28 @@ class GameView {
         return events;
     }
 
+    help_text_over_action(action){
+        console.assert(action instanceof concepts.Action);
+        return add_text_line(`Action: ${this._action_description(action)}`, this.help_texts_at(action.target_position));
+    }
+
     // Setup highlights for actions that are known with a target position.
     highlight_available_basic_actions(){
         this.clear_highlights_basic_actions(); // Clear previous highlighting
 
         const available_actions = this.game.turn_info.possible_actions;
+        console.assert(this.player_character instanceof Character);
         for(const action of Object.values(available_actions)){
-            console.assert(this.player_character instanceof Character);
+            console.assert(action instanceof concepts.Action);
             if(action.is_basic && action.is_safe){
+                const help_text = this.help_text_over_action(action);
+                const events = this._action_highlight_events(action);
                 if(action instanceof Move)
-                    this._add_highlight(action.target_position, this._highlight_sprites.movement, this._action_description(action),this._action_highlight_events(action));
+                    this._add_highlight(action.target_position, this._highlight_sprites.movement, help_text, events);
                 else if(action instanceof TakeItem)
-                    this._add_highlight(action.target_position, this._highlight_sprites.take, this._action_description(action),this._action_highlight_events(action));
+                    this._add_highlight(action.target_position, this._highlight_sprites.take, help_text, events);
                 else
-                    this._add_highlight(action.target_position, this._highlight_sprites.basic_action, this._action_description(action),this._action_highlight_events(action));
+                    this._add_highlight(action.target_position, this._highlight_sprites.basic_action, help_text, events);
             }
         }
 
@@ -323,7 +332,7 @@ class GameView {
         for(const action of action_info.actions){
             console.assert(this.player_character instanceof Character);
             if(action.target_position){
-                this._add_highlight(action.target_position, this._highlight_sprites.action, this._action_description(action), this._action_highlight_events(action));
+                this._add_highlight(action.target_position, this._highlight_sprites.action, this.help_text_over_action(action), this._action_highlight_events(action));
             }
         }
     }
@@ -565,7 +574,7 @@ class GameView {
 
     _change_highlight_position(highlight, new_pos){
         highlight.position = new_pos;
-        highlight.text = this.help_text_at(new_pos);
+        highlight.text = this.help_texts_at(new_pos);
     }
 
     _visibility_predicate(allow_past_visibility = false){
@@ -691,9 +700,9 @@ class GameView {
         this._character_focus_highlight.enabled = false;
     }
 
-    help_text_at(position){
-        // TODO: consider displaying more than just the thing pointed on top.
-        let help_text = "UNKOWN";
+    help_texts_at(position){
+
+        let help_texts = new String();
         const things_found = this.game.world.everything_at(position);
         while(things_found.length){
             const entity_or_tileid = things_found.pop();
@@ -704,17 +713,17 @@ class GameView {
 
                 const entity = entity_or_tileid;
                 if(entity instanceof concepts.Body && entity.is_player_actor){
-                    help_text = `${entity.name} (player)`;
+                    help_texts = add_text_line(help_texts, `${entity.name} (player)`);
                 } else {
-                    help_text = entity.name;
+                    help_texts = add_text_line(help_texts, `${entity.name}`);
                 }
-                break;
             } else {
+                console.assert(Number.isInteger(entity_or_tileid));
                 const tile_id = entity_or_tileid;
-                help_text = tiles.info_text(tile_id);
+                help_texts = add_text_line(help_texts, `${tiles.info_text(tile_id)}`);
             }
         }
-        return help_text;
+        return help_texts;
     }
 
     // Re-interpret the game's state from scratch.

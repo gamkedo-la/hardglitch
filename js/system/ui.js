@@ -316,6 +316,9 @@ class Button extends UIElement {
 
 };
 
+
+const line_jump = '\n';
+
 // Displays some text with a background.
 class Text extends UIElement {
     //
@@ -330,7 +333,7 @@ class Text extends UIElement {
         super(Object.assign(text_def, {
             width:1, height:1, // Width and height will be recalculated based on the real size of the text.
         }));
-        this._text = text_def.text;
+        this._text_lines = [];
         this._font_options = {
             font: text_def.font,
             color: text_def.color,
@@ -342,13 +345,15 @@ class Text extends UIElement {
         this._margin_vertical = text_def.margin_vertical ? text_def.margin_vertical : 4;
         this._background_color = text_def.background_color ? text_def.background_color : "#ffffffaa";
 
+        this.text = text_def.text;
+
         this._reset();
     }
 
-    get text(){ return this._text; }
+    get text(){ return this._text_lines; }
     set text(new_text){
-        console.assert(typeof new_text === 'string');
-        this._text = new_text;
+        console.assert(typeof new_text === 'string' || new_text instanceof String);
+        this._text_lines = new_text.split(line_jump).map(text_line => { return { text: text_line, line_height: 0 }; });
         this._request_reset = true;
     }
 
@@ -365,13 +370,22 @@ class Text extends UIElement {
     _reset(canvas_context = graphics.screen_canvas_context){
         console.assert(canvas_context);
         // Force resize to the actual size of the text graphically.
-        const text_metrics = graphics.measure_text(canvas_context, this._text, this._font_options );
-        const actual_width = Math.abs(text_metrics.actualBoundingBoxLeft) + Math.abs(text_metrics.actualBoundingBoxRight);
-        const actual_height = Math.abs(text_metrics.actualBoundingBoxAscent ) + Math.abs(text_metrics.actualBoundingBoxDescent);
-        this._area.size = new Vector2({
-            x: actual_width + (this._margin_horizontal * 2),
-            y: actual_height + (this._margin_vertical * 2)
+        // Also split the text according to max size if specified, and line jumps.
+
+        const area_size = new Vector2();
+
+        this._text_lines.forEach(text_line => {
+            const text_metrics = graphics.measure_text(canvas_context, text_line.text, this._font_options );
+            const actual_width = Math.abs(text_metrics.actualBoundingBoxLeft) + Math.abs(text_metrics.actualBoundingBoxRight);
+            const actual_height = Math.abs(text_metrics.actualBoundingBoxAscent ) + Math.abs(text_metrics.actualBoundingBoxDescent);
+
+            area_size.y += actual_height + (this._margin_vertical * 2);
+            area_size.x = Math.max(actual_width + (this._margin_horizontal * 2), area_size.x);
+            text_line.line_height = actual_height;
         });
+
+        this._area.size = area_size;
+
     }
 
     _on_update(delta_time){
@@ -382,11 +396,16 @@ class Text extends UIElement {
         if(this._request_reset)
             this._reset(canvas_context);
         graphics.draw_rectangle(canvas_context, this.area, this._background_color);
-        graphics.draw_text(canvas_context, this._text,
-            this.position.translate({x:this._margin_horizontal, y:this._margin_vertical}),
-            this._font_options);
+
+        let line_position = this.position.translate({x:this._margin_horizontal, y:this._margin_vertical});
+        this._text_lines.forEach(text_line => {
+            graphics.draw_text(canvas_context, text_line.text, line_position, this._font_options);
+            line_position = line_position.translate({ y: text_line.line_height });
+        });
+
     }
 };
+
 
 // Text that appear only when the parent is pointed.
 class HelpText extends Text {
