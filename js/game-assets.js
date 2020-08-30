@@ -153,7 +153,7 @@ function crypto_file_def(line){
     const y = line * 64;
     const width = 64;
     const height = 64;
-    const animation_speed = 1000 / 8;
+    const animation_speed = 1000 / 4;
     return  {
         image: "crypto_file",
         frames: [
@@ -168,13 +168,17 @@ function crypto_file_def(line){
                 loop: false,
                 timeline: [ { frame: 0, duration: 0 } ],
             },
+            ready_to_decrypt: {
+                loop: false,
+                timeline: [ { frame: 1, duration: 0 } ],
+            },
             decrypt: {
                 loop: false,
                 timeline: [
-                    { frame: 1, duration: animation_speed * 4 },
+                    { frame: 1, duration: animation_speed },
                     { frame: 2, duration: animation_speed },
                     { frame: 3, duration: animation_speed },
-                    { frame: 4, duration: animation_speed },
+                    { frame: 4, duration: animation_speed * 4 },
                 ],
             },
         },

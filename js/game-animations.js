@@ -30,6 +30,7 @@ import { CharacterView } from "./view/character-view.js";
 import { ItemView } from "./view/item-view.js";
 import { Position } from "./core/concepts.js";
 import { GameView } from "./game-view.js";
+import { Sprite } from "./system/graphics.js";
 
 const default_move_duration_ms = 250;
 const default_destruction_duration_ms = 666;
@@ -243,8 +244,10 @@ function* dissolve_item(item_view){
 function* decrypt_file(file_view){
     console.assert(file_view instanceof ItemView);
     const file_sprite = file_view.get_sprite("body");
+    console.assert(file_sprite instanceof Sprite);
     file_sprite.start_animation("decrypt");
     yield* animation.wait_while(()=> file_sprite.is_playing_animation === true);
+    audio.playEvent('item'); // TODO: replace by another sound
     // TODO: Effect for spawing a new object?
     // TODO: add an effect here
 }
