@@ -10,7 +10,11 @@ import { sprite_defs } from "../game-assets.js";
 import { Vector2, Rectangle } from "../system/spatial.js";
 import { add_text_line } from "../system/utility.js";
 
-const info_box_background_color = "#ffffffa0";
+const info_box_background_style = "#111177a0";
+const info_box_border_style = "orange";
+const info_box_background_margin = 4;
+const info_box_text_font = "18px Verdana";
+const info_box_text_color = "white";
 
 let current_info_box;
 
@@ -28,7 +32,8 @@ class InfoBox {
         this._text_display = new ui.Text({
             text: "",
             position: this.position,
-            font: "18px Verdana",
+            font: info_box_text_font,
+            color: info_box_text_color,
             background_color: "#00000000",
         });
 
@@ -74,7 +79,24 @@ class InfoBox {
 
     draw(canvas_context){
         if(this._is_open){
-            graphics.draw_rectangle(canvas_context, this._area, info_box_background_color);
+            canvas_context.save();
+
+            canvas_context.rect(this._area.position.x-info_box_background_margin,
+                                this._area.position.y-info_box_background_margin,
+                                this._area.width+info_box_background_margin,
+                                this._area.height+info_box_background_margin
+                                );
+            canvas_context.fillStyle =info_box_background_style;
+            canvas_context.strokeStyle =info_box_border_style;
+            canvas_context.lineWidth = 4;
+            canvas_context.lineCap = "round";
+            canvas_context.lineDashOffset = 8;
+            canvas_context.setLineDash([8, 8]);
+
+            canvas_context.fill();
+            canvas_context.stroke();
+            canvas_context.restore();
+
             this._text_display.draw(canvas_context);
         }
 
