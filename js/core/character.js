@@ -364,7 +364,7 @@ class Character extends concepts.Body {
 
     constructor(name){
         super(name);
-        this.skip_turn = false;
+        this.skip_turn = true;
     }
 
     get position() { return super.position; }
