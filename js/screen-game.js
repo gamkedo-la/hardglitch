@@ -37,7 +37,7 @@ class PlayingGame extends fsm.State{
     update(delta_time){
 
         if(this.game_session.is_game_finished){
-            if(input.keyboard.is_any_key_down() || input.mouse.buttons.is_any_key_down()){
+            if(input.keyboard.is_any_key_just_down() || input.mouse.buttons.is_any_key_just_down()){
                 if(this.game_session.is_any_player_character_alive){
                     this.state_machine.escape();
                 } else {
