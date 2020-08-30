@@ -52,6 +52,8 @@ class Action {
         this.costs = costs;                 // Description of the costs for this action.
     }
 
+    description = "This Action does not have a\ndescription yet!\nPlease help me by giving me\na description!";
+
     // Apply the action, transform the world.
     // Must return events corresponding to what happened.
     execute(world, body){

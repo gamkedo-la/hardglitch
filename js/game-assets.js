@@ -38,6 +38,7 @@ const game_assets = { // Description of the assets to load.
         item_slot: "./images/itemslot.png",
         item_generic_1: "./images/genericitem1.png",
         item_generic_2: "./images/genericitem2.png",
+        info_box_button: "./images/infoboxbutton.png",
 
         // TODO: merge icons into one image
         icon_volume_mute: "./images/iconmute.png",
@@ -394,6 +395,26 @@ const sprite_defs = {
             { x: 0, y: 64, width: 256, height: 64 },
             { x: 0, y: 128, width: 256, height: 64 },
             { x: 0, y: 192, width: 256, height: 64 },
+        ]
+    },
+
+    button_info_box_close: {
+        image: "info_box_button",
+        frames: [
+            { x: 0, y: 0, width: 300, height: 24 },
+            { x: 0, y: 24, width: 300, height: 24 },
+            { x: 0, y: 48, width: 300, height: 24 },
+            { x: 0, y: 76, width: 300, height: 24 },
+        ]
+    },
+
+    button_info_box_open: {
+        image: "info_box_button",
+        frames: [
+            { x: 0, y: 76, width: 300, height: 24 },
+            { x: 0, y: 76+24, width: 300, height: 24 },
+            { x: 0, y: 76+48, width: 300, height: 24 },
+            { x: 0, y: 76+76, width: 300, height: 24 },
         ]
     },
 

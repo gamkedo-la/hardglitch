@@ -17,6 +17,7 @@ import { keyboard, mouse, MOUSE_BUTTON } from "./system/input.js";
 import { Vector2, center_in_rectangle, Rectangle } from "./system/spatial.js";
 import { CharacterStatus } from "./ui/ui-characterstatus.js";
 import { InventoryUI } from "./ui/ui-inventory.js";
+import { InfoBox, show_info } from "./ui/ui-infobox.js";
 
 const action_button_size = 50;
 const player_ui_top_from_bottom = 66;
@@ -29,8 +30,18 @@ function inventory_position() {
     return new Vector2({ x:0, y: character_status_position().y - 10 });
 }
 
+function infobox_rectangle() {
+    const canvas_rect = graphics.canvas_rect();
+    const width = 300;
+    const height = 200;
+    return new Rectangle({
+        position: { x: canvas_rect.width - width, y: canvas_rect.height - height },
+        width, height,
+    });
+}
+
 class ActionButton extends ui.Button {
-    constructor(position, icon_def, action_name, key_name, on_clicked, on_begin_mouse_over, on_end_mouse_over){
+    constructor(position, icon_def, action_name, key_name, info_desc, on_clicked, on_begin_mouse_over, on_end_mouse_over){
         super({
             position: position,
             sprite_def: sprite_defs.button_select_action,
@@ -39,7 +50,7 @@ class ActionButton extends ui.Button {
                 over: 'actionSelect',
             }
         });
-
+        console.assert(typeof info_desc === "string");
         console.assert(on_begin_mouse_over instanceof Function);
         console.assert(on_end_mouse_over instanceof Function);
         this.on_begin_mouse_over = on_begin_mouse_over;
@@ -63,6 +74,8 @@ class ActionButton extends ui.Button {
             area_to_help: this.area,
             text: action_name,
             delay_ms: 0, // Display the help text immediately when pointed.
+        }, {
+            on_mouse_over: ()=> { show_info(info_desc); }
         });
         this.help_text.position = this.position.translate({x:0, y: -this.help_text.height - 4 });
     }
@@ -246,6 +259,8 @@ class GameInterface {
 
     character_status = new CharacterStatus(character_status_position());
 
+    info_box = new InfoBox(infobox_rectangle());
+
     constructor(config){
         console.assert(config instanceof Object);
         console.assert(config.on_action_selection_begin instanceof Function);
@@ -270,6 +285,7 @@ class GameInterface {
             this.inventory, this.character_status,
             ...Object.values(this).filter(element => element instanceof ui.UIElement),
             ...this._action_buttons,
+            this.info_box, // Must always be last!
         ];
     }
 
@@ -334,7 +350,8 @@ class GameInterface {
             const action_range = first_action.range;
             console.assert(first_action instanceof concepts.Action);
             const key_name = key_number <= 10 ? `${key_number === 0 ? "SPACE" : (key_number === 10 ? 0 : key_number) }` : "";
-            const action_button = new ActionButton(position, first_action.icon_def, action_name, key_name,
+            const action_description = `Action: ${action_name}\n${first_action.description}`;
+            const action_button = new ActionButton(position, first_action.icon_def, action_name, key_name, action_description,
                 (clicked_button)=>{ // on clicked
                     if(actions.length == 1 && first_action.target_position === undefined){ // No need for targets
                         play_action(first_action); // Play the action immediately
@@ -431,6 +448,7 @@ class GameInterface {
         this.button_auto_focus.position = this.button_auto_focus.position.translate({ x: this.button_auto_focus.width }); // Assuming the mute button is the same size as the auto-focus button
         this.character_status = new CharacterStatus(character_status_position());
         this.inventory = new InventoryUI(inventory_position(), this.character_status, this.config);
+        this.info_box = new InfoBox(infobox_rectangle());
     }
 
 };
