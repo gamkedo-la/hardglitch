@@ -218,7 +218,7 @@ class GameView {
 
         this._turn_message = new ui.Text({
             text: turn_message_player_turn,
-            font: "46px ZingDiddlyDooZapped",
+            font: "28px ZingDiddlyDooZapped",
             background_color: "#000000a0",
             color: "orange",
             enabled: false,
