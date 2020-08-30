@@ -315,6 +315,13 @@ class EditionPaletteUI {
         this.button_no_selection.on_selected();
     }
 
+    get is_mouse_over(){
+        return this.palette_buttons.some(button=> button.is_mouse_over)
+            || Object.values(this).filter(element => element instanceof ui.UIElement)
+                .some(uielement => uielement.is_mouse_over)
+            ;
+    }
+
 };
 
 let edition_palette;
@@ -336,6 +343,7 @@ function update_world_edition(game_session, delta_time){
 
         if(is_editing
         && mouse_grid_pos !== undefined
+        && !edition_palette.is_mouse_over
         && input.mouse.buttons.is_down(input.MOUSE_BUTTON.LEFT)){
             const world_was_edited = current_edit_action(game_session, mouse_grid_pos);
             if(world_was_edited)
