@@ -180,7 +180,6 @@ class Sprite {
     console.assert(frame_idx >= 0 && frame_idx < this.frames.length);
     this._current_frame = this.frames[frame_idx];
     this._frame_changed_since_update = true;
-    this.reset_origin();
   }
 
   start_animation(animation_id){
@@ -190,6 +189,7 @@ class Sprite {
     this._current_animation = animation;
     this.animation_time = 0.0;
     this.animation_keyframe_idx = 0;
+    this.force_frame(animation.timeline[this.animation_keyframe_idx].frame);
   }
 
   get size(){
