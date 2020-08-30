@@ -40,8 +40,8 @@ import { add_text_line } from "./system/utility.js";
 import { config } from "./game-config.js";
 
 const a_very_long_time = 99999999999999;
-const turn_message_player_turn = "Your Turn";
-const turn_message_processing_turns = "Their Turn...";
+const turn_message_player_turn = "Play";
+const turn_message_processing_turns = "Processing Cycles...";
 const turn_message_display_begin_ms = 0;
 const turn_message_display_end_ms = 3000;
 

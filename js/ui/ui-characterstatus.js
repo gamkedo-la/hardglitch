@@ -49,7 +49,7 @@ class CharacterStatus{
         });
 
         this.health_recovery_text = new ui.Text(Object.assign(stats_text, {
-            text: "+0/Turn",
+            text: "",
             position: this.health_bar.position.translate({ x: this.health_bar.width + 4 }),
             visible: false,
         }));
@@ -63,7 +63,7 @@ class CharacterStatus{
         });
 
         this.action_recovery_text = new ui.Text(Object.assign(stats_text, {
-            text: "+0/Turn",
+            text: "",
             position: this.action_bar.position.translate({ x: this.action_bar.width + 4 }),
             visible: false
         }));
@@ -96,10 +96,11 @@ class CharacterStatus{
         update_stat_bar(this.action_bar, this.character.stats.action_points);
 
         this.character_name.text = this.character.name;
+        const text_value_per_cycle = (value)=> value !== 0 ? `${ value >= 0 ? "+":""}${value}/Cycle` : "";
         const health_recovery = this.character.stats.int_recovery.value;
         const action_recovery = this.character.stats.ap_recovery.value;
-        this.health_recovery_text.text = `${ health_recovery >= 0 ? "+":""}${health_recovery}/Turn`;
-        this.action_recovery_text.text = `${ action_recovery >= 0 ? "+":""}${action_recovery}/Turn`;
+        this.health_recovery_text.text = text_value_per_cycle(health_recovery);
+        this.action_recovery_text.text = text_value_per_cycle(action_recovery);
 
         invoke_on_members(this, "update", delta_time);
     }
