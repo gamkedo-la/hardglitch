@@ -665,9 +665,7 @@ class GameView {
         return (gfx_position)=>{
             // Translate position of particles into position in the grid.
             const position = this.grid_position(gfx_position);
-            return position === undefined // Allow effects which are outside of the boundaries of the world to be visible.
-                || this.fog_of_war.is_visible(position) // Otherwise only display effects in view.
-                ;
+            return this.fog_of_war.is_visible(position); // Only display effects in view.
         };
     }
 
