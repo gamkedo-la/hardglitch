@@ -270,7 +270,7 @@ class World
     _bodies = {};    // Bodies are always in the space of the world. They can be controlled by Actors.
     _rules = [];     // Rules that will be applied through this game.
     is_finished = false; // True if this world is in a finished state, in which case it should not be updated anymore. TODO: protect against manipulations
-    has_entity_list_changed = true; // True if the list of entities existing have changed since the last turn update.
+    has_entity_list_changed = false; // True if the list of entities existing have changed since the last turn update.
 
     constructor(name, width, height, floor_tiles, surface_tiles){
         console.assert(typeof name === "string" && name.length > 0);

@@ -3,12 +3,16 @@
 
 export {
     execute_turns_v2 as execute_turns,
+    turn_sequence,
     PlayerTurn,
+    VisionUpdate,
+    NewTurn,
 };
 
 import * as concepts from "./concepts.js";
 import { Body as Character } from "./concepts.js";
 
+import * as audio from "../system/audio.js"; // FIXME: this file should never be exposed to this.
 
 // Data needed for the the "view" part of the game code to:
 // - know what happened since last character's turn;
@@ -28,37 +32,70 @@ class PlayerTurn {
     }
 };
 
+function turn_sequence(world){
+    console.assert(world instanceof concepts.World);
+    const character_sequence = world.bodies; // TODO: handle
+    const this_turn_ids = [];
+    const next_turn_ids = [];
+    for(const character of character_sequence){
+        if(character.can_perform_actions){
+            this_turn_ids.push(character.id);
+        } else {
+            next_turn_ids.push(character.id);
+        }
+    }
+    return { this_turn_ids, next_turn_ids };
+}
+
 
 // Event: New game turn begins!
 class NewTurn extends concepts.Event {
-    constructor(turn_id){
+    constructor(turn_id, world){
         super({
             description: `======== New Game Turn: ${turn_id} ========`
         });
+        this.allow_parallel_animation = true;
         this.turn_id = turn_id;
+        this.turn_ids_sequence = turn_sequence(world);
     }
 
     get focus_positions() { return []; }
 
     get is_world_event() { return true; }
 
-    animation = null;
+    *animation(game_view){
+        // TODO: make this code external from this file.
+        game_view._last_turn_ids_sequence = this.turn_ids_sequence;
+        game_view.ui.timeline.request_refresh(this.turn_ids_sequence);
+        audio.playEvent('newCycle');
+    }
 };
 
-
 class VisionUpdate extends concepts.Event {
-    get focus_positions() { return []; }
+    constructor(character, world){
+        super();
+        this.allow_parallel_animation = true;
+        this.character_position = character.position;
+        this.turn_ids_sequence = turn_sequence(world);
+    }
+    get focus_positions() { return [ this.character_position ]; }
 
     get is_world_event() { return true; }
 
-    animation = null;
+    *animation(game_view){
+        // TODO: make this code external from this file.
+        game_view._last_turn_ids_sequence = this.turn_ids_sequence;
+        game_view.ui.timeline.request_refresh(this.turn_ids_sequence);
+    }
+
+    force_skip_animation = true;
 };
 
 // Generates a sequence of character's bodies that can perform actions now.
 // The filtered bodies can appear only once each.
 // This is basically a "Turn Phase".
 // TODO: specify an order! maybe depending on stats? initiative points?
-function *characters_that_can_act_now(world){
+function* characters_that_can_act_now(world){
     console.assert(world instanceof concepts.World);
 
     let character_body_list = world.bodies;
@@ -121,7 +158,7 @@ function* execute_turns_v2(world) {
         // NEW TURN STARTS HERE: CYCLE THROUGH EACH CHARACTER WHICH CAN ACT THIS TURN
         //////////////////////////////////////////////////
         ++turn_id;
-        yield new NewTurn(turn_id);
+        yield new NewTurn(turn_id, world);
 
         // Apply the rules of the world that must happen at each Turn (before we begin doing characters turns).
         yield* world.apply_rules_beginning_of_game_turn();
@@ -145,7 +182,7 @@ function* execute_turns_v2(world) {
                 while (!action && player_character_exists) { // Update the current possible actions and request an action from the character
                     // until we obtain a usable action.
                     character.update_perception(world); // Make sure decisions are taken relative to an up to date view of the world.
-                    yield new VisionUpdate();
+                    yield new VisionUpdate(character, world);
                     const possible_actions = world.gather_possible_actions_from_rules(character);
                     action = actor.decide_next_action(possible_actions);
 
@@ -181,7 +218,7 @@ function* execute_turns_v2(world) {
                 // Keep the view of the world up to date after having performed the action and it's consequences.
                 if (action_events.length > 0 || rules_events.length > 0) {
                     character.update_perception(world);
-                    yield new VisionUpdate();
+                    yield new VisionUpdate(character, world);
                 }
 
             }

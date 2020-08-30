@@ -18,6 +18,7 @@ import { Vector2, center_in_rectangle, Rectangle } from "./system/spatial.js";
 import { CharacterStatus } from "./ui/ui-characterstatus.js";
 import { InventoryUI } from "./ui/ui-inventory.js";
 import { InfoBox, show_info } from "./ui/ui-infobox.js";
+import { Timeline } from "./ui/ui-timeline.js";
 
 const action_button_size = 50;
 const player_ui_top_from_bottom = 66;
@@ -28,6 +29,11 @@ function character_status_position() {
 
 function inventory_position() {
     return new Vector2({ x:0, y: character_status_position().y - 10 });
+}
+
+function timeline_position() {
+    const canvas_rect = graphics.canvas_rect();
+    return new Vector2({ x:canvas_rect.width - 80, y: 100 });
 }
 
 function infobox_rectangle() {
@@ -272,10 +278,10 @@ class GameInterface {
         console.assert(config.open_menu instanceof Function);
         console.assert(config.on_item_dragging_begin instanceof Function);
         console.assert(config.on_item_dragging_end instanceof Function);
+        console.assert(config.view_finder instanceof Function);
+        console.assert(config.visibility_predicate instanceof Function);
         this._action_buttons = [];
         this.config = config;
-
-        this.inventory = new InventoryUI(inventory_position(), this.character_status, config);
 
         this.on_canvas_resized();
     }
@@ -302,12 +308,14 @@ class GameInterface {
     }
 
     update(delta_time, current_character, world){
+        this.timeline.update(delta_time, world);
         this.elements.forEach(element => element.update(delta_time, current_character, world));
         this._handle_action_target_selection(delta_time);
     }
 
     display() {
         graphics.camera.begin_in_screen_rendering();
+        this.timeline.draw(graphics.screen_canvas_context);
         this.elements.forEach(element => element.draw(graphics.screen_canvas_context));
         graphics.camera.end_in_screen_rendering();
     }
@@ -449,6 +457,7 @@ class GameInterface {
         this.button_auto_focus.position = this.button_auto_focus.position.translate({ x: this.button_auto_focus.width }); // Assuming the mute button is the same size as the auto-focus button
         this.character_status = new CharacterStatus(character_status_position());
         this.inventory = new InventoryUI(inventory_position(), this.character_status, this.config);
+        this.timeline = new Timeline(timeline_position(), this.config.view_finder, this.config.visibility_predicate);
         this.info_box = new InfoBox(infobox_rectangle());
     }
 

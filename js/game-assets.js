@@ -62,6 +62,7 @@ const game_assets = { // Description of the assets to load.
     audio_buffers: { // Short audio assets held in memory. No hard limit on duplicates/overlaps.
         asset_loader: asset_system.audiobuffer_loader,
         test: './audio/test.mp3',
+        newCycle: './audio/test.mp3',
         click: './audio/Click.mp3',
         delete: './audio/Delete3.mp3',
         destroy: './audio/Destroy.mp3',
@@ -497,6 +498,16 @@ const sprite_defs = {
 const sound_event_defs = {
 
     // SOUND EFFECTS //
+
+
+    'newCycle': {
+        source_type: 'audiobuffer',
+        source_name: 'newCycle',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
 
     'buffertest': {
         source_type: 'audiobuffer',

@@ -38,6 +38,7 @@ import { TakeItem } from "./rules/rules-items.js";
 import { GameFxView } from "./game-effects.js";
 import { add_text_line } from "./system/utility.js";
 import { config } from "./game-config.js";
+import { turn_sequence } from "./core/action-turn.js";
 
 const a_very_long_time = 99999999999999;
 const turn_message_player_turn = "Play";
@@ -194,6 +195,8 @@ class GameView {
             is_autofocus_enabled: () => this.enable_auto_camera_center,
             on_item_dragging_begin: (drop_positions)=> this.highlight_item_drops(drop_positions),
             on_item_dragging_end: ()=> this.clear_item_drop_highlight(),
+            view_finder: (entity_id) => this.get_entity_view(entity_id),
+            visibility_predicate: (position) => this.fog_of_war.is_visible(position),
         };
 
         this.ui = new GameInterface(ui_config);
@@ -243,6 +246,7 @@ class GameView {
         while(!this.next_event.done){
             const event = this.next_event.value;
             console.assert(event instanceof concepts.Event);
+
             if(event.animation){
                 console.assert(event.focus_positions);
                 const animation = {
@@ -250,9 +254,11 @@ class GameView {
                         parallel: event.allow_parallel_animation,
                         focus_positions: event.focus_positions,
                         is_world_event: event.is_world_event,
+                        force_skip_animation: event.force_skip_animation,
                     };
                 return animation;
             }
+
 
             this.next_event = this.event_sequence.next();
         }
@@ -459,7 +465,9 @@ class GameView {
                 break;
 
             const is_visible_to_player = this.fog_of_war.is_any_visible(...animation.focus_positions);
-            if(!is_visible_to_player && !animation.is_world_event){
+            if((!is_visible_to_player && !animation.is_world_event)
+            || animation.force_skip_animation
+            ){
                 // No need to play the action in a visible way, just skip it (but still play it).
                 audio.set_events_enabled(false); // Don't play audio coming from skipped animations
                 this.skipped_animations.play(animation.start_animation());
@@ -837,6 +845,10 @@ class GameView {
 
     refresh(){
         this.fog_of_war.refresh(this.game.world);
+
+        if(!this._last_turn_ids_sequence)
+            this._last_turn_ids_sequence = turn_sequence(this.game.world);
+        this.ui.timeline.request_refresh(this._last_turn_ids_sequence);
         this._require_tiles_update = true;
         this.focus_on_current_player_character();
         this.highlight_available_basic_actions();

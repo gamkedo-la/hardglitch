@@ -14,6 +14,7 @@ class Event_ActionPointsRestored extends concepts.Event {
         });
         this.restored_points = restored_points;
         this.character_position = character.position;
+        this.allow_parallel_animation = true;
     }
 
     get focus_positions() { return [ this.character_position ]; }
