@@ -31,6 +31,7 @@ import { ItemView } from "./view/item-view.js";
 import { Position } from "./core/concepts.js";
 import { GameView } from "./game-view.js";
 import { Sprite } from "./system/graphics.js";
+import { is_number, random_float } from "./system/utility.js";
 
 const default_move_duration_ms = 250;
 const default_destruction_duration_ms = 666;
@@ -222,11 +223,13 @@ function* take_item(taker_view, item_view){
     item_view.for_each_sprite(sprite => sprite.reset_origin());
 }
 
+
 function* dissolve_item(item_view){
     console.assert(item_view instanceof ItemView);
     // TODO: replace this by something better :/
     const duration_ms = 500;
     audio.playEvent('item'); // TODO: Replace by another sound?
+    // TODO: add effects here ;__;
     const initial_scale = item_view.scale;
     const initial_position = item_view.position;
     item_view.for_each_sprite(sprite=>sprite.move_origin_to_center());
@@ -241,13 +244,39 @@ function* dissolve_item(item_view){
     item_view.for_each_sprite(sprite => sprite.reset_origin());
 }
 
+function* shake(entity_view, amplitude, frequency_ms, duration_or_predicate){
+    console.assert(entity_view instanceof EntityView);
+    console.assert(is_number(amplitude));
+    console.assert((Number.isInteger(duration_or_predicate) && duration_or_predicate >= 0) || duration_or_predicate instanceof Function);
+    let time_passed = 0;
+    let time_since_shake = frequency_ms;
+    const predicate = duration_or_predicate instanceof Function ? duration_or_predicate : (time_passed)=> time_passed < duration_or_predicate;
+    const initial_position = entity_view.position;
+    const random_shift = ()=> random_float(-amplitude, amplitude);
+    const shifted_position = () => { return { x: random_shift(), y: random_shift() } };
+    while(predicate(time_passed)){
+        if(time_since_shake >= frequency_ms){
+            entity_view.position = initial_position.translate( shifted_position() );
+            time_since_shake = 0;
+        }
+        const delta_time = yield;
+        time_passed += delta_time;
+        time_since_shake += delta_time;
+    }
+    entity_view.position = initial_position;
+}
+
 function* decrypt_file(file_view){
     console.assert(file_view instanceof ItemView);
     const file_sprite = file_view.get_sprite("body");
     console.assert(file_sprite instanceof Sprite);
+    yield* animation.wait(500);
     file_sprite.start_animation("decrypt");
-    yield* animation.wait_while(()=> file_sprite.is_playing_animation === true);
-    audio.playEvent('item'); // TODO: replace by another sound
+    const until_the_animation_ends = ()=> file_sprite.is_playing_animation === true;
+    yield* shake(file_view, 4, 1000 / 24, until_the_animation_ends);
+    audio.playEvent('item');
+    file_view.is_visible = false;
+    // TODO: replace by another sound
     // TODO: Effect for spawing a new object?
     // TODO: add an effect here
 }
