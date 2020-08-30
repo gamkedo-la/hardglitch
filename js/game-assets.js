@@ -33,7 +33,8 @@ const game_assets = { // Description of the assets to load.
         movable_wall: "./images/column5.png",
         life_form: "./images/life_form.png",
         life_form_weak: "./images/life_form_weak.png",
-        menu_button: "./images/wordmenu1.png",
+        menu_button_text: "./images/wordmenu1.png",
+        menu_button: "./images/menu_button.png",
         stream_buffer: "./images/streambuffer.png",
         item_slot: "./images/itemslot.png",
         item_generic_1: "./images/genericitem1.png",
@@ -106,15 +107,17 @@ async function load_all_assets(){
 
 //////////////////////////////////////////////////////////////////////////////////////
 // Some tools...
-const test_button ={
-    image: "test_button",
-    frames: [
-        { x:0, y:0, width:50, height:50 },
-        { x:50, y:0, width:50, height:50 },
-        { x:100, y:0, width:50, height:50 },
-        { x:150, y:0, width:50, height:50 },
-    ]
-};
+function test_button(image_name = "test_button"){
+    return {
+        image: image_name,
+        frames: [
+            { x: 0, y: 0, width: 50, height: 50 },
+            { x: 50, y: 0, width: 50, height: 50 },
+            { x: 100, y: 0, width: 50, height: 50 },
+            { x: 150, y: 0, width: 50, height: 50 },
+        ]
+    };
+}
 
 const highlight_animations = {
     idle: {
@@ -383,13 +386,13 @@ const sprite_defs = {
          ]
     },
 
-    button_cancel_action_target_selection: test_button,
-    button_select_action: test_button,
-    button_mute_audio: test_button,
-    button_ingame_menu: test_button,
+    button_cancel_action_target_selection: test_button(),
+    button_select_action: test_button(),
+    button_mute_audio: test_button(),
+    button_ingame_menu: test_button("menu_button"),
 
     button_menu: {
-        image: "menu_button",
+        image: "menu_button_text",
         frames: [
             { x: 0, y: 0, width: 256, height: 64 },
             { x: 0, y: 64, width: 256, height: 64 },
