@@ -80,6 +80,7 @@ class InfoBox {
     draw(canvas_context){
         if(this._is_open){
             canvas_context.save();
+            canvas_context.beginPath();
 
             canvas_context.rect(this._area.position.x-info_box_background_margin,
                                 this._area.position.y-info_box_background_margin,
@@ -95,6 +96,7 @@ class InfoBox {
 
             canvas_context.fill();
             canvas_context.stroke();
+
             canvas_context.restore();
 
             this._text_display.draw(canvas_context);
