@@ -433,9 +433,10 @@ class GameInterface {
         }
     }
 
-    cancel_action_target_selection(){
+    cancel_action_target_selection(play_sound = true){
         // Cancel selection.
-        audio.playEvent('actionCancel');
+        if(play_sound)
+            audio.playEvent('actionCancel');
         this.unlock_actions();
         this._end_target_selection();
     }
