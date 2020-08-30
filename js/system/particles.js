@@ -12,6 +12,7 @@ export {
     SwirlParticle,
     SwirlPrefab,
     RingParticle,
+    GrowthRingParticle,
     ShootUpParticle,
     FlashParticle,
     BlipEdgeParticle,
@@ -1058,7 +1059,6 @@ class RingParticle extends Particle {
     }
 
     draw(canvas_context) {
-
         canvas_context.beginPath();
         canvas_context.lineWidth = this.lineWidth;
         canvas_context.arc(Math.round(this.x), Math.round(this.y), this.radius, 0, Math.PI*2)
@@ -1072,11 +1072,62 @@ class RingParticle extends Particle {
         canvas_context.closePath();
         canvas_context.strokeStyle = this.halfColor.asHSL();
         canvas_context.stroke();
-
     }
 
 }
 
+class GrowthRingParticle extends Particle {
+
+    constructor(x, y, radius, hue, ttl, fadePct) {
+        super(x, y);
+        this.radius = 1;
+        this.color = Color.fromHSL(hue, 100, random_int(50,80), 0);
+        this.halfColor = this.color.copy();
+        // convert to milliseconds
+        // fade in
+        let totalTTL = ttl * 1000;
+        this.fadeInTTL = Math.min(totalTTL, totalTTL * fadePct/100);
+        this.fadeInFactor = 1/this.fadeInTTL;
+        // growth
+        this.growthTTL = totalTTL - this.fadeInTTL;
+        this.growthFactor = radius/this.growthTTL;
+        this.lineWidth = 1;
+    }
+
+    update(delta_time) {
+        if (this.done) return;
+        // fade in
+        if (this.fadeInTTL) {
+            this.fadeInTTL = Math.max(0, this.fadeInTTL - delta_time);
+            this.color.a = Math.min(1, this.color.a + this.fadeInFactor*delta_time);
+            this.halfColor.a = this.color.a * .5;
+        // growth
+        } else if (this.growthTTL) {
+            this.growthTTL = Math.max(0, this.growthTTL - delta_time);
+            this.radius = Math.max(1, this.radius + this.growthFactor*delta_time);
+        // done
+        } else {
+            this._done = true;
+        }
+    }
+
+    draw(canvas_context) {
+        canvas_context.beginPath();
+        canvas_context.lineWidth = this.lineWidth;
+        canvas_context.arc(Math.round(this.x), Math.round(this.y), this.radius, 0, Math.PI*2)
+        canvas_context.closePath();
+        canvas_context.strokeStyle = this.color.asHSL();
+        canvas_context.stroke();
+        canvas_context.beginPath();
+        canvas_context.lineWidth = this.lineWidth;
+        canvas_context.arc(Math.round(this.x), Math.round(this.y), this.radius+1, 0, Math.PI*2)
+        canvas_context.arc(Math.round(this.x), Math.round(this.y), this.radius-1, 0, Math.PI*2)
+        canvas_context.closePath();
+        canvas_context.strokeStyle = this.halfColor.asHSL();
+        canvas_context.stroke();
+    }
+
+}
 class ShootUpParticle extends Particle {
 
     constructor(x, y, speed, width, hue, pathLen, ttl, shootPct) {

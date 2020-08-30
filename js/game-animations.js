@@ -14,6 +14,7 @@ export {
     missile,
     deleting_missile,
     take_item,
+    drop_item,
     dissolve_item,
     decrypt_file,
     pushed,
@@ -198,7 +199,7 @@ function* deleting_missile(fx_view, source_position, target_position){
     yield* missile(missile_effect, graphic_position(target_position));
 }
 
-function* take_item(taker_view, item_view){
+function* take_item(fx_view, taker_view, item_view){
     console.assert(taker_view instanceof CharacterView);
     console.assert(item_view instanceof ItemView);
     const take_duration_ms = 500;
@@ -207,6 +208,8 @@ function* take_item(taker_view, item_view){
     const initial_scale = item_view.scale;
     item_view.for_each_sprite(sprite=>sprite.move_origin_to_center());
     item_view.position = initial_position.translate(square_half_unit_vector);
+    let fx_pos = initial_position.translate(square_half_unit_vector);
+    const fx = fx_view.take(fx_pos);
     yield* animation.in_parallel(
         tween( { scale_x: item_view.scale.x, scale_y: item_view.scale.y, }, { scale_x: 0, scale_y: 0, },
                 take_duration_ms,
@@ -221,6 +224,14 @@ function* take_item(taker_view, item_view){
     item_view.scale = initial_scale;
     item_view.position = initial_position;
     item_view.for_each_sprite(sprite => sprite.reset_origin());
+    fx.done = true;
+}
+
+function* drop_item(fx_view, drop_position) {
+    let fx_pos = graphic_position(drop_position).translate(square_half_unit_vector);
+    const fx = fx_view.drop(fx_pos);
+    yield* animation.wait(300);
+    fx.done = true;
 }
 
 

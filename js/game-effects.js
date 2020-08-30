@@ -7,6 +7,7 @@ import {
     SwirlParticle,
     FlashParticle,
     RingParticle,
+    GrowthRingParticle,
     BlipParticle,
     FadeParticle,
     FadeLineParticle,
@@ -304,6 +305,40 @@ class GameFxView {
         }, emitInterval, emitJitter, emitTTL, emitCount);
         this.particleSystem.add(emitter);
         let fx = new GameFx(origin);
+        fx.sentinels.push(emitter);
+        fx.relocatables.push(emitter);
+        return fx;
+    }
+
+    drop(position) {
+        let emitInterval = .1;
+        let emitJitter = 25;
+        const emitter = new ParticleEmitter(this.particleSystem, position.x, position.y, (emitter) => {
+            let radius = 32;
+            let ttl = .5;
+            let hue = random_int(200, 500) % 255;
+            let fadePct = 10;
+            return new RingParticle(emitter.x, emitter.y, radius, hue, ttl, fadePct);
+        }, emitInterval, emitJitter);
+        this.particleSystem.add(emitter);
+        let fx = new GameFx(position);
+        fx.sentinels.push(emitter);
+        fx.relocatables.push(emitter);
+        return fx;
+    }
+
+    take(position) {
+        let emitInterval = .1;
+        let emitJitter = 25;
+        const emitter = new ParticleEmitter(this.particleSystem, position.x, position.y, (emitter) => {
+            let radius = 32;
+            let ttl = .5;
+            let hue = random_int(200, 500) % 255;
+            let fadePct = 10;
+            return new GrowthRingParticle(emitter.x, emitter.y, radius, hue, ttl, fadePct);
+        }, emitInterval, emitJitter);
+        this.particleSystem.add(emitter);
+        let fx = new GameFx(position);
         fx.sentinels.push(emitter);
         fx.relocatables.push(emitter);
         return fx;

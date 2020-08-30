@@ -276,6 +276,9 @@ class Env {
         let rfx = this.gfx.repair({x:700,y:400});
         setTimeout(() => {rfx.done = true;}, 2000);
 
+        let dfx = this.gfx.drop({x:800,y:400});
+        setTimeout(() => {dfx.done = true;}, 1000);
+
     }
 
     loop() {

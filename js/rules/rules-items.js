@@ -43,7 +43,7 @@ class ItemTaken extends concepts.Event {
         console.assert(character_view instanceof CharacterView);
         const item_view = game_view.focus_on_entity(this.item_id);
         console.assert(item_view instanceof ItemView);
-        yield* anim.take_item(character_view, item_view);
+        yield* anim.take_item(game_view.fx_view, character_view, item_view);
         game_view.remove_entity_view(this.item_id);
         game_view.ui.inventory.set_item_view_at(this.inventory_idx, item_view);
         game_view.clear_focus();
@@ -70,6 +70,7 @@ class ItemDropped extends concepts.Event {
     *animation(game_view){
         console.assert(game_view instanceof GameView);
         game_view.focus_on_position(this.drop_position);
+        yield* anim.drop_item(game_view.fx_view, this.drop_position);
         game_view.ui.inventory.remove_item_view_at(this.item_idx);
         game_view.reset_entities(); // TODO: only add the entity view, instead of recreating all the entity views.
     }
