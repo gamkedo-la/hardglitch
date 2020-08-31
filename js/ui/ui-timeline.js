@@ -134,7 +134,13 @@ class Timeline
         this._character_views.forEach(view=>{
             const initial_position = view.position;
             view.position = next_position();
+            if(view.is_being_destroyed){
+                view.for_each_sprite(sprite=>sprite.reset_origin());
+            }
             view.render_graphics(canvas_context);
+            if(view.is_being_destroyed){
+                view.for_each_sprite(sprite=>sprite.move_origin_to_center());
+            }
             view.position = initial_position;
         });
     }
