@@ -6,10 +6,8 @@ export {
 import * as graphics from "../system/graphics.js";
 import * as input from "../system/input.js";
 import * as concepts from "../core/concepts.js";
-import * as utility from "../system/utility.js";
 
 import { Vector2 } from "../system/spatial.js";
-import { Character } from "../core/character.js";
 import { CharacterView } from "../view/character-view.js";
 
 const timeline_config = {
@@ -18,6 +16,8 @@ const timeline_config = {
     line_shift_x: 36,
     space_between_elements: 64,
 };
+
+const new_cycle_text = "New Cycle";
 
 class CycleChangeMarker
 {
@@ -37,7 +37,7 @@ class CycleChangeMarker
             width: 100, height: 24
         }, "purple");
 
-        graphics.draw_text(canvas_context, "Cycle +1", position.translate({ x: 4, y: 4 }));
+        graphics.draw_text(canvas_context, new_cycle_text, position.translate({ x: 4, y: 4 }));
     }
 };
 
