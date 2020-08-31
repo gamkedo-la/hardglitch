@@ -33,9 +33,18 @@ class PlayerTurn {
     }
 };
 
+// Gives the order of turns of characters.
+function ordered_characters(world){
+    console.assert(world instanceof concepts.World);
+    return world.bodies.sort((left, right)=>{
+        return right.is_player_actor - left.is_player_actor; // Put the player characters first in turn, always.
+    });
+}
+
+// Return the sequence of ids of characters per turn for this turn and for the next.
 function turn_sequence(world){
     console.assert(world instanceof concepts.World);
-    const character_sequence = world.bodies; // TODO: handle
+    const character_sequence = ordered_characters(world);
     const this_turn_ids = [];
     const next_turn_ids = [];
     for(const character of character_sequence){
@@ -100,7 +109,7 @@ class VisionUpdate extends concepts.Event {
 function* characters_that_can_act_now(world){
     console.assert(world instanceof concepts.World);
 
-    let character_body_list = world.bodies;
+    let character_body_list = ordered_characters(world);
     while(character_body_list.length > 0){
         const character_body = character_body_list.shift(); // Pop from the front
         console.assert(character_body instanceof Character);
@@ -109,7 +118,7 @@ function* characters_that_can_act_now(world){
             character_body_list.push(character_body); // Push back at the end
             if(world.has_entity_list_changed){
                 // Removes characters that have been removed - the other characters will be taken into account next turn.
-                character_body_list = character_body_list.filter(body=> world.bodies.includes(body));
+                character_body_list = character_body_list.filter(body=> ordered_characters(world).includes(body));
 
                 world.has_entity_list_changed = false; // OK changes have been taken into account.
             }
