@@ -15,6 +15,7 @@ import {
     LightningParticle,
     ColorOffsetGlitchParticle,
     ThrobParticle,
+    DirectionalRingParticle,
 } from "./system/particles.js";
 import { Color } from "./system/color.js";
 import { Vector2 } from "./system/spatial.js";
@@ -336,6 +337,38 @@ class GameFxView {
             let hue = random_int(200, 500) % 255;
             let fadePct = 10;
             return new GrowthRingParticle(emitter.x, emitter.y, radius, hue, ttl, fadePct);
+        }, emitInterval, emitJitter);
+        this.particleSystem.add(emitter);
+        let fx = new GameFx(position);
+        fx.sentinels.push(emitter);
+        fx.relocatables.push(emitter);
+        return fx;
+    }
+
+    jump_up(position) {
+        let emitInterval = .1;
+        let emitJitter = 0;
+        const emitter = new ParticleEmitter(this.particleSystem, position.x, position.y, (emitter) => {
+            let radius = 20;
+            let ttl = .5;
+            let hue = random_int(170, 180);
+            return new DirectionalRingParticle(emitter.x, emitter.y, 0, -64, radius, hue, ttl);
+        }, emitInterval, emitJitter);
+        this.particleSystem.add(emitter);
+        let fx = new GameFx(position);
+        fx.sentinels.push(emitter);
+        fx.relocatables.push(emitter);
+        return fx;
+    }
+
+    jump_down(position) {
+        let emitInterval = .1;
+        let emitJitter = 0;
+        const emitter = new ParticleEmitter(this.particleSystem, position.x, position.y, (emitter) => {
+            let radius = 20;
+            let ttl = .5;
+            let hue = random_int(170, 180);
+            return new DirectionalRingParticle(emitter.x, emitter.y, 0, 64, radius, hue, ttl);
         }, emitInterval, emitJitter);
         this.particleSystem.add(emitter);
         let fx = new GameFx(position);

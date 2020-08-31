@@ -20,6 +20,7 @@ export {
     LightningParticle,
     ColorOffsetGlitchParticle,
     BandingGlitchParticle,
+    DirectionalRingParticle,
 }
 
 import { camera } from "./graphics.js";
@@ -1128,6 +1129,54 @@ class GrowthRingParticle extends Particle {
     }
 
 }
+
+class DirectionalRingParticle extends Particle {
+
+    constructor(x, y, dx, dy, radius, hue, ttl) {
+        super(x, y);
+        this.radius = radius;
+        this.dx = dx * .001;
+        this.dy = dy * .001;
+        this.color = Color.fromHSL(hue, 100, random_int(50,80), .5);
+        this.halfColor = this.color.copy();
+        this.halfColor.a *= .5;
+        this.ttl = ttl * 1000;
+        this.lineWidth = 1;
+    }
+
+    update(delta_time) {
+        if (this.done) return;
+        // move
+        this.x += this.dx*delta_time;
+        this.y += this.dy*delta_time;
+        // lifetime
+        if (this.ttl) {
+            this.ttl -= delta_time;
+            if (this.ttl <= 0) this.done = true;
+        // done
+        } else {
+            this._done = true;
+        }
+    }
+
+    draw(canvas_context) {
+        canvas_context.beginPath();
+        canvas_context.lineWidth = this.lineWidth;
+        canvas_context.arc(Math.round(this.x), Math.round(this.y), this.radius, 0, Math.PI*2)
+        canvas_context.closePath();
+        canvas_context.strokeStyle = this.color.asHSL();
+        canvas_context.stroke();
+        canvas_context.beginPath();
+        canvas_context.lineWidth = this.lineWidth;
+        canvas_context.arc(Math.round(this.x), Math.round(this.y), this.radius+1, 0, Math.PI*2)
+        canvas_context.arc(Math.round(this.x), Math.round(this.y), this.radius-1, 0, Math.PI*2)
+        canvas_context.closePath();
+        canvas_context.strokeStyle = this.halfColor.asHSL();
+        canvas_context.stroke();
+    }
+
+}
+
 class ShootUpParticle extends Particle {
 
     constructor(x, y, speed, width, hue, pathLen, ttl, shootPct) {

@@ -263,6 +263,7 @@ class Env {
         this.tests.lightningstrike(200,500);
         this.tests.colorshift(400, 400);
 
+        /*
         this.gfx.destruction({x:500,y:400});
         let damageFx = this.gfx.damage({x:600,y:400});
         setTimeout(() => {damageFx.done = true;}, 1000);
@@ -278,6 +279,19 @@ class Env {
 
         let dfx = this.gfx.drop({x:800,y:400});
         setTimeout(() => {dfx.done = true;}, 1000);
+        */
+
+        for (const fx of [
+            //this.gfx.destruction({x:500,y:400}),
+            //this.gfx.damage({x:600,y:400}),
+            //this.gfx.lightningJump({x:500,y:500}, {x:600,y:600}),
+            //this.gfx.unstable({x:400+32,y:400-64}),
+            //this.gfx.repair({x:700,y:400}),
+            //this.gfx.drop({x:800,y:400}),
+            this.gfx.jump_up({x:900,y:400}),
+        ]) {
+            setTimeout(() => {fx.done = true;}, 1000);
+        }
 
     }
 

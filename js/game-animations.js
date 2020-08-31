@@ -76,9 +76,11 @@ function* jump(fx_view, entity_view, target_game_position){
     const top_initial_pos = entity_view.position.translate({ x:0, y: -jump_height });
     const top_target_pos = target_gfx_pos.translate({ x:0, y: -jump_height });
 
+    let jump_up_fx = fx_view.jump_up(entity_view.position.translate(square_half_unit_vector));
     entity_view.is_flying = true;
     yield* translate(entity_view, top_initial_pos, jump_duration_ms, easing.in_out_quad);
     entity_view.is_visible = false;
+    jump_up_fx.done = true;
 
     const fx_origin = top_initial_pos.translate({x:PIXELS_PER_HALF_SIDE, y: PIXELS_PER_HALF_SIDE});
     const fx_target = top_target_pos.translate({x:PIXELS_PER_HALF_SIDE, y: PIXELS_PER_HALF_SIDE});
@@ -92,10 +94,12 @@ function* jump(fx_view, entity_view, target_game_position){
     //const jump_effect_move_speed = 10.0;
     //yield* missile(fx_view.missile(top_initial_pos), top_target_pos, jump_effect_move_speed);
 
+    let jump_down_fx = fx_view.jump_down(top_target_pos.translate(square_half_unit_vector));
     entity_view.position = top_target_pos;
     entity_view.is_visible = true;
     audio.playEvent('lowerAction');
     yield* translate(entity_view, target_gfx_pos, jump_duration_ms, easing.in_out_quad);
+    jump_down_fx.done = true;
 
     entity_view.game_position = target_game_position;
     entity_view.is_flying = false;
