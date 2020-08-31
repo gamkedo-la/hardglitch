@@ -16,7 +16,7 @@ const default_equipable_items = 1;
 class StatValue {
 
     constructor(initial_value, initial_max, initial_min){
-        console.assert(Number.isInteger(initial_value) && initial_value >= 0);
+        console.assert(Number.isInteger(initial_value));
         console.assert(initial_max === undefined || Number.isInteger(initial_max));
         console.assert(initial_min === undefined || Number.isInteger(initial_min));
         this._value = initial_value;
@@ -388,6 +388,17 @@ class Character extends concepts.Body {
             && this.stats.action_points.value > 0 // Perform actions until there is 0 points or less left.
             && this.skip_turn !== true
             ;
+    }
+
+    get next_turn_prediction_ap(){
+        const prediction_ap = new StatValue(this.stats.action_points.value, this.stats.action_points.max, this.stats.action_points.min);
+        const ap_to_recover = this.stats.ap_recovery.value;
+        prediction_ap.increase(ap_to_recover);
+        return prediction_ap.value;
+    }
+
+    get can_perform_actions_next_turn(){
+        return this.actor && this.next_turn_prediction_ap > 0;
     }
 
     // Describe the possible positions relative to the current ones that could be reached in one step,

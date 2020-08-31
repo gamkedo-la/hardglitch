@@ -41,7 +41,7 @@ function turn_sequence(world){
     for(const character of character_sequence){
         if(character.can_perform_actions){
             this_turn_ids.push(character.id);
-        } else {
+        } else if(character.can_perform_actions_next_turn){
             next_turn_ids.push(character.id);
         }
     }
