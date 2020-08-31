@@ -17,6 +17,8 @@ const timeline_config = {
     space_between_elements: 64,
 };
 
+const translation_between_positions = new Vector2({ y: timeline_config.space_between_elements });
+
 const new_cycle = {
     text: "New Cycle",
     text_color: "white",
@@ -139,7 +141,7 @@ class Timeline
     }
 
     _draw_characters(canvas_context){
-        const translation_between_positions = new Vector2({ y: timeline_config.space_between_elements });
+
         let position = this.position;
         const next_position = ()=>{
             position = position.translate(translation_between_positions);
@@ -165,7 +167,32 @@ class Timeline
     }
 
     _draw_current_turn_arrow(canvas_context){
+        if(this._character_views.length === 0)
+            return;
 
+        canvas_context.save()
+        canvas_context.beginPath();
+
+        let position = this.position.translate(translation_between_positions)
+                            .translate({ y: timeline_config.space_between_elements / 4 });
+
+        if(this._character_views[0] instanceof CycleChangeMarker){
+            position = position.translate({ x: -60 });
+        }
+
+        const stroke_positions = [
+            position,
+            position.translate({ y: timeline_config.space_between_elements / 2 }),
+            position.translate({ x: 24, y: timeline_config.space_between_elements / 4 }),
+        ];
+
+        canvas_context.fillStyle = "white";
+        canvas_context.moveTo(stroke_positions[0].x, stroke_positions[0].y);
+        canvas_context.lineTo(stroke_positions[1].x, stroke_positions[1].y);
+        canvas_context.lineTo(stroke_positions[2].x, stroke_positions[2].y);
+        canvas_context.fill();
+
+        canvas_context.restore();
     }
 
 };
