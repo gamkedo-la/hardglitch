@@ -1,5 +1,8 @@
 
-export { RandomActionEnemy };
+export {
+    RandomActionEnemy,
+    WaitingNPC
+};
 
 import * as concepts from "../core/concepts.js";
 import {random_sample} from "../system/utility.js";
@@ -34,7 +37,22 @@ class RandomActionEnemy extends Character {
     };
 
     constructor(){
-        super("Test Man", new CharacterStats());
+        super("Random Man", new CharacterStats());
         this.actor = new RandomActionSelector();
+    }
+};
+
+class WaitingNPC extends Character {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.test_enemy,
+        }}
+    };
+
+    constructor(){
+        super("Wait Man", new CharacterStats());
+        this.actor = new class extends concepts.Actor{
+            decide_next_action(possible_actions) { return possible_actions.wait; }
+        };
     }
 };
