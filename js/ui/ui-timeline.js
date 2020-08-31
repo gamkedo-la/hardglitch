@@ -17,7 +17,20 @@ const timeline_config = {
     space_between_elements: 64,
 };
 
-const new_cycle_text = "New Cycle";
+const new_cycle = {
+    text: "New Cycle",
+    text_color: "white",
+    text_padding: { x: 8, y: 6 },
+    background_color: "orange",
+    width: 150,
+    height: 30,
+    position_shift: function(){
+        return {
+            x: -40,
+            y: (timeline_config.space_between_elements / 2) - (this.height/2),
+        };
+    },
+};
 
 class CycleChangeMarker
 {
@@ -30,14 +43,16 @@ class CycleChangeMarker
     }
 
     render_graphics(canvas_context){
-        const position = this.position.translate({ x: -20, y: timeline_config.space_between_elements / 2 });
+        const position = this.position.translate(new_cycle.position_shift());
 
         graphics.draw_rectangle(canvas_context, {
             position: position,
-            width: 100, height: 24
-        }, "purple");
+            width: new_cycle.width, height: new_cycle.height,
+        }, new_cycle.background_color);
 
-        graphics.draw_text(canvas_context, new_cycle_text, position.translate({ x: 4, y: 4 }));
+        graphics.draw_text(canvas_context, new_cycle.text, position.translate(new_cycle.text_padding), {
+            color: new_cycle.text_color,
+        });
     }
 };
 
