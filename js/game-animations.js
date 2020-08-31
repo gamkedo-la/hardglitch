@@ -302,11 +302,15 @@ function* decrypt_file(file_view){
     // TODO: add an effect here
 }
 
-function* pushed(entity_view, to_position){
+function* pushed(fx_view, entity_view, to_position){
     console.assert(entity_view instanceof EntityView);
     console.assert(to_position instanceof Position);
     audio.playEvent('pushPull');
+    const fx_start_pos = entity_view.position.translate(square_half_unit_vector);
+    const fx_stop_pos = graphic_position(to_position).translate(square_half_unit_vector);
+    let push_fx = fx_view.pushed(fx_start_pos, fx_stop_pos);
     yield* move(entity_view, to_position);
+    push_fx.done = true;
 }
 
 const pulled = pushed;

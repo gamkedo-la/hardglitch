@@ -37,7 +37,7 @@ class Pushed extends concepts.Event {
         console.assert(game_view instanceof GameView);
         const entity_view = game_view.focus_on_entity(this.target_entity_id);
         console.assert(entity_view instanceof EntityView);
-        yield* animations.pushed(entity_view, this.to_pos);
+        yield* animations.pushed(game_view.fx_view, entity_view, this.to_pos);
     }
 };
 

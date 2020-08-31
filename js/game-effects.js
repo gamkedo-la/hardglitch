@@ -349,10 +349,12 @@ class GameFxView {
         let emitInterval = .1;
         let emitJitter = 0;
         const emitter = new ParticleEmitter(this.particleSystem, position.x, position.y, (emitter) => {
+            let dx = 0;
+            let dy = -64;
             let radius = 20;
             let ttl = .5;
             let hue = random_int(170, 180);
-            return new DirectionalRingParticle(emitter.x, emitter.y, 0, -64, radius, hue, ttl);
+            return new DirectionalRingParticle(emitter.x, emitter.y, dx, dy, radius, hue, ttl);
         }, emitInterval, emitJitter);
         this.particleSystem.add(emitter);
         let fx = new GameFx(position);
@@ -365,10 +367,30 @@ class GameFxView {
         let emitInterval = .1;
         let emitJitter = 0;
         const emitter = new ParticleEmitter(this.particleSystem, position.x, position.y, (emitter) => {
+            let dx = 0;
+            let dy = 64;
             let radius = 20;
             let ttl = .5;
             let hue = random_int(170, 180);
-            return new DirectionalRingParticle(emitter.x, emitter.y, 0, 64, radius, hue, ttl);
+            return new DirectionalRingParticle(emitter.x, emitter.y, dx, dy, radius, hue, ttl);
+        }, emitInterval, emitJitter);
+        this.particleSystem.add(emitter);
+        let fx = new GameFx(position);
+        fx.sentinels.push(emitter);
+        fx.relocatables.push(emitter);
+        return fx;
+    }
+
+    pushed(position, target_pos) {
+        let emitInterval = .1;
+        let emitJitter = 0;
+        const emitter = new ParticleEmitter(this.particleSystem, position.x, position.y, (emitter) => {
+            let dx = target_pos.x - position.x;
+            let dy = target_pos.y - position.y;
+            let radius = 25;
+            let ttl = .5;
+            let hue = random_int(20, 30);
+            return new DirectionalRingParticle(emitter.x, emitter.y, dx, dy, radius, hue, ttl);
         }, emitInterval, emitJitter);
         this.particleSystem.add(emitter);
         let fx = new GameFx(position);
