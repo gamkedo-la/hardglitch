@@ -454,7 +454,7 @@ class GameView {
         console.assert(this.current_animations.animation_count === 0);
         // Get the next animations that are allowed to happen in parallel.
         let delay_for_next_animation = 0;
-        const max_frame_time = 1000.0 / 30.0;
+        const max_frame_time = 1000.0 / 8.0;
         const begin_time = performance.now();
         while(performance.now() - begin_time < max_frame_time){ // timeout!
 
