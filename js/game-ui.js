@@ -19,6 +19,7 @@ import { CharacterStatus } from "./ui/ui-characterstatus.js";
 import { InventoryUI } from "./ui/ui-inventory.js";
 import { InfoBox, show_info } from "./ui/ui-infobox.js";
 import { Timeline } from "./ui/ui-timeline.js";
+import { config } from "./game-config.js";
 
 const action_button_size = 50;
 const player_ui_top_from_bottom = 66;
@@ -315,7 +316,8 @@ class GameInterface {
 
     display() {
         graphics.camera.begin_in_screen_rendering();
-        this.timeline.draw(graphics.screen_canvas_context);
+        if(config.enable_timeline)
+            this.timeline.draw(graphics.screen_canvas_context);
         this.elements.forEach(element => element.draw(graphics.screen_canvas_context));
         graphics.camera.end_in_screen_rendering();
     }
