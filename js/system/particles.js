@@ -22,6 +22,7 @@ export {
     BandingGlitchParticle,
     DirectionalRingParticle,
     WaitParticle,
+    ActionParticle,
 }
 
 import { camera } from "./graphics.js";
@@ -30,7 +31,6 @@ import { Color } from "./color.js";
 import { Vector2 } from "./spatial.js";
 import { lifetime, linearFadeInOut } from "../view/xforms.js";
 import { ColorShiftDataXForm, HorizontalBandingDataXForm, ColorSwapDataXForm, ClearOutsideWindowDataXForm } from "../view/img_data_fx.js";
-import { in_parallel } from "./animation.js";
 
 
 // This object is reused for optimization, do not move it into the functions using it.
@@ -1696,7 +1696,6 @@ class WaitParticle extends Particle {
     }
 
     draw(canvas_context) {
-        // center dot
         let radius = this.radius;
         canvas_context.beginPath();
         canvas_context.moveTo(Math.round(this.x), Math.round(this.y));
@@ -1710,6 +1709,56 @@ class WaitParticle extends Particle {
         canvas_context.lineWidth = this.lineWidth;
         canvas_context.stroke();
         canvas_context.closePath();
+    }
+
+}
+
+// rotate speed is rotations per second
+class ActionParticle extends Particle {
+    constructor(x, y, offset, size, color, rotateSpeed, ttl, lineWidth=2, ccw=false) {
+        super(x, y);
+        this.size = size;
+        this.color = color;
+        this.ttl = ttl * 1000;
+        this.angle = 0;
+        this.angleDelta = Math.PI * 2 * rotateSpeed * .001;
+        this.lineWidth = lineWidth;
+        this.ccw = ccw;
+        let path = new Path2D();
+        let halfSize = Math.round(size * .5);
+        path.moveTo(offset-halfSize, -halfSize);
+        path.lineTo(halfSize-offset, -halfSize);
+        path.lineTo(halfSize, offset-halfSize);
+        path.lineTo(halfSize, halfSize-offset);
+        path.lineTo(halfSize-offset, halfSize);
+        path.lineTo(offset-halfSize, halfSize);
+        path.lineTo(-halfSize, halfSize-offset);
+        path.lineTo(-halfSize, offset-halfSize);
+        path.closePath();
+        this.path = path;
+    }
+
+    update(delta_time) {
+        if (this.done) return;
+        // update angle
+        this.angle += this.angleDelta * delta_time;
+        this.angle = this.angle % (Math.PI * 2);
+        // update ttl
+        if (this.ttl) {
+            this.ttl -= delta_time;
+            if (this.ttl <= 0) this.done = true;
+        }
+    }
+
+    draw(canvas_context) {
+        canvas_context.save();
+        canvas_context.translate(this.x, this.y);
+        canvas_context.rotate((this.ccw) ? -this.angle : this.angle);
+        canvas_context.beginPath();
+        canvas_context.lineWidth = this.lineWidth;
+        canvas_context.strokeStyle = this.color.toString();
+        canvas_context.stroke(this.path);
+        canvas_context.restore();
     }
 
 }

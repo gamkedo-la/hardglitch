@@ -17,6 +17,7 @@ import {
     ThrobParticle,
     DirectionalRingParticle,
     WaitParticle,
+    ActionParticle,
 } from "./system/particles.js";
 import { Color } from "./system/color.js";
 import { Vector2 } from "./system/spatial.js";
@@ -436,6 +437,37 @@ class GameFxView {
         let fx = new GameFx(position);
         fx.sentinels.push(emitter);
         fx.relocatables.push(emitter);
+        return fx;
+    }
+
+    action(position){
+        let fx = new GameFx(position);
+        let offset = 16;
+        let size = 64;
+        let ttl = 0;
+        let hicolor = new Color(253,246,0,.45);
+        let hiWidth = 3;
+        let hiSpeed = .25;
+        let locolor = new Color(253,246,0,.2);
+        let loWidth = 7;
+        let loSpeed = .125;
+        let particle;
+        particle = new ActionParticle(position.x, position.y, offset, size, hicolor, hiSpeed, ttl, hiWidth, false);
+        this.particleSystem.add(particle);
+        fx.sentinels.push(particle);
+        fx.relocatables.push(particle);
+        particle = new ActionParticle(position.x, position.y, offset, size, hicolor, hiSpeed, ttl, hiWidth, true);
+        this.particleSystem.add(particle);
+        fx.sentinels.push(particle);
+        fx.relocatables.push(particle);
+        particle = new ActionParticle(position.x, position.y, offset, size, locolor, loSpeed, ttl, loWidth, false);
+        this.particleSystem.add(particle);
+        fx.sentinels.push(particle);
+        fx.relocatables.push(particle);
+        particle = new ActionParticle(position.x, position.y, offset, size, locolor, loSpeed, ttl, loWidth, true);
+        this.particleSystem.add(particle);
+        fx.sentinels.push(particle);
+        fx.relocatables.push(particle);
         return fx;
     }
 

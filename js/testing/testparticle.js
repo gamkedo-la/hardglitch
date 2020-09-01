@@ -290,6 +290,7 @@ class Env {
             this.gfx.drop({x:800,y:400}),
             this.gfx.jump_up({x:900,y:400}),
             this.gfx.wait({x:200,y:500}, 700),
+            this.gfx.action({x:300,y:500}),
         ]) {
             setTimeout(() => {fx.done = true;}, 1000);
         }
