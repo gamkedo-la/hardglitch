@@ -249,9 +249,7 @@ function* take_item(fx_view, taker_view, item_view){
 function* drop_item(fx_view, drop_position, raw_position=false) {
     let fx_pos = (raw_position) ? drop_position : graphic_position(drop_position);
     fx_pos = fx_pos.translate(square_half_unit_vector);
-    const fx = fx_view.drop(fx_pos);
-    yield* animation.wait(300);
-    fx.done = true;
+    const fx = fx_view.drop(fx_pos, .3);
 }
 
 function* inv_add(fx_view, inv, idx) {
