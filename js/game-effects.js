@@ -313,7 +313,7 @@ class GameFxView {
         return fx;
     }
 
-    drop(position) {
+    drop(position, emitTTL=0) {
         let emitInterval = .1;
         let emitJitter = 25;
         const emitter = new ParticleEmitter(this.particleSystem, position.x, position.y, (emitter) => {
@@ -322,7 +322,7 @@ class GameFxView {
             let hue = random_int(200, 500) % 255;
             let fadePct = 10;
             return new RingParticle(emitter.x, emitter.y, radius, hue, ttl, fadePct);
-        }, emitInterval, emitJitter);
+        }, emitInterval, emitJitter, emitTTL);
         this.particleSystem.add(emitter);
         let fx = new GameFx(position);
         fx.sentinels.push(emitter);
@@ -330,7 +330,7 @@ class GameFxView {
         return fx;
     }
 
-    take(position) {
+    take(position, emitTTL=0) {
         let emitInterval = .1;
         let emitJitter = 25;
         const emitter = new ParticleEmitter(this.particleSystem, position.x, position.y, (emitter) => {
@@ -339,7 +339,7 @@ class GameFxView {
             let hue = random_int(200, 500) % 255;
             let fadePct = 10;
             return new GrowthRingParticle(emitter.x, emitter.y, radius, hue, ttl, fadePct);
-        }, emitInterval, emitJitter);
+        }, emitInterval, emitJitter, emitTTL);
         this.particleSystem.add(emitter);
         let fx = new GameFx(position);
         fx.sentinels.push(emitter);

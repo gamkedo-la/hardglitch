@@ -256,16 +256,12 @@ function* drop_item(fx_view, drop_position, raw_position=false) {
 
 function* inv_add(fx_view, inv, idx) {
     const fx_pos = inv._slots[idx].position.translate({x:36,y:36});
-    const fx = fx_view.drop(fx_pos);
-    yield* animation.wait(100);
-    fx.done = true;
+    const fx = fx_view.drop(fx_pos, .25);
 }
 
 function* inv_remove(fx_view, inv, idx) {
     const fx_pos = inv._slots[idx].position.translate({x:36,y:36});
-    const fx = fx_view.take(fx_pos);
-    yield* animation.wait(100);
-    fx.done = true;
+    const fx = fx_view.take(fx_pos, .25);
 }
 
 
