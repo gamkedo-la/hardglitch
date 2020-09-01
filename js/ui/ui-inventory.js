@@ -32,10 +32,12 @@ function slot_text(is_equipable){
 
 class ItemSlot {
 
-    constructor(position, is_equipable){
+    constructor(position, is_equipable, fx_view){
         console.assert(typeof is_equipable === "boolean");
         console.assert(position === undefined || position instanceof spatial.Vector2);
+        console.assert(fx_view instanceof GameFxView);
 
+        this._fx_view = fx_view;
         const sprite_def = is_equipable ? sprite_defs.item_equipped_slot : sprite_defs.item_slot;
         this._sprite = new graphics.Sprite(sprite_def);
         this._item = null;
@@ -98,9 +100,11 @@ class ItemSlot {
         this._item.is_visible = true;
         this._help_text.text = new_item.name;
         this._update_item_position();
+        this._start_fx();
     }
 
     remove_item(){
+        this._stop_fx();
         const item = this._item;
         if(item){
             delete item._item_slot;
@@ -108,6 +112,20 @@ class ItemSlot {
         this._item = null;
         this._help_text.text = slot_text(this.is_equipable);
         return item;
+    }
+
+    _start_fx(){
+        if (this.is_equipable) {
+            let fx_pos = this._sprite.area.center;
+            this.fx = this._fx_view.action(fx_pos);
+        }
+    }
+
+    _stop_fx(){
+        if (this.fx) {
+            this.fx.done = true;
+            delete this.fx;
+        }
     }
 
     _update_item_position(){
@@ -179,21 +197,11 @@ class InventoryUI {
         console.assert(idx < this._slots.length);
         console.assert(item_view instanceof ItemView);
         this._slots[idx].set_item(item_view);
-        // start active fx
-        if (this._slots[idx].is_equipable && !this._slots[idx].fx) {
-            let fx_pos =this._slots[idx].position.translate({x:36,y:36});
-            this._slots[idx].fx = this.fx_view.action(fx_pos);
-        }
-
     }
 
     remove_item_view_at(idx){
         console.assert(Number.isInteger(idx));
         console.assert(idx < this._slots.length);
-        if (this._slots[idx].fx) {
-            this._slots[idx].fx.done = true;
-            this._slots[idx].fx = null;
-        }
         return this._slots[idx].remove_item();
     }
 
@@ -324,7 +332,6 @@ class InventoryUI {
         console.assert(graphics.camera.is_rendering_in_screen);
         this._slots.forEach(slot=>slot.draw(canvas_context));
         this._slots.forEach(slot=>slot.draw_item(canvas_context));
-        //console.log("this.fx_view.draw");
         this.fx_view.draw(canvas_context);
     }
 
@@ -336,13 +343,17 @@ class InventoryUI {
 
         const inventory_size = character.stats.inventory_size.value;
         const equipable_slot_count = character.stats.equipable_items.value;
+        let slots_have_been_reset = false;
         if(this._slots.length !== inventory_size
         || this._equipable_slots_count !== equipable_slot_count){
             this._reset_slots(inventory_size, equipable_slot_count);
+            slots_have_been_reset = true;
         }
 
         if(character !== previous_character){
             this._reset_items(character.inventory);
+            if(!slots_have_been_reset)
+                this._reset_slots(inventory_size, equipable_slot_count);
         }
     }
 
@@ -353,7 +364,7 @@ class InventoryUI {
         this._equipable_slots_count = equipable_slots_count;
         while(this._slots.length !== slot_count){
             const is_equipable = this._slots.length < this._equipable_slots_count;
-            const item_slot = new ItemSlot(undefined, is_equipable);
+            const item_slot = new ItemSlot(undefined, is_equipable, this.fx_view);
             item_slot.position = this.position.translate({ y: -(((this._slots.length + 1) * item_slot.size.height) + item_slot_vertical_space) });
             this._slots.push(item_slot);
             if(this._slots.length <= previous_items.length){
