@@ -399,6 +399,26 @@ class GameFxView {
         return fx;
     }
 
+    move(position){
+        let emitInterval = .1;
+        let emitJitter = 50;
+        let emitTTL = 0;
+        let emitCount = 2;
+        const emitter = new ParticleEmitter(this.particleSystem, position.x, position.y, (emitter) => {
+            let xoff = random_float(-15,15);
+            let yoff = random_float(-15,15);
+            let radius = random_int(5,10);
+            let ttl = random_float(.25,.5);
+            let hue = random_int(120, 180);
+            return new RingParticle(emitter.x+xoff, emitter.y+yoff, radius, hue, ttl, 10);
+        }, emitInterval, emitJitter, emitTTL, emitCount);
+        this.particleSystem.add(emitter);
+        let fx = new GameFx(position);
+        fx.sentinels.push(emitter);
+        fx.relocatables.push(emitter);
+        return fx;
+    }
+
 
 }
 

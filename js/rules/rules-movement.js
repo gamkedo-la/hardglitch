@@ -52,7 +52,7 @@ class Moved extends concepts.Event {
         const entity_view = game_view.focus_on_entity(this.entity_id);
         console.assert(entity_view instanceof EntityView);
         console.assert(this.to_pos instanceof concepts.Position);
-        yield* animations.move(entity_view, this.to_pos, this.duration);
+        yield* animations.move(game_view.fx_view, entity_view, this.to_pos, this.duration);
     }
 
 };

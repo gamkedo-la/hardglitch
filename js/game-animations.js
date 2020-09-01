@@ -45,11 +45,16 @@ function* translate(thing_with_position, target_gfx_pos, duration_ms, easing){
         }, easing);
 }
 
-function* move(entity_view, target_game_position, duration_ms=default_move_duration_ms){
+function* move(fx_view, entity_view, target_game_position, duration_ms=default_move_duration_ms){
     console.assert(entity_view instanceof EntityView);
     const target_gfx_pos = graphic_position(target_game_position);
     audio.playEvent('moveAction');
-    yield* translate(entity_view, target_gfx_pos, duration_ms);
+    const fx = fx_view.move(entity_view.position.translate(square_half_unit_vector));
+    yield* animation.in_parallel(
+        translate(fx, target_gfx_pos.translate(square_half_unit_vector), duration_ms),
+        translate(entity_view, target_gfx_pos, duration_ms)
+    );
+    fx.done = true;
     entity_view.game_position = target_game_position;
 }
 
