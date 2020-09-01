@@ -152,6 +152,7 @@ class InventoryUI {
         this.position = position;
         this.character_status = character_status;
         this.events = events;
+        this._need_refresh = false;
         this.fx_view = new GameFxView();
         this.fx_view.particleSystem.alwaysActive = true;
     }
@@ -185,6 +186,8 @@ class InventoryUI {
     get is_dragging_item() { return this._dragging_item && this._dragging_item.item; }
 
     is_under(position){ return this._find_slot_under(position) !== undefined; }
+
+    request_refresh(){ this._need_refresh = true; }
 
     get_item_view_at(idx) {
         console.assert(Number.isInteger(idx));
@@ -345,16 +348,20 @@ class InventoryUI {
         const equipable_slot_count = character.stats.equipable_items.value;
         let slots_have_been_reset = false;
         if(this._slots.length !== inventory_size
-        || this._equipable_slots_count !== equipable_slot_count){
+        || this._equipable_slots_count !== equipable_slot_count
+        || this._need_refresh){
             this._reset_slots(inventory_size, equipable_slot_count);
             slots_have_been_reset = true;
         }
 
-        if(character !== previous_character){
+        if(character !== previous_character
+        || this._need_refresh){
             this._reset_items(character.inventory);
             if(!slots_have_been_reset)
                 this._reset_slots(inventory_size, equipable_slot_count);
         }
+
+        this._need_refresh = false;
     }
 
     _reset_slots(slot_count, equipable_slots_count){

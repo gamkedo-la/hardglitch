@@ -49,6 +49,7 @@ class ItemTaken extends concepts.Event {
         game_view.ui.inventory.set_item_view_at(this.inventory_idx, item_view);
         yield* anim.inv_add(game_view.ui.inventory.fx_view, game_view.ui.inventory, this.inventory_idx);
         game_view.clear_focus();
+        game_view.ui.inventory.request_refresh();
     }
 };
 
@@ -77,6 +78,7 @@ class ItemDropped extends concepts.Event {
         item_view.is_visible = false;
         yield* anim.drop_item(game_view.fx_view, this.drop_position);
         game_view.reset_entities(); // TODO: only add the entity view, instead of recreating all the entity views.
+        game_view.ui.inventory.request_refresh();
     }
 };
 
@@ -133,6 +135,7 @@ class SwappedItemsSlots extends concepts.Event {
             inventory.set_item_view_at(this.right_item_idx, left_item_view);
         if(right_item_view)
             inventory.set_item_view_at(this.left_item_idx, right_item_view);
+        inventory.request_refresh();
     }
 }
 

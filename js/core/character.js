@@ -181,7 +181,7 @@ class CharacterStats{
 
 // Character's inventory, where to store Items.
 class Inventory {
-    _items_stored = [];
+    _item_slots = [];
     _equipable_items = 1;
     _listeners = {};
 
@@ -214,28 +214,38 @@ class Inventory {
         console.assert(item instanceof concepts.Item);
         console.assert(this.have_empty_slots);
 
-        for(let idx = this._items_stored.length -1; idx >= 0; --idx){
-            if(!this._items_stored[idx]){
+        // Put the item in the first free slot that is not an equipable slot.
+        for(let idx = this._equipable_items; idx < this._item_slots.length; ++idx){
+            if(this._item_slots[idx] === undefined){
                 this.set_item_at(idx, item);
                 return idx;
             }
         }
-        throw "Couldn't find slot for item in inventory";
+
+        // Otherwise, put it in an equipable slot.
+        for(let idx = 0; idx < this._equipable_items; ++idx){
+            if(this._item_slots[idx] === undefined){
+                this.set_item_at(idx, item);
+                return idx;
+            }
+        }
+
+        throw "Couldn't find slot for item in inventory - Inconsistency detected, an addition action should never be possible if there is no space in the inventory";
     }
 
     set_item_at(idx, item){
         //
-        console.assert(idx >= 0 && idx < this._items_stored.length);
+        console.assert(idx >= 0 && idx < this._item_slots.length);
         console.assert(item instanceof concepts.Item);
-        console.assert(this._items_stored[idx] === undefined);
-        this._items_stored[idx] = item;
+        console.assert(this._item_slots[idx] === undefined);
+        this._item_slots[idx] = item;
         if(this.is_equipable_slot(idx))
             this._apply_modifiers(item);
     }
 
     get_item_at(idx){
-        console.assert(idx >= 0 && idx < this._items_stored.length);
-        return this._items_stored[idx];
+        console.assert(idx >= 0 && idx < this._item_slots.length);
+        return this._item_slots[idx];
     }
 
     _apply_modifiers(item){
@@ -261,32 +271,32 @@ class Inventory {
     }
 
     update_modifiers(){
-        this._items_stored.slice(0, this._equipable_items)
+        this._item_slots.slice(0, this._equipable_items)
             .filter(item => item instanceof concepts.Item)
             .forEach(item => this._apply_modifiers(item));
-        this._items_stored.slice(this._equipable_items)
+        this._item_slots.slice(this._equipable_items)
             .filter(item => item instanceof concepts.Item)
             .forEach(item => this._reverse_modifiers(item));
     }
 
     remove(idx){
-        console.assert(idx >= 0 && idx < this._items_stored.length);
-        const item = this._items_stored[idx];
+        console.assert(idx >= 0 && idx < this._item_slots.length);
+        const item = this._item_slots[idx];
         if(item instanceof concepts.Item
         && this.is_equipable_slot(idx)){
             this._reverse_modifiers(item);
         }
-        this._items_stored[idx] = undefined;
+        this._item_slots[idx] = undefined;
         return item;
     }
 
     swap(idx_a, idx_b){
-        console.assert(idx_a >= 0 && idx_a < this._items_stored.length);
-        console.assert(idx_b >= 0 && idx_b < this._items_stored.length);
-        const a = this._items_stored[idx_a];
-        const b = this._items_stored[idx_b];
-        this._items_stored[idx_b] = a;
-        this._items_stored[idx_a] = b;
+        console.assert(idx_a >= 0 && idx_a < this._item_slots.length);
+        console.assert(idx_b >= 0 && idx_b < this._item_slots.length);
+        const a = this._item_slots[idx_a];
+        const b = this._item_slots[idx_b];
+        this._item_slots[idx_b] = a;
+        this._item_slots[idx_a] = b;
         const is_slot_a_equipable = this.is_equipable_slot(idx_a);
         const is_slot_b_equipable = this.is_equipable_slot(idx_b);
         if(is_slot_a_equipable !== is_slot_b_equipable){
@@ -307,7 +317,7 @@ class Inventory {
 
     resize(new_size){
         console.assert(Number.isInteger(new_size) && new_size >= 0);
-        const previous_items = this._items_stored;
+        const previous_items = this._item_slots;
         const new_item_storage = new Array(new_size).fill(undefined);
 
         // Preserve as many items we can from the previous set
@@ -324,29 +334,33 @@ class Inventory {
             .filter(item => item instanceof concepts.Item)
             .forEach(item => this._reverse_modifiers(item));
 
-        this._items_stored = new_item_storage;
-        Object.seal(this._items_stored);
+        this._item_slots = new_item_storage;
+        Object.seal(this._item_slots);
 
         // Return the items we couldn't put in the new inventory.
-        return previous_items.filter(item => item instanceof concepts.Item);
+        const left_items = previous_items.filter(item => item instanceof concepts.Item);
+        while(this.have_empty_slots && left_items.length > 0){ // If we can still put the item somewhere, just put it there.
+            this.add(left_items.pop());
+        }
+        return left_items;
     }
 
-    get stored_items() { return this._items_stored; }
-    get size() { return this._items_stored.length; }
+    get stored_items() { return this._item_slots; }
+    get size() { return this._item_slots.length; }
 
-    get have_empty_slots() { return this._items_stored.some(item => item === undefined); }
+    get have_empty_slots() { return this._item_slots.some(item => item === undefined); }
     get is_full() { return !this.have_empty_slots; }
-    get is_empty() { return this._items_stored.length === 0; }
+    get is_empty() { return this._item_slots.length === 0; }
 
     is_equipable_slot(idx){
-        console.assert(idx >= 0 && idx < this._items_stored.length);
+        console.assert(idx >= 0 && idx < this._item_slots.length);
         return idx < this._equipable_items;
     }
 
     get_enabled_action_types(action_type){
         console.assert(action_type && action_type.prototype instanceof concepts.Action);
         const enabled_action_types = [];
-        this._items_stored.slice(0, this._equipable_items).filter(item => item instanceof concepts.Item)
+        this._item_slots.slice(0, this._equipable_items).filter(item => item instanceof concepts.Item)
             .forEach(item => enabled_action_types.push(...item.get_enabled_action_types(action_type)));
         return enabled_action_types;
     }
