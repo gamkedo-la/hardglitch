@@ -282,13 +282,14 @@ class Env {
         */
 
         for (const fx of [
-            //this.gfx.destruction({x:500,y:400}),
-            //this.gfx.damage({x:600,y:400}),
-            //this.gfx.lightningJump({x:500,y:500}, {x:600,y:600}),
-            //this.gfx.unstable({x:400+32,y:400-64}),
-            //this.gfx.repair({x:700,y:400}),
-            //this.gfx.drop({x:800,y:400}),
+            this.gfx.destruction({x:500,y:400}),
+            this.gfx.damage({x:600,y:400}),
+            this.gfx.lightningJump({x:500,y:500}, {x:600,y:600}),
+            this.gfx.unstable({x:400+32,y:400-64}),
+            this.gfx.repair({x:700,y:400}),
+            this.gfx.drop({x:800,y:400}),
             this.gfx.jump_up({x:900,y:400}),
+            this.gfx.wait({x:200,y:500}, 700),
         ]) {
             setTimeout(() => {fx.done = true;}, 1000);
         }

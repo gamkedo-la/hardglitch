@@ -16,6 +16,7 @@ import {
     ColorOffsetGlitchParticle,
     ThrobParticle,
     DirectionalRingParticle,
+    WaitParticle,
 } from "./system/particles.js";
 import { Color } from "./system/color.js";
 import { Vector2 } from "./system/spatial.js";
@@ -412,6 +413,25 @@ class GameFxView {
             let hue = random_int(120, 180);
             return new RingParticle(emitter.x+xoff, emitter.y+yoff, radius, hue, ttl, 10);
         }, emitInterval, emitJitter, emitTTL, emitCount);
+        this.particleSystem.add(emitter);
+        let fx = new GameFx(position);
+        fx.sentinels.push(emitter);
+        fx.relocatables.push(emitter);
+        return fx;
+    }
+
+    // TTL is in milliseconds
+    wait(position, ttl){
+        let emitJitter = 0;
+        let emitTTL = ttl * .001;
+        let emitInterval = emitTTL + .1;
+        const emitter = new ParticleEmitter(this.particleSystem, position.x, position.y, (emitter) => {
+            let radius = 32;
+            let ringColor = new Color(253,246,0,.8);
+            let bgColor = new Color(253,246,0,.25);
+            // wait particle expects TTL in seconds
+            return new WaitParticle(emitter.x, emitter.y, radius, ringColor, bgColor, ttl*.001);
+        }, emitInterval, emitJitter, emitTTL);
         this.particleSystem.add(emitter);
         let fx = new GameFx(position);
         fx.sentinels.push(emitter);

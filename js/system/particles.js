@@ -21,6 +21,7 @@ export {
     ColorOffsetGlitchParticle,
     BandingGlitchParticle,
     DirectionalRingParticle,
+    WaitParticle,
 }
 
 import { camera } from "./graphics.js";
@@ -1669,6 +1670,46 @@ class LightningParticle extends Particle {
         canvas_context.lineCap = "round";
 		canvas_context.lineWidth = this.width;
         canvas_context.stroke();
+    }
+
+}
+
+class WaitParticle extends Particle {
+    constructor(x, y, radius, ringColor, bgColor, ttl) {
+        super(x, y);
+        this.radius = radius;
+        this.ringColor = ringColor;
+        this.bgColor = bgColor;
+        this.ttl = ttl * 1000;
+        this.angle = -.5*Math.PI;
+        this.angleDelta = Math.PI*2/this.ttl;
+        this.lineWidth = 2;
+    }
+
+    update(delta_time) {
+        if (this.done) return;
+        // update angle
+        this.angle += this.angleDelta * delta_time;
+        // update ttl
+        this.ttl -= delta_time;
+        if (this.ttl <= 0) this.done = true;
+    }
+
+    draw(canvas_context) {
+        // center dot
+        let radius = this.radius;
+        canvas_context.beginPath();
+        canvas_context.moveTo(Math.round(this.x), Math.round(this.y));
+        canvas_context.arc(Math.round(this.x), Math.round(this.y), radius, this.angle, Math.PI*1.5)
+        canvas_context.fillStyle = this.bgColor.toString();
+        canvas_context.fill();
+        canvas_context.closePath();
+        canvas_context.beginPath();
+        canvas_context.arc(Math.round(this.x), Math.round(this.y), radius, this.angle, Math.PI*1.5)
+        canvas_context.strokeStyle = this.ringColor.toString();
+        canvas_context.lineWidth = this.lineWidth;
+        canvas_context.stroke();
+        canvas_context.closePath();
     }
 
 }

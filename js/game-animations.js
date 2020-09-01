@@ -58,7 +58,7 @@ function* move(fx_view, entity_view, target_game_position, duration_ms=default_m
     entity_view.game_position = target_game_position;
 }
 
-function* wait(character_view, duration_ms){
+function* wait(fx_view, character_view, duration_ms){
     console.assert(character_view instanceof CharacterView);
     // TODO: add some kind of animation here to show that the character is passing their turn.
     if(character_view.is_player){
@@ -66,6 +66,8 @@ function* wait(character_view, duration_ms){
     } else {
         // TODO: here play the sound of NPCs (probably just the same sound but lower volume)
     }
+    let fx_pos = character_view.position.translate(square_half_unit_vector);
+    let fx = fx_view.wait(fx_pos, duration_ms);
     yield* animation.wait(duration_ms);
 }
 
