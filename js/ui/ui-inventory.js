@@ -18,6 +18,8 @@ import { ItemView } from "../view/item-view.js";
 import { SwapItemSlots, DropItem } from "../rules/rules-items.js";
 
 import { CharacterStatus } from "./ui-characterstatus.js";
+import { GameFxView } from "../game-effects.js";
+import { square_half_unit_vector } from "../view/entity-view.js";
 
 const item_slot_vertical_space = 0;
 const item_slot_name = "Item Slot";
@@ -48,6 +50,7 @@ class ItemSlot {
             this.position = position;
 
         this.is_equipable = is_equipable;
+        this._fx = null;
     }
 
     update(delta_time){
@@ -131,6 +134,8 @@ class InventoryUI {
         this.position = position;
         this.character_status = character_status;
         this.events = events;
+        this.fx_view = new GameFxView();
+        this.fx_view.particleSystem.alwaysActive = true;
     }
 
     get position() { return this._position; }
@@ -155,6 +160,8 @@ class InventoryUI {
         this._update_item_dragging();
 
         this._slots.forEach(slot=>slot.update(delta_time));
+
+        this.fx_view.update(delta_time);
     }
 
     get is_dragging_item() { return this._dragging_item && this._dragging_item.item; }
@@ -172,11 +179,21 @@ class InventoryUI {
         console.assert(idx < this._slots.length);
         console.assert(item_view instanceof ItemView);
         this._slots[idx].set_item(item_view);
+        // start active fx
+        if (this._slots[idx].is_equipable && !this._slots[idx].fx) {
+            let fx_pos =this._slots[idx].position.translate({x:36,y:36});
+            this._slots[idx].fx = this.fx_view.action(fx_pos);
+        }
+
     }
 
     remove_item_view_at(idx){
         console.assert(Number.isInteger(idx));
         console.assert(idx < this._slots.length);
+        if (this._slots[idx].fx) {
+            this._slots[idx].fx.done = true;
+            this._slots[idx].fx = null;
+        }
         return this._slots[idx].remove_item();
     }
 
@@ -307,6 +324,8 @@ class InventoryUI {
         console.assert(graphics.camera.is_rendering_in_screen);
         this._slots.forEach(slot=>slot.draw(canvas_context));
         this._slots.forEach(slot=>slot.draw_item(canvas_context));
+        //console.log("this.fx_view.draw");
+        this.fx_view.draw(canvas_context);
     }
 
     refresh(character){

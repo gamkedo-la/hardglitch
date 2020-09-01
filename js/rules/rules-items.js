@@ -16,6 +16,7 @@ import { GameView } from "../game-view.js";
 import { CharacterView } from "../view/character-view.js";
 import { sprite_defs } from "../game-assets.js";
 import { ItemView } from "../view/item-view.js";
+import { square_half_unit_vector } from "../view/entity-view.js";
 
 
 class ItemTaken extends concepts.Event {
@@ -46,6 +47,7 @@ class ItemTaken extends concepts.Event {
         yield* anim.take_item(game_view.fx_view, character_view, item_view);
         game_view.remove_entity_view(this.item_id);
         game_view.ui.inventory.set_item_view_at(this.inventory_idx, item_view);
+        yield* anim.inv_add(game_view.ui.inventory.fx_view, game_view.ui.inventory, this.inventory_idx);
         game_view.clear_focus();
     }
 };
@@ -70,6 +72,7 @@ class ItemDropped extends concepts.Event {
     *animation(game_view){
         console.assert(game_view instanceof GameView);
         game_view.focus_on_position(this.drop_position);
+        yield* anim.inv_remove(game_view.ui.inventory.fx_view, game_view.ui.inventory, this.item_idx);
         const item_view = game_view.ui.inventory.remove_item_view_at(this.item_idx);
         item_view.is_visible = false;
         yield* anim.drop_item(game_view.fx_view, this.drop_position);
@@ -122,8 +125,10 @@ class SwappedItemsSlots extends concepts.Event {
         console.assert(game_view instanceof GameView);
         game_view.focus_on_position(this.character_position);
         const inventory = game_view.ui.inventory;
+        yield* anim.inv_remove(game_view.ui.inventory.fx_view, game_view.ui.inventory, this.left_item_idx);
         const left_item_view = inventory.remove_item_view_at(this.left_item_idx);
         const right_item_view = inventory.remove_item_view_at(this.right_item_idx);
+        yield* anim.inv_add(game_view.ui.inventory.fx_view, game_view.ui.inventory, this.right_item_idx);
         if(left_item_view)
             inventory.set_item_view_at(this.right_item_idx, left_item_view);
         if(right_item_view)

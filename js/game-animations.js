@@ -15,6 +15,8 @@ export {
     deleting_missile,
     take_item,
     drop_item,
+    inv_add,
+    inv_remove,
     dissolve_item,
     decrypt_file,
     pushed,
@@ -244,10 +246,25 @@ function* take_item(fx_view, taker_view, item_view){
     fx.done = true;
 }
 
-function* drop_item(fx_view, drop_position) {
-    let fx_pos = graphic_position(drop_position).translate(square_half_unit_vector);
+function* drop_item(fx_view, drop_position, raw_position=false) {
+    let fx_pos = (raw_position) ? drop_position : graphic_position(drop_position);
+    fx_pos = fx_pos.translate(square_half_unit_vector);
     const fx = fx_view.drop(fx_pos);
     yield* animation.wait(300);
+    fx.done = true;
+}
+
+function* inv_add(fx_view, inv, idx) {
+    const fx_pos = inv._slots[idx].position.translate({x:36,y:36});
+    const fx = fx_view.drop(fx_pos);
+    yield* animation.wait(100);
+    fx.done = true;
+}
+
+function* inv_remove(fx_view, inv, idx) {
+    const fx_pos = inv._slots[idx].position.translate({x:36,y:36});
+    const fx = fx_view.take(fx_pos);
+    yield* animation.wait(100);
     fx.done = true;
 }
 
