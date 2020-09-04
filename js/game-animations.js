@@ -327,7 +327,7 @@ function* pushed(fx_view, entity_view, to_position){
     const fx_start_pos = entity_view.position.translate(square_half_unit_vector);
     const fx_stop_pos = graphic_position(to_position).translate(square_half_unit_vector);
     let push_fx = fx_view.pushed(fx_start_pos, fx_stop_pos);
-    yield* move(entity_view, to_position);
+    yield* move(fx_view, entity_view, to_position);
     push_fx.done = true;
 }
 
