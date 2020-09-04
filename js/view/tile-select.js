@@ -613,14 +613,18 @@ function tile_id(layer, name, idx=-1) {
         let coords = shape_map[name];
         if (coords && coords.length > 1) idx = random_int(0, coords.length-1);
     }
-    return layer + "_" + name + idx;
+    return layer + "_" + name + "_" + idx;
 }
 
 function parse_tile_id(id) {
     if (!id) return {};
-    let fields = id.split("_", 2);
-    if (!fields || fields.length != 2) return {};
-    return {layer: fields[0], name: fields[1]};
+    let fields = id.split("_", 3);
+    if (!fields || fields.length != 3) return {};
+    return {
+        layer: fields[0], 
+        name: fields[1],
+        idx: fields[2],
+    };
 }
 
 function update_sprite_defs(imgname, layer, tilesize) {
