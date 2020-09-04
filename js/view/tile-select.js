@@ -4,6 +4,7 @@
 export { initialize, shape_defs, SeamSelector, genFloorOverlay, genFgOverlay, genSeamOverlay, tile_id, parse_tile_id, shape_map };
 import { PIXELS_PER_HALF_SIDE } from "./entity-view.js";
 import * as tiledefs from "../definitions-tiles.js";
+import { random_int } from "../system/utility.js";
 
 const RIGHT = 1;
 const UP = 2;
@@ -523,7 +524,7 @@ function genFgOverlay(layer, grid, overlay, wallCmp) {
 const shape_map = {
     t:      {i:7,   j:1},
     ot:     {i:7,   j:0},
-    m:      {i:7,   j:2},
+    m:      [{i:7,  j:2}, {i:8, j:9}, {i:9, j:9}, {i:10, j:9}, {i:11, j:9}, {i:6, j:9}],
     om:     {i:3,   j:3},
     ttls:   {i:6,   j:1},
     ttl:    {i:5,   j:1},
@@ -605,8 +606,14 @@ const shape_map = {
  * @param {*} layer
  * @param {*} name
  */
-function tile_id(layer, name) {
-    return layer + "_" + name;
+function tile_id(layer, name, idx=-1) {
+    // if specific tile index (variation) not given, randomize variation
+    if (idx == -1) {
+        idx = 0;
+        let coords = shape_map[name];
+        if (coords && coords.length > 1) idx = random_int(0, coords.length-1);
+    }
+    return layer + "_" + name + idx;
 }
 
 function parse_tile_id(id) {
@@ -618,20 +625,23 @@ function parse_tile_id(id) {
 
 function update_sprite_defs(imgname, layer, tilesize) {
     for (const k of Object.keys(shape_map)) {
-        let p = shape_map[k];
-        let def = {
-            image: imgname,
-            frames: [
-                {
-                    x: p.i*tilesize,
-                    y: p.j*tilesize,
+        let coords = shape_map[k];
+        if (!(coords instanceof Array)) coords = [coords];
+        for (let i=0; i<coords.length; i++) {
+            let coord = coords[i];
+            let name = k;
+            let def = {
+                image: imgname,
+                frames: [{
+                    x: coord.i*tilesize,
+                    y: coord.j*tilesize,
                     width: tilesize,
                     height: tilesize
-                },
-            ],
-        };
-        let id = tile_id(layer, k);
-        shape_defs[id] = def;
+                }],
+            };
+            let id = tile_id(layer, name, i);
+            shape_defs[id] = def;
+        }
     }
 }
 
