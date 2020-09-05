@@ -7,7 +7,8 @@ import * as graphics from "../system/graphics.js";
 import * as input from "../system/input.js";
 import * as concepts from "../core/concepts.js";
 
-import { Vector2 } from "../system/spatial.js";
+import { config } from "../game-config.js";
+import { Vector2, Rectangle, is_point_under } from "../system/spatial.js";
 import { CharacterView } from "../view/character-view.js";
 
 const timeline_config = {
@@ -65,13 +66,18 @@ class Timeline
         console.assert(visibility_predicate instanceof Function);
         this.position = new Vector2(position);
         this._view_finder = view_finder;
-        this._is_visible = visibility_predicate;
+        this._is_entity_visible = visibility_predicate;
         this._character_views = [];
-
     }
 
-    update(delta_time, world){
+    visible = true;
+
+    update(delta_time, character, world){
         console.assert(world instanceof concepts.World);
+
+        if(!this.visible || !config.enable_timeline)
+            return;
+
         // BEWARE: DO NOT UPDATE CHARACTER VIEWS HERE, THEY ARE ALREADY UPDATED INSIDE THE GAME!
         if(this._need_refresh) {
             this._refresh(world);
@@ -105,13 +111,16 @@ class Timeline
             console.assert(Number.isInteger(character_id));
             const character_view = this._view_finder(character_id);
             console.assert(character_view instanceof CharacterView); // NOT SURE IF WE ALLOW UNDEFINED OR NOT????
-            if(!this._is_visible(character_view.game_position))
+            if(!this._is_entity_visible(character_view.game_position))
                 continue; // Don't show characters that are not visible to the player on the timeline.
             this._character_views.push(character_view);
         };
     }
 
     draw(canvas_context){
+        if(!this.visible || !config.enable_timeline)
+            return;
+
         this._draw_line(canvas_context);
         this._draw_cycle_clock(canvas_context);
         this._draw_characters(canvas_context);
@@ -140,13 +149,18 @@ class Timeline
         canvas_context.restore();
     }
 
+    *position_sequence(){
+        let position = this.position;
+        while(true){
+            position = position.translate(translation_between_positions);
+            yield position;
+        }
+    }
+
     _draw_characters(canvas_context){
 
-        let position = this.position;
-        const next_position = ()=>{
-            position = position.translate(translation_between_positions);
-            return position;
-        }
+        const position_sequence = this.position_sequence();
+        const next_position = ()=> position_sequence.next().value;
 
         this._character_views.forEach(view=>{
             const initial_position = view.position;
@@ -162,8 +176,50 @@ class Timeline
         });
     }
 
-    _draw_locator(canvas_context){
+    pointed_slot(pointed_position){
+        // TODO: cache the result to be used for the whole frame.
+        const position_sequence = this.position_sequence();
+        const next_position = ()=> position_sequence.next().value;
 
+        for(let idx = 0; idx < this._character_views.length; ++idx){
+            const position = next_position();
+            const slot_rect = new Rectangle({ position, width: timeline_config.space_between_elements, height: timeline_config.space_between_elements });
+            if(is_point_under(pointed_position, slot_rect)){ // This assumes we are in the screen space.
+                return { idx, slot_rect };
+            }
+        }
+    }
+
+    get is_mouse_over() { return this.pointed_slot(input.mouse.position) !== undefined; }
+    is_under(position) { return this.pointed_slot(position) !== undefined; }
+
+    _draw_locator(canvas_context){
+        const pointed_slot = this.pointed_slot(input.mouse.position);
+        if(!pointed_slot)
+            return;
+
+        const character_view = this._character_views[pointed_slot.idx];
+        if(!(character_view instanceof CharacterView))
+            return;
+
+        const character_gfx_position = character_view.position.translate(graphics.camera.position.inverse);
+
+        const position = pointed_slot.slot_rect.position;
+        const width = pointed_slot.slot_rect.width;
+        const height = pointed_slot.slot_rect.height;
+        canvas_context.save();
+
+        canvas_context.lineWidth = 4;
+        canvas_context.strokeStyle = "#ffffffff";
+
+        canvas_context.strokeRect(position.x, position.y, width, height);
+        canvas_context.beginPath();
+        canvas_context.moveTo(character_gfx_position.x, character_gfx_position.y);
+        canvas_context.lineTo(position.x, position.y);
+        canvas_context.stroke();
+        canvas_context.strokeRect(character_gfx_position.x, character_gfx_position.y, character_view.width, character_view.height);
+
+        canvas_context.restore();
     }
 
     _draw_current_turn_arrow(canvas_context){

@@ -126,6 +126,9 @@ class EntityView {
         return new Rectangle(this._area);
     }
 
+    get width() { return this._area.width; }
+    get height() { return this._area.height; }
+
 };
 
 

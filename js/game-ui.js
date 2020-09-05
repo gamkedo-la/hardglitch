@@ -19,7 +19,6 @@ import { CharacterStatus } from "./ui/ui-characterstatus.js";
 import { InventoryUI } from "./ui/ui-inventory.js";
 import { InfoBox, show_info } from "./ui/ui-infobox.js";
 import { Timeline } from "./ui/ui-timeline.js";
-import { config } from "./game-config.js";
 
 const action_button_size = 50;
 const player_ui_top_from_bottom = 66;
@@ -292,6 +291,7 @@ class GameInterface {
             this.inventory, this.character_status,
             ...Object.values(this).filter(element => element instanceof ui.UIElement),
             ...this._action_buttons,
+            this.timeline,
             this.info_box, // Must always be last!
         ];
     }
@@ -309,15 +309,12 @@ class GameInterface {
     }
 
     update(delta_time, current_character, world){
-        this.timeline.update(delta_time, world);
         this.elements.forEach(element => element.update(delta_time, current_character, world));
         this._handle_action_target_selection(delta_time);
     }
 
     display() {
         graphics.camera.begin_in_screen_rendering();
-        if(config.enable_timeline)
-            this.timeline.draw(graphics.screen_canvas_context);
         this.elements.forEach(element => element.draw(graphics.screen_canvas_context));
         graphics.camera.end_in_screen_rendering();
     }
