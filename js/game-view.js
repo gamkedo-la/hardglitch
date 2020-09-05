@@ -221,7 +221,7 @@ class GameView {
 
         this._turn_message = new ui.Text({
             text: turn_message_player_turn,
-            font: "28px ZingDiddlyDooZapped",
+            font: "32px ZingDiddlyDooZapped",
             background_color: "#000000a0",
             color: "orange",
             enabled: false,
@@ -720,7 +720,7 @@ class GameView {
 
             this._turn_message.position = {
                 x: graphics.centered_rectangle_in_screen(this._turn_message.area).position.x,
-                y: 8
+                y: this.ui.action_buttons_top - this._turn_message.height - 16,
             };
 
             graphics.camera.begin_in_screen_rendering();

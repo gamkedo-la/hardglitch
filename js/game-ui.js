@@ -342,6 +342,7 @@ class GameInterface {
             }
         })).position.x - space_between_buttons;
 
+        this.action_buttons_top = base_line_y;
         let line_y = base_line_y;
         let line_x = base_line_x;
         const next_x = ()=> line_x += space_between_buttons;
@@ -350,6 +351,7 @@ class GameInterface {
         for(const [action_name, actions] of action_entries){
             if(key_number > 0 && key_number % max_buttons_per_lines === 0){
                 line_y -= space_between_buttons;
+                this.action_buttons_top = line_y;
                 line_x = base_line_x;
             }
             const position = { x: next_x(), y: line_y };
