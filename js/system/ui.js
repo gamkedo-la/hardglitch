@@ -536,7 +536,7 @@ class Bar extends UIElement {
             value: "#00ff00",            // Color used for the values that are lower or equal to the current value.
         };
 
-        this.colors = bar_def.bar_colors ? bar_def.bar_colors : default_bar_colors;
+        this.colors = Object.assign(default_bar_colors, bar_def.bar_colors);
         this.change_delay_ms = bar_def.change_delay_ms !== undefined ? bar_def.change_delay_ms : 500;
         console.assert(Number.isInteger(this.change_delay_ms));
         this.change_duration_ms = bar_def.change_duration_ms !== undefined ? bar_def.change_duration_ms : 800;

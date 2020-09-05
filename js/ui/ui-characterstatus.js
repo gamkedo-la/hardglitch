@@ -46,6 +46,13 @@ class CharacterStatus{
             bar_name: "Integrity",
             help_text: bar_text,
             visible: false,
+            bar_colors:{
+                value: "#FF006E",
+                change_negative: "#FB5607",
+                change_positive: "#ffffff",
+                preview: "#8338EC",
+                background:"#3A86FF",
+            }
         });
 
         this.health_recovery_text = new ui.Text(Object.assign(stats_text, {
@@ -60,6 +67,13 @@ class CharacterStatus{
             bar_name: "Action Points",
             help_text: bar_text,
             visible: false,
+            bar_colors:{
+                value: "#ffbe0b",
+                change_negative: "#FB5607",
+                change_positive: "#ffffff",
+                preview: "#8338ec",
+                background:"#3A86FF",
+            }
         });
 
         this.action_recovery_text = new ui.Text(Object.assign(stats_text, {
