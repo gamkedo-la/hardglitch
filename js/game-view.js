@@ -39,6 +39,7 @@ import { GameFxView } from "./game-effects.js";
 import { add_text_line } from "./system/utility.js";
 import { config } from "./game-config.js";
 import { turn_sequence } from "./core/action-turn.js";
+import { grid_ID } from "./definitions-world.js";
 
 const a_very_long_time = 99999999999999;
 const turn_message_player_turn = "Play";
@@ -864,9 +865,9 @@ class GameView {
 
     _reset_tilegrid(world){
         if(this.tile_grid)
-            this.tile_grid.reset(new Vector2(), new Vector2({ x: world.width, y: world.height }), world._floor_tile_grid, world._surface_tile_grid);
+            this.tile_grid.reset(new Vector2(), new Vector2({ x: world.width, y: world.height }), world.grids[grid_ID.floor], world.grids[grid_ID.surface]);
         else
-            this.tile_grid = new TileGridView(new Vector2(), new Vector2({ x: world.width, y: world.height }), world._floor_tile_grid, world._surface_tile_grid);
+            this.tile_grid = new TileGridView(new Vector2(), new Vector2({ x: world.width, y: world.height }), world.grids[grid_ID.floor], world.grids[grid_ID.surface]);
 
         this.tile_grid.update(0);
     }

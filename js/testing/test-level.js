@@ -7,12 +7,13 @@ import { random_int, index_from_position, random_sample } from "../system/utilit
 import { RandomActionEnemy } from "../characters/test-enemy.js";
 
 import * as tiles from "../definitions-tiles.js";
-import { world_grid, default_rules } from "../definitions-world.js";
+import { world_grid, default_rules, is_blocked_position, grid_ID } from "../definitions-world.js";
 import * as items from "../definitions-items.js";
 
 import { test_rules } from "./test-rules.js";
 import * as visibility from "../core/visibility.js";
 import { LifeForm_Strong, LifeForm_Weak } from "../characters/lifeform.js";
+import { Grid } from "../system/grid.js";
 
 function make_test_world(test_world_size = world_grid){ // The game assets must have been initialized first.
     const grid_size = test_world_size.height * test_world_size.width;
@@ -86,14 +87,18 @@ function make_test_world(test_world_size = world_grid){ // The game assets must 
     console.assert(is_floor_walkable(entry_point_position));
 
     const world = new concepts.World(`Random Test Level ${test_world_size.width} x ${test_world_size.height}`,
-        test_world_size.width, test_world_size.height, floor_tile_grid, surface_tile_grid );
-    console.assert(world._surface_tile_grid.matching_positions(tileid=> tileid == tiles.ID.ENTRY).length > 0);
+        test_world_size.width, test_world_size.height,
+        [ new Grid(test_world_size.width, test_world_size.height, floor_tile_grid),
+          new Grid(test_world_size.width, test_world_size.height, surface_tile_grid),
+        ]
+        );
+    console.assert(world.grids[grid_ID.surface].matching_positions(tileid=> tileid == tiles.ID.ENTRY).length > 0);
 
     world.set_rules(...default_rules, ...test_rules);
 
     function can_insert_something_there(position){
         return !position.equals(entry_point_position)
-            && ( world.tiles_at(position).length == 0 || !world.is_blocked_position(position, tiles.is_safely_walkable) );
+            && ( world.tiles_at(position).length == 0 || !is_blocked_position(world, position, tiles.is_safely_walkable) );
     }
 
     let ennemy_count = 30;

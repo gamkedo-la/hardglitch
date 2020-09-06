@@ -20,7 +20,7 @@ export {
     Position,
 };
 
-import { is_number, clamp, not } from "../system/utility.js";
+import { is_number, clamp } from "../system/utility.js";
 import { Grid } from "../system/grid.js";
 
 
@@ -269,19 +269,21 @@ class World
     _items = {};     // Items that are in the space of the world, not in other entities (not owned by Bodies).
     _bodies = {};    // Bodies are always in the space of the world. They can be controlled by Actors.
     _rules = [];     // Rules that will be applied through this game.
+    grids = [];     // Grids that makes this world, each layer adding information/content.
     is_finished = false; // True if this world is in a finished state, in which case it should not be updated anymore. TODO: protect against manipulations
     has_entity_list_changed = false; // True if the list of entities existing have changed since the last turn update.
 
-    constructor(name, width, height, floor_tiles, surface_tiles){
+    constructor(name, width, height, grids){
         console.assert(typeof name === "string" && name.length > 0);
         console.assert(Number.isInteger(width) && width > 2);
         console.assert(Number.isInteger(height) && height > 2);
+        console.assert(grids instanceof Array);
+        console.assert(grids.every(grid => grid instanceof Grid && grid.width == width && grid.height == height));
         this.name = name;
         this.width = width;
         this.height = height;
         this.size = this.width * this.height;
-        this._floor_tile_grid = new Grid(width, height, floor_tiles); // Tiles on the floor layer.
-        this._surface_tile_grid = new Grid(width, height, surface_tiles); // Tiles over the floor, including "walls".
+        this.grids = grids;
     }
 
     get bodies() { return Object.values(this._bodies); }
@@ -380,32 +382,6 @@ class World
             ;
     }
 
-    // Returns true if the position given is blocked by an entity (Body or Item) or a tile that blocks (wall).
-    // The meaning of "blocking" depends on the provided predicate.
-    is_blocked_position(position, is_not_blocking){
-        console.assert(is_not_blocking instanceof Function);
-        const is_blocking = not(is_not_blocking); // Why do this instead of taking a is_blocking predicate? Because the code calling this function is far easier to understand (when you read it) if the predicate is not negated.
-
-        if(!this.is_valid_position(position))
-            return true;
-
-        const floor_tile = this._floor_tile_grid.get_at(position);
-        if(!floor_tile || is_blocking(floor_tile))
-            return true;
-
-        const surface_tile = this._surface_tile_grid.get_at(position);
-        if(surface_tile && is_blocking(surface_tile))
-            return true;
-
-        if(this.body_at(position))
-            return true;
-
-        if(this.item_at(position))
-            return true;
-
-        return false;
-    }
-
     find_body(body_id){
         return this._bodies[body_id];
     }
@@ -446,8 +422,7 @@ class World
     tiles_at(position){
         console.assert(this.is_valid_position(position));
         const things = [
-            this._surface_tile_grid.get_at(position),
-            this._floor_tile_grid.get_at(position),
+            ...this.grids.map(grid => grid.get_at(position)),
         ];
         return things.filter(thing => thing !== undefined && thing !== null);
     }
@@ -455,8 +430,7 @@ class World
     everything_at(position){
         console.assert(this.is_valid_position(position));
         const things = [
-            this._floor_tile_grid.get_at(position),
-            this._surface_tile_grid.get_at(position),
+            ...this.grids.map(grid => grid.get_at(position)),
             this.item_at(position),
             this.body_at(position),
         ];

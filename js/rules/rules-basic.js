@@ -9,6 +9,7 @@ import { Character } from "../core/character.js";
 import * as anim from "../game-animations.js";
 import { destroy_entity } from "./destruction.js";
 import * as audio from "../system/audio.js";
+import { grid_ID } from "../definitions-world.js";
 
 export {
     Rule_GameOver,
@@ -169,7 +170,7 @@ class Rule_LevelExit extends concepts.Rule {
         if(world.is_finished) // The game is already finished.
             return [];
 
-        const exit_positions = world._surface_tile_grid.matching_positions(tile_id => tile_id == tiles.ID.EXIT);
+        const exit_positions = world.grids[grid_ID.surface].matching_positions(tile_id => tile_id == tiles.ID.EXIT);
         const player_characters = world.bodies.filter(character => character.is_player_actor);
 
         for(const player_character of player_characters){

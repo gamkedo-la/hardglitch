@@ -22,6 +22,7 @@ import { Character } from "../core/character.js";
 import * as visibility from "../core/visibility.js";
 import { ranged_actions_for_each_target, actions_for_each_target } from "./rules-common.js";
 import { lazy_call } from "../system/utility.js";
+import { is_blocked_position } from "../definitions-world.js";
 
 // Set the action as unsafe if the target tile is unsafe.
 function safe_if_safe_arrival(move_action, world){
@@ -94,7 +95,7 @@ class Rule_Movements extends concepts.Rule {
 
         const allowed_moves = character.allowed_moves(); // TODO: filter to what's visible
         for(const [move_id, move_target] of Object.entries(allowed_moves)){
-            if(!world.is_blocked_position(move_target, tiles.is_walkable)
+            if(!is_blocked_position(world, move_target, tiles.is_walkable)
             && character.can_see(move_target)
             ){
                 const move = new Move(move_id, move_target);

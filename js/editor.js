@@ -24,6 +24,7 @@ import { sprite_defs } from "./game-assets.js";
 import { Vector2_origin, Vector2 } from "./system/spatial.js";
 import { Grid } from "./system/grid.js";
 import { all_characters_types } from "./deflinitions-characters.js";
+import { grid_ID } from "./definitions-world.js";
 
 let is_enabled = false; // TURN THIS ON TO SEE THE EDITOR, see the update() function below
 let is_editing = false; // True if we are doing an edition manipulation and no other input should be handled.
@@ -148,14 +149,14 @@ function make_edit_operation_add_entity_at(entity_type){
 }
 
 
-function make_edit_operation_change_tile(tile_id, worl_tile_grid_id){
+function make_edit_operation_change_tile(tile_id, world_tile_grid_id){
     console.assert(Number.isInteger(tile_id) || tile_id === undefined);
-    console.assert(typeof worl_tile_grid_id === "string");
+    console.assert(Number.isInteger(world_tile_grid_id) && world_tile_grid_id >= 0);
     return (game_session, position) => {
         console.assert(game_session instanceof GameSession);
         console.assert(position);
 
-        const tile_grid = game_session.world[worl_tile_grid_id];
+        const tile_grid = game_session.world.grids[world_tile_grid_id];
         console.assert(tile_grid instanceof Grid);
         if(tile_grid.get_at(position) != tile_id){
             tile_grid.set_at(tile_id, position);
@@ -213,7 +214,7 @@ class EditPaletteButton extends ui.Button {
 class EditionPaletteUI {
 
     button_no_selection = new EditPaletteButton("No Selection");
-    button_remove_surface_tile = new EditPaletteButton("Remove Surface Tile", make_edit_operation_change_tile(undefined, "_surface_tile_grid"));
+    button_remove_surface_tile = new EditPaletteButton("Remove Surface Tile", make_edit_operation_change_tile(undefined, grid_ID.surface));
     button_remove_entity = new EditPaletteButton("Remove Entity", make_edit_operation_remove_any_entity_at());
 
     constructor(game_session){
@@ -223,11 +224,11 @@ class EditionPaletteUI {
 
         // Fill our palette with buttons!
         this.palette_buttons.push( ...tiles.floor_tiles.map(tile_id => {
-            return new EditPaletteButton(`Floor Tile: ${tiles.defs[tile_id].description}`, make_edit_operation_change_tile(tile_id, "_floor_tile_grid"));
+            return new EditPaletteButton(`Floor Tile: ${tiles.defs[tile_id].description}`, make_edit_operation_change_tile(tile_id, grid_ID.floor));
         }), null);
 
         this.palette_buttons.push( ...tiles.surface_tiles.map(tile_id => {
-            return new EditPaletteButton(`Surface Tile: ${tiles.defs[tile_id].description}`, make_edit_operation_change_tile(tile_id, "_surface_tile_grid"));
+            return new EditPaletteButton(`Surface Tile: ${tiles.defs[tile_id].description}`, make_edit_operation_change_tile(tile_id, grid_ID.surface));
         }), null);
 
         this.palette_buttons.push( ...items.all_item_types().map(item_type => {
@@ -643,6 +644,7 @@ function end_edition(game_session){
 function export_world(world){
     console.assert(world instanceof concepts.World);
 
-    console.log(`WORLD: ${JSON.stringify(world, null, 2)}`);
+    console.log("WORLD EXPORT:");
+    console.log(`Surface: ${JSON.stringify(world, null, 2)}`);
 
 }

@@ -22,6 +22,11 @@ class Grid {
         }
     }
 
+    fill(value){
+        this.elements.fill(value);
+        return this;
+    }
+
     /**
      * determine storage index given either a point or x/y coordinates in grid
      * @param {*} p - either a point or x index within grid
@@ -36,11 +41,13 @@ class Grid {
 
     get_at(p, j){
         const idx = this.index(p, j);
+        console.assert(idx >= 0 && idx < this.elements.length);
         return this.elements[idx];
     }
 
     set_at(v, p, j){
         const idx = this.index(p, j);
+        console.assert(idx >= 0 && idx < this.elements.length);
         this.elements[idx] = v;
     }
 

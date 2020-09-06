@@ -19,7 +19,7 @@ import { SwapItemSlots, DropItem } from "../rules/rules-items.js";
 
 import { CharacterStatus } from "./ui-characterstatus.js";
 import { GameFxView } from "../game-effects.js";
-import { square_half_unit_vector } from "../view/entity-view.js";
+import { is_blocked_position } from "../definitions-world.js";
 
 const item_slot_vertical_space = 0;
 const item_slot_name = "Item Slot";
@@ -320,7 +320,7 @@ class InventoryUI {
                         console.assert(this._current_character instanceof Character);
                         console.assert(this.world instanceof concepts.World);
                         this._possible_drop_positions = this._current_character.allowed_drops()
-                            .filter(position => !this.world.is_blocked_position(position, tiles.is_walkable));
+                            .filter(position => !is_blocked_position(this.world, position, tiles.is_walkable));
 
                         if(this.events)
                             this.events.on_item_dragging_begin(this._possible_drop_positions);

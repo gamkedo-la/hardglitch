@@ -19,6 +19,7 @@ import { Vector2 } from "../system/spatial.js";
 import { compute_fov } from "../system/shadowcasting.js";
 import * as tiles from "../definitions-tiles.js";
 import { Character } from "./character.js";
+import { is_blocked_position } from "../definitions-world.js";
 
 class RangeShape {
     // The range is [begin_distance, end_distance) , so end_distance is excluded.
@@ -202,7 +203,7 @@ function valid_move_positions(world, character, action_range_shape, tile_filter)
     console.assert(action_range_shape instanceof RangeShape);
     console.assert(tile_filter instanceof Function);
     return positions_in_range(character.position, action_range_shape, pos => world.is_valid_position(pos))
-            .filter(pos => !world.is_blocked_position(pos, tile_filter))
+            .filter(pos => !is_blocked_position(world, pos, tile_filter))
             .filter(pos=>character.can_see(pos))
             ;
 }

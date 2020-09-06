@@ -19,6 +19,7 @@ import { GameView } from "../game-view.js";
 import { Character } from "../core/character.js";
 import * as visibility from "../core/visibility.js";
 import { ranged_actions_for_each_target } from "./rules-common.js";
+import { is_blocked_position } from "../definitions-world.js";
 
 class Pushed extends concepts.Event {
     constructor(entity, from, to){
@@ -79,7 +80,7 @@ function apply_directional_force(world, target_pos, direction, force_action){
         console.assert(target_entity instanceof concepts.Entity);
 
         const next_pos = target_pos.translate(direction);
-        if(world.is_blocked_position(next_pos, tiles.is_walkable)){ // Something is behind, we'll bounce against it.
+        if(is_blocked_position(world, next_pos, tiles.is_walkable)){ // Something is behind, we'll bounce against it.
             // TODO: only bounce IFF the kind of entity will not moved if second-pushed XD
             events.push(new Bounced(target_entity, target_pos, next_pos));
             if(world.is_valid_position(next_pos)){

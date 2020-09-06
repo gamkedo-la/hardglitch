@@ -7,6 +7,7 @@ import * as concepts from "./core/concepts.js";
 import * as turns from "./core/action-turn.js";
 import { random_sample } from "./system/utility.js";
 import * as tiles from "./definitions-tiles.js";
+import { is_blocked_position, grid_ID } from "./definitions-world.js";
 import { GlitchyGlitchMacGlitchy } from "./characters/glitch.js";
 
 // Abstract but complete representation of a game.
@@ -84,7 +85,7 @@ class Game {
     }
 
     get all_entry_points_positions(){
-        return this.world._surface_tile_grid.matching_positions(tile_id => tile_id == tiles.ID.ENTRY);
+        return this.world.grids[grid_ID.surface].matching_positions(tile_id => tile_id == tiles.ID.ENTRY);
     }
 
     get player_characters(){
@@ -92,11 +93,11 @@ class Game {
     }
 
     is_walkable(game_position){
-        return !this.world.is_blocked_position(game_position, tiles.is_walkable);
+        return !is_blocked_position(this.world, game_position, tiles.is_walkable);
     }
 
     is_safely_walkable(game_position){
-        return !this.world.is_blocked_position(game_position, tiles.is_safely_walkable);
+        return !is_blocked_position(this.world, game_position, tiles.is_safely_walkable);
     }
 
     get is_finished(){
