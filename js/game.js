@@ -7,7 +7,7 @@ import * as concepts from "./core/concepts.js";
 import * as turns from "./core/action-turn.js";
 import { random_sample } from "./system/utility.js";
 import * as tiles from "./definitions-tiles.js";
-import { is_blocked_position, grid_ID } from "./definitions-world.js";
+import { is_blocked_position, grid_ID, is_valid_world } from "./definitions-world.js";
 import { GlitchyGlitchMacGlitchy } from "./characters/glitch.js";
 
 // Abstract but complete representation of a game.
@@ -18,6 +18,7 @@ class Game {
 
     constructor(world){
         console.assert(world instanceof concepts.World);
+        console.assert(is_valid_world(world));
         this.world = world;
 
         // Prepare the game turns to be ready to play (player's turn)

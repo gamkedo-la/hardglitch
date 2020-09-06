@@ -4,6 +4,7 @@
 export {
     world_grid, default_rules, game_levels, grid_ID,
     is_blocked_position,
+    is_valid_world,
 };
 
 import * as basic_rules from "./rules/rules-basic.js";
@@ -96,4 +97,9 @@ function is_blocked_position(world, position, is_not_blocking){
     return false;
 }
 
-
+function is_valid_world(world){
+    return world instanceof concepts.World
+        && world.width > 2 && world.height > 2
+        && world.grids.length >= 2
+        ;
+}
