@@ -44,8 +44,8 @@ function all_debug_item_types(){
         Debug_NegativeActionPointsRecovery,
         Debug_BiggerInventory,
         Debut_SmallerInventory,
-        Debug_AddEquipableItem,
-        Debug_RemoveEquipableItem,
+        Debug_AddActivableItem,
+        Debug_RemoveActivableItem,
         Debug_AugmentViewDistance,
         Debug_ReduceViewDistance,
     ];
@@ -386,7 +386,7 @@ class Debut_SmallerInventory extends concepts.Item {
 };
 
 
-class Debug_AddEquipableItem extends concepts.Item {
+class Debug_AddActivableItem extends concepts.Item {
     assets = {
         graphics : { body: {
             sprite_def : sprite_defs.item_generic_1,
@@ -396,15 +396,15 @@ class Debug_AddEquipableItem extends concepts.Item {
     get can_be_taken() { return true; }
 
     stats_modifiers = {
-        equipable_items: { value: +3 },
+        activable_items: { value: +3 },
     }
 
     constructor(){
-        super("Debug: +3 Equipable Item");
+        super("Debug: +3 Activable Items");
     }
 };
 
-class Debug_RemoveEquipableItem extends concepts.Item {
+class Debug_RemoveActivableItem extends concepts.Item {
     assets = {
         graphics : { body: {
             sprite_def : sprite_defs.item_generic_1,
@@ -414,11 +414,11 @@ class Debug_RemoveEquipableItem extends concepts.Item {
     get can_be_taken() { return true; }
 
     stats_modifiers = {
-        equipable_items: { value: -1 },
+        activable_items: { value: -1 },
     }
 
     constructor(){
-        super("Debug: -1 Equipable Item");
+        super("Debug: -1 Activable Items");
     }
 };
 

@@ -229,7 +229,7 @@ class Entity {
 
 // Items are entities that cannot ever move by themselves.
 // However, they can be owned by bodies and have a position in the world (like all entities).
-// They provide Actions and modifiers for the body stats that equip them.
+// They provide Actions and modifiers for the body stats that activate them.
 class Item extends Entity {
     actions = [];
 

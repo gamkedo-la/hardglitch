@@ -159,7 +159,7 @@ class SwapItemSlots extends concepts.Action {
         console.assert(character instanceof Character);
         const item_a = character.inventory.swap(this.slot_a_idx, this.slot_b_idx);
         character.inventory.update_modifiers();
-        // Beware: the inventory size can change because we equipped items changing it.
+        // Beware: the inventory size can change because we active items changing it.
         // TODO: put the items in an item limbo, handle them afterwards (drop or destroy)
 
         return [ new SwappedItemsSlots(character, this.slot_a_idx, this.slot_b_idx)];

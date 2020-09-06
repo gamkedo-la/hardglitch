@@ -23,27 +23,27 @@ import { is_blocked_position } from "../definitions-world.js";
 
 const item_slot_vertical_space = 0;
 const item_slot_name = "Item Slot";
-const equipable_item_slot_name = "Equipable Item Slot";
+const active_item_slot_name = "Active Item Slot";
 
-function slot_text(is_equipable){
-    console.assert(typeof is_equipable === "boolean");
-    return is_equipable ? equipable_item_slot_name : item_slot_name;
+function slot_text(is_active){
+    console.assert(typeof is_active === "boolean");
+    return is_active ? active_item_slot_name : item_slot_name;
 }
 
 class ItemSlot {
 
-    constructor(position, is_equipable, fx_view){
-        console.assert(typeof is_equipable === "boolean");
+    constructor(position, is_active, fx_view){
+        console.assert(typeof is_active === "boolean");
         console.assert(position === undefined || position instanceof spatial.Vector2);
         console.assert(fx_view instanceof GameFxView);
 
         this._fx_view = fx_view;
-        const sprite_def = is_equipable ? sprite_defs.item_equipped_slot : sprite_defs.item_slot;
+        const sprite_def = is_active ? sprite_defs.item_active_slot : sprite_defs.item_slot;
         this._sprite = new graphics.Sprite(sprite_def);
         this._item = null;
 
         this._help_text = new HelpText({
-            text: slot_text(is_equipable),
+            text: slot_text(is_active),
             area_to_help: this._sprite.area,
             delay_ms: 0, // Display the help text immediately when pointed.
         });
@@ -51,7 +51,7 @@ class ItemSlot {
         if(position)
             this.position = position;
 
-        this.is_equipable = is_equipable;
+        this.is_active = is_active;
         this._fx = null;
     }
 
@@ -110,12 +110,12 @@ class ItemSlot {
             delete item._item_slot;
         }
         this._item = null;
-        this._help_text.text = slot_text(this.is_equipable);
+        this._help_text.text = slot_text(this.is_active);
         return item;
     }
 
     _start_fx(){
-        if (this.is_equipable) {
+        if (this.is_active) {
             let fx_pos = this._sprite.area.center;
             this.fx = this._fx_view.action(fx_pos);
         }
@@ -345,12 +345,12 @@ class InventoryUI {
         this._current_character = character;
 
         const inventory_size = character.stats.inventory_size.value;
-        const equipable_slot_count = character.stats.equipable_items.value;
+        const active_slot_count = character.stats.activable_items.value;
         let slots_have_been_reset = false;
         if(this._slots.length !== inventory_size
-        || this._equipable_slots_count !== equipable_slot_count
+        || this._active_slots_count !== active_slot_count
         || this._need_refresh){
-            this._reset_slots(inventory_size, equipable_slot_count);
+            this._reset_slots(inventory_size, active_slot_count);
             slots_have_been_reset = true;
         }
 
@@ -358,20 +358,20 @@ class InventoryUI {
         || this._need_refresh){
             this._reset_items(character.inventory);
             if(!slots_have_been_reset)
-                this._reset_slots(inventory_size, equipable_slot_count);
+                this._reset_slots(inventory_size, active_slot_count);
         }
 
         this._need_refresh = false;
     }
 
-    _reset_slots(slot_count, equipable_slots_count){
+    _reset_slots(slot_count, active_slots_count){
         console.assert(Number.isInteger(slot_count) && slot_count >= 0);
         const previous_items = this._slots.map(slot=> slot.remove_item());
         this._slots = [];
-        this._equipable_slots_count = equipable_slots_count;
+        this._active_slots_count = active_slots_count;
         while(this._slots.length !== slot_count){
-            const is_equipable = this._slots.length < this._equipable_slots_count;
-            const item_slot = new ItemSlot(undefined, is_equipable, this.fx_view);
+            const is_active = this._slots.length < this._active_slots_count;
+            const item_slot = new ItemSlot(undefined, is_active, this.fx_view);
             item_slot.position = this.position.translate({ y: -(((this._slots.length + 1) * item_slot.size.height) + item_slot_vertical_space) });
             this._slots.push(item_slot);
             if(this._slots.length <= previous_items.length){

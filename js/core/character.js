@@ -11,7 +11,7 @@ import { FieldOfVision } from "./visibility.js";
 
 const default_view_distance = 1;
 const default_inventory_size = 1;
-const default_equipable_items = 1;
+const default_activable_items = 1;
 
 class StatValue {
 
@@ -168,11 +168,11 @@ class CharacterStats{
 
     view_distance = new StatValue(default_view_distance); // How far can the character perceive.
     inventory_size = new StatValue(default_inventory_size, undefined, 0); // How many items a character can store in inventory.
-    equipable_items = new StatValue(default_equipable_items, undefined, 0); // How many items a character can store in inventory.
+    activable_items = new StatValue(default_activable_items, undefined, 0); // How many inventory slots can active items.
 
     constructor(){
-        this.inventory_size.add_listener("equipable_items", (inventory_size)=>{
-            this.equipable_items.real_max = inventory_size.value;
+        this.inventory_size.add_listener("activable_items", (inventory_size)=>{
+            this.activable_items.real_max = inventory_size.value;
         });
     }
 
@@ -182,14 +182,12 @@ class CharacterStats{
 // Character's inventory, where to store Items.
 class Inventory {
     _item_slots = [];
-    _equipable_items = 1;
+    _activable_items = 1;
     _listeners = {};
 
     constructor(stats){
         console.assert(stats instanceof CharacterStats);
         this.stats = stats;
-
-        this._is_updating_equipable_depth = false;
 
         this.stats.inventory_size.add_listener("inventory", (inventory_size)=>{
             console.assert(inventory_size instanceof StatValue);
@@ -199,11 +197,11 @@ class Inventory {
             }
         });
 
-        this.stats.equipable_items.add_listener("inventory", (equipable_items)=>{
-            console.assert(equipable_items instanceof StatValue);
-            if(this._equipable_items !== equipable_items.value){
-                this._equipable_items = equipable_items.value;
-                console.assert(Number.isInteger(this._equipable_items));
+        this.stats.activable_items.add_listener("inventory", (activable_items)=>{
+            console.assert(activable_items instanceof StatValue);
+            if(this._activable_items !== activable_items.value){
+                this._activable_items = activable_items.value;
+                console.assert(Number.isInteger(this._activable_items));
             }
 
         });
@@ -214,16 +212,16 @@ class Inventory {
         console.assert(item instanceof concepts.Item);
         console.assert(this.have_empty_slots);
 
-        // Put the item in the first free slot that is not an equipable slot.
-        for(let idx = this._equipable_items; idx < this._item_slots.length; ++idx){
+        // Put the item in the first free slot that is not an active slot.
+        for(let idx = this._activable_items; idx < this._item_slots.length; ++idx){
             if(this._item_slots[idx] === undefined){
                 this.set_item_at(idx, item);
                 return idx;
             }
         }
 
-        // Otherwise, put it in an equipable slot.
-        for(let idx = 0; idx < this._equipable_items; ++idx){
+        // Otherwise, put it in an active slot.
+        for(let idx = 0; idx < this._activable_items; ++idx){
             if(this._item_slots[idx] === undefined){
                 this.set_item_at(idx, item);
                 return idx;
@@ -239,7 +237,7 @@ class Inventory {
         console.assert(item instanceof concepts.Item);
         console.assert(this._item_slots[idx] === undefined);
         this._item_slots[idx] = item;
-        if(this.is_equipable_slot(idx))
+        if(this.is_active_slot(idx))
             this._apply_modifiers(item);
     }
 
@@ -271,10 +269,10 @@ class Inventory {
     }
 
     update_modifiers(){
-        this._item_slots.slice(0, this._equipable_items)
+        this._item_slots.slice(0, this._activable_items)
             .filter(item => item instanceof concepts.Item)
             .forEach(item => this._apply_modifiers(item));
-        this._item_slots.slice(this._equipable_items)
+        this._item_slots.slice(this._activable_items)
             .filter(item => item instanceof concepts.Item)
             .forEach(item => this._reverse_modifiers(item));
     }
@@ -283,7 +281,7 @@ class Inventory {
         console.assert(idx >= 0 && idx < this._item_slots.length);
         const item = this._item_slots[idx];
         if(item instanceof concepts.Item
-        && this.is_equipable_slot(idx)){
+        && this.is_active_slot(idx)){
             this._reverse_modifiers(item);
         }
         this._item_slots[idx] = undefined;
@@ -297,10 +295,10 @@ class Inventory {
         const b = this._item_slots[idx_b];
         this._item_slots[idx_b] = a;
         this._item_slots[idx_a] = b;
-        const is_slot_a_equipable = this.is_equipable_slot(idx_a);
-        const is_slot_b_equipable = this.is_equipable_slot(idx_b);
-        if(is_slot_a_equipable !== is_slot_b_equipable){
-            if(is_slot_a_equipable){
+        const is_slot_a_active = this.is_active_slot(idx_a);
+        const is_slot_b_active = this.is_active_slot(idx_b);
+        if(is_slot_a_active !== is_slot_b_active){
+            if(is_slot_a_active){
                 if(b instanceof concepts.Item)
                     this._apply_modifiers(b);
                 if(a instanceof concepts.Item)
@@ -330,7 +328,7 @@ class Inventory {
             previous_items[item_idx] = undefined;
         }
 
-        previous_items.slice(0, this._equipable_items)
+        previous_items.slice(0, this._activable_items)
             .filter(item => item instanceof concepts.Item)
             .forEach(item => this._reverse_modifiers(item));
 
@@ -352,15 +350,15 @@ class Inventory {
     get is_full() { return !this.have_empty_slots; }
     get is_empty() { return this._item_slots.length === 0; }
 
-    is_equipable_slot(idx){
+    is_active_slot(idx){
         console.assert(idx >= 0 && idx < this._item_slots.length);
-        return idx < this._equipable_items;
+        return idx < this._activable_items;
     }
 
     get_enabled_action_types(action_type){
         console.assert(action_type && action_type.prototype instanceof concepts.Action);
         const enabled_action_types = [];
-        this._item_slots.slice(0, this._equipable_items).filter(item => item instanceof concepts.Item)
+        this._item_slots.slice(0, this._activable_items).filter(item => item instanceof concepts.Item)
             .forEach(item => enabled_action_types.push(...item.get_enabled_action_types(action_type)));
         return enabled_action_types;
     }
