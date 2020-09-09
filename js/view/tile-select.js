@@ -522,7 +522,7 @@ function genFgOverlay(layer, grid, overlay, wallCmp) {
 // The shape_map below defines all of the different tile combinations and the positions of each tile within the template image.  Indices are
 // given in a grid index format {i,j}, representing the row/column of each tile within the image.  Multiply by the tilesize to get pixel coordinates.
 const shape_map = {
-    t:      {i:7,   j:1},
+    t:      [{i:7,  j:1}, {i:8, j:1}],
     ot:     {i:7,   j:0},
     m:      [{i:7,  j:2}, {i:8, j:9}, {i:9, j:9}, {i:10, j:9}, {i:11, j:9}, {i:6, j:9}],
     om:     {i:3,   j:3},
