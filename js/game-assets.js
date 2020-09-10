@@ -83,6 +83,12 @@ const game_assets = { // Description of the assets to load.
         aClick: './audio/actionClick.mp3',
         aCancel: './audio/Cancel.mp3',
         lower: './audio/Lower.mp3',
+        aItem: './audio/ActiveItem.mp3',
+        sItem: './audio/SwapItem.mp3',
+        dissolve: './audio/DissolveItem.mp3',
+        shake: './audio/Shake.mp3',
+        drop: './audio/DropItem.mp3',
+        decrypt: './audio/Decrypt-002.mp3',
     },
 
     audio_streams: { // Longer audio assets streamed from disk/server. Currently limited to one unique event per audio source.
@@ -695,6 +701,60 @@ const sound_event_defs = {
         group_name: 'SoundEffects',
         loop: false,
         volume: 0.4,
+        unique: false,
+    },
+
+    'activeItem': {
+        source_type: 'audiobuffer',
+        source_name: 'aItem',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 0.4,
+        unique: false,
+    },
+
+    'swapItem': {
+        source_type: 'audiobuffer',
+        source_name: 'sItem',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 0.4,
+        unique: false,
+    },
+
+    'dissolveItem': {
+        source_type: 'audiobuffer',
+        source_name: 'dissolve',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 0.4,
+        unique: false,
+    },
+
+    'shakeAnim': {
+        source_type: 'audiobuffer',
+        source_name: 'shake',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 0.7,
+        unique: false,
+    },
+
+    'dropItem': {
+        source_type: 'audiobuffer',
+        source_name: 'drop',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
+    'decryptFile': {
+        source_type: 'audiobuffer',
+        source_name: 'decrypt',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 0.8,
         unique: false,
     },
 

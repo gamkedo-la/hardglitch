@@ -250,16 +250,19 @@ function* drop_item(fx_view, drop_position, raw_position=false) {
     let fx_pos = (raw_position) ? drop_position : graphic_position(drop_position);
     fx_pos = fx_pos.translate(square_half_unit_vector);
     const fx = fx_view.drop(fx_pos, .3);
+    audio.playEvent('dropItem');
 }
 
 function* inv_add(fx_view, inv, idx) {
     const fx_pos = inv._slots[idx].position.translate({x:36,y:36});
     const fx = fx_view.drop(fx_pos, .25);
+    //audio.playEvent('activeItem');
 }
 
 function* inv_remove(fx_view, inv, idx) {
     const fx_pos = inv._slots[idx].position.translate({x:36,y:36});
     const fx = fx_view.take(fx_pos, .25);
+    audio.playEvent('swapItem');
 }
 
 
@@ -267,7 +270,7 @@ function* dissolve_item(item_view){
     console.assert(item_view instanceof ItemView);
     // TODO: replace this by something better :/
     const duration_ms = 500;
-    audio.playEvent('item'); // TODO: Replace by another sound?
+    audio.playEvent('dissolveItem'); // TODO: Replace by another sound?
     // TODO: add effects here ;__;
     const initial_scale = item_view.scale;
     const initial_position = item_view.position;
@@ -312,8 +315,9 @@ function* decrypt_file(file_view){
     yield* animation.wait(500);
     file_sprite.start_animation("decrypt");
     const until_the_animation_ends = ()=> file_sprite.is_playing_animation === true;
+    audio.playEvent('shakeAnim');
     yield* shake(file_view, 4, 1000 / 24, until_the_animation_ends);
-    audio.playEvent('item');
+    audio.playEvent('decryptFile');
     file_view.is_visible = false;
     // TODO: replace by another sound
     // TODO: Effect for spawing a new object?
