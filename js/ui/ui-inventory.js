@@ -20,6 +20,8 @@ import { SwapItemSlots, DropItem } from "../rules/rules-items.js";
 import { CharacterStatus } from "./ui-characterstatus.js";
 import { GameFxView } from "../game-effects.js";
 import { is_blocked_position } from "../definitions-world.js";
+import { audiobuffer_loader } from "../system/assets.js";
+import * as audio from "../system/audio.js";
 
 const item_slot_vertical_space = 0;
 const item_slot_name = "Item Slot";
@@ -280,6 +282,10 @@ class InventoryUI {
                             console.assert(this._dragging_item.destination_slot_idx === destination_slot_idx);
                             game_input.play_action(this._dragging_item.swap_action);
                         }
+
+                        if(destination_slot.is_active)
+                            audio.playEvent('activeItem');
+
                     } else {
                         // Dropped outside in the world
                         if(this._dragging_item.drop_action)
