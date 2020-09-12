@@ -1,7 +1,8 @@
 
 export {
     RandomActionEnemy,
-    WaitingNPC
+    RandomActionSelector,
+    WaitingNPC,
 };
 
 import * as concepts from "../core/concepts.js";

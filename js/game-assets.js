@@ -14,7 +14,7 @@ import * as asset_system from "./system/assets.js";
 const game_assets = { // Description of the assets to load.
     images : { // group "images"
         asset_loader : asset_system.image_loader, // This is the function that will be used to convert the following data into usable objects.
-        player: "./images/glitch-draft.png",
+        glitch: "./images/glitch-draft.png",
         test_enemy: "./images/test_enemy.png",
         tileset_entry_exit : "./images/portalinout.png",
         ground_template : "./images/ground_template.png",
@@ -33,6 +33,9 @@ const game_assets = { // Description of the assets to load.
         movable_wall: "./images/column5.png",
         life_form: "./images/life_form.png",
         life_form_weak: "./images/life_form_weak.png",
+        virus: "./images/virus.png",
+        antivirus: "./images/anti-virus.png",
+        program: "./images/program.png",
         menu_button_text: "./images/wordmenu1.png",
         menu_button: "./images/menu_button.png",
         stream_buffer: "./images/streambuffer.png",
@@ -210,7 +213,7 @@ function crypto_key_def(kind){
 // Describe here all the sprites and sprite animations as defined by Sprite class.
 const sprite_defs = {
     player : {
-        image: "player",
+        image: "glitch",
         frames: [
                     { x: 0, y: 0, width: 64, height: 64 },
                     // { x: 64, y: 0, width: 64, height: 64 },
@@ -237,6 +240,36 @@ const sprite_defs = {
                     timeline: [
                                 { frame: 0, duration: 400 },
                                 { frame: 1, duration: 400 }
+                              ],
+                  },
+        },
+    },
+    program : {
+        image: "program",
+        frames: [
+                    { x: 0, y: 0, width: 64, height: 64 },
+                ],
+    },
+    virus : {
+        image: "virus",
+        frames: [
+                    { x: 0, y: 0, width: 64, height: 64 },
+                ],
+    },
+    antivirus: {
+        image: "antivirus",
+        frames: [
+                    { x: 0, y: 0, width: 64, height: 64 },
+                    { x: 64, y: 0, width: 64, height: 64 },
+                ],
+        animations: {
+            idle: {
+                    loop: true,
+                    timeline: [
+                                { frame: 0, duration: 500 },
+                                { frame: 1, duration: 200 },
+                                { frame: 0, duration: 200 },
+                                { frame: 1, duration: 500 },
                               ],
                   },
         },
