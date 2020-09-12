@@ -14,7 +14,7 @@ import * as asset_system from "./system/assets.js";
 const game_assets = { // Description of the assets to load.
     images : { // group "images"
         asset_loader : asset_system.image_loader, // This is the function that will be used to convert the following data into usable objects.
-        player: "./images/glitch-draft.png",
+        player: "./images/program.png",
         test_enemy: "./images/test_enemy.png",
         tileset_entry_exit : "./images/portalinout.png",
         ground_template : "./images/ground_template.png",
