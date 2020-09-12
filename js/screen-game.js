@@ -22,6 +22,7 @@ import { AnimationGroup, wait } from "./system/animation.js";
 import { game_levels } from "./definitions-world.js";
 import { tween, easing } from "./system/tweening.js";
 import { is_number } from "./system/utility.js";
+import { Character } from "./core/character.js";
 
 class PlayingGame extends fsm.State{
 
@@ -267,8 +268,9 @@ class GameScreen extends fsm.StateMachine {
         this.fader.duration_ms = 2000;
     }
 
-    *enter(level_to_play){
+    *enter(level_to_play, player_character){
         console.assert(Number.isInteger(level_to_play) || level_to_play !== undefined);
+        console.assert(player_character === undefined || player_character instanceof Character);
 
         this._level_to_play = level_to_play;
 
@@ -295,7 +297,7 @@ class GameScreen extends fsm.StateMachine {
 
         console.assert(!this.game_session);
         console.assert(!this.level_title);
-        this.game_session = new GameSession(level_world_generator, ()=>{ this.ingame_menu(); });
+        this.game_session = new GameSession(level_world_generator, ()=>{ this.ingame_menu(); }, player_character);
         this.level_title = new ui.Text({
             text: this.game_session.world.name,
             font: "64px ZingDiddlyDooZapped",
@@ -374,7 +376,8 @@ class GameScreen extends fsm.StateMachine {
             this.state_machine.push_action("escape");
         }
         else {
-            this.state_machine.push_action(`level_${next_level}`);
+            // Pass on the player's character that exited, to continue in the next level.
+            this.state_machine.push_action(`level_${next_level}`, this.game_session.world.exiting_character);
         }
     }
 

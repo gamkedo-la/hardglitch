@@ -11,10 +11,10 @@ import { World } from "./core/concepts.js";
 // This is manipulated by some other systems, like the screen state, the game-input system, the editor etc.
 class GameSession {
 
-    constructor(level_generator, open_menu){
+    constructor(level_generator, open_menu, player_character){
         const world = level_generator();
         console.assert(world instanceof World);
-        this.game = new Game(world);
+        this.game = new Game(world, player_character);
         this.view = new GameView(this.game, open_menu);
         // Lock the actions interfaces until we are ready.
         this.view.ui.lock_actions();

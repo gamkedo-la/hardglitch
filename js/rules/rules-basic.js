@@ -178,6 +178,7 @@ class Rule_LevelExit extends concepts.Rule {
             const player_position = player_character.position;
             if(exit_positions.some(position => player_position.equals(position))){
                 world.is_finished = true;
+                world.exiting_character = player_character;
                 return [ new PlayerExitLevel(player_character) ];
             }
         }

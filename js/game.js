@@ -9,6 +9,7 @@ import { random_sample } from "./system/utility.js";
 import * as tiles from "./definitions-tiles.js";
 import { is_blocked_position, grid_ID, is_valid_world } from "./definitions-world.js";
 import { GlitchyGlitchMacGlitchy } from "./characters/glitch.js";
+import { Character } from "./core/character.js";
 
 // Abstract but complete representation of a game.
 // Create this object for each new game.
@@ -16,13 +17,14 @@ import { GlitchyGlitchMacGlitchy } from "./characters/glitch.js";
 class Game {
     turn_info = null;
 
-    constructor(world){
+    constructor(world, player_character){
         console.assert(world instanceof concepts.World);
         console.assert(is_valid_world(world));
+        console.assert(player_character === undefined || player_character instanceof Character)
         this.world = world;
 
         // Prepare the game turns to be ready to play (player's turn)
-        this.add_player_character_at_random_entry_point();
+        this.add_player_character_at_random_entry_point(player_character);
         this.__turn_sequence = turns.execute_turns(this.world);
 
         // Make sure we begin at a player's turn.
@@ -71,16 +73,18 @@ class Game {
         return this.turn_info;
     }
 
-    add_player_character_at_random_entry_point(){
+    add_player_character_at_random_entry_point(player_character){
         const entry_points = this.all_entry_points_positions;
         console.assert(entry_points);
         const position = random_sample(entry_points);
-        this.add_player_character(position);
+        this.add_player_character(position, player_character);
     }
 
-    add_player_character(position){
+    add_player_character(position, player_character){
+        console.assert(player_character === undefined || player_character instanceof Character);
         console.assert(this.is_safely_walkable(position));
-        const player = new GlitchyGlitchMacGlitchy();
+        const player = player_character ? player_character : new GlitchyGlitchMacGlitchy();
+        player.skip_turn = true;
         player.position = position;
         this.world.add(player);
     }

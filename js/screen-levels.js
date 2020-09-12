@@ -48,7 +48,8 @@ class LevelIntroScreen extends fsm.State {
         this.level_idx = level_idx;
     }
 
-    *enter(){
+    *enter(player_character){
+        this.player_character = player_character;
         if(!this.info_display){
             this.on_canvas_resized();
         }
@@ -79,7 +80,7 @@ class LevelIntroScreen extends fsm.State {
     }
 
     continue() {
-        this.state_machine.push_action("continue", this.level_idx);
+        this.state_machine.push_action("continue", this.level_idx, this.player_character);
     }
 
     on_canvas_resized(){
