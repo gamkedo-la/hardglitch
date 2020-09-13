@@ -20,6 +20,8 @@ const ID = {
 
     GROUND: 10,
     GROUND2: 11,
+    CALCFLOORWARM : 12,
+    CALCFLOORCOOL : 13,
     WALL: 20,
     WALL2: 21,
     VOID: 30,
@@ -59,6 +61,29 @@ const defs = {
         tile_match_predicate: (v) => (v==ID.GROUND2),
         tile_same_predicate: (v) => (defs[v].is_ground),
     },
+    [ID.CALCFLOORWARM] : {
+        sprite_def: sprite_defs.ground,
+        is_walkable: true,
+        is_safe: true,
+        is_view_blocking: false,
+        description: "Fresh Calculator Memory",
+        is_ground: true,
+        shape_template: "lvl1warm_template",
+        tile_match_predicate: (v) => (v==ID.CALCFLOORWARM),
+        tile_same_predicate: (v) => (defs[v].is_ground),
+    },
+    [ID.CALCFLOORCOOL] : {
+        sprite_def: sprite_defs.ground,
+        is_walkable: true,
+        is_safe: true,
+        is_view_blocking: false,
+        description: "Stale calculator Memory",
+        is_ground: true,
+        shape_template: "lvl1cool_template",
+        tile_match_predicate: (v) => (v==ID.CALCFLOORCOOL),
+        tile_same_predicate: (v) => (defs[v].is_ground),
+    },
+
     [ID.WALL] : {
         sprite_def: sprite_defs.wall,
         is_walkable: false,

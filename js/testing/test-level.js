@@ -15,6 +15,12 @@ import * as visibility from "../core/visibility.js";
 import { LifeForm_Strong, LifeForm_Weak } from "../characters/lifeform.js";
 import { Grid } from "../system/grid.js";
 
+const defaults = {
+    ground : tiles.ID.CALCFLOORWARM,
+    ground2 : tiles.ID.CALCFLOORCOOL,
+    wall : tiles.ID.WALL,
+};
+
 function make_test_world(test_world_size = world_grid){ // The game assets must have been initialized first.
     const grid_size = test_world_size.height * test_world_size.width;
 
@@ -76,7 +82,7 @@ function make_test_world(test_world_size = world_grid){ // The game assets must 
                 tileID = tiles.ID.VOID;
             // otherwise ground
             } else {
-                tileID = (Math.random() > .8) ? tiles.ID.GROUND2 : tiles.ID.GROUND;
+                tileID = (Math.random() > .8) ? defaults.ground2 : defaults.ground;
             }
             // hole/ground/wall tiles get assigned to floor layer (wall gets assigned to both surface/floor)
             set_floor_tile(new concepts.Position({x:i, y:j}), tileID);
@@ -168,7 +174,7 @@ function make_test_world(test_world_size = world_grid){ // The game assets must 
     visibility.positions_in_range(entry_point_position, clean_shape, valid_positions_filter)
         .filter(position => world.is_valid_position(position))
         .forEach(position=>{
-            set_floor_tile(position, tiles.ID.GROUND);
+            set_floor_tile(position, defaults.ground);
             world.remove_entity_at(position);
         });
 

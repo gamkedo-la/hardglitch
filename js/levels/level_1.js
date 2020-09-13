@@ -6,7 +6,7 @@ import * as tiles from "../definitions-tiles.js";
 import { generate_empty_world } from "./edit_level.js";
 
 const defaults = {
-    ground : tiles.ID.GROUND,
+    ground : tiles.ID.CALCFLOORWARM,
     wall : tiles.ID.WALL,
 };
 

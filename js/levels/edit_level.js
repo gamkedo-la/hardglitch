@@ -8,7 +8,7 @@ import { default_rules } from "../definitions-world.js";
 import { Grid } from "../system/grid.js";
 
 const default_defaults = {
-    ground : tiles.ID.GROUND,
+    ground : tiles.ID.CALCFLOORWARM,
     wall : tiles.ID.WALL,
 };
 
