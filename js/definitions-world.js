@@ -5,6 +5,7 @@ export {
     world_grid, default_rules, game_levels, grid_ID,
     is_blocked_position,
     is_valid_world,
+    grid_name,
 };
 
 import * as basic_rules from "./rules/rules-basic.js";
@@ -74,6 +75,17 @@ const grid_ID = {
     unstable: 3,
 };
 
+function grid_name(id){
+    console.assert(Number.isInteger(id));
+    console.assert(id >= 0 && id < Object.values(grid_ID).length);
+    for(const [key, value] of Object.entries(grid_ID)){
+        if(value === id){
+            return key;
+        }
+    }
+    throw "Grid ID does not exist!";
+}
+
 // Returns true if the position given is blocked by an entity (Body or Item) or a tile that blocks (wall).
 // The meaning of "blocking" depends on the provided predicate.
 function is_blocked_position(world, position, is_not_blocking){
@@ -106,5 +118,6 @@ function is_valid_world(world){
     return world instanceof concepts.World
         && world.width > 2 && world.height > 2
         && world.grids.length >= Object.keys(grid_ID).length
+        && world.grids.every(grid => grid.width === world.width && grid.height === world.height)
         ;
 }

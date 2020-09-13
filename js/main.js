@@ -19,7 +19,7 @@ import { MainMenuScreen } from "./screen-main-menu.js";
 import { GameScreen } from "./screen-game.js";
 import { CreditsScreen } from "./screen-credits.js";
 import { GameOverScreen_Success, GameOverScreen_Failure } from "./screen-gameover.js";
-import { Level_1_IntroScreen, Level_2_IntroScreen, Level_3_IntroScreen, Level_4_IntroScreen } from "./screen-levels.js";
+import * as level_screens from "./screen-levels.js";
 import { MuteAudioButton } from "./game-ui.js";
 import {defs as tiledefs} from "./definitions-tiles.js";
 import {initialize as tile_select_initialize} from "./view/tile-select.js";
@@ -39,10 +39,10 @@ const game_state_machine = new class extends fsm.StateMachine {
       game: new GameScreen(),
       gameover_success: new GameOverScreen_Success(),
       gameover_failure: new GameOverScreen_Failure(),
-      intro_level_1: new Level_1_IntroScreen(),
-      intro_level_2: new Level_2_IntroScreen(),
-      intro_level_3: new Level_3_IntroScreen(),
-      intro_level_4: new Level_4_IntroScreen(),
+      intro_level_1: new level_screens.Level_1_IntroScreen(),
+      intro_level_2: new level_screens.Level_2_IntroScreen(),
+      intro_level_3: new level_screens.Level_3_IntroScreen(),
+      intro_level_4: new level_screens.Level_4_IntroScreen(),
     },{
       // This is the transition table, stating which action from one state leads to which other state.
       initial_state: "loading_game",
@@ -171,7 +171,7 @@ function update_cycle(highres_timestamp){
 // The following code allows us to use the console to load specific levels.
 
 import * as random_test_level from "./testing/test-level.js";
-import { generate_empty_world } from "./levels/edit_level.js";
+import { generate_empty_world } from "./levels/level-tools.js";
 
 function load_level(level_number){
   game_state_machine.push_action("load_game", level_number);

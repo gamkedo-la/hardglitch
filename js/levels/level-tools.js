@@ -1,10 +1,11 @@
 export {
     generate_empty_world,
+    serialize_world,
 }
 
 import * as tiles from "../definitions-tiles.js";
 import * as concepts from "../core/concepts.js";
-import { default_rules } from "../definitions-world.js";
+import { default_rules, is_valid_world, grid_name } from "../definitions-world.js";
 import { Grid } from "../system/grid.js";
 import * as audio from "../system/audio.js"; // inserted here to test with sound effects
 
@@ -29,3 +30,39 @@ function generate_empty_world(name, width, height, defaults = default_defaults){
     audio.playEvent('HGBreakdown'); // inserted here to test with sound effects
     return world;
 }
+
+
+function serialize_world(world){
+    console.assert(is_valid_world(world));
+
+    // const spacing = 2;
+
+    // let grids_serialized = "{ ";
+
+    // world.grids.forEach((grid, idx) => {
+    //     const name = grid_name(idx);
+
+    //     let grid_str = "[ ";
+    //     grid.elements.forEach((value, idx)=>{
+    //         grid_str += JSON.stringify(value);
+
+    //     });
+
+    //     serialized.grids[name] = grid.elements;
+    // });
+
+
+
+
+    const world_serialized =
+`{
+    name: ${world.name},
+    width: ${world.width},
+    height: ${world.height},
+    grids: ${JSON.stringify(world.grids)}
+}`;
+
+    return world_serialized;
+}
+
+

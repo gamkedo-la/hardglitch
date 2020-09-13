@@ -25,6 +25,7 @@ import { Vector2_origin, Vector2 } from "./system/spatial.js";
 import { Grid } from "./system/grid.js";
 import { all_characters_types } from "./deflinitions-characters.js";
 import { grid_ID } from "./definitions-world.js";
+import { serialize_world } from "./levels/level-tools.js";
 
 let is_enabled = false; // TURN THIS ON TO SEE THE EDITOR, see the update() function below
 let is_editing = false; // True if we are doing an edition manipulation and no other input should be handled.
@@ -645,6 +646,6 @@ function export_world(world){
     console.assert(world instanceof concepts.World);
 
     console.log("WORLD EXPORT:");
-    console.log(`Surface: ${JSON.stringify(world, null, 2)}`);
+    console.log(serialize_world(world));
 
 }
