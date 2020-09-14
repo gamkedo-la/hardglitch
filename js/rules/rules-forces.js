@@ -79,8 +79,13 @@ function apply_directional_force(world, target_pos, direction, force_action){
     while(target_entity){
         console.assert(target_entity instanceof concepts.Entity);
 
+        // By default, all entities are pushable. If one kind is not, it have to provide the is_pushable boolean member.
+        const is_pushable = target_entity.is_pushable === undefined || target_entity.is_pushable;
+
         const next_pos = target_pos.translate(direction);
-        if(is_blocked_position(world, next_pos, tiles.is_walkable)){ // Something is behind, we'll bounce against it.
+        if(!is_pushable
+        || is_blocked_position(world, next_pos, tiles.is_walkable) // Something is behind, we'll bounce against it.
+        ){
             // TODO: only bounce IFF the kind of entity will not moved if second-pushed XD
             events.push(new Bounced(target_entity, target_pos, next_pos));
             if(world.is_valid_position(next_pos)){
@@ -89,7 +94,7 @@ function apply_directional_force(world, target_pos, direction, force_action){
                 target_entity = next_entity;
                 target_pos = next_pos;
             } else { // We reached the boundaries of the world.
-                target_entity = null; //
+                target_entity = null;
             }
         } else {
             // Nothing behind, just move there.

@@ -96,6 +96,8 @@ function make_test_world(test_world_size = world_grid){ // The game assets must 
         test_world_size.width, test_world_size.height,
         [ new Grid(test_world_size.width, test_world_size.height, floor_tile_grid),
           new Grid(test_world_size.width, test_world_size.height, surface_tile_grid),
+          new Grid(test_world_size.width, test_world_size.height), // corruption layer
+          new Grid(test_world_size.width, test_world_size.height), // unstable layer
         ]
         );
     console.assert(world.grids[grid_ID.surface].matching_positions(tileid=> tileid == tiles.ID.ENTRY).length > 0);

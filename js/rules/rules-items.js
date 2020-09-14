@@ -199,8 +199,8 @@ class Rule_TakeItem extends concepts.Rule {
     get_actions_for(character, world){
         console.assert(character instanceof Character);
 
-        if(!character.is_player_actor)
-            return {};
+        // if(!character.is_player_actor) // Only allow the player to take items. Discutable XD
+        //     return {};
 
         if(character.inventory.is_full)
             return {};

@@ -94,6 +94,10 @@ const game_assets = { // Description of the assets to load.
         shake: './audio/Shake.mp3',
         drop: './audio/DropItem.mp3',
         decrypt: './audio/Decrypt-002.mp3',
+        decryptr: './audio/Decrypt_Rev.mp3',
+        shaker: './audio/Shake_ShakeRev.mp3',
+        shakes: './audio/Shake_ShakeSparkle.mp3',
+        dissolver: './audio/DissolveItem_Rev.mp3',
     },
 
     audio_streams: { // Longer audio assets streamed from disk/server. Currently limited to one unique event per audio source.
@@ -790,6 +794,42 @@ const sound_event_defs = {
         group_name: 'SoundEffects',
         loop: false,
         volume: 0.8,
+        unique: false,
+    },
+
+    'decryptRev': {
+        source_type: 'audiobuffer',
+        source_name: 'decryptr',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
+    'shakeRev': {
+        source_type: 'audiobuffer',
+        source_name: 'shaker',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
+    'shakeSparkle': {
+        source_type: 'audiobuffer',
+        source_name: 'shakes',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 0.7,
+        unique: false,
+    },
+
+    'dissolveRev': {
+        source_type: 'audiobuffer',
+        source_name: 'dissolver',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
         unique: false,
     },
 

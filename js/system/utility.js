@@ -53,7 +53,7 @@ function random_sample(array){
     console.assert(array instanceof Array);
     if(array.length == 0)
         return null;
-    return array[ Math.floor( Math.random() * array.length ) ];
+    return array[ random_int(0, array.length - 1) ];
 }
 
 // pick a float between min/max

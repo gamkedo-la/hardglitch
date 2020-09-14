@@ -67,6 +67,8 @@ const game_levels = [
 const grid_ID = {
     floor: 0,
     surface: 1,
+    corruption: 2,
+    unstable: 3,
 };
 
 // Returns true if the position given is blocked by an entity (Body or Item) or a tile that blocks (wall).
@@ -100,6 +102,6 @@ function is_blocked_position(world, position, is_not_blocking){
 function is_valid_world(world){
     return world instanceof concepts.World
         && world.width > 2 && world.height > 2
-        && world.grids.length >= 2
+        && world.grids.length >= Object.keys(grid_ID).length
         ;
 }
