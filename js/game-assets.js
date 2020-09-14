@@ -38,6 +38,7 @@ const game_assets = { // Description of the assets to load.
         virus: "./images/virus.png",
         antivirus: "./images/anti-virus.png",
         program: "./images/program.png",
+        microcode: "./images/microcode.png",
         menu_button_text: "./images/wordmenu1.png",
         menu_button: "./images/menu_button.png",
         stream_buffer: "./images/streambuffer.png",
@@ -264,6 +265,25 @@ const sprite_defs = {
     },
     antivirus: {
         image: "antivirus",
+        frames: [
+                    { x: 0, y: 0, width: 64, height: 64 },
+                    { x: 64, y: 0, width: 64, height: 64 },
+                ],
+        animations: {
+            idle: {
+                    loop: true,
+                    timeline: [
+                                { frame: 0, duration: 500 },
+                                { frame: 1, duration: 200 },
+                                { frame: 0, duration: 200 },
+                                { frame: 1, duration: 500 },
+                              ],
+                  },
+        },
+    },
+
+    microcode: {
+        image: "microcode",
         frames: [
                     { x: 0, y: 0, width: 64, height: 64 },
                     { x: 64, y: 0, width: 64, height: 64 },

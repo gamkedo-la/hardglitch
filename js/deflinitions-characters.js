@@ -11,6 +11,7 @@ import { RandomActionEnemy, WaitingNPC } from "./characters/test-enemy.js"
 import { Virus } from "./characters/virus.js";
 import { AntiVirus } from "./characters/antivirus.js";
 import { Program } from "./characters/program.js";
+import { Microcode } from "./characters/microcode.js";
 
 // TODO: define potential character prefabs here.
 
@@ -25,6 +26,7 @@ function all_characters_types() {
         Virus,
         AntiVirus,
         Program,
+        Microcode,
     ];
 }
 
