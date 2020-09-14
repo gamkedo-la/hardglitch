@@ -50,7 +50,7 @@ function* translate(thing_with_position, target_gfx_pos, duration_ms, easing){
 function* move(fx_view, entity_view, target_game_position, duration_ms=default_move_duration_ms){
     console.assert(entity_view instanceof EntityView);
     const target_gfx_pos = graphic_position(target_game_position);
-    audio.playEvent('moveAction');
+    audio.playEvent('moveAction'); // Add condition for enemy sound?
     const fx = fx_view.move(entity_view.position.translate(square_half_unit_vector));
     yield* animation.in_parallel(
         translate(fx, target_gfx_pos.translate(square_half_unit_vector), duration_ms),
@@ -270,7 +270,7 @@ function* dissolve_item(item_view){
     console.assert(item_view instanceof ItemView);
     // TODO: replace this by something better :/
     const duration_ms = 500;
-    audio.playEvent('dissolveItem'); // TODO: Replace by another sound?
+    audio.playEvent('dissolveRev'); // TODO: Replace by another sound?
     // TODO: add effects here ;__;
     const initial_scale = item_view.scale;
     const initial_position = item_view.position;
@@ -315,9 +315,10 @@ function* decrypt_file(file_view){
     yield* animation.wait(500);
     file_sprite.start_animation("decrypt");
     const until_the_animation_ends = ()=> file_sprite.is_playing_animation === true;
-    audio.playEvent('shakeAnim');
+    audio.playEvent('shakeRev');
+    audio.playEvent('shakeSparkle');
     yield* shake(file_view, 4, 1000 / 24, until_the_animation_ends);
-    audio.playEvent('decryptFile');
+    audio.playEvent('decryptRev');
     file_view.is_visible = false;
     // TODO: replace by another sound
     // TODO: Effect for spawing a new object?
