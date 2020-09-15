@@ -46,15 +46,17 @@ class ItemTaken extends concepts.Event {
         console.assert(item_view instanceof ItemView);
         yield* anim.take_item(game_view.fx_view, character_view, item_view);
         game_view.remove_entity_view(this.item_id);
-        game_view.ui.inventory.set_item_view_at(this.inventory_idx, item_view);
-        yield* anim.inv_add(game_view.ui.inventory.fx_view, game_view.ui.inventory, this.inventory_idx);
+        if(character_view.is_player){
+            game_view.ui.inventory.set_item_view_at(this.inventory_idx, item_view);
+            yield* anim.inv_add(game_view.ui.inventory.fx_view, game_view.ui.inventory, this.inventory_idx);
+            game_view.ui.inventory.request_refresh();
+        }
         game_view.clear_focus();
-        game_view.ui.inventory.request_refresh();
     }
 };
 
 class ItemDropped extends concepts.Event {
-    constructor(dropper, item_idx, target){
+    constructor(dropper, item_idx, target, item_id){
         console.assert(dropper instanceof Character);
         console.assert(Number.isInteger(item_idx));
 
@@ -66,6 +68,8 @@ class ItemDropped extends concepts.Event {
         this.dropper_position = dropper.position;
         this.item_idx = item_idx;
         this.drop_position = target;
+        this.dropper_is_player = dropper.is_player_actor;
+        this.item_id = item_id;
     }
 
     get focus_positions() { return [ this.drop_position, this.dropper_position ]; }
@@ -73,14 +77,21 @@ class ItemDropped extends concepts.Event {
     *animation(game_view){
         console.assert(game_view instanceof GameView);
         game_view.focus_on_position(this.drop_position);
-        yield* anim.inv_remove(game_view.ui.inventory.fx_view, game_view.ui.inventory, this.item_idx);
-        const item_view = game_view.ui.inventory.remove_item_view_at(this.item_idx);
-        item_view.is_visible = false;
-        item_view.game_position = this.drop_position;
-        yield* anim.drop_item(game_view.fx_view, this.drop_position);
-        game_view.add_entity_view(item_view);
-        item_view.is_visible = true;
-        game_view.ui.inventory.request_refresh();
+        if(this.dropper_is_player) {
+            yield* anim.inv_remove(game_view.ui.inventory.fx_view, game_view.ui.inventory, this.item_idx);
+            const item_view = game_view.ui.inventory.remove_item_view_at(this.item_idx);
+            item_view.is_visible = false;
+            item_view.game_position = this.drop_position;
+            yield* anim.drop_item(game_view.fx_view, this.drop_position);
+            game_view.add_entity_view(item_view);
+            item_view.is_visible = true;
+            game_view.ui.inventory.request_refresh();
+        } else {
+            const item_view = game_view.add_entity_view(this.item_id);
+            yield* anim.drop_item(game_view.fx_view, this.drop_position);
+            game_view.add_entity_view(item_view);
+            item_view.is_visible = true;
+        }
     }
 };
 
@@ -208,7 +219,7 @@ class DropItem extends concepts.Action {
         world.add(item);
         character.inventory.update_modifiers();
         return [
-            new ItemDropped(character, this.item_idx, this.target),
+            new ItemDropped(character, this.item_idx, this.target, item.id),
             ...handle_items_in_limbo(world, character),
         ];
     }
