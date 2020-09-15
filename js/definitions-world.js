@@ -20,6 +20,7 @@ import { Rule_Delete } from "./rules/rules-delete.js";
 import { Rule_Repair } from "./rules/rules-repair.js";
 import { Rule_TakeItem } from "./rules/rules-items.js";
 import { Rule_Decrypt } from "./rules/rules-decrypt.js";
+import { Rule_Copy } from "./rules/rules-copy.js";
 
 
 import * as level_1 from "./levels/level_1.js";
@@ -47,6 +48,7 @@ const default_rules = [ // BEWARE: rules will be applied in-order.
     new Rule_Repair(),
     new Rule_Destroy(),
     new Rule_Delete(),
+    new Rule_Copy(),
 
     new Rule_Stream(),
 
