@@ -12,7 +12,7 @@ import * as concepts from "../core/concepts.js";
 class ItemView extends EntityView {
     constructor(item){
         console.assert(item instanceof concepts.Item);
-        super(item.position, item.assets);
+        super(item.id, item.position, item.assets);
         this.name = item.name;
     }
 };

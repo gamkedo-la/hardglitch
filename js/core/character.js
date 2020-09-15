@@ -310,7 +310,6 @@ class Inventory {
                     this._reverse_modifiers(b);
             }
         }
-        // TODO: return objects from limbo because of listeners.
     }
 
     resize(new_size){

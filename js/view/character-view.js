@@ -12,7 +12,7 @@ class CharacterView extends EntityView {
 
     constructor(character){
         console.assert(character instanceof Character);
-        super(character.position, character.assets);
+        super(character.id, character.position, character.assets);
         this._character = character;
     }
 

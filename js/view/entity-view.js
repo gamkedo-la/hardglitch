@@ -38,10 +38,11 @@ class EntityView {
     _scale = new Vector2(Vector2_unit);
     _orientation_degree = 0;
 
-    constructor(game_position, assets){
+    constructor(entity_id, game_position, assets){
+        console.assert(Number.isInteger(entity_id));
         console.assert(game_position instanceof concepts.Position);
         console.assert(assets instanceof Object);
-
+        this.id = entity_id;
         const position = graphic_position(game_position);
 
         for(const [graphics_id, graphic] of Object.entries(assets.graphics)){

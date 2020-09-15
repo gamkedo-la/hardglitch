@@ -16,7 +16,6 @@ import { GameView } from "../game-view.js";
 import { CharacterView } from "../view/character-view.js";
 import { sprite_defs } from "../game-assets.js";
 import { ItemView } from "../view/item-view.js";
-import { square_half_unit_vector } from "../view/entity-view.js";
 
 
 class ItemTaken extends concepts.Event {
@@ -76,8 +75,10 @@ class ItemDropped extends concepts.Event {
         yield* anim.inv_remove(game_view.ui.inventory.fx_view, game_view.ui.inventory, this.item_idx);
         const item_view = game_view.ui.inventory.remove_item_view_at(this.item_idx);
         item_view.is_visible = false;
+        item_view.game_position = this.drop_position;
         yield* anim.drop_item(game_view.fx_view, this.drop_position);
-        game_view.reset_entities(); // TODO: only add the entity view, instead of recreating all the entity views.
+        game_view.add_entity_view(item_view);
+        item_view.is_visible = true;
         game_view.ui.inventory.request_refresh();
     }
 };
