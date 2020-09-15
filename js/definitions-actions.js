@@ -5,7 +5,7 @@ export {
 import { Delete } from "./rules/rules-delete.js";
 import { Destroy } from "./rules/rules-destroy.js";
 import { Push, Pull } from "./rules/rules-forces.js";
-import { Jump, Swap } from "./rules/rules-movement.js";
+import { Jump, RandomJump, Swap } from "./rules/rules-movement.js";
 import { Repair } from "./rules/rules-repair.js";
 import { Range_Cross_Diagonal } from "./core/visibility.js";
 
@@ -21,6 +21,7 @@ const all_uncommon_action_types = { // Action types which are not by default (li
     Delete,
     Destroy,
     Jump,
+    RandomJump,
     SmallerJump,
     Swap,
     Push,

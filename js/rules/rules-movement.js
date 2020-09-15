@@ -3,11 +3,13 @@
 export {
     Rule_Movements,
     Rule_Jump,
+    Rule_RandomJump,
     Rule_Swap,
     Move,
     Moved,
     Jump,
     Jumped,
+    RandomJump,
     Swap,
     Swaped,
 }
@@ -21,7 +23,7 @@ import { GameView } from "../game-view.js";
 import { Character } from "../core/character.js";
 import * as visibility from "../core/visibility.js";
 import { ranged_actions_for_each_target, actions_for_each_target } from "./rules-common.js";
-import { lazy_call } from "../system/utility.js";
+import { lazy_call, random_sample } from "../system/utility.js";
 import { is_blocked_position } from "../definitions-world.js";
 
 // Set the action as unsafe if the target tile is unsafe.
@@ -172,6 +174,46 @@ class Rule_Jump extends concepts.Rule {
             return jump;
         });
         return possible_jumps;
+    }
+};
+
+const random_jump_shape = new visibility.Range_Square(1, 64);
+
+class RandomJump extends concepts.Action {
+    icon_def = sprite_defs.icon_action_move;
+
+    constructor(){
+        super(`random_jump`, `Random Jump`, undefined,
+        {// costs
+            action_points: 20
+        });
+        this.is_basic = false;
+    }
+
+    execute(world, character){
+        console.assert(character instanceof Character);
+        const initial_pos = character.position;
+        const possible_targets = visibility.valid_move_positions(world, character, random_jump_shape, tiles.is_walkable);
+        const random_position = random_sample(possible_targets);
+        character.position = random_position;
+        const move_event = new Jumped(character, initial_pos, random_position, 666);
+        move_event.allow_parallel_animation = false; // Never mix a jump animation with other moves.
+        return [move_event]; // TODO: implement a different event, with a different animation
+    }
+};
+
+class Rule_RandomJump extends concepts.Rule {
+
+    get_actions_for(character, world){
+        console.assert(character instanceof Character);
+        const random_jump_actions = character.inventory.get_enabled_action_types(RandomJump).reverse();
+        const events = {};
+        while(random_jump_actions.length){
+            const action_type = random_jump_actions.pop();
+            const jump_action = new action_type();
+            events[jump_action.id] = jump_action;
+        }
+        return events;
     }
 };
 
