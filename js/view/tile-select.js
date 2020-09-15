@@ -101,22 +101,23 @@ function pickMode(...values) {
     return mode;
 }
 
-function getMask(grid, p, fcn) {
-    let m = ((fcn(grid.right(p))) ? RIGHT : 0) +
-            ((fcn(grid.up(p))) ? UP : 0) +
-            ((fcn(grid.left(p))) ? LEFT : 0) +
-            ((fcn(grid.down(p))) ? DOWN : 0) +
-            ((fcn(grid.ur(p))) ? UR : 0) +
-            ((fcn(grid.ul(p))) ? UL : 0) +
-            ((fcn(grid.dl(p))) ? DL : 0) +
-            ((fcn(grid.dr(p))) ? DR : 0);
+function getMask(grid, p, v, fcn) {
+    let m = ((fcn(grid.right(p,v))) ? RIGHT : 0) +
+            ((fcn(grid.up(p,v))) ? UP : 0) +
+            ((fcn(grid.left(p,v))) ? LEFT : 0) +
+            ((fcn(grid.down(p,v))) ? DOWN : 0) +
+            ((fcn(grid.ur(p,v))) ? UR : 0) +
+            ((fcn(grid.ul(p,v))) ? UL : 0) +
+            ((fcn(grid.dl(p,v))) ? DL : 0) +
+            ((fcn(grid.dr(p,v))) ? DR : 0);
     return m;
 }
 
 function genSeamOverlay(grid, overlay) {
     for (let j=0; j<grid.height; j++) {
         for (let i=0; i<grid.width; i++) {
-            let id = parse_tile_id(grid.get_at(i,j));
+            let v = grid.get_at(i,j);
+            let id = parse_tile_id(v);
             if (!id) continue;
             let p = {x:i, y:j};
             let cornerLayer;
@@ -124,19 +125,19 @@ function genSeamOverlay(grid, overlay) {
             let cid;
             switch (id.name) {
                 case "ttl":
-                    neighbors = [ parse_tile_id(grid.ul(p)).layer, parse_tile_id(grid.up(p)).layer, parse_tile_id(grid.left(p)).layer ];
+                    neighbors = [ parse_tile_id(grid.ul(p,v)).layer, parse_tile_id(grid.up(p,v)).layer, parse_tile_id(grid.left(p,v)).layer ];
                     cid = "ortb";
                     break;
                 case "ltb":
-                    neighbors = [ parse_tile_id(grid.dl(p)).layer, parse_tile_id(grid.left(p)).layer, parse_tile_id(grid.down(p)).layer ];
+                    neighbors = [ parse_tile_id(grid.dl(p,v)).layer, parse_tile_id(grid.left(p,v)).layer, parse_tile_id(grid.down(p,v)).layer ];
                     cid = "ottr";
                     break;
                 case "btr":
-                    neighbors = [ parse_tile_id(grid.dr(p)).layer, parse_tile_id(grid.down(p)).layer, parse_tile_id(grid.right(p)).layer ];
+                    neighbors = [ parse_tile_id(grid.dr(p,v)).layer, parse_tile_id(grid.down(p,v)).layer, parse_tile_id(grid.right(p,v)).layer ];
                     cid = "oltt";
                     break;
                 case "rtt":
-                    neighbors = [ parse_tile_id(grid.ur(p)).layer, parse_tile_id(grid.right(p)).layer, parse_tile_id(grid.up(p)).layer ];
+                    neighbors = [ parse_tile_id(grid.ur(p,v)).layer, parse_tile_id(grid.right(p,v)).layer, parse_tile_id(grid.up(p,v)).layer ];
                     cid = "obtl";
                     break;
             }
@@ -170,7 +171,7 @@ function genFloorOverlay(grid, overlay, selectors) {
             let selector = pickSelector(selectors, v);
             if (!selector) continue;
             // compute base mask of surrounding tiles based on selector
-            let baseMask = getMask(grid, p, selector.samePred);
+            let baseMask = getMask(grid, p, v, selector.samePred);
             let tl = "";
             switch (baseMask & (LEFT|UL|UP)) {
                 case 0:
@@ -204,10 +205,11 @@ function genFloorOverlay(grid, overlay, selectors) {
             // - possible tiles are: rtt, t, ttls, r, btre, m, rtbs, ltte, ttr, ltbi, btli, bi, btlsi, rtbi
             // FIXME: not currently assigning ltbi, btli, bi, btlsi, rtbi
             // pick best selector based on bordering tiles
-            selector = pickSelector(selectors, v, grid.up(p), grid.ur(p), grid.right(p));
+            //selector = pickSelector(selectors, v, grid.up(p), grid.ur(p), grid.right(p));
+            //selector = pickSelector(selectors, v);
             if (!selector) continue;
             // compute base mask of surrounding tiles based on selector
-            baseMask = getMask(grid, p, selector.samePred);
+            baseMask = getMask(grid, p, v, selector.samePred);
             let tr = "";
             switch (baseMask & (RIGHT|UR|UP)) {
                 case 0:
@@ -240,10 +242,10 @@ function genFloorOverlay(grid, overlay, selectors) {
             // consider bottom-left
             // - possible tiles are: ltb, b, btrs, l, ttle, m, ltts, rtbe, btl
             // pick best selector based on bordering tiles
-            selector = pickSelector(selectors, v, grid.down(p), grid.dl(p), grid.left(p));
-            if (!selector) continue;
+            //selector = pickSelector(selectors, v, grid.down(p), grid.dl(p), grid.left(p));
+            //if (!selector) continue;
             // compute base mask of surrounding tiles based on selector
-            baseMask = getMask(grid, p, selector.samePred);
+            baseMask = getMask(grid, p, v, selector.samePred);
             let bl = "";
             switch (baseMask & (LEFT|DL|DOWN)) {
                 case 0:
@@ -276,10 +278,10 @@ function genFloorOverlay(grid, overlay, selectors) {
             // consider bottom-right
             // - possible tiles are: btr, b, ltbe, r, rtts, m, ttre, btls, rtb
             // pick best selector based on bordering tiles
-            selector = pickSelector(selectors, v, grid.down(p), grid.dr(p), grid.right(p));
-            if (!selector) continue;
+            //selector = pickSelector(selectors, v, grid.down(p), grid.dr(p), grid.right(p));
+            //if (!selector) continue;
             // compute base mask of surrounding tiles based on selector
-            baseMask = getMask(grid, p, selector.samePred);
+            baseMask = getMask(grid, p, v, selector.samePred);
             let br = "";
             switch (baseMask & (RIGHT|DR|DOWN)) {
                 case 0:
@@ -324,7 +326,7 @@ function genFgOverlay(layer, grid, overlay, wallCmp) {
             let v = grid.get_at(i,j);
             // compute neighbors
             let p = {x:i, y:j};
-            let neighbors = wallCmp(grid.right(p)) + (wallCmp(grid.up(p)) << 1) + (wallCmp(grid.left(p)) << 2) + (wallCmp(grid.down(p))<<3);
+            let neighbors = wallCmp(grid.right(p,v)) + (wallCmp(grid.up(p,v)) << 1) + (wallCmp(grid.left(p,v)) << 2) + (wallCmp(grid.down(p,v))<<3);
             // compute tl overlay
             let tl = "";
             let tr = "";
@@ -342,9 +344,9 @@ function genFgOverlay(layer, grid, overlay, wallCmp) {
                 case 1: // right
                     if (wallCmp(v)) { // wall
                         tl = "ltbs";
-                        tr = (wallCmp(grid.dr(p))) ? "btlsi" : "ltbi";
+                        tr = (wallCmp(grid.dr(p,v))) ? "btlsi" : "ltbi";
                         bl = "ltb";
-                        br = (wallCmp(grid.dr(p))) ? "btls": "ltbe";
+                        br = (wallCmp(grid.dr(p,v))) ? "btls": "ltbe";
                     }
                     break;
                 case 2: // top
@@ -358,150 +360,150 @@ function genFgOverlay(layer, grid, overlay, wallCmp) {
                 case 3: // top|right
                     if (wallCmp(v)) { // wall
                         tl = "ltbs";
-                        tr = (wallCmp(grid.dr(p))) ? "btlsi" : "ltbi";
+                        tr = (wallCmp(grid.dr(p,v))) ? "btlsi" : "ltbi";
                         bl = "ltb";
-                        br = (wallCmp(grid.dr(p))) ? "btls": "ltbe";
+                        br = (wallCmp(grid.dr(p,v))) ? "btls": "ltbe";
                     } else { // empty
-                        tr = (wallCmp(grid.ur(p))) ? "obtl" : "";
+                        tr = (wallCmp(grid.ur(p,v))) ? "obtl" : "";
                     }
                     break;
                 case 4: // left
                     if (wallCmp(v)) { // wall
-                        tl = (wallCmp(grid.dl(p))) ? "rtbei" : "btri";
+                        tl = (wallCmp(grid.dl(p,v))) ? "rtbei" : "btri";
                         tr = "btre";
                         bl = "btrs";
-                        bl = (wallCmp(grid.dl(p))) ? "rtbe": "btrs";
+                        bl = (wallCmp(grid.dl(p,v))) ? "rtbe": "btrs";
                         br = "btr";
                     }
                     break;
                 case 5: // left|right
                     if (wallCmp(v)) { // wall
-                        tl = (wallCmp(grid.dl(p))) ? "rtbei" : "bi";
-                        tr = (wallCmp(grid.dr(p))) ? "btlsi" : "bi";
-                        bl = (wallCmp(grid.dl(p))) ? "rtbe": "b";
-                        br = (wallCmp(grid.dr(p))) ? "btls": "b";
+                        tl = (wallCmp(grid.dl(p,v))) ? "rtbei" : "bi";
+                        tr = (wallCmp(grid.dr(p,v))) ? "btlsi" : "bi";
+                        bl = (wallCmp(grid.dl(p,v))) ? "rtbe": "b";
+                        br = (wallCmp(grid.dr(p,v))) ? "btls": "b";
                     }
                     break;
                 case 6: // top|left
                     if (wallCmp(v)) { // wall
-                        tl = (wallCmp(grid.dl(p))) ? "rtbei" : "btri";
+                        tl = (wallCmp(grid.dl(p,v))) ? "rtbei" : "btri";
                         tr = "btre";
-                        bl = (wallCmp(grid.dl(p))) ? "rtbe": "btrs";
+                        bl = (wallCmp(grid.dl(p,v))) ? "rtbe": "btrs";
                         br = "btr";
                     } else { // empty
-                        tl = (wallCmp(grid.ul(p))) ? "ortb" : "";
+                        tl = (wallCmp(grid.ul(p,v))) ? "ortb" : "";
                     }
                     break;
                 case 7: // top|left|right
                     if (wallCmp(v)) { // wall
-                        tl = (wallCmp(grid.dl(p))) ? "rtbei" : "bi";
-                        tr = (wallCmp(grid.dl(p))) ? "btlsi" : "bi";
-                        bl = (wallCmp(grid.dl(p))) ? "rtbe": "b";
-                        br = (wallCmp(grid.dr(p))) ? "btls": "b";
+                        tl = (wallCmp(grid.dl(p,v))) ? "rtbei" : "bi";
+                        tr = (wallCmp(grid.dl(p,v))) ? "btlsi" : "bi";
+                        bl = (wallCmp(grid.dl(p,v))) ? "rtbe": "b";
+                        br = (wallCmp(grid.dr(p,v))) ? "btls": "b";
                     } else { // empty
-                        tl = (wallCmp(grid.ul(p))) ? "ortb" : "";
-                        tr = (wallCmp(grid.ur(p))) ? "obtl" : "";
+                        tl = (wallCmp(grid.ul(p,v))) ? "ortb" : "";
+                        tr = (wallCmp(grid.ur(p,v))) ? "obtl" : "";
                     }
                     break;
                 case 8: // down
                     if (wallCmp(v)) { // wall
-                        tl = (wallCmp(grid.dl(p))) ? "ltti" : "ttl";
-                        tr = (wallCmp(grid.dr(p))) ? "ttri" : "rtt";
-                        bl = (wallCmp(grid.dl(p))) ? "ltts" : "ttle";
-                        br = (wallCmp(grid.dr(p))) ? "ttre": "rtts";
+                        tl = (wallCmp(grid.dl(p,v))) ? "ltti" : "ttl";
+                        tr = (wallCmp(grid.dr(p,v))) ? "ttri" : "rtt";
+                        bl = (wallCmp(grid.dl(p,v))) ? "ltts" : "ttle";
+                        br = (wallCmp(grid.dr(p,v))) ? "ttre": "rtts";
                     } else { // empty
-                        bl = (wallCmp(grid.dl(p))) ? "ot" : "ottl";
-                        br = (wallCmp(grid.dr(p))) ? "ot" : "ortt";
+                        bl = (wallCmp(grid.dl(p,v))) ? "ot" : "ottl";
+                        br = (wallCmp(grid.dr(p,v))) ? "ot" : "ortt";
                     }
                     break;
                 case 9: // down|right
                     if (wallCmp(v)) { // wall
-                        tl = (wallCmp(grid.dl(p))) ? "ltti" : "ttl";
-                        tr = (wallCmp(grid.dr(p))) ? "ttls" : "rtbi";
-                        bl = (wallCmp(grid.dl(p))) ? "ltts" : "ttle";
-                        br = (wallCmp(grid.dr(p))) ? "m" : "rtb";
+                        tl = (wallCmp(grid.dl(p,v))) ? "ltti" : "ttl";
+                        tr = (wallCmp(grid.dr(p,v))) ? "ttls" : "rtbi";
+                        bl = (wallCmp(grid.dl(p,v))) ? "ltts" : "ttle";
+                        br = (wallCmp(grid.dr(p,v))) ? "m" : "rtb";
                     } else { // empty
-                        tr = (wallCmp(grid.dr(p))) ? "oltts" : "";
-                        bl = (wallCmp(grid.dl(p))) ? "ot" : "ottl";
-                        br = (wallCmp(grid.dr(p))) ? "oltt" : "ortt";
+                        tr = (wallCmp(grid.dr(p,v))) ? "oltts" : "";
+                        bl = (wallCmp(grid.dl(p,v))) ? "ot" : "ottl";
+                        br = (wallCmp(grid.dr(p,v))) ? "oltt" : "ortt";
                     }
                     break;
                 case 10: // top|down
                     if (wallCmp(v)) { // wall
-                        tl = (wallCmp(grid.dl(p))) ? "ltti" : "l";
-                        tr = (wallCmp(grid.dr(p))) ? "ttri" : "r";
-                        bl = (wallCmp(grid.dl(p))) ? "ltts": "l";
-                        br = (wallCmp(grid.dr(p))) ? "ttre": "r";
+                        tl = (wallCmp(grid.dl(p,v))) ? "ltti" : "l";
+                        tr = (wallCmp(grid.dr(p,v))) ? "ttri" : "r";
+                        bl = (wallCmp(grid.dl(p,v))) ? "ltts": "l";
+                        br = (wallCmp(grid.dr(p,v))) ? "ttre": "r";
                     } else {
-                        bl = (wallCmp(grid.dl(p))) ? "ot" : "ottl";
-                        br = (wallCmp(grid.dr(p))) ? "ot" : "ortt";
+                        bl = (wallCmp(grid.dl(p,v))) ? "ot" : "ottl";
+                        br = (wallCmp(grid.dr(p,v))) ? "ot" : "ortt";
                     }
                     break;
                 case 11: // top|down|right
                     if (wallCmp(v)) { // wall
-                        tl = (wallCmp(grid.dl(p))) ? "ltti" : "l";
-                        tr = (wallCmp(grid.dr(p))) ? (wallCmp(grid.ur(p))) ? "m" : "ttr" : "rtbi";
-                        bl = (wallCmp(grid.dl(p))) ? "ltts": "l";
-                        br = (wallCmp(grid.dr(p))) ? "m" : "rtb"
+                        tl = (wallCmp(grid.dl(p,v))) ? "ltti" : "l";
+                        tr = (wallCmp(grid.dr(p,v))) ? (wallCmp(grid.ur(p,v))) ? "m" : "ttr" : "rtbi";
+                        bl = (wallCmp(grid.dl(p,v))) ? "ltts": "l";
+                        br = (wallCmp(grid.dr(p,v))) ? "m" : "rtb"
                     } else { // empty
                         // FIXME: conflict between oltts and obtl
-                        tr = (wallCmp(grid.dr(p))) ? "oltts" : (wallCmp(grid.ur(p))) ? "obtl" : "";
-                        br = (wallCmp(grid.dr(p))) ? "oltt" : "ortt";
-                        bl = (wallCmp(grid.dl(p))) ? "ot" : "ottl";
+                        tr = (wallCmp(grid.dr(p,v))) ? "oltts" : (wallCmp(grid.ur(p,v))) ? "obtl" : "";
+                        br = (wallCmp(grid.dr(p,v))) ? "oltt" : "ortt";
+                        bl = (wallCmp(grid.dl(p,v))) ? "ot" : "ottl";
                     }
                     break;
                 case 12: // down|left
                     if (wallCmp(v)) { // wall
-                        tl = (wallCmp(grid.dl(p))) ? "rtte" : "btli";
-                        tr = (wallCmp(grid.dr(p))) ? "ttri" : "rtt";
-                        bl = (wallCmp(grid.dl(p))) ? "m" : "btl"
-                        br = (wallCmp(grid.dr(p))) ? "ttre": "rtts";
+                        tl = (wallCmp(grid.dl(p,v))) ? "rtte" : "btli";
+                        tr = (wallCmp(grid.dr(p,v))) ? "ttri" : "rtt";
+                        bl = (wallCmp(grid.dl(p,v))) ? "m" : "btl"
+                        br = (wallCmp(grid.dr(p,v))) ? "ttre": "rtts";
                     } else { // empty
-                        tl = (wallCmp(grid.dl(p))) ? "ottre" : "";
-                        bl = (wallCmp(grid.dl(p))) ? "ottr" : "ottl";
-                        br = (wallCmp(grid.dr(p))) ? "ot" : "ortt";
+                        tl = (wallCmp(grid.dl(p,v))) ? "ottre" : "";
+                        bl = (wallCmp(grid.dl(p,v))) ? "ottr" : "ottl";
+                        br = (wallCmp(grid.dr(p,v))) ? "ot" : "ortt";
                     }
                     break;
                 case 13: // down|left|right
                     if (wallCmp(v)) { // wall
-                        tl = (wallCmp(grid.dl(p))) ? "t" : "btli";
-                        tr = (wallCmp(grid.dr(p))) ? "t" : "rtbi";
-                        bl = (wallCmp(grid.dl(p))) ? "m" : "btl"
-                        br = (wallCmp(grid.dr(p))) ? "m" : "rtb"
+                        tl = (wallCmp(grid.dl(p,v))) ? "t" : "btli";
+                        tr = (wallCmp(grid.dr(p,v))) ? "t" : "rtbi";
+                        bl = (wallCmp(grid.dl(p,v))) ? "m" : "btl"
+                        br = (wallCmp(grid.dr(p,v))) ? "m" : "rtb"
                     } else { // empty
-                        tl = (wallCmp(grid.dl(p))) ? "ottre" : "";
-                        tr = (wallCmp(grid.dr(p))) ? "oltts" : "";
-                        bl = (wallCmp(grid.dl(p))) ? "ottr" : "ottl";
-                        br = (wallCmp(grid.dr(p))) ? "oltt" : "ortt";
+                        tl = (wallCmp(grid.dl(p,v))) ? "ottre" : "";
+                        tr = (wallCmp(grid.dr(p,v))) ? "oltts" : "";
+                        bl = (wallCmp(grid.dl(p,v))) ? "ottr" : "ottl";
+                        br = (wallCmp(grid.dr(p,v))) ? "oltt" : "ortt";
                     }
                     break;
                 case 14: // top|down|left
                     if (wallCmp(v)) { // wall
-                        tl = (wallCmp(grid.dl(p))) ? (wallCmp(grid.ul(p))) ? "m" : "ltt" : "btli";
-                        tr = (wallCmp(grid.dr(p))) ? "ttri" : "r";
-                        bl = (wallCmp(grid.dl(p))) ? "m" : "btl"
-                        br = (wallCmp(grid.dr(p))) ? "ttre": "r";
+                        tl = (wallCmp(grid.dl(p,v))) ? (wallCmp(grid.ul(p,v))) ? "m" : "ltt" : "btli";
+                        tr = (wallCmp(grid.dr(p,v))) ? "ttri" : "r";
+                        bl = (wallCmp(grid.dl(p,v))) ? "m" : "btl"
+                        br = (wallCmp(grid.dr(p,v))) ? "ttre": "r";
                     } else { // empty
                         // FIXME: conflict between ottre and ortb
-                        tl = (wallCmp(grid.dl(p))) ? "ottre" : (wallCmp(grid.ul(p))) ? "ortb" : "";
-                        //tl = (wallCmp(grid.ul(p))) ? "ortb" : "";
-                        bl = (wallCmp(grid.dl(p))) ? "ottr" : "ottl";
-                        br = (wallCmp(grid.dr(p))) ? "ot" : "ortt";
+                        tl = (wallCmp(grid.dl(p,v))) ? "ottre" : (wallCmp(grid.ul(p,v))) ? "ortb" : "";
+                        //tl = (wallCmp(grid.ul(p,v))) ? "ortb" : "";
+                        bl = (wallCmp(grid.dl(p,v))) ? "ottr" : "ottl";
+                        br = (wallCmp(grid.dr(p,v))) ? "ot" : "ortt";
                     }
                     break;
                 case 15: // top|down|left|right
                     if (wallCmp(v)) { // wall
-                        tl = (wallCmp(grid.dl(p))) ? (wallCmp(grid.ul(p))) ? "m" : "ltt" : "btli";
-                        tr = (wallCmp(grid.dr(p))) ? (wallCmp(grid.ur(p))) ? "m" : "ttr" : "rtbi";
-                        bl = (wallCmp(grid.dl(p))) ? "m" : "btl"
-                        br = (wallCmp(grid.dr(p))) ? "m" : "rtb"
+                        tl = (wallCmp(grid.dl(p,v))) ? (wallCmp(grid.ul(p,v))) ? "m" : "ltt" : "btli";
+                        tr = (wallCmp(grid.dr(p,v))) ? (wallCmp(grid.ur(p,v))) ? "m" : "ttr" : "rtbi";
+                        bl = (wallCmp(grid.dl(p,v))) ? "m" : "btl"
+                        br = (wallCmp(grid.dr(p,v))) ? "m" : "rtb"
                     } else { // empty
                         // FIXME: conflict between ottre and ortb
                         // FIXME: conflict between oltts and obtl
-                        tl = (wallCmp(grid.dl(p))) ? "ottre" : (wallCmp(grid.ul(p))) ? "ortb" : "";
-                        tr = (wallCmp(grid.dr(p))) ? "oltts" : (wallCmp(grid.ur(p))) ? "obtl" : "";
-                        bl = (wallCmp(grid.dl(p))) ? "ottr" : "ottl";
-                        br = (wallCmp(grid.dr(p))) ? "oltt" : "ortt";
+                        tl = (wallCmp(grid.dl(p,v))) ? "ottre" : (wallCmp(grid.ul(p,v))) ? "ortb" : "";
+                        tr = (wallCmp(grid.dr(p,v))) ? "oltts" : (wallCmp(grid.ur(p,v))) ? "obtl" : "";
+                        bl = (wallCmp(grid.dl(p,v))) ? "ottr" : "ottl";
+                        br = (wallCmp(grid.dr(p,v))) ? "oltt" : "ortt";
                     }
                     break;
             }
