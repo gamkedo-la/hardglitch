@@ -48,7 +48,8 @@ const defs = {
         is_ground: true,
         shape_template: "ground_template",
         tile_match_predicate: (v) => (v==ID.GROUND),
-        tile_same_predicate: (v) => (defs[v].is_ground),
+        tile_same_predicate: (v) => (v==ID.GROUND),
+        //tile_same_predicate: (v) => (defs[v].is_ground),
     },
     [ID.GROUND2] : {
         sprite_def: sprite_defs.ground,
@@ -59,7 +60,8 @@ const defs = {
         is_ground: true,
         shape_template: "ground2_template",
         tile_match_predicate: (v) => (v==ID.GROUND2),
-        tile_same_predicate: (v) => (defs[v].is_ground),
+        tile_same_predicate: (v) => (v==ID.GROUND2),
+        //tile_same_predicate: (v) => (defs[v].is_ground),
     },
     [ID.CALCFLOORWARM] : {
         sprite_def: sprite_defs.ground,
@@ -70,7 +72,8 @@ const defs = {
         is_ground: true,
         shape_template: "lvl1warm_template",
         tile_match_predicate: (v) => (v==ID.CALCFLOORWARM),
-        tile_same_predicate: (v) => (defs[v].is_ground),
+        tile_same_predicate: (v) => (v==ID.CALCFLOORWARM),
+        //tile_same_predicate: (v) => (defs[v].is_ground),
     },
     [ID.CALCFLOORCOOL] : {
         sprite_def: sprite_defs.ground,
@@ -81,7 +84,8 @@ const defs = {
         is_ground: true,
         shape_template: "lvl1cool_template",
         tile_match_predicate: (v) => (v==ID.CALCFLOORCOOL),
-        tile_same_predicate: (v) => (defs[v].is_ground),
+        tile_same_predicate: (v) => (v==ID.CALCFLOORCOOL),
+        //tile_same_predicate: (v) => (defs[v].is_ground),
     },
 
     [ID.WALL] : {
