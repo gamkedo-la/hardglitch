@@ -43,7 +43,7 @@ import { grid_ID } from "./definitions-world.js";
 
 const a_very_long_time = 99999999999999;
 const turn_message_player_turn = "Play";
-const turn_message_processing_turns = "Processing Cycles...";
+const turn_message_processing_turns = "...Processing Cycles...";
 const turn_message_display_begin_ms = 0;
 const turn_message_display_end_ms = 3000;
 
@@ -839,9 +839,7 @@ class GameView {
     reset_entities(){
         this.fog_of_war.clear_fovs();
 
-        this.entity_views = Object.assign({}, this._create_entity_views(this.game.world.items, ItemView)
-                                            , this._create_entity_views(this.game.world.bodies, CharacterView));
-
+        this._recreate_entity_views(this.game.world.entities);
     }
 
     refresh(){
@@ -872,27 +870,39 @@ class GameView {
         this.tile_grid.update(0);
     }
 
-    _create_entity_views(entities, view_type){
+    _recreate_entity_views(entities){
         console.assert(entities instanceof Array);
-        console.assert(EntityView.isPrototypeOf(view_type));
-        const entity_views = {};
+        this.entity_views = {};
         entities.forEach(entity => {
-            console.assert(entity instanceof concepts.Entity);
-            const entity_view = new view_type(entity);
-            entity_views[entity.id] = entity_view;
-            entity_view.update(0);
+            this.add_entity_view(entity);
+        });
+    }
+
+    add_entity_view(entity_or_view){
+        console.assert(entity_or_view instanceof concepts.Entity || entity_or_view instanceof EntityView);
+
+        let entity_view;
+        if(entity_or_view instanceof concepts.Entity){
+            const entity = entity_or_view;
+            const view_type = entity instanceof Character ? CharacterView : ItemView;
+            entity_view = new view_type(entity);
             if(entity.is_player_actor){
                 this.fog_of_war.add_fov(entity.id, entity.field_of_vision);
                 this._require_tiles_update = true;
             }
-        });
-        return entity_views;
+        } else {
+            console.assert(entity_or_view instanceof EntityView);
+            entity_view = entity_or_view;
+        }
+        console.assert(entity_view);
+        console.assert(this.entity_views[entity_view.id] === undefined);
+        this.entity_views[entity_view.id] = entity_view;
+        entity_view.update(0);
     }
 
     remove_entity_view(entity_id){
         delete this.entity_views[entity_id];
         this.fog_of_war.remove_fov(entity_id);
-        this._require_tiles_update = true;
     }
 
     // Called by the editor code when editing the game in a way the require re-interpreting the game's state.
