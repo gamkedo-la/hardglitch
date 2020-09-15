@@ -5,6 +5,7 @@ export {
     positions_in_range,
     valid_target_positions,
     valid_move_positions,
+    valid_spawn_positions,
     RangeShape,
     Range_Diamond,
     Range_Circle,
@@ -20,6 +21,7 @@ import { compute_fov } from "../system/shadowcasting.js";
 import * as tiles from "../definitions-tiles.js";
 import { Character } from "./character.js";
 import { is_blocked_position } from "../definitions-world.js";
+import { shuffle_array } from "../system/utility.js";
 
 class RangeShape {
     // The range is [begin_distance, end_distance) , so end_distance is excluded.
@@ -207,6 +209,34 @@ function valid_move_positions(world, character, action_range_shape, tile_filter)
             .filter(pos=>character.can_see(pos))
             ;
 }
+
+function valid_spawn_positions(world, center_position, tile_filter, max_range = 16){
+    console.assert(world instanceof concepts.World);
+    console.assert(center_position instanceof concepts.Position);
+    console.assert(tile_filter instanceof Function);
+    console.assert(Number.isInteger(max_range));
+    let range_size = 0;
+    const valid_positions = [];
+    while(range_size <= max_range){
+        const range_shape = new Range_Circle(range_size, range_size + 1);
+        const positions_in_circle = positions_in_range(center_position, range_shape, pos => world.is_valid_position(pos))
+                                        .filter(pos => !is_blocked_position(world, pos, tile_filter));
+        shuffle_array(positions_in_circle); // To give some variety.
+        valid_positions.push( ...positions_in_circle);
+        ++range_size;
+    }
+    const sorted_positions = valid_positions.sort((left, right)=>{
+        const right_distance = right.distance(center_position);
+        const left_distance = left.distance(center_position);
+        if(left_distance > right_distance)
+            return 1;
+        if(left_distance < right_distance)
+            return -1;
+        return 0;
+    });
+    return sorted_positions;
+}
+
 
 class FieldOfVision {
 

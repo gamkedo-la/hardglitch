@@ -878,12 +878,18 @@ class GameView {
         });
     }
 
-    add_entity_view(entity_or_view){
-        console.assert(entity_or_view instanceof concepts.Entity || entity_or_view instanceof EntityView);
+    add_entity_view(entity_or_view_or_id){
+        console.assert(entity_or_view_or_id instanceof concepts.Entity || entity_or_view_or_id instanceof EntityView || Number.isInteger(entity_or_view_or_id));
 
         let entity_view;
-        if(entity_or_view instanceof concepts.Entity){
-            const entity = entity_or_view;
+        if(Number.isInteger(entity_or_view_or_id)){
+            const entity_id = entity_or_view_or_id;
+            entity_or_view_or_id = this.game.world.get_entity(entity_id);
+            console.assert(entity_or_view_or_id instanceof concepts.Entity);
+        }
+
+        if(entity_or_view_or_id instanceof concepts.Entity){
+            const entity = entity_or_view_or_id;
             const view_type = entity instanceof Character ? CharacterView : ItemView;
             entity_view = new view_type(entity);
             if(entity.is_player_actor){
@@ -891,13 +897,14 @@ class GameView {
                 this._require_tiles_update = true;
             }
         } else {
-            console.assert(entity_or_view instanceof EntityView);
-            entity_view = entity_or_view;
+            console.assert(entity_or_view_or_id instanceof EntityView);
+            entity_view = entity_or_view_or_id;
         }
-        console.assert(entity_view);
+        console.assert(entity_view instanceof EntityView);
         console.assert(this.entity_views[entity_view.id] === undefined);
         this.entity_views[entity_view.id] = entity_view;
         entity_view.update(0);
+        return entity_view;
     }
 
     remove_entity_view(entity_id){

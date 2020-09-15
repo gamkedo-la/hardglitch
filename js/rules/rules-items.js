@@ -16,6 +16,7 @@ import { GameView } from "../game-view.js";
 import { CharacterView } from "../view/character-view.js";
 import { sprite_defs } from "../game-assets.js";
 import { ItemView } from "../view/item-view.js";
+import { spawn_entities_around } from "./spawn.js";
 
 
 class ItemTaken extends concepts.Event {
@@ -83,6 +84,18 @@ class ItemDropped extends concepts.Event {
     }
 };
 
+function drop_items_around(world, dropper, ...items){
+    console.assert(world instanceof concepts.World);
+    console.assert(dropper instanceof Character);
+    console.assert(items.every(item => item instanceof concepts.Item));
+    return spawn_entities_around(world, dropper.position, items);
+}
+
+function handle_items_in_limbo(world, character){
+    // Items in limbo should be dropped into the world:
+    const items_in_limbo = character.inventory.extract_items_from_limbo();
+    return drop_items_around(world, character, ...items_in_limbo);
+}
 
 class TakeItem extends concepts.Action {
     icon_def = sprite_defs.icon_action_take;
@@ -105,7 +118,10 @@ class TakeItem extends concepts.Action {
         world.remove_entity(item.id);
         const item_idx = character.inventory.add(item);
         character.inventory.update_modifiers();
-        return [ new ItemTaken(character, item, item_idx) ];
+        return [
+            new ItemTaken(character, item, item_idx),
+            ...handle_items_in_limbo(world, character),
+        ];
     }
 };
 
@@ -161,9 +177,10 @@ class SwapItemSlots extends concepts.Action {
         const item_a = character.inventory.swap(this.slot_a_idx, this.slot_b_idx);
         character.inventory.update_modifiers();
         // Beware: the inventory size can change because we active items changing it.
-        // TODO: put the items in an item limbo, handle them afterwards (drop or destroy)
-
-        return [ new SwappedItemsSlots(character, this.slot_a_idx, this.slot_b_idx)];
+        return [
+            new SwappedItemsSlots(character, this.slot_a_idx, this.slot_b_idx),
+            ...handle_items_in_limbo(world, character),
+        ];
     }
 };
 
@@ -190,7 +207,10 @@ class DropItem extends concepts.Action {
         item.position = this.target;
         world.add(item);
         character.inventory.update_modifiers();
-        return [new ItemDropped(character, this.item_idx, this.target)];
+        return [
+            new ItemDropped(character, this.item_idx, this.target),
+            ...handle_items_in_limbo(world, character),
+        ];
     }
 };
 

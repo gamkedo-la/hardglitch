@@ -290,6 +290,14 @@ class World
     get items() { return Object.values(this._items); }
     get entities() { return [ ...this.bodies, ...this.items ]; }
 
+    get_entity(entity_id){
+        console.assert(Number.isInteger(entity_id));
+        const body = this._bodies[entity_id];
+        if(body) return body;
+        const item = this._items[entity_id];
+        return item;
+    }
+
     // Adds an entity to the world (a Body or an Item), setup the necessary spatial information.
     add(entity){
         console.assert(entity instanceof Entity);

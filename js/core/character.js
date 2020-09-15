@@ -184,6 +184,7 @@ class Inventory {
     _item_slots = [];
     _activable_items = 1;
     _listeners = {};
+    _limbo = []; // Where the lost items ends-up.
 
     constructor(stats){
         console.assert(stats instanceof CharacterStats);
@@ -193,7 +194,7 @@ class Inventory {
             console.assert(inventory_size instanceof StatValue);
             if(this.size !== inventory_size.value){
                 const left_items = this.resize(inventory_size.value);
-                // TODO: put the items in an item limbo, handle them afterwards (drop or destroy)
+                this._limbo.push(...left_items);
             }
         });
 
@@ -205,6 +206,12 @@ class Inventory {
             }
 
         });
+    }
+
+    extract_items_from_limbo() {
+        const limbo = this._limbo;
+        this._limbo = [];
+        return limbo;
     }
 
     add(item){
@@ -280,11 +287,11 @@ class Inventory {
     remove(idx){
         console.assert(idx >= 0 && idx < this._item_slots.length);
         const item = this._item_slots[idx];
+        this._item_slots[idx] = undefined;
         if(item instanceof concepts.Item
         && this.is_active_slot(idx)){
             this._reverse_modifiers(item);
         }
-        this._item_slots[idx] = undefined;
         return item;
     }
 
@@ -339,6 +346,7 @@ class Inventory {
         while(this.have_empty_slots && left_items.length > 0){ // If we can still put the item somewhere, just put it there.
             this.add(left_items.pop());
         }
+        console.assert(left_items.length === 0 || this.have_empty_slots === false );
         return left_items;
     }
 
