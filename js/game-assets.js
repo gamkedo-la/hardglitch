@@ -21,6 +21,8 @@ const game_assets = { // Description of the assets to load.
         ground2_template : "./images/ground2_template.png",
         lvl1warm_template : "./images/lvl1warm.png",
         lvl1cool_template : "./images/lvl1cool.png",
+        lvl2warm_template : "./images/lvl2warm.png",
+        lvl2cool_template : "./images/lvl2cool.png",
         void_template : "./images/void_template.png",
         hole_template : "./images/hole_template.png",
         wall_template : "./images/wall_template.png",
