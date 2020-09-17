@@ -24,6 +24,8 @@ const ID = {
     CALCFLOORCOOL : 13,
     MEMFLOORWARM : 14,
     MEMFLOORCOOL : 15,
+    CPUFLOORWARM : 16,
+    CPUFLOORCOOL : 17,
     WALL: 20,
     WALL2: 21,
     VOID: 30,
@@ -107,6 +109,29 @@ const defs = {
         shape_template: "lvl2cool_template",
         tile_match_predicate: (v) => (v==ID.MEMFLOORCOOL),
         tile_same_predicate: (v) => (v==ID.MEMFLOORCOOL),
+    },
+
+    [ID.CPUFLOORWARM] : {
+        sprite_def: sprite_defs.ground,
+        is_walkable: true,
+        is_safe: true,
+        is_view_blocking: false,
+        description: "CPU Register",
+        is_ground: true,
+        shape_template: "lvl3warm_template",
+        tile_match_predicate: (v) => (v==ID.CPUFLOORWARM),
+        tile_same_predicate: (v) => (v==ID.CPUFLOORWARM),
+    },
+    [ID.CPUFLOORCOOL] : {
+        sprite_def: sprite_defs.ground,
+        is_walkable: true,
+        is_safe: true,
+        is_view_blocking: false,
+        description: "Cache",
+        is_ground: true,
+        shape_template: "lvl3cool_template",
+        tile_match_predicate: (v) => (v==ID.CPUFLOORCOOL),
+        tile_same_predicate: (v) => (v==ID.CPUFLOORCOOL),
     },
 
     [ID.WALL] : {
