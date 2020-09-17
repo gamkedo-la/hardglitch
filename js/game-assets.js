@@ -110,6 +110,7 @@ const game_assets = { // Description of the assets to load.
         test: './audio/test.mp3',
         glitchlife: './audio/music/HardGlitch_GlitchyLife.mp3',
         radream: './audio/music/HardGlitch_RandomAccessDream_Loop.mp3',
+        breakdown: './audio/music/HardGlitchBreakdown.mp3',
     }
 };
 
@@ -884,7 +885,16 @@ const sound_event_defs = {
         loop: true,
         volume: 0.5,
         unique: true, // Will not create a new event instance if true
-    }
+    },
+
+    'HGBreakdown': {
+        source_type: 'audiostream',
+        source_name: 'breakdown',
+        group_name: 'Music',
+        loop: true,
+        volume: 0.5,
+        unique: true, // Will not create a new event instance if true
+    },
 }
 
 
