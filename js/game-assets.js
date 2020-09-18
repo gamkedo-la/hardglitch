@@ -291,9 +291,9 @@ const sprite_defs = {
                     loop: true,
                     timeline: [
                                 { frame: 0, duration: 500 },
-                                { frame: 1, duration: 200 },
-                                { frame: 0, duration: 200 },
-                                { frame: 1, duration: 500 },
+                                //{ frame: 1, duration: 200 },
+                                //{ frame: 0, duration: 200 },
+                                //{ frame: 1, duration: 500 },
                               ],
                   },
         },
