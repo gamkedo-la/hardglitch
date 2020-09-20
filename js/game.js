@@ -77,7 +77,7 @@ class Game {
         if(this.world.player_characters.length > 0)
             return;
 
-        return add_player_character_at_random_entry_point(player_character);
+        return this.add_player_character_at_random_entry_point(player_character);
     }
 
     add_player_character_at_random_entry_point(player_character){
