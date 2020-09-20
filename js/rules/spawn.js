@@ -47,7 +47,7 @@ function spawn_entities_around(world, center_position, entities, spawn_event = E
         console.assert(position instanceof concepts.Position);
         const entity = entities.pop();
         entity.position = position;
-        world.add(entity);
+        world.add_entity(entity);
         events.push(new spawn_event(entity, position));
     }
     // The other entities will not be spawned...

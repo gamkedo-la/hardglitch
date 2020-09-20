@@ -216,7 +216,7 @@ class DropItem extends concepts.Action {
         const item = character.inventory.remove(this.item_idx);
         console.assert(item instanceof concepts.Item);
         item.position = this.target;
-        world.add(item);
+        world.add_entity(item);
         character.inventory.update_modifiers();
         return [
             new ItemDropped(character, this.item_idx, this.target, item.id),

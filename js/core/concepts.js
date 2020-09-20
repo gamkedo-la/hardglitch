@@ -23,7 +23,6 @@ export {
 import { is_number, clamp } from "../system/utility.js";
 import { Grid } from "../system/grid.js";
 
-
 let next_entity_id = 0;
 function new_entity_id(){
     return ++next_entity_id;
@@ -269,7 +268,7 @@ class World
     _items = {};     // Items that are in the space of the world, not in other entities (not owned by Bodies).
     _bodies = {};    // Bodies are always in the space of the world. They can be controlled by Actors.
     _rules = [];     // Rules that will be applied through this game.
-    grids = [];     // Grids that makes this world, each layer adding information/content.
+    grids = {};      // Grids that makes this world, each layer adding information/content. Grids are named and order of addition is important. See: https://stackoverflow.com/questions/5525795/does-javascript-guarantee-object-property-order/38218582#38218582
     is_finished = false; // True if this world is in a finished state, in which case it should not be updated anymore. TODO: protect against manipulations
     has_entity_list_changed = false; // True if the list of entities existing have changed since the last turn update.
 
@@ -277,8 +276,8 @@ class World
         console.assert(typeof name === "string" && name.length > 0);
         console.assert(Number.isInteger(width) && width > 2);
         console.assert(Number.isInteger(height) && height > 2);
-        console.assert(grids instanceof Array);
-        console.assert(grids.every(grid => grid instanceof Grid && grid.width == width && grid.height == height));
+        console.assert(grids instanceof Object);
+        console.assert(Object.values(grids).every(grid => grid instanceof Grid && grid.width == width && grid.height == height));
         this.name = name;
         this.width = width;
         this.height = height;
@@ -289,6 +288,7 @@ class World
     get bodies() { return Object.values(this._bodies); }
     get items() { return Object.values(this._items); }
     get entities() { return [ ...this.bodies, ...this.items ]; }
+    get all_grids() { return Object.values(this.grids); }
 
     get_entity(entity_id){
         console.assert(Number.isInteger(entity_id));
@@ -298,8 +298,23 @@ class World
         return item;
     }
 
+    add_grid(grid_id, grid = new Grid(this.width, this.height)){
+        console.assert(grid_id !== undefined);
+        console.assert(this.grids[grid_id] === undefined);
+        console.assert(grid instanceof Grid && grid.width == width && grid.height == height);
+        this.grids[grid_id] = grid;
+        return grid;
+    }
+
+    remove_grid(grid_id){
+        console.assert(grid_id !== undefined);
+        const grid = this._grids[grid_id];
+        delete this.grids[grid_id];
+        return grid;
+    }
+
     // Adds an entity to the world (a Body or an Item), setup the necessary spatial information.
-    add(entity){
+    add_entity(entity){
         console.assert(entity instanceof Entity);
         console.assert(entity.position);
         this.has_entity_list_changed = true;
@@ -430,7 +445,7 @@ class World
     tiles_at(position){
         console.assert(this.is_valid_position(position));
         const things = [
-            ...this.grids.map(grid => grid.get_at(position)),
+            ...this.all_grids.map(grid => grid.get_at(position)),
         ];
         return things.filter(thing => thing !== undefined && thing !== null);
     }
@@ -438,7 +453,7 @@ class World
     everything_at(position){
         console.assert(this.is_valid_position(position));
         const things = [
-            ...this.grids.map(grid => grid.get_at(position)),
+            ...this.all_grids.map(grid => grid.get_at(position)),
             this.item_at(position),
             this.body_at(position),
         ];

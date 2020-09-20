@@ -5,7 +5,7 @@ export {
 
 import * as tiles from "../definitions-tiles.js";
 import * as concepts from "../core/concepts.js";
-import { default_rules, is_valid_world, grid_name } from "../definitions-world.js";
+import { default_rules, is_valid_world, grid_ID } from "../definitions-world.js";
 import { Grid } from "../system/grid.js";
 import * as audio from "../system/audio.js"; // inserted here to test with sound effects
 
@@ -25,7 +25,12 @@ function generate_empty_world(name, width, height, defaults = default_defaults){
 
     const world = new concepts.World(`Test Level \"${name}\" ${width} x ${height}`,
                                     width, height,
-                                    [ floor_tile_grid, surface_tile_grid, corruption_tile_grid, unstable_tile_grid ]);
+                                    {
+                                        [grid_ID.floor]:        floor_tile_grid,
+                                        [grid_ID.surface]:      surface_tile_grid,
+                                        [grid_ID.corruption]:   corruption_tile_grid,
+                                        [grid_ID.unstable]:     unstable_tile_grid,
+                                    });
     world.set_rules(...default_rules);
     audio.playEvent('HGBreakdown'); // inserted here to test with sound effects
     return world;

@@ -94,11 +94,12 @@ function make_test_world(test_world_size = world_grid){ // The game assets must 
 
     const world = new concepts.World(`Random Test Level ${test_world_size.width} x ${test_world_size.height}`,
         test_world_size.width, test_world_size.height,
-        [ new Grid(test_world_size.width, test_world_size.height, floor_tile_grid),
-          new Grid(test_world_size.width, test_world_size.height, surface_tile_grid),
-          new Grid(test_world_size.width, test_world_size.height), // corruption layer
-          new Grid(test_world_size.width, test_world_size.height), // unstable layer
-        ]
+        {
+            [grid_ID.floor]:        new Grid(test_world_size.width, test_world_size.height, floor_tile_grid),
+            [grid_ID.surface]:      new Grid(test_world_size.width, test_world_size.height, surface_tile_grid),
+            [grid_ID.corruption]:   new Grid(test_world_size.width, test_world_size.height),
+            [grid_ID.unstable]:     new Grid(test_world_size.width, test_world_size.height),
+        }
         );
     console.assert(world.grids[grid_ID.surface].matching_positions(tileid=> tileid == tiles.ID.ENTRY).length > 0);
 
@@ -116,7 +117,7 @@ function make_test_world(test_world_size = world_grid){ // The game assets must 
             const enemy_type = random_int(0, 100) >= 50 ? RandomActionEnemy : LifeForm_Strong;
             const enemy = new enemy_type();
             enemy.position = position;
-            world.add(enemy);
+            world.add_entity(enemy);
             --ennemy_count;
         }
     }
@@ -128,7 +129,7 @@ function make_test_world(test_world_size = world_grid){ // The game assets must 
             const file_type = crypto_file_types.pop();
             const file = new file_type();
             file.position = position;
-            world.add(file);
+            world.add_entity(file);
         }
     }
 
@@ -139,7 +140,7 @@ function make_test_world(test_world_size = world_grid){ // The game assets must 
             const key_type = crypto_key_types.pop();
             const key = new key_type();
             key.position = position;
-            world.add(key);
+            world.add_entity(key);
         }
     }
 
@@ -187,7 +188,7 @@ function make_test_world(test_world_size = world_grid){ // The game assets must 
             const item_type = random_int(0, 100) >= 70 ? LifeForm_Weak : random_sample([...items.all_item_types()]);
             const entity = new item_type();
             entity.position = position;
-            world.add(entity);
+            world.add_entity(entity);
         });
 
     // farther voids
@@ -204,7 +205,7 @@ function make_test_world(test_world_size = world_grid){ // The game assets must 
         const item_type = /*random_int(0, 100) >= 70 ? items.CryptoFile : */items.MovableWall;
         const file = new item_type();
         file.position = position;
-        world.add(file);
+        world.add_entity(file);
     });
 
     let exit_count = 8;

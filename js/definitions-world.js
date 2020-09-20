@@ -5,11 +5,12 @@ export {
     world_grid, default_rules, game_levels, grid_ID,
     is_blocked_position,
     is_valid_world,
-    grid_name,
 };
 
 import * as basic_rules from "./rules/rules-basic.js";
 import * as concepts from "./core/concepts.js";
+import { not } from "./system/utility.js";
+import { Grid } from "./system/grid.js";
 
 import { Rule_Movements, Rule_Jump, Rule_Swap, Rule_RandomJump } from "./rules/rules-movement.js";
 import { Rule_ActionPoints } from "./rules/rules-actionpoints.js";
@@ -28,7 +29,6 @@ import * as level_1 from "./levels/level_1.js";
 import * as level_2 from "./levels/level_2.js";
 import * as level_3 from "./levels/level_3.js";
 import * as level_4 from "./levels/level_4.js";
-import { not } from "./system/utility.js";
 
 const world_grid = {
     width: 64,
@@ -69,22 +69,11 @@ const game_levels = [
 ];
 
 const grid_ID = {
-    floor: 0,
-    surface: 1,
-    corruption: 2,
-    unstable: 3,
+    floor: "floor",
+    surface: "surface",
+    corruption: "corruption",
+    unstable: "unstable",
 };
-
-function grid_name(id){
-    console.assert(Number.isInteger(id));
-    console.assert(id >= 0 && id < Object.values(grid_ID).length);
-    for(const [key, value] of Object.entries(grid_ID)){
-        if(value === id){
-            return key;
-        }
-    }
-    throw "Grid ID does not exist!";
-}
 
 // Returns true if the position given is blocked by an entity (Body or Item) or a tile that blocks (wall).
 // The meaning of "blocking" depends on the provided predicate.
@@ -117,7 +106,8 @@ function is_blocked_position(world, position, is_not_blocking){
 function is_valid_world(world){
     return world instanceof concepts.World
         && world.width > 2 && world.height > 2
-        && world.grids.length >= Object.keys(grid_ID).length
-        && world.grids.every(grid => grid.width === world.width && grid.height === world.height)
+        && world.all_grids.length >= Object.keys(grid_ID).length
+        && Object.values(grid_ID).every(grid_id => world.grids[grid_id] instanceof Grid)
+        && world.all_grids.every(grid => grid.width === world.width && grid.height === world.height)
         ;
 }

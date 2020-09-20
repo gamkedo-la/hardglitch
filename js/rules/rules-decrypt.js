@@ -95,7 +95,7 @@ class Decrypt extends concepts.Action {
         const new_item = file.decrypt();
         if(new_item){
             new_item.position = this.target_position;
-            world.add(new_item);
+            world.add_entity(new_item);
         }
 
         return [ new DecryptedFile(character, file, key_idx) ];

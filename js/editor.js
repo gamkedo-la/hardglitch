@@ -141,7 +141,7 @@ function make_edit_operation_add_entity_at(entity_type){
         if(game_session.game.is_walkable(position)){
             const entity = new entity_type();
             entity.position = position;
-            game_session.world.add(entity);
+            game_session.world.add_entity(entity);
             console.assert(`ADDED ${entity.name} ENTITY`);
             return true;
         }
@@ -152,7 +152,7 @@ function make_edit_operation_add_entity_at(entity_type){
 
 function make_edit_operation_change_tile(tile_id, world_tile_grid_id){
     console.assert(Number.isInteger(tile_id) || tile_id === undefined);
-    console.assert(Number.isInteger(world_tile_grid_id) && world_tile_grid_id >= 0);
+    console.assert(Object.values(grid_ID).includes(world_tile_grid_id));
     return (game_session, position) => {
         console.assert(game_session instanceof GameSession);
         console.assert(position);

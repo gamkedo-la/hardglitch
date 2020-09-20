@@ -86,7 +86,7 @@ class Game {
         const player = player_character ? player_character : new GlitchyGlitchMacGlitchy();
         player.skip_turn = true;
         player.position = position;
-        this.world.add(player);
+        this.world.add_entity(player);
     }
 
     get all_entry_points_positions(){
