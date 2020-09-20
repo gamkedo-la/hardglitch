@@ -24,7 +24,7 @@ class Game {
         this.world = world;
 
         // Prepare the game turns to be ready to play (player's turn)
-        this.add_player_character_at_random_entry_point(player_character);
+        this.add_player_character_if_none(player_character);
         this.__turn_sequence = turns.execute_turns(this.world);
 
         // Make sure we begin at a player's turn.
@@ -71,6 +71,13 @@ class Game {
             console.log(` - ${action.name}`);
         }
         return this.turn_info;
+    }
+
+    add_player_character_if_none(player_character){
+        if(this.world.player_characters.length > 0)
+            return;
+
+        return add_player_character_at_random_entry_point(player_character);
     }
 
     add_player_character_at_random_entry_point(player_character){
