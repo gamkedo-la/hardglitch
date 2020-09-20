@@ -301,7 +301,7 @@ class World
     add_grid(grid_id, grid = new Grid(this.width, this.height)){
         console.assert(grid_id !== undefined);
         console.assert(this.grids[grid_id] === undefined);
-        console.assert(grid instanceof Grid && grid.width == width && grid.height == height);
+        console.assert(grid instanceof Grid && grid.width == this.width && grid.height == this.height);
         this.grids[grid_id] = grid;
         return grid;
     }

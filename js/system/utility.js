@@ -20,6 +20,7 @@ export {
     set_on_members,
     lazy_call,
     add_text_line,
+    escaped,
 }
 
 
@@ -266,3 +267,7 @@ function add_text_line(text, new_line_string = ""){
     return text;
 }
 
+// Adds double quote esquapes to double quotes.
+function escaped(str){
+    return str.replace(/\"/g, `\\"`);
+}

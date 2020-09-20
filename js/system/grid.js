@@ -20,6 +20,19 @@ class Grid {
         } else {
             this.elements = new Array(width * height);
         }
+
+        this.clean();
+    }
+
+    get size() { return this.width * this.height; }
+
+    // Removes all null values.
+    clean(){
+        for(let idx = 0; idx < this.size; ++idx){
+            if(this.elements[idx] === null){
+                delete this.elements[idx];
+            }
+        }
     }
 
     fill(value){

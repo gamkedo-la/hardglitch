@@ -5,6 +5,7 @@ export {
     world_grid, default_rules, game_levels, grid_ID,
     is_blocked_position,
     is_valid_world,
+    get_entity_type,
 };
 
 import * as basic_rules from "./rules/rules-basic.js";
@@ -29,6 +30,8 @@ import * as level_1 from "./levels/level_1.js";
 import * as level_2 from "./levels/level_2.js";
 import * as level_3 from "./levels/level_3.js";
 import * as level_4 from "./levels/level_4.js";
+import { all_item_types } from "./definitions-items.js";
+import { all_characters_types } from "./deflinitions-characters.js";
 
 const world_grid = {
     width: 64,
@@ -63,6 +66,25 @@ const default_rules = [ // BEWARE: rules will be applied in-order.
     new Rule_ActionPoints(), // TODO: check that it's in the right order
 ];
 
+let _all_entity_types;
+
+function all_entity_types(){
+    if(!_all_entity_types){
+        const types = [
+            ...all_item_types(),
+            ...all_characters_types(),
+        ];
+        _all_entity_types = {};
+        for(const type of types){
+            _all_entity_types[type.name] = type;
+        }
+    }
+    return _all_entity_types;
+}
+
+function get_entity_type(type_name){
+    return all_entity_types()[type_name];
+}
 
 const game_levels = [
     level_1, level_2, level_3, level_4,

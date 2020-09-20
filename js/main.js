@@ -171,7 +171,7 @@ function update_cycle(highres_timestamp){
 // The following code allows us to use the console to load specific levels.
 
 import * as random_test_level from "./testing/test-level.js";
-import { generate_empty_world } from "./levels/level-tools.js";
+import { deserialize_world, generate_empty_world } from "./levels/level-tools.js";
 
 function load_level(level_number){
   game_state_machine.push_action("load_game", level_number);
@@ -185,7 +185,13 @@ function load_random_test_level(width, height){
   game_state_machine.push_action("load_game", () => random_test_level.make_test_world({ width: width ? width : 64, height:height ? height : 64 }));
 }
 
+function load_serialized_level(world_desc){
+  game_state_machine.push_action("load_game", () => deserialize_world(world_desc));
+}
+
 window.load_level = load_level;
 window.load_test_level = load_test_level;
 window.load_random_test_level = load_random_test_level;
+window.load_serialized_level = load_serialized_level;
+
 
