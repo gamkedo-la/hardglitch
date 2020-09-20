@@ -22,7 +22,7 @@ const all_uncommon_action_types = { // Action types which are not by default (li
     Destroy,
     Jump,
     RandomJump,
-    SmallerJump,
+   // SmallerJump,
     Swap,
     Push,
     Pull,
