@@ -10,9 +10,12 @@ export {
 // save the canvas for dimensions, and its 2d context for drawing to it
 import * as audio from "./system/audio.js";
 import * as graphics from "./system/graphics.js";
-import { load_all_assets, sound_event_defs } from "./game-assets.js";
 import * as input from "./system/input.js";
 import * as fsm from "./system/finite-state-machine.js";
+
+import { load_all_assets, sound_event_defs } from "./game-assets.js";
+import { defs as tiledefs } from "./definitions-tiles.js";
+import { initialize as tile_select_initialize } from "./view/tile-select.js";
 
 import { LoadingGameScreen } from "./screen-loading-game.js";
 import { MainMenuScreen } from "./screen-main-menu.js";
@@ -21,8 +24,6 @@ import { CreditsScreen } from "./screen-credits.js";
 import { GameOverScreen_Success, GameOverScreen_Failure } from "./screen-gameover.js";
 import * as level_screens from "./screen-levels.js";
 import { MuteAudioButton } from "./game-ui.js";
-import {defs as tiledefs} from "./definitions-tiles.js";
-import {initialize as tile_select_initialize} from "./view/tile-select.js";
 
 let last_update_time = performance.now();
 const max_delta_time = 1000 / 26; // Always assume at worst that we are at 26fps
@@ -121,9 +122,9 @@ window.onload = async function() {
 
   const assets = await load_all_assets();
   game_state_machine.update();
-  tile_select_initialize(tiledefs);
   const canvas_context = graphics.initialize(assets);
-  game_state_machine.update();
+  game_state_machine.update(); // Starts displaying the "loading" screne.
+  tile_select_initialize(tiledefs);
   audio.initialize(assets, sound_event_defs);
   game_state_machine.update();
   input.initialize(canvas_context);

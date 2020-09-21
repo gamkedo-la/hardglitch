@@ -8,8 +8,8 @@ import * as turns from "./core/action-turn.js";
 import { random_sample } from "./system/utility.js";
 import * as tiles from "./definitions-tiles.js";
 import { is_blocked_position, grid_ID, is_valid_world } from "./definitions-world.js";
-import { GlitchyGlitchMacGlitchy } from "./characters/glitch.js";
 import { Character } from "./core/character.js";
+import { GlitchyGlitchMacGlitchy } from "./characters/glitch.js";
 
 // Abstract but complete representation of a game.
 // Create this object for each new game.
