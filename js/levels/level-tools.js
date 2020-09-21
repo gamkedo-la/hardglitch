@@ -170,9 +170,9 @@ function rotate_world_desc(world_desc, rotation_count=1){
     while(rotation_count !== 0){
         const initial_width = rotated_world.width;
         const initial_height = rotated_world.height;
-        const N = initial_height - 1;
         const width = rotated_world.height;
         const height = rotated_world.width;
+        const N = height - 1;
         rotated_world.width = width;
         rotated_world.height = height;
 
@@ -181,7 +181,7 @@ function rotate_world_desc(world_desc, rotation_count=1){
             for (let y = 0; y < initial_height; y++) {
                 for (let x = 0; x < initial_width; x++) {
                     const source_idx = index_from_position(initial_width, initial_height, {x, y});
-                    const destination_idx = index_from_position(initial_width, initial_height, { x: y, y: N - x });
+                    const destination_idx = index_from_position(width, height, { x: y, y: N - x });
                     grid[destination_idx] = initial_grid[source_idx];
                 }
             }
@@ -204,6 +204,7 @@ function rotate_world_desc(world_desc, rotation_count=1){
 /// The following is for debug:
 window.reversed_world_desc = reversed_world_desc;
 window.rotate_world_desc = rotate_world_desc;
+window.mirror_world_desc = mirror_world_desc;
 
 window.level_initial = {
     name: "Test Level \"testing\" 8 x 8",
@@ -221,6 +222,20 @@ window.level_initial = {
     ],
   };
 
+window.level_corridor = {
+    name: "Test Level \"testing\" 2 x 5",
+    width: 2,
+    height: 5,
+    grids: {
+        floor: [12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
+        surface: [0, null, null, null, null, null, null, null, null, 1],
+        corruption: [null, null, null, null, null, null, null, null, null, null],
+        unstable: [null, null, null, null, null, null, null, null, null, null],
+    },
+    entities: [
+        { type: "GlitchyGlitchMacGlitchy", position: { x: 0, y: 0 } },
+    ],
+};
 
 
 window.setup_test_levels = ()=>{
