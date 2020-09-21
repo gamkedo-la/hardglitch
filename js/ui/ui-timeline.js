@@ -110,10 +110,13 @@ class Timeline
         for(const character_id of character_ids) {
             console.assert(Number.isInteger(character_id));
             const character_view = this._view_finder(character_id);
-            console.assert(character_view instanceof CharacterView); // NOT SURE IF WE ALLOW UNDEFINED OR NOT????
-            if(!this._is_entity_visible(character_view.game_position))
-                continue; // Don't show characters that are not visible to the player on the timeline.
-            this._character_views.push(character_view);
+            if(character_view){
+                console.assert(character_view instanceof CharacterView);
+                if(!this._is_entity_visible(character_view.game_position))
+                    continue; // Don't show characters that are not visible to the player on the timeline.
+                this._character_views.push(character_view);
+            }
+
         };
     }
 
