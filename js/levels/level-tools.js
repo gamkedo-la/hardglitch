@@ -94,7 +94,6 @@ function deserialize_world(world_desc){
 
     for(const [grid_id, grid_elements] of Object.entries(world_desc.grids)){
         const grid = new Grid(world_desc.width, world_desc.height, grid_elements);
-        grid.elements = grid.elements.reverse();
         world.add_grid(grid_id, grid);
     }
 
