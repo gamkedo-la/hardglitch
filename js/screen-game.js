@@ -8,6 +8,7 @@ import * as graphics from "./system/graphics.js";
 import * as input from "./system/input.js";
 import * as fsm from "./system/finite-state-machine.js";
 import * as ui from "./system/ui.js";
+import * as audio from "./system/audio.js";
 
 import { KEY } from "./game-input.js";
 
@@ -310,6 +311,7 @@ class GameScreen extends fsm.StateMachine {
         this._replace_title();
 
         this.animations.play(this._title_fade());
+        audio.playEvent('HGBreakdown'); // TODO: play a playlist depending on the level?
 
         this.ready = false;
         yield* wait(1000);
@@ -317,6 +319,7 @@ class GameScreen extends fsm.StateMachine {
 
         this.game_session.start();
         this.ready = true;
+
     }
 
     *leave(){
@@ -325,6 +328,7 @@ class GameScreen extends fsm.StateMachine {
         this.ready = false;
         yield* this.fader.generate_fade_out();
         this.game_session.stop();
+        audio.stopEvent('HGBreakdown'); // TODO: play a playlist depending on the level?
         // ...
         delete this.level_title;
         delete this.game_session;

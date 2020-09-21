@@ -8,7 +8,6 @@ import * as tiles from "../definitions-tiles.js";
 import * as concepts from "../core/concepts.js";
 import { default_rules, is_valid_world, grid_ID, get_entity_type } from "../definitions-world.js";
 import { Grid } from "../system/grid.js";
-import * as audio from "../system/audio.js"; // inserted here to test with sound effects
 import { escaped, index_from_position, random_int, random_sample } from "../system/utility.js";
 
 const default_defaults = {
@@ -34,7 +33,6 @@ function generate_empty_world(name, width, height, defaults = default_defaults){
                                         [grid_ID.unstable]:     unstable_tile_grid,
                                     });
     world.set_rules(...default_rules);
-    audio.playEvent('HGBreakdown'); // inserted here to test with sound effects
     return world;
 }
 
