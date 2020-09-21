@@ -274,8 +274,8 @@ class World
 
     constructor(name, width, height, grids){
         console.assert(typeof name === "string" && name.length > 0);
-        console.assert(Number.isInteger(width) && width > 2);
-        console.assert(Number.isInteger(height) && height > 2);
+        console.assert(Number.isInteger(width) && width > 1);
+        console.assert(Number.isInteger(height) && height > 1);
         console.assert(grids instanceof Object);
         console.assert(Object.values(grids).every(grid => grid instanceof Grid && grid.width == width && grid.height == height));
         this.name = name;

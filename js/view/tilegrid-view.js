@@ -66,7 +66,7 @@ class TileGridView {
         // initialize game fx view
         this.fx_view = new GameFxView();
         console.assert(position instanceof Vector2);
-        console.assert(size instanceof Vector2 && size.x > 2 && size.y > 2);
+        console.assert(size instanceof Vector2 && size.x > 1 && size.y > 1);
         this.position = position;
         this.size = size;
         // FIXME: figure out better way of allocating wall model

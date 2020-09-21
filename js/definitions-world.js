@@ -127,7 +127,7 @@ function is_blocked_position(world, position, is_not_blocking){
 
 function is_valid_world(world){
     return world instanceof concepts.World
-        && world.width > 2 && world.height > 2
+        && world.width > 1 && world.height > 1
         && world.all_grids.length >= Object.keys(grid_ID).length
         && Object.values(grid_ID).every(grid_id => world.grids[grid_id] instanceof Grid)
         && world.all_grids.every(grid => grid.width === world.width && grid.height === world.height)

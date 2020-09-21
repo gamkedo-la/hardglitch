@@ -11,8 +11,8 @@ import { position_from_index } from "../system/utility.js";
 // Multiple grids can be used to represent layers of the world.
 class Grid {
     constructor(width, height, elements){
-        console.assert(width > 2);
-        console.assert(height > 2);
+        console.assert(width > 1);
+        console.assert(height > 1);
         this.width = width;
         this.height = height;
         if(elements){

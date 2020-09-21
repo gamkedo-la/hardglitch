@@ -73,8 +73,8 @@ function serialize_world(world){
 function check_world_desc(world_desc){
     console.assert(world_desc instanceof Object);
     console.assert(typeof world_desc.name === "string");
-    console.assert(Number.isInteger(world_desc.width) && world_desc.width > 2);
-    console.assert(Number.isInteger(world_desc.height) && world_desc.height > 2);
+    console.assert(Number.isInteger(world_desc.width) && world_desc.width > 1);
+    console.assert(Number.isInteger(world_desc.height) && world_desc.height > 1);
     console.assert(world_desc.grids instanceof Object);
     console.assert(Object.keys(world_desc.grids).every(grid_id => grid_ID[grid_id] !== undefined));
     console.assert(Object.values(world_desc.grids).every(grid=> grid instanceof Array && grid.length === world_desc.width * world_desc.height));
