@@ -279,14 +279,15 @@ class GameView {
     get_entity_view(entity_id){
         console.assert(Number.isInteger(entity_id));
         const entity_view = this.entity_views[entity_id];
-        console.assert(entity_view instanceof EntityView);
         return entity_view;
     }
 
     focus_on_entity(entity_id){
         const entity_view = this.get_entity_view(entity_id);
-        console.assert(entity_view instanceof EntityView);
-        this.focus_on_position(entity_view.game_position);
+        if(entity_view){
+            console.assert(entity_view instanceof EntityView);
+            this.focus_on_position(entity_view.game_position);
+        }
         return entity_view;
     }
 
