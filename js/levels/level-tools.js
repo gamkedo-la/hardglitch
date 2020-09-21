@@ -2,7 +2,6 @@ export {
     generate_empty_world,
     serialize_world,
     deserialize_world,
-    reversed_world_desc,
 }
 
 import * as tiles from "../definitions-tiles.js";
@@ -10,7 +9,7 @@ import * as concepts from "../core/concepts.js";
 import { default_rules, is_valid_world, grid_ID, get_entity_type } from "../definitions-world.js";
 import { Grid } from "../system/grid.js";
 import * as audio from "../system/audio.js"; // inserted here to test with sound effects
-import { escaped, index_from_position } from "../system/utility.js";
+import { escaped, index_from_position, random_int, random_sample } from "../system/utility.js";
 
 const default_defaults = {
     ground : tiles.ID.CALCFLOORWARM,
@@ -111,27 +110,25 @@ function deserialize_world(world_desc){
     return world;
 }
 
-const world_variations = [
-    reversed_world_desc,
-];
+// function reversed_world_desc(world_desc){
+//     check_world_desc(world_desc);
+//     const result = copy_world_desc(world_desc);
+//     result.width = world_desc.height;
+//     result.height = world_desc.width;
 
-function reversed_world_desc(world_desc){
-    check_world_desc(world_desc);
-    const result = copy_world_desc(world_desc);
+//     for(const [grid_id, grid] of Object.entries(result.grids)){
+//         result.grids[grid_id] = grid.reverse();
+//     }
 
-    for(const [grid_id, grid] of Object.entries(result.grids)){
-        result.grids[grid_id] = grid.reverse();
-    }
+//     result.entities.forEach(entity => {
+//         const x = entity.position.y;
+//         const y = entity.position.x;
+//         entity.position.x = x;
+//         entity.position.y = y;
+//     });
 
-    result.entities.forEach(entity => {
-        const x = entity.position.y;
-        const y = entity.position.x;
-        entity.position.x = x;
-        entity.position.y = y;
-    });
-
-    return result;
-}
+//     return result;
+// }
 
 
 function mirror_world_desc(world_desc, vertical_axe = true){
@@ -200,10 +197,37 @@ function rotate_world_desc(world_desc, rotation_count=1){
 }
 
 
+function mirror_vertical_axe(world_desc) { return mirror_world_desc(world_desc, true); }
+function mirror_horizontal_axe(world_desc){ return mirror_world_desc(world_desc, false); }
+
+const world_variations = [
+    // reversed_world_desc,
+    rotate_world_desc,
+    mirror_vertical_axe,
+    mirror_horizontal_axe,
+];
+
+function random_variation(world_desc){
+    check_world_desc(world_desc);
+    let result_world = copy_world_desc(world_desc);
+
+    console.log("++++++ World Variation BEGIN: ++++++");
+    let variations_count = random_int(0, 5);
+    while(variations_count > 0){
+        const variation_func = random_sample(world_variations);
+        result_world = variation_func(result_world);
+        --variations_count;
+        console.log(` - ${variation_func.name}`);
+    }
+    console.log("++++++ World Variation END++++++");
+    return result_world;
+}
+
 /// The following is for debug:
-window.reversed_world_desc = reversed_world_desc;
+// window.reversed_world_desc = reversed_world_desc;
 window.rotate_world_desc = rotate_world_desc;
 window.mirror_world_desc = mirror_world_desc;
+window.random_variation = random_variation;
 
 window.level_initial = {
     name: "Test Level \"testing\" 8 x 8",
@@ -236,6 +260,22 @@ window.level_corridor = {
     ],
 };
 
+window.level_x = {
+    name: "Test Level \"testing\" 5 x 8",
+    width: 5,
+    height: 8,
+    grids: {
+        floor: [12, 12, 12, 126, 126, 12, 12, 12, 126, 126, 12, 12, 12, 12, 126, 12, 12, 12, 12, 126, 108, 108, 12, 12, 12, 108, 108, 12, 12, 126, 108, 108, 12, 12, 12, 108, 108, 12, 12, 12],
+        surface: [0, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1],
+        corruption: [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+        unstable: [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+    },
+    entities: [
+        { type: "GlitchyGlitchMacGlitchy", position: { x: 1, y: 2 } },
+        { type: "CryptoFile_Circle", position: { x: 3, y: 7 } },
+        { type: "Debug_AugmentActionPoints", position: { x: 3, y: 2 } },
+    ],
+};
 
 window.setup_test_levels = ()=>{
     window.level_east = rotate_world_desc(window.level_initial);
