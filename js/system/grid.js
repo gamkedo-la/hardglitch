@@ -1,6 +1,8 @@
 // This file contain code related to grid operations and container.
 
-export { Grid }
+export {
+    Grid,
+}
 
 
 import { position_from_index } from "../system/utility.js";
@@ -155,6 +157,4 @@ class Grid {
     }
 
 };
-
-
 

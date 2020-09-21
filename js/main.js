@@ -174,18 +174,24 @@ import * as random_test_level from "./testing/test-level.js";
 import { deserialize_world, generate_empty_world } from "./levels/level-tools.js";
 
 function load_level(level_number){
+  console.assert(Number.isInteger(level_number) && level_number > 0);
   game_state_machine.push_action("load_game", level_number);
 }
 
 function load_test_level(width, height){
+  console.assert(Number.isInteger(width) && height > 1);
+  console.assert(Number.isInteger(width) && height > 1);
   game_state_machine.push_action("load_game", ()=> generate_empty_world("testing", width, height) );
 }
 
 function load_random_test_level(width, height){
+  console.assert(Number.isInteger(width) && height > 1);
+  console.assert(Number.isInteger(width) && height > 1);
   game_state_machine.push_action("load_game", () => random_test_level.make_test_world({ width: width ? width : 64, height:height ? height : 64 }));
 }
 
 function load_serialized_level(world_desc){
+  console.assert(world_desc);
   game_state_machine.push_action("load_game", () => deserialize_world(world_desc));
 }
 
