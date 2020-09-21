@@ -134,6 +134,34 @@ function reversed_world_desc(world_desc){
     return result;
 }
 
+
+function mirror_world_desc(world_desc, vertical_axe = true){
+    check_world_desc(world_desc);
+    const result = copy_world_desc(world_desc);
+
+    const mirrored_pos = vertical_axe ? (pos) => { return { x: result.width - 1 - pos.x, y: pos.y }; }
+                                      : (pos) => { return { x: pos.x, y: result.height - 1 - pos.y }; }
+                                      ;
+
+    Object.values(result.grids).forEach(grid => {
+        const initial_grid = new Array(...grid);
+        for (let y = 0; y < result.height; y++) {
+            for (let x = 0; x < result.width; x++) {
+                const pos = {x, y};
+                const source_idx = index_from_position(result.width, result.height, pos);
+                const destination_idx = index_from_position(result.width, result.height, mirrored_pos(pos));
+                grid[destination_idx] = initial_grid[source_idx];
+            }
+        }
+    });
+
+    result.entities.forEach(entity => {
+        entity.position = mirrored_pos(entity.position);
+    });
+
+    return result;
+}
+
 function rotate_world_desc(world_desc, rotation_count=1){
     check_world_desc(world_desc);
     console.assert(Number.isInteger(rotation_count) && rotation_count >=0 );
@@ -200,5 +228,7 @@ window.setup_test_levels = ()=>{
     window.level_south = rotate_world_desc(window.level_east);
     window.level_west = rotate_world_desc(window.level_south);
     window.level_north = rotate_world_desc(window.level_west);
+    window.level_mirror_vertical_axe = mirror_world_desc(window.level_initial);
+    window.level_mirror_horizontal_axe = mirror_world_desc(window.level_initial, false);
 };
 
