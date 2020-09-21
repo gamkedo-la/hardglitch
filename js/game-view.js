@@ -621,6 +621,9 @@ class GameView {
                 else
                     this._change_highlight_position(this._pointed_highlight, mouse_pos);
             }
+        } else {
+            this._pointed_highlight_edit.enabled = false;
+            this._pointed_highlight.enabled = false;
         }
 
         for(const highlight_sprite of Object.values(this._highlight_sprites)){
@@ -646,6 +649,7 @@ class GameView {
     }
 
     _change_highlight_position(highlight, new_pos){
+        highlight.enabled = true;
         highlight.position = new_pos;
         highlight.text = this.help_texts_at(new_pos);
     }
