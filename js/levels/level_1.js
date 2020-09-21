@@ -7,7 +7,9 @@ import { generate_empty_world } from "./level-tools.js";
 
 const defaults = {
     ground : tiles.ID.CALCFLOORWARM,
+    ground_alt: tiles.ID.CALCFLOORWARM,
     wall : tiles.ID.WALL,
+    wall_alt : tiles.ID.WALL,
 };
 
 function generate_world(){
