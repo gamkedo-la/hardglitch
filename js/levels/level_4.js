@@ -6,10 +6,10 @@ import * as tiles from "../definitions-tiles.js";
 import { generate_empty_world } from "./level-tools.js";
 
 const defaults = {
-    ground : tiles.ID.GROUND2,
-    ground_alt : tiles.ID.GROUND2,
-    wall : tiles.ID.WALL,
-    wall_alt : tiles.ID.WALL,
+    ground : tiles.ID.LVL4A,
+    ground_alt: tiles.ID.LVL4B,
+    wall : tiles.ID.WALL4A,
+    wall_alt : tiles.ID.WALL4B,
 };
 
 function generate_world(){
