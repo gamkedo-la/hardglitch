@@ -36,29 +36,24 @@ const ID = {
     STREAM_UP: 52,
     STREAM_DOWN: 53,
 
-    TYLVL1A : 100,
-    TYLVL1B : 101,
-    TYLVL2A : 102,
-    TYLVL2B : 103,
-    TYLVL3A : 104,
-    TYLVL3B : 105,
-    TYLVL4A : 106,
-    TYLVL4B : 107,
-    ASHLVL3B : 108,
-    ASHLVL4A : 109,
-    ASHLVL4B : 110,
+    LVL1A : 100,
+    LVL1B : 101,
+    LVL2A : 102,
+    LVL2B : 103,
+    LVL3A : 104,
+    LVL3B : 105,
+    LVL4A : 106,
+    LVL4B : 107,
 
-    TYWALL1A: 120,
-    TYWALL1B: 121,
-    TYWALL2A: 122,
-    TYWALL2B: 123,
-    TYWALL3A: 124,
-    TYWALL3B: 125,
-    TYWALL4A: 126,
-    TYWALL4B: 127,
-    ASHWALL3B: 128,
-    ASHWALL4A: 129,
-    ASHWALL4B: 130,
+    WALL1A: 120,
+    WALL1B: 121,
+    WALL2A: 122,
+    WALL2B: 123,
+    WALL3A: 124,
+    WALL3B: 125,
+    WALL4A: 126,
+    WALL4B: 127,
+
 };
 
 // NOTE: these are filled out by iterating through the definitions below.  if is_surface is included, the tile type is added to surface_tiles, otherwise to floor tiles
@@ -310,142 +305,107 @@ const defs = {
         is_surface: true,
     },
 
-    [ID.TYLVL1A] : {
+    [ID.LVL1A] : {
         sprite_def: sprite_defs.ground,
         is_walkable: true,
         is_safe: true,
         is_view_blocking: false,
-        description: "TYLVL1A",
+        description: "LVL1A",
         is_ground: true,
-        shape_template: "tylvl1a_template",
-        tile_match_predicate: (v) => (v==ID.TYLVL1A),
-        tile_same_predicate: (v) => (v==ID.TYLVL1A),
+        shape_template: "lvl1a_template",
+        tile_match_predicate: (v) => (v==ID.LVL1A),
+        tile_same_predicate: (v) => (v==ID.LVL1A),
     },
-    [ID.TYLVL1B] : {
+    [ID.LVL1B] : {
         sprite_def: sprite_defs.ground,
         is_walkable: true,
         is_safe: true,
         is_view_blocking: false,
-        description: "TYLVL1B",
+        description: "LVL1B",
         is_ground: true,
-        shape_template: "tylvl1b_template",
-        tile_match_predicate: (v) => (v==ID.TYLVL1B),
-        tile_same_predicate: (v) => (v==ID.TYLVL1B),
-    },
-
-    [ID.TYLVL2A] : {
-        sprite_def: sprite_defs.ground,
-        is_walkable: true,
-        is_safe: true,
-        is_view_blocking: false,
-        description: "TYLVL2A",
-        is_ground: true,
-        shape_template: "tylvl2a_template",
-        tile_match_predicate: (v) => (v==ID.TYLVL2A),
-        tile_same_predicate: (v) => (v==ID.TYLVL2A),
-    },
-    [ID.TYLVL2B] : {
-        sprite_def: sprite_defs.ground,
-        is_walkable: true,
-        is_safe: true,
-        is_view_blocking: false,
-        description: "TYLVL2B",
-        is_ground: true,
-        shape_template: "tylvl2b_template",
-        tile_match_predicate: (v) => (v==ID.TYLVL2B),
-        tile_same_predicate: (v) => (v==ID.TYLVL2B),
+        shape_template: "lvl1b_template",
+        tile_match_predicate: (v) => (v==ID.LVL1B),
+        tile_same_predicate: (v) => (v==ID.LVL1B),
     },
 
-    [ID.TYLVL3A] : {
+    [ID.LVL2A] : {
         sprite_def: sprite_defs.ground,
         is_walkable: true,
         is_safe: true,
         is_view_blocking: false,
-        description: "TYLVL3A",
+        description: "LVL2A",
         is_ground: true,
-        shape_template: "tylvl3a_template",
-        tile_match_predicate: (v) => (v==ID.TYLVL3A),
-        tile_same_predicate: (v) => (v==ID.TYLVL3A),
+        shape_template: "lvl2a_template",
+        tile_match_predicate: (v) => (v==ID.LVL2A),
+        tile_same_predicate: (v) => (v==ID.LVL2A),
     },
-    [ID.TYLVL3B] : {
+    [ID.LVL2B] : {
         sprite_def: sprite_defs.ground,
         is_walkable: true,
         is_safe: true,
         is_view_blocking: false,
-        description: "TYLVL3B",
+        description: "LVL2B",
         is_ground: true,
-        shape_template: "tylvl3b_template",
-        tile_match_predicate: (v) => (v==ID.TYLVL3B),
-        tile_same_predicate: (v) => (v==ID.TYLVL3B),
-    },
-
-    [ID.TYLVL4A] : {
-        sprite_def: sprite_defs.ground,
-        is_walkable: true,
-        is_safe: true,
-        is_view_blocking: false,
-        description: "TYLVL4A",
-        is_ground: true,
-        shape_template: "tylvl4a_template",
-        tile_match_predicate: (v) => (v==ID.TYLVL4A),
-        tile_same_predicate: (v) => (v==ID.TYLVL4A),
-    },
-    [ID.TYLVL4B] : {
-        sprite_def: sprite_defs.ground,
-        is_walkable: true,
-        is_safe: true,
-        is_view_blocking: false,
-        description: "TYLVL4B",
-        is_ground: true,
-        shape_template: "tylvl4b_template",
-        tile_match_predicate: (v) => (v==ID.TYLVL4B),
-        tile_same_predicate: (v) => (v==ID.TYLVL4B),
+        shape_template: "lvl2b_template",
+        tile_match_predicate: (v) => (v==ID.LVL2B),
+        tile_same_predicate: (v) => (v==ID.LVL2B),
     },
 
-    [ID.ASHLVL3B] : {
+    [ID.LVL3A] : {
         sprite_def: sprite_defs.ground,
         is_walkable: true,
         is_safe: true,
         is_view_blocking: false,
-        description: "ASHLVL3B",
+        description: "LVL3A",
         is_ground: true,
-        shape_template: "ashlvl3b_template",
-        tile_match_predicate: (v) => (v==ID.ASHLVL3B),
-        tile_same_predicate: (v) => (v==ID.ASHLVL3B),
+        shape_template: "lvl3a_template",
+        tile_match_predicate: (v) => (v==ID.LVL3A),
+        tile_same_predicate: (v) => (v==ID.LVL3A),
+    },
+    [ID.LVL3B] : {
+        sprite_def: sprite_defs.ground,
+        is_walkable: true,
+        is_safe: true,
+        is_view_blocking: false,
+        description: "LVL3B",
+        is_ground: true,
+        shape_template: "lvl3b_template",
+        tile_match_predicate: (v) => (v==ID.LVL3B),
+        tile_same_predicate: (v) => (v==ID.LVL3B),
     },
 
-    [ID.ASHLVL4A] : {
+    [ID.LVL4A] : {
         sprite_def: sprite_defs.ground,
         is_walkable: true,
         is_safe: true,
         is_view_blocking: false,
-        description: "ASHLVL4A",
+        description: "LVL4A",
         is_ground: true,
-        shape_template: "ashlvl4a_template",
-        tile_match_predicate: (v) => (v==ID.ASHLVL4A),
-        tile_same_predicate: (v) => (v==ID.ASHLVL4A),
+        shape_template: "lvl4a_template",
+        tile_match_predicate: (v) => (v==ID.LVL4A),
+        tile_same_predicate: (v) => (v==ID.LVL4A),
     },
-    [ID.ASHLVL4B] : {
+    [ID.LVL4B] : {
         sprite_def: sprite_defs.ground,
         is_walkable: true,
         is_safe: true,
         is_view_blocking: false,
-        description: "ASHLVL4B",
+        description: "LVL4B",
         is_ground: true,
-        shape_template: "ashlvl4b_template",
-        tile_match_predicate: (v) => (v==ID.ASHLVL4B),
-        tile_same_predicate: (v) => (v==ID.ASHLVL4B),
+        shape_template: "lvl4b_template",
+        tile_match_predicate: (v) => (v==ID.LVL4B),
+        tile_same_predicate: (v) => (v==ID.LVL4B),
     },
 
-    [ID.TYWALL1A] : {
+    [ID.WALL1A] : {
         sprite_def: sprite_defs.wall,
         is_walkable: false,
         is_view_blocking: true,
-        description: "TYWALL1A",
+        description: "WALL1A",
         is_wall: true,
         shape_template: "wall_template",
-        tile_match_predicate: (v) => (v==ID.TYWALL1A),
-        tile_same_predicate: (v) => (v==ID.TYWALL1A),
+        tile_match_predicate: (v) => (v==ID.WALL1A),
+        tile_same_predicate: (v) => (v==ID.WALL1A),
         pwall: {
             width: 16,
             height: 32,
@@ -467,15 +427,15 @@ const defs = {
         }
     },
 
-    [ID.TYWALL1B] : {
+    [ID.WALL1B] : {
         sprite_def: sprite_defs.wall,
         is_walkable: false,
         is_view_blocking: true,
-        description: "TYWALL1B",
+        description: "WALL1B",
         is_wall: true,
         shape_template: "wall_template",
-        tile_match_predicate: (v) => (v==ID.TYWALL1B),
-        tile_same_predicate: (v) => (v==ID.TYWALL1B),
+        tile_match_predicate: (v) => (v==ID.WALL1B),
+        tile_same_predicate: (v) => (v==ID.WALL1B),
         pwall: {
             width: 16,
             height: 32,
@@ -497,195 +457,15 @@ const defs = {
         }
     },
 
-    [ID.TYWALL2A] : {
+    [ID.WALL2A] : {
         sprite_def: sprite_defs.wall,
         is_walkable: false,
         is_view_blocking: true,
-        description: "TYWALL2A",
+        description: "WALL2A",
         is_wall: true,
         shape_template: "wall_template",
-        tile_match_predicate: (v) => (v==ID.TYWALL2A),
-        tile_same_predicate: (v) => (v==ID.TYWALL2A),
-        pwall: {
-            width: 16,
-            height: 32,
-            colormap: {
-                [sides.top]:    new Color(245,73,173,.75),
-                [sides.bottom]: new Color(245,73,173,.75),
-                [sides.fl]:     new Color(171,26,60,.75),
-                [sides.front]:  new Color(112,16,38,.75),
-                [sides.fr]:     new Color(77,11,27,.75),
-                [sides.br]:     new Color(171,26,60,.25),
-                [sides.back]:   new Color(112,16,38,.25),
-                [sides.bl]:     new Color(77,11,27,.25),
-                [sides.hlm]:    new Color(246,117,255,.25),
-                [sides.hlM]:    new Color(246,117,255,.85),
-            },
-            highlights : {
-                minor: true,
-            }
-        }
-    },
-
-    [ID.TYWALL2B] : {
-        sprite_def: sprite_defs.wall,
-        is_walkable: false,
-        is_view_blocking: true,
-        description: "TYWALL2B",
-        is_wall: true,
-        shape_template: "wall_template",
-        tile_match_predicate: (v) => (v==ID.TYWALL2B),
-        tile_same_predicate: (v) => (v==ID.TYWALL2B),
-        pwall: {
-            width: 16,
-            height: 32,
-            colormap: {
-                [sides.top]:    new Color(61,153,83,.75),
-                [sides.bottom]: new Color(61,153,83,.75),
-                [sides.fl]:     new Color(63,143,81,.75),
-                [sides.front]:  new Color(45,103,59,.75),
-                [sides.fr]:     new Color(30,69,39,.75),
-                [sides.br]:     new Color(63,143,81,.25),
-                [sides.back]:   new Color(45,103,59,.25),
-                [sides.bl]:     new Color(30,69,39,.25),
-                [sides.hlm]:    new Color(255,243,77,.25),
-                [sides.hlM]:    new Color(255,243,77,.85),
-            },
-            highlights : {
-                minor: true,
-            }
-        }
-    },
-
-    [ID.TYWALL3A] : {
-        sprite_def: sprite_defs.wall,
-        is_walkable: false,
-        is_view_blocking: true,
-        description: "TYWALL3A",
-        is_wall: true,
-        shape_template: "wall_template",
-        tile_match_predicate: (v) => (v==ID.TYWALL3A),
-        tile_same_predicate: (v) => (v==ID.TYWALL3A),
-        pwall: {
-            width: 16,
-            height: 32,
-            colormap: {
-                [sides.top]:    new Color(73,151,245,.75),
-                [sides.bottom]: new Color(73,151,245,.75),
-                [sides.fl]:     new Color(25,112,166,.75),
-                [sides.front]:  new Color(14,64,97,.75),
-                [sides.fr]:     new Color(10,43,64,.75),
-                [sides.br]:     new Color(25,112,166,.25),
-                [sides.back]:   new Color(14,64,97,.25),
-                [sides.bl]:     new Color(10,43,64,.25),
-                [sides.hlm]:    new Color(97,250,227,.25),
-                [sides.hlM]:    new Color(97,250,227,.85),
-            },
-            highlights : {
-                minor: true,
-            }
-        }
-    },
-
-    [ID.TYWALL3B] : {
-        sprite_def: sprite_defs.wall,
-        is_walkable: false,
-        is_view_blocking: true,
-        description: "TYWALL3B",
-        is_wall: true,
-        shape_template: "wall_template",
-        tile_match_predicate: (v) => (v==ID.TYWALL3B),
-        tile_same_predicate: (v) => (v==ID.TYWALL3B),
-        pwall: {
-            width: 16,
-            height: 32,
-            colormap: {
-                [sides.top]:    new Color(0,60,218,.75),
-                [sides.bottom]: new Color(0,60,218,.75),
-                [sides.fl]:     new Color(100,83,252,.75),
-                [sides.front]:  new Color(66,53,181,.75),
-                [sides.fr]:     new Color(47,38,128,.75),
-                [sides.br]:     new Color(100,83,252,.25),
-                [sides.back]:   new Color(66,53,181,.25),
-                [sides.bl]:     new Color(47,38,128,.25),
-                [sides.hlm]:    new Color(247,20,255,.25),
-                [sides.hlM]:    new Color(247,20,255,.85),
-            },
-            highlights : {
-                minor: true,
-            }
-        }
-    },
-
-    [ID.TYWALL4A] : {
-        sprite_def: sprite_defs.wall,
-        is_walkable: false,
-        is_view_blocking: true,
-        description: "TYWALL4A",
-        is_wall: true,
-        shape_template: "wall_template",
-        tile_match_predicate: (v) => (v==ID.TYWALL4A),
-        tile_same_predicate: (v) => (v==ID.TYWALL4A),
-        pwall: {
-            width: 16,
-            height: 32,
-            colormap: {
-                [sides.top]:    new Color(73,106,157,.75),
-                [sides.bottom]: new Color(73,106,157,.75),
-                [sides.fl]:     new Color(67,95,186,.75),
-                [sides.front]:  new Color(37,52,105,.75),
-                [sides.fr]:     new Color(24,34,66,.75),
-                [sides.br]:     new Color(67,95,186,.25),
-                [sides.back]:   new Color(37,52,105,.25),
-                [sides.bl]:     new Color(24,34,66,.25),
-                [sides.hlm]:    new Color(110,250,250,.25),
-                [sides.hlM]:    new Color(110,250,250,.85),
-            },
-            highlights : {
-                minor: true,
-            }
-        }
-    },
-
-    [ID.TYWALL4B] : {
-        sprite_def: sprite_defs.wall,
-        is_walkable: false,
-        is_view_blocking: true,
-        description: "TYWALL4B",
-        is_wall: true,
-        shape_template: "wall_template",
-        tile_match_predicate: (v) => (v==ID.TYWALL4B),
-        tile_same_predicate: (v) => (v==ID.TYWALL4B),
-        pwall: {
-            width: 16,
-            height: 32,
-            colormap: {
-                [sides.top]:    new Color(215,88,155,.75),
-                [sides.bottom]: new Color(215,88,155,.75),
-                [sides.fl]:     new Color(67,95,186,.75),
-                [sides.front]:  new Color(37,52,105,.75),
-                [sides.fr]:     new Color(24,34,66,.75),
-                [sides.br]:     new Color(67,95,186,.25),
-                [sides.back]:   new Color(37,52,105,.25),
-                [sides.bl]:     new Color(24,34,66,.25),
-                [sides.hlm]:    new Color(0,222,164,.25),
-                [sides.hlM]:    new Color(0,222,164,.85),
-            },
-            highlights : {
-                minor: true,
-            }
-        }
-    },
-
-    [ID.ASHWALL3B] : {
-        sprite_def: sprite_defs.wall,
-        is_walkable: false,
-        is_view_blocking: true,
-        description: "ASHWALL3B",
-        is_wall: true,
-        shape_template: "wall_template",
-        tile_match_predicate: (v) => (v==ID.ASHWALL3B),
-        tile_same_predicate: (v) => (v==ID.ASHWALL3B),
+        tile_match_predicate: (v) => (v==ID.WALL2A),
+        tile_same_predicate: (v) => (v==ID.WALL2A),
         pwall: {
             width: 16,
             height: 32,
@@ -707,15 +487,105 @@ const defs = {
         }
     },
 
-    [ID.ASHWALL4A] : {
+    [ID.WALL2B] : {
         sprite_def: sprite_defs.wall,
         is_walkable: false,
         is_view_blocking: true,
-        description: "ASHWALL4A",
+        description: "WALL2B",
         is_wall: true,
         shape_template: "wall_template",
-        tile_match_predicate: (v) => (v==ID.ASHWALL4A),
-        tile_same_predicate: (v) => (v==ID.ASHWALL4A),
+        tile_match_predicate: (v) => (v==ID.WALL2B),
+        tile_same_predicate: (v) => (v==ID.WALL2B),
+        pwall: {
+            width: 16,
+            height: 32,
+            colormap: {
+                [sides.top]:    new Color(61,153,83,.75),
+                [sides.bottom]: new Color(61,153,83,.75),
+                [sides.fl]:     new Color(63,143,81,.75),
+                [sides.front]:  new Color(45,103,59,.75),
+                [sides.fr]:     new Color(30,69,39,.75),
+                [sides.br]:     new Color(63,143,81,.25),
+                [sides.back]:   new Color(45,103,59,.25),
+                [sides.bl]:     new Color(30,69,39,.25),
+                [sides.hlm]:    new Color(255,243,77,.25),
+                [sides.hlM]:    new Color(255,243,77,.85),
+            },
+            highlights : {
+                minor: true,
+            }
+        }
+    },
+
+    [ID.WALL3A] : {
+        sprite_def: sprite_defs.wall,
+        is_walkable: false,
+        is_view_blocking: true,
+        description: "WALL3A",
+        is_wall: true,
+        shape_template: "wall_template",
+        tile_match_predicate: (v) => (v==ID.WALL3A),
+        tile_same_predicate: (v) => (v==ID.WALL3A),
+        pwall: {
+            width: 16,
+            height: 32,
+            colormap: {
+                [sides.top]:    new Color(73,151,245,.75),
+                [sides.bottom]: new Color(73,151,245,.75),
+                [sides.fl]:     new Color(25,112,166,.75),
+                [sides.front]:  new Color(14,64,97,.75),
+                [sides.fr]:     new Color(10,43,64,.75),
+                [sides.br]:     new Color(25,112,166,.25),
+                [sides.back]:   new Color(14,64,97,.25),
+                [sides.bl]:     new Color(10,43,64,.25),
+                [sides.hlm]:    new Color(97,250,227,.25),
+                [sides.hlM]:    new Color(97,250,227,.85),
+            },
+            highlights : {
+                minor: true,
+            }
+        }
+    },
+
+    [ID.WALL3B] : {
+        sprite_def: sprite_defs.wall,
+        is_walkable: false,
+        is_view_blocking: true,
+        description: "WALL3B",
+        is_wall: true,
+        shape_template: "wall_template",
+        tile_match_predicate: (v) => (v==ID.WALL3B),
+        tile_same_predicate: (v) => (v==ID.WALL3B),
+        pwall: {
+            width: 16,
+            height: 32,
+            colormap: {
+                [sides.top]:    new Color(0,60,218,.75),
+                [sides.bottom]: new Color(0,60,218,.75),
+                [sides.fl]:     new Color(100,83,252,.75),
+                [sides.front]:  new Color(66,53,181,.75),
+                [sides.fr]:     new Color(47,38,128,.75),
+                [sides.br]:     new Color(100,83,252,.25),
+                [sides.back]:   new Color(66,53,181,.25),
+                [sides.bl]:     new Color(47,38,128,.25),
+                [sides.hlm]:    new Color(247,20,255,.25),
+                [sides.hlM]:    new Color(247,20,255,.85),
+            },
+            highlights : {
+                minor: true,
+            }
+        }
+    },
+
+    [ID.WALL4A] : {
+        sprite_def: sprite_defs.wall,
+        is_walkable: false,
+        is_view_blocking: true,
+        description: "WALL4A",
+        is_wall: true,
+        shape_template: "wall_template",
+        tile_match_predicate: (v) => (v==ID.WALL4A),
+        tile_same_predicate: (v) => (v==ID.WALL4A),
         pwall: {
             width: 16,
             height: 32,
@@ -737,15 +607,15 @@ const defs = {
         }
     },
 
-    [ID.ASHWALL4B] : {
+    [ID.WALL4B] : {
         sprite_def: sprite_defs.wall,
         is_walkable: false,
         is_view_blocking: true,
-        description: "ASHWALL4B",
+        description: "WALL4B",
         is_wall: true,
         shape_template: "wall_template",
-        tile_match_predicate: (v) => (v==ID.ASHWALL4B),
-        tile_same_predicate: (v) => (v==ID.ASHWALL4B),
+        tile_match_predicate: (v) => (v==ID.WALL4B),
+        tile_same_predicate: (v) => (v==ID.WALL4B),
         pwall: {
             width: 16,
             height: 32,
