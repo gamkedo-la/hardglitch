@@ -21,6 +21,7 @@ export {
     lazy_call,
     add_text_line,
     escaped,
+    copy_data,
 }
 
 
@@ -270,4 +271,10 @@ function add_text_line(text, new_line_string = ""){
 // Adds double quote esquapes to double quotes.
 function escaped(str){
     return str.replace(/\"/g, `\\"`);
+}
+
+// Makes a (deep) copy of a simple (non-typed) data object and returns it.
+function copy_data(value){
+    const copy = JSON.parse(JSON.stringify(value));
+    return copy;
 }

@@ -2,8 +2,9 @@
 
 export {
     Grid,
+    merge_grids,
+    merged_grids_size,
 }
-
 
 import { position_from_index } from "../system/utility.js";
 
@@ -158,3 +159,44 @@ class Grid {
 
 };
 
+function merged_grids_size(...position_grids){
+    let width = 0;
+    let height = 0;
+    position_grids.forEach((pos_grid)=> {
+        console.assert(Number.isInteger(pos_grid.position.x) && pos_grid.position.x >= 0);
+        console.assert(Number.isInteger(pos_grid.position.y) && pos_grid.position.y >= 0);
+        console.assert(pos_grid.grid instanceof Grid);
+        width = Math.max(width, pos_grid.position.x + pos_grid.grid.width);
+        height = Math.max(height, pos_grid.position.y + pos_grid.grid.height);
+    });
+
+    return {width, height};
+}
+
+// Create a new grid based on a sequence of grids and position of the top-left square of each grid.
+// The arguments must be like this:
+// { position: {x, y}, grid: grid } // Here grid must be a Grid.
+// The different grids will be written in the order they are provided.
+function merge_grids(...position_grids){
+
+    const size = merged_grids_size(...position_grids);
+    const width = size.width;
+    const height = size.height;
+
+    const merged_grid = new Grid(width, height);
+    position_grids.forEach((pos_grid)=> {
+        const grid_pos = pos_grid.position;
+        const grid = pos_grid.grid;
+        console.assert(grid instanceof Grid);
+        console.assert(grid_pos.x !== undefined && grid_pos.y !== undefined);
+        for(let y = 0; y < grid.height; ++y){
+            for(let x = 0; x < grid.width; ++x){
+                const source_pos = { x, y };
+                const merged_pos = { x:grid_pos.x + x, y: grid_pos.y + y};
+                merged_grid.set_at(grid.get_at(source_pos), merged_pos);
+            }
+        }
+    });
+
+    return merged_grid;
+}

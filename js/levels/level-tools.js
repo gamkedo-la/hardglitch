@@ -7,8 +7,8 @@ export {
 import * as tiles from "../definitions-tiles.js";
 import * as concepts from "../core/concepts.js";
 import { default_rules, is_valid_world, grid_ID, get_entity_type } from "../definitions-world.js";
-import { Grid } from "../system/grid.js";
-import { escaped, index_from_position, random_int, random_sample } from "../system/utility.js";
+import { Grid, merged_grids_size, merge_grids } from "../system/grid.js";
+import { escaped, index_from_position, random_int, random_sample, copy_data } from "../system/utility.js";
 
 const default_defaults = {
     ground : tiles.ID.CALCFLOORWARM,
@@ -77,11 +77,7 @@ function check_world_desc(world_desc){
     console.assert(Object.values(world_desc.grids).every(grid=> grid instanceof Array && grid.length === world_desc.width * world_desc.height));
     console.assert(world_desc.entities instanceof Array);
     console.assert(world_desc.entities.every(entity_desc => typeof entity_desc.type === "string" && Number.isInteger(entity_desc.position.x) && Number.isInteger(entity_desc.position.y)));
-}
-
-function copy_world_desc(world_desc){
-    const copy = JSON.parse(JSON.stringify(world_desc));
-    return copy;
+    return true;
 }
 
 function deserialize_world(world_desc){
@@ -110,7 +106,7 @@ function deserialize_world(world_desc){
 
 // function reversed_world_desc(world_desc){
 //     check_world_desc(world_desc);
-//     const result = copy_world_desc(world_desc);
+//     const result = copy_data(world_desc);
 //     result.width = world_desc.height;
 //     result.height = world_desc.width;
 
@@ -131,7 +127,7 @@ function deserialize_world(world_desc){
 
 function mirror_world_desc(world_desc, vertical_axe = true){
     check_world_desc(world_desc);
-    const result = copy_world_desc(world_desc);
+    const result = copy_data(world_desc);
 
     const mirrored_pos = vertical_axe ? (pos) => { return { x: result.width - 1 - pos.x, y: pos.y }; }
                                       : (pos) => { return { x: pos.x, y: result.height - 1 - pos.y }; }
@@ -159,7 +155,8 @@ function mirror_world_desc(world_desc, vertical_axe = true){
 function rotate_world_desc(world_desc, rotation_count=1){
     check_world_desc(world_desc);
     console.assert(Number.isInteger(rotation_count) && rotation_count >=0 );
-    const rotated_world = copy_world_desc(world_desc);
+    const rotated_world = copy_data(world_desc);
+
 
     while(rotation_count !== 0){
         const initial_width = rotated_world.width;
@@ -170,22 +167,22 @@ function rotate_world_desc(world_desc, rotation_count=1){
         rotated_world.width = width;
         rotated_world.height = height;
 
+        const rotated_pos = (pos) => { return { x: pos.y, y: N - pos.x } };
+
         Object.values(rotated_world.grids).forEach(grid => {
             const initial_grid = new Array(...grid);
             for (let y = 0; y < initial_height; y++) {
                 for (let x = 0; x < initial_width; x++) {
-                    const source_idx = index_from_position(initial_width, initial_height, {x, y});
-                    const destination_idx = index_from_position(width, height, { x: y, y: N - x });
+                    const pos = {x, y};
+                    const source_idx = index_from_position(initial_width, initial_height, pos);
+                    const destination_idx = index_from_position(width, height, rotated_pos(pos));
                     grid[destination_idx] = initial_grid[source_idx];
                 }
             }
         });
 
         rotated_world.entities.forEach(entity => {
-            const x = entity.position.y;
-            const y = N - entity.position.x;
-            entity.position.x = x;
-            entity.position.y = y;
+            entity.position = rotated_pos(entity.position);
         });
 
         --rotation_count;
@@ -207,7 +204,7 @@ const world_variations = [
 
 function random_variation(world_desc){
     check_world_desc(world_desc);
-    let result_world = copy_world_desc(world_desc);
+    let result_world = copy_data(world_desc);
 
     console.log("++++++ World Variation BEGIN: ++++++");
     let variations_count = random_int(0, 5);
@@ -221,14 +218,79 @@ function random_variation(world_desc){
     return result_world;
 }
 
+function merge_world_chunks(name, ...position_world_chunks){
+    console.assert(typeof name === "string");
+    console.assert(position_world_chunks.every((pos_chunk)=> {
+        const {position, world_desc} = pos_chunk;
+        console.assert(position.x !== undefined);
+        console.assert(position.y !== undefined);
+        return check_world_desc(world_desc);
+    }));
+
+    const size = merged_grids_size(...position_world_chunks.map((pos_chunk)=> {
+        return {
+            position: { x: pos_chunk.position.x, y: pos_chunk.position.y },
+            grid: new Grid(pos_chunk.world_desc.width, pos_chunk.world_desc.height, pos_chunk.world_desc.grids[grid_ID.floor]),
+        };
+    }));
+
+    const width = size.width;
+    const height = size.height;
+
+    const world = { name, width, height,
+                    grids: {},
+                    entities: [],
+                };
+
+    Object.values(grid_ID).forEach(grid_id =>{
+        const position_grids = position_world_chunks.map((pos_chunk)=> {
+            const position = pos_chunk.position;
+            const world_desc = pos_chunk.world_desc;
+            console.assert(Number.isInteger(position.x));
+            console.assert(Number.isInteger(position.y));
+            check_world_desc(world_desc);
+            return { position, grid: new Grid(world_desc.width, world_desc.height, world_desc.grids[grid_id]) };
+        });
+        const grid = merge_grids(...position_grids);
+        console.assert(grid.width === width && grid.height === height);
+        world.grids[grid_id] = grid.elements;
+    });
+
+    const set_entity = (origin, entity) => {
+        entity = copy_data(entity);
+        //console.log(`set_entity(${JSON.stringify(origin)}, ${JSON.stringify(entity)})`);
+        const new_position = { x: origin.x + entity.position.x, y: origin.y + entity.position.y };
+        console.assert(new_position.x >= 0 && new_position.x < world.width);
+        console.assert(new_position.y >= 0 && new_position.y < world.height);
+        entity.position = new_position;
+        // Overwrite previous entities at the same position:
+        world.entities = world.entities.filter(existing_entity => !(entity.position.x === existing_entity.position.x
+                                                                  && entity.position.y === existing_entity.position.y)
+                                              );
+        world.entities.push(entity);
+    };
+
+    position_world_chunks.forEach((pos_chunk)=>{
+        pos_chunk.world_desc.entities.forEach(entity => {
+            set_entity(pos_chunk.position, entity);
+        });
+    });
+
+    return world;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// The following is for debug:
 // window.reversed_world_desc = reversed_world_desc;
 window.rotate_world_desc = rotate_world_desc;
 window.mirror_world_desc = mirror_world_desc;
 window.random_variation = random_variation;
+window.merge_world_chunks = merge_world_chunks;
 
 window.level_initial = {
-    name: "Test Level \"testing\" 8 x 8",
+    name: "level_initial",
     width: 8,
     height: 8,
     grids: {
@@ -244,7 +306,7 @@ window.level_initial = {
   };
 
 window.level_corridor = {
-    name: "Test Level \"testing\" 2 x 5",
+    name: "level_corridor",
     width: 2,
     height: 5,
     grids: {
@@ -259,7 +321,7 @@ window.level_corridor = {
 };
 
 window.level_x = {
-    name: "Test Level \"testing\" 5 x 8",
+    name: "level_x",
     width: 5,
     height: 8,
     grids: {
@@ -277,10 +339,29 @@ window.level_x = {
 
 window.setup_test_levels = ()=>{
     window.level_east = rotate_world_desc(window.level_initial);
+    window.level_east.name = "level_east";
     window.level_south = rotate_world_desc(window.level_east);
+    window.level_south.name = "level_south";
     window.level_west = rotate_world_desc(window.level_south);
+    window.level_west.name = "level_west";
     window.level_north = rotate_world_desc(window.level_west);
+    window.level_north.name = "level_north";
     window.level_mirror_vertical_axe = mirror_world_desc(window.level_initial);
     window.level_mirror_horizontal_axe = mirror_world_desc(window.level_initial, false);
+
+    window.merged_level = merge_world_chunks("Merged Land",
+        { position:{ x:8,   y:0  }, world_desc: window.level_initial    },
+        { position:{ x:16,  y:8  }, world_desc: window.level_initial       },
+        { position:{ x:8,   y:16 }, world_desc: window.level_initial      },
+        { position:{ x:0,   y:8  }, world_desc: window.level_initial       },
+
+        { position:{ x:0,  y:0  }, world_desc: window.level_x           },
+        { position:{ x:8,  y:8  }, world_desc: window.level_x           },
+        { position:{ x:16, y:16  }, world_desc: window.level_x           },
+
+        { position:{ x:5,  y:28  }, world_desc: window.level_x          },
+    );
+    console.assert(window.merged_level.width === 24);
+    console.assert(window.merged_level.height === 36);
 };
 
