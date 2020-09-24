@@ -480,6 +480,8 @@ const sprite_defs = {
     button_cancel_action_target_selection: test_button(),
     button_select_action: test_button(),
     button_mute_audio: test_button(),
+    button_audio_plus: test_button(),
+    button_audio_minus: test_button(),
     button_ingame_menu: test_button("menu_button"),
 
     button_menu: {

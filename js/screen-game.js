@@ -17,8 +17,9 @@ import { ScreenFader } from "./system/screenfader.js";
 import { GameSession } from "./game-session.js";
 import { Color } from "./system/color.js";
 import { sprite_defs } from "./game-assets.js";
-import { Vector2_origin } from "./system/spatial.js";
+import { Vector2_origin, Vector2 } from "./system/spatial.js";
 import { AnimationGroup, wait } from "./system/animation.js";
+import { VolumeControl } from "./game-ui.js";
 
 import { game_levels } from "./definitions-world.js";
 import { tween, easing } from "./system/tweening.js";
@@ -161,14 +162,33 @@ class InGameMenu extends fsm.State {
                     down: 'clickButton',
                 }
             }),
+            master_volume: new VolumeControl({
+                position: new Vector2({x: 0, y: 128}),
+                mix_group: "Master"},
+                ),
+            music_volume: new VolumeControl({
+                position: new Vector2({x: 0, y: 224}),
+                mix_group: "Music",
+            }),
+            sfx_volume: new VolumeControl({
+                position: new Vector2({x: 0, y: 320}),
+                mix_group: "SoundEffects",
+            }),
+
             update: function(delta_time){
                 this.resume_button.update(delta_time);
                 this.exit_button.update(delta_time);
+                this.master_volume.update(delta_time);
+                this.music_volume.update(delta_time);
+                this.sfx_volume.update(delta_time);
             },
             display: function(canvas_context){
                 graphics.camera.begin_in_screen_rendering();
                 this.resume_button.draw(canvas_context);
                 this.exit_button.draw(canvas_context);
+                this.master_volume.draw(canvas_context);
+                this.music_volume.draw(canvas_context);
+                this.sfx_volume.draw(canvas_context);
                 graphics.camera.end_in_screen_rendering();
             }
         };

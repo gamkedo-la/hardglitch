@@ -4,6 +4,7 @@
 export {
     GameInterface,
     MuteAudioButton,
+    VolumeControl,
 };
 
 import { group_per_type } from "./system/utility.js";
@@ -174,6 +175,61 @@ class MuteAudioButton extends ui.Button {
         this.help_text.area_to_help = this.area;
     }
 
+}
+
+class VolumeControl extends ui.UIElement {
+    constructor(def) {
+        super({
+            position: def.position,
+            height: 128,
+            width: 128,
+        });
+
+        this.mix_group = def.mix_group;
+        this.plus_button = new ui.TextButton({
+            background: "#FFAD49",
+            color: "#ffffff",
+            text: "+",
+            action: () => { audio.setVolume(def.mix_group, null, 0.1) },
+            position: new Vector2({x: 32, y: 0}),
+            sprite_def: sprite_defs.button_audio_minus,
+            sounds: {
+                over: 'actionSelect',
+                down: 'buffertest',
+            }
+        });
+
+        this.label = new ui.Text( {
+            position: new Vector2({x: 0, y: -42}),
+            text: def.mix_group,
+        });
+
+        this.minus_button = new ui.TextButton({
+            background: "#FFAD49",
+            color: "#ffffff",
+            text: "-",
+            action: () => { audio.setVolume(def.mix_group, null, -0.1) },
+            position: new Vector2({x: -32, y: 0}),
+            sprite_def: sprite_defs.button_audio_minus,
+            sounds: {
+                over: 'actionSelect',
+                down: 'buffertest',
+            }
+        });
+
+        //Gross
+        this.label.position = center_in_rectangle(this.label.area, this.area).position.translate(this.label.position);
+        this.minus_button.position = center_in_rectangle(this.minus_button.area, this.area).position.translate(this.minus_button.position);
+        this.plus_button.position = center_in_rectangle(this.plus_button.area, this.area).position.translate(this.plus_button.position);
+    }
+
+    _on_update(delta_time) {
+        return;
+    }
+
+    _on_draw(canvas_context) {
+        return;
+    }
 
 }
 
