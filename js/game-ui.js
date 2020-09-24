@@ -182,7 +182,14 @@ class VolumeControl extends ui.UIElement {
         super({
             position: def.position,
             height: 128,
-            width: 128,
+            width: 192,
+        });
+
+        this.label = new ui.Text( {
+            position: new Vector2({x: 0, y: -42}),
+            background_color: "#FFAD49",
+            color: 'white',
+            text: def.mix_group,
         });
 
         this.mix_group = def.mix_group;
@@ -190,26 +197,27 @@ class VolumeControl extends ui.UIElement {
             background: "#FFAD49",
             color: "#ffffff",
             text: "+",
-            action: () => { audio.setVolume(def.mix_group, null, 0.1) },
-            position: new Vector2({x: 32, y: 0}),
+            action: () => { 
+                audio.setVolume(def.mix_group, null, 0.1) 
+                this._update_value(); // "this" is the VolumeControl class
+            },
+            position: new Vector2({x: 52, y: 0}),
             sprite_def: sprite_defs.button_audio_minus,
             sounds: {
                 over: 'actionSelect',
                 down: 'buffertest',
             }
-        });
-
-        this.label = new ui.Text( {
-            position: new Vector2({x: 0, y: -42}),
-            text: def.mix_group,
         });
 
         this.minus_button = new ui.TextButton({
             background: "#FFAD49",
             color: "#ffffff",
             text: "-",
-            action: () => { audio.setVolume(def.mix_group, null, -0.1) },
-            position: new Vector2({x: -32, y: 0}),
+            action: () => { 
+                audio.setVolume(def.mix_group, null, -0.1) 
+                this._update_value(); // "this" is the VolumeControl class
+            },
+            position: new Vector2({x: -52, y: 0}),
             sprite_def: sprite_defs.button_audio_minus,
             sounds: {
                 over: 'actionSelect',
@@ -217,10 +225,27 @@ class VolumeControl extends ui.UIElement {
             }
         });
 
-        //Gross
+        this.value = new ui.Text({
+            position: new Vector2(),
+            background_color: "#FFAD49",
+            color: 'white',
+            text: "100",
+            text_align: 'center',
+        });
+
+        //ui.Text class currently does not handle text aligment or text baseline correctly
+        this.value._margin_horizontal = this.value.area.size.x/2;
+        this.value._request_reset = false; //Prevent ui.Text from resizing background area
+
         this.label.position = center_in_rectangle(this.label.area, this.area).position.translate(this.label.position);
+        this.value.position = center_in_rectangle(this.value.area, this.area).position.translate(this.value.position);
         this.minus_button.position = center_in_rectangle(this.minus_button.area, this.area).position.translate(this.minus_button.position);
         this.plus_button.position = center_in_rectangle(this.plus_button.area, this.area).position.translate(this.plus_button.position);
+    }
+
+    _update_value() {
+        this.value.text = Math.round(audio.getVolume(this.mix_group) * 100).toString();
+        this.value._request_reset = false; //Prevent ui.Text from resizing background area
     }
 
     _on_update(delta_time) {

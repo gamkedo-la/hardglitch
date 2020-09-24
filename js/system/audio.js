@@ -3,6 +3,7 @@ export {
     playEvent,
     pauseEvent,
     stopEvent,
+    getVolume,
     setVolume,
     toggleMute,
     is_muted,
@@ -100,6 +101,10 @@ function toggleMute() {
         mix_groups.Mute.gain.setValueAtTime(1, audio_context.currentTime + 0.2);
         console.log("Audio unmuted.")
     }
+}
+
+function getVolume(group_name) {
+    return mix_groups[group_name].gain.value;
 }
 
 function setVolume(group_name, setValue, addValue) {
