@@ -180,14 +180,14 @@ function load_level(level_number){
 }
 
 function load_test_level(width, height){
-  console.assert(Number.isInteger(width) && height > 1);
-  console.assert(Number.isInteger(width) && height > 1);
+  console.assert(Number.isInteger(width) && width > 1);
+  console.assert( Number.isInteger(height) && height > 1);
   game_state_machine.push_action("load_game", ()=> generate_empty_world("testing", width, height) );
 }
 
 function load_random_test_level(width, height){
-  console.assert(Number.isInteger(width) && height > 1);
-  console.assert(Number.isInteger(width) && height > 1);
+  console.assert(width === undefined || (Number.isInteger(width) && width > 1));
+  console.assert(height === undefined || (Number.isInteger(height) && height > 1));
   game_state_machine.push_action("load_game", () => random_test_level.make_test_world({ width: width ? width : 64, height:height ? height : 64 }));
 }
 
