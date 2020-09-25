@@ -45,7 +45,7 @@ const game_assets = { // Description of the assets to load.
         crypto_key_2: "./images/cryptokeyplus2.png",
         crypto_key_3: "./images/cryptokeycircle2.png",
         movable_wall: "./images/column5.png",
-        life_form: "./images/life_form.png",
+        life_form: "./images/life-form.png",
         life_form_weak: "./images/life_form_weak.png",
         virus: "./images/virus.png",
         antivirus: "./images/anti-virus.png",
@@ -348,15 +348,15 @@ const sprite_defs = {
     life_form: {
         image: "life_form",
         frames: [
-                    { x: 0, y: 0, width: 64, height: 64 },
-                    { x: 64, y: 0, width: 64, height: 64 },
+                    { x: 0, y: 0, width: 64, height: 64 }
+                    //{ x: 64, y: 0, width: 64, height: 64 },
                 ],
         animations: {
             idle: {
                     loop: true,
                     timeline: [
-                                { frame: 0, duration: 200 },
-                                { frame: 1, duration: 200 },
+                                { frame: 0, duration: 200 }
+                                //{ frame: 1, duration: 200 },
                               ],
                   },
         },
