@@ -132,7 +132,10 @@ function select_player_action(){
     if(keyboard.is_down(KEY.D) || keyboard.is_down(KEY.RIGHT_ARROW)) return possible_actions.move_east;
     if(keyboard.is_down(KEY.A) || keyboard.is_down(KEY.LEFT_ARROW)) return possible_actions.move_west;
 
-    if(mouse.buttons.is_just_released(input.MOUSE_BUTTON.LEFT) && !mouse_was_dragging_last_update){ // Select an action which targets the square under the mouse.
+    if(mouse.buttons.is_just_released(input.MOUSE_BUTTON.LEFT) // Select an action which targets the square under the mouse.
+    && !mouse_was_dragging_last_update
+    && !current_game_view.ui.is_selecting_action_target
+    ){
         const clicked_position = mouse_grid_position();
         if(clicked_position) {
             for(const action of Object.values(possible_actions)){

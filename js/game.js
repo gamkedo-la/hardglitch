@@ -65,11 +65,11 @@ class Game {
         this.world = this.turn_info.world;
 
         console.log(`NEW PLAYER TURN`);
-        console.log(`Possible Actions: `);
-        for(const action_id in this.turn_info.possible_actions){
-            const action = this.turn_info.possible_actions[action_id];
-            console.log(` - ${action.name}`);
-        }
+        // console.log(`Possible Actions: `);
+        // for(const action_id in this.turn_info.possible_actions){
+        //     const action = this.turn_info.possible_actions[action_id];
+        //     console.log(` - ${action.name}`);
+        // }
         return this.turn_info;
     }
 

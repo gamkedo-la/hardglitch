@@ -155,9 +155,8 @@ function is_anything_blocking_view(world, position){
         if(thing instanceof concepts.Entity){
             if(thing.is_blocking_vision)
                 return true;
-        } else {
-            if(tiles.is_blocking_view(thing))
-                return true;
+        } else if(Number.isInteger(thing) && tiles.is_blocking_view(thing)){ // Numbers are tiles.
+            return true;
         }
     }
     return false;
@@ -189,14 +188,14 @@ function find_visible_positions(world, center, view_distance){
     return visible_positions;
 }
 
-function valid_target_positions(world, character, action_range_shape){
+function valid_target_positions(world, character, action_range_shape, predicate = ()=>true){
     console.assert(world instanceof concepts.World);
     console.assert(character instanceof Character);
     console.assert(action_range_shape instanceof RangeShape);
     return positions_in_range(character.position, action_range_shape, pos => world.is_valid_position(pos))
-            .filter(pos => world.entity_at(pos))
-            .filter(pos=>character.can_see(pos))
-            ;
+            .filter(pos => world.entity_at(pos)
+                        && character.can_see(pos)
+                        && predicate(pos));
 }
 
 function valid_move_positions(world, character, action_range_shape, tile_filter){
@@ -205,9 +204,7 @@ function valid_move_positions(world, character, action_range_shape, tile_filter)
     console.assert(action_range_shape instanceof RangeShape);
     console.assert(tile_filter instanceof Function);
     return positions_in_range(character.position, action_range_shape, pos => world.is_valid_position(pos))
-            .filter(pos => !is_blocked_position(world, pos, tile_filter))
-            .filter(pos=>character.can_see(pos))
-            ;
+            .filter(pos => !is_blocked_position(world, pos, tile_filter) && character.can_see(pos));
 }
 
 function valid_spawn_positions(world, center_position, tile_filter, max_range = 16){

@@ -58,7 +58,7 @@ class Mouse{
   constructor(){
     this.buttons = new Keyboard(3); // Yeah, the mouse buttons are like a 3 button keyboard...
     this._position = new spatial.Vector2();
-    this._last_update_time = Date.now();
+    this._last_update_time = performance.now();
 
     this.buttons.time_until_pressed_becomes_hold = 8; // We'll use the hold state for dragging.
     this._dragging_radius = 32; // Pixels distance from the dragging start position where
@@ -76,7 +76,7 @@ class Mouse{
   }
 
   // Return the time (milliseconds) since the mouse took the current position.
-  get time_since_position_changed() { return duration(this._last_update_time, Date.now()); }
+  get time_since_position_changed() { return duration(this._last_update_time, performance.now()); }
 
   get is_dragging() {
 
@@ -107,7 +107,7 @@ class Mouse{
   }
 
   update(delta_time){
-    this._last_update_time = Date.now();
+    this._last_update_time = performance.now();
 
     this.buttons.update(delta_time);
 
@@ -157,7 +157,7 @@ function is_valid_keycode(key_code){
 class Keyboard {
 
   constructor(key_count = KEYCODES_COUNT){
-    this._last_update_time = Date.now();
+    this._last_update_time = performance.now();
     this._raw_states_changes = new Array(key_count); // Boolean state for each key: true == down, false == up, or undefined if nothing changed
     this._time_until_pressed_becomes_hold = 0; // Time (ms) it takes for a pressed key to switch from being "down" to "hold".
     this._time_until_released_becomes_not_used = 0; // Time (ms) it takes for a pressed key to switch from being "down" to "hold".
@@ -264,7 +264,7 @@ class Keyboard {
   }
 
   update(delta_time){
-    this._last_update_time = Date.now();
+    this._last_update_time = performance.now();
 
     for(let key_code = 0; key_code < this._raw_states_changes.length; ++key_code){
       const is_key_physically_down = this._raw_states_changes[key_code];

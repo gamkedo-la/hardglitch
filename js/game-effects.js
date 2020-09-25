@@ -290,6 +290,11 @@ class GameFxView {
         return fx;
     }
 
+    corrupt(position, eolPredicate) {
+        // TODO: proper corruption implementation.
+        return this.damage(position, eolPredicate);
+    }
+
     repair(position) {
         let emitInterval = .1;
         let emitJitter = 25;

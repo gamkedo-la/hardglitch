@@ -816,8 +816,7 @@ class GameView {
                 } else {
                     help_texts = add_text_line(help_texts, `Item: ${entity.name}`);
                 }
-            } else {
-                console.assert(Number.isInteger(entity_or_tileid));
+            } else if(Number.isInteger(entity_or_tileid)){ // Integers are tiles ids.
                 const tile_id = entity_or_tileid;
                 help_texts = add_text_line(help_texts, `[${tiles.info_text(tile_id)}]`);
             }
