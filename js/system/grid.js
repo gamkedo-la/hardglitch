@@ -145,18 +145,6 @@ class Grid {
         return positions;
     }
 
-    serialize() {
-        const spacing = 4;
-        let str = "[\n";
-        let str_line = "";
-
-        this.elements.forEach((value, idx)=>{
-            str_line += `${JSON.stringify(value)},`
-        });
-
-        sr + "\n]";
-    }
-
 };
 
 function merged_grids_size(...position_grids){
