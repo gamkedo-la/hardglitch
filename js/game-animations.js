@@ -15,8 +15,8 @@ export {
     deleting_missile,
     take_item,
     drop_item,
-    inv_add,
-    inv_remove,
+    inventory_add,
+    inventory_remove,
     dissolve_item,
     decrypt_file,
     pushed,
@@ -253,13 +253,13 @@ function* drop_item(fx_view, drop_position, raw_position=false) {
     audio.playEvent('dropItem');
 }
 
-function* inv_add(fx_view, inv, idx) {
+function* inventory_add(fx_view, inv, idx) {
     const fx_pos = inv._slots[idx].position.translate({x:36,y:36});
     const fx = fx_view.drop(fx_pos, .25);
-    //audio.playEvent('activeItem');
+    audio.playEvent('swapItem');
 }
 
-function* inv_remove(fx_view, inv, idx) {
+function* inventory_remove(fx_view, inv, idx) {
     const fx_pos = inv._slots[idx].position.translate({x:36,y:36});
     const fx = fx_view.take(fx_pos, .25);
     audio.playEvent('swapItem');

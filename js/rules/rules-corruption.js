@@ -9,6 +9,9 @@ export {
 
 import * as concepts from "../core/concepts.js";
 import * as visibility from "../core/visibility.js";
+import * as anim from "../system/animation.js";
+import * as animation from "../game-animations.js";
+
 import { deal_damage } from "./destruction.js";
 import { lazy_call, not, random_int } from "../system/utility.js";
 import { grid_ID, is_valid_world } from "../definitions-world.js";
@@ -28,24 +31,35 @@ const corrupt_ap_cost = 2;
 class Corruption {}; // TODO: decide if there are "values?"
 
 class CorruptionSpawned extends concepts.Event {
-    constructor(position, corruption){
+    constructor(position, corruption, from){
         console.assert(corruption instanceof Corruption);
         super({
-            allow_parallel_animation: true,
+            allow_parallel_animation: false,
             description: `Corruption spawned at ${JSON.stringify(position)}`,
         })
         this.position = new concepts.Position(position);
         this.corruption = corruption;
+        this.from = from;
     }
 
-    get is_world_event() { return true; }
-    get focus_positions() { return [ this.position ]; }
+    get is_world_event() { return false; }
+    get focus_positions() { return [ this.position, this.from ]; }
 
     *animation(game_view){
         console.assert(game_view instanceof GameView);
+
+        const target_gfx_pos = graphic_position(this.position).translate(square_half_unit_vector);
+
+        if(this.from){
+            const corrupt_missile_fx = game_view.fx_view.missile(graphic_position(this.from));
+            const missile_speed = 6;
+            yield* animation.missile(corrupt_missile_fx, target_gfx_pos, missile_speed);
+        }
+
         // TODO: consider adding a spawining effet just for now.
-        this.corruption.fx = game_view.fx_view.corrupt(graphic_position(this.position).translate(square_half_unit_vector));
+        this.corruption.fx = game_view.fx_view.corrupt(target_gfx_pos);
         // TODO: add sound?
+        yield* anim.wait(1000 / 32);
     }
 };
 
@@ -54,14 +68,14 @@ class CorruptionVanished extends concepts.Event {
         console.assert(corruption instanceof Corruption);
         console.assert(corruption.fx);
         super({
-            allow_parallel_animation: true,
+            allow_parallel_animation: false,
             description: `Corruption vanished at ${JSON.stringify(position)}`,
         })
         this.position = new concepts.Position(position);
         this.corruption = corruption;
     }
 
-    get is_world_event() { return true; }
+    get is_world_event() { return false; }
     get focus_positions() { return [ this.position ]; }
 
 
@@ -71,6 +85,7 @@ class CorruptionVanished extends concepts.Event {
         // TODO: consider adding a "speeshhh" effet just for now.
         this.corruption.fx.done = true;
         // TODO: add sound?
+        yield* anim.wait(1000 / 32);
     }
 
 };
@@ -87,14 +102,14 @@ class Corrupt extends concepts.Action {
         });
     }
 
-    execute(world){
+    execute(world, character){
         console.assert(world instanceof concepts.World);
         const corruption_grid = world.grids[grid_ID.corruption];
         console.assert(corruption_grid instanceof Grid);
         console.assert(!(corruption_grid.get_at(this.target_position) instanceof Corruption));
         const corruption = new Corruption();
         corruption_grid.set_at(corruption, this.target_position);
-        return [ new CorruptionSpawned(this.target_position, corruption) ];
+        return [ new CorruptionSpawned(this.target_position, corruption, character.position) ];
     }
 };
 
@@ -189,7 +204,7 @@ class Rule_Corruption extends concepts.Rule {
         ];
     }
 
-    range = new visibility.Range_Square(0, 8);
+    range = new visibility.Range_Square(0, 6);
 
     get_actions_for(character, world){
         console.assert(world instanceof concepts.World);

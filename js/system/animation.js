@@ -26,7 +26,7 @@ function* in_parallel(...animations){
 }
 
 function* wait(duration_ms){
-    console.assert(Number.isInteger(duration_ms));
+    console.assert(typeof duration_ms === "number");
     let time_since_start = 0;
     while(time_since_start < duration_ms){
         const delta_time = yield;
