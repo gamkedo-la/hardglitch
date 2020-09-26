@@ -165,6 +165,16 @@ class InGameMenu extends fsm.State {
             audio_settings: new AudioSettings({
                 position: new Vector2({x: 0, y: graphics.canvas_rect().height/2 - 156}),
             }),
+
+            update: function(delta_time) {
+                Object.values(this).forEach(element => element.update(delta_time));
+            },
+
+            display: function (canvas_context){
+                graphics.camera.begin_in_screen_rendering();
+                Object.values(this).forEach(element => element.draw(canvas_context));
+                graphics.camera.end_in_screen_rendering();
+            },
         };
 
         // Center the buttons in the screen.
@@ -206,7 +216,7 @@ class InGameMenu extends fsm.State {
         if(this.fader.is_fading)
             return;
 
-        for (let element of Object.values(this.ui)) element.update(delta_time);
+        this.ui.update(delta_time);
 
         if(input.keyboard.is_just_down(KEY.SPACE) || input.keyboard.is_just_down(KEY.TAB)){
             this.go_back();
@@ -217,7 +227,6 @@ class InGameMenu extends fsm.State {
             this.exit_game();
         }
 
-
     }
 
     display(canvas_context){
@@ -226,9 +235,7 @@ class InGameMenu extends fsm.State {
             return;
 
         // Draw the UI OVER the fader:
-        graphics.camera.begin_in_screen_rendering();
-        for (let element of Object.values(this.ui)) element.draw(canvas_context);
-        graphics.camera.end_in_screen_rendering();
+        this.ui.display(canvas_context);
     }
 
     on_canvas_resized(){
