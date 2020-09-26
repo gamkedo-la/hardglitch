@@ -4,7 +4,7 @@
 export {
     GameInterface,
     MuteAudioButton,
-    VolumeControl,
+    AudioSettings,
 };
 
 import { group_per_type } from "./system/utility.js";
@@ -177,11 +177,42 @@ class MuteAudioButton extends ui.Button {
 
 }
 
+class AudioSettings extends ui.UIElement {
+    constructor(def) {
+        super({
+            width: 192,
+            height: 312,
+            position: def.position,
+        });
+
+        let yOffset = 24;
+        this.master_volume = new VolumeControl({
+            position: new Vector2({x: this.position.x, y: this.position.y + yOffset}),
+            mix_group: "Master"},
+            );
+        yOffset += 96;
+        this.music_volume = new VolumeControl({
+            position: new Vector2({x: this.position.x, y: this.position.y + yOffset}),
+            mix_group: "Music",
+        });
+        yOffset += 96;
+        this.sfx_volume = new VolumeControl({
+            position: new Vector2({x: this.position.x, y: this.position.y + yOffset}),
+            mix_group: "SoundEffects",
+        });
+    }
+
+    _on_update(delta_time) {}
+    _on_draw(canvas_context) {
+        graphics.draw_rectangle(canvas_context, this.area, '#FFAD49');
+    }
+}
+
 class VolumeControl extends ui.UIElement {
     constructor(def) {
         super({
             position: def.position,
-            height: 128,
+            height: 104,
             width: 192,
         });
 
@@ -237,10 +268,9 @@ class VolumeControl extends ui.UIElement {
         this.value._margin_horizontal = this.value.area.size.x/2;
         this.value._request_reset = false; //Prevent ui.Text from resizing background area
 
-        this.label.position = center_in_rectangle(this.label.area, this.area).position.translate(this.label.position);
-        this.value.position = center_in_rectangle(this.value.area, this.area).position.translate(this.value.position);
-        this.minus_button.position = center_in_rectangle(this.minus_button.area, this.area).position.translate(this.minus_button.position);
-        this.plus_button.position = center_in_rectangle(this.plus_button.area, this.area).position.translate(this.plus_button.position);
+        for (let element of Object.values(this).filter(e => e instanceof ui.UIElement)) {
+            element.position = center_in_rectangle(element.area, this.area).position.translate(element.position);
+        }
     }
 
     _update_value() {
@@ -248,16 +278,9 @@ class VolumeControl extends ui.UIElement {
         this.value._request_reset = false; //Prevent ui.Text from resizing background area
     }
 
-    _on_update(delta_time) {
-        return;
-    }
-
-    _on_draw(canvas_context) {
-        return;
-    }
-
+    _on_update(delta_time) {}
+    _on_draw(canvas_context) {}
 }
-
 
 class AutoFocusButton extends ui.Button {
     constructor(toggle_autofocus, is_autofocus_enabled) {

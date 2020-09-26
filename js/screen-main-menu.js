@@ -13,6 +13,7 @@ import { Vector2, Vector2_origin } from "./system/spatial.js";
 import { ScreenFader } from "./system/screenfader.js";
 
 import { load_test_level, load_random_test_level } from "./main.js";
+import { AudioSettings } from "./game-ui.js";
 
 const buttons_font = "24px Verdana";
 
@@ -72,6 +73,11 @@ class MainMenu {
             }
         });
 
+        this.audio_settings = new AudioSettings({
+            position: new Vector2({x: 0, y: graphics.canvas_rect().height/2 - 156}),
+        });
+
+        
 
         const space_between_buttons = this.button_new_game.height + 6;
         let next_button_y_drift = 40;
