@@ -249,6 +249,7 @@ class Env {
         this.gfx.particleSystem.alwaysActive = true;
 
         //this.tests.blipfade(100,300);
+        /*
         this.tests.fade(200,300);
         this.tests.linefade(300,300);
         this.tests.offsetglitch(400,300);
@@ -262,26 +263,13 @@ class Env {
         this.tests.lightningorb(200,400);
         this.tests.lightningstrike(200,500);
         this.tests.colorshift(400, 400);
-
-        /*
-        this.gfx.destruction({x:500,y:400});
-        let damageFx = this.gfx.damage({x:600,y:400});
-        setTimeout(() => {damageFx.done = true;}, 1000);
-
-        let lfx = this.gfx.lightningJump({x:500,y:500}, {x:600,y:600});
-        setTimeout(() => {lfx.done = true;}, 1000);
-
-        let ufx = this.gfx.unstable({x:400+32,y:400-64});
-        setTimeout(() => {ufx.done = true;}, 1000);
-
-        let rfx = this.gfx.repair({x:700,y:400});
-        setTimeout(() => {rfx.done = true;}, 2000);
-
-        let dfx = this.gfx.drop({x:800,y:400});
-        setTimeout(() => {dfx.done = true;}, 1000);
         */
 
+        this.gfx.corrupt({x:368+32,y:336+32});
+        //this.gfx.unstable({x:368+32,y:336+32});
+
         for (const fx of [
+            /*
             this.gfx.destruction({x:500,y:400}),
             this.gfx.damage({x:600,y:400}),
             this.gfx.lightningJump({x:500,y:500}, {x:600,y:600}),
@@ -291,6 +279,8 @@ class Env {
             this.gfx.jump_up({x:900,y:400}),
             this.gfx.wait({x:200,y:500}, 700),
             this.gfx.action({x:300,y:500}),
+            */
+            //this.gfx.corrupt({x:400+32,y:400-64}),
         ]) {
             setTimeout(() => {fx.done = true;}, 1000);
         }
@@ -312,11 +302,9 @@ class Env {
         this.gfx.update(delta_time);
         this.gfx.draw(this.ctx);
 
-        /*
         this.ctx.strokeStyle = "red";
-        this.ctx.rect(338,336,94,1);
+        this.ctx.rect(368,336,64,64);
         this.ctx.stroke();
-        */
 
     }
 

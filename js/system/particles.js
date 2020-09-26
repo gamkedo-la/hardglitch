@@ -591,7 +591,7 @@ class FadeParticle extends Particle {
 }
 
 class OffsetGlitchParticle extends Particle {
-    constructor(x, y, width, height, dx, dy, ttl, fillColor) {
+    constructor(x, y, width, height, dx, dy, ttl, fillColor, srcCtx) {
         super(x, y);
         this.width = width;
         this.height = height;
@@ -599,10 +599,12 @@ class OffsetGlitchParticle extends Particle {
         this.dy = dy;
         this.ttl = ttl;
         this.fillColor = fillColor;
+        this.srcCtx = srcCtx;
     }
 
     draw(canvas_context) {
-        let data = canvas_context.getImageData(this.x, this.y, this.width, this.height);
+        let srcCtx = (this.srcCtx) ? this.srcCtx : canvas_context;
+        let data = srcCtx.getImageData(this.x, this.y, this.width, this.height);
         if (this.fillColor) canvas_context.fillStyle = this.fillColor.toString();
         canvas_context.fillRect(this.x, this.y, this.width, this.height);
         canvas_context.putImageData(data, this.x+this.dx, this.y+this.dy);
@@ -624,10 +626,11 @@ class OffsetGlitchParticle extends Particle {
 // =============================================================================
 const glitchCanvas = document.createElement('canvas');
 class CanvasGlitchParticle extends Particle {
-    constructor(x, y, width, height, xforms, xformTTL=0) {
+    constructor(x, y, width, height, xforms, srcCtx, xformTTL=0) {
         super(x, y);
         this.width = width;
         this.height = height;
+        this.srcCtx = srcCtx;
         this.xforms = xforms || [];
         this.sdata;
         this.needData = true;
@@ -660,7 +663,8 @@ class CanvasGlitchParticle extends Particle {
     draw(canvas_context) {
         // pull image data (if needed)
         if (this.needData) {
-            this.sdata = canvas_context.getImageData(this.x, this.y, this.width, this.height);
+            let srcCtx = (this.srcCtx) ? this.srcCtx : canvas_context;
+            this.sdata = srcCtx.getImageData(this.x, this.y, this.width, this.height);
             this.needData = false;
         }
         // output image data
@@ -681,7 +685,7 @@ class CanvasGlitchParticle extends Particle {
 }
 
 class ColorOffsetGlitchParticle extends CanvasGlitchParticle {
-    constructor(x, y, dx, dy, width, height, rshift, gshift, bshift, bandingAffinity, scanCycle, xformCycle, eolPredicate = () => false ) {
+    constructor(x, y, dx, dy, width, height, rshift, gshift, bshift, bandingAffinity, scanCycle, xformCycle, srcCtx, eolPredicate = () => false ) {
         let adx = Math.abs(dx);
         let ady = Math.abs(dy);
         let ixforms = [];
@@ -703,7 +707,7 @@ class ColorOffsetGlitchParticle extends CanvasGlitchParticle {
         let syncLine2 = new ColorSwapDataXForm(adx, ady+syncOffset+1, width+adx, ady+syncOffset+syncLineWidth+1, 55, 0, 0);
         ixforms.push(syncLine1);
         ixforms.push(syncLine2);
-        super(x-adx, y-ady, width+adx*2, height+ady*2, ixforms, xformCycle);
+        super(x-adx, y-ady, width+adx*2, height+ady*2, ixforms, srcCtx, xformCycle);
         self = this;
         this.xform = linearFadeInOut(0, height-syncLineWidth, scanCycle, true, (v) => {
                 syncLine1.miny = v;
@@ -729,15 +733,15 @@ class ColorOffsetGlitchParticle extends CanvasGlitchParticle {
 }
 
 class BandingGlitchParticle extends CanvasGlitchParticle {
-    constructor(x, y, maxOffset, affinity, width, height) {
+    constructor(x, y, maxOffset, affinity, width, height, srcCtx) {
         let xform = new HorizontalBandingDataXForm(maxOffset, affinity, maxOffset, 0, width+maxOffset, height);
-        super(x-maxOffset, y, width+maxOffset*2, height, [xform]);
+        super(x-maxOffset, y, width+maxOffset*2, height, [xform], srcCtx);
     }
 }
 
 // =============================================================================
 class ColorGlitchParticle extends Particle {
-    constructor(x, y, width, height, roff, goff, boff, ttl) {
+    constructor(x, y, width, height, roff, goff, boff, ttl, srcCtx) {
         super(x, y);
         this.width = width;
         this.height = height;
@@ -745,11 +749,13 @@ class ColorGlitchParticle extends Particle {
         this.goff = goff;
         this.boff = boff;
         this.ttl = ttl;
+        this.srcCtx = srcCtx;
     }
 
     draw(canvas_context) {
         // pull area
-        let idata = canvas_context.getImageData(this.x, this.y, this.width, this.height);
+        let srcCtx = (this.srcCtx) ? this.srcCtx : canvas_context;
+        let idata = srcCtx.getImageData(this.x, this.y, this.width, this.height);
         let data = idata.data;
         // transform data
         for(var i = 0; i < data.length; i += 4) {

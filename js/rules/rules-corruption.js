@@ -57,7 +57,7 @@ class CorruptionSpawned extends concepts.Event {
         }
 
         // TODO: consider adding a spawining effet just for now.
-        this.corruption.fx = game_view.fx_view.corrupt(target_gfx_pos);
+        this.corruption.fx = game_view.fx_view.corrupt(target_gfx_pos, game_view.tile_grid.canvas_context);
         // TODO: add sound?
         yield* anim.wait(1000 / 32);
     }
