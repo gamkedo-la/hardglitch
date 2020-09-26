@@ -7,6 +7,7 @@ export {
     FadeLineParticle,
     FadeParticle,
     OffsetGlitchParticle,
+    OffsetGlitchParticle2,
     ColorGlitchParticle,
     BlipParticle,
     SwirlParticle,
@@ -591,7 +592,7 @@ class FadeParticle extends Particle {
 }
 
 class OffsetGlitchParticle extends Particle {
-    constructor(x, y, width, height, dx, dy, ttl, fillColor, srcCtx) {
+    constructor(x, y, width, height, dx, dy, ttl, fillColor="black", srcCtx) {
         super(x, y);
         this.width = width;
         this.height = height;
@@ -637,6 +638,8 @@ class CanvasGlitchParticle extends Particle {
         this.needXform = true;
         this.elapsed = 0;
         this.xformTTL = xformTTL * 1000;
+        this.dx = 0;
+        this.dy = 0;
     }
 
     update(delta_time) {
@@ -649,7 +652,7 @@ class CanvasGlitchParticle extends Particle {
             this.elapsed = 0;
         }
         // perform data transformations
-        if (this.needXform && this.sdata && this.xforms && this.xforms.length) {
+        if (this.needXform && this.sdata) {
             // create copy of source data
             let data = Uint8ClampedArray.from(this.sdata.data);
             this.xdata = new ImageData(data, this.sdata.width);
@@ -667,6 +670,7 @@ class CanvasGlitchParticle extends Particle {
             this.sdata = srcCtx.getImageData(this.x, this.y, this.width, this.height);
             this.needData = false;
         }
+        if (this.midDraw) this.midDraw(canvas_context);
         // output image data
         if (this.xdata) {
             let xoffset = this.width*.5;
@@ -678,10 +682,39 @@ class CanvasGlitchParticle extends Particle {
             //gctx.fillStyle = "red";
             //gctx.fillRect(0, 0, glitchCanvas.width, glitchCanvas.height);
             gctx.putImageData(this.xdata, xoffset, yoffset);
-            canvas_context.drawImage(glitchCanvas, this.x-xoffset, this.y-yoffset);
+            canvas_context.drawImage(glitchCanvas, this.x-xoffset+this.dx, this.y-yoffset+this.dy);
         }
     }
 
+}
+
+class OffsetGlitchParticle2 extends CanvasGlitchParticle {
+    constructor(x, y, width, height, dx, dy, ttl, fillColor="black", srcCtx) {
+        let adx = Math.abs(dx);
+        let ady = Math.abs(dy);
+        super(x-adx, y-ady, width+adx*2, height+ady*2, [], srcCtx, ttl);
+        this.dx = dx;
+        this.dy = dy;
+        this.ttl = ttl;
+        this.fillColor = fillColor;
+    }
+
+    midDraw(canvas_context) {
+        if (this.fillColor) canvas_context.fillStyle = this.fillColor.toString();
+        canvas_context.fillRect(this.x, this.y, this.width, this.height);
+    }
+
+    update(delta_time) {
+        if (this.done) return;
+        // convert delta time to seconds
+        delta_time *= .001;
+        // time-to-live
+        this.ttl -= delta_time;
+        if (this.ttl <= 0) {
+            this._done = true;
+        }
+        super.update(delta_time);
+    }
 }
 
 class ColorOffsetGlitchParticle extends CanvasGlitchParticle {

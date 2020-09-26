@@ -14,6 +14,7 @@ import {
     BlipEdgeParticle,
     LightningParticle,
     OffsetGlitchParticle,
+    OffsetGlitchParticle2,
     ColorGlitchParticle,
     ColorOffsetGlitchParticle,
     ThrobParticle,
@@ -293,10 +294,10 @@ class GameFxView {
     }
 
     corrupt(position, srcCtx) {
-        return this.damage(position);
+        //return this.damage(position);
         // TODO: proper corruption implementation.
-        let emitInterval = .1;
-        let emitJitter = 25;
+        let emitInterval = .2;
+        let emitJitter = 50;
         let offsetEmitter = new ParticleEmitter(this.particleSystem, position.x-32, position.y-32, (e) => {
             let xoff = random_int(0,64);
             let yoff = random_int(0,64);
@@ -305,7 +306,7 @@ class GameFxView {
             let height = random_float(5,15);
             let dx = random_float(-5,5);
             let dy = random_float(-5,5);
-            return new OffsetGlitchParticle(e.x+xoff, e.y+yoff, width, height, dx, dy, ttl, srcCtx);
+            return new OffsetGlitchParticle2(e.x+xoff, e.y+yoff, width, height, dx, dy, ttl, "red", srcCtx);
         }, emitInterval, emitJitter);
         let colorEmitter = new ParticleEmitter(this.particleSystem, position.x-32, position.y-32, (e) => {
             let xoff = random_int(0,64);
@@ -320,9 +321,9 @@ class GameFxView {
             return new ColorGlitchParticle(e.x+xoff, e.y+yoff, width, height, roff, goff, boff, ttl, srcCtx);
         }, emitInterval*3, emitJitter);
         this.particleSystem.add(offsetEmitter);
-        this.particleSystem.add(colorEmitter);
+        //this.particleSystem.add(colorEmitter);
         let fx = new GameFx(position);
-        //fx.sentinels.push(offsetEmitter);
+        fx.sentinels.push(offsetEmitter);
         fx.sentinels.push(colorEmitter);
         fx.relocatables.push(offsetEmitter);
         fx.relocatables.push(colorEmitter);
