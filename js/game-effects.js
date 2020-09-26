@@ -116,7 +116,7 @@ class GameFxView {
             let ttl = random_float(.75,1.5);
             let hue = random_int(200, 500);
             return new RingParticle(emitter.x+xoff, emitter.y+yoff, radius, hue, ttl, 10);
-        }, 1 / 16, 25);
+        }, 1 / 32, 25);
         this.particleSystem.add(effect);
         let fx = new GameFx(position);
         fx.sentinels.push(effect);

@@ -52,14 +52,14 @@ class CorruptionSpawned extends concepts.Event {
 
         if(this.from){
             const corrupt_missile_fx = game_view.fx_view.missile(graphic_position(this.from));
-            const missile_speed = 6;
+            const missile_speed = 8;
             yield* animation.missile(corrupt_missile_fx, target_gfx_pos, missile_speed);
         }
 
         // TODO: consider adding a spawining effet just for now.
         this.corruption.fx = game_view.fx_view.corrupt(target_gfx_pos, game_view.tile_grid.canvas_context);
         // TODO: add sound?
-        yield* anim.wait(1000 / 32);
+        yield* anim.wait(1000 / 64);
     }
 };
 
@@ -85,7 +85,7 @@ class CorruptionVanished extends concepts.Event {
         // TODO: consider adding a "speeshhh" effet just for now.
         this.corruption.fx.done = true;
         // TODO: add sound?
-        yield* anim.wait(1000 / 32);
+        yield* anim.wait(1000 / 64);
     }
 
 };

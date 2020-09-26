@@ -11,8 +11,10 @@ import { Grid, merged_grids_size, merge_grids } from "../system/grid.js";
 import { escaped, index_from_position, random_int, random_sample, copy_data } from "../system/utility.js";
 
 const default_defaults = {
-    ground : tiles.ID.CALCFLOORWARM,
-    wall : tiles.ID.WALL,
+    ground : tiles.ID.LVL1A,
+    ground_alt: tiles.ID.LVL1B,
+    wall : tiles.ID.WALL1A,
+    wall_alt : tiles.ID.WALL1B,
 };
 
 function generate_empty_world(name, width, height, defaults = default_defaults){
