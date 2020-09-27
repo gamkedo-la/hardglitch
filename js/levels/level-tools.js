@@ -357,7 +357,7 @@ window.level_initial = {
       unstable : [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
     },
     entities: [
-      { type: "GlitchyGlitchMacGlitchy", position: { x: 3, y: 3 } },
+    //   { type: "GlitchyGlitchMacGlitchy", position: { x: 3, y: 3 } },
       { type: "CryptoFile_Circle", position: { x: 7, y: 0 } },
     ],
   };
@@ -431,14 +431,14 @@ window.test_chunk_grid = {
     width: 3, height: 3, // These are number of chunks
     chunk_width: 8, chunk_height: 8,
     chunk_grid: [
-        window.level_initial, null, null,
-        null, window.level_initial, null,
-        null, null, window.level_initial,
+        window.level_initial,   tiles.ID.GROUND2,           null,
+        null,                   window.level_initial,       tiles.ID.VOID,
+        null,                   tiles.ID.GROUND,            window.level_initial,
     ],
     default_grid_values: { floor: tiles.ID.WALL },
 };
 
-function empty_chunk(width, height, default_grid_values){
+function make_filled_chunk(width, height, default_grid_values){
     const chunk = {
         name: "empty", width, height,
         entities: [],
@@ -465,10 +465,15 @@ function unfold_chunk_grid(name, chunk_grid){
                 position: grid_pos,
                 world_desc: chunk,
             });
+        } else if(Number.isInteger(chunk)){ // Integers are floor "tiles"
+            world_chunks.push({
+                position: grid_pos,
+                world_desc: make_filled_chunk(chunk_grid.chunk_width, chunk_grid.chunk_height, { floor: chunk }),
+            });
         } else if(chunk === null){
             world_chunks.push({
                 position: grid_pos,
-                world_desc: empty_chunk(chunk_grid.chunk_width, chunk_grid.chunk_height, chunk_grid.default_grid_values),
+                world_desc: make_filled_chunk(chunk_grid.chunk_width, chunk_grid.chunk_height, chunk_grid.default_grid_values),
             });
         } else {
             console.error(`Incorrect chunk grid! : \n${JSON.stringify(chunk_grid)}`);
