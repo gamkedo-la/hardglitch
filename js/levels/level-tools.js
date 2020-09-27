@@ -9,6 +9,7 @@ import * as concepts from "../core/concepts.js";
 import { default_rules, is_valid_world, grid_ID, get_entity_type } from "../definitions-world.js";
 import { Grid, merged_grids_size, merge_grids } from "../system/grid.js";
 import { escaped, index_from_position, random_int, random_sample, copy_data } from "../system/utility.js";
+import { Corruption } from "../rules/rules-corruption.js";
 
 const default_defaults = {
     ground : tiles.ID.LVL1A,
@@ -82,13 +83,25 @@ function check_world_desc(world_desc){
     return true;
 }
 
+function deserialize_grid_elements(grid_id, grid_elements){
+    switch(grid_id){
+        case grid_ID.corruption:
+            return grid_elements.map(value => value ? new Corruption(value) : null);
+        // case grid_ID.unstable:
+        //     return grid_elements.map(value => value ? new Unstable() : undefined);
+        default:
+            return grid_elements;
+    }
+}
+
 function deserialize_world(world_desc){
     check_world_desc(world_desc);
 
     const world = new concepts.World(world_desc.name, world_desc.width, world_desc.height, {});
 
     for(const [grid_id, grid_elements] of Object.entries(world_desc.grids)){
-        const grid = new Grid(world_desc.width, world_desc.height, grid_elements);
+        const elements = deserialize_grid_elements(grid_id, grid_elements);
+        const grid = new Grid(world_desc.width, world_desc.height, elements);
         world.add_grid(grid_id, grid);
     }
 

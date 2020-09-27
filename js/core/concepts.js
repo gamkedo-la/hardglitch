@@ -271,6 +271,7 @@ class World
     grids = {};      // Grids that makes this world, each layer adding information/content. Grids are named and order of addition is important. See: https://stackoverflow.com/questions/5525795/does-javascript-guarantee-object-property-order/38218582#38218582
     is_finished = false; // True if this world is in a finished state, in which case it should not be updated anymore. TODO: protect against manipulations
     has_entity_list_changed = false; // True if the list of entities existing have changed since the last turn update.
+    turn_id = 0;
 
     constructor(name, width, height, grids){
         console.assert(typeof name === "string" && name.length > 0);

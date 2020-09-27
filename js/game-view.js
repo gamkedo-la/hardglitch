@@ -36,10 +36,11 @@ import { ItemView } from "./view/item-view.js";
 import { FogOfWar } from "./view/fogofwar.js";
 import { TakeItem } from "./rules/rules-items.js";
 import { GameFxView } from "./game-effects.js";
-import { add_text_line } from "./system/utility.js";
+import { add_text_line, index_from_position, position_from_index } from "./system/utility.js";
 import { config } from "./game-config.js";
 import { turn_sequence } from "./core/action-turn.js";
 import { grid_ID } from "./definitions-world.js";
+import { Corruption } from "./rules/rules-corruption.js";
 
 const a_very_long_time = 99999999999999;
 const turn_message_player_turn = "Play";
@@ -832,6 +833,7 @@ class GameView {
         console.assert(world);
 
         this._reset_tilegrid(world);
+        this.reset_effects_layers();
 
         this.reset_entities();
 
@@ -844,6 +846,25 @@ class GameView {
         this.fog_of_war.clear_fovs();
 
         this._recreate_entity_views(this.game.world.entities);
+    }
+
+    reset_effects_layers(){
+        const corruption_grid = this.game.world.grids[grid_ID.corruption];
+        corruption_grid.elements.forEach((corruption, idx) => {
+            console.assert(corruption instanceof Corruption);
+            if(!corruption.fx){
+                const position = position_from_index(this.game.world.width, this.game.world.height, idx);
+                corruption.fx = this.fx_view.corrupt(graphic_position(position));
+            }
+        });
+
+        // this.world.grids[grid_ID.unstable].elements.forEach((unstable, idx) => {
+        //     console.assert(unstable instanceof Unstable);
+        //     if(!unstable.fx){
+        //         const position = position_from_index(this.world.width, this.world.height, idx);
+        //         unstable.fx = this.fx_view.unstable(position);
+        //     }
+        // });
     }
 
     refresh(){

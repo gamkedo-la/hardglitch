@@ -28,7 +28,9 @@ function corruption_damage() {
 
 const corrupt_ap_cost = 2;
 
-class Corruption {}; // TODO: decide if there are "values?"
+class Corruption { // TODO: decide if there are "values?"
+    toJSON(key) { return {}; }
+};
 
 class CorruptionSpawned extends concepts.Event {
     constructor(position, corruption, from){
@@ -66,7 +68,6 @@ class CorruptionSpawned extends concepts.Event {
 class CorruptionVanished extends concepts.Event {
     constructor(position, corruption){
         console.assert(corruption instanceof Corruption);
-        console.assert(corruption.fx);
         super({
             allow_parallel_animation: false,
             description: `Corruption vanished at ${JSON.stringify(position)}`,
@@ -197,6 +198,9 @@ function damage_anything_in_corrupted_tiles(world){
 class Rule_Corruption extends concepts.Rule {
 
     update_world_at_the_beginning_of_game_turn(world){
+        if(world.turn_id <= 1) // Don't apply this rule on the first turn.
+            return [];
+
         return [
             ...damage_anything_in_corrupted_tiles(world),
             ...update_corruption_state(world),

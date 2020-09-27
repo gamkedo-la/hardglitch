@@ -147,10 +147,8 @@ function* characters_that_can_act_now(world){
 function* execute_turns_v2(world) {
     console.assert(world instanceof concepts.World);
 
-    let turn_id = 0;
-
     function* request_player_action(character, possible_actions) { // Give back control to the player, request them to set an action in the World object.
-        const player_action = yield new PlayerTurn(turn_id, world, character, possible_actions);
+        const player_action = yield new PlayerTurn(world.turn_id, world, character, possible_actions);
         return player_action;
     }
 
@@ -168,8 +166,8 @@ function* execute_turns_v2(world) {
         //////////////////////////////////////////////////
         // NEW TURN STARTS HERE: CYCLE THROUGH EACH CHARACTER WHICH CAN ACT THIS TURN
         //////////////////////////////////////////////////
-        ++turn_id;
-        yield new NewTurn(turn_id, world);
+        ++world.turn_id;
+        yield new NewTurn(world.turn_id, world);
 
         // Apply the rules of the world that must happen at each Turn (before we begin doing characters turns).
         yield* world.apply_rules_beginning_of_game_turn();
