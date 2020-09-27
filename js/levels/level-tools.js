@@ -10,12 +10,13 @@ import { default_rules, is_valid_world, grid_ID, get_entity_type } from "../defi
 import { Grid, merged_grids_size, merge_grids } from "../system/grid.js";
 import { escaped, index_from_position, random_int, random_sample, copy_data } from "../system/utility.js";
 import { Corruption } from "../rules/rules-corruption.js";
+import { Unstability } from "../rules/rules-unstability.js";
 
 const default_defaults = {
-    ground : tiles.ID.LVL1A,
-    ground_alt: tiles.ID.LVL1B,
-    wall : tiles.ID.WALL1A,
-    wall_alt : tiles.ID.WALL1B,
+    ground : tiles.ID.GROUND,
+    ground_alt: tiles.ID.GROUND2,
+    wall : tiles.ID.WALL,
+    wall_alt : tiles.ID.WALL2,
 };
 
 function generate_empty_world(name, width, height, defaults = default_defaults){
@@ -87,8 +88,8 @@ function deserialize_grid_elements(grid_id, grid_elements){
     switch(grid_id){
         case grid_ID.corruption:
             return grid_elements.map(value => value ? new Corruption(value) : null);
-        // case grid_ID.unstable:
-        //     return grid_elements.map(value => value ? new Unstable() : undefined);
+        case grid_ID.unstable:
+            return grid_elements.map(value => value ? new Unstability(value) : null);
         default:
             return grid_elements;
     }

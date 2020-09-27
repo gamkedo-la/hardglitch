@@ -13,12 +13,12 @@ import * as anim from "../system/animation.js";
 import * as animation from "../game-animations.js";
 
 import { deal_damage } from "./destruction.js";
-import { lazy_call, not, random_int } from "../system/utility.js";
+import { lazy_call, random_int } from "../system/utility.js";
 import { grid_ID, is_valid_world } from "../definitions-world.js";
 import { Character } from "../core/character.js";
 import { Grid } from "../system/grid.js";
 import { sprite_defs } from "../game-assets.js";
-import { actions_for_each_target, ranged_actions_for_each_target } from "./rules-common.js";
+import { actions_for_each_target } from "./rules-common.js";
 import { GameView } from "../game-view.js";
 import { graphic_position, square_half_unit_vector } from "../view/entity-view.js";
 

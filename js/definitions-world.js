@@ -33,6 +33,7 @@ import * as level_4 from "./levels/level_4.js";
 import { all_item_types } from "./definitions-items.js";
 import { all_characters_types } from "./deflinitions-characters.js";
 import { Rule_Corruption } from "./rules/rules-corruption.js";
+import { Rule_Unstability } from "./rules/rules-unstability.js";
 
 const world_grid = {
     width: 64,
@@ -57,6 +58,7 @@ const default_rules = [ // BEWARE: rules will be applied in-order.
     new Rule_Copy(),
 
     new Rule_Corruption(),
+    new Rule_Unstability(),
     new Rule_Stream(),
 
     // The rules below check for the state of the game, so anything that modifies the game should be run before.

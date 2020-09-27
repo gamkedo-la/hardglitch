@@ -41,6 +41,7 @@ import { config } from "./game-config.js";
 import { turn_sequence } from "./core/action-turn.js";
 import { grid_ID } from "./definitions-world.js";
 import { Corruption } from "./rules/rules-corruption.js";
+import { Unstability } from "./rules/rules-unstability.js";
 
 const a_very_long_time = 99999999999999;
 const turn_message_player_turn = "Play";
@@ -852,22 +853,22 @@ class GameView {
     }
 
     reset_effects_layers(){
-        const corruption_grid = this.game.world.grids[grid_ID.corruption];
-        corruption_grid.elements.forEach((corruption, idx) => {
-            console.assert(corruption instanceof Corruption);
-            if(!corruption.fx){
-                const position = position_from_index(this.game.world.width, this.game.world.height, idx);
-                corruption.fx = this.fx_view.corrupt(graphic_position(position));
-            }
-        });
 
-        // this.world.grids[grid_ID.unstable].elements.forEach((unstable, idx) => {
-        //     console.assert(unstable instanceof Unstable);
-        //     if(!unstable.fx){
-        //         const position = position_from_index(this.world.width, this.world.height, idx);
-        //         unstable.fx = this.fx_view.unstable(position);
-        //     }
-        // });
+        const add_fx_to_effect = (grid_id, effect_type, effect_func) => {
+            const grid = this.game.world.grids[grid_id];
+            grid.elements.forEach((effect, idx) => {
+                console.assert(effect instanceof effect_type);
+                if(!effect.fx){
+                    const position = position_from_index(this.game.world.width, this.game.world.height, idx);
+                    const fx_position = graphic_position(position).translate(square_half_unit_vector);
+                    effect.fx = effect_func(fx_position);
+                }
+            });
+        };
+
+        add_fx_to_effect(grid_ID.corruption, Corruption, (pos)=>this.fx_view.corrupt(pos, this.tile_grid.canvas_context));
+        add_fx_to_effect(grid_ID.unstable, Unstability, (pos)=>this.fx_view.unstable(pos, this.tile_grid.canvas_context));
+
     }
 
     refresh(){

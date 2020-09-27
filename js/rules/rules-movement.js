@@ -12,6 +12,7 @@ export {
     RandomJump,
     Swap,
     Swaped,
+    random_jump,
 }
 
 import * as concepts from "../core/concepts.js";
@@ -113,7 +114,7 @@ class Rule_Movements extends concepts.Rule {
 };
 
 class Jumped extends concepts.Event {
-    constructor(entity, from_pos, to_pos, duration) {
+    constructor(entity, from_pos, to_pos, duration=666) {
         console.assert(entity instanceof concepts.Entity);
         console.assert(from_pos instanceof concepts.Position);
         console.assert(to_pos instanceof concepts.Position);
@@ -154,7 +155,7 @@ class Jump extends concepts.Action {
         console.assert(character instanceof Character);
         const initial_pos = character.position;
         character.position = this.target_position;
-        const move_event = new Jumped(character, initial_pos, this.target_position, 666);
+        const move_event = new Jumped(character, initial_pos, this.target_position);
         move_event.allow_parallel_animation = false; // Never mix a jump animation with other moves.
         return [move_event]; // TODO: implement a different event, with a different animation
     }
@@ -177,7 +178,22 @@ class Rule_Jump extends concepts.Rule {
     }
 };
 
-const random_jump_shape = new visibility.Range_Square(1, 64);
+const random_jump_shape = new visibility.Range_Square(3, 64);
+
+function random_jump(world, entity, range, position_predicate = ()=>true){
+    console.assert(world instanceof concepts.World);
+    console.assert(entity instanceof concepts.Entity);
+    console.assert(range instanceof visibility.RangeShape);
+    console.assert(position_predicate instanceof Function);
+    const initial_pos = entity.position;
+    const possible_targets = visibility.positions_in_range(entity.position, range, pos => world.is_valid_position(pos))
+                                .filter(position_predicate);
+    const random_position = random_sample(possible_targets);
+    entity.position = random_position;
+    const move_event = new Jumped(entity, initial_pos, random_position);
+    move_event.allow_parallel_animation = false; // Never mix a jump animation with other moves.
+    return [move_event]; // TODO: implement a different event, with a different animation
+}
 
 class RandomJump extends concepts.Action {
     icon_def = sprite_defs.icon_action_move;
@@ -191,14 +207,12 @@ class RandomJump extends concepts.Action {
     }
 
     execute(world, character){
+        console.assert(world instanceof concepts.World);
         console.assert(character instanceof Character);
-        const initial_pos = character.position;
-        const possible_targets = visibility.valid_move_positions(world, character, random_jump_shape, tiles.is_walkable);
-        const random_position = random_sample(possible_targets);
-        character.position = random_position;
-        const move_event = new Jumped(character, initial_pos, random_position, 666);
-        move_event.allow_parallel_animation = false; // Never mix a jump animation with other moves.
-        return [move_event]; // TODO: implement a different event, with a different animation
+        // Only jump where the character can see.
+        const position_predicate = pos => !is_blocked_position(world, pos, tiles.is_walkable)
+                                       && character.can_see(pos);
+        return random_jump(world, character, random_jump_shape, position_predicate);
     }
 };
 
