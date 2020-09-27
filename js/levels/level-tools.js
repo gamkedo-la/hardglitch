@@ -234,8 +234,9 @@ function random_variation(world_desc){
     return result_world;
 }
 
-function merge_world_chunks(name, ...position_world_chunks){
+function merge_world_chunks(name, default_grids_values, ...position_world_chunks){
     console.assert(typeof name === "string");
+    console.assert(default_grids_values instanceof Object);
     console.assert(position_world_chunks.every((pos_chunk)=> {
         const {position, world_desc} = pos_chunk;
         console.assert(position.x !== undefined);
@@ -269,6 +270,16 @@ function merge_world_chunks(name, ...position_world_chunks){
         });
         const grid = merge_grids(...position_grids);
         console.assert(grid.width === width && grid.height === height);
+
+        const default_value = default_grids_values[grid_id];
+        if(default_value !== undefined){
+            for(let idx = 0; idx < grid.elements.length; ++idx){
+                if(grid.elements[idx] == undefined){
+                    grid.elements[idx] = default_value;
+                }
+            }
+        }
+
         world.grids[grid_id] = grid.elements;
     });
 
@@ -365,7 +376,7 @@ window.setup_test_levels = ()=>{
     window.level_mirror_vertical_axe = mirror_world_desc(window.level_initial);
     window.level_mirror_horizontal_axe = mirror_world_desc(window.level_initial, false);
 
-    window.merged_level = merge_world_chunks("Merged Land",
+    window.merged_level = merge_world_chunks("Merged Land", { floor: tiles.ID.VOID },
         { position:{ x:8,   y:0  }, world_desc: window.level_initial    },
         { position:{ x:16,  y:8  }, world_desc: window.level_initial       },
         { position:{ x:8,   y:16 }, world_desc: window.level_initial      },
