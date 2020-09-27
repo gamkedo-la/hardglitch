@@ -25,7 +25,7 @@ export {
     ActionParticle,
 }
 
-import { camera } from "./graphics.js";
+import { camera, create_canvas_context } from "./graphics.js";
 import { random_int, random_float, ofmt } from "./utility.js";
 import { Color } from "./color.js";
 import { Vector2 } from "./spatial.js";
@@ -591,7 +591,6 @@ class FadeParticle extends Particle {
 }
 
 // =============================================================================
-const glitchCanvas = document.createElement('canvas');
 class CanvasGlitchParticle extends Particle {
     constructor(x, y, width, height, xforms, srcCtx, xformTTL=0) {
         super(x, y);
@@ -599,13 +598,13 @@ class CanvasGlitchParticle extends Particle {
         this.height = height;
         this.srcCtx = srcCtx;
         this.xforms = xforms || [];
-        this.sdata;
         this.needData = true;
         this.needXform = true;
         this.elapsed = 0;
         this.xformTTL = xformTTL * 1000;
         this.dx = 0;
         this.dy = 0;
+        this.glitchCanvasContext = create_canvas_context(this.width * 2, this.height * 2);
     }
 
     update(delta_time) {
@@ -641,14 +640,13 @@ class CanvasGlitchParticle extends Particle {
         if (this.xdata) {
             let xoffset = this.width*.5;
             let yoffset = this.height*.5;
-            glitchCanvas.width = this.width*2;
-            glitchCanvas.height = this.height*2;
-            let gctx = glitchCanvas.getContext("2d");
+
+            let gctx = this.glitchCanvasContext;
             //gctx.clearRect(0, 0, glitchCanvas.width, glitchCanvas.height);
             //gctx.fillStyle = "red";
             //gctx.fillRect(0, 0, glitchCanvas.width, glitchCanvas.height);
             gctx.putImageData(this.xdata, xoffset, yoffset);
-            canvas_context.drawImage(glitchCanvas, this.x-xoffset+this.dx, this.y-yoffset+this.dy);
+            canvas_context.drawImage(gctx.canvas, this.x-xoffset+this.dx, this.y-yoffset+this.dy);
         }
     }
 
