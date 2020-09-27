@@ -421,22 +421,51 @@ window.setup_test_levels = ()=>{
     console.assert(window.merged_level.width === 24);
     console.assert(window.merged_level.height === 36);
 
-    window.padded_level_initial = load_serialized_level(add_padding_around(level_initial, { floor: tiles.ID.VOID }));
+    window.padded_level_initial = add_padding_around(level_initial, { floor: tiles.ID.VOID });
+
+    window.level_unfolded = unfold_chunk_grid("kikoo", window.test_chunk_grid);
+    window.padded_level_unfolded = add_padding_around(window.level_unfolded, window.test_chunk_grid.default_grid_values);
 
 };
 
 
+class ChunkGrid {
+    constructor(desc){
+        console.assert(Number.isInteger(desc.width) && desc.width > 0);
+        console.assert(Number.isInteger(desc.height) && desc.height > 0);
+        console.assert(Number.isInteger(desc.chunk_width) && desc.chunk_width > 0);
+        console.assert(Number.isInteger(desc.chunk_height) && desc.chunk_height > 0);
+        console.assert(desc.default_grid_values instanceof Object || desc.default_grid_values === undefined);
+        console.assert(desc.chunks instanceof Array || desc.chunks === undefined);
+        this.width = desc.width;
+        this.height = desc.height;
+        this.chunk_width = desc.chunk_width;
+        this.chunk_height = desc.chunk_height;
+        this.default_grid_values = desc.default_grid_values ? desc.default_grid_values : {};
+        this.chunks = desc.chunks ? desc.chunks : new Array(this.width * this.height);
+        console.assert(this.chunks.length === this.width * this.height);
+    }
+}
 
-window.test_chunk_grid = {
-    width: 3, height: 3, // These are number of chunks
-    chunk_width: 8, chunk_height: 8,
-    chunk_grid: [
-        window.level_initial,   tiles.ID.GROUND2,           null,
-        null,                   window.level_initial,       tiles.ID.VOID,
-        null,                   tiles.ID.GROUND,            window.level_initial,
+window.test_sub_chunk = new ChunkGrid({
+    width: 2, height: 2, // These are number of chunks
+    chunk_width: 4, chunk_height: 4,
+    chunks: [
+        tiles.ID.LVL1A,   tiles.ID.LVL2A,
+        tiles.ID.LVL3A,   tiles.ID.LVL4A,
     ],
-    default_grid_values: { floor: tiles.ID.WALL },
-};
+});
+
+window.test_chunk_grid = new ChunkGrid({
+        width: 3, height: 3, // These are number of chunks
+        chunk_width: 8, chunk_height: 8,
+        default_grid_values: { floor: tiles.ID.WALL },
+        chunks: [
+            window.level_initial,   tiles.ID.GROUND2,           null,
+            window.test_sub_chunk,  window.level_initial,       tiles.ID.VOID,
+            null,                   tiles.ID.GROUND,            window.level_initial,
+        ],
+    });
 
 function make_filled_chunk(width, height, default_grid_values){
     const chunk = {
@@ -451,15 +480,20 @@ function make_filled_chunk(width, height, default_grid_values){
 }
 
 function unfold_chunk_grid(name, chunk_grid){
+    console.assert(typeof name === "string");
+    console.assert(chunk_grid instanceof ChunkGrid);
 
     const world_chunks = [];
 
-    for(let chunk_idx = 0; chunk_idx < chunk_grid.chunk_grid.length; ++chunk_idx){
-        const chunk = chunk_grid.chunk_grid[chunk_idx];
+    for(let chunk_idx = 0; chunk_idx < chunk_grid.chunks.length; ++chunk_idx){
+        let chunk = chunk_grid.chunks[chunk_idx];
         const chunk_pos = position_from_index(chunk_grid.width, chunk_grid.height, chunk_idx);
         const grid_pos = { x: chunk_pos.x * chunk_grid.chunk_width, y: chunk_pos.y * chunk_grid.chunk_height };
 
         if(chunk instanceof Object){
+            if(chunk instanceof ChunkGrid){
+                chunk = unfold_chunk_grid(name, chunk); // Recursively unfold grids...
+            }
             console.assert(check_world_desc(chunk));
             world_chunks.push({
                 position: grid_pos,
@@ -482,9 +516,8 @@ function unfold_chunk_grid(name, chunk_grid){
     }
 
     const merged_world = merge_world_chunks(name, chunk_grid.default_grid_values, ...world_chunks);
-    const padded_world = add_padding_around(merged_world, chunk_grid.default_grid_values);
 
-    return padded_world;
+    return merged_world;
 }
 
 window.unfold_chunk_grid = unfold_chunk_grid;
