@@ -294,8 +294,6 @@ class GameFxView {
     }
 
     corrupt(position, srcCtx) {
-        //return this.damage(position);
-        // TODO: proper corruption implementation.
         let emitInterval = .2;
         let emitJitter = 50;
         let offsetEmitter = new ParticleEmitter(this.particleSystem, position.x-32, position.y-32, (e) => {
