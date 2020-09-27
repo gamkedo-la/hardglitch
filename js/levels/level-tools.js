@@ -8,7 +8,7 @@ import * as tiles from "../definitions-tiles.js";
 import * as concepts from "../core/concepts.js";
 import { default_rules, is_valid_world, grid_ID, get_entity_type } from "../definitions-world.js";
 import { Grid, merged_grids_size, merge_grids } from "../system/grid.js";
-import { escaped, index_from_position, random_int, random_sample, copy_data } from "../system/utility.js";
+import { escaped, index_from_position, random_int, random_sample, copy_data, position_from_index } from "../system/utility.js";
 import { Corruption } from "../rules/rules-corruption.js";
 import { Unstability } from "../rules/rules-unstability.js";
 
@@ -427,16 +427,59 @@ window.setup_test_levels = ()=>{
 
 
 
-window.test_level_desc = {
+window.test_chunk_grid = {
     width: 3, height: 3, // These are number of chunks
+    chunk_width: 8, chunk_height: 8,
     chunk_grid: [
         window.level_initial, null, null,
         null, window.level_initial, null,
         null, null, window.level_initial,
-    ]
+    ],
+    default_grid_values: { floor: tiles.ID.WALL },
 };
 
-// function unfold_level(level_desc){
+function empty_chunk(width, height, default_grid_values){
+    const chunk = {
+        name: "empty", width, height,
+        entities: [],
+        grids: {},
+    };
+    for(const grid_id of Object.values(grid_ID)){
+        chunk.grids[grid_id] = new Array(width * height).fill(default_grid_values[grid_id]);
+    }
+    return chunk;
+}
 
-//     for(const y = 0; )
-// }
+function unfold_chunk_grid(name, chunk_grid){
+
+    const world_chunks = [];
+
+    for(let chunk_idx = 0; chunk_idx < chunk_grid.chunk_grid.length; ++chunk_idx){
+        const chunk = chunk_grid.chunk_grid[chunk_idx];
+        const chunk_pos = position_from_index(chunk_grid.width, chunk_grid.height, chunk_idx);
+        const grid_pos = { x: chunk_pos.x * chunk_grid.chunk_width, y: chunk_pos.y * chunk_grid.chunk_height };
+
+        if(chunk instanceof Object){
+            console.assert(check_world_desc(chunk));
+            world_chunks.push({
+                position: grid_pos,
+                world_desc: chunk,
+            });
+        } else if(chunk === null){
+            world_chunks.push({
+                position: grid_pos,
+                world_desc: empty_chunk(chunk_grid.chunk_width, chunk_grid.chunk_height, chunk_grid.default_grid_values),
+            });
+        } else {
+            console.error(`Incorrect chunk grid! : \n${JSON.stringify(chunk_grid)}`);
+            return;
+        }
+    }
+
+    const merged_world = merge_world_chunks(name, chunk_grid.default_grid_values, ...world_chunks);
+    const padded_world = add_padding_around(merged_world, chunk_grid.default_grid_values);
+
+    return padded_world;
+}
+
+window.unfold_chunk_grid = unfold_chunk_grid;
