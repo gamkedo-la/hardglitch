@@ -14,7 +14,6 @@ import {
     BlipEdgeParticle,
     LightningParticle,
     OffsetGlitchParticle,
-    OffsetGlitchParticle2,
     ColorGlitchParticle,
     ColorOffsetGlitchParticle,
     ThrobParticle,
@@ -297,34 +296,44 @@ class GameFxView {
         let emitInterval = .2;
         let emitJitter = 50;
         let offsetEmitter = new ParticleEmitter(this.particleSystem, position.x-32, position.y-32, (e) => {
-            let xoff = random_int(0,64);
-            let yoff = random_int(0,64);
-            let ttl = random_float(.1,5);
-            let width = random_float(5,15);
-            let height = random_float(5,15);
+            let xoff = random_int(4,50);
+            let yoff = random_int(4,50);
+            let ttl = random_float(.1,1);
+            let width = random_float(5,14);
+            let height = random_float(5,14);
             let dx = random_float(-5,5);
             let dy = random_float(-5,5);
-            return new OffsetGlitchParticle2(e.x+xoff, e.y+yoff, width, height, dx, dy, ttl, "red", srcCtx);
+            return new OffsetGlitchParticle(e.x+xoff, e.y+yoff, width, height, dx, dy, ttl, "", srcCtx);
         }, emitInterval, emitJitter);
         let colorEmitter = new ParticleEmitter(this.particleSystem, position.x-32, position.y-32, (e) => {
-            let xoff = random_int(0,64);
-            let yoff = random_int(0,64);
-            //let yoff = random_int(-4,-60);
-            let width = random_float(20,Math.min(40,64-xoff));
-            let height = random_float(20,Math.min(40,64-yoff));
+            let xoff = random_int(1,50);
+            let yoff = random_int(1,50);
+            let width = random_float(10,Math.min(40,64-xoff));
+            let height = random_float(10,Math.min(40,64-yoff));
             let roff = random_float(0,255);
             let goff = random_float(0,255);
             let boff = random_float(0,255);
             let ttl = random_float(.1,1);
             return new ColorGlitchParticle(e.x+xoff, e.y+yoff, width, height, roff, goff, boff, ttl, srcCtx);
-        }, emitInterval*3, emitJitter);
+        }, emitInterval, emitJitter);
+        let damageEmitter = new ParticleEmitter(this.particleSystem, position.x-32, position.y-32, (e) => {
+            const xoff = random_int(4,60);
+            const yoff = random_int(4,60);
+            const width = random_int(15,30);
+            const hue = random_int(150, 250);
+            const ttl = .2;
+            return new FlashParticle(e.x + xoff, e.y + yoff, width, hue, ttl);
+        }, .1, 25);
         this.particleSystem.add(offsetEmitter);
-        //this.particleSystem.add(colorEmitter);
+        this.particleSystem.add(colorEmitter);
+        this.particleSystem.add(damageEmitter);
         let fx = new GameFx(position);
         fx.sentinels.push(offsetEmitter);
         fx.sentinels.push(colorEmitter);
+        fx.sentinels.push(damageEmitter);
         fx.relocatables.push(offsetEmitter);
         fx.relocatables.push(colorEmitter);
+        fx.relocatables.push(damageEmitter);
         return fx;
     }
 

@@ -7,7 +7,6 @@ export {
     FadeLineParticle,
     FadeParticle,
     OffsetGlitchParticle,
-    OffsetGlitchParticle2,
     ColorGlitchParticle,
     BlipParticle,
     SwirlParticle,
@@ -591,39 +590,6 @@ class FadeParticle extends Particle {
 
 }
 
-class OffsetGlitchParticle extends Particle {
-    constructor(x, y, width, height, dx, dy, ttl, fillColor="black", srcCtx) {
-        super(x, y);
-        this.width = width;
-        this.height = height;
-        this.dx = dx;
-        this.dy = dy;
-        this.ttl = ttl;
-        this.fillColor = fillColor;
-        this.srcCtx = srcCtx;
-    }
-
-    draw(canvas_context) {
-        let srcCtx = (this.srcCtx) ? this.srcCtx : canvas_context;
-        let data = srcCtx.getImageData(this.x, this.y, this.width, this.height);
-        if (this.fillColor) canvas_context.fillStyle = this.fillColor.toString();
-        canvas_context.fillRect(this.x, this.y, this.width, this.height);
-        canvas_context.putImageData(data, this.x+this.dx, this.y+this.dy);
-    }
-
-    update(delta_time) {
-        if (this.done) return;
-        // convert delta time to seconds
-        delta_time *= .001;
-        // time-to-live
-        this.ttl -= delta_time;
-        if (this.ttl <= 0) {
-            this._done = true;
-        }
-    }
-
-}
-
 // =============================================================================
 const glitchCanvas = document.createElement('canvas');
 class CanvasGlitchParticle extends Particle {
@@ -688,7 +654,7 @@ class CanvasGlitchParticle extends Particle {
 
 }
 
-class OffsetGlitchParticle2 extends CanvasGlitchParticle {
+class OffsetGlitchParticle extends CanvasGlitchParticle {
     constructor(x, y, width, height, dx, dy, ttl, fillColor="black", srcCtx) {
         let adx = Math.abs(dx);
         let ady = Math.abs(dy);
@@ -700,8 +666,10 @@ class OffsetGlitchParticle2 extends CanvasGlitchParticle {
     }
 
     midDraw(canvas_context) {
-        if (this.fillColor) canvas_context.fillStyle = this.fillColor.toString();
-        canvas_context.fillRect(this.x, this.y, this.width, this.height);
+        if (this.fillColor) {
+            canvas_context.fillStyle = this.fillColor.toString();
+            canvas_context.fillRect(this.x, this.y, this.width, this.height);
+        }
     }
 
     update(delta_time) {
@@ -715,6 +683,7 @@ class OffsetGlitchParticle2 extends CanvasGlitchParticle {
         }
         super.update(delta_time);
     }
+
 }
 
 class ColorOffsetGlitchParticle extends CanvasGlitchParticle {
@@ -773,33 +742,14 @@ class BandingGlitchParticle extends CanvasGlitchParticle {
 }
 
 // =============================================================================
-class ColorGlitchParticle extends Particle {
+class ColorGlitchParticle extends CanvasGlitchParticle {
     constructor(x, y, width, height, roff, goff, boff, ttl, srcCtx) {
-        super(x, y);
+        let swapXf = new ColorSwapDataXForm(0, 0, width, height, roff, goff, boff);
+        super(x, y, width, height, [swapXf], srcCtx, ttl);
         this.width = width;
         this.height = height;
-        this.roff = roff;
-        this.goff = goff;
-        this.boff = boff;
         this.ttl = ttl;
         this.srcCtx = srcCtx;
-    }
-
-    draw(canvas_context) {
-        // pull area
-        let srcCtx = (this.srcCtx) ? this.srcCtx : canvas_context;
-        let idata = srcCtx.getImageData(this.x, this.y, this.width, this.height);
-        let data = idata.data;
-        // transform data
-        for(var i = 0; i < data.length; i += 4) {
-          // red
-          data[i] = (data[i] + this.roff) % 255;
-          // green
-          data[i + 1] = (data[i + 1] + this.goff) % 255;
-          // blue
-          data[i + 2] = (data[i + 2] + this.goff) % 255;
-        }
-        canvas_context.putImageData(idata, this.x, this.y);
     }
 
     update(delta_time) {
@@ -811,7 +761,9 @@ class ColorGlitchParticle extends Particle {
         if (this.ttl <= 0) {
             this._done = true;
         }
+        super.update(delta_time);
     }
+
 }
 
 const blipImg = new Image();
