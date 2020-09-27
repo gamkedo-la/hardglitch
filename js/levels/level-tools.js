@@ -341,7 +341,7 @@ window.level_x = {
     width: 5,
     height: 8,
     grids: {
-        floor: [12, 12, 12, 126, 126, 12, 12, 12, 126, 126, 12, 12, 12, 12, 126, 12, 12, 12, 12, 126, 108, 108, 12, 12, 12, 108, 108, 12, 12, 126, 108, 108, 12, 12, 12, 108, 108, 12, 12, 12],
+        floor: [12, 12, 12, 126, 126, 12, 12, 12, 126, 126, 12, 12, 12, 12, 126, 12, 12, 12, 12, 126, 107, 107, 12, 12, 12, 107, 107, 12, 12, 126, 107, 107, 12, 12, 12, 107, 107, 12, 12, 12],
         surface: [0, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1],
         corruption: [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
         unstable: [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
@@ -379,5 +379,21 @@ window.setup_test_levels = ()=>{
     );
     console.assert(window.merged_level.width === 24);
     console.assert(window.merged_level.height === 36);
+
 };
 
+
+
+// window.test_level_desc = {
+//     width: 3, height: 3, // These are number of chunks
+//     chunk_grid: [
+//         window.level_initial, null, null,
+//         null, window.level_initial, null,
+//         null, null, window.level_initial,
+//     ]
+// };
+
+// function unfold_level(level_desc){
+
+//     for(const y = 0; )
+// }
