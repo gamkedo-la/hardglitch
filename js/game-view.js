@@ -866,8 +866,8 @@ class GameView {
             });
         };
 
-        add_fx_to_effect(grid_ID.corruption, Corruption, (pos)=>this.fx_view.corrupt(pos, this.tile_grid.canvas_context));
-        add_fx_to_effect(grid_ID.unstable, Unstability, (pos)=>this.fx_view.unstable(pos, this.tile_grid.canvas_context));
+        add_fx_to_effect(grid_ID.corruption, Corruption, (pos)=>this.fx_view.corrupt(pos));
+        add_fx_to_effect(grid_ID.unstable, Unstability, (pos)=>this.fx_view.unstable(pos));
 
     }
 

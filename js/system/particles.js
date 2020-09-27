@@ -633,7 +633,7 @@ class CanvasGlitchParticle extends Particle {
         // pull image data (if needed)
         if (this.needData) {
             let srcCtx = (this.srcCtx) ? this.srcCtx : canvas_context;
-            this.sdata = srcCtx.getImageData(this.x, this.y, this.width, this.height);
+            this.sdata = srcCtx.getImageData(this.x - camera.position.x, this.y - camera.position.y, this.width, this.height); // TODO: replace by this.x-xoffset+this.dx, this.y-yoffset+this.dy
             this.needData = false;
         }
         if (this.midDraw) this.midDraw(canvas_context);
