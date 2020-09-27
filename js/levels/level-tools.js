@@ -306,6 +306,35 @@ function merge_world_chunks(name, default_grids_values, ...position_world_chunks
     return world;
 }
 
+function add_padding_around(world_desc, grid_borders_values){
+    check_world_desc(world_desc);
+    const bigger_world = {
+        name: world_desc.name,
+        width: world_desc.width + 2,
+        height: world_desc.height + 2,
+        grids: {},
+        entities: [],
+    };
+    const grid_size = bigger_world.width * bigger_world.height;
+
+    for(const grid_id of Object.keys(world_desc.grids)){
+        const bigger_grid = new Array(grid_size).fill(grid_borders_values[grid_id]);
+        bigger_world.grids[grid_id] = bigger_grid;
+    }
+
+    const result_world = merge_world_chunks(world_desc.name, {},
+        {
+            position: {x:0, y:0},
+            world_desc: bigger_world,
+        },
+        {
+            position: {x: 1, y: 1},
+            world_desc: world_desc,
+        }
+    );
+    return result_world;
+}
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -315,6 +344,7 @@ window.rotate_world_desc = rotate_world_desc;
 window.mirror_world_desc = mirror_world_desc;
 window.random_variation = random_variation;
 window.merge_world_chunks = merge_world_chunks;
+window.add_padding_around = add_padding_around;
 
 window.level_initial = {
     name: "level_initial",
@@ -391,18 +421,20 @@ window.setup_test_levels = ()=>{
     console.assert(window.merged_level.width === 24);
     console.assert(window.merged_level.height === 36);
 
+    window.padded_level_initial = load_serialized_level(add_padding_around(level_initial, { floor: tiles.ID.VOID }));
+
 };
 
 
 
-// window.test_level_desc = {
-//     width: 3, height: 3, // These are number of chunks
-//     chunk_grid: [
-//         window.level_initial, null, null,
-//         null, window.level_initial, null,
-//         null, null, window.level_initial,
-//     ]
-// };
+window.test_level_desc = {
+    width: 3, height: 3, // These are number of chunks
+    chunk_grid: [
+        window.level_initial, null, null,
+        null, window.level_initial, null,
+        null, null, window.level_initial,
+    ]
+};
 
 // function unfold_level(level_desc){
 
