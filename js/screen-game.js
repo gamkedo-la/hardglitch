@@ -167,12 +167,16 @@ class InGameMenu extends fsm.State {
             }),
 
             update: function(delta_time) {
-                Object.values(this).forEach(element => element.update(delta_time));
+                Object.values(this)
+                    .filter(member => member instanceof ui.UIElement)
+                    .forEach(element => element.update(delta_time));
             },
 
             display: function (canvas_context){
                 graphics.camera.begin_in_screen_rendering();
-                Object.values(this).forEach(element => element.draw(canvas_context));
+                Object.values(this)
+                    .filter(member => member instanceof ui.UIElement)
+                    .forEach(element => element.draw(canvas_context));
                 graphics.camera.end_in_screen_rendering();
             },
         };
