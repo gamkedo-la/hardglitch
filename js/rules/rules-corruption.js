@@ -29,6 +29,7 @@ function corruption_damage() {
 const corrupt_ap_cost = 2;
 
 class Corruption { // TODO: decide if there are "values?"
+    name = "Corrupted";
     toJSON(key) { return {}; }
 };
 

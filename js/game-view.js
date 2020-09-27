@@ -820,6 +820,9 @@ class GameView {
             } else if(Number.isInteger(entity_or_tileid)){ // Integers are tiles ids.
                 const tile_id = entity_or_tileid;
                 help_texts = add_text_line(help_texts, `[${tiles.info_text(tile_id)}]`);
+            } else {
+                const thing = entity_or_tileid; // Probably an effect. We just want to display something
+                help_texts = add_text_line(help_texts, `*${thing.name}*`);
             }
         }
         return help_texts;
