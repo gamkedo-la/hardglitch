@@ -6,6 +6,7 @@ import { Delete } from "./rules/rules-delete.js";
 import { Destroy } from "./rules/rules-destroy.js";
 import { Push, Pull } from "./rules/rules-forces.js";
 import { Corrupt } from "./rules/rules-corruption.js";
+import { Destabilize } from "./rules/rules-unstability.js";
 import { Jump, RandomJump, Swap } from "./rules/rules-movement.js";
 import { Repair } from "./rules/rules-repair.js";
 import { Range_Cross_Diagonal } from "./core/visibility.js";
@@ -29,6 +30,7 @@ const all_uncommon_action_types = { // Action types which are not by default (li
     Pull,
     Repair,
     Corrupt,
+    Destabilize,
 };
 
 
