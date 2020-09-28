@@ -139,9 +139,10 @@ class CryptoKey extends concepts.Item {
         super(`Crypto Key ${crypto_names[kind]}`);
         this.crypto_kind = kind;
         this.assets = {
-            graphics : { body: {
-                sprite_def : sprite_defs[`crypto_key_${kind}`],
-            }}
+            graphics : {
+                body: { sprite_def : sprite_defs.item_generic_7 },
+                top: { sprite_def : sprite_defs[`crypto_key_${kind}`] },
+            }
         };
     }
 

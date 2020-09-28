@@ -57,6 +57,11 @@ const game_assets = { // Description of the assets to load.
         item_slot: "./images/itemslot.png",
         item_generic_1: "./images/genericitem1.png",
         item_generic_2: "./images/genericitem2.png",
+        item_generic_3: "./images/genericitem3.png",
+        item_generic_4: "./images/genericitem4.png",
+        item_generic_5: "./images/genericitem5.png",
+        item_generic_6: "./images/genericitem6.png",
+        item_generic_7: "./images/genericitem7.png",
         info_box_button: "./images/infoboxbutton.png",
 
         // TODO: merge icons into one image
@@ -476,6 +481,37 @@ const sprite_defs = {
             { x:0, y:0, width:64, height:64 }
          ]
     },
+    item_generic_3 : {
+        image: "item_generic_3",
+        frames: [
+            { x:0, y:0, width:64, height:64 }
+         ]
+    },
+    item_generic_4 : {
+        image: "item_generic_4",
+        frames: [
+            { x:0, y:0, width:64, height:64 }
+         ]
+    },
+    item_generic_5 : {
+        image: "item_generic_5",
+        frames: [
+            { x:0, y:0, width:64, height:64 }
+         ]
+    },
+    item_generic_6 : {
+        image: "item_generic_6",
+        frames: [
+            { x:0, y:0, width:64, height:64 }
+         ]
+    },
+    item_generic_7 : {
+        image: "item_generic_7",
+        frames: [
+            { x:0, y:0, width:64, height:64 }
+         ]
+    },
+
 
     button_cancel_action_target_selection: test_button(),
     button_select_action: test_button(),
