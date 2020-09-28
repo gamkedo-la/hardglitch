@@ -388,7 +388,7 @@ window.level_x = {
         unstable: [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
     },
     entities: [
-        { type: "GlitchyGlitchMacGlitchy", position: { x: 1, y: 2 } },
+       // { type: "GlitchyGlitchMacGlitchy", position: { x: 1, y: 2 } },
         { type: "CryptoFile_Circle", position: { x: 3, y: 7 } },
         { type: "Debug_AugmentActionPoints", position: { x: 3, y: 2 } },
     ],
