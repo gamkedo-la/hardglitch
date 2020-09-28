@@ -601,19 +601,25 @@ class CanvasGlitchParticle extends Particle {
         this.needData = true;
         this.needXform = true;
         this.elapsed = 0;
+        this.dataElapsed = 0;
         this.xformTTL = xformTTL * 1000;
         this.dx = 0;
         this.dy = 0;
         this.glitchCanvasContext = create_canvas_context(this.width * 2, this.height * 2);
+        this.dataInterval = 1000;
     }
 
     update(delta_time) {
         if (this.done) return;
         // determine
         this.elapsed += delta_time;
+        this.dataElapsed += delta_time;
         if (this.elapsed > this.xformTTL) {
+            if (this.dataElapsed >= this.dataInterval) {
+                this.dataElapsed = 0;
+                this.needData = true;
+            }
             this.needXform = true;
-            this.needData = true;
             this.elapsed = 0;
         }
         // perform data transformations
@@ -633,6 +639,7 @@ class CanvasGlitchParticle extends Particle {
         if (this.needData) {
             let srcCtx = (this.srcCtx) ? this.srcCtx : canvas_context;
             this.sdata = srcCtx.getImageData(this.x - camera.position.x, this.y - camera.position.y, this.width, this.height); // TODO: replace by this.x-xoffset+this.dx, this.y-yoffset+this.dy
+            //this.sdata = srcCtx.getImageData(this.x, this.y, this.width, this.height);
             this.needData = false;
         }
         if (this.midDraw) this.midDraw(canvas_context);
@@ -640,11 +647,7 @@ class CanvasGlitchParticle extends Particle {
         if (this.xdata) {
             let xoffset = this.width*.5;
             let yoffset = this.height*.5;
-
             let gctx = this.glitchCanvasContext;
-            //gctx.clearRect(0, 0, glitchCanvas.width, glitchCanvas.height);
-            //gctx.fillStyle = "red";
-            //gctx.fillRect(0, 0, glitchCanvas.width, glitchCanvas.height);
             gctx.putImageData(this.xdata, xoffset, yoffset);
             canvas_context.drawImage(gctx.canvas, this.x-xoffset+this.dx, this.y-yoffset+this.dy);
         }

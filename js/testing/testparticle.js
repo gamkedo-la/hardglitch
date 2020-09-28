@@ -265,8 +265,8 @@ class Env {
         this.tests.colorshift(400, 400);
         */
 
-        this.gfx.corrupt({x:368+32,y:336+32});
-        //this.gfx.unstable({x:368+32,y:336+32});
+        this.gfx.corrupt({x:368+32+64*1,y:336+32});
+        this.gfx.unstable({x:368+32,y:336+32});
 
         for (const fx of [
             /*
