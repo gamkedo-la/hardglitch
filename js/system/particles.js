@@ -23,6 +23,7 @@ export {
     DirectionalRingParticle,
     WaitParticle,
     ActionParticle,
+    TraceParticle,
 }
 
 import { camera, create_canvas_context } from "./graphics.js";
@@ -31,6 +32,7 @@ import { Color } from "./color.js";
 import { Vector2 } from "./spatial.js";
 import { lifetime, linearFadeInOut } from "../view/xforms.js";
 import { ColorShiftDataXForm, HorizontalBandingDataXForm, ColorSwapDataXForm, ClearOutsideWindowDataXForm } from "../view/img_data_fx.js";
+import { PathShape } from "../view/proc-wall.js";
 
 
 // This object is reused for optimization, do not move it into the functions using it.
@@ -1265,7 +1267,7 @@ class ShootUpParticle extends Particle {
 
 class FlashParticle extends Particle {
 
-    constructor(x, y, width, hue, ttl) {
+    constructor(x, y, width, hue, ttl, rotateSpeed=1) {
         super(x, y);
         this.width = width;
         this.hue = hue;
@@ -1277,7 +1279,7 @@ class FlashParticle extends Particle {
         this.alphaStep = .9/(this.ttl/2);
         this.angle1 = Math.random() * Math.PI;
         this.angle2 = this.angle1 + (Math.PI * .5);
-        this.rotateStep = random_float(-1,1) / this.ttl;
+        this.rotateStep = random_float(-rotateSpeed,rotateSpeed) / this.ttl;
     }
 
     update(delta_time) {
@@ -1751,6 +1753,140 @@ class ActionParticle extends Particle {
         canvas_context.strokeStyle = this.color.toString();
         canvas_context.stroke(this.path);
         canvas_context.restore();
+    }
+
+}
+
+class TraceParticle extends Particle {
+    constructor(spec) {
+        // parse spec
+        let x = spec.x || 0;
+        let y = spec.y || 0;
+        let path = spec.path || [];
+        let outlineColor = spec.outlineColor || new Color(100,100,0);
+        let traceColor = spec.traceColor || new Color(200,200,0);
+        let outlineWidth = spec.outlineWidth || 1;
+        let ttl = spec.ttl || 1;
+        let origin = spec.origin || {x: x, y:y};
+        let flashWidth = spec.flashWidth || 30;
+        let flashHue = spec.flashHue || 200;
+        let flashRotate = spec.flashRotate || 15;
+        // super
+        super(x, y);
+        // local vars
+        // setup outline
+        // - outlineVerts
+        // - outlineLen
+        // - outline
+        this.setupOutline(path, x, y);
+        this.outlineColor = outlineColor;
+        this.outlineWidth = outlineWidth;
+        this.ttl = ttl * 1000;
+        // setup trace
+        this.trace = {
+            x: this.outlineVerts[0].x,
+            y: this.outlineVerts[0].y,
+            origin: origin,
+            traceColor: traceColor,
+            speed: this.outlineLen/this.ttl,
+            v1: this.outlineVerts[0],
+            v2: this.outlineVerts[1],
+            index: 1,
+        }
+        this.trace.velocity = new Vector2({x:this.trace.v2.x-this.trace.v1.x, y: this.trace.v2.y-this.trace.v1.y});
+        this.trace.velocity.length = this.trace.speed;
+        this.flashP = new FlashParticle(this.trace.x, this.trace.y, flashWidth, flashHue, ttl, flashRotate);
+
+    }
+
+    setupOutline(verts, x, y) {
+        this.outlineVerts = new Array(verts.length);
+        this.outlineLen = 0;
+        this.outline = new Path2D();
+        for (let i=0; i<verts.length; i++) {
+            let dv = {x: verts[i].x+x, y: verts[i].y+y};
+            if (i===0) {
+                this.outline.moveTo(dv.x, dv.y);
+            } else {
+                this.outline.lineTo(dv.x, dv.y);
+                let dx = verts[i].x - verts[i-1].x;
+                let dy = verts[i].y - verts[i-1].y;
+                this.outlineLen += Math.sqrt(dx*dx+dy*dy);
+            }
+            this.outlineVerts[i] = dv;
+        }
+        this.outline.closePath();
+    }
+
+    update(delta_time) {
+        if (this.done) return;
+        // update trace...
+        // - check distance to next vertex vs. distance to travel this tick
+        let dtv2 = new Vector2({x:this.trace.v2.x-this.trace.x,y:this.trace.v2.y-this.trace.y}).length;
+        let dtt = this.trace.speed * delta_time;
+        if (dtt >= dtv2) {
+            // advance to next target vertex
+            if (this.trace.index < this.outlineVerts.length) {
+                this.trace.v1 = this.trace.v2;
+                this.trace.v2 = this.outlineVerts[this.trace.index];
+                this.trace.index++;
+                // recompute velocity
+                this.trace.velocity = new Vector2({x:this.trace.v2.x-this.trace.v1.x, y: this.trace.v2.y-this.trace.v1.y});
+                this.trace.velocity.length = this.trace.speed;
+                let offset = new Vector2({x: this.trace.velocity.x, y:this.trace.velocity.y});
+                offset.length = dtt-dtv2;
+                // compute new x/y
+                this.trace.x = this.trace.v1.x + offset.x;
+                this.trace.y = this.trace.v1.y + offset.y;
+            } else {
+                this.trace.x = this.trace.v2.x;
+                this.trace.y = this.trace.v2.y;
+            }
+
+        // - otherwise, not close enough to endpoint - update position
+        } else {
+            this.trace.x = this.trace.x + this.trace.velocity.x * delta_time;
+            this.trace.y = this.trace.y + this.trace.velocity.y * delta_time;
+        }
+        // update flash particle
+        this.flashP.x = this.trace.x;
+        this.flashP.y = this.trace.y;
+        this.flashP.update(delta_time);
+        // update ttl
+        if (this.ttl) {
+            this.ttl -= delta_time;
+            if (this.ttl <= 0) {
+                this.done = true;
+            }
+        }
+    }
+
+    draw(canvas_context) {
+        this.flashP.draw(canvas_context);
+        //canvas_context.save();
+        /*
+        canvas_context.translate(this.x, this.y);
+        canvas_context.rotate((this.ccw) ? -this.angle : this.angle);
+        canvas_context.beginPath();
+        canvas_context.lineWidth = this.lineWidth;
+        canvas_context.strokeStyle = this.color.toString();
+        canvas_context.stroke(this.path);
+        */
+        // draw outline
+        canvas_context.lineWidth = this.outlineWidth;
+        canvas_context.strokeStyle = this.outlineColor;
+        canvas_context.stroke(this.outline);
+        // draw trace
+        canvas_context.fillStyle = this.trace.traceColor;
+        canvas_context.fillRect(this.trace.x-1,this.trace.y-1, 3, 3);
+        canvas_context.beginPath();
+        canvas_context.moveTo(this.trace.origin.x, this.trace.origin.y);
+        canvas_context.lineTo(this.trace.x, this.trace.y);
+        canvas_context.closePath();
+        canvas_context.strokeStyle = this.trace.traceColor;
+        //canvas_context.strokeStyle = "blue";
+        canvas_context.stroke();
+        //canvas_context.restore();
     }
 
 }

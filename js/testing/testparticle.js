@@ -15,6 +15,7 @@ import {
     ThrobParticle,
     LightningParticle,
     ColorOffsetGlitchParticle,
+    TraceParticle,
 } from "../system/particles.js";
 import { GameFxView } from "../game-effects.js";
 import { random_int, random_float } from "../system/utility.js";
@@ -231,6 +232,19 @@ class Tests {
         this.particles.add(new ColorOffsetGlitchParticle(x-32, y-64, dx, dy, width, height, rshift, gshift, bshift, bandingAffinity, scanCycle, xformCycle));
     }
 
+    trace(x,y) {
+        this.particles.add(new ParticleEmitter(this.particles, x, y, (e) => {
+            let spec = {
+                x: e.x,
+                y: e.y,
+                path: [{x:0, y:0}, {x:50, y:0}, {x:50,y:50}, {x:0,y:50}, {x:0, y:0}],
+                ttl: 2,
+                origin: {x:e.x+25, y:e.y+25},
+            }
+            return new TraceParticle(spec);
+        }, 1, 25));
+    }
+
 }
 
 class Env {
@@ -264,26 +278,26 @@ class Env {
         this.tests.lightningstrike(200,500);
         this.tests.colorshift(400, 400);
         */
+        this.tests.trace(500, 400);
 
-        this.gfx.corrupt({x:368+32+64*1,y:336+32});
-        this.gfx.unstable({x:368+32,y:336+32});
-
+        /*
         for (const fx of [
-            /*
             this.gfx.destruction({x:500,y:400}),
             this.gfx.damage({x:600,y:400}),
             this.gfx.lightningJump({x:500,y:500}, {x:600,y:600}),
-            this.gfx.unstable({x:400+32,y:400-64}),
+            //this.gfx.unstable({x:400+32,y:400-64}),
             this.gfx.repair({x:700,y:400}),
             this.gfx.drop({x:800,y:400}),
             this.gfx.jump_up({x:900,y:400}),
             this.gfx.wait({x:200,y:500}, 700),
             this.gfx.action({x:300,y:500}),
-            */
             //this.gfx.corrupt({x:400+32,y:400-64}),
+            //this.gfx.corrupt({x:368+32+64*1,y:336+32}),
+            //this.gfx.unstable({x:368+32,y:336+32}),
         ]) {
             setTimeout(() => {fx.done = true;}, 1000);
         }
+        */
 
     }
 
@@ -302,7 +316,7 @@ class Env {
         this.gfx.update(delta_time);
         this.gfx.draw(this.ctx);
 
-        this.ctx.strokeStyle = "red";
+        this.ctx.strokeStyle = "green";
         this.ctx.rect(368,336,64,64);
         this.ctx.stroke();
 
