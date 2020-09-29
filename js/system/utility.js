@@ -22,6 +22,8 @@ export {
     add_text_line,
     escaped,
     copy_data,
+    is_generator,
+    is_generator_function,
 }
 
 
@@ -277,4 +279,31 @@ function escaped(str){
 function copy_data(value){
     const copy = JSON.parse(JSON.stringify(value));
     return copy;
+}
+
+
+// Source: https://github.com/blakeembrey/is-generator
+/**
+ * Check whether an object is a generator.
+ *
+ * @param  {Object}  obj
+ * @return {Boolean}
+ */
+function is_generator(obj) {
+    return obj &&
+        typeof obj.next === 'function' &&
+        typeof obj.throw === 'function';
+}
+
+// Souce: https://github.com/blakeembrey/is-generator
+/**
+ * Check whether a function is generator.
+ *
+ * @param  {Function} fn
+ * @return {Boolean}
+ */
+function is_generator_function(fn) {
+return typeof fn === 'function' &&
+    fn.constructor &&
+    fn.constructor.name === 'GeneratorFunction';
 }
