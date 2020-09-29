@@ -24,6 +24,7 @@ export {
     WaitParticle,
     ActionParticle,
     TraceParticle,
+    ComboLockParticle,
 }
 
 import { camera, create_canvas_context } from "./graphics.js";
@@ -491,7 +492,6 @@ class FadeLineParticle extends Particle {
     }
 
     draw(canvas_context) {
-
         canvas_context.strokeStyle = this.getGradient(canvas_context);
         canvas_context.lineWidth = this.width;
         canvas_context.lineCap = "round";
@@ -1759,11 +1759,12 @@ class ActionParticle extends Particle {
 
 class TraceParticle extends Particle {
     constructor(spec) {
-        // parse spec
+        // parse spec/assign defaults
         let x = spec.x || 0;
         let y = spec.y || 0;
         let path = spec.path || [];
         let outlineColor = spec.outlineColor || new Color(100,100,0);
+        let tracedOutlineColor = spec.tracedOutlineColor || new Color(100,0,100);
         let traceColor = spec.traceColor || new Color(200,200,0);
         let outlineWidth = spec.outlineWidth || 1;
         let ttl = spec.ttl || 1;
@@ -1780,6 +1781,7 @@ class TraceParticle extends Particle {
         // - outline
         this.setupOutline(path, x, y);
         this.outlineColor = outlineColor;
+        this.tracedOutlineColor = tracedOutlineColor;
         this.outlineWidth = outlineWidth;
         this.ttl = ttl * 1000;
         // setup trace
@@ -1795,6 +1797,7 @@ class TraceParticle extends Particle {
         }
         this.trace.velocity = new Vector2({x:this.trace.v2.x-this.trace.v1.x, y: this.trace.v2.y-this.trace.v1.y});
         this.trace.velocity.length = this.trace.speed;
+        this.setupTracedOutline();
         this.flashP = new FlashParticle(this.trace.x, this.trace.y, flashWidth, flashHue, ttl, flashRotate);
 
     }
@@ -1818,6 +1821,18 @@ class TraceParticle extends Particle {
         this.outline.closePath();
     }
 
+    setupTracedOutline() {
+        this.tracedOutline = new Path2D();
+        for (let i=0; i<this.trace.index; i++) {
+            let dv = this.outlineVerts[i];
+            if (i===0) {
+                this.tracedOutline.moveTo(dv.x, dv.y);
+            } else {
+                this.tracedOutline.lineTo(dv.x, dv.y);
+            }
+        }
+    }
+
     update(delta_time) {
         if (this.done) return;
         // update trace...
@@ -1826,10 +1841,10 @@ class TraceParticle extends Particle {
         let dtt = this.trace.speed * delta_time;
         if (dtt >= dtv2) {
             // advance to next target vertex
-            if (this.trace.index < this.outlineVerts.length) {
+            if (this.trace.index < this.outlineVerts.length-1) {
+                this.trace.index++;
                 this.trace.v1 = this.trace.v2;
                 this.trace.v2 = this.outlineVerts[this.trace.index];
-                this.trace.index++;
                 // recompute velocity
                 this.trace.velocity = new Vector2({x:this.trace.v2.x-this.trace.v1.x, y: this.trace.v2.y-this.trace.v1.y});
                 this.trace.velocity.length = this.trace.speed;
@@ -1842,7 +1857,7 @@ class TraceParticle extends Particle {
                 this.trace.x = this.trace.v2.x;
                 this.trace.y = this.trace.v2.y;
             }
-
+            this.setupTracedOutline();
         // - otherwise, not close enough to endpoint - update position
         } else {
             this.trace.x = this.trace.x + this.trace.velocity.x * delta_time;
@@ -1863,19 +1878,17 @@ class TraceParticle extends Particle {
 
     draw(canvas_context) {
         this.flashP.draw(canvas_context);
-        //canvas_context.save();
-        /*
-        canvas_context.translate(this.x, this.y);
-        canvas_context.rotate((this.ccw) ? -this.angle : this.angle);
-        canvas_context.beginPath();
-        canvas_context.lineWidth = this.lineWidth;
-        canvas_context.strokeStyle = this.color.toString();
-        canvas_context.stroke(this.path);
-        */
         // draw outline
         canvas_context.lineWidth = this.outlineWidth;
         canvas_context.strokeStyle = this.outlineColor;
         canvas_context.stroke(this.outline);
+        // draw traced outline
+        canvas_context.strokeStyle = this.tracedOutlineColor;
+        canvas_context.stroke(this.tracedOutline);
+        let v = this.outlineVerts[this.trace.index-1];
+        canvas_context.moveTo(v.x, v.y);
+        canvas_context.lineTo(this.trace.x, this.trace.y);
+        canvas_context.stroke();
         // draw trace
         canvas_context.fillStyle = this.trace.traceColor;
         canvas_context.fillRect(this.trace.x-1,this.trace.y-1, 3, 3);
@@ -1884,9 +1897,69 @@ class TraceParticle extends Particle {
         canvas_context.lineTo(this.trace.x, this.trace.y);
         canvas_context.closePath();
         canvas_context.strokeStyle = this.trace.traceColor;
-        //canvas_context.strokeStyle = "blue";
         canvas_context.stroke();
-        //canvas_context.restore();
+    }
+
+}
+
+class ComboLockParticle extends Particle {
+    constructor(spec) {
+        // parse spec/assign defaults
+        let x = spec.x || 0;
+        let y = spec.y || 0;
+        let lockColor = spec.lockColor || new Color(200,0,0);
+        let unlockColor = spec.unlockColor || new Color(0,200,0);
+        let lockWidth = spec.lockWidth || 1;
+        let unlockWidth = spec.unlockWidth || 1;
+        let unlockAngle = spec.unlockAngle || Math.PI*.25;
+        let ttl = spec.ttl || 1;
+        let unlockTTL = spec.unlockTTL || 1;
+        let rotateSpeed = spec.rotateSpeed || Math.PI*2;
+        let radius = spec.radius || 10;
+        // super constructor
+        super(x, y);
+        // local vars
+        this.ttl = (unlockTTL + ttl) * 1000;
+        this.radius = radius;
+        this.angle = 0;
+        this.unlockAngle = unlockAngle;
+        this.lockAngle = Math.PI*2 - unlockAngle;
+        this.lockWidth = lockWidth;
+        this.unlockWidth = unlockWidth;
+        this.lockColor = lockColor;
+        this.unlockColor = unlockColor;
+        console.log("unlock angle: " + this.unlockAngle);
+        console.log("unlock angle half: " + (this.unlockAngle*.5));
+    }
+
+    update(delta_time) {
+        if (this.done) return;
+        // update ttl
+        if (this.ttl) {
+            this.ttl -= delta_time;
+            if (this.ttl <= 0) {
+                this.done = true;
+            }
+        }
+    }
+
+    draw(canvas_context) {
+        // draw lock ring
+        canvas_context.beginPath();
+        canvas_context.lineWidth = this.lockWidth;
+        canvas_context.strokeStyle = this.lockColor;
+        let startAngle = this.angle + this.unlockAngle*.5;
+        let endAngle = startAngle + this.lockAngle;
+        canvas_context.arc(Math.round(this.x), Math.round(this.y), this.radius, startAngle, endAngle);
+        canvas_context.stroke();
+        // draw unlock ring
+        canvas_context.beginPath();
+        canvas_context.lineWidth = this.unlockWidth;
+        canvas_context.strokeStyle = this.unlockColor;
+        startAngle = this.angle - this.unlockAngle*.5;
+        endAngle = startAngle + this.unlockAngle;
+        canvas_context.arc(Math.round(this.x), Math.round(this.y), this.radius, startAngle, endAngle);
+        canvas_context.stroke();
     }
 
 }

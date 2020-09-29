@@ -16,6 +16,7 @@ import {
     LightningParticle,
     ColorOffsetGlitchParticle,
     TraceParticle,
+    ComboLockParticle,
 } from "../system/particles.js";
 import { GameFxView } from "../game-effects.js";
 import { random_int, random_float } from "../system/utility.js";
@@ -233,6 +234,8 @@ class Tests {
     }
 
     trace(x,y) {
+        let emitterInterval = 2;
+        let emitterJitter = 0;
         this.particles.add(new ParticleEmitter(this.particles, x, y, (e) => {
             let spec = {
                 x: e.x,
@@ -240,9 +243,27 @@ class Tests {
                 path: [{x:0, y:0}, {x:50, y:0}, {x:50,y:50}, {x:0,y:50}, {x:0, y:0}],
                 ttl: 2,
                 origin: {x:e.x+25, y:e.y+25},
+                outlineColor: new Color(200, 0, 0, .5),
+                tracedOutlineColor: new Color(0, 200, 0),
+                outlineWidth: 3,
             }
             return new TraceParticle(spec);
-        }, 1, 25));
+        }, emitterInterval, emitterJitter));
+    }
+
+    combolock(x,y) {
+        let emitterInterval = 2;
+        let emitterJitter = 0;
+        this.particles.add(new ParticleEmitter(this.particles, x, y, (e) => {
+            let spec = {
+                x: e.x,
+                y: e.y,
+                radius: 30,
+                lockWidth: 3,
+                unlockWidth: 3,
+            }
+            return new ComboLockParticle(spec);
+        }, emitterInterval, emitterJitter, 1));
     }
 
 }
@@ -279,6 +300,7 @@ class Env {
         this.tests.colorshift(400, 400);
         */
         this.tests.trace(500, 400);
+        this.tests.combolock(600, 400);
 
         /*
         for (const fx of [
@@ -316,9 +338,11 @@ class Env {
         this.gfx.update(delta_time);
         this.gfx.draw(this.ctx);
 
+        /*
         this.ctx.strokeStyle = "green";
         this.ctx.rect(368,336,64,64);
         this.ctx.stroke();
+        */
 
     }
 
