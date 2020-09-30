@@ -11,6 +11,7 @@ import { Grid, merged_grids_size, merge_grids } from "../system/grid.js";
 import { escaped, index_from_position, random_int, random_sample, copy_data, position_from_index, is_generator } from "../system/utility.js";
 import { Corruption } from "../rules/rules-corruption.js";
 import { Unstability } from "../rules/rules-unstability.js";
+import { all_item_types } from "../definitions-items.js";
 
 const default_defaults = {
     ground : tiles.ID.GROUND,
@@ -71,6 +72,14 @@ function serialize_world(world){
     return world_serialized;
 }
 
+function is_entity_desc(desc){
+    return desc instanceof Object
+        && typeof desc.type === "string"
+        && (desc.position === undefined || ( Number.isInteger(desc.position.x) && Number.isInteger(desc.position.y) ) )
+        ;
+}
+
+
 function check_world_desc(world_desc){
     console.assert(world_desc instanceof Object);
     console.assert(typeof world_desc.name === "string");
@@ -80,7 +89,7 @@ function check_world_desc(world_desc){
     console.assert(Object.keys(world_desc.grids).every(grid_id => grid_ID[grid_id] !== undefined));
     console.assert(Object.values(world_desc.grids).every(grid=> grid instanceof Array && grid.length === world_desc.width * world_desc.height));
     console.assert(world_desc.entities instanceof Array);
-    console.assert(world_desc.entities.every(entity_desc => typeof entity_desc.type === "string" && Number.isInteger(entity_desc.position.x) && Number.isInteger(entity_desc.position.y)));
+    console.assert(world_desc.entities.every(is_entity_desc));
     return true;
 }
 
@@ -110,7 +119,7 @@ function deserialize_world(world_desc){
         const entity_type = get_entity_type(entity_desc.type);
         const entity = new entity_type();
         console.assert(entity instanceof concepts.Entity);
-        entity.position = entity_desc.position;
+        entity.position = entity_desc.position ? entity_desc.position : new concepts.Position();
         world.add_entity(entity);
     }
 
@@ -437,6 +446,7 @@ class ChunkGrid {
         console.assert(Number.isInteger(desc.chunk_height) && desc.chunk_height > 0);
         console.assert(desc.chunks instanceof Array);
         console.assert(desc.chunks.length === (desc.width * desc.height));
+        console.assert(desc.entities instanceof Array || desc.entities === undefined);
         console.assert(desc.default_grid_values instanceof Object || desc.default_grid_values === undefined);
         this.width = desc.width;
         this.height = desc.height;
@@ -444,6 +454,11 @@ class ChunkGrid {
         this.chunk_height = desc.chunk_height;
         this.default_grid_values = desc.default_grid_values ? desc.default_grid_values : {};
         this.chunks = desc.chunks;
+        const grid_size = (this.chunk_width * this.width) * (this.chunk_height* this.height);
+        this.entities = desc.entities;
+        console.assert(this.entities === undefined || (this.entities instanceof Array &&this.entities.length <= grid_size));
+        this.random_variation = desc.random_variation ? true : false;
+        this.random_entities_position = desc.random_entities_position ? true : false;
     }
 }
 
@@ -485,70 +500,129 @@ function unfold_chunk_grid(name, chunk_grid){
 
     const world_chunks = [];
 
-    const unfold_chunk = (chunk, grid_pos, chunk_width, chunk_height)=>{
+    const unfold_chunk = (chunk, grid_pos)=>{
         console.assert(chunk !== undefined || chunk === null);
         if(chunk instanceof Object){
             if(is_generator(chunk)){
                 const generated_value = chunk.next().value; // If the generator is done, use the last value.
-                unfold_chunk(generated_value, grid_pos);// Recursively unfold generated grids...
-                return;
+                return unfold_chunk(generated_value, grid_pos);// Recursively unfold generated grids...
             }
             if(chunk instanceof Function){
                 const value = chunk();
-                unfold_chunk(value, grid_pos);
-                return;
+                return unfold_chunk(value, grid_pos);
             }
 
             if(chunk instanceof ChunkGrid){
                 chunk = unfold_chunk_grid(name, chunk); // Recursively unfold grids...
             }
             console.assert(check_world_desc(chunk));
-            world_chunks.push({
+            return {
                 position: grid_pos,
                 world_desc: chunk,
-            });
+            };
 
         } else if(Number.isInteger(chunk)){ // Integers are floor "tiles"
-            world_chunks.push({
+            return {
                 position: grid_pos,
                 world_desc: create_chunk(chunk_grid.chunk_width, chunk_grid.chunk_height, { floor: chunk }),
-            });
+            };
         } else if(chunk === null){
-            world_chunks.push({
+            return {
                 position: grid_pos,
                 world_desc: create_chunk(chunk_grid.chunk_width, chunk_grid.chunk_height, chunk_grid.default_grid_values),
-            });
-        } else {
-            console.error(`Incorrect chunk grid! : \n${JSON.stringify(chunk_grid)}`);
+            };
         }
+
+        throw new Error(`Incorrect chunk grid! : \n${JSON.stringify(chunk_grid)}`);
     }
+
+    const unfold_entity = (entity)=>{
+        if(is_entity_desc(entity)){
+            return entity;
+        }
+        if(is_generator(entity)){
+            entity = entity.next().value;
+            return unfold_entity(entity);
+        }
+        if(entity instanceof Function){
+            return unfold_entity(entity());
+        }
+        if(entity === null || entity === undefined){
+            return undefined;
+        }
+        throw new Error(`Invalid chunk entities! : \n${JSON.stringify(chunk_grid)}`);
+    };
+
+    const random_pos = (world_desc) => {
+        const max_fails = 128; // arbitrary
+        let fail_count = 0;
+        while(true){
+            const new_pos = new concepts.Position({
+                x: random_int(0, world_desc.width - 1),
+                y: random_int(0, world_desc.height - 1),
+            });
+            const pos_idx = index_from_position(world_desc.width, world_desc.height, new_pos);
+            const floor_tile = world_desc.grids[grid_ID.floor][pos_idx];
+            console.assert(Number.isInteger(floor_tile));
+            if(tiles.is_walkable(floor_tile) && world_desc.entities.every(entity=> !entity.position.equals(new_pos)))
+                return new_pos;
+
+            ++fail_count;
+            if(fail_count > max_fails)
+                throw new Error("Failed to find a random pos to put an entity in");
+        }
+    };
 
     for(let chunk_idx = 0; chunk_idx < chunk_grid.chunks.length; ++chunk_idx){
         const chunk = chunk_grid.chunks[chunk_idx];
+        const entities = chunk_grid.entities;
+        console.assert(entities instanceof Array || entities === undefined);
+
         const chunk_pos = position_from_index(chunk_grid.width, chunk_grid.height, chunk_idx);
         const grid_pos = { x: chunk_pos.x * chunk_grid.chunk_width, y: chunk_pos.y * chunk_grid.chunk_height };
-        unfold_chunk(chunk, grid_pos);
+
+        const world_chunk = unfold_chunk(chunk, grid_pos);
+
+        if(entities){
+            entities.forEach((entity, idx) => {
+                entity = unfold_entity(entity);
+                if(entity){
+                    console.assert(is_entity_desc(entity));
+                    const position = chunk_grid.random_entities_position ? random_pos(world_chunk.world_desc)
+                                        : position_from_index(world_chunk.world_desc.width, world_chunk.world_desc.height, idx);
+                    entity.position = position;
+                    world_chunk.world_desc.entities.push(entity);
+                }
+            });
+        }
+
+        world_chunks.push(world_chunk);
     }
 
     const merged_world = merge_world_chunks(name, chunk_grid.default_grid_values, ...world_chunks);
-
-    return merged_world;
+    if(chunk_grid.random_variation){
+        const world_variation = random_variation(merged_world);
+        return world_variation;
+    } else {
+        return merged_world;
+    }
 }
-
-
-window.test_sub_chunk = new ChunkGrid({
-    width: 2, height: 2, // These are number of chunks
-    chunk_width: 4, chunk_height: 4,
-    chunks: [
-        tiles.ID.LVL1A,   tiles.ID.LVL2A,
-        tiles.ID.LVL3A,   tiles.ID.LVL4A,
-    ],
-});
 
 
 function random_floor(){
     return random_sample(Object.values(tiles.ID));
 }
+
+window.test_sub_chunk = new ChunkGrid({
+    width: 2, height: 2, // These are number of chunks
+    chunk_width: 4, chunk_height: 4,
+    chunks: [
+        random_floor,   random_floor,
+        random_floor,   random_floor,
+    ],
+    random_variation: true,
+});
+
 
 function* wall_sequence(){
     while(true){
@@ -559,6 +633,21 @@ function* wall_sequence(){
         yield tiles.ID.WALL4A;
     }
 }
+
+function random_item(){
+    return random_sample(all_item_types().map((item_type)=> {
+        return { type: item_type.name };
+    }));
+}
+
+function* monster_bag(){
+    yield { type: "LifeForm_Weak" };
+    yield { type: "LifeForm_Strong" };
+    yield { type: "Virus" };
+    return null; // Nothing else.
+}
+
+const test_monsters = monster_bag();
 
 function subchunks_2x2(){
     return random_sample([
@@ -601,6 +690,33 @@ function subchunks_2x2(){
                         tiles.ID.LVL3A,   tiles.ID.WALL4A,
                     ]}),
                 ]
+        }),
+        new ChunkGrid({
+            width: 1, height: 1, // These are number of chunks
+            chunk_width: 2, chunk_height: 2,
+            chunks: [
+                    create_chunk(2, 2, { floor: [
+                        tiles.ID.MEMFLOORWARM,   tiles.ID.MEMFLOORWARM,
+                        tiles.ID.MEMFLOORWARM,   tiles.ID.MEMFLOORWARM,
+                    ]}),
+                ],
+            entities: [ test_monsters ],
+            random_variation: true,
+            random_entities_position: true,
+        }),
+        new ChunkGrid({
+            width: 1, height: 1, // These are number of chunks
+            chunk_width: 2, chunk_height: 2,
+            chunks: [
+                    create_chunk(2, 2, { floor: [
+                        tiles.ID.GROUND2,   tiles.ID.GROUND2,
+                        tiles.ID.GROUND2,   tiles.ID.GROUND2,
+                    ]}),
+                ],
+            entities: [
+                random_item, null,
+                null, random_item,
+            ],
         }),
     ]);
 }
