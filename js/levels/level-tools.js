@@ -126,6 +126,15 @@ function deserialize_world(world_desc){
         const entity = new entity_type();
         console.assert(entity instanceof concepts.Entity);
         entity.position = entity_desc.position ? entity_desc.position : new concepts.Position();
+        if(entity_desc.drops){
+            console.assert(entity_desc.drops instanceof Array && entity_desc.drops.every(value => typeof value === "string"));
+            entity.drops = entity_desc.drops.map(drop_type_name => {
+                const drop_type = get_entity_type(drop_type_name);
+                const drop = new drop_type();
+                console.assert(drop instanceof concepts.Entity);
+                return drop;
+            });
+        }
         world.add_entity(entity);
     }
 

@@ -1,12 +1,23 @@
 
 export {
+    crypto_kind,
     CryptoFile,
+    CryptoFile_Circle,
+    CryptoFile_Triangle,
+    CryptoFile_Plus,
+    CryptoFile_Equal,
     CryptoKey,
+    CryptoKey_Circle,
+    CryptoKey_Triangle,
+    CryptoKey_Plus,
+    CryptoKey_Equal,
+
+    BadCode,
     MovableWall,
+
     all_crypto_file_types,
     all_crypto_key_types,
     all_item_types,
-    crypto_kind,
 }
 
 import * as concepts from "./core/concepts.js";
@@ -55,11 +66,12 @@ function all_debug_item_types(){
 
 function all_item_types(){
     return [
-        ...all_debug_item_types(),
         ...all_crypto_file_types(),
         ...all_crypto_key_types(),
-
+        BadCode,
         MovableWall,
+
+        ...all_debug_item_types(),
     ];
 }
 
@@ -184,6 +196,34 @@ class MovableWall extends concepts.Item {
     }
 
 };
+
+
+
+
+class BadCode extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_4,
+        }}
+    };
+
+    get can_be_taken() { return true; }
+
+    stats_modifiers = {
+        int_recovery: { value: -2 },
+    }
+
+    constructor(){
+        super("Bad Code");
+    }
+};
+
+
+
+
+///////////////////////////////////////////////////////////////////////////
+// DEBUG ITEMS
+/////////////////
 
 class Debug_AllActions extends concepts.Item {
     assets = {

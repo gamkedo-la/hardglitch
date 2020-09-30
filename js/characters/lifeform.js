@@ -5,6 +5,7 @@ import { sprite_defs } from "../game-assets.js";
 import { Character, CharacterStats } from "../core/character.js"
 import { random_sample, rotate_array, random_int } from "../system/utility.js";
 import { Wait } from "../rules/rules-basic.js";
+import { BadCode } from "../definitions-items.js";
 
 const reverse_move_id = {
     move_east : "move_west",
@@ -103,26 +104,6 @@ class MoveInCircles extends concepts.Actor {
 const lifeform_possible_behavior = [
     MoveInCircles, MoveUntilYouCant,
 ];
-
-
-class BadCode extends concepts.Item {
-    assets = {
-        graphics : { body: {
-            sprite_def : sprite_defs.item_generic_4,
-        }}
-    };
-
-    get can_be_taken() { return true; }
-
-    stats_modifiers = {
-        int_recovery: { value: -2 },
-    }
-
-    constructor(){
-        super("Bad Code");
-    }
-};
-
 
 class LifeForm_Weak extends Character {
     assets = {
