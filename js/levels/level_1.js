@@ -5,6 +5,7 @@ export {
 import * as tiles from "../definitions-tiles.js";
 import {
     deserialize_world,
+    random_variation,
 } from "./level-tools.js";
 
 const defaults = {
@@ -43,5 +44,5 @@ function generate_world(){
     const level_desc = startup_rooms.jump;
     level_desc.name = "Level 1: Buggy Program";
 
-    return deserialize_world(level_desc);
+    return deserialize_world(random_variation(level_desc));
 }

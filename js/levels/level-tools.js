@@ -3,6 +3,8 @@ export {
     serialize_world,
     deserialize_world,
 
+    random_variation,
+
     ChunkGrid,
     unfold_chunk_grid,
     create_chunk,
