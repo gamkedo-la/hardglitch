@@ -28,7 +28,7 @@ const startup_rooms = {
         },
         entities: [
           { type: "GlitchyGlitchMacGlitchy", position: { x: 2, y: 3 } },
-          { type: "LifeForm_Weak", position: { x: 6, y: 8 } },
+          { type: "LifeForm_Weak", position: { x: 6, y: 6 } },
           { type: "CryptoFile_Triangle", position: { x: 2, y: 7 }, drops: [ "Item_JumpFunction" ] },
           { type: "CryptoKey_Triangle", position: { x: 5, y: 8 } },
         ],
