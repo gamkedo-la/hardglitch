@@ -280,6 +280,7 @@ class GameScreen extends fsm.StateMachine {
         console.assert(Number.isInteger(level_to_play) || level_to_play !== undefined);
         console.assert(player_character === undefined || player_character instanceof Character);
 
+        delete this.current_level_idx;
         this._level_to_play = level_to_play;
 
         graphics.reset();
