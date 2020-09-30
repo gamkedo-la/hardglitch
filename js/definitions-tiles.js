@@ -161,7 +161,7 @@ const defs = {
         is_wall: true,
         shape_template: "wall_template",
         tile_match_predicate: (v) => (v==ID.WALL),
-        tile_same_predicate: (v) => (defs[v].is_wall),
+        tile_same_predicate: (v) => (v==ID.WALL),
         pwall: {
             width: 16,
             height: 32,
@@ -191,7 +191,7 @@ const defs = {
         is_wall: true,
         shape_template: "wall_template",
         tile_match_predicate: (v) => (v==ID.WALL2),
-        tile_same_predicate: (v) => (defs[v].is_wall),
+        tile_same_predicate: (v) => (v==ID.WALL2),
         pwall: {
             width: 16,
             height: 32,
