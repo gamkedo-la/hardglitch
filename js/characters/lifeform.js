@@ -5,7 +5,7 @@ import { sprite_defs } from "../game-assets.js";
 import { Character, CharacterStats } from "../core/character.js"
 import { random_sample, rotate_array, random_int } from "../system/utility.js";
 import { Wait } from "../rules/rules-basic.js";
-import { BadCode } from "../definitions-items.js";
+import { Item_BadCode } from "../definitions-items.js";
 
 const reverse_move_id = {
     move_east : "move_west",
@@ -119,7 +119,7 @@ class LifeForm_Weak extends Character {
         this.stats.inventory_size.real_value = 1;
     }
 
-    drops = [ new BadCode() ];
+    drops = [ new Item_BadCode() ];
 };
 
 class LifeForm_Strong extends Character {

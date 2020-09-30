@@ -12,7 +12,8 @@ export {
     CryptoKey_Plus,
     CryptoKey_Equal,
 
-    BadCode,
+    Item_BadCode,
+    Item_JumpFunction,
     MovableWall,
 
     all_crypto_file_types,
@@ -24,6 +25,7 @@ import * as concepts from "./core/concepts.js";
 import { sprite_defs } from "./game-assets.js";
 import { all_uncommon_action_types } from "./definitions-actions.js";
 import { random_sample } from "./system/utility.js";
+import { Jump } from "./rules/rules-movement.js";
 
 function all_crypto_file_types() {
     return [
@@ -68,7 +70,9 @@ function all_item_types(){
     return [
         ...all_crypto_file_types(),
         ...all_crypto_key_types(),
-        BadCode,
+
+        Item_BadCode,
+        Item_JumpFunction,
         MovableWall,
 
         ...all_debug_item_types(),
@@ -198,9 +202,7 @@ class MovableWall extends concepts.Item {
 };
 
 
-
-
-class BadCode extends concepts.Item {
+class Item_BadCode extends concepts.Item {
     assets = {
         graphics : { body: {
             sprite_def : sprite_defs.item_generic_4,
@@ -218,7 +220,24 @@ class BadCode extends concepts.Item {
     }
 };
 
+class Item_JumpFunction extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_3,
+        }}
+    };
 
+    get can_be_taken() { return true; }
+
+    constructor(){
+        super("Jump Function");
+    }
+
+    get_enabled_action_types(){
+        return [ Jump ];
+    }
+
+}
 
 
 ///////////////////////////////////////////////////////////////////////////
@@ -238,11 +257,8 @@ class Debug_AllActions extends concepts.Item {
         super("Debug: Enable All Actions");
     }
 
-    get_enabled_action_types(action_type){
-        return [ action_type,
-            ...Object.values(all_uncommon_action_types)
-                    .filter(type => type.prototype instanceof action_type), // All action types inheriting from that action type.
-        ];
+    get_enabled_action_types(){
+        return [ ...Object.values(all_uncommon_action_types) ];
     }
 
 }
