@@ -2,6 +2,10 @@ export {
     generate_empty_world,
     serialize_world,
     deserialize_world,
+
+    ChunkGrid,
+    unfold_chunk_grid,
+    create_chunk,
 }
 
 import * as tiles from "../definitions-tiles.js";
