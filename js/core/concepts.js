@@ -331,12 +331,13 @@ class World
     }
 
     remove_entity(...ids){
-        let removed_count = 0;
+        const removed = [];
 
         const remove = (entity_id, entity_set)=>{
             if(entity_set[entity_id] instanceof Entity){
+                const entity = entity_set[entity_id];
+                removed.push(entity);
                 delete entity_set[entity_id];
-                ++removed_count;
                 this.has_entity_list_changed = true;
                 return true;
             }
@@ -348,7 +349,7 @@ class World
                 remove(entity_id, this._bodies);
         }
 
-        return removed_count;
+        return removed;
     }
 
     remove_entity_at(...positions){

@@ -3,15 +3,20 @@ export {
     destroy_entity,
     destroy_at,
     deal_damage,
+    drop_entity_drops,
     Destroyed,
     Damaged,
 }
 
 import * as concepts from "../core/concepts.js";
+import * as tiles from "../definitions-tiles.js";
 import { GameView } from "../game-view.js";
 import { EntityView } from "../view/entity-view.js";
 import { destroyed, take_damage } from "../game-animations.js";
 import { Character } from "../core/character.js";
+import { EntityDropped } from "./rules-items.js";
+import { random_sample } from "../system/utility.js";
+import { grid_ID } from "../definitions-world.js";
 
 
 class Damaged extends concepts.Event {
@@ -64,11 +69,38 @@ class Destroyed extends concepts.Event {
 
 };
 
+function drop_entity_drops(entity, world){
+    console.assert(entity instanceof concepts.Entity);
+    console.assert(world instanceof concepts.World);
+    console.assert(!world.entities.includes(entity));
+    const floor_under_destroyed = world.grids[grid_ID.floor].get_at(entity.position);
+    if(entity.drops
+    && tiles.is_safely_walkable(floor_under_destroyed) // Only drops on floor that can be reached safely.
+    ){
+        console.assert(entity.drops instanceof Array && entity.drops.every(entity=>entity instanceof concepts.Entity));
+        const dropped = random_sample(entity.drops);
+        dropped.position = entity.position;
+        world.add_entity(dropped);
+        return [ new EntityDropped(entity, 0, dropped.position, dropped.id) ];
+    }
+    else {
+        return [];
+    }
+}
+
 function destroy_entity(entity, world){
     console.assert(entity instanceof concepts.Entity);
     console.assert(world instanceof concepts.World);
-    world.remove_entity(entity.id);
-    return [ new Destroyed(entity.id, entity.position) ];
+    const entities = world.remove_entity(entity.id);
+    console.assert(entities instanceof Array && entities.length === 1);
+
+    const events = [ new Destroyed(entity.id, entity.position) ];
+
+    const destroyed_entity = entities[0];
+    console.assert(destroyed_entity instanceof concepts.Entity);
+    events.push( ...drop_entity_drops(destroyed_entity, world));
+
+    return events;
 }
 
 function destroy_at(position, world){

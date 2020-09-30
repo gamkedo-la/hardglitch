@@ -2,7 +2,7 @@
 export {
     Rule_TakeItem,
     ItemTaken,
-    ItemDropped,
+    EntityDropped,
     TakeItem,
     SwapItemSlots,
     DropItem,
@@ -55,13 +55,13 @@ class ItemTaken extends concepts.Event {
     }
 };
 
-class ItemDropped extends concepts.Event {
-    constructor(dropper, item_idx, target, item_id){
-        console.assert(dropper instanceof Character);
-        console.assert(Number.isInteger(item_idx));
+class EntityDropped extends concepts.Event {
+    constructor(dropper, item_idx, target, dropped_id){
+        console.assert(dropper instanceof concepts.Entity);
+        console.assert(Number.isInteger(item_idx) || item_idx === undefined);
 
         super({
-            description: `Character ${dropper.id} dropped item from slot ${item_idx} at ${JSON.stringify(target)}`,
+            description: `Entity ${dropper.id} dropped entity ${dropped_id} from slot ${item_idx} at ${JSON.stringify(target)}`,
             allow_parallel_animation: false,
         });
         this.dropper_id = dropper.id;
@@ -69,7 +69,7 @@ class ItemDropped extends concepts.Event {
         this.item_idx = item_idx;
         this.drop_position = target;
         this.dropper_is_player = dropper.is_player_actor;
-        this.item_id = item_id;
+        this.dropped_id = dropped_id;
     }
 
     get focus_positions() { return [ this.drop_position, this.dropper_position ]; }
@@ -87,7 +87,7 @@ class ItemDropped extends concepts.Event {
             item_view.is_visible = true;
             game_view.ui.inventory.request_refresh();
         } else {
-            const item_view = game_view.add_entity_view(this.item_id);
+            const item_view = game_view.add_entity_view(this.dropped_id);
             yield* anim.drop_item(game_view.fx_view, this.drop_position);
             game_view.add_entity_view(item_view);
             item_view.is_visible = true;
@@ -219,7 +219,7 @@ class DropItem extends concepts.Action {
         world.add_entity(item);
         character.inventory.update_modifiers();
         return [
-            new ItemDropped(character, this.item_idx, this.target, item.id),
+            new EntityDropped(character, this.item_idx, this.target, item.id),
             ...handle_items_in_limbo(world, character),
         ];
     }

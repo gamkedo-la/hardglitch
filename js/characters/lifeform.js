@@ -104,6 +104,26 @@ const lifeform_possible_behavior = [
     MoveInCircles, MoveUntilYouCant,
 ];
 
+
+class BadCode extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_4,
+        }}
+    };
+
+    get can_be_taken() { return true; }
+
+    stats_modifiers = {
+        int_recovery: { value: -2 },
+    }
+
+    constructor(){
+        super("Bad Code");
+    }
+};
+
+
 class LifeForm_Weak extends Character {
     assets = {
         graphics : { body: {
@@ -118,6 +138,7 @@ class LifeForm_Weak extends Character {
         this.stats.inventory_size.real_value = 1;
     }
 
+    drops = [ new BadCode() ];
 };
 
 class LifeForm_Strong extends Character {

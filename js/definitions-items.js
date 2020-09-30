@@ -12,6 +12,7 @@ export {
 import * as concepts from "./core/concepts.js";
 import { sprite_defs } from "./game-assets.js";
 import { all_uncommon_action_types } from "./definitions-actions.js";
+import { random_sample } from "./system/utility.js";
 
 function all_crypto_file_types() {
     return [
@@ -98,7 +99,12 @@ class CryptoFile extends concepts.Item {
 
     // Decrypting can return (or not) an object
     decrypt(){
-        return new Debug_AllActions();
+        if(this.drops){
+            console.assert(this.drops instanceof Array && this.drops.every(entity=>entity instanceof concepts.Entity));
+            return random_sample(this.drops);
+        } else {
+            return new Debug_AllActions(); // FIXME: This is for debug. Remove it if it's causing problem
+        }
     }
 
 };
@@ -129,7 +135,6 @@ class CryptoFile_Circle extends CryptoFile {
 
 
 class CryptoKey extends concepts.Item {
-
 
     get can_be_taken() { return true; }
 

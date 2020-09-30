@@ -930,7 +930,7 @@ class GameView {
             entity_view = entity_or_view_or_id;
         }
         console.assert(entity_view instanceof EntityView);
-        console.assert(this.entity_views[entity_view.id] === undefined);
+        console.assert(this.entity_views[entity_view.id] === undefined || this.entity_views[entity_view.id].id === entity_view.id);
         this.entity_views[entity_view.id] = entity_view;
         entity_view.update(0);
         return entity_view;
