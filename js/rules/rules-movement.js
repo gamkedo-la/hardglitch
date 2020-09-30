@@ -67,7 +67,7 @@ class Move extends concepts.Action {
     constructor(move_name, new_position){
         super(move_name, `Move to ${JSON.stringify(new_position)}`, new_position,
         { // costs
-            action_points: 5
+            action_points: 10
         });
         this.is_basic = true;
     }
