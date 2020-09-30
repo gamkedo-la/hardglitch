@@ -365,8 +365,12 @@ class Inventory {
     get_enabled_action_types(action_type){
         console.assert(action_type && action_type.prototype instanceof concepts.Action);
         const enabled_action_types = [];
-        this._item_slots.slice(0, this._activable_items).filter(item => item instanceof concepts.Item)
-            .forEach(item => enabled_action_types.push(...item.get_enabled_action_types(action_type)));
+        this._item_slots.slice(0, this._activable_items)
+            .filter(item => item instanceof concepts.Item)
+            .forEach(item => {
+                const types = item.get_enabled_action_types().filter(type => type.prototype.constructor === action_type);
+                enabled_action_types.push(...types);
+            });
         return enabled_action_types;
     }
 

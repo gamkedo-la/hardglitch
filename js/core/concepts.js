@@ -236,8 +236,7 @@ class Item extends Entity {
 
     // Return all the types of Action that this item provides to it's owner.
     // Must return an array of types inheriting from the provided Action type.
-    get_enabled_action_types(action_type) {
-        console.assert(action_type && action_type.prototype instanceof Action);
+    get_enabled_action_types() {
         return [];
     }
 
