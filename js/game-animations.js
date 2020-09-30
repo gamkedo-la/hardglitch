@@ -308,15 +308,18 @@ function* shake(entity_view, amplitude, frequency_ms, duration_or_predicate){
     entity_view.position = initial_position;
 }
 
-function* decrypt_file(file_view){
+function* decrypt_file(fx_view, file_view){
     console.assert(file_view instanceof ItemView);
     const file_sprite = file_view.get_sprite("body");
     console.assert(file_sprite instanceof Sprite);
-    yield* animation.wait(500);
+    yield* animation.wait(100);
     file_sprite.start_animation("decrypt");
     const until_the_animation_ends = ()=> file_sprite.is_playing_animation === true;
     audio.playEvent('shakeRev');
     audio.playEvent('shakeSparkle');
+    let targetPos = file_view.position.translate(square_half_unit_vector);
+    let ttl = 2.25;
+    fx_view.unlockTriangle(targetPos, ttl);
     yield* shake(file_view, 4, 1000 / 24, until_the_animation_ends);
     audio.playEvent('decryptRev');
     file_view.is_visible = false;

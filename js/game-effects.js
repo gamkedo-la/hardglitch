@@ -529,7 +529,7 @@ class GameFxView {
             [{x:37,y:10}, {x:54,y:46}, {x:50,y:48}, {x:33,y:12}, {x:37,y:10}],
         ]
         for (const path of paths) {
-            let scale = 1.5;
+            let scale = 3;
             let spec = {
                 x: position.x-32*scale,
                 y: position.y-32*scale,

@@ -52,7 +52,7 @@ class DecryptedFile extends concepts.Event {
 
         // 2. Decrypt animation of the file
         console.assert(file_view instanceof ItemView);
-        yield* anim.decrypt_file(file_view);
+        yield* anim.decrypt_file(game_view.fx_view, file_view);
 
         game_view.reset_entities(); // To make the potential new item visible. // TODO: this might be a bit overkill...
 
