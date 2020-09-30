@@ -1772,6 +1772,7 @@ class TraceParticle extends Particle {
         let flashWidth = spec.flashWidth || 30;
         let flashHue = spec.flashHue || 200;
         let flashRotate = spec.flashRotate || 15;
+        let scale = spec.scale || 1;
         // super
         super(x, y);
         // local vars
@@ -1779,7 +1780,7 @@ class TraceParticle extends Particle {
         // - outlineVerts
         // - outlineLen
         // - outline
-        this.setupOutline(path, x, y);
+        this.setupOutline(path, x, y, scale);
         this.outlineColor = outlineColor;
         this.tracedOutlineColor = tracedOutlineColor;
         this.outlineWidth = outlineWidth;
@@ -1802,18 +1803,18 @@ class TraceParticle extends Particle {
 
     }
 
-    setupOutline(verts, x, y) {
+    setupOutline(verts, x, y, scale) {
         this.outlineVerts = new Array(verts.length);
         this.outlineLen = 0;
         this.outline = new Path2D();
         for (let i=0; i<verts.length; i++) {
-            let dv = {x: verts[i].x+x, y: verts[i].y+y};
+            let dv = {x: verts[i].x*scale+x, y: verts[i].y*scale+y};
             if (i===0) {
                 this.outline.moveTo(dv.x, dv.y);
             } else {
                 this.outline.lineTo(dv.x, dv.y);
-                let dx = verts[i].x - verts[i-1].x;
-                let dy = verts[i].y - verts[i-1].y;
+                let dx = dv.x - this.outlineVerts[i-1].x;
+                let dy = dv.y - this.outlineVerts[i-1].y;
                 this.outlineLen += Math.sqrt(dx*dx+dy*dy);
             }
             this.outlineVerts[i] = dv;
@@ -1912,28 +1913,39 @@ class ComboLockParticle extends Particle {
         let lockWidth = spec.lockWidth || 1;
         let unlockWidth = spec.unlockWidth || 1;
         let unlockAngle = spec.unlockAngle || Math.PI*.25;
-        let ttl = spec.ttl || 1;
+        let spinTTL = spec.spinTTL || 1;
         let unlockTTL = spec.unlockTTL || 1;
-        let rotateSpeed = spec.rotateSpeed || Math.PI*2;
         let radius = spec.radius || 10;
+        let endAngle = spec.endAngle || -Math.PI*.5;  // default straight up
+        let rotation = spec.rotation || Math.PI;
         // super constructor
         super(x, y);
         // local vars
-        this.ttl = (unlockTTL + ttl) * 1000;
+        this.ttl = (unlockTTL + spinTTL) * 1000;
         this.radius = radius;
-        this.angle = 0;
         this.unlockAngle = unlockAngle;
         this.lockAngle = Math.PI*2 - unlockAngle;
         this.lockWidth = lockWidth;
         this.unlockWidth = unlockWidth;
         this.lockColor = lockColor;
         this.unlockColor = unlockColor;
-        console.log("unlock angle: " + this.unlockAngle);
-        console.log("unlock angle half: " + (this.unlockAngle*.5));
+        this.rotation = rotation;
+        this.speed = rotation/(spinTTL*1000);
+        this.endAngle = endAngle;
+        this.angle = this.endAngle + this.rotation;
     }
 
     update(delta_time) {
         if (this.done) return;
+        // rotation/angle
+        let deltaRotation = this.speed * delta_time;
+        if ((this.rotation - deltaRotation)*this.rotation > 0) {
+            this.rotation -= this.speed * delta_time;
+            this.angle = this.endAngle + this.rotation;
+        } else {
+            this.rotation = 0;
+            this.angle = this.endAngle;
+        }
         // update ttl
         if (this.ttl) {
             this.ttl -= delta_time;

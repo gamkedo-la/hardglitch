@@ -259,11 +259,12 @@ class Tests {
                 x: e.x,
                 y: e.y,
                 radius: 30,
-                lockWidth: 3,
-                unlockWidth: 3,
+                lockWidth: 5,
+                unlockWidth: 5,
+                rotation: (Math.random() > .5) ? 3*Math.PI : -3*Math.PI,
             }
             return new ComboLockParticle(spec);
-        }, emitterInterval, emitterJitter, 1));
+        }, emitterInterval, emitterJitter));
     }
 
 }
@@ -302,8 +303,8 @@ class Env {
         this.tests.trace(500, 400);
         this.tests.combolock(600, 400);
 
-        /*
         for (const fx of [
+        /*
             this.gfx.destruction({x:500,y:400}),
             this.gfx.damage({x:600,y:400}),
             this.gfx.lightningJump({x:500,y:500}, {x:600,y:600}),
@@ -316,10 +317,11 @@ class Env {
             //this.gfx.corrupt({x:400+32,y:400-64}),
             //this.gfx.corrupt({x:368+32+64*1,y:336+32}),
             //this.gfx.unstable({x:368+32,y:336+32}),
-        ]) {
-            setTimeout(() => {fx.done = true;}, 1000);
-        }
         */
+            this.gfx.unlockTriangle({x:700,y:400}, 3),
+        ]) {
+            setTimeout(() => {fx.done = true;}, 5000);
+        }
 
     }
 

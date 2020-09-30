@@ -20,6 +20,8 @@ import {
     DirectionalRingParticle,
     WaitParticle,
     ActionParticle,
+    ComboLockParticle,
+    TraceParticle,
 } from "./system/particles.js";
 import { Color } from "./system/color.js";
 import { Vector2 } from "./system/spatial.js";
@@ -515,6 +517,54 @@ class GameFxView {
         this.particleSystem.add(particle);
         fx.sentinels.push(particle);
         fx.relocatables.push(particle);
+        return fx;
+    }
+
+    unlockTriangle(position, ttl){
+        let fx = new GameFx(position);
+        // triangle shape tracers
+        let paths = [
+            [{x:11,y:39}, {x:29,y:7}, {x:33,y:8}, {x:16,y:42}, {x:11,y:39}],
+            [{x:46,y:48}, {x:10,y:48}, {x:10,y:43}, {x:46,y:43}, {x:46,y:48}],
+            [{x:37,y:10}, {x:54,y:46}, {x:50,y:48}, {x:33,y:12}, {x:37,y:10}],
+        ]
+        for (const path of paths) {
+            let scale = 1.5;
+            let spec = {
+                x: position.x-32*scale,
+                y: position.y-32*scale,
+                path: path,
+                ttl: ttl,
+                origin: {x:position.x, y:position.y},
+                outlineColor: new Color(238, 255, 32, .5),
+                tracedOutlineColor: new Color(219, 0, 255, .75),
+                outlineWidth: 3,
+                scale: scale,
+            }
+            let p = new TraceParticle(spec);
+            this.particleSystem.add(p);
+            fx.sentinels.push(p);
+            fx.relocatables.push(p);
+        }
+        // combo lock rings
+        for (let i=0; i<5; i++) {
+            let spec = {
+                x: position.x,
+                y: position.y,
+                radius: 5+5*i,
+                lockWidth: 5,
+                unlockWidth: 5,
+                lockColor: new Color(200,0,0, .65),
+                unlockColor: new Color(0,200,0, .65),
+                spinTTL: ttl*.75,
+                unlockTTL: ttl*.25,
+                rotation: random_float(Math.PI*2, Math.PI*6) * ((Math.random() > .5) ? 1 : -1),
+            }
+            let p = new ComboLockParticle(spec);
+            this.particleSystem.add(p);
+            fx.sentinels.push(p);
+            fx.relocatables.push(p);
+        }
         return fx;
     }
 
