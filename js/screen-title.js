@@ -1,5 +1,5 @@
 export {
-    MainMenuScreen,
+    TitleScreen,
 }
 
 
@@ -77,7 +77,7 @@ class MainMenu {
             position: new Vector2({x: 0, y: graphics.canvas_rect().height/2 - 156}),
         });
 
-        
+
 
         const space_between_buttons = this.button_new_game.height + 6;
         let next_button_y_drift = 40;
@@ -103,7 +103,7 @@ class MainMenu {
 };
 
 
-class MainMenuScreen extends fsm.State {
+class TitleScreen extends fsm.State {
     fader = new ScreenFader();
 
     _init_ui(){

@@ -18,7 +18,7 @@ import { defs as tiledefs } from "./definitions-tiles.js";
 import { initialize as tile_select_initialize } from "./view/tile-select.js";
 
 import { LoadingGameScreen } from "./screen-loading-game.js";
-import { MainMenuScreen } from "./screen-main-menu.js";
+import { TitleScreen } from "./screen-title.js";
 import { GameScreen } from "./screen-game.js";
 import { CreditsScreen } from "./screen-credits.js";
 import { GameOverScreen_Success, GameOverScreen_Failure } from "./screen-gameover.js";
@@ -35,7 +35,7 @@ const game_state_machine = new class extends fsm.StateMachine {
   constructor(){
     super({
       loading_game: new LoadingGameScreen(),
-      main_menu: new MainMenuScreen(),
+      title: new TitleScreen(),
       credits: new CreditsScreen(),
       game: new GameScreen(),
       gameover_success: new GameOverScreen_Success(),
@@ -52,17 +52,17 @@ const game_state_machine = new class extends fsm.StateMachine {
       },
 
       loading_game: {
-        game_ready: "main_menu"
+        game_ready: "title"
       },
-      main_menu: {
+      title: {
         new_game: "intro_level_1",
         credits: "credits",
       },
       credits: {
-        back: "main_menu",
+        back: "title",
       },
       game: {
-        exit: "main_menu",
+        exit: "title",
         escape: "gameover_success",
         died: "gameover_failure",
         level_1: "intro_level_2",
@@ -73,7 +73,7 @@ const game_state_machine = new class extends fsm.StateMachine {
         ok: "credits",
       },
       gameover_failure: {
-        back: "main_menu",
+        back: "title",
         retry: "game",
       },
       intro_level_1: {
