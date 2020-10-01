@@ -309,8 +309,11 @@ function* shake(entity_view, amplitude, frequency_ms, duration_or_predicate){
     entity_view.position = initial_position;
 }
 
-function* decrypt_file(fx_view, file_view, crypto_kind){
+function* decrypt_file(file_view, file_fx_view, key_view, key_fx_view, crypto_kind){
+    console.assert(key_view instanceof ItemView);
     console.assert(file_view instanceof ItemView);
+    console.assert(file_fx_view instanceof GameFxView);
+    console.assert(key_fx_view instanceof GameFxView);
     const file_sprite = file_view.get_sprite("body");
     console.assert(file_sprite instanceof Sprite);
     yield* animation.wait(100);
@@ -318,21 +321,24 @@ function* decrypt_file(fx_view, file_view, crypto_kind){
     const until_the_animation_ends = ()=> file_sprite.is_playing_animation === true;
     audio.playEvent('shakeRev');
     audio.playEvent('shakeSparkle');
-    let targetPos = file_view.position.translate(square_half_unit_vector);
-    let ttl = 2.25;
+    let keyPos = key_view.position.translate(square_half_unit_vector);
+    let keyFxTTL = 2.25;
+    key_fx_view.unlock(keyPos, keyFxTTL);
+    let filePos = file_view.position.translate(square_half_unit_vector);
+    let fileFxTTL = 2.25;
     console.log("crypto_kind: " + crypto_kind);
     switch (crypto_kind) {
         case crypto_kinds.triangle:
-            fx_view.unlockTriangle(targetPos, ttl);
+            file_fx_view.unlockTriangle(filePos, fileFxTTL);
             break;
         case crypto_kinds.plus:
-            fx_view.unlockPlus(targetPos, ttl);
+            file_fx_view.unlockPlus(filePos, fileFxTTL);
             break;
         case crypto_kinds.equal:
-            fx_view.unlockEqual(targetPos, ttl);
+            file_fx_view.unlockEqual(filePos, fileFxTTL);
             break;
         case crypto_kinds.circle:
-            fx_view.unlockCircle(targetPos, ttl);
+            file_fx_view.unlockCircle(filePos, fileFxTTL);
             break;
     }
     yield* shake(file_view, 4, 1000 / 24, until_the_animation_ends);

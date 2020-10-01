@@ -521,6 +521,30 @@ class GameFxView {
         return fx;
     }
 
+    unlock(position, ttl) {
+        let fx = new GameFx(position);
+        // combo lock rings
+        for (let i=0; i<5; i++) {
+            let spec = {
+                x: position.x,
+                y: position.y,
+                radius: 5+5*i,
+                lockWidth: 5,
+                unlockWidth: 5,
+                lockColor: new Color(200,0,0, .5),
+                unlockColor: new Color(0,200,0, .5),
+                spinTTL: ttl*.75,
+                unlockTTL: ttl*.25,
+                rotation: random_float(Math.PI*2, Math.PI*6) * ((Math.random() > .5) ? 1 : -1),
+            }
+            let p = new ComboLockParticle(spec);
+            this.particleSystem.add(p);
+            fx.sentinels.push(p);
+            fx.relocatables.push(p);
+        }
+        return fx;
+    }
+
     unlockTriangle(position, ttl){
         let fx = new GameFx(position);
         // triangle shape tracers
@@ -555,8 +579,8 @@ class GameFxView {
                 radius: 5+5*i,
                 lockWidth: 5,
                 unlockWidth: 5,
-                lockColor: new Color(200,0,0, .5),
-                unlockColor: new Color(0,200,0, .5),
+                lockColor: new Color(200,0,0, .4),
+                unlockColor: new Color(0,200,0, .4),
                 spinTTL: ttl*.75,
                 unlockTTL: ttl*.25,
                 rotation: random_float(Math.PI*2, Math.PI*6) * ((Math.random() > .5) ? 1 : -1),
@@ -602,8 +626,8 @@ class GameFxView {
                 radius: 5+5*i,
                 lockWidth: 5,
                 unlockWidth: 5,
-                lockColor: new Color(200,0,0, .5),
-                unlockColor: new Color(0,200,0, .5),
+                lockColor: new Color(200,0,0, .4),
+                unlockColor: new Color(0,200,0, .4),
                 spinTTL: ttl*.75,
                 unlockTTL: ttl*.25,
                 rotation: random_float(Math.PI*2, Math.PI*6) * ((Math.random() > .5) ? 1 : -1),
@@ -649,8 +673,8 @@ class GameFxView {
                 radius: 5+5*i,
                 lockWidth: 5,
                 unlockWidth: 5,
-                lockColor: new Color(200,0,0, .5),
-                unlockColor: new Color(0,200,0, .5),
+                lockColor: new Color(200,0,0, .4),
+                unlockColor: new Color(0,200,0, .4),
                 spinTTL: ttl*.75,
                 unlockTTL: ttl*.25,
                 rotation: random_float(Math.PI*2, Math.PI*6) * ((Math.random() > .5) ? 1 : -1),
@@ -696,8 +720,8 @@ class GameFxView {
                 radius: 5+5*i,
                 lockWidth: 5,
                 unlockWidth: 5,
-                lockColor: new Color(200,0,0, .5),
-                unlockColor: new Color(0,200,0, .5),
+                lockColor: new Color(200,0,0, .4),
+                unlockColor: new Color(0,200,0, .4),
                 spinTTL: ttl*.75,
                 unlockTTL: ttl*.25,
                 rotation: random_float(Math.PI*2, Math.PI*6) * ((Math.random() > .5) ? 1 : -1),
