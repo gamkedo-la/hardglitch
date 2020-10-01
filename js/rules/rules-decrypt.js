@@ -15,7 +15,7 @@ import { sprite_defs } from "../game-assets.js";
 import { ItemView } from "../view/item-view.js";
 
 class DecryptedFile extends concepts.Event {
-    constructor(character, file, key_inventory_idx){
+    constructor(character, file, key_inventory_idx, crypto_kind){
         console.assert(character instanceof Character);
         console.assert(file instanceof items.CryptoFile);
         console.assert(Number.isInteger(key_inventory_idx));
@@ -29,6 +29,7 @@ class DecryptedFile extends concepts.Event {
         this.file_id = file.id;
         this.file_position = file.position;
         this.key_idx = key_inventory_idx;
+        this.crypto_kind = crypto_kind;
     }
 
     get focus_positions() { return [ this.file_position, this.character_position ]; }
@@ -52,7 +53,7 @@ class DecryptedFile extends concepts.Event {
 
         // 2. Decrypt animation of the file
         console.assert(file_view instanceof ItemView);
-        yield* anim.decrypt_file(game_view.fx_view, file_view);
+        yield* anim.decrypt_file(game_view.fx_view, file_view, this.crypto_kind);
 
         game_view.reset_entities(); // To make the potential new item visible. // TODO: this might be a bit overkill...
 
@@ -98,7 +99,7 @@ class Decrypt extends concepts.Action {
             world.add_entity(new_item);
         }
 
-        return [ new DecryptedFile(character, file, key_idx) ];
+        return [ new DecryptedFile(character, file, key_idx, key.crypto_kind) ];
     }
 };
 

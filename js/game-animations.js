@@ -35,6 +35,7 @@ import { Position } from "./core/concepts.js";
 import { GameView } from "./game-view.js";
 import { Sprite } from "./system/graphics.js";
 import { is_number, random_float } from "./system/utility.js";
+import { crypto_kind as crypto_kinds } from "./definitions-items.js";
 
 const default_move_duration_ms = 250;
 const default_destruction_duration_ms = 666;
@@ -308,7 +309,7 @@ function* shake(entity_view, amplitude, frequency_ms, duration_or_predicate){
     entity_view.position = initial_position;
 }
 
-function* decrypt_file(fx_view, file_view){
+function* decrypt_file(fx_view, file_view, crypto_kind){
     console.assert(file_view instanceof ItemView);
     const file_sprite = file_view.get_sprite("body");
     console.assert(file_sprite instanceof Sprite);
@@ -319,7 +320,12 @@ function* decrypt_file(fx_view, file_view){
     audio.playEvent('shakeSparkle');
     let targetPos = file_view.position.translate(square_half_unit_vector);
     let ttl = 2.25;
-    fx_view.unlockTriangle(targetPos, ttl);
+    console.log("crypto_kind: " + crypto_kind);
+    switch (crypto_kind) {
+        case crypto_kinds.triangle:
+            fx_view.unlockTriangle(targetPos, ttl);
+            break;
+    }
     yield* shake(file_view, 4, 1000 / 24, until_the_animation_ends);
     audio.playEvent('decryptRev');
     file_view.is_visible = false;
