@@ -18,6 +18,7 @@ import {
     TraceParticle,
     TraceArcParticle,
     ComboLockParticle,
+    ScanLineParticle,
 } from "../system/particles.js";
 import { GameFxView } from "../game-effects.js";
 import { random_int, random_float } from "../system/utility.js";
@@ -286,6 +287,22 @@ class Tests {
         }, emitterInterval, emitterJitter));
     }
 
+    scan(x,y) {
+        let emitterInterval = 1;
+        let emitterJitter = 0;
+        this.particles.add(new ParticleEmitter(this.particles, x, y, (e) => {
+            let spec = {
+                x: e.x,
+                y: e.y,
+                ttl: 1,
+                lineWidth: 5,
+                scanTrail: 3,
+                ttl: .75,
+            }
+            return new ScanLineParticle(spec);
+        }, emitterInterval, emitterJitter));
+    }
+
 }
 
 class Env {
@@ -304,7 +321,6 @@ class Env {
         this.gfx.particleSystem.alwaysActive = true;
 
         //this.tests.blipfade(100,300);
-        /*
         this.tests.fade(200,300);
         this.tests.linefade(300,300);
         this.tests.offsetglitch(400,300);
@@ -318,13 +334,12 @@ class Env {
         this.tests.lightningorb(200,400);
         this.tests.lightningstrike(200,500);
         this.tests.colorshift(400, 400);
-        */
         this.tests.trace(500, 400);
         this.tests.traceArc(500, 500);
         this.tests.combolock(600, 400);
+        this.tests.scan(900, 500);
 
         for (const fx of [
-        /*
             this.gfx.destruction({x:500,y:400}),
             this.gfx.damage({x:600,y:400}),
             this.gfx.lightningJump({x:500,y:500}, {x:600,y:600}),
@@ -337,7 +352,6 @@ class Env {
             //this.gfx.corrupt({x:400+32,y:400-64}),
             //this.gfx.corrupt({x:368+32+64*1,y:336+32}),
             //this.gfx.unstable({x:368+32,y:336+32}),
-        */
             this.gfx.unlockTriangle({x:700,y:400}, 3),
             this.gfx.unlockPlus({x:800,y:400}, 3),
             this.gfx.unlockEqual({x:900,y:400}, 3),

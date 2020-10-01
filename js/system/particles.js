@@ -26,6 +26,7 @@ export {
     TraceParticle,
     TraceArcParticle,
     ComboLockParticle,
+    ScanLineParticle,
 }
 
 import { camera, create_canvas_context } from "./graphics.js";
@@ -2077,6 +2078,87 @@ class ComboLockParticle extends Particle {
         endAngle = startAngle + this.unlockAngle;
         canvas_context.arc(Math.round(this.x), Math.round(this.y), this.radius, startAngle, endAngle);
         canvas_context.stroke();
+    }
+
+}
+
+class ScanLineParticle extends Particle {
+    constructor(spec) {
+        // parse spec/assign defaults
+        let x = spec.x || 0;
+        let y = spec.y || 0;
+        super(x, y);
+        this.lineColor = spec.lineColor || new Color(0,200,200);
+        this.lineWidth = spec.lineWidth || 3;
+        this.ttl = (spec.ttl || 1) * 1000;
+        this.travel = spec.travel || 64;
+        this.span = spec.span || 64;
+        this.scanTrail = spec.scanTrail || 5;
+        this.floaters = spec.floaters || 3;
+        this.floaterPct = spec.floaterPct || .45;
+        this.floaterColor = spec.floaterColor || new Color(this.lineColor.r, this.lineColor.g, this.lineColor.b, this.lineColor.a*.75);
+        this.floaterTTL = spec.floaterTTL || .3;
+        this.floaterWidth = spec.floaterWidth || 2;
+        // local vars
+        this.speed = this.travel/this.ttl;
+        this.scanY = -this.travel*.5;
+        this.alphaShift = this.lineColor.a/(this.scanTrail+5);
+        this.subparticles = [];
+    }
+
+    update(delta_time) {
+        for (let i=0; i<this.subparticles.length; i++) {
+            this.subparticles[i].update(delta_time);
+        }
+        if (this.done) return;
+        // scanY
+        this.scanY += this.speed*delta_time;
+        // floaters
+        if (this.floaters && Math.random() < this.floaterPct) {
+            for (let i=0; i<this.floaters; i++) {
+                let ppx = this.x + random_int(-this.span*.5, this.span*.5);
+                let ppy = this.y + this.scanY;
+                let dx = random_float(-2, 2);
+                let dy = random_float(-10, 0);
+                let ttl = random_float(this.floaterTTL*.75,this.floaterTTL*1.5);
+                let width = random_float(1, this.floaterWidth);
+                let fp = new FadeParticle(ppx, ppy, dx, dy, width, this.floaterColor.copy(), ttl);
+                this.subparticles.push(fp);
+            }
+        }
+        // update ttl
+        if (this.ttl) {
+            this.ttl -= delta_time;
+            if (this.ttl <= 0) {
+                this.done = true;
+            }
+        }
+    }
+
+    draw(canvas_context) {
+        // draw scan line
+        canvas_context.beginPath();
+        canvas_context.lineWidth = this.lineWidth;
+        canvas_context.strokeStyle = this.lineColor;
+        canvas_context.moveTo(this.x-this.span*.5, this.y+this.scanY);
+        canvas_context.lineTo(this.x+this.span*.5, this.y+this.scanY);
+        canvas_context.stroke();
+        // draw trail
+        for (let i=0; i<this.scanTrail; i++) {
+            let y = this.scanY - this.lineWidth*.5 - this.lineWidth*i;
+            let alpha = this.lineColor.a - (this.alphaShift*(i+5));
+            if (y>-this.travel*.5) {
+                canvas_context.strokeStyle = this.lineColor.asRGB(alpha);
+                canvas_context.lineCap = "round";
+                canvas_context.moveTo(this.x-this.span*.5, this.y+y);
+                canvas_context.lineTo(this.x+this.span*.5, this.y+y);
+                canvas_context.stroke();
+            }
+        }
+        // draw sub particles
+        for (let i=0; i<this.subparticles.length; i++) {
+            this.subparticles[i].draw(canvas_context);
+        }
     }
 
 }
