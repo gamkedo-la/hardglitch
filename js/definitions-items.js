@@ -13,7 +13,9 @@ export {
     CryptoKey_Equal,
 
     Item_BadCode,
-    Item_JumpFunction,
+    Item_JumpOpCode,
+    Item_Push,
+    Item_Pull,
     MovableWall,
 
     all_crypto_file_types,
@@ -26,6 +28,7 @@ import { sprite_defs } from "./game-assets.js";
 import { all_uncommon_action_types } from "./definitions-actions.js";
 import { random_sample } from "./system/utility.js";
 import { Jump } from "./rules/rules-movement.js";
+import { Pull, Push } from "./rules/rules-forces.js";
 
 function all_crypto_file_types() {
     return [
@@ -72,7 +75,9 @@ function all_item_types(){
         ...all_crypto_key_types(),
 
         Item_BadCode,
-        Item_JumpFunction,
+        Item_JumpOpCode,
+        Item_Push,
+        Item_Pull,
         MovableWall,
 
         ...all_debug_item_types(),
@@ -212,15 +217,15 @@ class Item_BadCode extends concepts.Item {
     get can_be_taken() { return true; }
 
     stats_modifiers = {
-        int_recovery: { value: -2 },
+        int_recovery: { value: -1 },
     }
 
     constructor(){
-        super("Bad Code");
+        super("0xDEADBEEF");
     }
 };
 
-class Item_JumpFunction extends concepts.Item {
+class Item_JumpOpCode extends concepts.Item {
     assets = {
         graphics : { body: {
             sprite_def : sprite_defs.item_generic_3,
@@ -230,11 +235,49 @@ class Item_JumpFunction extends concepts.Item {
     get can_be_taken() { return true; }
 
     constructor(){
-        super("Jump Function");
+        super("Jump Op-Code");
     }
 
     get_enabled_action_types(){
         return [ Jump ];
+    }
+
+}
+
+class Item_Push extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_4,
+        }}
+    };
+
+    get can_be_taken() { return true; }
+
+    constructor(){
+        super("Data Pusher");
+    }
+
+    get_enabled_action_types(){
+        return [ Push ];
+    }
+
+}
+
+class Item_Pull extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_4,
+        }}
+    };
+
+    get can_be_taken() { return true; }
+
+    constructor(){
+        super("Data Puller");
+    }
+
+    get_enabled_action_types(){
+        return [ Pull ];
     }
 
 }

@@ -3,6 +3,7 @@ export {
 }
 
 import * as tiles from "../definitions-tiles.js";
+import { random_sample } from "../system/utility.js";
 import {
     deserialize_world,
     random_variation,
@@ -29,10 +30,28 @@ const startup_rooms = {
         entities: [
           { type: "GlitchyGlitchMacGlitchy", position: { x: 2, y: 3 } },
           { type: "LifeForm_Weak", position: { x: 6, y: 6 } },
-          { type: "CryptoFile_Triangle", position: { x: 2, y: 7 }, drops: [ "Item_JumpFunction" ] },
+          { type: "CryptoFile_Triangle", position: { x: 2, y: 7 }, drops: [ "Item_JumpOpCode" ] },
           { type: "CryptoKey_Triangle", position: { x: 5, y: 8 } },
         ],
-      }
+      },
+    push_pull : {
+        name: "Level 1: Buggy Program",
+        width: 10,
+        height: 18,
+        grids: {
+          floor : [120,120,120,120,120,120,120,120,120,120,120,100,10,10,100,100,100,100,100,120,120,10,10,10,100,100,120,120,100,120,120,100,10,100,100,100,120,100,100,120,120,100,100,100,120,10,10,120,100,120,120,100,120,120,120,10,10,10,10,120,120,100,100,100,100,100,100,100,100,120,120,100,100,100,10,121,121,121,100,120,121,121,121,121,10,121,100,100,100,120,121,121,121,121,10,121,10,120,120,120,121,121,121,121,10,121,100,100,100,120,121,121,121,121,10,121,100,100,100,120,120,100,10,10,10,121,30,30,30,120,120,10,121,121,121,121,30,30,30,120,120,10,121,121,30,30,30,30,30,120,10,100,10,121,10,10,30,30,30,120,100,100,100,121,10,10,10,10,30,120,100,10,10,121,121,30,30,30,30,120],
+          surface : [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,0,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,1,null,null,null,null,null,null,null,null,null],
+          corruption : [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+          unstable : [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+        },
+        entities: [
+          { type: "LifeForm_Weak", position: { x: 7, y: 11 }, drops: [ "Item_Pull" ] },
+          { type: "GlitchyGlitchMacGlitchy", position: { x: 2, y: 2 } },
+          { type: "CryptoKey_Plus", position: { x: 7, y: 3 } },
+          { type: "MovableWall", position: { x: 4, y: 12 } },
+          { type: "CryptoFile_Plus", position: { x: 4, y: 7 }, drops: [ "Item_Push" ] },
+        ],
+      },
 };
 
 function generate_world(){
@@ -41,7 +60,7 @@ function generate_world(){
     //
 
 
-    const level_desc = startup_rooms.jump;
+    const level_desc = random_sample(Object.values(startup_rooms));
     level_desc.name = "Level 1: Buggy Program";
 
     return deserialize_world(random_variation(level_desc));
