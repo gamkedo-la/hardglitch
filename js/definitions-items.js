@@ -123,8 +123,6 @@ class CryptoFile extends concepts.Item {
         if(this.drops){
             console.assert(this.drops instanceof Array && this.drops.every(entity=>entity instanceof concepts.Entity));
             return random_sample(this.drops);
-        } else {
-            return new Debug_AllActions(); // FIXME: This is for debug. Remove it if it's causing problem
         }
     }
 
