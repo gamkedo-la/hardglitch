@@ -25,8 +25,11 @@ class EntitySpawned extends concepts.Event {
     get focus_positions() { return [ this.spawn_position ]; }
 
     *animation(game_view){
+        console.log("=-=-=-=- spawned animation");
         console.assert(game_view instanceof GameView);
         game_view.focus_on_position(this.spawn_position);
+        const fx_pos = this.spawn_position;
+        yield* anim.spawn(game_view.fx_view, fx_pos);
         const entity_view = game_view.add_entity_view(this.entity_id); // TODO: add some FX and sounds?
         entity_view.game_position = this.spawn_position;
     }

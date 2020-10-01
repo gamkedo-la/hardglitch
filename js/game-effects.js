@@ -23,6 +23,7 @@ import {
     ComboLockParticle,
     TraceParticle,
     TraceArcParticle,
+    ScanLineParticle,
 } from "./system/particles.js";
 import { Color } from "./system/color.js";
 import { Vector2 } from "./system/spatial.js";
@@ -727,6 +728,47 @@ class GameFxView {
                 rotation: random_float(Math.PI*2, Math.PI*6) * ((Math.random() > .5) ? 1 : -1),
             }
             let p = new ComboLockParticle(spec);
+            this.particleSystem.add(p);
+            fx.sentinels.push(p);
+            fx.relocatables.push(p);
+        }
+        return fx;
+    }
+
+    scan(position){
+        let fx = new GameFx(position);
+        // combo lock rings
+        for (const dir of [ScanLineParticle.right, ScanLineParticle.left]) {
+            let spec = {
+                x: position.x,
+                y: position.y,
+                lineWidth: 5,
+                scanTrail: 3,
+                ttl: .75,
+                scanDir: dir,
+            }
+            let p = new ScanLineParticle(spec);
+            this.particleSystem.add(p);
+            fx.sentinels.push(p);
+            fx.relocatables.push(p);
+        }
+        return fx;
+    }
+
+    spawn(position){
+        let fx = new GameFx(position);
+        // combo lock rings
+        for (const dir of [ScanLineParticle.right, ScanLineParticle.left, ScanLineParticle.up, ScanLineParticle.down]) {
+            let spec = {
+                x: position.x,
+                y: position.y,
+                lineWidth: 4,
+                scanTrail: 4,
+                ttl: 1.25,
+                scanDir: dir,
+                lineColor: new Color(200,0,0),
+            }
+            let p = new ScanLineParticle(spec);
             this.particleSystem.add(p);
             fx.sentinels.push(p);
             fx.relocatables.push(p);

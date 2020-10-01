@@ -21,6 +21,7 @@ export {
     decrypt_file,
     pushed,
     pulled,
+    spawned,
 }
 
 import { graphic_position, EntityView, PIXELS_PER_HALF_SIDE, square_half_unit_vector, PIXELS_PER_TILES_SIDE } from "./view/entity-view.js";
@@ -326,7 +327,6 @@ function* decrypt_file(file_view, file_fx_view, key_view, key_fx_view, crypto_ki
     key_fx_view.unlock(keyPos, keyFxTTL);
     let filePos = file_view.position.translate(square_half_unit_vector);
     let fileFxTTL = 2.25;
-    console.log("crypto_kind: " + crypto_kind);
     switch (crypto_kind) {
         case crypto_kinds.triangle:
             file_fx_view.unlockTriangle(filePos, fileFxTTL);
@@ -361,5 +361,13 @@ function* pushed(fx_view, entity_view, to_position){
 }
 
 const pulled = pushed;
+
+function* spawned(fx_view, fx_pos){
+    console.assert(fx_view instanceof GameFxView);
+    console.assert(fx_pos instanceof Position);
+    let fx = fx_view.spawn(fx_pos);
+    console.log("fx_pos: " + fx_pos);
+    yield* animation.wait(1200);
+}
 
 

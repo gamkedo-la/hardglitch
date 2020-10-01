@@ -359,6 +359,8 @@ class Env {
             this.gfx.unlockPlus({x:800,y:400}, 3),
             this.gfx.unlockEqual({x:900,y:400}, 3),
             this.gfx.unlockCircle({x:700,y:500}, 3),
+            this.gfx.scan({x:800,y:500}, 3),
+            this.gfx.spawn({x:800,y:600}, 3),
         ]) {
             setTimeout(() => {fx.done = true;}, 5000);
         }
