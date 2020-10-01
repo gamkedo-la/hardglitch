@@ -325,6 +325,15 @@ function* decrypt_file(fx_view, file_view, crypto_kind){
         case crypto_kinds.triangle:
             fx_view.unlockTriangle(targetPos, ttl);
             break;
+        case crypto_kinds.plus:
+            fx_view.unlockPlus(targetPos, ttl);
+            break;
+        case crypto_kinds.equal:
+            fx_view.unlockEqual(targetPos, ttl);
+            break;
+        case crypto_kinds.circle:
+            fx_view.unlockCircle(targetPos, ttl);
+            break;
     }
     yield* shake(file_view, 4, 1000 / 24, until_the_animation_ends);
     audio.playEvent('decryptRev');

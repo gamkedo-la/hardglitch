@@ -16,6 +16,7 @@ import {
     LightningParticle,
     ColorOffsetGlitchParticle,
     TraceParticle,
+    TraceArcParticle,
     ComboLockParticle,
 } from "../system/particles.js";
 import { GameFxView } from "../game-effects.js";
@@ -251,6 +252,24 @@ class Tests {
         }, emitterInterval, emitterJitter));
     }
 
+    traceArc(x,y) {
+        let emitterInterval = 2;
+        let emitterJitter = 0;
+        this.particles.add(new ParticleEmitter(this.particles, x, y, (e) => {
+            let spec = {
+                x: e.x,
+                y: e.y,
+                ttl: 2,
+                radius: 25,
+                origin: {x:e.x, y:e.y},
+                outlineColor: new Color(200, 0, 0, .5),
+                tracedOutlineColor: new Color(0, 200, 0),
+                outlineWidth: 3,
+            }
+            return new TraceArcParticle(spec);
+        }, emitterInterval, emitterJitter, 1.9));
+    }
+
     combolock(x,y) {
         let emitterInterval = 2;
         let emitterJitter = 0;
@@ -301,6 +320,7 @@ class Env {
         this.tests.colorshift(400, 400);
         */
         this.tests.trace(500, 400);
+        this.tests.traceArc(500, 500);
         this.tests.combolock(600, 400);
 
         for (const fx of [
@@ -319,6 +339,9 @@ class Env {
             //this.gfx.unstable({x:368+32,y:336+32}),
         */
             this.gfx.unlockTriangle({x:700,y:400}, 3),
+            this.gfx.unlockPlus({x:800,y:400}, 3),
+            this.gfx.unlockEqual({x:900,y:400}, 3),
+            this.gfx.unlockCircle({x:700,y:500}, 3),
         ]) {
             setTimeout(() => {fx.done = true;}, 5000);
         }

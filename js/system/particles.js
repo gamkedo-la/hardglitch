@@ -24,6 +24,7 @@ export {
     WaitParticle,
     ActionParticle,
     TraceParticle,
+    TraceArcParticle,
     ComboLockParticle,
 }
 
@@ -1890,6 +1891,110 @@ class TraceParticle extends Particle {
         canvas_context.moveTo(v.x, v.y);
         canvas_context.lineTo(this.trace.x, this.trace.y);
         canvas_context.stroke();
+        // draw trace
+        canvas_context.fillStyle = this.trace.traceColor;
+        canvas_context.fillRect(this.trace.x-1,this.trace.y-1, 3, 3);
+        canvas_context.beginPath();
+        canvas_context.moveTo(this.trace.origin.x, this.trace.origin.y);
+        canvas_context.lineTo(this.trace.x, this.trace.y);
+        canvas_context.closePath();
+        canvas_context.strokeStyle = this.trace.traceColor;
+        canvas_context.stroke();
+    }
+
+}
+
+class TraceArcParticle extends Particle {
+    constructor(spec) {
+        // parse spec/assign defaults
+        let x = spec.x || 0;
+        let y = spec.y || 0;
+        let outlineColor = spec.outlineColor || new Color(100,100,0);
+        let tracedOutlineColor = spec.tracedOutlineColor || new Color(100,0,100);
+        let traceColor = spec.traceColor || new Color(200,200,0);
+        let outlineWidth = spec.outlineWidth || 1;
+        let ttl = spec.ttl || 1;
+        let origin = spec.origin || {x: x, y:y};
+        let flashWidth = spec.flashWidth || 30;
+        let flashHue = spec.flashHue || 200;
+        let flashRotate = spec.flashRotate || 15;
+        let radius = spec.radius || 20;
+        let startAngle = spec.startAngle || 0;
+        let ccw = spec.ccw || false;
+        // super
+        super(x, y);
+        // local vars
+        // setup outline
+        // - outlineVerts
+        // - outlineLen
+        // - outline
+        this.setupOutline(x, y, radius, startAngle);
+        this.outlineColor = outlineColor;
+        this.tracedOutlineColor = tracedOutlineColor;
+        this.outlineWidth = outlineWidth;
+        this.ttl = ttl * 1000;
+        // setup trace
+        this.trace = {
+            radius: radius,
+            center: {x: x, y: y},
+            startAngle: startAngle,
+            angle: startAngle,
+            x: x+Math.cos(startAngle)*radius,
+            y: y+Math.sin(startAngle)*radius,
+            origin: origin,
+            traceColor: traceColor,
+            speed: (ccw) ? (-Math.PI*2/this.ttl) : (Math.PI*2/this.ttl),
+        }
+        this.setupTracedOutline();
+        this.flashP = new FlashParticle(this.trace.x, this.trace.y, flashWidth, flashHue, ttl, flashRotate);
+
+    }
+
+    setupOutline(x, y, radius, startAngle) {
+        this.outlineLen = Math.PI * 2 * radius;
+        this.outline = new Path2D();
+        this.outline.arc(x, y, radius, startAngle, startAngle+Math.PI*2);
+        this.outline.closePath();
+    }
+
+    setupTracedOutline() {
+        this.tracedOutline = new Path2D();
+        if (this.trace.speed > 0) {
+            this.tracedOutline.arc(this.trace.center.x, this.trace.center.y, this.trace.radius, this.trace.startAngle, this.trace.angle);
+        } else {
+            this.tracedOutline.arc(this.trace.center.x, this.trace.center.y, this.trace.radius, this.trace.angle, this.trace.startAngle);
+        }
+    }
+
+    update(delta_time) {
+        if (this.done) return;
+        // update trace
+        this.trace.angle += this.trace.speed * delta_time;
+        this.setupTracedOutline();
+        this.trace.x = this.trace.center.x+Math.cos(this.trace.angle)*this.trace.radius;
+        this.trace.y = this.trace.center.y+Math.sin(this.trace.angle)*this.trace.radius;
+        // update flash particle
+        this.flashP.x = this.trace.x;
+        this.flashP.y = this.trace.y;
+        this.flashP.update(delta_time);
+        // update ttl
+        if (this.ttl) {
+            this.ttl -= delta_time;
+            if (this.ttl <= 0) {
+                this.done = true;
+            }
+        }
+    }
+
+    draw(canvas_context) {
+        this.flashP.draw(canvas_context);
+        // draw outline
+        canvas_context.lineWidth = this.outlineWidth;
+        canvas_context.strokeStyle = this.outlineColor;
+        canvas_context.stroke(this.outline);
+        // draw traced outline
+        canvas_context.strokeStyle = this.tracedOutlineColor;
+        canvas_context.stroke(this.tracedOutline);
         // draw trace
         canvas_context.fillStyle = this.trace.traceColor;
         canvas_context.fillRect(this.trace.x-1,this.trace.y-1, 3, 3);

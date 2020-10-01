@@ -22,6 +22,7 @@ import {
     ActionParticle,
     ComboLockParticle,
     TraceParticle,
+    TraceArcParticle,
 } from "./system/particles.js";
 import { Color } from "./system/color.js";
 import { Vector2 } from "./system/spatial.js";
@@ -536,8 +537,8 @@ class GameFxView {
                 path: path,
                 ttl: ttl,
                 origin: {x:position.x, y:position.y},
-                outlineColor: new Color(238, 255, 32, .5),
-                tracedOutlineColor: new Color(219, 0, 255, .75),
+                outlineColor: new Color(50, 50, 50, .5),
+                tracedOutlineColor: new Color(210, 15, 210, .75),
                 outlineWidth: 3,
                 scale: scale,
             }
@@ -554,8 +555,149 @@ class GameFxView {
                 radius: 5+5*i,
                 lockWidth: 5,
                 unlockWidth: 5,
-                lockColor: new Color(200,0,0, .65),
-                unlockColor: new Color(0,200,0, .65),
+                lockColor: new Color(200,0,0, .5),
+                unlockColor: new Color(0,200,0, .5),
+                spinTTL: ttl*.75,
+                unlockTTL: ttl*.25,
+                rotation: random_float(Math.PI*2, Math.PI*6) * ((Math.random() > .5) ? 1 : -1),
+            }
+            let p = new ComboLockParticle(spec);
+            this.particleSystem.add(p);
+            fx.sentinels.push(p);
+            fx.relocatables.push(p);
+        }
+        return fx;
+    }
+
+    unlockPlus(position, ttl){
+        let fx = new GameFx(position);
+        // triangle shape tracers
+        let paths = [
+            [{x:12,y:24}, {x:25,y:24}, {x:25,y:10}, {x:39,y:10}, {x:39,y:24}, {x:53,y:24}, {x:53,y:37}, {x:39,y:37}, {x:39,y:52}, {x:25,y:52}, {x:25,y:37}, {x:12,y:37}, {x:12,y:24}],
+            [{x:15,y:27}, {x:15,y:34}, {x:28,y:34}, {x:28,y:49}, {x:36,y:49}, {x:36,y:34}, {x:50,y:34}, {x:50,y:27}, {x:36,y:27}, {x:36,y:13}, {x:28,y:13}, {x:28,y:27}, {x:15,y:27}],
+        ]
+        for (const path of paths) {
+            let scale = 3;
+            let spec = {
+                x: position.x-32*scale,
+                y: position.y-32*scale,
+                path: path,
+                ttl: ttl,
+                origin: {x:position.x, y:position.y},
+                outlineColor: new Color(50, 50, 50, .5),
+                tracedOutlineColor: new Color(0, 240, 255, .75),
+                outlineWidth: 3,
+                scale: scale,
+            }
+            let p = new TraceParticle(spec);
+            this.particleSystem.add(p);
+            fx.sentinels.push(p);
+            fx.relocatables.push(p);
+        }
+        // combo lock rings
+        for (let i=0; i<5; i++) {
+            let spec = {
+                x: position.x,
+                y: position.y,
+                radius: 5+5*i,
+                lockWidth: 5,
+                unlockWidth: 5,
+                lockColor: new Color(200,0,0, .5),
+                unlockColor: new Color(0,200,0, .5),
+                spinTTL: ttl*.75,
+                unlockTTL: ttl*.25,
+                rotation: random_float(Math.PI*2, Math.PI*6) * ((Math.random() > .5) ? 1 : -1),
+            }
+            let p = new ComboLockParticle(spec);
+            this.particleSystem.add(p);
+            fx.sentinels.push(p);
+            fx.relocatables.push(p);
+        }
+        return fx;
+    }
+
+    unlockEqual(position, ttl){
+        let fx = new GameFx(position);
+        // triangle shape tracers
+        let paths = [
+            [{x:17,y:23}, {x:47,y:23}, {x:47,y:28}, {x:17,y:28}, {x:17,y:23}],
+            [{x:47,y:41}, {x:17,y:41}, {x:17,y:36}, {x:47,y:36}, {x:47,y:41}],
+        ]
+        for (const path of paths) {
+            let scale = 3;
+            let spec = {
+                x: position.x-32*scale,
+                y: position.y-32*scale,
+                path: path,
+                ttl: ttl,
+                origin: {x:position.x, y:position.y},
+                outlineColor: new Color(50, 50, 50, .5),
+                tracedOutlineColor: new Color(255, 163, 0, .75),
+                outlineWidth: 3,
+                scale: scale,
+            }
+            let p = new TraceParticle(spec);
+            this.particleSystem.add(p);
+            fx.sentinels.push(p);
+            fx.relocatables.push(p);
+        }
+        // combo lock rings
+        for (let i=0; i<5; i++) {
+            let spec = {
+                x: position.x,
+                y: position.y,
+                radius: 5+5*i,
+                lockWidth: 5,
+                unlockWidth: 5,
+                lockColor: new Color(200,0,0, .5),
+                unlockColor: new Color(0,200,0, .5),
+                spinTTL: ttl*.75,
+                unlockTTL: ttl*.25,
+                rotation: random_float(Math.PI*2, Math.PI*6) * ((Math.random() > .5) ? 1 : -1),
+            }
+            let p = new ComboLockParticle(spec);
+            this.particleSystem.add(p);
+            fx.sentinels.push(p);
+            fx.relocatables.push(p);
+        }
+        return fx;
+    }
+
+    unlockCircle(position, ttl){
+        let fx = new GameFx(position);
+        // triangle shape tracers
+        let atts = [
+            {radius: 50, ccw: false},
+            {radius: 60, ccw: true},
+        ]
+        for (const att of atts) {
+            let spec = {
+                radius: att.radius,
+                ccw: att.ccw,
+                x: position.x,
+                y: position.y,
+                ttl: ttl,
+                origin: {x:position.x, y:position.y},
+                outlineColor: new Color(50, 50, 50, .5),
+                tracedOutlineColor: new Color(5, 215, 5, .75),
+                outlineWidth: 3,
+                startAngle: -Math.PI*.5,
+            }
+            let p = new TraceArcParticle(spec);
+            this.particleSystem.add(p);
+            fx.sentinels.push(p);
+            fx.relocatables.push(p);
+        }
+        // combo lock rings
+        for (let i=0; i<5; i++) {
+            let spec = {
+                x: position.x,
+                y: position.y,
+                radius: 5+5*i,
+                lockWidth: 5,
+                unlockWidth: 5,
+                lockColor: new Color(200,0,0, .5),
+                unlockColor: new Color(0,200,0, .5),
                 spinTTL: ttl*.75,
                 unlockTTL: ttl*.25,
                 rotation: random_float(Math.PI*2, Math.PI*6) * ((Math.random() > .5) ? 1 : -1),
