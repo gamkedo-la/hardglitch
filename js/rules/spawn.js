@@ -35,14 +35,14 @@ class EntitySpawned extends concepts.Event {
     }
 };
 
-function spawn_entities_around(world, center_position, entities, spawn_event = EntitySpawned){
+function spawn_entities_around(world, center_position, entities, spawn_event = EntitySpawned, position_predicate = tiles.is_walkable, max_range){
     console.assert(center_position instanceof concepts.Position);
     console.assert(entities instanceof Array);
     console.assert(entities.every(entity => entity instanceof concepts.Entity));
     if(entities.length === 0)
         return [];
 
-    const spawn_positions = valid_spawn_positions(world, center_position, tiles.is_walkable).reverse(); // Reversed so that pop gives us the closest position.
+    const spawn_positions = valid_spawn_positions(world, center_position, position_predicate, max_range).reverse(); // Reversed so that pop gives us the closest position.
     entities = entities.reverse(); // So that we pop the first element first.
     const events = [];
     while(spawn_positions.length > 0 && entities.length > 0){

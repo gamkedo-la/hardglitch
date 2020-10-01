@@ -17,6 +17,7 @@ import { Character } from "../core/character.js";
 import { EntityDropped } from "./rules-items.js";
 import { random_sample } from "../system/utility.js";
 import { grid_ID } from "../definitions-world.js";
+import { EntitySpawned, spawn_entities_around } from "./spawn.js";
 
 
 class Damaged extends concepts.Event {
@@ -73,19 +74,16 @@ function drop_entity_drops(entity, world){
     console.assert(entity instanceof concepts.Entity);
     console.assert(world instanceof concepts.World);
     console.assert(!world.entities.includes(entity));
-    const floor_under_destroyed = world.grids[grid_ID.floor].get_at(entity.position);
-    if(entity.drops
-    && tiles.is_safely_walkable(floor_under_destroyed) // Only drops on floor that can be reached safely.
-    ){
+    if(entity.drops){
         console.assert(entity.drops instanceof Array && entity.drops.every(entity=>entity instanceof concepts.Entity));
         const dropped = random_sample(entity.drops);
-        dropped.position = entity.position;
-        world.add_entity(dropped);
-        return [ new EntityDropped(entity, 0, dropped.position, dropped.id) ];
+        // Only drop around the character's position, where it's safe to walk, or don't.
+        const spawn_events = spawn_entities_around(world, entity.position, [dropped], undefined, tiles.is_safely_walkable, 1);
+        if(spawn_events.length > 0) // Use that event instead, but only if the item was actually dropped.
+            return [ new EntityDropped(entity, 0, dropped.position, dropped.id) ];
     }
-    else {
-        return [];
-    }
+
+    return [];
 }
 
 function destroy_entity(entity, world){
