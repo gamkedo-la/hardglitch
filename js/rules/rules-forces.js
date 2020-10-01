@@ -80,7 +80,7 @@ function apply_directional_force(world, target_pos, direction, force_action){
         console.assert(target_entity instanceof concepts.Entity);
 
         // By default, all entities are pushable. If one kind is not, it have to provide the is_pushable boolean member.
-        const is_pushable = target_entity.is_pushable === undefined || target_entity.is_pushable;
+        const is_pushable = target_entity.can_be_moved === undefined || target_entity.can_be_moved;
 
         const next_pos = target_pos.translate(direction);
         if(!is_pushable

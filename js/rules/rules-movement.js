@@ -301,6 +301,16 @@ class Rule_Swap extends concepts.Rule {
 
     get_actions_for(character, world){
         console.assert(character instanceof Character);
-        return ranged_actions_for_each_target(world, character, Swap, this.range);
+
+        const entity_can_be_moved = (position)=> {
+            const entity = world.entity_at(position);
+            if(entity instanceof concepts.Entity){
+                // Entities can be moved by default.
+                return entity.can_be_moved === undefined || entity.can_be_moved;
+            }
+            return false;
+        };
+
+        return ranged_actions_for_each_target(world, character, Swap, this.range, entity_can_be_moved);
     }
 };

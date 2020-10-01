@@ -111,7 +111,7 @@ class CryptoFile extends concepts.Item {
     }
 
     get can_be_taken() { return false; }
-    get is_pushable() { return false; }
+    get can_be_moved() { return false; }
 
     // Decrypting can return (or not) an object
     decrypt(){
