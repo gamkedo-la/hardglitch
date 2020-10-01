@@ -287,17 +287,17 @@ class Tests {
         }, emitterInterval, emitterJitter));
     }
 
-    scan(x,y) {
+    scan(x,y,dir) {
         let emitterInterval = 1;
         let emitterJitter = 0;
         this.particles.add(new ParticleEmitter(this.particles, x, y, (e) => {
             let spec = {
                 x: e.x,
                 y: e.y,
-                ttl: 1,
                 lineWidth: 5,
                 scanTrail: 3,
                 ttl: .75,
+                scanDir: dir,
             }
             return new ScanLineParticle(spec);
         }, emitterInterval, emitterJitter));
@@ -337,7 +337,10 @@ class Env {
         this.tests.trace(500, 400);
         this.tests.traceArc(500, 500);
         this.tests.combolock(600, 400);
-        this.tests.scan(900, 500);
+        this.tests.scan(900, 500, 1);
+        this.tests.scan(900, 500, 2);
+        this.tests.scan(900, 500, 3);
+        this.tests.scan(900, 500, 4);
 
         for (const fx of [
             this.gfx.destruction({x:500,y:400}),

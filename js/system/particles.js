@@ -2083,6 +2083,11 @@ class ComboLockParticle extends Particle {
 }
 
 class ScanLineParticle extends Particle {
+    static down = 1;
+    static up = 2;
+    static left = 3;
+    static right = 4;
+
     constructor(spec) {
         // parse spec/assign defaults
         let x = spec.x || 0;
@@ -2094,16 +2099,35 @@ class ScanLineParticle extends Particle {
         this.travel = spec.travel || 64;
         this.span = spec.span || 64;
         this.scanTrail = spec.scanTrail || 5;
-        this.floaters = spec.floaters || 3;
-        this.floaterPct = spec.floaterPct || .45;
+        this.scanDir = spec.scanDir || ScanLineParticle.down;
+        this.floaters = spec.floaters || 2;
+        this.floaterPct = spec.floaterPct || .25;
         this.floaterColor = spec.floaterColor || new Color(this.lineColor.r, this.lineColor.g, this.lineColor.b, this.lineColor.a*.75);
-        this.floaterTTL = spec.floaterTTL || .3;
+        this.floaterTTL = spec.floaterTTL || .5;
         this.floaterWidth = spec.floaterWidth || 2;
         // local vars
         this.speed = this.travel/this.ttl;
-        this.scanY = -this.travel*.5;
+        if (this.scanDir === ScanLineParticle.down || this.scanDir === ScanLineParticle.right) {
+            this.speed = this.travel/this.ttl;
+            this.scan = -this.travel*.5;
+        } else {
+            this.speed = -this.travel/this.ttl;
+            this.scan = this.travel*.5;
+        }
         this.alphaShift = this.lineColor.a/(this.scanTrail+5);
         this.subparticles = [];
+    }
+
+    get done() {
+        if (!this._done) return false;
+        let subdone = true;
+        for (let i=0; i<this.subparticles.length; i++) {
+            subdone &= this.subparticles[i].done;
+        }
+        return subdone;
+    }
+    set done(value) {
+        this._done = (value) ? true : false;
     }
 
     update(delta_time) {
@@ -2111,21 +2135,6 @@ class ScanLineParticle extends Particle {
             this.subparticles[i].update(delta_time);
         }
         if (this.done) return;
-        // scanY
-        this.scanY += this.speed*delta_time;
-        // floaters
-        if (this.floaters && Math.random() < this.floaterPct) {
-            for (let i=0; i<this.floaters; i++) {
-                let ppx = this.x + random_int(-this.span*.5, this.span*.5);
-                let ppy = this.y + this.scanY;
-                let dx = random_float(-2, 2);
-                let dy = random_float(-10, 0);
-                let ttl = random_float(this.floaterTTL*.75,this.floaterTTL*1.5);
-                let width = random_float(1, this.floaterWidth);
-                let fp = new FadeParticle(ppx, ppy, dx, dy, width, this.floaterColor.copy(), ttl);
-                this.subparticles.push(fp);
-            }
-        }
         // update ttl
         if (this.ttl) {
             this.ttl -= delta_time;
@@ -2133,25 +2142,69 @@ class ScanLineParticle extends Particle {
                 this.done = true;
             }
         }
+        // scan
+        this.scan += this.speed*delta_time;
+        if (this.scan < -this.span*.5 || this.scan > this.span*.5) return;
+        // floaters
+        if (this.floaters && Math.random() < this.floaterPct) {
+            for (let i=0; i<this.floaters; i++) {
+                let ppx, ppy, dx, dy;
+                if (this.scanDir === ScanLineParticle.down || this.scanDir === ScanLineParticle.up) {
+                    ppx = this.x + random_int(-this.span*.5, this.span*.5);
+                    ppy = this.y + this.scan;
+                    dx = random_float(-2, 2);
+                    dy = (this.scanDir === ScanLineParticle.down) ? random_float(-10, 0) : random_float(0, 10);
+                } else {
+                    ppx = this.x + this.scan;
+                    ppy = this.y + random_int(-this.span*.5, this.span*.5);
+                    dx = (this.scanDir === ScanLineParticle.right) ? random_float(-10, 0) : random_float(0, 10);
+                    dy = random_float(-2, 2);
+                }
+                let ttl = random_float(this.floaterTTL*.75,this.floaterTTL*1.5);
+                let width = random_float(1, this.floaterWidth);
+                let fp = new FadeParticle(ppx, ppy, dx, dy, width, this.floaterColor.copy(), ttl);
+                this.subparticles.push(fp);
+            }
+        }
+
     }
 
     draw(canvas_context) {
         // draw scan line
-        canvas_context.beginPath();
-        canvas_context.lineWidth = this.lineWidth;
-        canvas_context.strokeStyle = this.lineColor;
-        canvas_context.moveTo(this.x-this.span*.5, this.y+this.scanY);
-        canvas_context.lineTo(this.x+this.span*.5, this.y+this.scanY);
-        canvas_context.stroke();
+        if (this.scan >= -this.span*.5 && this.scan <= this.span*.5) {
+            canvas_context.beginPath();
+            canvas_context.lineWidth = this.lineWidth;
+            canvas_context.strokeStyle = this.lineColor;
+            if (this.scanDir === ScanLineParticle.down || this.scanDir === ScanLineParticle.up) {
+                canvas_context.moveTo(this.x-this.span*.5, this.y+this.scan);
+                canvas_context.lineTo(this.x+this.span*.5, this.y+this.scan);
+            } else {
+                canvas_context.moveTo(this.x+this.scan, this.y-this.span*.5);
+                canvas_context.lineTo(this.x+this.scan, this.y+this.span*.5);
+            }
+            canvas_context.stroke();
+        }
         // draw trail
         for (let i=0; i<this.scanTrail; i++) {
-            let y = this.scanY - this.lineWidth*.5 - this.lineWidth*i;
+            let trailscan = this.scan;
+            if (this.scanDir === ScanLineParticle.down || this.scanDir === ScanLineParticle.right) {
+                trailscan -= (this.lineWidth*.5 + this.lineWidth*i);
+            } else {
+                trailscan += (this.lineWidth*.5 + this.lineWidth*i);
+            }
             let alpha = this.lineColor.a - (this.alphaShift*(i+5));
-            if (y>-this.travel*.5) {
+            if (trailscan>-this.travel*.5 && trailscan<this.travel*.5) {
                 canvas_context.strokeStyle = this.lineColor.asRGB(alpha);
                 canvas_context.lineCap = "round";
-                canvas_context.moveTo(this.x-this.span*.5, this.y+y);
-                canvas_context.lineTo(this.x+this.span*.5, this.y+y);
+                //canvas_context.moveTo(this.x-this.span*.5, this.y+y);
+                //canvas_context.lineTo(this.x+this.span*.5, this.y+y);
+                if (this.scanDir === ScanLineParticle.down || this.scanDir === ScanLineParticle.up) {
+                    canvas_context.moveTo(this.x-this.span*.5, this.y+trailscan);
+                    canvas_context.lineTo(this.x+this.span*.5, this.y+trailscan);
+                } else {
+                    canvas_context.moveTo(this.x+trailscan, this.y-this.span*.5);
+                    canvas_context.lineTo(this.x+trailscan, this.y+this.span*.5);
+                }
                 canvas_context.stroke();
             }
         }
