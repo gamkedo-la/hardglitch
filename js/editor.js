@@ -126,9 +126,13 @@ function make_edit_operation_remove_any_entity_at(){
         console.assert(game_session instanceof GameSession);
         console.assert(position);
 
-        const entities_removed_count = game_session.world.remove_entity_at(position);
-        console.assert(`REMOVED ${entities_removed_count} ENTITIES`);
-        return entities_removed_count > 0;
+        const removed_entities = game_session.world.remove_entity_at(position);
+        if(removed_entities.length > 0){
+            console.log(`REMOVED ${removed_entities.length} ENTITIES`);
+            return true;
+        }
+        else
+            return false;
     };
 }
 
@@ -142,10 +146,11 @@ function make_edit_operation_add_entity_at(entity_type){
             const entity = new entity_type();
             entity.position = position;
             game_session.world.add_entity(entity);
-            console.assert(`ADDED ${entity.name} ENTITY`);
+            console.log(`ADDED ${entity.name} ENTITY`);
             return true;
         }
-        else return false;
+        else
+            return false;
     };
 }
 
@@ -161,10 +166,11 @@ function make_edit_operation_change_tile(tile_id, world_tile_grid_id){
         console.assert(tile_grid instanceof Grid);
         if(tile_grid.get_at(position) != tile_id){
             tile_grid.set_at(tile_id, position);
-            console.assert(`CHANGE TILE TO ${tile_id} ENTITY`);
+            console.log(`CHANGE TILE TO ${tile_id} ENTITY`);
             return true;
         }
-        else return false;
+        else
+            return false;
     };
 }
 
