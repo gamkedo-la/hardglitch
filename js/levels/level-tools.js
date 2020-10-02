@@ -26,7 +26,47 @@ const default_defaults = {
     wall_alt : tiles.ID.WALL2,
 };
 
-function generate_empty_world(name, width, height, defaults = default_defaults){
+const tileChoices = [
+    tiles.ID.LVL1A, 
+    tiles.ID.LVL1B, 
+    tiles.ID.LVL2A, 
+    tiles.ID.LVL2B, 
+    tiles.ID.LVL3A, 
+    tiles.ID.LVL3B, 
+    tiles.ID.LVL4A, 
+    tiles.ID.LVL4B, 
+];
+
+const wallChoices = [
+    tiles.ID.WALL1A,
+    tiles.ID.WALL1B, 
+    tiles.ID.WALL2A, 
+    tiles.ID.WALL2B, 
+    tiles.ID.WALL3A, 
+    tiles.ID.WALL3B, 
+    tiles.ID.WALL4A, 
+    tiles.ID.WALL4B, 
+];
+
+class DefaultsGen {
+    constructor() {}
+    get ground() {
+        return random_sample(tileChoices);
+    }
+    get ground_alt() {
+        return tiles.ID.GROUND;
+    }
+    get wall() {
+        return random_sample(wallChoices);
+    }
+    get wall_alt() {
+        return tiles.ID.WALL2;
+    }
+}
+
+const defaults_gen = new DefaultsGen();
+
+function generate_empty_world(name, width, height, defaults = defaults_gen){
 
     const floor_tile_grid = new Grid(width, height).fill(defaults.ground);
     const surface_tile_grid = new Grid(width, height);
