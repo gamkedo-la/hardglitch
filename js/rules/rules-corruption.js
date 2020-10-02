@@ -11,6 +11,7 @@ import * as concepts from "../core/concepts.js";
 import * as visibility from "../core/visibility.js";
 import * as anim from "../system/animation.js";
 import * as animation from "../game-animations.js";
+import * as audio from "../system/audio.js";
 
 import { deal_damage } from "./destruction.js";
 import { lazy_call, random_int } from "../system/utility.js";
@@ -108,6 +109,7 @@ class Corrupted extends concepts.Event {
     *animation(game_view){
         console.assert(game_view instanceof GameView);
         // TODO: add sound?
+        audio.playEvent("corruptAction");
         // TODO: add an animation here
         yield* anim.wait(1000 / 64);
     }

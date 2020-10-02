@@ -926,7 +926,7 @@ const sound_event_defs = {
         source_name: 'destableShot',
         group_name: 'SoundEffects',
         loop: false,
-        volume: 1,
+        volume: 0.8,
         unique: false,
     },
 
@@ -935,7 +935,7 @@ const sound_event_defs = {
         source_name: 'destableScan',
         group_name: 'SoundEffects',
         loop: false,
-        volume: 1,
+        volume: 0.9,
         unique: false,
     },    
 
@@ -944,7 +944,7 @@ const sound_event_defs = {
         source_name: 'corrupt',
         group_name: 'SoundEffects',
         loop: false,
-        volume: 1,
+        volume: 0.2,
         unique: false,
     },
 

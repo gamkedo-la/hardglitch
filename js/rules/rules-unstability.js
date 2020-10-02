@@ -11,6 +11,7 @@ import * as concepts from "../core/concepts.js";
 import * as visibility from "../core/visibility.js";
 import * as anim from "../system/animation.js";
 import * as animation from "../game-animations.js";
+import * as audio from "../system/audio.js";
 
 import { lazy_call, position_from_index } from "../system/utility.js";
 import { grid_ID } from "../definitions-world.js";
@@ -21,6 +22,7 @@ import { actions_for_each_target } from "./rules-common.js";
 import { GameView } from "../game-view.js";
 import { graphic_position, square_half_unit_vector } from "../view/entity-view.js";
 import { random_jump } from "./rules-movement.js";
+import { audiobuffer_loader } from "../system/assets.js";
 
 const unstable_ap_cost = 10;
 
@@ -58,6 +60,7 @@ class UnstabilitySpawned extends concepts.Event {
         // TODO: consider adding a spawining effet just for now.
         this.unstability.fx = game_view.fx_view.unstable(target_gfx_pos);
         // TODO: add sound?
+        audio.playEvent("destabilizeScan");
         yield* anim.wait(1000 / 64);
     }
 };
@@ -104,7 +107,8 @@ class Destabilized extends concepts.Event {
 
     *animation(game_view){
         console.assert(game_view instanceof GameView);
-        // TODO: add sound?
+        // TODO: add sound
+        audio.playEvent("destabilizeShot");
         // TODO: add an animation here
         yield* anim.wait(1000 / 64);
     }
