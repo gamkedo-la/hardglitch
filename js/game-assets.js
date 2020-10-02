@@ -85,7 +85,7 @@ const game_assets = { // Description of the assets to load.
     audio_buffers: { // Short audio assets held in memory. No hard limit on duplicates/overlaps.
         asset_loader: asset_system.audiobuffer_loader,
         test: './audio/test.mp3',
-        newCycle: './audio/NewCycle2.mp3',
+        newCycle: './audio/NewCycle3.mp3',
         click: './audio/Click.mp3',
         delete: './audio/Delete3.mp3',
         destroy: './audio/Destroy.mp3',
