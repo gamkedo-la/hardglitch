@@ -638,7 +638,7 @@ const sound_event_defs = {
         source_name: 'newCycle',
         group_name: 'SoundEffects',
         loop: false,
-        volume: 1,
+        volume: 0.2,
         unique: false,
     },
 
