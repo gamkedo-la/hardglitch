@@ -7,6 +7,7 @@ import * as concepts from "../core/concepts.js";
 import * as tiles from "../definitions-tiles.js";
 import { valid_spawn_positions } from "../core/visibility.js";
 import { GameView } from "../game-view.js";
+import * as anim from "../game-animations.js";
 
 
 class EntitySpawned extends concepts.Event {
@@ -28,8 +29,7 @@ class EntitySpawned extends concepts.Event {
         console.log("=-=-=-=- spawned animation");
         console.assert(game_view instanceof GameView);
         game_view.focus_on_position(this.spawn_position);
-        const fx_pos = this.spawn_position;
-        yield* anim.spawn(game_view.fx_view, fx_pos);
+        yield* anim.spawned(game_view.fx_view, this.spawn_position);
         const entity_view = game_view.add_entity_view(this.entity_id); // TODO: add some FX and sounds?
         entity_view.game_position = this.spawn_position;
     }

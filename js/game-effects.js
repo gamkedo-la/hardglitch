@@ -766,7 +766,7 @@ class GameFxView {
                 scanTrail: 4,
                 ttl: 1.25,
                 scanDir: dir,
-                lineColor: new Color(200,0,0),
+                lineColor: new Color(0,200,0),
             }
             let p = new ScanLineParticle(spec);
             this.particleSystem.add(p);

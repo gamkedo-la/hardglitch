@@ -362,9 +362,9 @@ function* pushed(fx_view, entity_view, to_position){
 
 const pulled = pushed;
 
-function* spawned(fx_view, fx_pos){
+function* spawned(fx_view, game_pos){
     console.assert(fx_view instanceof GameFxView);
-    console.assert(fx_pos instanceof Position);
+    let fx_pos = graphic_position(game_pos).translate(square_half_unit_vector);
     let fx = fx_view.spawn(fx_pos);
     console.log("fx_pos: " + fx_pos);
     yield* animation.wait(1200);
