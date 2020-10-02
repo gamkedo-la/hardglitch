@@ -9,6 +9,7 @@ import { Corrupt } from "./rules/rules-corruption.js";
 import { Destabilize } from "./rules/rules-unstability.js";
 import { Jump, RandomJump, Swap } from "./rules/rules-movement.js";
 import { Repair } from "./rules/rules-repair.js";
+import { Copy } from "./rules/rules-copy.js";
 import { Range_Cross_Diagonal } from "./core/visibility.js";
 
 class SmallerJump extends Jump {
@@ -31,6 +32,7 @@ const all_uncommon_action_types = { // Action types which are not by default (li
     Repair,
     Corrupt,
     Destabilize,
+    Copy,
 };
 
 
