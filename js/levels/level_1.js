@@ -18,7 +18,7 @@ const defaults = {
 
 const startup_rooms = {
     jump : {
-        name: "",
+        name: "Start Room: Jump",
         width: 8,
         height: 16,
         grids: {
@@ -35,7 +35,7 @@ const startup_rooms = {
         ],
       },
     push_pull : {
-        name: "Level 1: Buggy Program",
+        name: "Start Room: Push & Pull",
         width: 10,
         height: 18,
         grids: {
@@ -52,6 +52,32 @@ const startup_rooms = {
           { type: "CryptoFile_Plus", position: { x: 4, y: 7 }, drops: [ "Item_Push" ] },
         ],
       },
+    swap : {
+        name: "Start Room: Swap",
+        width: 10,
+        height: 18,
+        grids: {
+          floor : [120,120,120,120,120,120,120,120,120,120,120,10,100,100,100,100,100,100,100,120,120,100,100,100,100,100,100,10,100,120,120,100,120,120,120,120,120,120,100,120,120,100,100,100,100,100,100,100,10,120,120,120,100,100,100,10,100,100,120,120,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,100,100,10,10,30,30,30,30,30,30,120,10,120,100,30,30,30,30,30,30,100,10,120,100,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,120,10,100,100,100,100,10,100,100,120,120,10,100,100,10,100,100,100,100,120,120,100,100,100,100,100,120,100,120,120,120,10,10,100,10,10,120,100,100,100,120,120,120,120,120,120,120,120,10,10],
+          surface : [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,0,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,1],
+          corruption : [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+          unstable : [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+        },
+        entities: [
+          { type: "GlitchyGlitchMacGlitchy", position: { x: 4, y: 9 } },
+          { type: "LifeForm_Weak", position: { x: 5, y: 5 } },
+          { type: "CryptoFile_Equal", position: { x: 8, y: 16 } },
+          { type: "MovableWall", position: { x: 8, y: 13 } },
+          { type: "MovableWall", position: { x: 7, y: 13 } },
+          { type: "MovableWall", position: { x: 6, y: 13 } },
+          { type: "MovableWall", position: { x: 5, y: 13 } },
+          { type: "MovableWall", position: { x: 4, y: 13 } },
+          { type: "MovableWall", position: { x: 3, y: 13 } },
+          { type: "MovableWall", position: { x: 2, y: 13 } },
+          { type: "MovableWall", position: { x: 1, y: 13 } },
+          { type: "Item_Swap", position: { x: 6, y: 10 } },
+          { type: "CryptoKey_Equal", position: { x: 4, y: 2 } },
+        ],
+      }
 };
 
 function generate_world(){
@@ -61,7 +87,7 @@ function generate_world(){
 
 
     const level_desc = random_sample(Object.values(startup_rooms));
-    level_desc.name = "Level 1: Buggy Program";
 
+    level_desc.name = "Level 1: Buggy Program";
     return deserialize_world(random_variation(level_desc));
 }

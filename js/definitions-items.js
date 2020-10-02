@@ -16,6 +16,7 @@ export {
     Item_JumpOpCode,
     Item_Push,
     Item_Pull,
+    Item_Swap,
     MovableWall,
 
     all_crypto_file_types,
@@ -27,7 +28,7 @@ import * as concepts from "./core/concepts.js";
 import { sprite_defs } from "./game-assets.js";
 import { all_uncommon_action_types } from "./definitions-actions.js";
 import { random_sample } from "./system/utility.js";
-import { Jump } from "./rules/rules-movement.js";
+import { Jump, Swap } from "./rules/rules-movement.js";
 import { Pull, Push } from "./rules/rules-forces.js";
 
 function all_crypto_file_types() {
@@ -78,6 +79,7 @@ function all_item_types(){
         Item_JumpOpCode,
         Item_Push,
         Item_Pull,
+        Item_Swap,
         MovableWall,
 
         ...all_debug_item_types(),
@@ -280,6 +282,24 @@ class Item_Pull extends concepts.Item {
 
 }
 
+class Item_Swap extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_1,
+        }}
+    };
+
+    get can_be_taken() { return true; }
+
+    constructor(){
+        super("Hexchanger");
+    }
+
+    get_enabled_action_types(){
+        return [ Swap ];
+    }
+
+}
 
 ///////////////////////////////////////////////////////////////////////////
 // DEBUG ITEMS
