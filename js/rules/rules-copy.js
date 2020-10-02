@@ -11,10 +11,31 @@ import * as visibility from "../core/visibility.js";
 import { sprite_defs } from "../game-assets.js";
 import { ranged_actions_for_each_target } from "./rules-common.js";
 import { EntitySpawned, spawn_entities_around } from "./spawn.js";
+import { GameView } from "../game-view.js";
+import * as anim from "../game-animations.js";
 
 const copy_ap_cost = 20;
 
 class Copied extends EntitySpawned {}; // Shortcut for now...
+
+class EntityScanned extends concepts.Event {
+    constructor(entity) {
+        console.assert(entity instanceof concepts.Entity);
+        super({
+            description: `Entity scanned`,
+            allow_parallel_animation: false,
+        });
+        this.entity_position = entity.position;
+    }
+
+    get focus_positions() { return [ this.entity_position ]; }
+
+    *animation(game_view){
+        console.assert(game_view instanceof GameView);
+        game_view.focus_on_position(this.entity_position);
+        yield* anim.scanned(game_view.fx_view, this.entity_position);
+    }
+};
 
 class Copy extends concepts.Action {
     icon_def = sprite_defs.icon_action_merge;
@@ -40,7 +61,8 @@ class Copy extends concepts.Action {
         // nor does it imply copying it's state.
         // What we want, exactly, is to copy the kind of entity it is.
         const entity_copy = new copied_entity.constructor(); // Warning: This only works because we know that the different Items and Characters types can be built from no parametters.
-        return spawn_entities_around(world, this.target_position, [ entity_copy ]);
+        const events = [new EntityScanned(copied_entity)];
+        return events.concat(spawn_entities_around(world, this.target_position, [ entity_copy ]));
     }
 };
 

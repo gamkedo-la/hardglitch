@@ -737,7 +737,7 @@ class GameFxView {
 
     scan(position){
         let fx = new GameFx(position);
-        // combo lock rings
+        // scan line directions
         for (const dir of [ScanLineParticle.right, ScanLineParticle.left]) {
             let spec = {
                 x: position.x,
@@ -757,7 +757,7 @@ class GameFxView {
 
     spawn(position){
         let fx = new GameFx(position);
-        // combo lock rings
+        // scan line directions
         for (const dir of [ScanLineParticle.right, ScanLineParticle.left, ScanLineParticle.up, ScanLineParticle.down]) {
             let spec = {
                 x: position.x,

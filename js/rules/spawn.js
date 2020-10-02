@@ -26,7 +26,6 @@ class EntitySpawned extends concepts.Event {
     get focus_positions() { return [ this.spawn_position ]; }
 
     *animation(game_view){
-        console.log("=-=-=-=- spawned animation");
         console.assert(game_view instanceof GameView);
         game_view.focus_on_position(this.spawn_position);
         yield* anim.spawned(game_view.fx_view, this.spawn_position);
