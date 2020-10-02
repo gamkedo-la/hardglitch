@@ -367,6 +367,7 @@ function* scanned(fx_view, game_pos){
     console.assert(fx_view instanceof GameFxView);
     let fx_pos = graphic_position(game_pos).translate(square_half_unit_vector);
     let fx = fx_view.scan(fx_pos);
+    audio.playEvent('scanAnim');
     yield* animation.wait(700);
 }
 
@@ -374,6 +375,7 @@ function* spawned(fx_view, game_pos){
     console.assert(fx_view instanceof GameFxView);
     let fx_pos = graphic_position(game_pos).translate(square_half_unit_vector);
     let fx = fx_view.spawn(fx_pos);
+    audio.playEvent('spawnAnim');
     yield* animation.wait(1200);
 }
 
