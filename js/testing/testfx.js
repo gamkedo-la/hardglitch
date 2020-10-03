@@ -1,28 +1,5 @@
-import { 
-    ParticleSystem, 
-    ParticleEmitter, 
-    ParticleSequence, 
-    FadeLineParticle, 
-    ColorGlitchParticle, 
-    OffsetGlitchParticle, 
-    FadeParticle, 
-    BlipParticle, 
-    ParticleGroup, 
-    SwirlPrefab, 
-    RingParticle, 
-    ShootUpParticle, 
-    FlashParticle,
-    ThrobParticle,
-    LightningParticle,
-    ColorOffsetGlitchParticle,
-    TraceParticle,
-    TraceArcParticle,
-    ComboLockParticle,
-    ScanLineParticle,
-} from "../system/particles.js";
+import { ParticleSystem } from "../system/particles.js";
 import { GameFxView } from "../game-effects.js";
-import { random_int, random_float } from "../system/utility.js";
-import { Color } from "../system/color.js";
 import { initialize as graphicsInit, TileGrid} from "../system/graphics.js";
 import { load_all_assets } from "../game-assets.js";
 import * as tiledefs from "../definitions-tiles.js";
@@ -40,61 +17,8 @@ class Env {
         this.FPS = 30;
         this.INTERVAL = 1000 / this.FPS; // milliseconds
         this.STEP = this.INTERVAL / 1000 // second
-        /*
-        this.bgimg;
-        // setup environment
-        this.particles = new ParticleSystem();
-        this.particles.alwaysActive = true;
-        this.tests = new Tests(this.particles);
-        this.gfx = new GameFxView();
-        this.gfx.particleSystem.alwaysActive = true;
-
-        //this.tests.blipfade(100,300);
-        this.tests.fade(200,300);
-        this.tests.linefade(300,300);
-        this.tests.offsetglitch(400,300);
-        this.tests.colorglitch(400,300);
-        this.tests.swirl(500,300);
-        this.tests.rings(600,300);
-        this.tests.shootup(700,300);
-        this.tests.flash(800,300);
-        this.tests.combo(900,300);
-        this.tests.missile(1000,300);
-        this.tests.lightningorb(200,400);
-        this.tests.lightningstrike(200,500);
-        this.tests.colorshift(400, 400);
-        this.tests.trace(500, 400);
-        this.tests.traceArc(500, 500);
-        this.tests.combolock(600, 400);
-        this.tests.scan(900, 500, 1);
-        this.tests.scan(900, 500, 2);
-        this.tests.scan(900, 500, 3);
-        this.tests.scan(900, 500, 4);
-
-        for (const fx of [
-            this.gfx.destruction({x:500,y:400}),
-            this.gfx.damage({x:600,y:400}),
-            this.gfx.lightningJump({x:500,y:500}, {x:600,y:600}),
-            //this.gfx.unstable({x:400+32,y:400-64}),
-            this.gfx.repair({x:700,y:400}),
-            this.gfx.drop({x:800,y:400}),
-            this.gfx.jump_up({x:900,y:400}),
-            this.gfx.wait({x:200,y:500}, 700),
-            this.gfx.action({x:300,y:500}),
-            //this.gfx.corrupt({x:400+32,y:400-64}),
-            //this.gfx.corrupt({x:368+32+64*1,y:336+32}),
-            //this.gfx.unstable({x:368+32,y:336+32}),
-            this.gfx.unlockTriangle({x:700,y:400}, 3),
-            this.gfx.unlockPlus({x:800,y:400}, 3),
-            this.gfx.unlockEqual({x:900,y:400}, 3),
-            this.gfx.unlockCircle({x:700,y:500}, 3),
-            this.gfx.scan({x:800,y:500}, 3),
-            this.gfx.spawn({x:800,y:600}, 3),
-        ]) {
-            setTimeout(() => {fx.done = true;}, 5000);
-        }
-        */
-
+        this.fxInterval = 2000;
+        this.fxTTL = 0;
     }
 
     genGrid() {
@@ -136,29 +60,88 @@ class Env {
         this.seam_tile_grid = new TileGrid(position, tileGridSize, 32, shape_defs, seam_grid.elements);
     }
 
+    runFx() {
+        // only run in one grid at a time;
+        this.runFxForGrid(this.gidx);
+        this.gidx++;
+        if (this.gidx >= 8) this.gidx = 0;
+    }
+
+    runFxForGrid(idx) {
+        let fxidx = 0;
+        let gsize = 64*5;
+        let tilesize = 64;
+        let x, y;
+        let target = {x:(idx%4)*gsize+32, y:Math.floor((idx)/4)*gsize+32};
+        let posFcn = () => {
+            // base x,y from grid index
+            x = (idx%4)*gsize;
+            y = Math.floor((idx)/4)*gsize;
+            // offset for given fxidx
+            x += (fxidx%5)*tilesize;
+            y += Math.floor((fxidx)/5)*tilesize;
+            // middle
+            x += 32;
+            y += 32;
+            // advance fx idx
+            fxidx++;
+            return {x:x, y:y};
+        }
+        let p;
+        for (const fx of [
+            this.gfx.destruction(posFcn()),
+            this.gfx.damage(posFcn()),
+            this.gfx.missile(posFcn()),
+            this.gfx.deleteBall(posFcn()),
+            this.gfx.exitPortal(posFcn()),
+            this.gfx.lightningJump(posFcn(), target),
+            this.gfx.unstable(posFcn(), this.ctx),
+            this.gfx.corrupt(posFcn(), this.ctx),
+            this.gfx.repair(posFcn()),
+            this.gfx.drop(posFcn()),
+            this.gfx.take(posFcn()),
+            this.gfx.jump_up(posFcn()),
+            this.gfx.jump_down(posFcn()),
+            this.gfx.pushed(p=posFcn(), {x:p.x+64, y:p.y}),
+            this.gfx.move(p=posFcn()),
+            this.gfx.wait(p=posFcn(), 2000),
+            this.gfx.unlockCircle(p=posFcn(), 2),
+            this.gfx.scan(p=posFcn()),
+            this.gfx.spawn(p=posFcn()),
+        ]) {
+            setTimeout(() => {fx.done = true;}, this.fxInterval);
+        }
+    }
+
     loop() {
         const now = Date.now();
         const delta_time = Math.min(100,now - last_update_time);
         last_update_time = now;
+        // fx run
+        this.fxTTL -= delta_time;
+        if (this.fxTTL <= 0) {
+            this.runFx();
+            this.fxTTL = this.fxInterval;
+        }
+        // draw/updates
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.floor_tile_grid.draw(this.ctx, () => true);
-        /*
-        this.ctx.drawImage(this.bgimg, 368, 236);
-        this.ctx.drawImage(this.groundimg, 368, 336);
-        this.ctx.drawImage(this.groundimg, 368-64, 336);
-        this.ctx.drawImage(this.groundimg, 368+64, 336);
         // run particle system update
         this.particles.update(delta_time);
         this.particles.draw(this.ctx);
         this.gfx.update(delta_time);
         this.gfx.draw(this.ctx);
-        */
 
     }
 
     setup() {
         const grid = this.genGrid();
         this.genSubGrid(grid);
+        this.particles = new ParticleSystem();
+        this.particles.alwaysActive = true;
+        this.gfx = new GameFxView();
+        this.gfx.particleSystem.alwaysActive = true;
+        this.gidx = 0;
         return new Promise((resolve) => {
             resolve();
         });
