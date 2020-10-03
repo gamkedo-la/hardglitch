@@ -85,7 +85,7 @@ const game_assets = { // Description of the assets to load.
     audio_buffers: { // Short audio assets held in memory. No hard limit on duplicates/overlaps.
         asset_loader: asset_system.audiobuffer_loader,
         test: './audio/test.mp3',
-        newCycle: './audio/NewCycle.mp3',
+        newCycle: './audio/NewCycle4.mp3',
         click: './audio/Click.mp3',
         delete: './audio/Delete3.mp3',
         destroy: './audio/Destroy.mp3',
@@ -116,6 +116,11 @@ const game_assets = { // Description of the assets to load.
         shaker: './audio/Shake_ShakeRev.mp3',
         shakes: './audio/Shake_ShakeSparkle.mp3',
         dissolver: './audio/DissolveItem_Rev.mp3',
+        destableShot: './audio/DestabilizeShot.mp3',
+        destableScan: './audio/DestabilizeScanner.mp3',
+        corrupt: './audio/Corrupt.mp3',
+        spawn: './audio/Spawn.mp3',
+        scan: './audio/Scan.mp3',
     },
 
     audio_streams: { // Longer audio assets streamed from disk/server. Currently limited to one unique event per audio source.
@@ -633,7 +638,7 @@ const sound_event_defs = {
         source_name: 'newCycle',
         group_name: 'SoundEffects',
         loop: false,
-        volume: 1,
+        volume: 0.8,
         unique: false,
     },
 
@@ -910,6 +915,51 @@ const sound_event_defs = {
     'dissolveRev': {
         source_type: 'audiobuffer',
         source_name: 'dissolver',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
+    'destabilizeShot': {
+        source_type: 'audiobuffer',
+        source_name: 'destableShot',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 0.8,
+        unique: false,
+    },
+
+    'destabilizeScan': {
+        source_type: 'audiobuffer',
+        source_name: 'destableScan',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 0.9,
+        unique: false,
+    },    
+
+    'corruptAction': {
+        source_type: 'audiobuffer',
+        source_name: 'corrupt',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 0.2,
+        unique: false,
+    },
+
+    'spawnAnim': {
+        source_type: 'audiobuffer',
+        source_name: 'spawn',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
+    'scanAnim': {
+        source_type: 'audiobuffer',
+        source_name: 'scan',
         group_name: 'SoundEffects',
         loop: false,
         volume: 1,

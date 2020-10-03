@@ -11,6 +11,7 @@ import * as concepts from "../core/concepts.js";
 import * as visibility from "../core/visibility.js";
 import * as anim from "../system/animation.js";
 import * as animation from "../game-animations.js";
+import * as audio from "../system/audio.js";
 
 import { deal_damage } from "./destruction.js";
 import { lazy_call, random_int } from "../system/utility.js";
@@ -92,6 +93,27 @@ class CorruptionVanished extends concepts.Event {
 
 };
 
+class Corrupted extends concepts.Event {
+    constructor(position, from){
+        super({
+            allow_parallel_animation: false,
+            description: `Corrupted ${JSON.stringify(position)}`,
+        })
+        this.position = new concepts.Position(position);
+        this.from = from;
+    }
+
+    get is_world_event() { return false; }
+    get focus_positions() { return [ this.position, this.from ]; }
+
+    *animation(game_view){
+        console.assert(game_view instanceof GameView);
+        // TODO: add sound?
+        audio.playEvent("corruptAction");
+        // TODO: add an animation here
+        yield* anim.wait(1000 / 64);
+    }
+};
 
 class Corrupt extends concepts.Action {
     icon_def = sprite_defs.icon_action_corrupt;
@@ -111,7 +133,10 @@ class Corrupt extends concepts.Action {
         console.assert(!(corruption_grid.get_at(this.target_position) instanceof Corruption));
         const corruption = new Corruption();
         corruption_grid.set_at(corruption, this.target_position);
-        return [ new CorruptionSpawned(this.target_position, corruption, character.position) ];
+        return [
+            new Corrupted(this.target_position, character.position),
+            new CorruptionSpawned(this.target_position, corruption, character.position),
+        ];
     }
 };
 
