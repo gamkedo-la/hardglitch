@@ -186,8 +186,8 @@ class EditPaletteButton extends ui.Button {
             sprite_def: sprite_defs.button_select_action,
             action: ()=> { this.on_selected(); },
             sounds:{
-                over: 'actionSelect',
-                down: 'actionClick',
+                over: 'EditorButtonHover',
+                down: 'EditorButtonClick',
             }
         });
 

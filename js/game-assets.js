@@ -121,11 +121,13 @@ const game_assets = { // Description of the assets to load.
         corrupt: './audio/Corrupt.mp3',
         spawn: './audio/Spawn.mp3',
         scan: './audio/Scan.mp3',
+        eButtonHover: './audio/EditorButtonHover.mp3',
+        eButtonClick: './audio/EditorButtonClick.mp3',
     },
 
     audio_streams: { // Longer audio assets streamed from disk/server. Currently limited to one unique event per audio source.
         asset_loader: asset_system.audiostream_loader,
-        test: './audio/test.mp3',
+        testMusic: './audio/test.mp3',
         glitchlife: './audio/music/HardGlitch_GlitchyLife.mp3',
         radream: './audio/music/HardGlitch_RandomAccessDream_Loop.mp3',
         breakdown: './audio/music/HardGlitchBreakdown.mp3',
@@ -960,6 +962,24 @@ const sound_event_defs = {
     'scanAnim': {
         source_type: 'audiobuffer',
         source_name: 'scan',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
+    'EditorButtonHover': {
+        source_type: 'audiobuffer',
+        source_name: 'eButtonHover',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 1,
+        unique: false,
+    },
+
+    'EditorButtonClick': {
+        source_type: 'audiobuffer',
+        source_name: 'eButtonClick',
         group_name: 'SoundEffects',
         loop: false,
         volume: 1,
