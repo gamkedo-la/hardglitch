@@ -13,6 +13,7 @@ import * as graphics from "./system/graphics.js";
 import * as ui from "./system/ui.js";
 import { sprite_defs } from "./game-assets.js";
 import * as concepts from "./core/concepts.js";
+import * as texts from "./definitions-texts.js";
 import { play_action, mouse_grid_position, KEY } from "./game-input.js";
 import { keyboard, mouse, MOUSE_BUTTON } from "./system/input.js";
 import { Vector2, center_in_rectangle, Rectangle } from "./system/spatial.js";
@@ -465,7 +466,7 @@ class GameInterface {
             const action_range = first_action.range;
             console.assert(first_action instanceof concepts.Action);
             const key_name = key_number <= 10 ? `${key_number === 0 ? "SPACE" : (key_number === 10 ? 0 : key_number) }` : "";
-            const action_description = `Action: ${action_name}\n${first_action.description}`;
+            const action_description = texts.action_description(first_action);
             const action_button = new ActionButton(position, first_action.icon_def, action_name, key_name, action_description,
                 (clicked_button)=>{ // on clicked
                     if(actions.length == 1 && first_action.target_position === undefined){ // No need for targets

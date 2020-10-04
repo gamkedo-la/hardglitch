@@ -1,6 +1,12 @@
 // Put here general texts used in the game.
 // Export the texts so that we can use them in the rest of the code.
 
+import * as concepts from "./core/concepts.js";
+
+export {
+    item_description,
+    action_description,
+}
 
 export const help_info = `How To Play in 5 points:
 1. Your Goal: FIND and REACH THE EXIT of the level.
@@ -28,4 +34,38 @@ item slot to disable it's powers.
 `,
 };
 
+function action_description(action){ // TODO : also clarify the range.
+    console.assert(action instanceof concepts.Action);
 
+    return `Action: ${action.constructor.action_type_name}
+Costs: ${action.costs.action_points} AP
+
+${action.constructor.action_type_description}
+`
+}
+
+function stats_modifiers_description(modifiers){
+    if(!modifiers)
+        return "";
+
+    console.assert(modifiers instanceof Object);
+    return "INSERT MODIFIERS HERE";
+}
+
+function item_description(item){
+    console.assert(item instanceof concepts.Item);
+
+    const item_effects_here = stats_modifiers_description(item.stats_modifiers);
+    const item_actions_names = item.get_enabled_actions_names().map(action_name=>{
+
+    });
+
+    const description_text = `${item.name}
+
+${item.description}
+${item_actions_names}
+${item_effects_here}
+`;
+
+    return description_text;
+}

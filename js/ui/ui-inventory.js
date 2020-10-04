@@ -43,7 +43,7 @@ class ItemSlot {
         this._fx_view = fx_view;
         const sprite_def = is_active ? sprite_defs.item_active_slot : sprite_defs.item_slot;
         this._sprite = new graphics.Sprite(sprite_def);
-        this._item = null;
+        this._item_view = null;
 
         this._help_text = new HelpText({
             text: slot_text(is_active),
@@ -63,12 +63,12 @@ class ItemSlot {
     }
 
     update(delta_time){
-        console.assert(!this._item || this._item._item_slot === this);
+        console.assert(!this._item_view || this._item_view._item_slot === this);
         this._sprite.update(delta_time);
         this._help_text.update(delta_time);
-        if(this._item){
-            console.assert(this._item instanceof ItemView);
-            this._item.update(delta_time);
+        if(this._item_view){
+            console.assert(this._item_view instanceof ItemView);
+            this._item_view.update(delta_time);
         }
     }
 
@@ -79,9 +79,9 @@ class ItemSlot {
     }
 
     draw_item(canvas_context){
-        if(this._item){
-            console.assert(this._item instanceof ItemView);
-            this._item.render_graphics(canvas_context);
+        if(this._item_view){
+            console.assert(this._item_view instanceof ItemView);
+            this._item_view.render_graphics(canvas_context);
         }
     }
 
@@ -95,16 +95,16 @@ class ItemSlot {
     }
     get size() { return this._sprite.size; }
 
-    get item() { return this._item; }
+    get item() { return this._item_view; }
 
 
     set_item(new_item){
-        console.assert(this._item === null);
+        console.assert(this._item_view === null);
         console.assert(new_item instanceof ItemView);
         console.assert(typeof new_item.name === "string");
-        this._item = new_item;
-        this._item._item_slot = this;
-        this._item.is_visible = true;
+        this._item_view = new_item;
+        this._item_view._item_slot = this;
+        this._item_view.is_visible = true;
         this._help_text.text = new_item.name;
         this._update_item_position();
         this._start_fx();
@@ -112,11 +112,11 @@ class ItemSlot {
 
     remove_item(){
         this._stop_fx();
-        const item = this._item;
+        const item = this._item_view;
         if(item){
             delete item._item_slot;
         }
-        this._item = null;
+        this._item_view = null;
         this._help_text.text = slot_text(this.is_active);
         return item;
     }
@@ -136,16 +136,20 @@ class ItemSlot {
     }
 
     _update_item_position(){
-        if(!this._item)
+        if(!this._item_view)
             return;
 
-        console.assert(this._item instanceof ItemView);
-        this._item.position = spatial.center_in_rectangle(this._item.area, this._sprite.area).position;
+        console.assert(this._item_view instanceof ItemView);
+        this._item_view.position = spatial.center_in_rectangle(this._item_view.area, this._sprite.area).position;
     }
 
     _show_info(){
-        if(this._item != undefined){
-            show_info("ADD ITEM DESCRIPTION HERE");
+        if(this._item_view != undefined){
+            if(this.is_active){
+                show_info(`Active Item: ${this._item_view.description}`);
+            } else {
+                show_info(`Item: ${this._item_view.description}`);
+            }
         } else {
             if(this.is_active){
                 show_info(texts.inventory.empty_active_slot);

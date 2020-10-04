@@ -51,7 +51,8 @@ class Action {
         this.costs = costs;                 // Description of the costs for this action.
     }
 
-    description = "This Action does not have a\ndescription yet!\nPlease help me by giving me\na description!";
+    static get action_type_name() { return "MISSING ACTION TYPE NAME" };
+    static get action_type_description() { return "MISSING ACTION TYPE DESCRIPTION" };
 
     // Apply the action, transform the world.
     // Must return events corresponding to what happened.
@@ -238,6 +239,13 @@ class Item extends Entity {
     // Must return an array of types inheriting from the provided Action type.
     get_enabled_action_types() {
         return [];
+    }
+
+    // Returns a sequence of names of the different actions enabled by this item.
+    get_enabled_actions_names() {
+        return this.get_enabled_action_types()
+                   .map(action_type => action_type.action_type_name)
+                   ;
     }
 
 };
