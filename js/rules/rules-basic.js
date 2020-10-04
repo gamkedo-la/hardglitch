@@ -2,7 +2,7 @@ import * as concepts from "../core/concepts.js";
 import * as tiles from "../definitions-tiles.js";
 import { sprite_defs } from "../game-assets.js";
 
-import * as editor from "../editor.js";
+import * as editor from "../editor.js"; // FIXME: removing this unused import will trigger a dependency cycle error????
 import { CharacterView } from "../view/character-view.js";
 import { GameView } from "../game-view.js";
 import { Character } from "../core/character.js";
@@ -100,8 +100,9 @@ class GameOver extends concepts.Event {
     get focus_positions() { return []; }
     get is_world_event() { return true; }
 
-    *animation(){ // TEMPORARY ANIMATION
-        editor.set_central_text("GAME OVER! - PRESS ANY KEY");
+    *animation(game_view){
+        console.assert(game_view instanceof GameView);
+        game_view.show_central_message("  GAME OVER!\nPRESS ANY KEY");
         while(true) yield;
     }
 }
@@ -150,7 +151,7 @@ class PlayerExitLevel extends concepts.Event {
         const character_view = game_view.focus_on_entity(this.character_id);
         console.assert(character_view instanceof CharacterView);
 
-        editor.set_central_text("YOU FOUND THE EXIT BUS! - PRESS ANY KEY");
+        game_view.show_central_message("YOU FOUND AN EXIT!\n     PRESS ANY KEY");
         game_view.clear_focus();
         let ready_to_exit = false;
         game_view.center_on_position(character_view.game_position, 500).then(()=> ready_to_exit = true );

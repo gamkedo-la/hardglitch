@@ -234,22 +234,21 @@ class GameView {
         this._time_since_beginning_turn_message = 0;
         this._need_show_player_turn = true;
 
-        this._goal_message = new ui.Text({
+        this._central_message = new ui.Text({
             text: goal_message,
             font: "50px ZingDiddlyDooZapped",
             background_color: "#000000a0",
             color: "white",
             enabled: true,
         });
-        this._goal_message.position = graphics.centered_rectangle_in_screen(this._goal_message).position
-                                                .translate({ y: 120 });
 
-        // Display the goal message and disappear.
-        const goal_display_duration_ms = 6000;
-        this.current_animations.play(anim.wait(goal_display_duration_ms)).then(()=> this._goal_message.enabled = false);
 
         this.reset();
         this._start_player_turn();
+
+        // Display the goal message and disappear.
+        const goal_display_duration_ms = 6000;
+        this.show_central_message(goal_message, goal_display_duration_ms);
     }
 
     interpret_turn_events(event_sequence) {
@@ -457,8 +456,7 @@ class GameView {
 
         this._update_turn_message(delta_time);
 
-        if(this._goal_message.enabled)
-            this._goal_message.update(delta_time);
+        this._central_message.update(delta_time);
     }
 
     _update_turn_message(delta_time){
@@ -807,8 +805,8 @@ class GameView {
 
 
         graphics.camera.begin_in_screen_rendering();
-        if(this._goal_message.enabled)
-            this._goal_message.draw(graphics.screen_canvas_context);
+        if(this._central_message.enabled)
+            this._central_message.draw(graphics.screen_canvas_context);
         graphics.camera.end_in_screen_rendering();
     }
 
@@ -913,6 +911,15 @@ class GameView {
         this.ui.on_canvas_resized();
         this.notify_edition();
         this.center_on_player();
+
+        this._relocate_goal_text();
+    }
+
+    _relocate_goal_text(){
+        this._central_message._reset(graphics.screen_canvas_context); // To make sure it's always at the right position.
+        this._central_message.position = graphics.centered_rectangle_in_screen(this._central_message)
+                                                .position
+                                                .translate({ y: 120 });
     }
 
     _reset_tilegrid(world){
@@ -1012,6 +1019,15 @@ class GameView {
             this._current_camera_animation_promise = undefined;
         });
         return this._current_camera_animation_promise;
+    }
+
+    show_central_message(text, duration_ms = 0){
+        this._central_message.enabled = true;
+        this._central_message.text = text;
+        this._relocate_goal_text();
+        if(duration_ms > 0)
+            this.current_animations.play(anim.wait(duration_ms))
+                                    .then(()=> this._central_message.enabled = false);
     }
 
 };
