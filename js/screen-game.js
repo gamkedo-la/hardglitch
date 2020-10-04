@@ -77,7 +77,8 @@ class PlayingGame extends fsm.State{
     }
 
     display(canvas_context){
-        editor.display_debug_info(this.state_machine.game_session); // Display debug info // TODO: remove this later
+        if(editor.DEBUG_TOOLS_ENABLED)
+            editor.display_debug_info(this.state_machine.game_session); // Display debug info // TODO: remove this later
     }
 };
 

@@ -1,6 +1,7 @@
 // This file contains debug utilities for working with this game.
 
 export {
+    DEBUG_TOOLS_ENABLED,
     is_enabled, is_editing,
     set_text, set_central_text,
     update, display, update_debug_keys, display_debug_info,
@@ -26,6 +27,8 @@ import { Grid } from "./system/grid.js";
 import { all_characters_types } from "./deflinitions-characters.js";
 import { grid_ID } from "./definitions-world.js";
 import { serialize_world } from "./levels/level-tools.js";
+
+const DEBUG_TOOLS_ENABLED = false; // Change to true to use the keys defined bellow.
 
 let is_enabled = false; // TURN THIS ON TO SEE THE EDITOR, see the update() function below
 let is_editing = false; // True if we are doing an edition manipulation and no other input should be handled.
@@ -67,6 +70,8 @@ let lmb_down_frames = 0;
 
 let reused_text_line;
 
+const text_x_from_right_border = 400;
+
 function draw_text(text, position){
     if(!reused_text_line)
         reused_text_line = new ui.Text({
@@ -82,12 +87,12 @@ function draw_text(text, position){
 
 function display_mouse_position(){
 
-    let line = 100;
+    let line = Math.round(graphics.canvas_rect().height / 2);
     function next_line(){
         return line += 30;
     }
 
-    const display_x = 50;
+    const display_x = graphics.canvas_rect().width - text_x_from_right_border;
     const mouse_grid_pos = mouse_grid_position();
     const mouse_game_pos = mouse_game_position();
     draw_text(`MOUSE STATE:`, {x: display_x, y: next_line() });
@@ -283,7 +288,7 @@ class EditionPaletteUI {
 
 
         // Make sure these buttons are over all the buttons.
-        const vertical_space_between_special_buttons_and_other_buttons = 46;
+        const vertical_space_between_special_buttons_and_other_buttons = 60;
         const initial_special_buttons_position = button_palette_top_left;
         let x_special_button = 0;
         const next_special_button_position = ()=>{
@@ -297,7 +302,7 @@ class EditionPaletteUI {
         this.palette_buttons.push(this.button_remove_surface_tile, this.button_remove_entity, this.button_no_selection);
 
         // Place the help text always at the same relative position:
-        const help_text_position = initial_special_buttons_position.translate({ x: 0, y: 60 });
+        const help_text_position = initial_special_buttons_position.translate({ x: 0, y: vertical_space_between_special_buttons_and_other_buttons });
         this.palette_buttons
             .filter(button=>button)
             .forEach(palette_button => { palette_button.helptext.position = help_text_position; });
@@ -365,14 +370,16 @@ function update_world_edition(game_session, delta_time){
     }
 }
 
-const help_text_top_left = new Vector2({x: 200, y: 34 });
+function help_text_top_left(){
+    return new Vector2({x: graphics.canvas_rect().width - 600, y: 34 });
+}
 
 function display_help(game_session){
     console.assert(game_session instanceof GameSession);
 
-    const display_x = help_text_top_left.x;
+    const display_x = help_text_top_left().x;
 
-    let line = help_text_top_left.y;
+    let line = help_text_top_left().y;
     function next_line(){
         const new_value = line;
         line += 30;
@@ -423,9 +430,11 @@ function display_help(game_session){
 
 function display_editor_help(){
     const canvas_rect = graphics.canvas_rect();
-    const display_x = help_text_top_left.x;
 
-    let line = help_text_top_left.y;
+    const top_left = help_text_top_left();
+    const display_x = top_left.x;
+
+    let line = top_left.y;
     function next_line(){
         const new_value = line;
         line += 30;
@@ -466,8 +475,9 @@ function display_editor_help(){
 function display_stats_of_pointed_character(game_session){
     console.assert(game_session instanceof GameSession);
 
-    const stats_x = 50;
-    let line = 0;
+    const center = graphics.canvas_center_position();
+    const stats_x = center.x;
+    let line = center.y;
     function next_line(){
         return line += 30;
     }
@@ -525,7 +535,7 @@ function display_debug_info(game_session){
     if(is_enabled){ // Specific to editor mode.
         draw_text("---====::::  EDITOR MODE  ::::====---", {x: center.x - 200, y: 4 });
         display_editor_help();
-    } else {
+    } else if(DEBUG_TOOLS_ENABLED === true) {
         display_help(game_session);
     }
 
@@ -534,6 +544,7 @@ function display_debug_info(game_session){
 
 function display(game_session){
     display_debug_info(game_session);
+
     if(edition_palette){
         edition_palette.display(graphics.screen_canvas_context);
     }
@@ -547,6 +558,14 @@ function update_debug_keys(game_session){
     || !game_session.view.is_time_for_player_to_chose_action
     || input.mouse.is_dragging
     )
+        return;
+
+
+    if (input.keyboard.is_just_down(KEY.F4)) { // Log the state of the world (for level edition).
+        export_world(game_session.world);
+    }
+
+    if(!is_enabled && DEBUG_TOOLS_ENABLED === false) // All the keys bellow are only active if debug tools are enabled.
         return;
 
     if(input.keyboard.is_just_down(KEY.F1)){
@@ -607,9 +626,6 @@ function update_debug_keys(game_session){
         game_session.view.enable_parallel_animations = !game_session.view.enable_parallel_animations;
     }
 
-    if (input.keyboard.is_just_down(KEY.F4)) {
-        export_world(game_session.world);
-    }
 }
 
 function update(game_session, delta_time){
