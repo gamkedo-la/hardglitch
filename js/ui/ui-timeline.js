@@ -6,10 +6,12 @@ export {
 import * as graphics from "../system/graphics.js";
 import * as input from "../system/input.js";
 import * as concepts from "../core/concepts.js";
+import * as texts from "../definitions-texts.js";
 
 import { config } from "../game-config.js";
 import { Vector2, Rectangle, is_point_under } from "../system/spatial.js";
 import { CharacterView } from "../view/character-view.js";
+import { show_info } from "./ui-infobox.js";
 
 const timeline_config = {
     line_width: 16,
@@ -82,6 +84,17 @@ class Timeline
         if(this._need_refresh) {
             this._refresh(world);
         }
+
+        const pointed_slot = this.pointed_slot(input.mouse.position);
+        if(pointed_slot){
+            const character_view = this._character_views[pointed_slot.idx];
+            if(character_view instanceof CharacterView)
+                show_info(texts.ui.timeline);
+            else
+                show_info(texts.ui.new_cycle);
+        }
+
+
     }
 
     request_refresh(turn_ids_sequence){

@@ -5,9 +5,11 @@ export {
 
 import * as ui from "../system/ui.js";
 import * as graphics from "../system/graphics.js";
+import * as input from "../system/input.js";
+import * as texts from "../definitions-texts.js";
 
 import { sprite_defs } from "../game-assets.js";
-import { Vector2, Rectangle } from "../system/spatial.js";
+import { Vector2, Rectangle, is_point_under } from "../system/spatial.js";
 import { add_text_line } from "../system/utility.js";
 
 const info_box_background_style = "#111177a0";
@@ -67,6 +69,11 @@ class InfoBox {
         this._button_hide.update(delta_time);
         this._button_show.update(delta_time);
 
+        if(is_point_under(input.mouse.position, this._area)){
+            this._text = ""; // Clear the previous text.
+            show_info(texts.ui.infobox);
+        }
+
         if(this._text.length > 0){
             this._text_display.text = this._text;
             this._text = "";
@@ -75,6 +82,7 @@ class InfoBox {
             this._text_display.visible = false;
         }
         this._text_display.update(delta_time);
+
     }
 
     draw(canvas_context){

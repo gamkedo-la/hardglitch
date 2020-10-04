@@ -152,9 +152,9 @@ class ItemSlot {
             }
         } else {
             if(this.is_active){
-                show_info(texts.inventory.empty_active_slot);
+                show_info(texts.ui.empty_active_slot);
             } else {
-                show_info(texts.inventory.empty_slot);
+                show_info(texts.ui.empty_slot);
             }
         }
     }

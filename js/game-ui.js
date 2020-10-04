@@ -115,6 +115,8 @@ class CancelActionButton extends ui.Button {
             area_to_help: this.area,
             text: "Cancel",
             delay_ms: 0,
+        },{
+            on_mouse_over: ()=> { if(this.visible) show_info(texts.ui.cancel_action) },
         });
 
     }
@@ -152,6 +154,8 @@ class MuteAudioButton extends ui.Button {
             area_to_help: this.area,
             text: "Mute",
             delay_ms: 0,
+        },{
+            on_mouse_over: ()=> show_info(texts.ui.mute_button),
         });
 
         this.position = { x: 0, y: 0 };
@@ -308,6 +312,8 @@ class AutoFocusButton extends ui.Button {
             area_to_help: this.area,
             text: "Auto-Focus ([F] to focus manually)",
             delay_ms: 0,
+        },{
+            on_mouse_over: ()=> show_info(texts.ui.autofocus_button),
         });
     }
 
@@ -344,6 +350,8 @@ class MenuButton extends ui.Button {
             area_to_help: this.area,
             text: "Menu [TAB]",
             delay_ms: 0,
+        },{
+            on_mouse_over: ()=> show_info(texts.ui.menu_button),
         });
     }
 

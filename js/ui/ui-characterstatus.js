@@ -5,10 +5,12 @@ export {
 }
 
 import * as ui from "../system/ui.js";
+import * as texts from "../definitions-texts.js";
 import { invoke_on_members, set_on_members } from "../system/utility.js";
 import { Character, StatValue } from "../core/character.js";
 import { Vector2 } from "../system/spatial.js";
 import { config } from "../game-config.js";
+import { show_info } from "./ui-infobox.js";
 
 const bar_text = {
     font: "18px Verdana",
@@ -54,6 +56,9 @@ class CharacterStatus{
                 background:"#3A86FF",
             }
         });
+        this.health_bar.helptext._events = {
+            on_mouse_over: ()=> show_info(texts.ui.integrity),
+        };
 
         this.health_recovery_text = new ui.Text(Object.assign(stats_text, {
             text: "",
@@ -75,6 +80,9 @@ class CharacterStatus{
                 background:"#3A86FF",
             }
         });
+        this.action_bar.helptext._events = {
+            on_mouse_over: ()=> show_info(texts.ui.action_points),
+        };
 
         this.action_recovery_text = new ui.Text(Object.assign(stats_text, {
             text: "",
@@ -117,6 +125,14 @@ class CharacterStatus{
         this.action_recovery_text.text = text_value_per_cycle(action_recovery);
 
         invoke_on_members(this, "update", delta_time);
+
+        if(this.character_name.is_mouse_over){
+            show_info(texts.ui.character_name);
+        } else if(this.health_recovery_text.is_mouse_over){
+            show_info(texts.ui.integrity_per_cycle);
+        }else if(this.action_recovery_text.is_mouse_over){
+            show_info(texts.ui.ap_per_cycle);
+        }
     }
 
     draw(canvas_context){
