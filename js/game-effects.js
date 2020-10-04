@@ -27,7 +27,7 @@ import {
 } from "./system/particles.js";
 import { Color } from "./system/color.js";
 import { Vector2 } from "./system/spatial.js";
-import { random_int, random_float } from "./system/utility.js";
+import { random_int, random_float, random_sample } from "./system/utility.js";
 
 class GameFxView {
 
@@ -46,8 +46,10 @@ class GameFxView {
     destruction(position) {
         let particles = this.particleSystem;
         let ttl = 1.5;
-        let minHue = 130;
-        let maxHue = 200;
+        let hues = [165, 266];
+        let huev = 25;
+        let lum = 60;
+        let lumv = 10;
         let minSpeed = 25;
         let maxSpeed = 200;
         let minRadius = 50;
@@ -68,22 +70,28 @@ class GameFxView {
         particles.add(collapse);
         // creates a burst of particles at beginning of animation
         let burstEmitter = new ParticleEmitter(particles, position.x, position.y, () => {
-                let hue = random_int(minHue, maxHue);
+                let hue = random_sample(hues);
+                hue = random_int(hue-huev, hue+huev)%360;
+                let l = random_int(lum-lumv, lum+lumv);
+                let color = Color.fromHSL(hue, 100, l, random_float(.4,1));
                 let speed = random_int(minSpeed, maxSpeed);
                 let radius = random_float(minRadius,maxRadius);
                 let width = random_int(minWidth, maxWidth);
-                return new SwirlParticle(position.x, position.y, hue, speed, radius, width, collapse, ttl*.25);
+                return new SwirlParticle(position.x, position.y, color, speed, radius, width, collapse, ttl*.25);
             }, 0, 0, 0.1, pburst);
         particles.add(burstEmitter);
 
         // creates a slow stream of particles through rest of animation
         let trickleEmitter = new ParticleEmitter(particles, position.x, position.y, () => {
-                let hue = random_int(minHue, maxHue);
+                let hue = random_sample(hues);
+                hue = random_int(hue-huev, hue+huev)%360;
+                let l = random_int(lum-lumv, lum+lumv);
+                let color = Color.fromHSL(hue, 100, l, random_float(.4,1));
                 let speed = random_int(minSpeed, maxSpeed);
                 let radius = random_float(minRadius,maxRadius);
                 let pttl = random_float(minPttl,maxPttl);
                 let width = random_int(minWidth, maxWidth);
-                return new SwirlParticle(position.x, position.y, hue, speed, radius, width, collapse, pttl);
+                return new SwirlParticle(position.x, position.y, color, speed, radius, width, collapse, pttl);
             }, pstreamInterval, pstreamVar, pstream, ttl*.25);
         particles.add(trickleEmitter);
 
@@ -257,10 +265,15 @@ class GameFxView {
         let emitJitter = 25;
         let emitTTL = 0;
         let emitCount = 4;
+        let colorOptions = [
+            new Color(0,0,255),
+            new Color(0,255,255),
+        ]
         let emitter = new ParticleEmitter(this.particleSystem, origin.x, origin.y, (e) => {
             let segments = random_int(10,15);
             let width = random_int(1,2);
-            let color = new Color(65,226,222, random_float(.5,1));
+            let color = random_sample(colorOptions);
+            color.a = random_float(.5,1);
             let variance = 2;
             let endWidth = 10;
             let ttl = random_float(.25, .5);
@@ -401,13 +414,15 @@ class GameFxView {
     jump_up(position) {
         let emitInterval = .1;
         let emitJitter = 0;
+        let eitherOr = false;
         const emitter = new ParticleEmitter(this.particleSystem, position.x, position.y, (emitter) => {
             let dx = 0;
             let dy = -64;
             let radius = 20;
             let ttl = .5;
-            let hue = random_int(170, 180);
-            return new DirectionalRingParticle(emitter.x, emitter.y, dx, dy, radius, hue, ttl);
+            let color = (eitherOr) ? new Color(0,0,255,.8) : new Color(0,255,255,.8);
+            eitherOr = !eitherOr;
+            return new DirectionalRingParticle(emitter.x, emitter.y, dx, dy, radius, color, ttl);
         }, emitInterval, emitJitter);
         this.particleSystem.add(emitter);
         let fx = new GameFx(position);
@@ -419,13 +434,15 @@ class GameFxView {
     jump_down(position) {
         let emitInterval = .1;
         let emitJitter = 0;
+        let eitherOr = false;
         const emitter = new ParticleEmitter(this.particleSystem, position.x, position.y, (emitter) => {
             let dx = 0;
             let dy = 64;
             let radius = 20;
             let ttl = .5;
-            let hue = random_int(170, 180);
-            return new DirectionalRingParticle(emitter.x, emitter.y, dx, dy, radius, hue, ttl);
+            let color = (eitherOr) ? new Color(0,0,255,.8) : new Color(0,255,255,.8);
+            eitherOr = !eitherOr;
+            return new DirectionalRingParticle(emitter.x, emitter.y, dx, dy, radius, color, ttl);
         }, emitInterval, emitJitter);
         this.particleSystem.add(emitter);
         let fx = new GameFx(position);

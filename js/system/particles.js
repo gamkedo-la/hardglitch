@@ -864,14 +864,14 @@ class SwirlParticle extends Particle {
      * Create a swirl particle
      * @param {*} x
      * @param {*} y
-     * @param {*} hue - H of HSL for color
+     * @param {*} color - color
      * @param {*} speed - particle speed (in pixels per second)
      * @param {*} radius - radius of swirl (in pixels)
      * @param {*} width - base particle width
      * @param {*} emerge - emerge duration (either controlled via time or sentinel object)
      * @param {*} decay - emerge duration in seconds
      */
-    constructor(x, y, hue, speed, radius, width, emerge, decay){
+    constructor(x, y, color, speed, radius, width, emerge, decay){
         super(x, y);
         this.speed = speed;
         this.radius = radius;
@@ -894,8 +894,8 @@ class SwirlParticle extends Particle {
         this.length = 0;
         this.angle = random_int(0, 360);
         let brightness = random_int(50,80);
-        this.color = Color.fromHSL(hue, 100, brightness, random_float(.4,1));
-        this.flickerColor = Color.fromHSL(hue, 100, brightness, random_float(.5,1));
+        this.color = color;
+        this.flickerColor = color;
         if (decay) this.alphadecay = this.color.a/decay;
         // counter-clockwise?
         this.ccw = (random_int(0, 1)) ? 1 : -1;
@@ -1129,12 +1129,12 @@ class GrowthRingParticle extends Particle {
 
 class DirectionalRingParticle extends Particle {
 
-    constructor(x, y, dx, dy, radius, hue, ttl) {
+    constructor(x, y, dx, dy, radius, color, ttl) {
         super(x, y);
         this.radius = radius;
         this.dx = dx * .001;
         this.dy = dy * .001;
-        this.color = Color.fromHSL(hue, 100, random_int(50,80), .5);
+        this.color = color;
         this.halfColor = this.color.copy();
         this.halfColor.a *= .5;
         this.ttl = ttl * 1000;

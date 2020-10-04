@@ -8,7 +8,6 @@ import {
     FadeParticle, 
     BlipParticle, 
     ParticleGroup, 
-    SwirlPrefab, 
     RingParticle, 
     ShootUpParticle, 
     FlashParticle,
@@ -103,11 +102,13 @@ class Tests {
         }, .3, 25));
     }
 
+    /*
     swirl(x,y) {
         this.particles.add(
             new ParticleSequence(this.particles, [() => { return new SwirlPrefab(this.particles, 2.5, x, y-32)}], 3, 0, 0)
         );
     }
+    */
 
     rings(x,y) {
         this.particles.add(new ParticleEmitter(this.particles, 0, 0, () => {
@@ -325,7 +326,7 @@ class Env {
         this.tests.linefade(300,300);
         this.tests.offsetglitch(400,300);
         this.tests.colorglitch(400,300);
-        this.tests.swirl(500,300);
+        //this.tests.swirl(500,300);
         this.tests.rings(600,300);
         this.tests.shootup(700,300);
         this.tests.flash(800,300);
