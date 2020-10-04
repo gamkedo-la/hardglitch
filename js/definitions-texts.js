@@ -10,3 +10,22 @@ export const help_info = `How To Play in 5 points:
 5. Camera: Drag'n'drop the world to move the camera, or use "IJKL" keys.
 `;
 
+export const inventory = {
+    empty_slot: `Item Slot (empty):
+
+Taken items will be put here.
+Drag'n'drop items to different slots
+to organize your inventory.
+Drag'n'drop an item in an Active
+slot to enable it's powers (shining).
+`,
+    empty_active_slot: `Active Item Slot (empty):
+
+Items put here will have their
+powers activated (shining).
+Drag'n'drop the item in an normal
+item slot to disable it's powers.
+`,
+};
+
+

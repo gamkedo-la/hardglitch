@@ -10,6 +10,8 @@ import * as input from "../system/input.js";
 import * as concepts from "../core/concepts.js";
 import * as game_input from "../game-input.js";
 import * as tiles from "../definitions-tiles.js";
+import * as audio from "../system/audio.js";
+import * as texts from "../definitions-texts.js";
 
 import { Character, Inventory } from "../core/character.js";
 import { sprite_defs } from "../game-assets.js";
@@ -20,8 +22,7 @@ import { SwapItemSlots, DropItem } from "../rules/rules-items.js";
 import { CharacterStatus } from "./ui-characterstatus.js";
 import { GameFxView } from "../game-effects.js";
 import { is_blocked_position } from "../definitions-world.js";
-import { audiobuffer_loader } from "../system/assets.js";
-import * as audio from "../system/audio.js";
+import { show_info } from "./ui-infobox.js";
 
 const item_slot_vertical_space = 0;
 const item_slot_name = "Item Slot";
@@ -48,6 +49,10 @@ class ItemSlot {
             text: slot_text(is_active),
             area_to_help: this._sprite.area,
             delay_ms: 0, // Display the help text immediately when pointed.
+
+        },
+        {
+            on_mouse_over: ()=> this._show_info(),
         });
 
         if(position)
@@ -136,6 +141,18 @@ class ItemSlot {
 
         console.assert(this._item instanceof ItemView);
         this._item.position = spatial.center_in_rectangle(this._item.area, this._sprite.area).position;
+    }
+
+    _show_info(){
+        if(this._item != undefined){
+            show_info("ADD ITEM DESCRIPTION HERE");
+        } else {
+            if(this.is_active){
+                show_info(texts.inventory.empty_active_slot);
+            } else {
+                show_info(texts.inventory.empty_slot);
+            }
+        }
     }
 };
 
