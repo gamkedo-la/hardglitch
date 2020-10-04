@@ -46,6 +46,7 @@ import { Unstability } from "./rules/rules-unstability.js";
 const a_very_long_time = 99999999999999;
 const turn_message_player_turn = "Play";
 const turn_message_processing_turns = "...Processing Cycles...";
+const turn_message_action_selection = "Select A Target";
 const turn_message_display_begin_ms = 0;
 const turn_message_display_end_ms = 3000;
 
@@ -390,10 +391,10 @@ class GameView {
         this.item_drop_highlights = [];
     }
 
-
     on_action_selection_begin(action_info){
         this.highlight_selected_action_targets(action_info);
         this.clear_action_range_highlight();
+        this.show_turn_message(turn_message_action_selection);
     }
 
     on_action_selection_end(action){
