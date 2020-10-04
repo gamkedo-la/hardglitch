@@ -44,6 +44,7 @@ import { Corruption } from "./rules/rules-corruption.js";
 import { Unstability } from "./rules/rules-unstability.js";
 
 const a_very_long_time = 99999999999999;
+const goal_message = "Find The Exit!";
 const turn_message_player_turn = "Play";
 const turn_message_processing_turns = "...Processing Cycles...";
 const turn_message_action_selection = "Select A Target";
@@ -232,6 +233,20 @@ class GameView {
         });
         this._time_since_beginning_turn_message = 0;
         this._need_show_player_turn = true;
+
+        this._goal_message = new ui.Text({
+            text: goal_message,
+            font: "50px ZingDiddlyDooZapped",
+            background_color: "#000000a0",
+            color: "white",
+            enabled: true,
+        });
+        this._goal_message.position = graphics.centered_rectangle_in_screen(this._goal_message).position
+                                                .translate({ y: 120 });
+
+        // Display the goal message and disappear.
+        const goal_display_duration_ms = 6000;
+        this.current_animations.play(anim.wait(goal_display_duration_ms)).then(()=> this._goal_message.enabled = false);
 
         this.reset();
         this._start_player_turn();
@@ -441,6 +456,9 @@ class GameView {
         this.ui.update(delta_time, this.player_character, this.game.world);
 
         this._update_turn_message(delta_time);
+
+        if(this._goal_message.enabled)
+            this._goal_message.update(delta_time);
     }
 
     _update_turn_message(delta_time){
@@ -786,6 +804,12 @@ class GameView {
         this._pointed_highlight.draw_help();
         this._character_focus_highlight.draw_help();
         this._pointed_highlight_edit.draw_help();
+
+
+        graphics.camera.begin_in_screen_rendering();
+        if(this._goal_message.enabled)
+            this._goal_message.draw(graphics.screen_canvas_context);
+        graphics.camera.end_in_screen_rendering();
     }
 
     focus_on_position(position){
