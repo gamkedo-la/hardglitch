@@ -460,7 +460,8 @@ class GameFxView {
             let radius = 25;
             let ttl = .5;
             let hue = random_int(20, 30);
-            return new DirectionalRingParticle(emitter.x, emitter.y, dx, dy, radius, hue, ttl);
+            const color = Color.fromHSL(hue, 0.5, 0.5); // TODO: fix these values, I just set that as a quickfix
+            return new DirectionalRingParticle(emitter.x, emitter.y, dx, dy, radius, color, ttl);
         }, emitInterval, emitJitter);
         this.particleSystem.add(emitter);
         let fx = new GameFx(position);
