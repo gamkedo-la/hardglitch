@@ -228,8 +228,8 @@ class VolumeControl extends ui.UIElement {
             background: "#FFAD49",
             color: "#ffffff",
             text: "+",
-            action: () => { 
-                audio.setVolume(def.mix_group, null, 0.1) 
+            action: () => {
+                audio.setVolume(def.mix_group, null, 0.1)
                 this._update_value(); // "this" is the VolumeControl class
             },
             position: new Vector2({x: 52, y: 0}),
@@ -244,8 +244,8 @@ class VolumeControl extends ui.UIElement {
             background: "#FFAD49",
             color: "#ffffff",
             text: "-",
-            action: () => { 
-                audio.setVolume(def.mix_group, null, -0.1) 
+            action: () => {
+                audio.setVolume(def.mix_group, null, -0.1)
                 this._update_value(); // "this" is the VolumeControl class
             },
             position: new Vector2({x: -52, y: 0}),
@@ -271,6 +271,8 @@ class VolumeControl extends ui.UIElement {
         for (let element of Object.values(this).filter(e => e instanceof ui.UIElement)) {
             element.position = center_in_rectangle(element.area, this.area).position.translate(element.position);
         }
+
+        this._update_value(); // Make sure we display the right values at the beginning.
     }
 
     _update_value() {
