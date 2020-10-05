@@ -30,7 +30,7 @@ function game_position_from_graphic_po(vec2){
 
 window.float_y = 0.08;      // for debug, you can change this in the console
 window.float_x = 0.03;      // for debug, you can change this in the console
-window.entity_scale = 0.8;  // for debug, you can change this in the console
+window.entity_scale = 0.82;  // for debug, you can change this in the console
 window.shadow_floating_scale = 1.0; // for debug, you can change this in the console
 
 // Common parts used by both body/character and items views.
@@ -89,9 +89,9 @@ class EntityView {
 
             this.for_each_sprite(sprite => {
                 if(sprite.is_shadow){
-                    sprite.position = sprite.position.translate({ x: drift_x });
                     const scale_drift = 1 + (drift_y * window.shadow_floating_scale);
                     sprite.transform.scale = sprite.transform.scale = new Vector2({ x: scale_drift, y: scale_drift });
+                    sprite.position = sprite.position.translate({ x: drift_x });
                 } else {
                     sprite.position = sprite.position.translate({ x: drift_x, y: drift_y });
                 }
