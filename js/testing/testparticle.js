@@ -175,7 +175,8 @@ class Tests {
             let targety = y;
             let speed = random_int(50,100);
             let radius = 5;
-            return new ThrobParticle({x: originx, y:originy}, {x: targetx, y: targety}, radius, speed, radius * .5);
+            let color = new Color(255,0,0);
+            return new ThrobParticle({x: originx, y:originy}, {x: targetx, y: targety}, radius, speed, radius * .5, color);
         }, 1, 25));
     }
 

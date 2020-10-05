@@ -10,7 +10,6 @@ export {
     ColorGlitchParticle,
     BlipParticle,
     SwirlParticle,
-    SwirlPrefab,
     RingParticle,
     GrowthRingParticle,
     ShootUpParticle,
@@ -970,57 +969,6 @@ class SwirlParticle extends Particle {
     }
 }
 
-class SwirlPrefab {
-    constructor(sys, ttl, x, y) {
-        // params for particles
-        let minHue = 130;
-        let maxHue = 200;
-        let minSpeed = 25;
-        let maxSpeed = 200;
-        let minRadius = 50;
-        let maxRadius = 55;
-        let minPttl = 1;
-        let maxPttl = 3;
-        let minWidth = 1;
-        let maxWidth = 3;
-        let pburst = 250;
-        let pstreamInterval = .1;
-        let pstreamVar = 25;
-        let pstream = 5;
-        // creates a sentinel object used to control prefab
-        this.sentinel = new ParticleGroup(ttl);
-        sys.add(this.sentinel);
-        // creates an object used to control collapse of all particles at the same time
-        let crush = new ParticleGroup(ttl*.65);
-        sys.add(crush);
-        // creates a burst of particles at beginning of animation
-        sys.add( new ParticleEmitter(sys, x, y, () => {
-                let hue = random_int(minHue, maxHue);
-                let speed = random_int(minSpeed, maxSpeed);
-                let radius = random_float(minRadius,maxRadius);
-                let width = random_int(minWidth, maxWidth);
-                return new SwirlParticle(x, y, hue, speed, radius, width, crush, ttl*.25);
-            }, 0, 0, 0.1, pburst));
-
-        // creates a slow stream of particles through rest of animation
-        sys.add( new ParticleEmitter(sys, x, y, () => {
-                let hue = random_int(minHue, maxHue);
-                let speed = random_int(minSpeed, maxSpeed);
-                let radius = random_float(minRadius,maxRadius);
-                let pttl = random_float(minPttl,maxPttl);
-                let width = random_int(minWidth, maxWidth);
-                return new SwirlParticle(x, y, hue, speed, radius, width, crush, pttl);
-            }, pstreamInterval, pstreamVar, pstream, ttl*.25));
-    }
-
-    update() {
-    }
-
-    get done() {
-        return this.sentinel.done;
-    }
-}
-
 class RingParticle extends Particle {
 
     constructor(x, y, radius, hue, ttl, fadePct) {
@@ -1488,7 +1436,7 @@ class BlipEdgeParticle extends Particle {
 }
 
 class ThrobParticle extends Particle {
-    constructor(origin, target, radius, speed, throbSpeed) {
+    constructor(origin, target, radius, speed, throbSpeed, color) {
         super(origin.x, origin.y);
         this.origin = origin
         this.target = target
@@ -1496,8 +1444,9 @@ class ThrobParticle extends Particle {
         this.speed = speed * .001;
         this.velocity = new Vector2({x:target.x-origin.x, y: target.y-origin.y});
         this.velocity.length = this.speed;
-        let hue = random_int(80,150);
-        this.color = Color.fromHSL(hue, 100, random_int(50,80), 1);
+        //let hue = random_int(80,150);
+        //this.color = Color.fromHSL(hue, 100, random_int(50,80), 1);
+        this.color = color;
         this.throb = .25;
         this.throbMin = .25;
         this.throbMax = 1.25;

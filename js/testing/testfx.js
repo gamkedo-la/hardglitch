@@ -61,11 +61,11 @@ class Env {
     }
 
     runFx() {
+        //for (let gidx=0; gidx<8; gidx++) {
+            //this.runFxForGrid(gidx);
+        //}
         // only run in one grid at a time;
-        for (let gidx=0; gidx<8; gidx++) {
-            this.runFxForGrid(gidx);
-        }
-        //this.runFxForGrid(this.gidx);
+        this.runFxForGrid(this.gidx);
         this.gidx++;
         if (this.gidx >= 8) this.gidx = 0;
     }
@@ -92,26 +92,25 @@ class Env {
         }
         let p;
         for (const fx of [
-            //this.gfx.lightningJump(posFcn(), target),
-            //this.gfx.jump_up(posFcn()),
-            //this.gfx.jump_down(posFcn()),
-
+            this.gfx.lightningJump(posFcn(), target),
+            this.gfx.jump_up(posFcn()),
+            this.gfx.jump_down(posFcn()),
             this.gfx.destruction(posFcn()),
-            //this.gfx.damage(posFcn()),
-            //this.gfx.missile(posFcn()),
-            //this.gfx.deleteBall(posFcn()),
-            //this.gfx.exitPortal(posFcn()),
-            //this.gfx.unstable(posFcn(), this.ctx),
-            //this.gfx.corrupt(posFcn(), this.ctx),
-            //this.gfx.repair(posFcn()),
-            //this.gfx.drop(posFcn()),
-            //this.gfx.take(posFcn()),
-            //this.gfx.pushed(p=posFcn(), {x:p.x+64, y:p.y}),
-            //this.gfx.move(p=posFcn()),
-            //this.gfx.wait(p=posFcn(), 2000),
-            //this.gfx.unlockCircle(p=posFcn(), 2),
-            //this.gfx.scan(p=posFcn()),
-            //this.gfx.spawn(p=posFcn()),
+            this.gfx.damage(posFcn()),
+            this.gfx.missile(posFcn()),
+            this.gfx.deleteBall(posFcn()),
+            this.gfx.unstable(posFcn(), this.ctx),
+            this.gfx.corrupt(posFcn(), this.ctx),
+            this.gfx.repair(posFcn()),
+            this.gfx.drop(posFcn()),
+            this.gfx.take(posFcn()),
+            this.gfx.pushed(p=posFcn(), {x:p.x+64, y:p.y}),
+            this.gfx.move(p=posFcn()),
+            this.gfx.wait(p=posFcn(), 2000),
+            this.gfx.unlockCircle(p=posFcn(), 2),
+            this.gfx.scan(p=posFcn()),
+            this.gfx.spawn(p=posFcn()),
+            this.gfx.exitPortal(posFcn()),
         ]) {
             setTimeout(() => {fx.done = true;}, this.fxInterval);
         }

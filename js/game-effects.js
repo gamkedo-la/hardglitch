@@ -108,7 +108,7 @@ class GameFxView {
             const xoff = random_int(-15,15);
             const yoff = random_int(-15,15);
             const width = random_int(20,40);
-            const hue = random_int(150, 250);
+            const hue = random_int(100, 250);
             const ttl = .1;
             return new FlashParticle(emitter.x + xoff, emitter.y + yoff, width, hue, ttl);
         }, .1, 0, 0, 10);
@@ -136,6 +136,10 @@ class GameFxView {
     }
 
     deleteBall(position){
+        let colorOptions = [
+            new Color(0,0,255),
+            new Color(0,255,255),
+        ]
         const effect = new ParticleEmitter(this.particleSystem, position.x, position.y, (emitter) => {
             let angle = random_float(0,Math.PI*2);
             let distance = random_int(35,50);
@@ -145,13 +149,14 @@ class GameFxView {
             let originy = emitter.y;
             let segments = random_int(10,15);
             let width = random_int(1,2);
-            let color = new Color(0,255,255, random_float(.25,1));
+            let color = random_sample(colorOptions).copy();
+            color.a = random_float(.25,1);
             let variance = 1.5;
             let endWidth = 10;
             let ttl = .5;
             let emergePct = .5;
             return new LightningParticle({x: originx, y:originy}, {x: targetx, y: targety}, segments, width, color, endWidth, variance, ttl, emergePct);
-        }, .05, 25, 0, 5);
+        }, .05, 25, 0, 10);
         this.particleSystem.add(effect);
         let fx = new GameFx(position);
         fx.sentinels.push(effect);
@@ -359,6 +364,11 @@ class GameFxView {
         let emitJitter = 25;
         let emitTTL = 0;
         let emitCount = 4;
+        let colorOptions = [
+            new Color(0,255,0),
+            new Color(5,110,0),
+            new Color(160,255,0),
+        ];
         let emitter = new ParticleEmitter(this.particleSystem, position.x, position.y, (e) => {
             let angle = random_float(0,Math.PI*2);
             let distance = random_int(32,64);
@@ -368,7 +378,8 @@ class GameFxView {
             let targety = e.y;
             let speed = random_int(50,100);
             let radius = 4;
-            return new ThrobParticle({x: originx, y:originy}, {x: targetx, y: targety}, radius, speed, radius * .5);
+            let color = random_sample(colorOptions).copy();
+            return new ThrobParticle({x: originx, y:originy}, {x: targetx, y: targety}, radius, speed, radius * .5, color);
         }, emitInterval, emitJitter, emitTTL, emitCount);
         this.particleSystem.add(emitter);
         let fx = new GameFx(origin);
@@ -454,13 +465,14 @@ class GameFxView {
     pushed(position, target_pos) {
         let emitInterval = .1;
         let emitJitter = 0;
+        let eitherOr = false;
         const emitter = new ParticleEmitter(this.particleSystem, position.x, position.y, (emitter) => {
             let dx = target_pos.x - position.x;
             let dy = target_pos.y - position.y;
             let radius = 25;
             let ttl = .5;
-            let hue = random_int(20, 30);
-            const color = Color.fromHSL(hue, 0.5, 0.5); // TODO: fix these values, I just set that as a quickfix
+            let color = (eitherOr) ? new Color(255,255,0,.8) : new Color(255,100,0,.8);
+            eitherOr = !eitherOr;
             return new DirectionalRingParticle(emitter.x, emitter.y, dx, dy, radius, color, ttl);
         }, emitInterval, emitJitter);
         this.particleSystem.add(emitter);
@@ -764,6 +776,7 @@ class GameFxView {
                 scanTrail: 3,
                 ttl: .75,
                 scanDir: dir,
+                lineColor: new Color(100,100,200),
             }
             let p = new ScanLineParticle(spec);
             this.particleSystem.add(p);
@@ -780,11 +793,11 @@ class GameFxView {
             let spec = {
                 x: position.x,
                 y: position.y,
+                lineColor: new Color(0,255,0),
                 lineWidth: 4,
                 scanTrail: 4,
                 ttl: 1.25,
                 scanDir: dir,
-                lineColor: new Color(0,200,0),
             }
             let p = new ScanLineParticle(spec);
             this.particleSystem.add(p);
