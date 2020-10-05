@@ -17,6 +17,8 @@ const game_assets = { // Description of the assets to load.
         glitch: "./images/glitch-painting.png",
         test_enemy: "./images/test_enemy.png",
         tileset_entry_exit : "./images/portalinout.png",
+        portal2 : "./images/portal2.png",
+        portal3 : "./images/portal3.png",
         ground_template : "./images/ground_template.png",
         ground2_template : "./images/ground2_template.png",
         lvl1warm_template : "./images/lvl1warm.png",
@@ -45,6 +47,8 @@ const game_assets = { // Description of the assets to load.
         crypto_key_2: "./images/cryptokeyplus2.png",
         crypto_key_3: "./images/cryptokeycircle2.png",
         movable_wall: "./images/column5.png",
+        movewall: "./images/movewall.png",
+        movewall2: "./images/movewall2.png",
         life_form: "./images/life-form.png",
         life_form_weak: "./images/life_form_weak.png",
         virus: "./images/virus.png",
@@ -382,7 +386,7 @@ const sprite_defs = {
         image: "wall",
     },
     movable_wall : {
-        image: "movable_wall",
+        image: "movewall2",
     },
     void : {
         image: "void",
@@ -394,9 +398,10 @@ const sprite_defs = {
          ]
     },
     exit : {
-        image: "tileset_entry_exit",
+        image: "portal2",
         frames: [
-            { x:64, y:0, width:64, height:64 }
+            { x:0, y:0, width:64, height:64 }
+           // { x:64, y:0, width:64, height:64 }
          ]
     },
     stream_right : {
