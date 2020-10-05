@@ -202,6 +202,7 @@ class MovableWall extends concepts.Item {
     constructor(){
         super("Movable Wall");
         this.is_blocking_vision = true;
+        this.is_floating = true;
     }
 
 };

@@ -16,6 +16,7 @@ class ItemView extends EntityView {
         super(item.id, item.position, item.assets);
         this.name = item.name;
         this.description = item_description(item);
+        this.is_floating = item.is_floating;
     }
 };
 

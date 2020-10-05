@@ -28,6 +28,9 @@ function game_position_from_graphic_po(vec2){
     return graphics.from_graphic_to_grid_position(vec2, PIXELS_PER_TILES_SIDE);
 }
 
+window.float_y = 0.05;
+window.float_x = 0.03;
+
 // Common parts used by both body/character and items views.
 class EntityView {
     is_visible = true;
@@ -37,6 +40,8 @@ class EntityView {
     _area = new Rectangle();
     _scale = new Vector2(Vector2_unit);
     _orientation_degree = 0;
+
+    is_floating = false;
 
     constructor(entity_id, game_position, assets){
         console.assert(Number.isInteger(entity_id));
@@ -60,7 +65,17 @@ class EntityView {
     }
 
     update(delta_time){ // TODO: make this a generator with an infinite loop
+
+        if(this.is_floating === true){ // TODO: find a way to do this outside this class...
+            this.for_each_sprite(sprite => {
+                const now = performance.now();
+                const time_value = ((this.id * 7984595) + now) / 1000.0;
+                sprite.position = sprite.position.translate({ x: Math.sin(time_value)* window.float_x, y: Math.cos(time_value)* window.float_y })
+            });
+        }
+
         this._graphics.forEach(graphic => graphic.sprite.update(delta_time));
+
     }
 
     render_graphics(canvas_context){
@@ -129,6 +144,8 @@ class EntityView {
 
     get width() { return this._area.width; }
     get height() { return this._area.height; }
+
+
 
 };
 
