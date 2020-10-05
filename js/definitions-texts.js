@@ -19,21 +19,21 @@ export const help_info = `How To Play in 5 points:
 export const ui = {
 empty_slot:
 `Item Slot (empty):
-
 Taken items will be put here.
 Drag'n'drop items to different slots
 to organize your inventory.
 Drag'n'drop an item in an Active
 slot to enable it's powers (shining).
+Moving Items in slots costs 1 AP.
 `,
 
 empty_active_slot:
 `Active Item Slot (empty):
-
 Items put here will have their
 powers activated (shining).
 Drag'n'drop the item in an normal
 item slot to disable it's powers.
+Moving Items in slots costs 1 AP.
 `,
 
 character_name:
