@@ -540,9 +540,10 @@ class GameView {
             ){
                 this._start_player_turn();
             } else {
-                if(this.player_character.stats.action_points.value <= 0
-                || this.player_character.skip_turn
-                ){
+                if(this.player_character
+                && (this.player_character.stats.action_points.value <= 0
+                    || this.player_character.skip_turn
+                )){
                     if(this.is_any_npc_visible){ // Only show the turn message when there are other characters that needs to be displayed
                         this.show_turn_message(turn_message_processing_turns, 0);
                         this._need_show_player_turn = true;
