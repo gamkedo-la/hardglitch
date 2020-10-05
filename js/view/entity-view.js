@@ -9,8 +9,8 @@ export {
 import { Vector2, containing_rectangle, Rectangle, Vector2_unit } from "../system/spatial.js";
 import * as graphics from "../system/graphics.js";
 import * as concepts from "../core/concepts.js";
-import { tween } from "../system/tweening.js";
 import { is_number } from "../system/utility.js";
+import { sprite_defs } from "../game-assets.js";
 
 const PIXELS_PER_TILES_SIDE = 64;
 const PIXELS_PER_HALF_SIDE = PIXELS_PER_TILES_SIDE / 2;
@@ -60,6 +60,15 @@ class EntityView {
             });
         }
 
+        // Add a shadow:
+        const shadow_sprite = new graphics.Sprite(sprite_defs.shadow);
+        shadow_sprite.position = new Vector2(position);
+        this._graphics.push({
+            id: "shadow",
+            sprite: shadow_sprite,
+            order: -999999, // Must always be in the background.
+        });
+
         this._area = containing_rectangle(...this.sprites.map(sprite=>sprite.area));
         this._area.position = position;
     }
@@ -80,8 +89,9 @@ class EntityView {
 
     render_graphics(canvas_context){
         if(this.is_visible){
-            // TODO: sort by ascending order
-            this._graphics.filter(graphic => graphics.camera.can_see(graphic.sprite.area))
+            this._graphics
+                .filter(graphic => graphics.camera.can_see(graphic.sprite.area))
+                .sort((left, right) => left.order - right.order)
                 .forEach(graphic => graphic.sprite.draw(canvas_context));
         }
     }

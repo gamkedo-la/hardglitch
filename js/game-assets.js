@@ -49,6 +49,7 @@ const game_assets = { // Description of the assets to load.
         movable_wall: "./images/column5.png",
         movewall: "./images/movewall.png",
         movewall2: "./images/movewall2.png",
+        shadow: "./images/shadow.png",
         life_form: "./images/life-form.png",
         life_form_weak: "./images/life_form_weak.png",
         virus: "./images/virus.png",
@@ -248,6 +249,14 @@ function crypto_key_def(kind){
 // Sprite descriptions here.
 // Describe here all the sprites and sprite animations as defined by Sprite class.
 const sprite_defs = {
+
+    shadow : {
+        image: "shadow",
+        frames: [
+                    { x: 0, y: 0, width: 64, height: 64 },
+                ],
+    },
+
     player : {
         image: "glitch",
         frames: [
@@ -944,7 +953,7 @@ const sound_event_defs = {
         loop: false,
         volume: 0.9,
         unique: false,
-    },    
+    },
 
     'corruptAction': {
         source_type: 'audiobuffer',
