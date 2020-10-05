@@ -28,8 +28,9 @@ function game_position_from_graphic_po(vec2){
     return graphics.from_graphic_to_grid_position(vec2, PIXELS_PER_TILES_SIDE);
 }
 
-window.float_y = 0.05;
-window.float_x = 0.03;
+window.float_y = 0.05;      // for debug, you can change this in the console
+window.float_x = 0.03;      // for debug, you can change this in the console
+window.entity_scale = 0.8;  // for debug, you can change this in the console
 
 // Common parts used by both body/character and items views.
 class EntityView {
@@ -49,10 +50,12 @@ class EntityView {
         console.assert(assets instanceof Object);
         this.id = entity_id;
         const position = graphic_position(game_position);
-
+        const scaled_origin = Math.round(64 / (window.entity_scale * 10));
         for(const [graphics_id, graphic] of Object.entries(assets.graphics)){
             const sprite = new graphics.Sprite(graphic.sprite_def);
             sprite.position = new Vector2(position);
+            sprite.transform.scale = sprite.transform.scale.multiply(window.entity_scale);
+            sprite.origin = sprite.origin.translate( { x: -scaled_origin, y: -scaled_origin } );
             this._graphics.push({
                 id: graphics_id,
                 sprite: sprite,
@@ -63,6 +66,7 @@ class EntityView {
         // Add a shadow:
         const shadow_sprite = new graphics.Sprite(sprite_defs.shadow);
         shadow_sprite.position = new Vector2(position);
+        shadow_sprite.is_shadow = true;
         this._graphics.push({
             id: "shadow",
             sprite: shadow_sprite,
@@ -76,10 +80,17 @@ class EntityView {
     update(delta_time){ // TODO: make this a generator with an infinite loop
 
         if(this.is_floating === true){ // TODO: find a way to do this outside this class...
+            const now = performance.now();
+            const time_value = ((this.id * 7984595) + now) / 1000.0; // Arbitrary value that looks right and makes things float not-in-sync.
+            const drift_x = Math.sin(time_value)* window.float_x;
+            const drift_y = Math.cos(time_value)* window.float_y;
+
             this.for_each_sprite(sprite => {
-                const now = performance.now();
-                const time_value = ((this.id * 7984595) + now) / 1000.0;
-                sprite.position = sprite.position.translate({ x: Math.sin(time_value)* window.float_x, y: Math.cos(time_value)* window.float_y })
+                if(sprite.is_shadow){
+                    sprite.position = sprite.position.translate({ x: drift_x });
+                } else {
+                    sprite.position = sprite.position.translate({ x: drift_x, y: drift_y });
+                }
             });
         }
 
@@ -122,7 +133,8 @@ class EntityView {
     }
 
     set position(new_position){
-        this._area.position = new Vector2(new_position);
+        new_position = new Vector2(new_position);
+        this._area.position = new_position;
         this.for_each_sprite(sprite => sprite.position = new_position);
     }
 
