@@ -28,9 +28,10 @@ function game_position_from_graphic_po(vec2){
     return graphics.from_graphic_to_grid_position(vec2, PIXELS_PER_TILES_SIDE);
 }
 
-window.float_y = 0.05;      // for debug, you can change this in the console
+window.float_y = 0.08;      // for debug, you can change this in the console
 window.float_x = 0.03;      // for debug, you can change this in the console
 window.entity_scale = 0.8;  // for debug, you can change this in the console
+window.shadow_floating_scale = 1.0; // for debug, you can change this in the console
 
 // Common parts used by both body/character and items views.
 class EntityView {
@@ -65,7 +66,8 @@ class EntityView {
 
         // Add a shadow:
         const shadow_sprite = new graphics.Sprite(sprite_defs.shadow);
-        shadow_sprite.position = new Vector2(position);
+        shadow_sprite.move_origin_to_center();
+        shadow_sprite.position = new Vector2(position).translate(square_half_unit_vector);
         shadow_sprite.is_shadow = true;
         this._graphics.push({
             id: "shadow",
@@ -88,6 +90,8 @@ class EntityView {
             this.for_each_sprite(sprite => {
                 if(sprite.is_shadow){
                     sprite.position = sprite.position.translate({ x: drift_x });
+                    const scale_drift = 1 + (drift_y * window.shadow_floating_scale);
+                    sprite.transform.scale = sprite.transform.scale = new Vector2({ x: scale_drift, y: scale_drift });
                 } else {
                     sprite.position = sprite.position.translate({ x: drift_x, y: drift_y });
                 }
@@ -135,7 +139,13 @@ class EntityView {
     set position(new_position){
         new_position = new Vector2(new_position);
         this._area.position = new_position;
-        this.for_each_sprite(sprite => sprite.position = new_position);
+        this.for_each_sprite(sprite => {
+            if(sprite.is_shadow){
+                sprite.position = new_position.translate(square_half_unit_vector);
+            } else {
+                sprite.position = new_position;
+            }
+        });
     }
 
     set scale(new_scale){
