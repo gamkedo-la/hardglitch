@@ -47,8 +47,11 @@ const game_assets = { // Description of the assets to load.
         crypto_key_2: "./images/cryptokeyplus2.png",
         crypto_key_3: "./images/cryptokeycircle2.png",
         movable_wall: "./images/column5.png",
-        movewall: "./images/movewall.png",
-        movewall2: "./images/movewall2.png",
+        movewall_blue: "./images/movewall_blue.png",
+        movewall_green: "./images/movewall_green.png",
+        movewall_orange: "./images/movewall_orange.png",
+        movewall_purple: "./images/movewall_purple.png",
+        movewall_red: "./images/movewall_red.png",
         shadow: "./images/shadow.png",
         life_form: "./images/life-form.png",
         life_form_weak: "./images/life_form_weak.png",
@@ -395,8 +398,23 @@ const sprite_defs = {
     wall : {
         image: "wall",
     },
-    movable_wall : {
-        image: "movewall2",
+    movable_wall: {
+        image: "movable_wall",
+    },
+    movable_wall_blue : {
+        image: "movewall_blue",
+    },
+    movable_wall_green : {
+        image: "movewall_green",
+    },
+    movable_wall_orange : {
+        image: "movewall_orange",
+    },
+    movable_wall_purple : {
+        image: "movewall_purple",
+    },
+    movable_wall_red : {
+        image: "movewall_red",
     },
     void : {
         image: "void",

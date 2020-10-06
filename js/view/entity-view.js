@@ -31,6 +31,7 @@ function game_position_from_graphic_po(vec2){
 window.float_y = 0.08;      // for debug, you can change this in the console
 window.float_x = 0.03;      // for debug, you can change this in the console
 window.entity_scale = 0.82;  // for debug, you can change this in the console
+//window.entity_scale = 1;  // for debug, you can change this in the console
 window.shadow_floating_scale = 1.0; // for debug, you can change this in the console
 
 // Common parts used by both body/character and items views.

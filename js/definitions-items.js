@@ -18,6 +18,11 @@ export {
     Item_Pull,
     Item_Swap,
     MovableWall,
+    MovableWall_Blue,
+    MovableWall_Green,
+    MovableWall_Orange,
+    MovableWall_Purple,
+    MovableWall_Red,
 
     all_crypto_file_types,
     all_crypto_key_types,
@@ -81,6 +86,11 @@ function all_item_types(){
         Item_Pull,
         Item_Swap,
         MovableWall,
+        MovableWall_Blue,
+        MovableWall_Green,
+        MovableWall_Orange,
+        MovableWall_Purple,
+        MovableWall_Red,
 
         ...all_debug_item_types(),
     ];
@@ -201,6 +211,91 @@ class MovableWall extends concepts.Item {
 
     constructor(){
         super("Movable Wall");
+        this.is_blocking_vision = true;
+        this.is_floating = true;
+    }
+
+};
+
+class MovableWall_Blue extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.movable_wall_blue,
+        }}
+    };
+
+    get can_be_taken() { return false; }
+
+    constructor(){
+        super("Blue Movable Wall");
+        this.is_blocking_vision = true;
+        this.is_floating = true;
+    }
+
+};
+
+class MovableWall_Green extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.movable_wall_green,
+        }}
+    };
+
+    get can_be_taken() { return false; }
+
+    constructor(){
+        super("Green Movable Wall");
+        this.is_blocking_vision = true;
+        this.is_floating = true;
+    }
+
+};
+
+class MovableWall_Orange extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.movable_wall_orange,
+        }}
+    };
+
+    get can_be_taken() { return false; }
+
+    constructor(){
+        super("Orange Movable Wall");
+        this.is_blocking_vision = true;
+        this.is_floating = true;
+    }
+
+};
+
+class MovableWall_Purple extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.movable_wall_purple,
+        }}
+    };
+
+    get can_be_taken() { return false; }
+
+    constructor(){
+        super("Purple Movable Wall");
+        this.is_blocking_vision = true;
+        this.is_floating = true;
+    }
+
+};
+
+class MovableWall_Red extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.movable_wall_red,
+        }}
+    };
+
+    get can_be_taken() { return false; }
+
+    constructor(){
+        super("Red Movable Wall");
         this.is_blocking_vision = true;
         this.is_floating = true;
     }
