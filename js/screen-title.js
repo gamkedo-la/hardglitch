@@ -6,6 +6,7 @@ export {
 import * as fsm from "./system/finite-state-machine.js";
 import * as graphics from "./system/graphics.js";
 import * as ui from "./system/ui.js";
+import * as audio from "./system/audio.js";
 
 import { sprite_defs } from "./game-assets.js";
 import { invoke_on_members } from "./system/utility.js";
@@ -127,12 +128,13 @@ class TitleScreen extends fsm.State {
         if(!this.main_menu){
             this._init_ui();
         }
-
+        audio.playEvent("HelloWorld");
         yield* this.fader.generate_fade_in();
     }
 
     *leave(){
         yield* this.fader.generate_fade_out();
+        audio.stopEvent("HelloWorld");
     }
 
     update(delta_time){

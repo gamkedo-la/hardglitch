@@ -142,6 +142,7 @@ const game_assets = { // Description of the assets to load.
         radream: './audio/music/HardGlitch_RandomAccessDream_Loop.mp3',
         breakdown: './audio/music/HardGlitchBreakdown.mp3',
         glitchborn: './audio/music/HardGlitch_AGlitchIsBorn.mp3',
+        helloworld: './audio/music/HardGlitch_HelloWorld.mp3',
     }
 };
 
@@ -1062,6 +1063,17 @@ const sound_event_defs = {
     'GlitchIsBorn': {
         source_type: 'audiostream',
         source_name: 'glitchborn',
+        group_name: 'Music',
+        loop: true,
+        volume: 0.7,
+        unique: true, // Will not create a new event instance if true
+    },
+
+
+
+    'HelloWorld': {
+        source_type: 'audiostream',
+        source_name: 'helloworld',
         group_name: 'Music',
         loop: true,
         volume: 0.7,
