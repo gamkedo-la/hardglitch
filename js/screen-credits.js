@@ -12,7 +12,7 @@ import { sprite_defs } from "./game-assets.js";
 import { invoke_on_members } from "./system/utility.js";
 import { ScreenFader } from "./system/screenfader.js";
 
-// test comment. Practicing using git. Will delete. Antonio
+
 class Credits {
     constructor(on_back_button){
 
