@@ -332,7 +332,7 @@ class Item_JumpOpCode extends concepts.Item {
     get can_be_taken() { return true; }
 
     constructor(){
-        super("Jump Op-Code");
+        super("GOTO");
     }
 
     get_enabled_action_types(){
