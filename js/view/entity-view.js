@@ -28,8 +28,10 @@ function game_position_from_graphic_po(vec2){
     return graphics.from_graphic_to_grid_position(vec2, PIXELS_PER_TILES_SIDE);
 }
 
-window.float_y = 0.08;      // for debug, you can change this in the console
-window.float_x = 0.03;      // for debug, you can change this in the console
+//window.float_y = 0.08;      // for debug, you can change this in the console
+//window.float_x = 0.03;      // for debug, you can change this in the console
+window.float_y = 0.05;      // for debug, you can change this in the console
+window.float_x = 0.00;      // for debug, you can change this in the console
 
 // Common parts used by both body/character and items views.
 class EntityView {
