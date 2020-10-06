@@ -13,6 +13,13 @@ import { ScreenFader } from "./system/screenfader.js";
 import { invoke_on_members } from "./system/utility.js";
 import { game_levels } from "./definitions-world.js";
 
+//ashleigh is trying to create a const to pass in the *entry coroutine
+// I just realized this is *absolutely* not where these lines would live
+/*
+let glitch = new GlitchyGlitchMacGlitchy();
+const character_view = new CharacterView(glitch);
+*/
+
 class LevelInfoDisplay {
     constructor(title){
 
