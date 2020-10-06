@@ -15,6 +15,7 @@ import { ScreenFader } from "./system/screenfader.js";
 
 import { load_test_level, load_random_test_level } from "./main.js";
 import { AudioSettings } from "./game-ui.js";
+import { HARD_GLITCH_VERSION } from "./version.js";
 
 const buttons_font = "24px Verdana";
 
@@ -110,18 +111,35 @@ class TitleScreen extends fsm.State {
     _init_ui(){
         console.assert(this.main_menu === undefined);
         console.assert(this.title === undefined);
-        this.title = new ui.Text({
+
+        this.ui = {};
+        this.ui.title = new ui.Text({
             text: "HARD GLITCH",
             font: "80px ZingDiddlyDooZapped",
             color: "white",
             background_color: "#ffffff00",
             position: Vector2_origin
         });
-        this.title.position = {
-            x: graphics.centered_rectangle_in_screen(this.title.area).position.x,
+        this.ui.title.position = {
+            x: graphics.centered_rectangle_in_screen(this.ui.title.area).position.x,
             y: 80
         };
-        this.main_menu = new MainMenu(this.state_machine, this.title.position.translate({ x:0, y: 100 }));
+
+        this.ui.main_menu = new MainMenu(this.state_machine, this.ui.title.position.translate({ x:0, y: 100 }));
+
+        this.ui.version = new ui.Text({
+            text: HARD_GLITCH_VERSION,
+            font: "24px Arial",
+            color: "white",
+            background_color: "#ffffff00",
+            position: Vector2_origin
+        });
+        const canvas_rect = graphics.canvas_rect();
+        this.ui.version.position = {
+            x: canvas_rect.width - this.ui.version.width - 16,
+            y: canvas_rect.height - this.ui.version.height - 16,
+        };
+
     }
 
     *enter(){
@@ -140,8 +158,8 @@ class TitleScreen extends fsm.State {
     update(delta_time){
         this.fader.update(delta_time);
         if(!this.fader.is_fading)
-            this.main_menu.update(delta_time);
-        this.title.update(delta_time);
+            this.ui.main_menu.update(delta_time);
+        this.ui.title.update(delta_time);
     }
 
     display(canvas_context){
@@ -149,17 +167,17 @@ class TitleScreen extends fsm.State {
         graphics.draw_rectangle(canvas_context, graphics.canvas_rect(), "orange");
 
         if(!this.is_fading){
-            this.main_menu.draw(canvas_context);
+            this.ui.main_menu.draw(canvas_context);
         }
 
-        this.title.draw(canvas_context);
+        this.ui.title.draw(canvas_context);
+        this.ui.version.draw(canvas_context);
 
         this.fader.display(canvas_context);
     }
 
     on_canvas_resized(){
-        delete this.main_menu;
-        delete this.title;
+        delete this.ui;
         this._init_ui();
     }
 };
