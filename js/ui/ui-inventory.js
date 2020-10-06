@@ -167,6 +167,7 @@ class InventoryUI {
     _position = new spatial.Vector2();
 
     visible = true;
+    dragging_enabled = false;
 
     constructor(position, character_status, events){
         console.assert(position instanceof spatial.Vector2);
@@ -199,7 +200,8 @@ class InventoryUI {
             }
         }
 
-        this._update_item_dragging();
+        if(this.dragging_enabled)
+            this._update_item_dragging();
 
         this._slots.forEach(slot=>slot.update(delta_time));
 

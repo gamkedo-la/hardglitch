@@ -514,10 +514,12 @@ class GameInterface {
 
     lock_actions(){
         this._action_buttons.forEach(button => button.enabled = false);
+        this.inventory.dragging_enabled = false;
     }
 
     unlock_actions(){
         this._action_buttons.forEach(button => button.enabled = true);
+        this.inventory.dragging_enabled = true;
     }
 
     get selected_action() { return this._selected_action; }
