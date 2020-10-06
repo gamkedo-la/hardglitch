@@ -168,6 +168,7 @@ class CryptoFile_Circle extends CryptoFile {
 class CryptoKey extends concepts.Item {
 
     get can_be_taken() { return true; }
+    get can_be_moved() { return false; }
 
     constructor(kind){
         console.assert(Number.isInteger(kind));
