@@ -115,20 +115,29 @@ const game_state_machine = new class extends fsm.StateMachine {
   }
 };
 
+
+
 // Loading...
 window.onload = async function() {
-  game_state_machine.start();
-  game_state_machine.update(); // To display the first state at least once before starting loading...
+  const canvas_context = graphics.initialize();
 
+  game_state_machine.start();
+  const loading_update = ()=>{
+    if(!game_state_machine.game_is_ready){
+      game_state_machine.update(0);
+      game_state_machine.display(canvas_context);
+    }
+  };
+  window.requestAnimationFrame(loading_update); // Launch the display of the loading screen.
+
+  console.log("Loading assets...");
   const assets = await load_all_assets();
-  game_state_machine.update();
-  const canvas_context = graphics.initialize(assets);
-  game_state_machine.update(); // Starts displaying the "loading" screne.
+  console.log("Assets loaded...");
+  graphics.set_loaded_assets(assets);
   tile_select_initialize(tiledefs);
   audio.initialize(assets, sound_event_defs);
-  game_state_machine.update();
   input.initialize(canvas_context);
-  game_state_machine.update();
+  console.log("Systems Initialized");
   game_state_machine.make_ready_for_canvas_resize(); // This must be called after the rest is initialized as it's implem relies on graphics data etc.
   // OK now we're ready.
   start();
@@ -136,9 +145,9 @@ window.onload = async function() {
 
 function start() { // Now we can start the game!
   mute_button = new MuteAudioButton();
-  window.requestAnimationFrame(update_cycle);
-  game_state_machine.push_action("game_ready");
+  game_state_machine.game_is_ready = true;
   console.log("GAME READY - STARTING");
+  window.requestAnimationFrame(update_cycle);
 }
 
 

@@ -4,35 +4,51 @@ export {
 
 
 import * as fsm from "./system/finite-state-machine.js";
-import * as anim from "./system/animation.js";
+import * as input from "./system/input.js";
 
 // TODO: add some kind of animation so that we know it's still loading.
 
 class LoadingGameScreen extends fsm.State {
-    text_to_display = "Loading ...";
+    title = "######## HARD GLITCH ########";
+    loading_status = "Loading ...";
+    message = "Enjoy! :D"
+    instructions = "Click To Start";
 
     *enter(){
-        const canvas = document.getElementById('gameCanvas');
-        this.screen_canvas_context = canvas.getContext('2d');
     }
 
     *leave(){
-        this.text_to_display = "Loading Done - Enjoy!"
-        yield* anim.wait(500);
     }
 
     update(){
-        this.display();
     }
 
-    display(){
-        this.screen_canvas_context.save();
-        this.screen_canvas_context.fillStyle = 'black';
-        this.screen_canvas_context.fillRect(0,0, this.screen_canvas_context.canvas.width, this.screen_canvas_context.canvas.height);
-        this.screen_canvas_context.font = '48px Verdana serif';
-        this.screen_canvas_context.fillStyle = 'white';
-        this.screen_canvas_context.fillText(this.text_to_display, 20, 100);
-        this.screen_canvas_context.restore();
+    display(canvas_context){
+        canvas_context.save();
+        canvas_context.fillStyle = 'black';
+        canvas_context.fillRect(0,0, canvas_context.canvas.width, canvas_context.canvas.height);
+        canvas_context.font = '48px Verdana serif';
+        canvas_context.fillStyle = 'white';
+
+        let y = 0;
+        const next_line = ()=> y += 80;
+
+        canvas_context.fillText(this.title, 20, next_line());
+        next_line();
+        canvas_context.fillText(this.loading_status, 20, next_line());
+
+        if(this.state_machine.game_is_ready === true){
+            this.loading_status = "Loading - DONE";
+            canvas_context.fillText(this.message, 20, next_line());
+            next_line();
+            canvas_context.fillText(this.instructions, 20, next_line());
+
+            if(input.mouse.buttons.is_any_key_just_down() || input.keyboard.is_any_key_just_down()){
+                this.state_machine.push_action("game_ready");
+            }
+        }
+
+        canvas_context.restore();
     }
 
     on_canvas_resized(){

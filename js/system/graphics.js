@@ -4,6 +4,7 @@
 
 export {
   initialize,
+  set_loaded_assets,
   clear,
   reset,
   Sprite,
@@ -520,13 +521,9 @@ class TileGrid
 };
 
 
-function initialize(assets){
-  console.assert(assets);
-  console.assert(assets.images);
+function initialize(){
   if(screen_canvas_context || canvas || loaded_assets)
     throw "Graphic system already initialized.";
-
-  loaded_assets = assets;
 
   canvas = document.getElementById('gameCanvas');
   screen_canvas_context = canvas.getContext('2d');
@@ -536,6 +533,12 @@ function initialize(assets){
   window.addEventListener('resize', on_window_resized);
 
   return screen_canvas_context;
+}
+
+function set_loaded_assets(assets){
+  console.assert(assets);
+  console.assert(assets.images);
+  loaded_assets = assets;
 }
 
 function canvas_resize_to_window(){
