@@ -43,7 +43,7 @@ class LoadingGameScreen extends fsm.State {
             next_line();
             canvas_context.fillText(this.instructions, 20, next_line());
 
-            if(input.mouse.buttons.is_any_key_just_down() || input.keyboard.is_any_key_just_down()){
+            if(input.mouse.buttons.is_any_key_just_down()){
                 this.state_machine.push_action("game_ready");
             }
         }
