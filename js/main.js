@@ -24,6 +24,7 @@ import { CreditsScreen } from "./screen-credits.js";
 import { GameOverScreen_Success, GameOverScreen_Failure } from "./screen-gameover.js";
 import * as level_screens from "./screen-levels.js";
 import { MuteAudioButton } from "./game-ui.js";
+import { OptionsScreen } from "./screen-options.js";
 
 let last_update_time = performance.now();
 const max_delta_time = 1000 / 26; // Always assume at worst that we are at 26fps
@@ -36,6 +37,7 @@ const game_state_machine = new class extends fsm.StateMachine {
     super({
       loading_game: new LoadingGameScreen(),
       title: new TitleScreen(),
+      options: new OptionsScreen(),
       credits: new CreditsScreen(),
       game: new GameScreen(),
       gameover_success: new GameOverScreen_Success(),
@@ -56,7 +58,11 @@ const game_state_machine = new class extends fsm.StateMachine {
       },
       title: {
         new_game: "intro_level_1",
+        options: "options",
         credits: "credits",
+      },
+      options: {
+        back: "title",
       },
       credits: {
         back: "title",

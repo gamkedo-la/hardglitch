@@ -14,7 +14,6 @@ import { Vector2, Vector2_origin } from "./system/spatial.js";
 import { ScreenFader } from "./system/screenfader.js";
 
 import { load_test_level, load_random_test_level } from "./main.js";
-import { AudioSettings } from "./game-ui.js";
 import { HARD_GLITCH_VERSION } from "./version.js";
 
 const buttons_font = "22px Space Mono";
@@ -31,6 +30,19 @@ class MainMenu {
             color: "#ffffff",
             font: buttons_font,
             action: ()=> { state_machine.push_action("new_game"); },
+            position: Vector2_origin,
+            sprite_def: sprite_defs.button_menu,
+            sounds:{
+                over: 'selectButton',
+                down: 'clickButton',
+            },
+        });
+
+        this.button_options = new ui.TextButton({
+            text: "Options",
+            color: "#ffffff",
+            font: buttons_font,
+            action: ()=> { state_machine.push_action("options"); },
             position: Vector2_origin,
             sprite_def: sprite_defs.button_menu,
             sounds:{
@@ -74,11 +86,6 @@ class MainMenu {
                 down: 'clickButton',
             }
         });
-
-        this.audio_settings = new AudioSettings({
-            position: new Vector2({x: 0, y: graphics.canvas_rect().height/2 - 156}),
-        });
-
 
 
         const space_between_buttons = this.button_new_game.height + 6;
