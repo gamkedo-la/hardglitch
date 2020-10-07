@@ -26,6 +26,7 @@ const action_button_size = 50;
 const player_ui_top_from_bottom = 66;
 
 const volume_buttons_font = "26px Space Mono";
+const volume_buttons_name_font = "22px Space Mono";
 
 function character_status_position() {
     return new Vector2({ x: 8, y: graphics.canvas_rect().height - player_ui_top_from_bottom });
@@ -195,17 +196,20 @@ class AudioSettings extends ui.UIElement {
         let yOffset = 24;
         this.master_volume = new VolumeControl({
             position: new Vector2({x: this.position.x, y: this.position.y + yOffset}),
-            mix_group: "Master"},
-            );
+            mix_group: "Master",
+            name: "Master Volume",
+        });
         yOffset += 96;
         this.music_volume = new VolumeControl({
             position: new Vector2({x: this.position.x, y: this.position.y + yOffset}),
             mix_group: "Music",
+            name: "Music Volume",
         });
         yOffset += 96;
         this.sfx_volume = new VolumeControl({
             position: new Vector2({x: this.position.x, y: this.position.y + yOffset}),
             mix_group: "SoundEffects",
+            name: "FX Volume",
         });
     }
 
@@ -227,8 +231,8 @@ class VolumeControl extends ui.UIElement {
             position: new Vector2({x: 0, y: -42}),
             background_color: "#FFAD49",
             color: 'white',
-            font: volume_buttons_font,
-            text: def.mix_group,
+            font: volume_buttons_name_font,
+            text: def.name,
         });
 
         this.mix_group = def.mix_group;
