@@ -17,8 +17,7 @@ const game_assets = { // Description of the assets to load.
         glitch: "./images/glitch-painting.png",
         test_enemy: "./images/test_enemy.png",
         tileset_entry_exit : "./images/portalinout.png",
-        portal2 : "./images/portal2.png",
-        portal3 : "./images/portal3.png",
+        exit_portal : "./images/exit_portal.png",
         ground_template : "./images/ground_template.png",
         ground2_template : "./images/ground2_template.png",
         lvl1warm_template : "./images/lvl1warm.png",
@@ -429,10 +428,9 @@ const sprite_defs = {
          ]
     },
     exit : {
-        image: "portal2",
+        image: "exit_portal",
         frames: [
             { x:0, y:0, width:64, height:64 }
-           // { x:64, y:0, width:64, height:64 }
          ]
     },
     stream_right : {
