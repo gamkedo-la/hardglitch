@@ -25,6 +25,8 @@ import { Timeline } from "./ui/ui-timeline.js";
 const action_button_size = 50;
 const player_ui_top_from_bottom = 66;
 
+const volume_buttons_font = "26px Space Mono";
+
 function character_status_position() {
     return new Vector2({ x: 8, y: graphics.canvas_rect().height - player_ui_top_from_bottom });
 }
@@ -40,7 +42,7 @@ function timeline_position() {
 
 function infobox_rectangle() {
     const canvas_rect = graphics.canvas_rect();
-    const width = 400;
+    const width = 320;
     const height = 200;
     return new Rectangle({
         position: { x: canvas_rect.width - width, y: canvas_rect.height - height },
@@ -225,6 +227,7 @@ class VolumeControl extends ui.UIElement {
             position: new Vector2({x: 0, y: -42}),
             background_color: "#FFAD49",
             color: 'white',
+            font: volume_buttons_font,
             text: def.mix_group,
         });
 
@@ -233,6 +236,7 @@ class VolumeControl extends ui.UIElement {
             background: "#FFAD49",
             color: "#ffffff",
             text: "+",
+            font: volume_buttons_font,
             action: () => {
                 audio.setVolume(def.mix_group, null, 0.1)
                 this._update_value(); // "this" is the VolumeControl class
@@ -249,6 +253,7 @@ class VolumeControl extends ui.UIElement {
             background: "#FFAD49",
             color: "#ffffff",
             text: "-",
+            font: volume_buttons_font,
             action: () => {
                 audio.setVolume(def.mix_group, null, -0.1)
                 this._update_value(); // "this" is the VolumeControl class

@@ -15,7 +15,7 @@ import { add_text_line } from "../system/utility.js";
 const info_box_background_style = "#111177a0";
 const info_box_border_style = "orange";
 const info_box_background_margin = 4;
-const info_box_text_font = "16px Space Mono"; //Verdana
+const info_box_text_font = "14px Space Mono";
 const info_box_text_color = "white";
 
 let current_info_box;
@@ -33,10 +33,12 @@ class InfoBox {
         this._text = "";
         this._text_display = new ui.Text({
             text: "",
-            position: this.position,
+            position: this.position.translate({ x: 4, y:4 }),
             font: info_box_text_font,
             color: info_box_text_color,
             background_color: "#00000000",
+            margin_horizontal: 1,
+            margin_vertical: 2,
         });
 
         this._button_hide = new ui.Button({

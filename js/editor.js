@@ -76,7 +76,7 @@ function draw_text(text, position){
     if(!reused_text_line)
         reused_text_line = new ui.Text({
             text: "",
-            font: "20px Space Mono"
+            font: "16px Space Mono"
         });
 
     reused_text_line.position = position;

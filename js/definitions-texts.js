@@ -19,26 +19,32 @@ export const help_info = `How To Play in 5 points:
 export const ui = {
 empty_slot:
 `Item Slot (empty):
+
 Taken items will be put here.
 Drag'n'drop items to different slots
 to organize your inventory.
 Drag'n'drop an item in an Active
-slot to enable it's powers (shining).
+slot to enable it's powers.
+
 Moving Items in slots costs 1 AP.
 `,
 
 empty_active_slot:
 `Active Item Slot (empty):
+
 Items put here will have their
 powers activated (shining).
+
 Drag'n'drop the item in an normal
 item slot to disable it's powers.
+
 Moving Items in slots costs 1 AP.
 `,
 
 character_name:
-`Name of the digital-life entity
-you are currently controlling.
+`
+Name of the digital-life entity you
+are currently controlling.
 `,
 
 integrity:
@@ -46,16 +52,17 @@ integrity:
 
 If this value reaches 0, this entity
 will be destroyed!
-Try to keep it to the max to have
-a chance to survive longer.
+Try to keep it to the max to have a
+chance to survive.
 `,
 
 action_points:
 `Action Points:
 
-Each action costs Action Points (AP)
+Actions costs Action Points (AP).
+
 Entities can perform actions until
-AP <= 0 OR until they Wait.
+AP <= 0, or until they Wait.
 Then the next entity in the timeline
 will act - repeat until New Cycle.
 Entity skips turns until AP > 0.
@@ -80,31 +87,33 @@ Integrity points.
 timeline:
 `Timeline:
 
-Order in which the visible entities
-will execute their actions.
-Point entities in this Timeline
-to see where they are in the world.
-Click the cycle count to open/close.
+Turn order of visible entities.
+
+Point entities in this Timeline to
+see where they are in the world.
+Use the cycle count to show/hide.
 `,
 
 new_cycle:
 `New Cycle:
 
-When everybody finished acting,
-a new cycle begins and updates
-the world.
+When everybody finished acting, a new
+cycle begins and updates the world.
 Then each entity acts in turn.
+
+Special tiles and effects will
+change when a new cycle begins.
 `,
 
 infobox:
 `This is the Info Box.
-It helps you gather the 
-information about what's 
-visible around. Try to 
-point at something 
-to learn about it. 
-Use the top button 
-to open/close.
+
+It helps you gather the info about
+what's visible around.
+Try to point at things to learn
+about them.
+
+Use the top button to open/close.
 `,
 
 autofocus_button:
@@ -113,14 +122,16 @@ autofocus_button:
 Enabled: camera will center on the
 player entity after each action.
 Disabled: Does nothing.
-Drag'n'drop the world to see around.
+
+Drag'n'drop the world to look around.
+
 Press "F" key to re-focus.
 `,
 
 mute_button:
 `Mute ON/OFF:
 
-Allows you to mute all audio at will.
+Allows you to mute/unmute all audio.
 `,
 
 menu_button:

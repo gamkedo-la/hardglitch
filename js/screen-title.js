@@ -17,7 +17,7 @@ import { load_test_level, load_random_test_level } from "./main.js";
 import { AudioSettings } from "./game-ui.js";
 import { HARD_GLITCH_VERSION } from "./version.js";
 
-const buttons_font = "24px Space Mono";
+const buttons_font = "22px Space Mono";
 
 class MainMenu {
 
@@ -129,7 +129,7 @@ class TitleScreen extends fsm.State {
 
         this.ui.version = new ui.Text({
             text: HARD_GLITCH_VERSION,
-            font: "24px Arial",
+            font: "20px Space Mono",
             color: "white",
             background_color: "#ffffff00",
             position: Vector2_origin

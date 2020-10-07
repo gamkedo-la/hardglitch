@@ -27,6 +27,7 @@ const new_cycle = {
     text_color: "white",
     text_padding: { x: 8, y: 6 },
     background_color: "orange",
+    font: "20px Space Mono",
     width: 150,
     height: 30,
     position_shift: function(){
@@ -57,6 +58,7 @@ class CycleChangeMarker
 
         graphics.draw_text(canvas_context, new_cycle.text, position.translate(new_cycle.text_padding), {
             color: new_cycle.text_color,
+            font: new_cycle.font,
         });
     }
 };
