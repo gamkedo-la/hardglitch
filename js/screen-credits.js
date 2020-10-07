@@ -6,9 +6,10 @@ export {
 import * as ui from "./system/ui.js";
 import * as input from "./system/input.js";
 import * as graphics from "./system/graphics.js";
+import * as audio from "./system/audio.js";
 import * as fsm from "./system/finite-state-machine.js";
 import { KEY } from "./game-input.js";
-import { sprite_defs } from "./game-assets.js";
+import { music_id, sprite_defs } from "./game-assets.js";
 import { invoke_on_members } from "./system/utility.js";
 import { ScreenFader } from "./system/screenfader.js";
 
@@ -120,10 +121,11 @@ class CreditsScreen extends fsm.State {
 
     *leave(){
         yield* this.fader.generate_fade_out();
+        audio.stopEvent(music_id.gameover_success); // In case we came from the gameover-success screen.
     }
 
     go_back(){
-        this.state_machine.push_action("back");;
+        this.state_machine.push_action("back");
     }
 
     update(delta_time){

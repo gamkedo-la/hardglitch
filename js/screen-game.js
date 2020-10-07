@@ -16,7 +16,7 @@ import * as editor from "./editor.js";
 import { ScreenFader } from "./system/screenfader.js";
 import { GameSession } from "./game-session.js";
 import { Color } from "./system/color.js";
-import { sprite_defs } from "./game-assets.js";
+import { music_id, sprite_defs } from "./game-assets.js";
 import { Vector2_origin, Vector2 } from "./system/spatial.js";
 import { AnimationGroup, wait } from "./system/animation.js";
 import { AudioSettings } from "./game-ui.js";
@@ -281,6 +281,11 @@ class GameScreen extends fsm.StateMachine {
         console.assert(Number.isInteger(level_to_play) || level_to_play !== undefined);
         console.assert(player_character === undefined || player_character instanceof Character);
 
+        audio.stopEvent(music_id.title);
+
+        this.music = Number.isInteger(level_to_play) ? music_id[`level_${level_to_play + 1}`] : music_id.level_1;
+        audio.playEvent(this.music);
+
         delete this.current_level_idx;
         this._level_to_play = level_to_play;
 
@@ -320,7 +325,6 @@ class GameScreen extends fsm.StateMachine {
         this._replace_title();
 
         this.animations.play(this._title_fade());
-        audio.playEvent('HGBreakdown'); // TODO: play a playlist depending on the level?
 
         this.ready = false;
         yield* wait(1000);
@@ -336,8 +340,8 @@ class GameScreen extends fsm.StateMachine {
         console.assert(this.level_title);
         this.ready = false;
         yield* this.fader.generate_fade_out();
+        audio.stopEvent(this.music);
         this.game_session.stop();
-        audio.stopEvent('HGBreakdown'); // TODO: play a playlist depending on the level?
         // ...
         delete this.level_title;
         delete this.game_session;

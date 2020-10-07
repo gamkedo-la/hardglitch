@@ -7,11 +7,12 @@ import * as fsm from "./system/finite-state-machine.js";
 import * as ui from "./system/ui.js";
 import * as input from "./system/input.js";
 import * as graphics from "./system/graphics.js";
+import * as audio from "./system/audio.js";
 import { Color } from "./system/color.js";
 import { ScreenFader } from "./system/screenfader.js";
 import { Vector2_origin } from "./system/spatial.js";
 import { invoke_on_members } from "./system/utility.js";
-import { sprite_defs } from "./game-assets.js";
+import { music_id, sprite_defs } from "./game-assets.js";
 import { KEY } from "./game-input.js";
 
 class GameOverScreen_Success extends fsm.State {
@@ -57,11 +58,13 @@ class GameOverScreen_Success extends fsm.State {
         if(!this.ui){
             this._init_ui();
         }
+        audio.playEvent(music_id.gameover_success);
         yield* this.fader.generate_fade_in();
     }
 
     *leave(){
         yield* this.fader.generate_fade_out();
+        // WE DON'T STOP THE MUSIC, ON PURPOSE.
     }
 
     go_to_next_screen(){
@@ -152,11 +155,14 @@ class GameOverScreen_Failure extends fsm.State {
         if(!this.ui){
             this._init_ui();
         }
+
+        audio.playEvent(music_id.gameover_failure);
         yield* this.fader.generate_fade_in();
     }
 
     *leave(){
         yield* this.fader.generate_fade_out();
+        // WE DON'T STOP THE MUSIC ON PURPOSE
     }
 
     back_to_main_menu(){

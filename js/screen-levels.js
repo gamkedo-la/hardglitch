@@ -6,12 +6,14 @@ export {
 }
 
 import * as graphics from "./system/graphics.js";
+import * as audio from "./system/audio.js";
 import * as input from "./system/input.js";
 import * as fsm from "./system/finite-state-machine.js";
 import * as ui from "./system/ui.js";
 import { ScreenFader } from "./system/screenfader.js";
 import { invoke_on_members } from "./system/utility.js";
 import { game_levels } from "./definitions-world.js";
+import { music_id } from "./game-assets.js";
 
 //ashleigh is trying to create a const to pass in the *entry coroutine
 // I just realized this is *absolutely* not where these lines would live
@@ -60,7 +62,7 @@ class LevelIntroScreen extends fsm.State {
         if(!this.info_display){
             this.on_canvas_resized();
         }
-
+        audio.stopEvent(music_id.title); // In case we came from the title.
         yield* this.fader.generate_fade_in();
     }
 
@@ -100,11 +102,27 @@ class Level_1_IntroScreen extends LevelIntroScreen {
     constructor(){
         super("Intro to Level 1 - WIP (need your help)", 0);
     }
+
+    *enter(player_character){
+        yield* super.enter(player_character);
+    }
+
+    *leave(){
+        yield* super.leave();
+    }
 };
 
 class Level_2_IntroScreen extends LevelIntroScreen {
     constructor(){
         super("Intro to Level 2 - WIP (need your help)", 1);
+    }
+
+    *enter(player_character){
+        yield* super.enter(player_character);
+    }
+
+    *leave(){
+        yield* super.leave();
     }
 };
 
@@ -112,11 +130,29 @@ class Level_3_IntroScreen extends LevelIntroScreen {
     constructor(){
         super("Intro to Level 3 - WIP (need your help)", 2);
     }
+
+
+    *enter(player_character){
+        yield* super.enter(player_character);
+    }
+
+    *leave(){
+        yield* super.leave();
+    }
 };
 
 class Level_4_IntroScreen extends LevelIntroScreen {
     constructor(){
         super("Intro to Level 4 - WIP (need your help)", 3);
+    }
+
+
+    *enter(player_character){
+        yield* super.enter(player_character);
+    }
+
+    *leave(){
+        yield* super.leave();
     }
 };
 

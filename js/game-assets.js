@@ -6,6 +6,7 @@ export {
     load_all_assets,
     sprite_defs,
     sound_event_defs,
+    music_id,
 };
 
 import * as asset_system from "./system/assets.js";
@@ -143,6 +144,8 @@ const game_assets = { // Description of the assets to load.
         breakdown: './audio/music/HardGlitchBreakdown.mp3',
         glitchborn: './audio/music/HardGlitch_AGlitchIsBorn.mp3',
         helloworld: './audio/music/HardGlitch_HelloWorld.mp3',
+        broketheloop: './audio/music/HardGlitch_BrokeTheLoop.mp3',
+        mistakes: './audio/music/HardGlitch_MistakesWereMade.mp3',
     }
 };
 
@@ -1100,8 +1103,6 @@ const sound_event_defs = {
         unique: true, // Will not create a new event instance if true
     },
 
-
-
     'HelloWorld': {
         source_type: 'audiostream',
         source_name: 'helloworld',
@@ -1110,6 +1111,34 @@ const sound_event_defs = {
         volume: 0.7,
         unique: true, // Will not create a new event instance if true
     },
+
+
+    'BrokeTheLoop': {
+        source_type: 'audiostream',
+        source_name: 'broketheloop',
+        group_name: 'Music',
+        loop: true,
+        volume: 0.7,
+        unique: true, // Will not create a new event instance if true
+    },
+
+    'Mistakes': {
+        source_type: 'audiostream',
+        source_name: 'mistakes',
+        group_name: 'Music',
+        loop: true,
+        volume: 0.7,
+        unique: true, // Will not create a new event instance if true
+    },
+
 }
 
-
+const music_id = {
+    title: "HelloWorld",
+    level_1: "HGBreakdown",
+    level_2: "GlitchyLife",
+    level_3: "RandomAccessDream",
+    level_4: "GlitchIsBorn",
+    gameover_success: "BrokeTheLoop",
+    gameover_failure: "Mistakes",
+};

@@ -8,7 +8,7 @@ import * as graphics from "./system/graphics.js";
 import * as ui from "./system/ui.js";
 import * as audio from "./system/audio.js";
 
-import { sprite_defs } from "./game-assets.js";
+import { music_id, sprite_defs } from "./game-assets.js";
 import { invoke_on_members } from "./system/utility.js";
 import { Vector2, Vector2_origin } from "./system/spatial.js";
 import { ScreenFader } from "./system/screenfader.js";
@@ -153,13 +153,13 @@ class TitleScreen extends fsm.State {
         if(!this.main_menu){
             this._init_ui();
         }
-        audio.playEvent("HelloWorld");
+        audio.playEvent(music_id.title);
         yield* this.fader.generate_fade_in();
     }
 
     *leave(){
         yield* this.fader.generate_fade_out();
-        audio.stopEvent("HelloWorld");
+        // audio.stopEvent(music_id.title); // The next screen will decide if they need to stop the title sceeen music or not.
     }
 
     update(delta_time){
