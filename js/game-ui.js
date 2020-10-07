@@ -70,7 +70,7 @@ class ActionButton extends ui.Button {
         if(key_name !== ""){
             this.key_label = new ui.Text({
                 text: key_name,
-                font: "12px Verdana",
+                font: "12px Space Mono",
             });
             this.key_label.position = this.position.translate({
                 x: this.width - this.key_label.width,

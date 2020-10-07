@@ -13,7 +13,7 @@ import { config } from "../game-config.js";
 import { show_info } from "./ui-infobox.js";
 
 const bar_text = {
-    font: "18px Verdana",
+    font: "18px Space Mono",
     color: "white",
     background_color: "#00000030",
 };

@@ -17,7 +17,7 @@ import { load_test_level, load_random_test_level } from "./main.js";
 import { AudioSettings } from "./game-ui.js";
 import { HARD_GLITCH_VERSION } from "./version.js";
 
-const buttons_font = "24px Verdana";
+const buttons_font = "24px Space Mono";
 
 class MainMenu {
 

@@ -27,7 +27,7 @@ class LoadingGameScreen extends fsm.State {
         canvas_context.save();
         canvas_context.fillStyle = 'black';
         canvas_context.fillRect(0,0, canvas_context.canvas.width, canvas_context.canvas.height);
-        canvas_context.font = '48px Verdana serif';
+        canvas_context.font = '48px Space Mono';
         canvas_context.fillStyle = 'white';
 
         let y = 0;

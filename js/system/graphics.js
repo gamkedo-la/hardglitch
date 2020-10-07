@@ -601,7 +601,7 @@ function reset() {
 const text_defaults = {
   text_align: "left",
   text_baseline: "top",
-  font: "20px Verdana",
+  font: "20px Space Mono",
   color: "black",
   stroke_color: undefined,
 };
