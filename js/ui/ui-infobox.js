@@ -15,7 +15,7 @@ import { add_text_line } from "../system/utility.js";
 const info_box_background_style = "#111177a0";
 const info_box_border_style = "orange";
 const info_box_background_margin = 4;
-const info_box_text_font = "16px Verdana";
+const info_box_text_font = "16px Space Mono"; //Verdana
 const info_box_text_color = "white";
 
 let current_info_box;

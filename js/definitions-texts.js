@@ -98,13 +98,13 @@ Then each entity acts in turn.
 
 infobox:
 `This is the Info Box.
-
-It helps you gather the information
-about what's visible around.
-Try to point at something to learn
-about it.
-
-Use the top button to open/close.
+It helps you gather the 
+information about what's 
+visible around. Try to 
+point at something 
+to learn about it. 
+Use the top button 
+to open/close.
 `,
 
 autofocus_button:
