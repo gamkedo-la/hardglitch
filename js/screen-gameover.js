@@ -126,7 +126,7 @@ class GameOverScreen_Failure extends fsm.State {
                 }
             }),
             button_back : new ui.TextButton({
-                text: "Main Menu [TAB]",
+                text: "End Game [TAB]",
                 position: Vector2_origin,
                 sprite_def: sprite_defs.button_menu,
                 action: ()=> { this.back_to_main_menu(); },
@@ -161,8 +161,8 @@ class GameOverScreen_Failure extends fsm.State {
     }
 
     *leave(){
+        audio.stopEvent(music_id.gameover_failure);
         yield* this.fader.generate_fade_out();
-        // WE DON'T STOP THE MUSIC ON PURPOSE
     }
 
     back_to_main_menu(){
