@@ -195,14 +195,20 @@ class Timeline
     }
 
     pointed_slot(pointed_position){
-        // TODO: cache the result to be used for the whole frame.
+        return this.find_slot((view, pos, slot_rect) => is_point_under(pointed_position, slot_rect));
+    }
+
+    find_slot(predicate) {
+        console.assert(predicate instanceof Function);
+
         const position_sequence = this.position_sequence();
         const next_position = ()=> position_sequence.next().value;
 
         for(let idx = 0; idx < this._character_views.length; ++idx){
+            const character_view = this._character_views[idx];
             const position = next_position();
             const slot_rect = new Rectangle({ position, width: timeline_config.space_between_elements, height: timeline_config.space_between_elements });
-            if(is_point_under(pointed_position, slot_rect)){ // This assumes we are in the screen space.
+            if(predicate(character_view, position, slot_rect)){
                 return { idx, slot_rect };
             }
         }
@@ -212,7 +218,12 @@ class Timeline
     is_under(position) { return this.pointed_slot(position) !== undefined; }
 
     _draw_locator(canvas_context){
-        const pointed_slot = this.pointed_slot(input.mouse.position);
+
+        let pointed_slot = this.pointed_slot(input.mouse.position);
+        if(!pointed_slot){
+            pointed_slot = this.find_slot(character_view => character_view.is_mouse_over);
+        }
+
         if(!pointed_slot)
             return;
 
@@ -230,12 +241,13 @@ class Timeline
         canvas_context.lineWidth = 4;
         canvas_context.strokeStyle = "#ffffffff";
 
-        canvas_context.strokeRect(position.x, position.y, width, height);
+        canvas_context.strokeRect(position.x, position.y, width, height); // Around the timeline character.
+        canvas_context.strokeRect(character_gfx_position.x, character_gfx_position.y, character_view.width, character_view.height); // Around the real character.
+
         canvas_context.beginPath();
         canvas_context.moveTo(character_gfx_position.x, character_gfx_position.y);
         canvas_context.lineTo(position.x, position.y);
         canvas_context.stroke();
-        canvas_context.strokeRect(character_gfx_position.x, character_gfx_position.y, character_view.width, character_view.height);
 
         canvas_context.restore();
     }

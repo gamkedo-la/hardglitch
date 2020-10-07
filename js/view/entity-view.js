@@ -6,9 +6,10 @@ export {
     graphic_position, game_position_from_graphic_po,
 }
 
-import { Vector2, containing_rectangle, Rectangle, Vector2_unit } from "../system/spatial.js";
 import * as graphics from "../system/graphics.js";
+import * as input from "../system/input.js";
 import * as concepts from "../core/concepts.js";
+import { Vector2, containing_rectangle, Rectangle, Vector2_unit, is_point_under } from "../system/spatial.js";
 import { is_number } from "../system/utility.js";
 import { sprite_defs } from "../game-assets.js";
 
@@ -165,7 +166,10 @@ class EntityView {
     get width() { return this._area.width; }
     get height() { return this._area.height; }
 
-
+    get is_mouse_over() {
+        return this.is_visible
+            && is_point_under(input.mouse.position, this._area, graphics.camera.position);
+    }
 
 };
 
