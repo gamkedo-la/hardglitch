@@ -48,37 +48,46 @@ const startup_rooms = {
           { type: "LifeForm_Weak", position: { x: 7, y: 11 }, drops: [ "Item_Pull" ] },
           { type: "GlitchyGlitchMacGlitchy", position: { x: 2, y: 2 } },
           { type: "CryptoKey_Plus", position: { x: 7, y: 3 } },
-          { type: "MovableWall", position: { x: 4, y: 12 } },
+          { type: "MovableWall_Purple", position: { x: 4, y: 12 } },
           { type: "CryptoFile_Plus", position: { x: 4, y: 7 }, drops: [ "Item_Push" ] },
         ],
       },
     swap : {
-        name: "Start Room: Swap",
-        width: 10,
-        height: 18,
-        grids: {
-          floor : [120,120,120,120,120,120,120,120,120,120,120,10,100,100,100,100,100,100,100,120,120,100,100,100,100,100,100,10,100,120,120,100,120,120,120,120,120,120,100,120,120,100,100,100,100,100,100,100,10,120,120,120,100,100,100,10,100,100,120,120,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,100,100,10,10,30,30,30,30,30,30,120,10,120,100,30,30,30,30,30,30,100,10,120,100,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,120,10,100,100,100,100,10,100,100,120,120,10,100,100,10,100,100,100,100,120,120,100,100,100,100,100,120,100,120,120,120,10,10,100,10,10,120,100,100,100,120,120,120,120,120,120,120,120,10,10],
-          surface : [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,0,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,1],
-          corruption : [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-          unstable : [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
-        },
-        entities: [
-          { type: "GlitchyGlitchMacGlitchy", position: { x: 4, y: 9 } },
-          { type: "LifeForm_Weak", position: { x: 5, y: 5 } },
-          { type: "CryptoFile_Equal", position: { x: 8, y: 16 } },
-          { type: "MovableWall", position: { x: 8, y: 13 } },
-          { type: "MovableWall", position: { x: 7, y: 13 } },
-          { type: "MovableWall", position: { x: 6, y: 13 } },
-          { type: "MovableWall", position: { x: 5, y: 13 } },
-          { type: "MovableWall", position: { x: 4, y: 13 } },
-          { type: "MovableWall", position: { x: 3, y: 13 } },
-          { type: "MovableWall", position: { x: 2, y: 13 } },
-          { type: "MovableWall", position: { x: 1, y: 13 } },
-          { type: "Item_Swap", position: { x: 6, y: 10 } },
-          { type: "CryptoKey_Equal", position: { x: 4, y: 2 } },
-        ],
-      }
+      name: "Start Room: Swap",
+      width: 10,
+      height: 18,
+      grids: {
+        floor : [120,120,120,120,120,120,120,120,120,120,120,10,100,100,100,100,100,100,100,120,120,100,100,100,100,100,100,10,100,120,120,100,121,121,121,121,121,121,100,120,120,100,100,100,100,100,100,100,10,120,120,120,100,100,100,10,100,100,120,120,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,100,100,120,100,10,10,100,120,30,30,100,120,120,10,100,121,100,120,30,30,100,100,120,120,100,121,100,100,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,121,10,100,120,101,101,101,101,101,120,121,10,100,120,101,101,101,101,101,120,121,100,100,120,40,40,101,101,120,120,121,101,101,101,101,101,40,101,101,100,121,121,121,121,121,121,120,120,10,10],
+        surface : [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,0,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,1],
+        corruption : [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+        unstable : [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      },
+      entities: [
+        { type: "LifeForm_Weak", position: { x: 5, y: 5 } },
+        { type: "GlitchyGlitchMacGlitchy", position: { x: 5, y: 9 } },
+        { type: "LifeForm_Weak", position: { x: 5, y: 1 } },
+        { type: "CryptoFile_Equal", position: { x: 8, y: 16 } },
+        { type: "CryptoKey_Equal", position: { x: 4, y: 2 } },
+        { type: "MovableWall_Purple", position: { x: 2, y: 8 } },
+        { type: "MovableWall_Green", position: { x: 1, y: 13 } },
+        { type: "MovableWall_Orange", position: { x: 2, y: 13 } },
+        { type: "MovableWall_Green", position: { x: 5, y: 13 } },
+        { type: "MovableWall_Green", position: { x: 7, y: 13 } },
+        { type: "MovableWall_Blue", position: { x: 4, y: 13 } },
+        { type: "MovableWall_Blue", position: { x: 6, y: 13 } },
+        { type: "MovableWall_Blue", position: { x: 8, y: 13 } },
+        { type: "MovableWall_Red", position: { x: 1, y: 3 } },
+        { type: "MovableWall_Red", position: { x: 8, y: 3 } },
+        { type: "Item_Swap", position: { x: 7, y: 10 } },
+        { type: "MovableWall_Purple", position: { x: 4, y: 14 } },
+        { type: "MovableWall_Purple", position: { x: 6, y: 15 } },
+        { type: "MovableWall_Red", position: { x: 5, y: 14 } },
+      ],
+    },
+
 };
+
+window.startup_rooms = startup_rooms; // For debugging.
 
 function generate_world(){
     // LEVEL 1:
