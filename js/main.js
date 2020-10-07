@@ -145,6 +145,7 @@ window.onload = async function() {
 
 function start() { // Now we can start the game!
   mute_button = new MuteAudioButton();
+  audio.setVolume("Music", 0.8);
   game_state_machine.game_is_ready = true;
   console.log("GAME READY - STARTING");
   window.requestAnimationFrame(update_cycle);
