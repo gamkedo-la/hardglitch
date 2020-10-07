@@ -18,6 +18,7 @@ const game_assets = { // Description of the assets to load.
         test_enemy: "./images/test_enemy.png",
         tileset_entry_exit : "./images/portalinout.png",
         exit_portal : "./images/exit_portal.png",
+        exit_portal2 : "./images/portal9.png",
         ground_template : "./images/ground_template.png",
         ground2_template : "./images/ground2_template.png",
         lvl1warm_template : "./images/lvl1warm.png",
@@ -430,9 +431,41 @@ const sprite_defs = {
     exit : {
         image: "exit_portal",
         frames: [
-            { x:0, y:0, width:64, height:64 }
-         ]
+            { x:0, y:0, width:64, height:64 },
+            { x:64, y:0, width:64, height:64 },
+            { x:128, y:0, width:64, height:64 },
+            { x:192, y:0, width:64, height:64 },
+            { x:256, y:0, width:64, height:64 },
+            { x:320, y:0, width:64, height:64 },
+            { x:384, y:0, width:64, height:64 },
+            { x:448, y:0, width:64, height:64 },
+            { x:512, y:0, width:64, height:64 },
+            { x:576, y:0, width:64, height:64 },
+            { x:640, y:0, width:64, height:64 },
+         ],
+        animations: {
+            idle: {
+                loop: true,
+                timeline: [
+                    { frame: 1, duration: 300 },
+                    { frame: 2, duration: 300 },
+                    { frame: 1, duration: 300 },
+                    { frame: 2, duration: 300 },
+                    { frame: 1, duration: 300 },
+                    { frame: 2, duration: 300 },
+                    { frame: 3, duration: 100 },
+                    { frame: 4, duration: 100 },
+                    { frame: 5, duration: 100 },
+                    { frame: 6, duration: 100 },
+                    { frame: 7, duration: 100 },
+                    { frame: 8, duration: 100 },
+                    { frame: 9, duration: 100 },
+                    { frame: 10, duration: 100 },
+                ],
+            },
+        },
     },
+
     stream_right : {
         image: "stream_buffer",
         frames: [
