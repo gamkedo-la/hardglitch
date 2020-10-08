@@ -27,6 +27,7 @@ import { ranged_actions_for_each_target, actions_for_each_target } from "./rules
 import { lazy_call, random_sample } from "../system/utility.js";
 import { is_blocked_position } from "../definitions-world.js";
 
+const move_range = new visibility.Range_Cross_Axis(1,2); // TODO: obtain that from the bodie's data!
 const jump_range = new visibility.Range_Cross_Star(3, 4);
 const swap_range = new visibility.Range_Diamond(1, 4);
 
@@ -68,6 +69,7 @@ class Moved extends concepts.Event {
 class Move extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_move; }
     static get action_type_name() { return "Move"; }
+    static get range(){ return move_range; }
     static get costs(){
         return {
             action_points: 10,

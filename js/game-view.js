@@ -189,8 +189,14 @@ class GameView {
         const ui_config = {
             on_action_selection_begin: (...args) => this.on_action_selection_begin(...args),
             on_action_selection_end: (...args) => this.on_action_selection_end(...args),
-            on_action_pointed_begin: (...args) => this.highlight_action_range(...args),
-            on_action_pointed_end: (...args) => this.clear_action_range_highlight(...args),
+            on_action_pointed_begin: (...args) => {
+                this.clear_highlights_basic_actions();
+                this.highlight_action_range(...args);
+            },
+            on_action_pointed_end: (...args) => {
+                this.clear_action_range_highlight(...args);
+                this.highlight_available_basic_actions();
+            },
             toggle_autofocus: () => {
                 this.enable_auto_camera_center = !this.enable_auto_camera_center;
                 if(this.enable_auto_camera_center)
@@ -377,6 +383,7 @@ class GameView {
     }
 
     highlight_action_range(action_range, action_targets){
+        this.clear_highlights_basic_actions();
         this.clear_action_range_highlight();
         if(action_range instanceof visibility.RangeShape){
             const possible_targets = visibility.positions_in_range(this.player_character.position,

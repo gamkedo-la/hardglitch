@@ -7,7 +7,6 @@ export {
     AudioSettings,
 };
 
-import { group_per_type } from "./system/utility.js";
 import * as audio from "./system/audio.js"
 import * as graphics from "./system/graphics.js";
 import * as ui from "./system/ui.js";
@@ -66,6 +65,8 @@ class ActionButton extends ui.Button {
         console.assert(on_end_mouse_over instanceof Function);
         this.on_begin_mouse_over = on_begin_mouse_over;
         this.on_end_mouse_over = on_end_mouse_over;
+
+        this.allow_disabled_update = true; // To enabled displaying info when the mouse is over.
 
         this.icon = new graphics.Sprite(icon_def);
         this.icon.position = center_in_rectangle(this.icon, this.area).position;

@@ -156,6 +156,7 @@ const ButtonState = {
 
 // Can be clicked to trigger something.
 class Button extends UIElement {
+    allow_disabled_update = false; // Set true to allow updating this button when it is disabled.
 
     // Button parametters:
     // {
@@ -215,23 +216,28 @@ class Button extends UIElement {
     get state() { return this._state; }
 
     _on_update(delta_time){
-        if(!this.visible || !this.enabled)
+        if(!this.visible)
+            return;
+        if(!this.enabled && !this.allow_disabled_update)
             return;
 
         const mouse_is_over_now = this.is_mouse_over;
 
-        switch(this.state){
-            case ButtonState.UP:
-                if(mouse.buttons.is_down(MOUSE_BUTTON.LEFT) && mouse_is_over_now){
-                    this._on_down();
-                }
-                break;
-            case ButtonState.DOWN:
-                if(mouse.buttons.is_up(MOUSE_BUTTON.LEFT) || !mouse_is_over_now){
-                    this._on_up();
-                }
-                break;
+        if(this.enabled){
+            switch(this.state){
+                case ButtonState.UP:
+                    if(mouse.buttons.is_down(MOUSE_BUTTON.LEFT) && mouse_is_over_now){
+                        this._on_down();
+                    }
+                    break;
+                case ButtonState.DOWN:
+                    if(mouse.buttons.is_up(MOUSE_BUTTON.LEFT) || !mouse_is_over_now){
+                        this._on_up();
+                    }
+                    break;
+            }
         }
+
 
         if(this._was_mouse_over != mouse_is_over_now){
             if(mouse_is_over_now)
@@ -240,7 +246,7 @@ class Button extends UIElement {
                 this._on_end_over();
         }
 
-        if(mouse_is_over_now && !mouse.was_dragging){
+        if(this.enabled && mouse_is_over_now && !mouse.was_dragging){
             const is_time_to_trigger_action = this.is_action_on_up ? mouse.buttons.is_just_released(MOUSE_BUTTON.LEFT) : mouse.buttons.is_just_down(MOUSE_BUTTON.LEFT);
             if(is_time_to_trigger_action && this.action != undefined){
                 this.action();
@@ -267,9 +273,9 @@ class Button extends UIElement {
 
     _change_state(state_id){
         console.assert(state_id == 'up' || state_id == 'down' || state_id == 'over' || state_id == 'disabled');
+        this._play_sound(state_id);
         this._sprite.force_frame(this._frames[state_id]);
         super.area = this._sprite.area;
-        this._play_sound(state_id);
     }
 
     _on_draw(canvas_context){
@@ -278,23 +284,31 @@ class Button extends UIElement {
 
 
     _on_up(){
+        if(!this.enabled)
+            return; // Ignore when disabled.
         this._state = ButtonState.UP;
         this._change_state('up');
     }
 
     _on_down(){
+        if(!this.enabled)
+            return; // Ignore when disabled.
         this._state = ButtonState.DOWN;
         this._change_state('down');
     }
 
     _on_begin_over(){
         this._was_mouse_over = true;
+        if(!this.enabled)
+            return; // Ignore when disabled.
         if(this.state == ButtonState.UP)
             this._change_state('over');
     }
 
     _on_end_over(){
         this._was_mouse_over = false;
+        if(!this.enabled)
+            return; // Ignore when disabled.
         if(this.state == ButtonState.UP)
             this._change_state('up');
     }
