@@ -15,6 +15,9 @@ import * as asset_system from "./system/assets.js";
 const game_assets = { // Description of the assets to load.
     images : { // group "images"
         asset_loader : asset_system.image_loader, // This is the function that will be used to convert the following data into usable objects.
+
+        level_transition: "./images/level-transitions.png",
+
         glitch: "./images/glitch-painting.png",
         test_enemy: "./images/test_enemy.png",
         tileset_entry_exit : "./images/portalinout.png",
@@ -260,6 +263,8 @@ function crypto_key_def(kind){
 // Sprite descriptions here.
 // Describe here all the sprites and sprite animations as defined by Sprite class.
 const sprite_defs = {
+
+    level_transition : { image: "level_transition" },
 
     shadow : {
         image: "shadow",
