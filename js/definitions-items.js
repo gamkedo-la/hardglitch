@@ -57,6 +57,7 @@ function all_crypto_key_types() {
 function all_debug_item_types(){
     return [
         Debug_AllActions,
+        Debug_Crucial,
         Debug_AugmentHealth,
         Debug_ReduceHealth,
         Debug_AugmentActionPoints,
@@ -418,6 +419,24 @@ class Debug_AllActions extends concepts.Item {
     get_enabled_action_types(){
         return [ ...Object.values(all_uncommon_action_types) ];
     }
+
+}
+
+
+class Debug_Crucial extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_7,
+        }}
+    };
+
+    get can_be_taken() { return true; }
+
+    constructor(){
+        super("Debug: Crucial");
+    }
+
+    is_crucial = true;
 
 }
 

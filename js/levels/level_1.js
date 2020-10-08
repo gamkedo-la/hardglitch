@@ -17,6 +17,7 @@ const defaults = {
 };
 
 const startup_rooms = {
+
     jump : {
         name: "Start Room: Jump",
         width: 8,
@@ -34,6 +35,7 @@ const startup_rooms = {
           { type: "CryptoKey_Triangle", position: { x: 5, y: 8 } },
         ],
       },
+
     push_pull : {
         name: "Start Room: Push & Pull",
         width: 10,
@@ -47,11 +49,12 @@ const startup_rooms = {
         entities: [
           { type: "LifeForm_Weak", position: { x: 7, y: 11 }, drops: [ "Item_Pull" ] },
           { type: "GlitchyGlitchMacGlitchy", position: { x: 2, y: 2 } },
-          { type: "CryptoKey_Plus", position: { x: 7, y: 3 } },
+          { type: "CryptoKey_Plus", position: { x: 7, y: 3 }, is_crucial: true, },
           { type: "MovableWall_Purple", position: { x: 4, y: 12 } },
-          { type: "CryptoFile_Plus", position: { x: 4, y: 7 }, drops: [ "Item_Push" ] },
+          { type: "CryptoFile_Plus", position: { x: 4, y: 7 }, drops: [ "Item_Push" ], },
         ],
       },
+
     swap : {
       name: "Start Room: Swap",
       width: 10,

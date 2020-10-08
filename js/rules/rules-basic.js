@@ -1,3 +1,15 @@
+export {
+    Rule_GameOver,
+    Rule_BasicActions,
+    Rule_LevelExit,
+    Rule_Destroy_NoIntegrity,
+    Wait,
+    Waited,
+    GameOver,
+    PlayerExitLevel,
+    fail_game,
+};
+
 import * as concepts from "../core/concepts.js";
 import * as tiles from "../definitions-tiles.js";
 import { sprite_defs } from "../game-assets.js";
@@ -10,17 +22,6 @@ import * as anim from "../game-animations.js";
 import { destroy_entity } from "./destruction.js";
 import * as audio from "../system/audio.js";
 import { grid_ID } from "../definitions-world.js";
-
-export {
-    Rule_GameOver,
-    Rule_BasicActions,
-    Rule_LevelExit,
-    Rule_Destroy_NoIntegrity,
-    Wait,
-    Waited,
-    GameOver,
-    PlayerExitLevel,
-};
 
 // That actor decided to take a pause.
 class Waited extends concepts.Event {
@@ -113,15 +114,20 @@ class GameOver extends concepts.Event {
     }
 }
 
+function fail_game(world){
+    world.is_finished = true;
+    return [ new GameOver() ]; // This event will notify the rest of the code that the game is over.
+}
+
 class Rule_GameOver extends concepts.Rule {
 
     check_game_over(world){
         if(world.is_finished) // The game is already finished.
             return [];
 
-        world.is_finished = is_game_over(world);
-        if(world.is_finished)
-            return [ new GameOver() ]; // This event will notify the rest of the code that the game is over.
+        const failed = is_game_over(world);
+        if(failed)
+            return fail_game(world);
         else
             return []; // Nothing happens otherwise.
     }

@@ -16,8 +16,8 @@ import { destroyed, take_damage } from "../game-animations.js";
 import { Character } from "../core/character.js";
 import { EntityDropped } from "./rules-items.js";
 import { random_sample } from "../system/utility.js";
-import { grid_ID } from "../definitions-world.js";
-import { EntitySpawned, spawn_entities_around } from "./spawn.js";
+import { spawn_entities_around } from "./spawn.js";
+import { fail_game } from "./rules-basic.js";
 
 
 class Damaged extends concepts.Event {
@@ -97,6 +97,10 @@ function destroy_entity(entity, world){
     const destroyed_entity = entities[0];
     console.assert(destroyed_entity instanceof concepts.Entity);
     events.push( ...drop_entity_drops(destroyed_entity, world));
+
+    if(destroyed_entity.is_crucial){
+        events.push( ...fail_game(world));
+    }
 
     return events;
 }
