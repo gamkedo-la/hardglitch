@@ -37,17 +37,22 @@ class EntityScanned extends concepts.Event {
     }
 };
 
+const copy_range = new visibility.Range_Circle(0, 6);
+
 class Copy extends concepts.Action {
-    icon_def = sprite_defs.icon_action_merge;
+    static get icon_def(){ return sprite_defs.icon_action_merge; }
+    static get action_type_name() { return "Copy"; }
+
+    static get range() { return copy_range; }
+    static get costs(){
+        return {
+            action_points: copy_ap_cost,
+        };
+    }
 
     constructor(target_position){
         super(`copy_${target_position.x}_${target_position.y}`,
-                `Copy ${JSON.stringify(target_position)}`,
-                target_position,
-                { // costs
-                    action_points: copy_ap_cost
-                }
-            );
+                `Copy ${JSON.stringify(target_position)}`);
         this.target_position = target_position;
     }
 
@@ -68,11 +73,10 @@ class Copy extends concepts.Action {
 
 
 class Rule_Copy extends concepts.Rule {
-    range = new visibility.Range_Circle(0, 6);
 
     get_actions_for(character, world){
         console.assert(character instanceof Character);
-        return ranged_actions_for_each_target(world, character, Copy, this.range);
+        return ranged_actions_for_each_target(world, character, Copy, Copy.range);
     }
 
 };

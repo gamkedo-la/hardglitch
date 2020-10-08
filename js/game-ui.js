@@ -52,7 +52,7 @@ function infobox_rectangle() {
 }
 
 class ActionButton extends ui.Button {
-    constructor(position, icon_def, action_name, key_name, info_desc, on_clicked, on_begin_mouse_over, on_end_mouse_over){
+    constructor(position, icon_def, action_name, action_text_name, key_name, info_desc, on_clicked, on_begin_mouse_over, on_end_mouse_over){
         super({
             position: position,
             sprite_def: sprite_defs.button_select_action,
@@ -83,7 +83,7 @@ class ActionButton extends ui.Button {
 
         this.help_text = new ui.HelpText({
             area_to_help: this.area,
-            text: action_name,
+            text: action_text_name,
             delay_ms: 0, // Display the help text immediately when pointed.
         }, {
             on_mouse_over: ()=> { show_info(info_desc); }
@@ -443,17 +443,11 @@ class GameInterface {
         graphics.camera.end_in_screen_rendering();
     }
 
-    show_action_buttons(possible_actions){
-        console.assert(possible_actions instanceof Array);
-        console.assert(possible_actions.every(action => action instanceof concepts.Action));
+    show_action_buttons(actions_per_types){
 
         this._action_buttons = []; // Clear the previous set of buttons.
 
         // We need to have 1 button per action type, then show targets when it's selected.
-        // So first we gather these actions per types...
-        const actions_per_types = group_per_type(possible_actions);
-
-        // ... then we build the buttons with the associated informations.
         const action_entries = Object.entries(actions_per_types);
         const space_between_buttons = action_button_size;
         const canvas_rect = graphics.canvas_rect();
@@ -472,35 +466,43 @@ class GameInterface {
         const next_x = ()=> line_x += space_between_buttons;
 
         let key_number = 0;
-        for(const [action_name, actions] of action_entries){
+        for(const [action_name, action_info] of action_entries){
             if(key_number > 0 && key_number % max_buttons_per_lines === 0){
                 line_y -= space_between_buttons;
                 this.action_buttons_top = line_y;
                 line_x = base_line_x;
             }
             const position = { x: next_x(), y: line_y };
-            const first_action = actions[0];
-            const action_range = first_action.range;
-            console.assert(first_action instanceof concepts.Action);
+
+            const action_type = action_info.action_type;
+            const action_range = action_type.range;
             const key_name = key_number <= 10 ? `${key_number === 0 ? "SPACE" : (key_number === 10 ? 0 : key_number) }` : "";
-            const action_description = texts.action_description(first_action);
-            const action_button = new ActionButton(position, first_action.icon_def, action_name, key_name, action_description,
+            const action_description = texts.action_description(action_type);
+            const action_name_text = action_type.action_type_name;
+            const action_button = new ActionButton(position, action_type.icon_def, action_name, action_name_text, key_name, action_description,
                 (clicked_button)=>{ // on clicked
-                    if(actions.length == 1 && first_action.target_position === undefined){ // No need for targets
-                        play_action(first_action); // Play the action immediately
+                    console.assert(action_info.actions instanceof Array && action_info.actions.length > 0); // Only allow clicking enabled (aka allowed) action buttons.
+                    console.assert(action_info.actions.every(action => action instanceof concepts.Action));
+                    if(action_info.actions.length == 1 && action_info.action_type.range === undefined){ // No need for targets
+                        const action = action_info.actions[0];
+                        console.assert(action instanceof concepts.Action);
+                        play_action(action); // Play the action immediately
                     } else {
                         // Need to select an highlited target!
                         this.button_cancel_action_selection.position = clicked_button.cancel_button_position;
-                        this._begin_target_selection(action_name, actions);
+                        this._begin_target_selection(action_name, action_info.actions);
                     }
                     audio.playEvent('actionClick');
                     this.lock_actions(); // Can be unlocked by clicking somewhere there is no action target.
                 },
-                ()=> this.config.on_action_pointed_begin(action_range, actions.map(action=>action.target_position)),
+                ()=> this.config.on_action_pointed_begin(action_range, action_info.actions.map(action=>action.target_position)),
                 ()=> {
                     if(!this.is_mouse_over)
                         this.config.on_action_pointed_end();
                 });
+            const can_be_performed = action_info.actions && action_info.actions.length > 0; // Disabled if we don't have any actions anyway.
+            action_button.enabled = can_be_performed;
+            action_button.enabled_default = can_be_performed; // Keep in memory that we want it enabled by default or disabled by default.
             this._action_buttons.push(action_button);
             ++key_number;
         }
@@ -527,7 +529,7 @@ class GameInterface {
     }
 
     unlock_actions(){
-        this._action_buttons.forEach(button => button.enabled = true);
+        this._action_buttons.forEach(button => button.enabled = button.enabled_default);
         this.inventory.dragging_enabled = true;
     }
 

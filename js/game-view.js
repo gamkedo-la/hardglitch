@@ -36,7 +36,7 @@ import { ItemView } from "./view/item-view.js";
 import { FogOfWar } from "./view/fogofwar.js";
 import { TakeItem } from "./rules/rules-items.js";
 import { GameFxView } from "./game-effects.js";
-import { add_text_line, index_from_position, position_from_index } from "./system/utility.js";
+import { add_text_line, group_per_type, position_from_index } from "./system/utility.js";
 import { config } from "./game-config.js";
 import { turn_sequence } from "./core/action-turn.js";
 import { grid_ID } from "./definitions-world.js";
@@ -314,7 +314,7 @@ class GameView {
 
     _action_description(action){ // TODO: make a general function for this AND make it handle also more general description and action icons.
         console.assert(action instanceof concepts.Action);
-        return `${action.name} -${action.costs.action_points} AP`;
+        return `${action.name} -${action.constructor.costs.action_points} AP`;
     }
 
     _action_highlight_events(action){
@@ -322,7 +322,7 @@ class GameView {
             on_mouse_over_begin: () => {
                 if(this.player_character){
                     this.ui.character_status.begin_preview_costs({
-                        action_points: this.player_character.stats.action_points.value - action.costs.action_points,
+                        action_points: this.player_character.stats.action_points.value - action.constructor.costs.action_points,
                     });
                 }
             },
@@ -904,7 +904,41 @@ class GameView {
         this._require_tiles_update = true;
         this.focus_on_current_player_character();
         this.highlight_available_basic_actions();
-        this.ui.show_action_buttons(Object.values(this.game.turn_info.possible_actions));
+        if(this.player_character){
+
+            const actions_infos = this.player_character.get_all_enabled_actions_types()
+                .map(action_type => {
+                    console.assert(action_type.prototype instanceof concepts.Action);
+                    const action_type_name = action_type.name;
+                    return {
+                        [action_type_name]: {
+                            actions: [],
+                            action_type: action_type
+                        },
+                    };
+                }).reduce((result, value) => {
+                    return Object.assign(result, value);
+                }, {});
+
+
+            const allowed_actions = Object.values(this.game.turn_info.possible_actions);
+            console.assert(allowed_actions instanceof Array);
+            console.assert(allowed_actions.every(action => action instanceof concepts.Action));
+            const allowed_actions_per_types = group_per_type(allowed_actions);
+            for(const [action_type_name, actions] of Object.entries(allowed_actions_per_types)){
+                if(actions_infos[action_type_name]){
+                    actions_infos[action_type_name].actions = actions;
+                } else {
+                    actions_infos[action_type_name] = {
+                        actions: actions,
+                        action_type: actions[0].constructor,
+                    }
+                }
+            }
+
+            this.ui.show_action_buttons(actions_infos);
+
+        }
     }
 
     on_canvas_resized(){

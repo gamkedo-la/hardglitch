@@ -18,6 +18,7 @@ import { sprite_defs } from "../game-assets.js";
 import { ItemView } from "../view/item-view.js";
 import { spawn_entities_around } from "./spawn.js";
 
+const take_item_range = new visibility.Range_Cross_Axis(1,2);
 
 class ItemTaken extends concepts.Event {
     constructor(taker, item, inventory_idx){
@@ -109,15 +110,19 @@ function handle_items_in_limbo(world, character){
 }
 
 class TakeItem extends concepts.Action {
-    icon_def = sprite_defs.icon_action_take;
+    static get icon_def(){ return sprite_defs.icon_action_take; }
+    static get action_type_name() { return "Take Item"; }
+    static get range() { return take_item_range; }
+    static get costs(){
+        return {
+            action_points: 1,
+        };
+    }
 
     constructor(target_position){
         console.assert(target_position instanceof concepts.Position);
         super(`take_item_at_${target_position.x}_${target_position.y}`,
-            "Take Item", target_position,
-            { // costs
-                action_points: 1
-            });
+            "Take Item", target_position);
         this.is_basic = true;
     }
 
@@ -168,14 +173,17 @@ class SwappedItemsSlots extends concepts.Event {
 }
 
 class SwapItemSlots extends concepts.Action {
+
+    static get costs(){
+        return {
+            action_points: 1,
+        };
+    }
+
     constructor(slot_a_idx, slot_b_idx){
         console.assert(Number.isInteger(slot_a_idx) && slot_a_idx >= 0);
         console.assert(Number.isInteger(slot_b_idx) && slot_b_idx >= 0);
-        super(`swap_items_from_slot_${slot_a_idx}_to_${slot_b_idx}`, "THIS SHOULD NEVER BE DISPLAYED", undefined,
-            { // costs
-                action_points: 1,
-            }
-        );
+        super(`swap_items_from_slot_${slot_a_idx}_to_${slot_b_idx}`, "THIS SHOULD NEVER BE DISPLAYED", undefined);
         this.is_generated = true;
 
         this.slot_a_idx = slot_a_idx;
@@ -196,14 +204,16 @@ class SwapItemSlots extends concepts.Action {
 };
 
 class DropItem extends concepts.Action {
+    static get costs(){
+        return {
+            action_points: 1,
+        };
+    }
+
     constructor(target, inventory_idx){
         console.assert(target instanceof concepts.Position);
         console.assert(Number.isInteger(inventory_idx) && inventory_idx >= 0);
-        super(`drom_item_at_${target.x}_${target.y}`, "THIS SHOULD NEVER BE DISPLAYED", undefined,
-            { // costs
-                action_points: 1,
-            }
-        );
+        super(`drom_item_at_${target.x}_${target.y}`, "THIS SHOULD NEVER BE DISPLAYED", undefined);
         this.is_generated = true;
 
         this.target = target;
@@ -226,7 +236,6 @@ class DropItem extends concepts.Action {
 };
 
 class Rule_TakeItem extends concepts.Rule {
-    range = new visibility.Range_Cross_Axis(1,2);
 
     get_actions_for(character, world){
         console.assert(character instanceof Character);
@@ -238,14 +247,13 @@ class Rule_TakeItem extends concepts.Rule {
             return {};
 
         const actions = {};
-        visibility.valid_target_positions(world, character, this.range)
+        visibility.valid_target_positions(world, character, TakeItem.range)
             .filter(target=> { // Only if there is an item to take.
                 const item = world.item_at(target);
                 return item && item.can_be_taken === true;
             })
             .forEach((target)=>{
                 const action = new TakeItem(target);
-                action.range = this.range;
                 actions[action.id] = action;
             });
         return actions;

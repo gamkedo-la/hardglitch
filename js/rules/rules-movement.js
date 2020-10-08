@@ -27,6 +27,10 @@ import { ranged_actions_for_each_target, actions_for_each_target } from "./rules
 import { lazy_call, random_sample } from "../system/utility.js";
 import { is_blocked_position } from "../definitions-world.js";
 
+const jump_range = new visibility.Range_Cross_Star(3, 4);
+const swap_range = new visibility.Range_Diamond(1, 4);
+
+
 // Set the action as unsafe if the target tile is unsafe.
 function safe_if_safe_arrival(move_action, world){
     const tiles_under_target = world.tiles_at(move_action.target_position);
@@ -62,13 +66,16 @@ class Moved extends concepts.Event {
 };
 
 class Move extends concepts.Action {
-    icon_def = sprite_defs.icon_action_move;
+    static get icon_def(){ return sprite_defs.icon_action_move; }
+    static get action_type_name() { return "Move"; }
+    static get costs(){
+        return {
+            action_points: 10,
+        };
+    }
 
     constructor(move_name, new_position){
-        super(move_name, `Move to ${JSON.stringify(new_position)}`, new_position,
-        { // costs
-            action_points: 10
-        });
+        super(move_name, `Move to ${JSON.stringify(new_position)}`, new_position);
         this.is_basic = true;
     }
 
@@ -103,7 +110,6 @@ class Rule_Movements extends concepts.Rule {
             ){
                 const move = new Move(move_id, move_target);
                 safe_if_safe_arrival(move, world);
-                move.range = this.range;
                 actions[move_id] = move;
             }
         }
@@ -141,13 +147,17 @@ class Jumped extends concepts.Event {
 };
 
 class Jump extends concepts.Action {
-    icon_def = sprite_defs.icon_action_move;
+    static get icon_def(){ return sprite_defs.icon_action_move; }
+    static get action_type_name() { return "Jump"; }
+    static get range() { return jump_range; }
+    static get costs(){
+        return {
+            action_points: 20,
+        };
+    }
 
     constructor(target){
-        super(`jump_${target.x}_${target.y}`, `Jump to ${JSON.stringify(target)}`, target,
-        {// costs
-            action_points: 20
-        });
+        super(`jump_${target.x}_${target.y}`, `Jump to ${JSON.stringify(target)}`, target);
         this.is_basic = true;
     }
 
@@ -162,16 +172,14 @@ class Jump extends concepts.Action {
 };
 
 class Rule_Jump extends concepts.Rule {
-    range = new visibility.Range_Cross_Star(3, 4);
 
     get_actions_for(character, world){
         console.assert(character instanceof Character);
 
-        const valid_targets = lazy_call(visibility.valid_move_positions, world, character, this.range, tiles.is_walkable);
+        const valid_targets = lazy_call(visibility.valid_move_positions, world, character, Jump.range, tiles.is_walkable);
         const possible_jumps = actions_for_each_target(character, Jump, valid_targets, (jump_type, target)=>{
             const jump = new jump_type(target);
             safe_if_safe_arrival(jump, world);
-            jump.range = this.range;
             return jump;
         });
         return possible_jumps;
@@ -196,13 +204,16 @@ function random_jump(world, entity, range, position_predicate = ()=>true){
 }
 
 class RandomJump extends concepts.Action {
-    icon_def = sprite_defs.icon_action_move;
+    static get icon_def(){ return sprite_defs.icon_action_move; }
+    static get action_type_name() { return "RandomJump"; }
+    static get costs(){
+        return {
+            action_points: 20,
+        };
+    }
 
     constructor(){
-        super(`random_jump`, `Random Jump`, undefined,
-        {// costs
-            action_points: 20
-        });
+        super(`random_jump`, `Random Jump`, undefined);
         this.is_basic = false;
     }
 
@@ -267,13 +278,18 @@ class Swaped extends concepts.Event {
 };
 
 class Swap extends concepts.Action {
-    icon_def = sprite_defs.icon_action_swap;
+    static get icon_def(){ return sprite_defs.icon_action_swap; }
+    static get action_type_name() { return "Swap"; }
+    static get range() { return swap_range; }
+    static get costs(){
+        return {
+            action_points: 10,
+        };
+    }
 
     constructor(target){
         console.assert(target instanceof concepts.Position);
-        super(`swap_${target.x}_${target.y}`, `Swap with ${JSON.stringify(target)}`, target, {
-            action_points: 10
-        });
+        super(`swap_${target.x}_${target.y}`, `Swap with ${JSON.stringify(target)}`, target);
         this.target = target
     }
 
@@ -297,7 +313,6 @@ class Swap extends concepts.Action {
 
 
 class Rule_Swap extends concepts.Rule {
-    range = new visibility.Range_Diamond(1, 4);
 
     get_actions_for(character, world){
         console.assert(character instanceof Character);
@@ -311,6 +326,6 @@ class Rule_Swap extends concepts.Rule {
             return false;
         };
 
-        return ranged_actions_for_each_target(world, character, Swap, this.range, entity_can_be_moved);
+        return ranged_actions_for_each_target(world, character, Swap, Swap.range, entity_can_be_moved);
     }
 };

@@ -21,6 +21,9 @@ import * as visibility from "../core/visibility.js";
 import { ranged_actions_for_each_target } from "./rules-common.js";
 import { is_blocked_position } from "../definitions-world.js";
 
+const push_range = new visibility.Range_Square(1, 5);
+const pull_range = new visibility.Range_Square(1, 5);
+
 class Pushed extends concepts.Event {
     constructor(entity, from, to){
         super({
@@ -118,14 +121,18 @@ function compute_push_translation(origin, target){
 }
 
 class Push extends concepts.Action {
-    icon_def = sprite_defs.icon_action_push;
+    static get icon_def(){ return sprite_defs.icon_action_push; }
+    static get action_type_name() { return "Push"; }
+    static get range() { return push_range; }
+    static get costs(){
+        return {
+            action_points: 5,
+        };
+    }
 
     constructor(target){
         const action_id = `push_${target.x}_${target.y}`;
-        super(action_id, `Push ${JSON.stringify(target)}`, target,
-        { // costs
-            action_points: 5
-        });
+        super(action_id, `Push ${JSON.stringify(target)}`, target);
     }
 
     execute(world, character){
@@ -138,14 +145,18 @@ class Push extends concepts.Action {
 }
 
 class Pull extends concepts.Action {
-    icon_def = sprite_defs.icon_action_pull;
+    static get icon_def(){ return sprite_defs.icon_action_pull; }
+    static get action_type_name() { return "Pull"; }
+    static get range() { return pull_range; }
+    static get costs(){
+        return {
+            action_points: 5,
+        };
+    }
 
     constructor(target){
         const action_id = `pull_${target.x}_${target.y}`;
-        super(action_id, `Pull ${JSON.stringify(target)}`, target,
-        { // costs
-            action_points: 5
-        });
+        super(action_id, `Pull ${JSON.stringify(target)}`, target);
     }
 
     execute(world, character){
@@ -160,21 +171,19 @@ class Pull extends concepts.Action {
 
 // TODO: factorize code common between Pull and Push rules!
 class Rule_Push extends concepts.Rule {
-    range = new visibility.Range_Square(1, 5);
 
     get_actions_for(character, world){
         console.assert(character instanceof Character);
-        return ranged_actions_for_each_target(world, character, Push, this.range);
+        return ranged_actions_for_each_target(world, character, Push, Push.range);
     }
 };
 
 
 class Rule_Pull extends concepts.Rule {
-    range = new visibility.Range_Square(1, 5);
 
     get_actions_for(character, world){
         console.assert(character instanceof Character);
-        return ranged_actions_for_each_target(world, character, Pull, this.range);
+        return ranged_actions_for_each_target(world, character, Pull, Push.range);
     }
 };
 

@@ -15,18 +15,23 @@ import { deal_damage } from "./destruction.js";
 
 const repair_points = 5;
 const repair_ap_cost = 5;
+const repair_range = new visibility.Range_Square(0,4);
+
 
 class Repair extends concepts.Action {
-    icon_def = sprite_defs.icon_action_repair;
+    static get icon_def(){ return sprite_defs.icon_action_repair; }
+    static get action_type_name() { return "Repair"; }
+    static get range() { return repair_range; }
+    static get costs(){
+        return {
+            action_points: repair_ap_cost,
+        };
+    }
 
     constructor(target_position){
         super(`repair_${target_position.x}_${target_position.y}`,
                 `Repair ${repair_points} Integrity at ${JSON.stringify(target_position)}`,
-                target_position,
-                { // costs
-                    action_points: repair_ap_cost
-                }
-                );
+                target_position);
         this.repair_points = repair_points;
     }
 
@@ -45,11 +50,9 @@ class Repair extends concepts.Action {
 
 
 class Rule_Repair extends concepts.Rule {
-    range = new visibility.Range_Square(0,4);
-
     get_actions_for(character, world){
         console.assert(character instanceof Character);
-        return ranged_actions_for_each_target(world, character, Repair, this.range);;
+        return ranged_actions_for_each_target(world, character, Repair, Repair.range);;
     }
 
     update_world_at_the_beginning_of_game_turn(world){

@@ -28,6 +28,7 @@ function corruption_damage() {
 }
 
 const corrupt_ap_cost = 2;
+const corrupt_range = new visibility.Range_Square(0, 6);
 
 class Corruption { // TODO: decide if there are "values?"
     name = "Corrupted";
@@ -116,14 +117,18 @@ class Corrupted extends concepts.Event {
 };
 
 class Corrupt extends concepts.Action {
-    icon_def = sprite_defs.icon_action_corrupt;
+    static get icon_def(){ return sprite_defs.icon_action_corrupt; }
+    static get action_type_name() { return "Corrupt"; }
+    static get costs(){
+        return {
+            action_points: corrupt_ap_cost,
+        };
+    }
+    static get range() { return corrupt_range; }
 
     constructor(target){
         const action_id = `corrupt_${target.x}_${target.y}`;
-        super(action_id, `Corrupt ${JSON.stringify(target)}`, target,
-        { // costs
-            action_points: corrupt_ap_cost,
-        });
+        super(action_id, `Corrupt ${JSON.stringify(target)}`, target);
     }
 
     execute(world, character){
@@ -234,7 +239,6 @@ class Rule_Corruption extends concepts.Rule {
         ];
     }
 
-    range = new visibility.Range_Square(0, 6);
 
     get_actions_for(character, world){
         console.assert(world instanceof concepts.World);
@@ -246,7 +250,7 @@ class Rule_Corruption extends concepts.Rule {
         const is_valid_target = (position) => world.is_valid_position(position)
                                         && !(corruption_grid.get_at(position) instanceof Corruption);
 
-        const targets = lazy_call(visibility.positions_in_range, character.position, this.range, is_valid_target);
+        const targets = lazy_call(visibility.positions_in_range, character.position, Corrupt.range, is_valid_target);
         return actions_for_each_target(character, Corrupt, targets);
     }
 };

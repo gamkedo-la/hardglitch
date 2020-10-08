@@ -46,14 +46,18 @@ class Waited extends concepts.Event {
 
 // Action: Wait. Do Nothing. Almost like sleep but not quite.
 class Wait extends concepts.Action {
-    icon_def = sprite_defs.icon_action_wait;
+    static get icon_def(){ return sprite_defs.icon_action_wait; }
+    static get action_type_name() { return "Wait"; }
+    static get costs(){
+        return {
+            action_points: 0
+        };
+    }
 
     constructor(character){
         console.assert(character instanceof Character);
         super("wait", "Wait", undefined,
-        { // costs
-            action_points: 0
-        }); // Costs the rest of the current AP of the character
+        ); // Costs the rest of the current AP of the character
         this.is_generated = true;
     }
 
@@ -63,6 +67,8 @@ class Wait extends concepts.Action {
         character.skip_turn = true;
         return [ new Waited(character) ];
     }
+
+    static get range() { }
 };
 
 // The most basic rules.

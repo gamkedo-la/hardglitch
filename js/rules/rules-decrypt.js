@@ -14,6 +14,8 @@ import { CharacterView } from "../view/character-view.js";
 import { sprite_defs } from "../game-assets.js";
 import { ItemView } from "../view/item-view.js";
 
+const decrypt_range = new visibility.Range_Cross_Axis(1,2);
+
 class DecryptedFile extends concepts.Event {
     constructor(character, file, key_inventory_idx, crypto_kind){
         console.assert(character instanceof Character);
@@ -63,15 +65,19 @@ class DecryptedFile extends concepts.Event {
 
 
 class Decrypt extends concepts.Action {
-    icon_def = sprite_defs.icon_action_take;
+    static get icon_def(){ return sprite_defs.icon_action_take; }
+    static get action_type_name() { return "Decrypt"; }
+    static get range() { return decrypt_range; }
+    static get costs(){
+        return {
+            action_points: 10,
+        };
+    }
 
     constructor(target_position){
         console.assert(target_position instanceof concepts.Position);
         super(`decrypt_item_at_${target_position.x}_${target_position.y}`,
-            "Decrypt File", target_position,
-            { // costs
-                action_points: 10
-            });
+            "Decrypt File", target_position);
         this.is_basic = true;
     }
 
@@ -106,7 +112,6 @@ class Decrypt extends concepts.Action {
 
 
 class Rule_Decrypt extends concepts.Rule {
-    range = new visibility.Range_Cross_Axis(1,2);
 
     get_actions_for(character, world){
         console.assert(character instanceof Character);
@@ -121,7 +126,7 @@ class Rule_Decrypt extends concepts.Rule {
             return {};
 
         const actions = {};
-        visibility.valid_target_positions(world, character, this.range)
+        visibility.valid_target_positions(world, character, Decrypt.range)
             .filter(target=> { // Only if there is an item to decrypt.
                 const item = world.item_at(target);
                 return item instanceof items.CryptoFile
@@ -129,7 +134,6 @@ class Rule_Decrypt extends concepts.Rule {
             })
             .forEach((target)=>{
                 const action = new Decrypt(target);
-                action.range = this.range;
                 actions[action.id] = action;
             });
         return actions;

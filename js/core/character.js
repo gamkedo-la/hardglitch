@@ -6,6 +6,9 @@ export {
     Inventory,
 }
 
+import { Wait } from "../rules/rules-basic.js";
+import { TakeItem } from "../rules/rules-items.js";
+import { Move } from "../rules/rules-movement.js";
 import * as concepts from "./concepts.js";
 import { FieldOfVision } from "./visibility.js";
 
@@ -364,11 +367,15 @@ class Inventory {
 
     get_enabled_action_types(action_type){
         console.assert(action_type && action_type.prototype instanceof concepts.Action);
+        return this.get_all_enabled_action_types(type => type.prototype.constructor === action_type);
+    }
+
+    get_all_enabled_action_types(predicate = ()=>true){
         const enabled_action_types = [];
         this._item_slots.slice(0, this._activable_items)
             .filter(item => item instanceof concepts.Item)
             .forEach(item => {
-                const types = item.get_enabled_action_types().filter(type => type.prototype.constructor === action_type);
+                const types = item.get_enabled_action_types().filter(predicate);
                 enabled_action_types.push(...types);
             });
         return enabled_action_types;
@@ -449,9 +456,9 @@ class Character extends concepts.Body {
         console.assert(world instanceof concepts.World);
 
         // Pay for this action
-        console.assert(action.costs instanceof Object);
-        console.assert(Number.isInteger(action.costs.action_points) && action.costs.action_points >= 0);
-        this.stats.action_points.decrease(action.costs.action_points);
+        console.assert(action.constructor.costs instanceof Object);
+        console.assert(Number.isInteger(action.constructor.costs.action_points) && action.constructor.costs.action_points >= 0);
+        this.stats.action_points.decrease(action.constructor.costs.action_points);
 
         // Then execute the action:
         return action.execute(world, this);
@@ -470,6 +477,14 @@ class Character extends concepts.Body {
         const ap_to_recover = this.stats.ap_recovery.value;
         this.stats.action_points.increase(ap_to_recover);
         return ap_to_recover;
+    }
+
+    get_all_enabled_actions_types(){
+        return [
+            Wait, Move,
+            ... this.inventory.get_all_enabled_action_types(),
+            TakeItem,
+        ];
     }
 
 };

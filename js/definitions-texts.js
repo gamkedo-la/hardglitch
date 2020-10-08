@@ -144,13 +144,11 @@ help, options, volumes...
 cancel_action: `Cancels the current Action.`
 };
 
-function action_description(action){ // TODO : also clarify the range.
-    console.assert(action instanceof concepts.Action);
+function action_description(action_type){ // TODO : also clarify the range.
+    return `Action: ${action_type.action_type_name}
+Costs: ${action_type.costs.action_points} AP
 
-    return `Action: ${action.constructor.action_type_name}
-Costs: ${action.costs.action_points} AP
-
-${action.constructor.action_type_description}
+${action_type.action_type_description}
 `
 }
 

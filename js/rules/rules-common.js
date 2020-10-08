@@ -40,7 +40,6 @@ function ranged_actions_for_each_target(world, character, parent_action_type, ra
     const valid_targets = lazy_call(visibility.valid_target_positions, world, character, range, predicate);
     const actions = actions_for_each_target(character, parent_action_type, valid_targets, (action_type, target)=>{
         const action = new action_type(target);
-        action.range = range;
         return action;
     });
     return actions;

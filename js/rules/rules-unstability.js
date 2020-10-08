@@ -25,6 +25,7 @@ import { random_jump } from "./rules-movement.js";
 import { audiobuffer_loader } from "../system/assets.js";
 
 const unstable_ap_cost = 10;
+const destabilize_range = new visibility.Range_Square(0, 6);
 
 class Unstability { // TODO: decide if there are "values?"
     name = "Unstable";
@@ -115,14 +116,18 @@ class Destabilized extends concepts.Event {
 };
 
 class Destabilize extends concepts.Action {
-    icon_def = sprite_defs.icon_action_corrupt;
+    static get icon_def(){ return sprite_defs.icon_action_corrupt; }
+    static get action_type_name() { return "Destabilize"; }
+    static get range() { return destabilize_range; }
+    static get costs(){
+        return {
+            action_points: unstable_ap_cost,
+        };
+    }
 
     constructor(target){
         const action_id = `destabilize_${target.x}_${target.y}`;
-        super(action_id, `Destabilize ${JSON.stringify(target)}`, target,
-        { // costs
-            action_points: unstable_ap_cost,
-        });
+        super(action_id, `Destabilize ${JSON.stringify(target)}`, target);
     }
 
     execute(world, character){
@@ -178,7 +183,6 @@ class Rule_Unstability extends concepts.Rule {
         return teleport_entities_in_unstable_tiles_and_vanish(world);
     }
 
-    range = new visibility.Range_Square(0, 6);
 
     get_actions_for(character, world){
         console.assert(world instanceof concepts.World);
@@ -190,7 +194,7 @@ class Rule_Unstability extends concepts.Rule {
         const is_valid_target = (position) => world.is_valid_position(position)
                                         && !(corruption_grid.get_at(position) instanceof Unstability);
 
-        const targets = lazy_call(visibility.positions_in_range, character.position, this.range, is_valid_target);
+        const targets = lazy_call(visibility.positions_in_range, character.position, Destabilize.range, is_valid_target);
         return actions_for_each_target(character, Destabilize, targets);
     }
 };

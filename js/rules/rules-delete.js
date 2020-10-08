@@ -14,6 +14,7 @@ import { ranged_actions_for_each_target } from "./rules-common.js";
 
 const delete_damage = 5;
 const delete_ap_cost = 5;
+const delete_range = new visibility.Range_Diamond(0,7);
 
 class Deleted extends concepts.Event {
     constructor(deleter_character, deleted_character){
@@ -37,16 +38,19 @@ class Deleted extends concepts.Event {
 
 
 class Delete extends concepts.Action {
-    icon_def = sprite_defs.icon_action_delete;
+    static get icon_def(){ return sprite_defs.icon_action_delete; }
+    static get action_type_name() { return "Delete"; }
+    static get range() { return delete_range; }
+    static get costs(){
+        return {
+            action_points: delete_ap_cost,
+        };
+    }
 
     constructor(target_position){
         super(`delete_${target_position.x}_${target_position.y}`,
                 `Deal ${delete_damage} damages at ${JSON.stringify(target_position)}`,
-                target_position,
-                { // costs
-                    action_points: delete_ap_cost
-                }
-                );
+                target_position);
         this.delete_damage = delete_damage;
     }
 
@@ -67,11 +71,10 @@ class Delete extends concepts.Action {
 
 
 class Rule_Delete extends concepts.Rule {
-    range = new visibility.Range_Diamond(0,7);
 
     get_actions_for(character, world){
         console.assert(character instanceof Character);
-        return ranged_actions_for_each_target(world, character, Delete, this.range);
+        return ranged_actions_for_each_target(world, character, Delete, Delete.range);
     }
 };
 
