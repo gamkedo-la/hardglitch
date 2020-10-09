@@ -20,6 +20,8 @@ import { center_in_rectangle, Vector2, Vector2_origin } from "./system/spatial.j
 import { AnimationGroup, in_parallel, wait } from "./system/animation.js";
 import { easing, tween } from "./system/tweening.js";
 import { draw_circle } from "./system/graphics.js";
+import { draw_rectangle } from "./system/graphics.js";
+
 
 
 //right now the below just outputs a title, we need to output a lil more. 
@@ -68,7 +70,6 @@ class LevelDescDisplay {
             x: x,
             y: y
         };
-
     }
 
     update(delta_time){
@@ -149,6 +150,7 @@ class LevelIntroScreen extends fsm.State {
     on_canvas_resized(){
         this.info_display = new LevelInfoDisplay(this.title);
         this.desc_display = new LevelDescDisplay(this.desc, 500, 500);
+        console.log(this.desc_display);
         //this.level_num_display = new LevelNumDisplay(lvlNumIdkWhatThisValis);
     }
 
@@ -157,10 +159,8 @@ class LevelIntroScreen extends fsm.State {
         const fixed_size = { x: 1100, y: 750 };
         this.level_transition_canvas_context = graphics.create_canvas_context(fixed_size.x, fixed_size.y);
         this.animations = new AnimationGroup();
-        //this.circlePos = {x: 500, y:500};
 
         const background_y_move = (this.level_idx + 1) * 100; // TODO: ASHLEIGH maybe replace this by specific y positions in for each level to move the background to.
-        //could I make this a prop instead? to be changed in each extension of this class?
 
         this.background = new graphics.Sprite(sprite_defs.level_transition);
 
@@ -176,6 +176,7 @@ class LevelIntroScreen extends fsm.State {
 
         this.animations.play(this.animation());
         this.animations.play(this.move_background(background_y_move));
+        //this.animations.play(this.animateCopy());
     }
 
     draw_level_transition(screen_canvas_context){
@@ -189,6 +190,10 @@ class LevelIntroScreen extends fsm.State {
                              this.character_view.position.y, 
                              100, 
                              'red');
+
+        //an attempt to draw a rectangle under the copy
+        //graphics.draw_rectangle(this.level_transition_canvas_context, new spatial.Rectangle( { position: new Vector2(300, 300), size: new Vector2(500, 500)} ), 'green');
+        
         this.character_view.render_graphics(this.level_transition_canvas_context);
 
         // Then draw that fixed-sized canvas on the screen.
@@ -204,7 +209,8 @@ class LevelIntroScreen extends fsm.State {
             5000, update_background_pos, easing.linear
         );
 
-        // yield* wait(1000);
+        // 
+        //  yield* wait(1000);
         // yield* tween(this.background.position, this.background.position.translate({ y: 200 }),
         //     3000, update_background_pos, easing.linear
         // );
@@ -223,6 +229,7 @@ class LevelIntroScreen extends fsm.State {
         //         3000, update_background_pos, easing.linear
         //     )
         // );
+        //
     }
 
     *animation(){
@@ -231,6 +238,21 @@ class LevelIntroScreen extends fsm.State {
             4000, (new_pos)=>{ this.character_view.position = new_pos; }, easing.linear
         );
 
+    }
+
+    //animates the level copy(prose)
+    *animateCopy(){
+
+        let xPos = this.desc_display.title.position.x //this is the x position of the level desc object
+        //console.log(this.desc_display);
+        /*
+        yield * tween(xPos, 
+                      xPos + 500,
+                      4000, 
+                      (new_pos)=>{ xPos = new_pos; }, 
+                      easing.linear
+        );
+        */
     }
 
 };
