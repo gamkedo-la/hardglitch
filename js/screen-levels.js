@@ -19,6 +19,7 @@ import { GlitchyGlitchMacGlitchy } from "./characters/glitch.js";
 import { center_in_rectangle, Vector2, Vector2_origin } from "./system/spatial.js";
 import { AnimationGroup, in_parallel, wait } from "./system/animation.js";
 import { easing, tween } from "./system/tweening.js";
+import { draw_circle } from "./system/graphics.js";
 
 
 class LevelInfoDisplay {
@@ -91,10 +92,12 @@ class LevelIntroScreen extends fsm.State {
     display(canvas_context){
         graphics.camera.begin_in_screen_rendering();
         graphics.draw_rectangle(canvas_context, graphics.canvas_rect(), "black");
+        
 
         this.draw_level_transition(canvas_context);
         this.info_display.draw(canvas_context);
 
+        //graphics.draw_circle(canvas_context, 500, 500, 100, 'red');
         this.fader.display(canvas_context);
         graphics.camera.end_in_screen_rendering();
     }
@@ -112,6 +115,7 @@ class LevelIntroScreen extends fsm.State {
         const fixed_size = { x: 1100, y: 750 };
         this.level_transition_canvas_context = graphics.create_canvas_context(fixed_size.x, fixed_size.y);
         this.animations = new AnimationGroup();
+        //this.circlePos = {x: 500, y:500};
 
         const background_y_move = (this.level_idx + 1) * 100; // TODO: ASHLEIGH maybe replace this by specific y positions in for each level to move the background to.
         //could I make this a prop instead? to be changed in each extension of this class?
@@ -185,7 +189,7 @@ class LevelIntroScreen extends fsm.State {
 
 class Level_1_IntroScreen extends LevelIntroScreen {
     constructor(){
-        super("REPLACE THIS TEXT", 0);
+        super("First text", 0);
     }
 };
 
