@@ -24,7 +24,7 @@ import { draw_rectangle } from "./system/graphics.js";
 
 
 
-//right now the below just outputs a title, we need to output a lil more. 
+//right now the below just outputs a title, we need to output a lil more.
 //maybe change this to "title display" like a title object
 class LevelInfoDisplay {
     constructor(title){
@@ -55,12 +55,12 @@ class LevelInfoDisplay {
 }
 
 class LevelDescDisplay {
-    constructor(title, x, y){
+    constructor(text, x, y){
 
         this.timer = 100;
 
         this.title = new ui.Text({
-            text: title,
+            text: text,
             font: "16px Space Mono",
             background_color: "#ffffff0a",
             color: "white",
@@ -85,7 +85,7 @@ class LevelDescDisplay {
             console.log('COUNTDOWN REACHED');
             invoke_on_members(this, "draw", canvas_context);
         }
-        
+
     }
 
 }
@@ -134,10 +134,9 @@ class LevelIntroScreen extends fsm.State {
     display(canvas_context){
         graphics.camera.begin_in_screen_rendering();
         graphics.draw_rectangle(canvas_context, graphics.canvas_rect(), "black");
-        
+
         this.draw_level_transition(canvas_context);
         this.info_display.draw(canvas_context);
-        this.desc_display.draw(canvas_context);
 
         this.fader.display(canvas_context);
         graphics.camera.end_in_screen_rendering();
@@ -149,9 +148,7 @@ class LevelIntroScreen extends fsm.State {
 
     on_canvas_resized(){
         this.info_display = new LevelInfoDisplay(this.title);
-        this.desc_display = new LevelDescDisplay(this.desc, 500, 500);
         console.log(this.desc_display);
-        //this.level_num_display = new LevelNumDisplay(lvlNumIdkWhatThisValis);
     }
 
     init_level_transition(){
@@ -159,6 +156,9 @@ class LevelIntroScreen extends fsm.State {
         const fixed_size = { x: 1100, y: 750 };
         this.level_transition_canvas_context = graphics.create_canvas_context(fixed_size.x, fixed_size.y);
         this.animations = new AnimationGroup();
+
+        this.desc_display = new LevelDescDisplay(this.desc, 500, 500);
+        //this.level_num_display = new LevelNumDisplay(lvlNumIdkWhatThisValis);
 
         const background_y_move = (this.level_idx + 1) * 100; // TODO: ASHLEIGH maybe replace this by specific y positions in for each level to move the background to.
 
@@ -176,7 +176,7 @@ class LevelIntroScreen extends fsm.State {
 
         this.animations.play(this.animation());
         this.animations.play(this.move_background(background_y_move));
-        //this.animations.play(this.animateCopy());
+        this.animations.play(this.animateCopy());
     }
 
     draw_level_transition(screen_canvas_context){
@@ -185,16 +185,18 @@ class LevelIntroScreen extends fsm.State {
 
         // We draw all the content of the level transition in the fixed-size canvas...
         this.background.draw(this.level_transition_canvas_context);
-        graphics.draw_circle(this.level_transition_canvas_context, 
+        graphics.draw_circle(this.level_transition_canvas_context,
                              this.character_view.position.x,
-                             this.character_view.position.y, 
-                             100, 
+                             this.character_view.position.y,
+                             100,
                              'red');
 
-        //an attempt to draw a rectangle under the copy
-        //graphics.draw_rectangle(this.level_transition_canvas_context, new spatial.Rectangle( { position: new Vector2(300, 300), size: new Vector2(500, 500)} ), 'green');
-        
+        //an attempt to draw a rectangle under the copy - Klaim: fixed, though note that ui.Text have a `background_color` desc value that you could use instead of this?
+        graphics.draw_rectangle(this.level_transition_canvas_context, { position: { x: 300, y: 300 }, width: 500, height:500 }, 'green');
+
         this.character_view.render_graphics(this.level_transition_canvas_context);
+
+        this.desc_display.draw(this.level_transition_canvas_context);
 
         // Then draw that fixed-sized canvas on the screen.
         const center_pos = graphics.centered_rectangle_in_screen(this.level_transition_canvas_context.canvas).position;
@@ -209,7 +211,7 @@ class LevelIntroScreen extends fsm.State {
             5000, update_background_pos, easing.linear
         );
 
-        // 
+        //
         //  yield* wait(1000);
         // yield* tween(this.background.position, this.background.position.translate({ y: 200 }),
         //     3000, update_background_pos, easing.linear
@@ -246,10 +248,10 @@ class LevelIntroScreen extends fsm.State {
         let xPos = this.desc_display.title.position.x //this is the x position of the level desc object
         //console.log(this.desc_display);
         /*
-        yield * tween(xPos, 
+        yield * tween(xPos,
                       xPos + 500,
-                      4000, 
-                      (new_pos)=>{ xPos = new_pos; }, 
+                      4000,
+                      (new_pos)=>{ xPos = new_pos; },
                       easing.linear
         );
         */
