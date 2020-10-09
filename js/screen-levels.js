@@ -93,11 +93,9 @@ class LevelIntroScreen extends fsm.State {
         graphics.camera.begin_in_screen_rendering();
         graphics.draw_rectangle(canvas_context, graphics.canvas_rect(), "black");
         
-
         this.draw_level_transition(canvas_context);
         this.info_display.draw(canvas_context);
 
-        //graphics.draw_circle(canvas_context, 500, 500, 100, 'red');
         this.fader.display(canvas_context);
         graphics.camera.end_in_screen_rendering();
     }
@@ -128,8 +126,9 @@ class LevelIntroScreen extends fsm.State {
         };
 
         this.character_view = new CharacterView(this.player_character);
-        this.character_view.position = center_in_rectangle(this.character_view.area, this.level_transition_canvas_context.canvas)
-                                        .position.translate({ y: 200 });
+        let glitchCentered = center_in_rectangle(this.character_view.area, this.level_transition_canvas_context.canvas).position.translate({ y: 200 });
+        this.character_view.position = glitchCentered;
+        console.log(glitchCentered);
 
         this.animations.play(this.animation());
         this.animations.play(this.move_background(background_y_move));
@@ -141,6 +140,11 @@ class LevelIntroScreen extends fsm.State {
 
         // We draw all the content of the level transition in the fixed-size canvas...
         this.background.draw(this.level_transition_canvas_context);
+        graphics.draw_circle(this.level_transition_canvas_context, 
+                             this.character_view.position.x,
+                             this.character_view.position.y, 
+                             100, 
+                             'red');
         this.character_view.render_graphics(this.level_transition_canvas_context);
 
         // Then draw that fixed-sized canvas on the screen.
