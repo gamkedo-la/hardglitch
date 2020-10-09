@@ -22,6 +22,8 @@ import { easing, tween } from "./system/tweening.js";
 import { draw_circle } from "./system/graphics.js";
 
 
+//right now the below just outputs a title, we need to output a lil more. 
+//maybe change this to "title display" like a title object
 class LevelInfoDisplay {
     constructor(title){
 
@@ -50,14 +52,52 @@ class LevelInfoDisplay {
 
 }
 
+class LevelDescDisplay {
+    constructor(title, x, y){
+
+        this.timer = 100;
+
+        this.title = new ui.Text({
+            text: title,
+            font: "16px Space Mono",
+            background_color: "#ffffff0a",
+            color: "white",
+        });
+
+        this.title.position = {
+            x: x,
+            y: y
+        };
+
+    }
+
+    update(delta_time){
+        if(this.timer > 0){
+            this.timer--;
+        }
+        console.log(this.timer);
+        invoke_on_members(this, "update", delta_time);
+    }
+
+    draw(canvas_context){
+        if(this.timer <= 0){
+            console.log('COUNTDOWN REACHED');
+            invoke_on_members(this, "draw", canvas_context);
+        }
+        
+    }
+
+}
+
 class LevelIntroScreen extends fsm.State {
     fader = new ScreenFader();
 
-    constructor(level_title, level_idx){
+    constructor(level_title, level_idx, level_desc){
         super();
         console.assert(typeof level_title ===  "string");
         console.assert(Number.isInteger(level_idx) && level_idx < game_levels.length);
         this.title = level_title;
+        this.desc = level_desc; //displays the level copy (prose about the level)
         this.level_idx = level_idx;
     }
 
@@ -85,6 +125,7 @@ class LevelIntroScreen extends fsm.State {
         this.background.update(delta_time);
         this.character_view.update(delta_time);
         this.info_display.update(delta_time);
+        this.desc_display.update(delta_time);
 
         this.fader.update(delta_time);
     }
@@ -95,6 +136,7 @@ class LevelIntroScreen extends fsm.State {
         
         this.draw_level_transition(canvas_context);
         this.info_display.draw(canvas_context);
+        this.desc_display.draw(canvas_context);
 
         this.fader.display(canvas_context);
         graphics.camera.end_in_screen_rendering();
@@ -106,6 +148,8 @@ class LevelIntroScreen extends fsm.State {
 
     on_canvas_resized(){
         this.info_display = new LevelInfoDisplay(this.title);
+        this.desc_display = new LevelDescDisplay(this.desc, 500, 500);
+        //this.level_num_display = new LevelNumDisplay(lvlNumIdkWhatThisValis);
     }
 
     init_level_transition(){
@@ -193,7 +237,7 @@ class LevelIntroScreen extends fsm.State {
 
 class Level_1_IntroScreen extends LevelIntroScreen {
     constructor(){
-        super("First text", 0);
+        super("First text", 0, 'This is some prose that will appear in the desc info object bay bee');
     }
 };
 
