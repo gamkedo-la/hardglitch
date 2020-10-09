@@ -113,12 +113,14 @@ class LevelIntroScreen extends fsm.State {
         this.level_transition_canvas_context = graphics.create_canvas_context(fixed_size.x, fixed_size.y);
         this.animations = new AnimationGroup();
 
-        const backrgound_y_move = (this.level_idx + 1) * 100; // TODO: ASHLEIGH maybe replace this by specific y positions in for each level to move the background to.
+        const background_y_move = (this.level_idx + 1) * 100; // TODO: ASHLEIGH maybe replace this by specific y positions in for each level to move the background to.
+        //could I make this a prop instead? to be changed in each extension of this class?
 
         this.background = new graphics.Sprite(sprite_defs.level_transition);
+
         this.background.position = {
             x: center_in_rectangle(this.background.area, this.level_transition_canvas_context.canvas).position.x,
-            y: -this.background.size.height + backrgound_y_move + 400,
+            y: -this.background.size.height + background_y_move + 400,
         };
 
         this.character_view = new CharacterView(this.player_character);
@@ -126,7 +128,7 @@ class LevelIntroScreen extends fsm.State {
                                         .position.translate({ y: 200 });
 
         this.animations.play(this.animation());
-        this.animations.play(this.move_background(backrgound_y_move));
+        this.animations.play(this.move_background(background_y_move));
     }
 
     draw_level_transition(screen_canvas_context){
