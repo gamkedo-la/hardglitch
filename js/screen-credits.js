@@ -21,11 +21,11 @@ game end, spawn code, actions (jump, pull, swap, void, take item, repair, copy, 
 camera logic, main palette, many crash fixes and tuning tweaks, inventory, crypto key authoring, loading screen, help text
 
 Tylor Allison: Particle systems (glitch, trace, scan, portal, spawn, missile, color, spark, repair, wait, hex spin,
-lightning jump, fade, explosion swirl, blip edge pathing), FX randomization, wall tiles art, decrypt/triangle animations,
-mock ups (tile bg, walls, void, experimentation with negative space/holes, perspective, color tests), color adjustments,
-moving wall v2, level design concepts art, floor art, NPC wait animation, warm and cool level themes, lots of asset
-and code cleanup, additional tile type rules, seam fix, take/drop animations, move animations, highlights art v2, laser walls,
-tile overlay
+lightning jump, fade, explosion swirl, blip edge pathing), procedural tile selection and wall generation, FX randomization, 
+wall tiles art, decrypt/triangle animations, mock ups (tile bg, walls, void, experimentation with negative space/holes, 
+perspective, color tests), color adjustments, moving wall v2, level design concepts art, floor art, NPC wait animation, warm and 
+cool level themes, lots of asset and code cleanup, additional tile type rules, seam fix, take/drop animations, move animations, 
+highlights art v2, laser walls, tile overlay
 
 Roc Lee: Soundtrack (in-game, levels, victory, game over), all sound effects (jump, gameplay, UI, movement, explosions,
 decrypt, editor), audio normalization, assorted sound integration
