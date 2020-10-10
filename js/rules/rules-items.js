@@ -122,7 +122,7 @@ class TakeItem extends concepts.Action {
     constructor(target_position){
         console.assert(target_position instanceof concepts.Position);
         super(`take_item_at_${target_position.x}_${target_position.y}`,
-            "Take Item", target_position);
+            "Take this item", target_position);
         this.is_basic = true;
     }
 

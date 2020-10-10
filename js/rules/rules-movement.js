@@ -77,7 +77,7 @@ class Move extends concepts.Action {
     }
 
     constructor(move_name, new_position){
-        super(move_name, `Move to ${JSON.stringify(new_position)}`, new_position);
+        super(move_name, `Move to this memory section`, new_position);
         this.is_basic = true;
     }
 
@@ -159,7 +159,7 @@ class Jump extends concepts.Action {
     }
 
     constructor(target){
-        super(`jump_${target.x}_${target.y}`, `Jump to ${JSON.stringify(target)}`, target);
+        super(`jump_${target.x}_${target.y}`, `Jump to this memory section`, target);
         this.is_basic = true;
     }
 
@@ -291,7 +291,7 @@ class Swap extends concepts.Action {
 
     constructor(target){
         console.assert(target instanceof concepts.Position);
-        super(`swap_${target.x}_${target.y}`, `Swap with ${JSON.stringify(target)}`, target);
+        super(`swap_${target.x}_${target.y}`, `Swap position with that entity`, target);
         this.target = target
     }
 

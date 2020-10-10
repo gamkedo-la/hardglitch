@@ -24,7 +24,7 @@ class Destroy extends concepts.Action {
 
     constructor(target_position){
         super(`destroy_${target_position.x}_${target_position.y}`,
-                `Destroy anything at ${JSON.stringify(target_position)}`,
+                `Destroy anything in that memory section`,
                 target_position);
     }
 

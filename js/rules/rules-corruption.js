@@ -30,8 +30,15 @@ function corruption_damage() {
 const corrupt_ap_cost = 2;
 const corrupt_range = new visibility.Range_Square(0, 6);
 
-class Corruption { // TODO: decide if there are "values?"
+class Corruption {
     name = "Corrupted";
+    description =
+`Any entity in a corrupted memory section
+will take ${corrupt_ap_cost} damages BEFORE and AFTER
+corruption updates.
+Every New Cycle, corruption updates by following the
+rules of Conway's Game Of Life.
+`;
     toJSON(key) { return {}; }
 };
 
@@ -128,7 +135,7 @@ class Corrupt extends concepts.Action {
 
     constructor(target){
         const action_id = `corrupt_${target.x}_${target.y}`;
-        super(action_id, `Corrupt ${JSON.stringify(target)}`, target);
+        super(action_id, `Make that memory section Corrupted`, target);
     }
 
     execute(world, character){
@@ -233,9 +240,9 @@ class Rule_Corruption extends concepts.Rule {
             return [];
 
         return [
-            ...damage_anything_in_corrupted_tiles(world),
+            ...damage_anything_in_corrupted_tiles(world), // Before changing
             ...update_corruption_state(world),
-            ...damage_anything_in_corrupted_tiles(world),
+            ...damage_anything_in_corrupted_tiles(world), // After having changed
         ];
     }
 

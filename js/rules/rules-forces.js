@@ -132,7 +132,7 @@ class Push extends concepts.Action {
 
     constructor(target){
         const action_id = `push_${target.x}_${target.y}`;
-        super(action_id, `Push ${JSON.stringify(target)}`, target);
+        super(action_id, `Push that entity away`, target);
     }
 
     execute(world, character){
@@ -156,7 +156,7 @@ class Pull extends concepts.Action {
 
     constructor(target){
         const action_id = `pull_${target.x}_${target.y}`;
-        super(action_id, `Pull ${JSON.stringify(target)}`, target);
+        super(action_id, `Pull that entity toward you`, target);
     }
 
     execute(world, character){

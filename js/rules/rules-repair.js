@@ -30,7 +30,7 @@ class Repair extends concepts.Action {
 
     constructor(target_position){
         super(`repair_${target_position.x}_${target_position.y}`,
-                `Repair ${repair_points} Integrity at ${JSON.stringify(target_position)}`,
+                `Repair that entity of ${repair_points} Integrity`,
                 target_position);
         this.repair_points = repair_points;
     }

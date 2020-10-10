@@ -52,7 +52,7 @@ class Copy extends concepts.Action {
 
     constructor(target_position){
         super(`copy_${target_position.x}_${target_position.y}`,
-                `Copy ${JSON.stringify(target_position)}`);
+                `Make a copy of this entity`);
         this.target_position = target_position;
     }
 

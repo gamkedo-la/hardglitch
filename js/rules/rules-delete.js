@@ -49,7 +49,7 @@ class Delete extends concepts.Action {
 
     constructor(target_position){
         super(`delete_${target_position.x}_${target_position.y}`,
-                `Deal ${delete_damage} damages at ${JSON.stringify(target_position)}`,
+                `Deal ${delete_damage} damages to this entity`,
                 target_position);
         this.delete_damage = delete_damage;
     }

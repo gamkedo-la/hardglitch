@@ -236,11 +236,11 @@ class EditionPaletteUI {
 
         // Fill our palette with buttons!
         this.palette_buttons.push( ...tiles.floor_tiles.map(tile_id => {
-            return new EditPaletteButton(`Floor Tile: ${tiles.defs[tile_id].description} (${tile_id})`, make_edit_operation_change_tile(tile_id, grid_ID.floor));
+            return new EditPaletteButton(`Floor Tile: ${tiles.defs[tile_id].name} (${tile_id})`, make_edit_operation_change_tile(tile_id, grid_ID.floor));
         }), null);
 
         this.palette_buttons.push( ...tiles.surface_tiles.map(tile_id => {
-            return new EditPaletteButton(`Surface Tile: ${tiles.defs[tile_id].description} (${tile_id})`, make_edit_operation_change_tile(tile_id, grid_ID.surface));
+            return new EditPaletteButton(`Surface Tile: ${tiles.defs[tile_id].name} (${tile_id})`, make_edit_operation_change_tile(tile_id, grid_ID.surface));
         }), null);
 
         this.palette_buttons.push( ...items.all_item_types().map(item_type => {

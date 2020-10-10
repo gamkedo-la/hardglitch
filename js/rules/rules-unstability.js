@@ -27,8 +27,13 @@ import { audiobuffer_loader } from "../system/assets.js";
 const unstable_ap_cost = 10;
 const destabilize_range = new visibility.Range_Square(0, 6);
 
-class Unstability { // TODO: decide if there are "values?"
+class Unstability {
     name = "Unstable";
+    description =
+`Unstable memory sections will teleport any
+entity that enter them to a random location.
+The memory section stabilizes after that.
+`;
     toJSON(key) { return {}; }
 };
 
@@ -127,7 +132,7 @@ class Destabilize extends concepts.Action {
 
     constructor(target){
         const action_id = `destabilize_${target.x}_${target.y}`;
-        super(action_id, `Destabilize ${JSON.stringify(target)}`, target);
+        super(action_id, `Make this memory section Unstable`, target);
     }
 
     execute(world, character){

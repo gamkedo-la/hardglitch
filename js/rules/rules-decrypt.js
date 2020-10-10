@@ -77,7 +77,7 @@ class Decrypt extends concepts.Action {
     constructor(target_position){
         console.assert(target_position instanceof concepts.Position);
         super(`decrypt_item_at_${target_position.x}_${target_position.y}`,
-            "Decrypt File", target_position);
+            "Decrypt and open this Crypto-File", target_position);
         this.is_basic = true;
     }
 

@@ -206,6 +206,7 @@ class Position {
 class Entity {
     _position = new Position();
     _entity_id = new_entity_id();
+    description = "NO DESCRIPTION FOR THIS ENTITY";
 
     constructor(name, description = ""){
         console.assert(typeof name === 'string');
