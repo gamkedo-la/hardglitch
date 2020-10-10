@@ -1,6 +1,6 @@
 import { ParticleSystem } from "../system/particles.js";
 import { GameFxView } from "../game-effects.js";
-import { initialize as graphicsInit, TileGrid} from "../system/graphics.js";
+import { initialize as graphicsInit, TileGrid, set_loaded_assets} from "../system/graphics.js";
 import { load_all_assets } from "../game-assets.js";
 import * as tiledefs from "../definitions-tiles.js";
 import { Grid } from "../system/grid.js";
@@ -159,7 +159,8 @@ class Env {
 
 window.onload = async function() {
     const assets = await load_all_assets();
-    graphicsInit(assets);
+    set_loaded_assets(assets);
+    //graphicsInit();
     tileSelectInit(tiledefs.defs);
     let env = new Env();
     await env.setup();
