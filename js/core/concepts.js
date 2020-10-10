@@ -208,11 +208,9 @@ class Entity {
     _entity_id = new_entity_id();
     description = "NO DESCRIPTION FOR THIS ENTITY";
 
-    constructor(name, description = ""){
+    constructor(name){
         console.assert(typeof name === 'string');
-        console.assert(typeof description === 'string');
         this.name = name;
-        this.description = description;
     }
 
     get position() { return this._position; }

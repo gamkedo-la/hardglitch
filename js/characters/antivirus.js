@@ -17,7 +17,7 @@ class AntiVirus extends Character {
     };
 
     constructor(){
-        super("Anti-Virus", );
+        super("Anti-Virus");
         this.actor = new RandomActionSelector;
         this.stats.inventory_size.real_value = 1;
     }

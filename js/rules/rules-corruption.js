@@ -31,14 +31,13 @@ const corrupt_ap_cost = 2;
 const corrupt_range = new visibility.Range_Square(0, 6);
 
 class Corruption {
-    name = "Corrupted";
+    name = "Corrupted Memory";
     description =
-`Any entity in a corrupted memory section
-will take ${corrupt_ap_cost} damages BEFORE and AFTER
-corruption updates.
-Every New Cycle, corruption updates by following the
-rules of Conway's Game Of Life.
-`;
+`Deals ${corrupt_ap_cost} damages
+BEFORE and AFTER corruption updates.
+Every New Cycle, corruption updates
+following the rules of Conway's
+Game Of Life.`;
     toJSON(key) { return {}; }
 };
 

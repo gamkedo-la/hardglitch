@@ -8,7 +8,6 @@ export { GameView, CharacterView, graphic_position };
 
 import * as graphics from "./system/graphics.js";
 import * as audio from "./system/audio.js";
-import * as input from "./system/input.js";
 import * as ui from "./system/ui.js";
 import * as anim from "./system/animation.js";
 import * as visibility from "./core/visibility.js";

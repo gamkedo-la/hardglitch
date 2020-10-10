@@ -28,12 +28,12 @@ const unstable_ap_cost = 10;
 const destabilize_range = new visibility.Range_Square(0, 6);
 
 class Unstability {
-    name = "Unstable";
+    name = "Unstable Memory";
     description =
-`Unstable memory sections will teleport any
-entity that enter them to a random location.
-The memory section stabilizes after that.
-`;
+`Unstable memory sections will
+teleport any entity that enter them
+to a random location, then the
+memory section will stabilize.`;
     toJSON(key) { return {}; }
 };
 
