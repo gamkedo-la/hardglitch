@@ -12,6 +12,7 @@ export const config = {
     enable_turn_message: true,
     enable_turn_sound: true,
     enable_timeline: true,
+    enable_infobox: true,
 };
 
 window.game_config = config;

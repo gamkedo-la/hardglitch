@@ -696,7 +696,7 @@ class GameView {
 
         const is_mouse_dragging = mouse.is_dragging;
         for(const highlight of this.player_actions_highlights){
-            highlight.enabled = !is_mouse_dragging;
+            highlight.enabled = !is_mouse_dragging && !this.ui.is_mouse_over;
             highlight.update(delta_time);
         }
         this._pointed_highlight.update(delta_time);
@@ -801,7 +801,7 @@ class GameView {
         if(!mouse.is_dragging
         && !this.enable_edition
         ){
-            if(this.is_time_for_player_to_chose_action){
+            if(this.is_time_for_player_to_chose_action && !this.ui.is_mouse_over){
                 this.player_actions_highlights
                     .filter(highlight=> !this.enable_fog_of_war || this.fog_of_war.is_visible(highlight.position))
                     .forEach(highlight => highlight.draw());

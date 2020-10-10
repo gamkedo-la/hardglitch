@@ -62,6 +62,8 @@ class ItemSlot {
         this._fx = null;
     }
 
+    get is_mouse_over() { return this._help_text.is_mouse_over_area_to_help; }
+
     update(delta_time){
         console.assert(!this._item_view || this._item_view._item_slot === this);
         this._sprite.update(delta_time);
@@ -209,6 +211,7 @@ class InventoryUI {
     }
 
     get is_dragging_item() { return this._dragging_item && this._dragging_item.item; }
+    get is_mouse_over() { return this._slots.some(slot => slot.is_mouse_over); }
 
     is_under(position){ return this._find_slot_under(position) !== undefined; }
 

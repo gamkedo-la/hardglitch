@@ -6,7 +6,7 @@ export {
 
 import * as ui from "../system/ui.js";
 import * as texts from "../definitions-texts.js";
-import { invoke_on_members, set_on_members } from "../system/utility.js";
+import { invoke_on_members, set_on_members, some_member } from "../system/utility.js";
 import { Character, StatValue } from "../core/character.js";
 import { Vector2 } from "../system/spatial.js";
 import { config } from "../game-config.js";
@@ -34,6 +34,8 @@ function update_stat_bar(bar, stat){
 }
 
 class CharacterStatus{
+    visible = true;
+
     constructor(position){
         console.assert(position instanceof Vector2);
 
@@ -93,6 +95,9 @@ class CharacterStatus{
 
     }
 
+    is_under(position) { return some_member(this, member=> member != this.character && member.is_under(position)); }
+    get is_mouse_over() { return some_member(this, member=> member != this.character && member.is_mouse_over); }
+
     hide(){
         set_on_members(this, "visible", false);
     }
@@ -136,7 +141,7 @@ class CharacterStatus{
     }
 
     draw(canvas_context){
-        if(!(this.character instanceof Character))
+        if(!this.visible || !(this.character instanceof Character))
             return;
         invoke_on_members(this, "draw", canvas_context);
     }
