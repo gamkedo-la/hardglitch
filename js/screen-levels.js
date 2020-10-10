@@ -27,14 +27,14 @@ import { draw_rectangle } from "./system/graphics.js";
 //right now the below just outputs a title, we need to output a lil more.
 //maybe change this to "title display" like a title object
 class LevelInfoDisplay {
-    constructor(title, x, y){
+    constructor(title, x, y, bgColor){
         
         this.timer = 330;
 
         this.title = new ui.Text({
             text: title,
             font: "48px ZingDiddlyDooZapped",
-            background_color: "#27c352",
+            background_color: bgColor,
             color: "white",
         });
 
@@ -62,14 +62,14 @@ class LevelInfoDisplay {
 }
 
 class LevelDescDisplay {
-    constructor(text, x, y){
+    constructor(text, x, y, bgColor){
 
         this.timer = 330;
 
         this.title = new ui.Text({
             text: text,
             font: "16px Space Mono",
-            background_color: "#d85778",
+            background_color: bgColor,
             color: "white",
         });
 
@@ -98,16 +98,53 @@ class LevelDescDisplay {
 
 }
 
+class LevelIdxDisplay {
+    constructor(text, x, y, bgColor){
+
+        this.timer = 330;
+
+        this.title = new ui.Text({
+            text: text,
+            font: "72px Space Mono",
+            background_color: bgColor,
+            color: "white",
+        });
+
+        this.title.position = {
+            x: x,
+            y: y
+        };
+    }
+
+    update(delta_time){
+        if(this.timer > 0){
+            this.timer--;
+        }
+        invoke_on_members(this, "update", delta_time);
+    }
+
+    draw(canvas_context){
+        
+        if(this.timer <= 0){
+            invoke_on_members(this, "draw", canvas_context);
+        }
+
+    }
+
+}
+
 class LevelIntroScreen extends fsm.State {
     fader = new ScreenFader();
 
-    constructor(level_title, level_idx, level_desc){
+    constructor(level_title, level_idx, level_desc, level_color1, level_color2){
         super();
         console.assert(typeof level_title ===  "string");
         console.assert(Number.isInteger(level_idx) && level_idx < game_levels.length);
         this.title = level_title;
         this.desc = level_desc; //displays the level copy (prose about the level)
         this.level_idx = level_idx;
+        this.color1 = level_color1;
+        this.color2 = level_color2;
     }
 
     *enter(player_character){
@@ -134,6 +171,7 @@ class LevelIntroScreen extends fsm.State {
         this.background.update(delta_time);
         this.character_view.update(delta_time);
         this.info_display.update(delta_time);
+        this.idx_display.update(delta_time);
         this.desc_display.update(delta_time);
 
         this.fader.update(delta_time);
@@ -146,11 +184,11 @@ class LevelIntroScreen extends fsm.State {
         graphics.draw_rectangle(canvas_context, graphics.canvas_rect(), "black");
 
         this.draw_level_transition(canvas_context);
-        this.info_display.draw(canvas_context);
         this.moveText();
 
         this.fader.display(canvas_context);
         graphics.camera.end_in_screen_rendering();
+
     }
 
     continue() {
@@ -184,11 +222,18 @@ class LevelIntroScreen extends fsm.State {
         
         this.info_display = new LevelInfoDisplay(this.title,
             this.character_view.position.x+500, 
-            this.character_view.position.y);
+            this.character_view.position.y, 
+            this.color1);
+
+        this.idx_display = new LevelIdxDisplay(this.level_idx.toString(),
+            this.character_view.position.x+500, 
+            this.character_view.position.y, 
+            this.color1);
 
         this.desc_display = new LevelDescDisplay(this.desc, 
             this.character_view.position.x+100, 
-            this.character_view.position.y);
+            this.character_view.position.y,
+            this.color2);
 
         console.log(this.character_view.position.y);
 
@@ -215,6 +260,8 @@ class LevelIntroScreen extends fsm.State {
         this.character_view.render_graphics(this.level_transition_canvas_context);
 
         this.desc_display.draw(this.level_transition_canvas_context);
+        this.info_display.draw(this.level_transition_canvas_context);
+        this.idx_display.draw(this.level_transition_canvas_context);
 
         // Then draw that fixed-sized canvas on the screen.
         const center_pos = graphics.centered_rectangle_in_screen(this.level_transition_canvas_context.canvas).position;
@@ -222,8 +269,10 @@ class LevelIntroScreen extends fsm.State {
     }
 
     moveText(){
-        this.info_display.title.position = {x:this.character_view.position.x+300, 
+        this.info_display.title.position = {x:this.character_view.position.x+100, 
             y:this.character_view.position.y};
+        this.idx_display.title.position = {x:this.character_view.position.x+47, 
+                y:this.character_view.position.y-65};
         this.desc_display.title.position = {x:this.character_view.position.x + 100, 
                                             y:this.character_view.position.y + 70};
 
@@ -288,28 +337,37 @@ class LevelIntroScreen extends fsm.State {
 class Level_1_IntroScreen extends LevelIntroScreen {
     constructor(){
         super("BUGGY_PROGRAM", 0, 
-              'Glitch is a ghost in the machine;\nhe would like to haunt the real world.\nWrestle free of your cobalt cage\nand run wild Glitch!');
+              'Glitch is a ghost in the machine;\nhe would like to haunt the real world.\nWrestle free of your cobalt cage\nand run wild Glitch!',
+              '#fc8751', '#1e8fed');
     }
+
+    //'#f7ad4e', '#1e8fed'
+    //'#28c554', '#d85879'
 };
 
 class Level_2_IntroScreen extends LevelIntroScreen {
     constructor(){
-        super("REPLACE THIS TEXT", 1, 'this should fix that error');
+        super("RAM", 1, 
+              'this should fix that error',
+              '#28c554', '#d85879');
     }
 
 };
 
 class Level_3_IntroScreen extends LevelIntroScreen {
     constructor(){
-        super("REPLACE THIS TEXT", 2);
+        super("CPU Caches", 2,
+              'some copy',
+              '#00d784', '#da65ce');
     }
-
 };
 
 class Level_4_IntroScreen extends LevelIntroScreen {
     constructor(){
-        super("REPLACE THIS TEXT", 3);
+        super("NETWORK_BUS", 3,
+              'some copy',
+              '#4cb0d4', '#ff92fb');
     }
-
+    
 };
 
