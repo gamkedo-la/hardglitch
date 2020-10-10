@@ -61,9 +61,9 @@ class Env {
     }
 
     runFx() {
-        //for (let gidx=0; gidx<8; gidx++) {
-            //this.runFxForGrid(gidx);
-        //}
+        for (let gidx=0; gidx<8; gidx++) {
+            this.runFxForGrid(gidx);
+        }
         // only run in one grid at a time;
         this.runFxForGrid(this.gidx);
         this.gidx++;
@@ -92,6 +92,7 @@ class Env {
         }
         let p;
         for (const fx of [
+            /*
             this.gfx.lightningJump(posFcn(), target),
             this.gfx.jump_up(posFcn()),
             this.gfx.jump_down(posFcn()),
@@ -110,6 +111,7 @@ class Env {
             this.gfx.unlockCircle(p=posFcn(), 2),
             this.gfx.scan(p=posFcn()),
             this.gfx.spawn(p=posFcn()),
+            */
             this.gfx.exitPortal(posFcn()),
         ]) {
             setTimeout(() => {fx.done = true;}, this.fxInterval);
@@ -160,7 +162,6 @@ class Env {
 window.onload = async function() {
     const assets = await load_all_assets();
     set_loaded_assets(assets);
-    //graphicsInit();
     tileSelectInit(tiledefs.defs);
     let env = new Env();
     await env.setup();
