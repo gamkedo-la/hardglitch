@@ -169,6 +169,9 @@ class PlayerExitLevel extends concepts.Event {
         game_view.center_on_position(character_view.game_position, 500).then(()=> ready_to_exit = true );
         audio.playEvent("exit_bus");
         while(!ready_to_exit) yield;
+        console.log("here before exited");
+        yield* anim.exited(game_view.fx_view, character_view);
+        console.log("here after exited");
         while(true) yield;
     }
 };

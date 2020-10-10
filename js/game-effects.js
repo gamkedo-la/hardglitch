@@ -814,15 +814,11 @@ class GameFxView {
 
     portalOut(position) {
         let fx = new GameFx(position);
-        let colorOptions = [
-            new Color(0,0,255),
-            new Color(0,255,255),
-        ]
         let emitInterval = 2.1;
         let emitJitter = 0;
         for (const spec of [
             {
-                maxRadius: 16,
+                maxRadius: 24,
                 color: new Color(215,215,255, .45),
                 lightning: {
                     color: new Color(255,0,255),
@@ -830,7 +826,7 @@ class GameFxView {
                 }
             },
             {
-                maxRadius: 24,
+                maxRadius: 32,
                 color: new Color(0,225,225, .45),
                 lightning: {
                     color: new Color(255,0,255),
@@ -838,7 +834,7 @@ class GameFxView {
                 }
             },
             {
-                maxRadius: 32,
+                maxRadius: 48,
                 color: new Color(0,0,200, .45),
                 lightning: {
                     color: new Color(255,255,0),

@@ -23,6 +23,7 @@ export {
     pulled,
     scanned,
     spawned,
+    exited,
 }
 
 import { graphic_position, EntityView, PIXELS_PER_HALF_SIDE, square_half_unit_vector, PIXELS_PER_TILES_SIDE } from "./view/entity-view.js";
@@ -36,7 +37,7 @@ import { ItemView } from "./view/item-view.js";
 import { Position } from "./core/concepts.js";
 import { GameView } from "./game-view.js";
 import { Sprite } from "./system/graphics.js";
-import { is_number, random_float } from "./system/utility.js";
+import { is_number, ofmt, random_float } from "./system/utility.js";
 import { crypto_kind as crypto_kinds } from "./definitions-items.js";
 
 const default_move_duration_ms = 250;
@@ -379,4 +380,27 @@ function* spawned(fx_view, game_pos){
     yield* animation.wait(1200);
 }
 
-
+function* exited(fx_view, entity_view){
+    console.assert(fx_view instanceof GameFxView);
+    console.assert(entity_view instanceof EntityView);
+    let fx_pos = entity_view.position.translate(square_half_unit_vector);
+    let fx = fx_view.portalOut(fx_pos);
+    let duration_ms = 1250;
+    const initial_position = entity_view.position;
+    entity_view.position = initial_position.translate(square_half_unit_vector);
+    entity_view.for_each_sprite(sprite=>sprite.move_origin_to_center());
+    yield* tween( {
+                scale_x: entity_view.scale.x,
+                scale_y: entity_view.scale.y,
+            }, {
+                scale_x: 0,
+                scale_y: 0,
+            },
+            duration_ms,
+            (values) => {
+                entity_view.scale = { x: values.scale_x, y: values.scale_y };
+            },
+            easing.in_out_quad
+    );
+    fx.done = true;
+}
