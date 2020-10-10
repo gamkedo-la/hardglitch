@@ -24,7 +24,8 @@ import {
     ComboLockParticle,
     TraceParticle,
     TraceArcParticle,
-    ScanLineParticle,
+    ScanLineParticle, 
+    CollapseOrbParticle,
 } from "./system/particles.js";
 import { Color } from "./system/color.js";
 import { Vector2 } from "./system/spatial.js";
@@ -807,6 +808,55 @@ class GameFxView {
             this.particleSystem.add(p);
             fx.sentinels.push(p);
             fx.relocatables.push(p);
+        }
+        return fx;
+    }
+
+    portalOut(position) {
+        let fx = new GameFx(position);
+        let colorOptions = [
+            new Color(0,0,255),
+            new Color(0,255,255),
+        ]
+        let emitInterval = 2.1;
+        let emitJitter = 0;
+        for (const spec of [
+            {
+                maxRadius: 16,
+                color: new Color(215,215,255, .45),
+                lightning: {
+                    color: new Color(255,0,255),
+                    count: 0,
+                }
+            },
+            {
+                maxRadius: 24,
+                color: new Color(0,225,225, .45),
+                lightning: {
+                    color: new Color(255,0,255),
+                    count: 5,
+                }
+            },
+            {
+                maxRadius: 32,
+                color: new Color(0,0,200, .45),
+                lightning: {
+                    color: new Color(255,255,0),
+                    count: 5,
+                }
+            }
+        ]) {
+            const emitter = new ParticleEmitter(this.particleSystem, position.x, position.y, (emitter) => {
+                spec.x = emitter.x;
+                spec.y = emitter.y;
+                spec.ttl = 1;
+                spec.lightning.x = emitter.x;
+                spec.lightning.y = emitter.y;
+                return new CollapseOrbParticle(spec);
+            }, emitInterval, emitJitter);
+            this.particleSystem.add(emitter);
+            fx.sentinels.push(emitter);
+            fx.relocatables.push(emitter);
         }
         return fx;
     }

@@ -112,7 +112,7 @@ class Env {
             this.gfx.scan(p=posFcn()),
             this.gfx.spawn(p=posFcn()),
             */
-            this.gfx.exitPortal(posFcn()),
+            this.gfx.portalOut(posFcn()),
         ]) {
             setTimeout(() => {fx.done = true;}, this.fxInterval);
         }
