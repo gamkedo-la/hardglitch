@@ -638,19 +638,32 @@ class GameView {
             .map(view => view.render_graphics(canvas_context));
     }
 
+    _clear_pointed_highlight(){
+        delete this._last_mouse_grid_pos;
+        this._pointed_highlight_edit.enabled = false;
+        this._pointed_highlight.enabled = false;
+    }
+
     _update_highlights(delta_time){
         const mouse_pos = mouse_grid_position();
-        if(mouse_pos){
+        const is_pointing_valid_square = mouse_pos !== undefined // We have a valid mouse position
+                                       && (
+                                              (!this.ui.is_mouse_over && this.fog_of_war.is_visible(mouse_pos)) // Player can see the pointed square and we are not pointing over the UI.
+                                           || this.enable_edition // Or we are in editor mode
+                                          );
+        if(is_pointing_valid_square){
             if(!this._last_mouse_grid_pos || !mouse_pos.equals(this._last_mouse_grid_pos)){
                 this._last_mouse_grid_pos = mouse_pos;
-                if(this.enable_edition)
+                if(this.enable_edition){
                     this._change_highlight_position(this._pointed_highlight_edit, mouse_pos);
-                else
+                }
+                else {
                     this._change_highlight_position(this._pointed_highlight, mouse_pos);
+                }
             }
         } else {
-            this._pointed_highlight_edit.enabled = false;
-            this._pointed_highlight.enabled = false;
+            delete this._last_mouse_grid_pos;
+            this._clear_pointed_highlight();
         }
 
         for(const highlight_sprite of Object.values(this._highlight_sprites)){
