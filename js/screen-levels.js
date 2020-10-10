@@ -28,6 +28,8 @@ import { draw_rectangle } from "./system/graphics.js";
 //maybe change this to "title display" like a title object
 class LevelInfoDisplay {
     constructor(title, x, y){
+        
+        this.timer = 330;
 
         this.title = new ui.Text({
             text: title,
@@ -43,21 +45,26 @@ class LevelInfoDisplay {
 
     }
 
-
     update(delta_time){
+        if(this.timer > 0){
+            this.timer--;
+        }
         invoke_on_members(this, "update", delta_time);
     }
 
     draw(canvas_context){
-        invoke_on_members(this, "draw", canvas_context);
-    }
+        
+        if(this.timer <= 0){
+            invoke_on_members(this, "draw", canvas_context);
+        }
 
+    }
 }
 
 class LevelDescDisplay {
     constructor(text, x, y){
 
-        this.timer = 100;
+        this.timer = 330;
 
         this.title = new ui.Text({
             text: text,
@@ -82,9 +89,9 @@ class LevelDescDisplay {
     }
 
     draw(canvas_context){
-        invoke_on_members(this, "draw", canvas_context);
+        
         if(this.timer <= 0){
-
+            invoke_on_members(this, "draw", canvas_context);
         }
 
     }
@@ -151,9 +158,6 @@ class LevelIntroScreen extends fsm.State {
     }
 
     on_canvas_resized(){
-        this.info_display = new LevelInfoDisplay(this.title,
-            this.character_view.position.x+100, 
-            this.character_view.position.y);
     }
 
     init_level_transition(){
@@ -178,10 +182,10 @@ class LevelIntroScreen extends fsm.State {
         let glitchCentered = center_in_rectangle(this.character_view.area, this.level_transition_canvas_context.canvas).position.translate({ y: 200 });
         this.character_view.position = glitchCentered;
         
+        this.info_display = new LevelInfoDisplay(this.title,
+            this.character_view.position.x+500, 
+            this.character_view.position.y);
 
-                //find the circle and change the below numbers
-        //this.character_view.position.x+30,
-        //this.character_view.position.y+30
         this.desc_display = new LevelDescDisplay(this.desc, 
             this.character_view.position.x+100, 
             this.character_view.position.y);
@@ -218,8 +222,11 @@ class LevelIntroScreen extends fsm.State {
     }
 
     moveText(){
-        this.desc_display.title.position = {x:this.character_view.position.x, y: this.character_view.position.y};
-        this.info_display.title.position = {x:this.character_view.position.x, y: this.character_view.position.y};
+        this.info_display.title.position = {x:this.character_view.position.x+300, 
+            y:this.character_view.position.y};
+        this.desc_display.title.position = {x:this.character_view.position.x + 100, 
+                                            y:this.character_view.position.y + 50};
+
     }
 
     *move_background(y_translation){
@@ -280,7 +287,7 @@ class LevelIntroScreen extends fsm.State {
 
 class Level_1_IntroScreen extends LevelIntroScreen {
     constructor(){
-        super("First text", 0, 'This is some prose that will appear in the desc info object bay bee');
+        super("LVL0BUGGY_PROGRAM", 0, 'This is some prose that will appear in the desc info object bay bee');
     }
 };
 
