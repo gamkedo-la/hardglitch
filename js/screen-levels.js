@@ -34,7 +34,7 @@ class LevelInfoDisplay {
         this.title = new ui.Text({
             text: title,
             font: "48px ZingDiddlyDooZapped",
-            background_color: "#ffffff0a",
+            background_color: "#27c352",
             color: "white",
         });
 
@@ -69,7 +69,7 @@ class LevelDescDisplay {
         this.title = new ui.Text({
             text: text,
             font: "16px Space Mono",
-            background_color: "#ffffff0a",
+            background_color: "#d85778",
             color: "white",
         });
 
@@ -225,7 +225,7 @@ class LevelIntroScreen extends fsm.State {
         this.info_display.title.position = {x:this.character_view.position.x+300, 
             y:this.character_view.position.y};
         this.desc_display.title.position = {x:this.character_view.position.x + 100, 
-                                            y:this.character_view.position.y + 50};
+                                            y:this.character_view.position.y + 70};
 
     }
 
@@ -287,7 +287,8 @@ class LevelIntroScreen extends fsm.State {
 
 class Level_1_IntroScreen extends LevelIntroScreen {
     constructor(){
-        super("LVL0BUGGY_PROGRAM", 0, 'This is some prose that will appear in the desc info object bay bee');
+        super("BUGGY_PROGRAM", 0, 
+              'Glitch is a ghost in the machine;\nhe would like to haunt the real world.\nWrestle free of your cobalt cage\nand run wild Glitch!');
     }
 };
 
