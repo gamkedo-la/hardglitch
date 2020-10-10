@@ -15,33 +15,36 @@ import { ScreenFader } from "./system/screenfader.js";
 
 const credits_text =
 `Klaim (A. Joël Lamotte): Project lead, core gameplay functionality, level generation, turn system, animation code,
-agents/actors system, FSM, actions framework, in-game editor, input handling, UI, optimizations, asset integration,
-menus, original placeholder art, event debug display, NPCs (LifeForms, Virus, Anti-Virus, Programs), game end handling,
-spawn code, actions (jump, pull, swap, void, take item, repair, copy, others), fog of war, shadows, camera logic, main
-palette, many crash fixes and tuning tweaks, inventory, crypto key authoring, loading screen, help text
+agents/actors system, FSM v2, actions framework, in-game editor, input handling, UI, optimizations, asset integration,
+menus, original placeholder art, event debug display, NPCs behavior (LifeForms, Virus, Anti-Virus, Programs, etc.),
+game end, spawn code, actions (jump, pull, swap, void, take item, repair, copy, others), fog of war, field of view, shadows,
+camera logic, main palette, many crash fixes and tuning tweaks, inventory, crypto key authoring, loading screen, help text
 
 Tylor Allison: Particle systems (glitch, trace, scan, portal, spawn, missile, color, spark, repair, wait, hex spin,
-lightning jump, fade, explosion swirl, blip edge pathing), randomization, tile wall fixes, decrypt/triangle animations,
-key systems, mock ups (tile bg, walls, void, experimentation with negative space/holes, perspective, color tests), color
-adjustments, moving wall variants, level design concepts, floor art, NPC wait, warm and cool level themes, lots of asset
-and code cleanup, additional tile type rules, seam fix, take/drop animations, move transitions, highlights, laser walls,
+lightning jump, fade, explosion swirl, blip edge pathing), FX randomization, wall tiles art, decrypt/triangle animations,
+mock ups (tile bg, walls, void, experimentation with negative space/holes, perspective, color tests), color adjustments,
+moving wall v2, level design concepts art, floor art, NPC wait animation, warm and cool level themes, lots of asset
+and code cleanup, additional tile type rules, seam fix, take/drop animations, move animations, highlights art v2, laser walls,
 tile overlay
 
-Roc Lee: Soundtrack (in-game levels victory, game over), most sound effects (jump, gameplay, UI, movement, explosions,
+Roc Lee: Soundtrack (in-game, levels, victory, game over), all sound effects (jump, gameplay, UI, movement, explosions,
 decrypt, editor), audio normalization, assorted sound integration
 
-Ashleigh M.: Description animation and related background, level transition, mock ups (character, virus sprite, slime,
-additional animations), glitches, detailed playtesting, program sprite, palette tweaks, font selection
+Ashleigh M.: Description animation and related background, level transitions, character art mock ups and final
+(virus sprite, slime, life-forms, glitches, program, microcode, anti-virus, virus, additional animations),
+detailed playtesting, palette tweaks, font selection
 
-Cassidy Noble: Crypto key and crypto file, Assorted docs images, icons, additional UI and menu art, color corrections
+Cassidy Noble: Crypto key and crypto file art, items art, Assorted docs images, action and item icons, additional UI
+and menu art, color corrections, highlight art v1, moving wall art v1
 
-Andrew Mushel: Vector code, one shot audio integration, music stream support, poositional audio, volume controls, mute toggle
+Andrew Mushel: Vector/math code improvements, audio system, one shot audio integration, music stream support,
+poositional audio, volume controls, mute toggle
 
 Andy King: Cursor art, including variants and hand icons
 
-Allan Regush: State machine
+Allan Regush: State machine v1
 
-Antonio Malafronte: Special thanks (practice commit - welcome!)
+Antonio Malafronte: Special thanks (practice commit - welcome!), playtesting
 
 Chris DeLeon: Compiled credits
 
@@ -51,9 +54,10 @@ class Credits {
     constructor(on_back_button){
 
         this.title = new ui.Text({
-            text: "",//"CREDITS", // worked better using screen space to fit bigger credits text
-            font: "80px ZingDiddlyDooZapped",
+            text: "CREDITS",
+            font: "48px ZingDiddlyDooZapped",
             background_color: "#ffffff00",
+            color: "white",
         });
 
         this.title.position = {
@@ -80,8 +84,10 @@ class Credits {
         // maybe we can add some way to move the text or something.
         this.credits_text = new ui.Text({
             text: credits_text,
-            font: "12px Space Mono",
-            background_color: "#ffffff00",
+            font: "13px Space Mono",
+            color: "orange",
+            background_color: "#42359b",
+            margin_vertical: 2,
         });
         this.credits_text.position = graphics.centered_rectangle_in_screen(this.credits_text).position;
     }
@@ -131,7 +137,7 @@ class CreditsScreen extends fsm.State {
     }
 
     display(canvas_context){
-        graphics.draw_rectangle(canvas_context, graphics.canvas_rect(), "grey");
+        graphics.draw_rectangle(canvas_context, graphics.canvas_rect(), "#32258b");
 
         this.credits.draw(canvas_context);
 
