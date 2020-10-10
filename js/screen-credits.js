@@ -14,52 +14,44 @@ import { invoke_on_members } from "./system/utility.js";
 import { ScreenFader } from "./system/screenfader.js";
 
 const credits_text =
-`Lorem ipsum dolor sit amet, consectetur adipiscing elit.Praesent fermentum erat eu lobortis imperdiet.
-Sed dignissim lacus lectus, vitae imperdiet ipsum fermentum nec. In hac habitasse platea dictumst.
-Maecenas sed placerat turpis. Etiam arcu magna, semper eu mattis quis, vulputate tristique ipsum.
-Curabitur lorem felis, rhoncus ut fermentum vitae,
-suscipit eget enim. Maecenas sit amet enim sit amet nisi blandit suscipit sit amet sit amet odio.
-Sed condimentum consectetur varius. Nam dictum et nunc vitae fermentum.
+`Klaim (A. Joël Lamotte): Project lead, core gameplay functionality, level generation, turn system, animation code,
+agents/actors system, FSM, actions framework, in-game editor, input handling, UI, optimizations, asset integration,
+menus, original placeholder art, event debug display, NPCs (LifeForms, Virus, Anti-Virus, Programs), game end handling,
+spawn code, actions (jump, pull, swap, void, take item, repair, copy, others), fog of war, shadows, camera logic, main
+palette, many crash fixes and tuning tweaks, inventory, crypto key authoring, loading screen, help text
 
-Phasellus orci leo, pharetra a enim a, accumsan feugiat risus. Proin vel mollis lacus.
-Suspendisse pellentesque ex ut nulla volutpat sagittis. Proin at feugiat tortor.
-Aenean eget quam gravida, consectetur risus id, sodales erat. Aliquam facilisis justo justo, quis posuere eros tincidunt non.
-Phasellus auctor egestas nisi et maximus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae;
-Maecenas consectetur viverra massa eget feugiat. Nunc a orci lectus. Integer sed urna ac dui mattis sagittis. In euismod dictum dui.
-Sed id mi quam. Nam libero diam, molestie ac aliquam a, ornare sit amet sapien. Integer id tempor odio.
-Mauris posuere ipsum vehicula, commodo neque nec, dignissim nisi.
+Tylor Allison: Particle systems (glitch, trace, scan, portal, spawn, missile, color, spark, repair, wait, hex spin,
+lightning jump, fade, explosion swirl, blip edge pathing), randomization, tile wall fixes, decrypt/triangle animations,
+key systems, mock ups (tile bg, walls, void, experimentation with negative space/holes, perspective, color tests), color
+adjustments, moving wall variants, level design concepts, floor art, NPC wait, warm and cool level themes, lots of asset
+and code cleanup, additional tile type rules, seam fix, take/drop animations, move transitions, highlights, laser walls,
+tile overlay
 
-Aliquam congue lacinia tincidunt. Morbi tempus, augue at luctus convallis, elit tellus malesuada metus,
-et blandit dui lectus non ex. Nullam volutpat interdum velit. Praesent sodales quam quis volutpat sodales.
-Pellentesque a quam sed leo dictum dictum. Suspendisse sollicitudin scelerisque lacus.
-Aliquam quis augue at quam vehicula luctus. Mauris eu enim nisi. Etiam sagittis quam at facilisis porta.
-Nulla in elit quis diam placerat sodales. Integer id volutpat neque.
-Nam dapibus leo in tellus aliquam, a aliquam risus elementum.
+Roc Lee: Soundtrack (in-game levels victory, game over), most sound effects (jump, gameplay, UI, movement, explosions,
+decrypt, editor), audio normalization, assorted sound integration
 
-Duis id nisi sit amet erat interdum aliquet. Etiam sit amet dolor vel augue tincidunt pretium sit amet a lectus.
-Quisque fermentum vehicula augue, eget aliquam mi fermentum vel. Fusce euismod arcu mauris, vel posuere neque tincidunt ut.
-Cras condimentum, nisl at ultricies eleifend, orci nibh euismod libero, at faucibus justo magna nec nisl.
-Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Vivamus sed tellus rutrum,
-sagittis mauris non, convallis elit. Donec sed erat non ante faucibus egestas nec et nibh.
-Aliquam fermentum, lectus sed faucibus tristique, nulla nisl rutrum libero, non consectetur lorem mi eget quam.
-Aliquam leo velit, dignissim vel orci ac, faucibus consequat odio. Orci varius natoque penatibus et magnis dis parturient montes,
-nascetur ridiculus mus. Praesent sagittis velit ut leo feugiat, non malesuada enim congue.
+Ashleigh M.: Description animation and related background, level transition, mock ups (character, virus sprite, slime,
+additional animations), glitches, detailed playtesting, program sprite, palette tweaks, font selection
 
-Nullam sit amet vulputate metus. Interdum et malesuada fames ac ante ipsum primis in faucibus. In sit amet diam mauris.
-Suspendisse cursus, magna et porttitor mollis, turpis libero elementum massa, porta dapibus tortor justo ut ex.
-Cras at arcu in nisl efficitur mollis eu at ante. Aenean egestas varius tortor, quis vehicula nunc consequat eget.
-Duis purus magna, euismod vel orci id, placerat sollicitudin risus. Proin molestie luctus felis, sit amet consequat risus pharetra eu.
-Aenean gravida ullamcorper eros et pellentesque. Nunc sollicitudin purus nec mi tincidunt, nec tempus nisi porta.
-In in odio sapien. Duis pulvinar neque at turpis euismod, at suscipit ante lacinia. Nam feugiat lacus in sem gravida, ut feugiat tellus sollicitudin.
-Ut quis tellus dui. Phasellus iaculis, ex nec dapibus egestas, turpis tortor ornare mi, in lobortis ipsum elit non massa.
-Vestibulum nec quam commodo, mattis ante eget, pharetra nisl.
-`;
+Cassidy Noble: Crypto key and crypto file, Assorted docs images, icons, additional UI and menu art, color corrections
+
+Andrew Mushel: Vector code, one shot audio integration, music stream support, poositional audio, volume controls, mute toggle
+
+Andy King: Cursor art, including variants and hand icons
+
+Allan Regush: State machine
+
+Antonio Malafronte: Special thanks (practice commit - welcome!)
+
+Chris DeLeon: Compiled credits
+
+Game made in HomeTeamGameDev.com Outpost Group - Join us!`;
 
 class Credits {
     constructor(on_back_button){
 
         this.title = new ui.Text({
-            text: "CREDITS",
+            text: "",//"CREDITS", // worked better using screen space to fit bigger credits text
             font: "80px ZingDiddlyDooZapped",
             background_color: "#ffffff00",
         });
