@@ -11,6 +11,7 @@ import {
     BlipParticle,
     FadeParticle,
     FadeLineParticle,
+    ShootUpParticle,
     BlipEdgeParticle,
     LightningParticle,
     OffsetGlitchParticle,
@@ -166,23 +167,30 @@ class GameFxView {
 
     exitPortal(position) {
         let particles = this.particleSystem;
-        // FIXME: need to replace blip particle here... it sets global alpha, which is interfering w/ drawing of other particles
-        /*
-        const blipGroup = new ParticleGroup();
-        particles.add(blipGroup);
-        let blipEmitter =
-            new ParticleEmitter(particles, position.x, position.y, (emitter) => {
-            let xoff = random_float(-25,25);
-            let yoff = random_float(-25,25);
-            let velocity = random_float(30,60);
-            let ttl = random_float(.3, 1.5);
-            return new BlipParticle(emitter.x+xoff, emitter.y+yoff, blipGroup, 0, -velocity, ttl, 10);
-        }, .2, 25);
-        particles.add(blipEmitter);
-        */
+        let fx = new GameFx(position);
+        for (const radius of [5, 10, 30]) {
+            let emitInterval = .5;
+            let emitJitter = 25;
+            let shootEmitter = new ParticleEmitter(particles, position.x, position.y, (emitter) => {
+                let angle = random_float(0, Math.PI*2);
+                let r = random_float(0, radius);
+                let xoff = Math.cos(angle) * r;
+                let yoff = Math.sin(angle) * r + 10;
+                let speed = 35;
+                let width = random_int(2,4);
+                let hue = random_int(0, 360);
+                let ttl = 2.5;
+                let pathLen = 60;
+                let shootPct = 25;
+                return new ShootUpParticle(emitter.x+xoff, emitter.y-25+yoff, speed, width, hue, pathLen, ttl, shootPct);
+            }, emitInterval, emitJitter)
+            particles.add(shootEmitter);
+            fx.sentinels.push(shootEmitter);
+            fx.sentinels.push(shootEmitter);
+        }
         let lineEmitter = new ParticleEmitter(particles, position.x, position.y, (emitter) => {
             let xoff = random_float(-25,25);
-            let yoff = random_float(-25,25);
+            let yoff = random_float(-25,25) + 10;
             let velocity = random_float(30,90);
             let ttl = random_float(.3,1);
             let len = random_float(10,50);
@@ -190,11 +198,7 @@ class GameFxView {
             return new FadeLineParticle(emitter.x+xoff, emitter.y+yoff, 0, -velocity, new Color(0,255,0), ttl, len, width, 0, 1);
         }, .3, 25);
         particles.add(lineEmitter);
-        let fx = new GameFx(position);
-        //fx.sentinels.push(blipGroup);
-        //fx.sentinels.push(blipEmitter);
         fx.sentinels.push(lineEmitter);
-        //fx.relocatables.push(blipEmitter);
         fx.relocatables.push(lineEmitter);
         return fx;
     }

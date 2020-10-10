@@ -26,6 +26,8 @@ export {
     is_generator_function,
     splice,
     auto_newlines,
+    some_member,
+    every_members,
 }
 
 
@@ -250,6 +252,20 @@ function set_on_members(object, member_name, value){
     return Object.values(object)
             .filter(member => member instanceof Object && member[member_name] !== undefined)
             .forEach(member => member[member_name] = value);
+}
+
+// Returns true if all object members return true when passed to the predicate.
+function every_members(object, predicate){
+    return Object.values(object)
+        .filter(member => member instanceof Object)
+        .every(member => predicate(member));
+}
+
+// Returns true if any object members return true when passed to the predicate.
+function some_member(object, predicate){
+    return Object.values(object)
+        .filter(member => member instanceof Object)
+        .some(member => predicate(member));
 }
 
 // Creates a generator function that will yield the value(s) returned by the call to that function with the provided arguments.

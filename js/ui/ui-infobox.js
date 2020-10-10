@@ -11,6 +11,7 @@ import * as texts from "../definitions-texts.js";
 import { sprite_defs } from "../game-assets.js";
 import { Vector2, Rectangle, is_point_under } from "../system/spatial.js";
 import { add_text_line } from "../system/utility.js";
+import { config } from "../game-config.js";
 
 const info_box_background_style = "#111177a0";
 const info_box_border_style = "orange";
@@ -55,12 +56,15 @@ class InfoBox {
             visible: false,
         });
 
-        this._is_open = true;
-
         current_info_box = this;
     }
 
     get position() { return new Vector2(this._area.position); }
+    get is_mouse_over() { return this.is_under(input.mouse.position); }
+    is_under(position) { return is_point_under(position, this._area);}
+
+    get _is_open() { return config.enable_infobox; }
+    get visible() { return this._is_open; }
 
     add_text(new_text){
         console.assert(typeof new_text === "string");
@@ -71,7 +75,7 @@ class InfoBox {
         this._button_hide.update(delta_time);
         this._button_show.update(delta_time);
 
-        if(is_point_under(input.mouse.position, this._area)){
+        if(this.is_mouse_over){
             this._text = ""; // Clear the previous text.
             show_info(texts.ui.infobox);
         }
