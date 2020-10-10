@@ -108,10 +108,6 @@ class Highlight{
             }
         }
 
-        if(typeof this.info_text === "string"
-        && is_point_under(mouse_game_position(), this._sprite.area)){
-            show_info(this.info_text);
-        }
 
         if(this.events){
             console.assert(this._help_text);
@@ -140,6 +136,11 @@ class Highlight{
         this._sprite.draw(canvas_context);
         this._drawn_since_last_update = true;
 
+        // We have to do this in the draw function to make sure we get the info of the updated sprite.
+        if(typeof this.info_text === "string"
+        && is_point_under(mouse_game_position(), this._sprite.area)){
+            show_info(this.info_text);
+        }
     }
 
     draw_help(){
@@ -389,7 +390,7 @@ class GameView {
             console.assert(this.player_character instanceof Character);
             if(action.target_position){
                 const help_texts = this.help_text_over_action(action);
-                this._add_highlight(action.target_position, this._highlight_sprites.action, help_texts.tooltip, help_texts.info, undefined, this._action_highlight_events(action));
+                this._add_highlight(action.target_position, this._highlight_sprites.action, help_texts.tooltip, help_texts.info, this._action_highlight_events(action));
             }
         }
     }
@@ -661,7 +662,10 @@ class GameView {
         const mouse_pos = mouse_grid_position();
         const is_pointing_valid_square = mouse_pos !== undefined // We have a valid mouse position
                                        && (
-                                              (!this.ui.is_mouse_over && this.fog_of_war.is_visible(mouse_pos)) // Player can see the pointed square and we are not pointing over the UI.
+                                            (   !this.ui.is_mouse_over // we are not pointing over the UI.
+                                             && this.fog_of_war.is_visible(mouse_pos) // Player can see the pointed square
+                                             && this.player_actions_highlights.every(highlight=> !highlight.position.equals(mouse_pos)) // Not already pointing an action highlight.
+                                            )
                                            || this.enable_edition // Or we are in editor mode
                                           );
         if(is_pointing_valid_square){
