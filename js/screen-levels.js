@@ -27,7 +27,7 @@ import { draw_rectangle } from "./system/graphics.js";
 //right now the below just outputs a title, we need to output a lil more.
 //maybe change this to "title display" like a title object
 class LevelInfoDisplay {
-    constructor(title){
+    constructor(title, x, y){
 
         this.title = new ui.Text({
             text: title,
@@ -37,8 +37,8 @@ class LevelInfoDisplay {
         });
 
         this.title.position = {
-            x: graphics.centered_rectangle_in_screen(this.title.area).position.x,
-            y: this.title.height + 12,
+            x: x,
+            y: y
         };
 
     }
@@ -70,20 +70,21 @@ class LevelDescDisplay {
             x: x,
             y: y
         };
+
+        
     }
 
     update(delta_time){
         if(this.timer > 0){
             this.timer--;
         }
-        console.log(this.timer);
         invoke_on_members(this, "update", delta_time);
     }
 
     draw(canvas_context){
+        invoke_on_members(this, "draw", canvas_context);
         if(this.timer <= 0){
-            console.log('COUNTDOWN REACHED');
-            invoke_on_members(this, "draw", canvas_context);
+
         }
 
     }
@@ -129,6 +130,8 @@ class LevelIntroScreen extends fsm.State {
         this.desc_display.update(delta_time);
 
         this.fader.update(delta_time);
+
+         
     }
 
     display(canvas_context){
@@ -137,6 +140,7 @@ class LevelIntroScreen extends fsm.State {
 
         this.draw_level_transition(canvas_context);
         this.info_display.draw(canvas_context);
+        this.moveText();
 
         this.fader.display(canvas_context);
         graphics.camera.end_in_screen_rendering();
@@ -147,8 +151,9 @@ class LevelIntroScreen extends fsm.State {
     }
 
     on_canvas_resized(){
-        this.info_display = new LevelInfoDisplay(this.title);
-        console.log(this.desc_display);
+        this.info_display = new LevelInfoDisplay(this.title,
+            this.character_view.position.x+100, 
+            this.character_view.position.y);
     }
 
     init_level_transition(){
@@ -157,7 +162,7 @@ class LevelIntroScreen extends fsm.State {
         this.level_transition_canvas_context = graphics.create_canvas_context(fixed_size.x, fixed_size.y);
         this.animations = new AnimationGroup();
 
-        this.desc_display = new LevelDescDisplay(this.desc, 500, 500);
+
         //this.level_num_display = new LevelNumDisplay(lvlNumIdkWhatThisValis);
 
         const background_y_move = (this.level_idx + 1) * 100; // TODO: ASHLEIGH maybe replace this by specific y positions in for each level to move the background to.
@@ -172,7 +177,16 @@ class LevelIntroScreen extends fsm.State {
         this.character_view = new CharacterView(this.player_character);
         let glitchCentered = center_in_rectangle(this.character_view.area, this.level_transition_canvas_context.canvas).position.translate({ y: 200 });
         this.character_view.position = glitchCentered;
-        console.log(glitchCentered);
+        
+
+                //find the circle and change the below numbers
+        //this.character_view.position.x+30,
+        //this.character_view.position.y+30
+        this.desc_display = new LevelDescDisplay(this.desc, 
+            this.character_view.position.x+100, 
+            this.character_view.position.y);
+
+        console.log(this.character_view.position.y);
 
         this.animations.play(this.animation());
         this.animations.play(this.move_background(background_y_move));
@@ -186,13 +200,13 @@ class LevelIntroScreen extends fsm.State {
         // We draw all the content of the level transition in the fixed-size canvas...
         this.background.draw(this.level_transition_canvas_context);
         graphics.draw_circle(this.level_transition_canvas_context,
-                             this.character_view.position.x,
-                             this.character_view.position.y,
-                             100,
-                             'red');
+                             this.character_view.position.x+30,
+                             this.character_view.position.y+30,
+                             50,
+                             '#00e0be');
 
         //an attempt to draw a rectangle under the copy - Klaim: fixed, though note that ui.Text have a `background_color` desc value that you could use instead of this?
-        graphics.draw_rectangle(this.level_transition_canvas_context, { position: { x: 300, y: 300 }, width: 500, height:500 }, 'green');
+        //graphics.draw_rectangle(this.level_transition_canvas_context, { position: { x: 300, y: 300 }, width: 500, height:500 }, 'green');
 
         this.character_view.render_graphics(this.level_transition_canvas_context);
 
@@ -201,6 +215,11 @@ class LevelIntroScreen extends fsm.State {
         // Then draw that fixed-sized canvas on the screen.
         const center_pos = graphics.centered_rectangle_in_screen(this.level_transition_canvas_context.canvas).position;
         screen_canvas_context.drawImage(this.level_transition_canvas_context.canvas, center_pos.x, 0);
+    }
+
+    moveText(){
+        this.desc_display.title.position = {x:this.character_view.position.x, y: this.character_view.position.y};
+        this.info_display.title.position = {x:this.character_view.position.x, y: this.character_view.position.y};
     }
 
     *move_background(y_translation){
@@ -267,7 +286,7 @@ class Level_1_IntroScreen extends LevelIntroScreen {
 
 class Level_2_IntroScreen extends LevelIntroScreen {
     constructor(){
-        super("REPLACE THIS TEXT", 1);
+        super("REPLACE THIS TEXT", 1, 'this should fix that error');
     }
 
 };
