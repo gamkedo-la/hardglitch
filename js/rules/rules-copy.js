@@ -48,7 +48,7 @@ class Copy extends concepts.Action {
     static get range() { return copy_range; }
     static get costs(){
         return {
-            action_points: copy_ap_cost,
+            action_points: { value: copy_ap_cost },
         };
     }
 

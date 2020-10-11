@@ -26,7 +26,7 @@ class Repair extends concepts.Action {
     static get range() { return repair_range; }
     static get costs(){
         return {
-            action_points: repair_ap_cost,
+            action_points: { value: repair_ap_cost },
         };
     }
 

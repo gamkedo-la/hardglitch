@@ -20,8 +20,8 @@ class Destroy extends concepts.Action {
     static get range() { return destroy_range; }
     static get costs(){
         return {
-            action_points: 50,
-            integrity: 3,
+            action_points: { value: 50 },
+            integrity: { value: 3},
         };
     }
 

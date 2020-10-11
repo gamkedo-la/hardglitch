@@ -73,7 +73,7 @@ class Move extends concepts.Action {
     static get range(){ return move_range; }
     static get costs(){
         return {
-            action_points: 10,
+            action_points: { value: 10 },
         };
     }
 
@@ -156,7 +156,7 @@ class Jump extends concepts.Action {
     static get range() { return jump_range; }
     static get costs(){
         return {
-            action_points: 20,
+            action_points: { value: 20 },
         };
     }
 
@@ -213,7 +213,7 @@ class RandomJump extends concepts.Action {
     static get action_type_description() { return auto_newlines("Transfers data and execution of this character to a random memory section, even if unreachable.", 35); }
     static get costs(){
         return {
-            action_points: 20,
+            action_points: { value: 20 },
         };
     }
 
@@ -289,7 +289,7 @@ class Swap extends concepts.Action {
     static get range() { return swap_range; }
     static get costs(){
         return {
-            action_points: 10,
+            action_points: { value: 10 },
         };
     }
 

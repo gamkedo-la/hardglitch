@@ -128,7 +128,7 @@ class Push extends concepts.Action {
     static get range() { return push_range; }
     static get costs(){
         return {
-            action_points: 5,
+            action_points: { value: 5 },
         };
     }
 
@@ -153,7 +153,7 @@ class Pull extends concepts.Action {
     static get range() { return pull_range; }
     static get costs(){
         return {
-            action_points: 5,
+            action_points: { value: 5 },
         };
     }
 

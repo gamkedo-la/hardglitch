@@ -45,7 +45,7 @@ class Delete extends concepts.Action {
     static get range() { return delete_range; }
     static get costs(){
         return {
-            action_points: delete_ap_cost,
+            action_points: { value: delete_ap_cost },
         };
     }
 

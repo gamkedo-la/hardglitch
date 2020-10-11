@@ -128,7 +128,7 @@ class Corrupt extends concepts.Action {
     static get action_type_description() { return auto_newlines("Corrupts the target memory section.", 35); }
     static get costs(){
         return {
-            action_points: corrupt_ap_cost,
+            action_points: { value: corrupt_ap_cost },
         };
     }
     static get range() { return corrupt_range; }

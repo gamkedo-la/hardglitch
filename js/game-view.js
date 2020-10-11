@@ -334,7 +334,7 @@ class GameView {
             on_mouse_over_begin: () => {
                 if(this.player_character){
                     this.ui.character_status.begin_preview_costs({
-                        action_points: this.player_character.stats.action_points.value - action.constructor.costs.action_points,
+                        action_points: this.player_character.stats.action_points.value - action.constructor.costs.action_points.value,
                     });
                 }
             },
@@ -348,7 +348,7 @@ class GameView {
     help_text_over_action(action){
         console.assert(action instanceof concepts.Action);
         const help_texts = this.help_texts_at(action.target_position);
-        const action_tooltip = `-> Action: ${action.name} (${action.constructor.costs.action_points} AP)`;
+        const action_tooltip = `-> Action: ${action.name} (${action.constructor.costs.action_points.value} AP)`;
         help_texts.tooltip = add_text_line(action_tooltip, help_texts.tooltip);
         help_texts.info = `-> Action: ${action.constructor.action_type_name}\n(see Action buttons for details)\n\n${help_texts.info}`;
         return help_texts;

@@ -53,7 +53,7 @@ class Wait extends concepts.Action {
     static get action_type_description() { return auto_newlines("Pass the current turn without spending Action Points.\nThe AP left will be usable next turn.", 35); }
     static get costs(){
         return {
-            action_points: 0
+            action_points: { value: 0 },
         };
     }
 

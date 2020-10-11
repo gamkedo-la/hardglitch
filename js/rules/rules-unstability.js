@@ -127,7 +127,7 @@ class Destabilize extends concepts.Action {
     static get range() { return destabilize_range; }
     static get costs(){
         return {
-            action_points: unstable_ap_cost,
+            action_points: { value: unstable_ap_cost },
         };
     }
 

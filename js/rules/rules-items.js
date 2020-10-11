@@ -117,7 +117,7 @@ class TakeItem extends concepts.Action {
     static get range() { return take_item_range; }
     static get costs(){
         return {
-            action_points: 1,
+            action_points: { value: 1 },
         };
     }
 
@@ -178,7 +178,7 @@ class SwapItemSlots extends concepts.Action {
 
     static get costs(){
         return {
-            action_points: 1,
+            action_points: { value: 1 },
         };
     }
 
@@ -208,7 +208,7 @@ class SwapItemSlots extends concepts.Action {
 class DropItem extends concepts.Action {
     static get costs(){
         return {
-            action_points: 1,
+            action_points: { value: 1 },
         };
     }
 

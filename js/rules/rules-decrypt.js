@@ -72,7 +72,7 @@ class Decrypt extends concepts.Action {
     static get range() { return decrypt_range; }
     static get costs(){
         return {
-            action_points: 10,
+            action_points: { value: 10 },
         };
     }
 
