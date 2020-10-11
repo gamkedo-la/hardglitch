@@ -14,7 +14,7 @@ import {
     create_chunk,
 } from "./level-tools.js";
 
-const level_name = "Level 1: Buggy Program";
+const level_name = "Level 0: Buggy Program";
 
 const defaults = {
     floor: tiles.ID.WALL1A,
