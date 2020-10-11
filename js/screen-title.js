@@ -57,29 +57,29 @@ class MainMenu {
             },
         });
 
-        this.button_empty_level = new ui.TextButton({
-            text: "Empty Small Level",
-            font: buttons_font,
-            action: ()=> { load_test_level(8, 8); },
-            position: Vector2_origin,
-            sprite_def: sprite_defs.button_menu,
-            sounds:{
-                over: 'selectButton',
-                down: 'clickButton',
-            }
-        });
+        // this.button_empty_level = new ui.TextButton({
+        //     text: "Empty Small Level",
+        //     font: buttons_font,
+        //     action: ()=> { load_test_level(8, 8); },
+        //     position: Vector2_origin,
+        //     sprite_def: sprite_defs.button_menu,
+        //     sounds:{
+        //         over: 'selectButton',
+        //         down: 'clickButton',
+        //     }
+        // });
 
-        this.button_test_level = new ui.TextButton({
-            text: "Random Test Level",
-            font: buttons_font,
-            action: ()=> { load_random_test_level(); },
-            position: Vector2_origin,
-            sprite_def: sprite_defs.button_menu,
-            sounds:{
-                over: 'selectButton',
-                down: 'clickButton',
-            }
-        });
+        // this.button_test_level = new ui.TextButton({
+        //     text: "Random Test Level",
+        //     font: buttons_font,
+        //     action: ()=> { load_random_test_level(); },
+        //     position: Vector2_origin,
+        //     sprite_def: sprite_defs.button_menu,
+        //     sounds:{
+        //         over: 'selectButton',
+        //         down: 'clickButton',
+        //     }
+        // });
 
         this.button_credits = new ui.TextButton({
             text: "Credits",
