@@ -10,15 +10,18 @@ import { sprite_defs } from "../game-assets.js";
 import { destroy_at } from "../rules/destruction.js";
 import { Character } from "../core/character.js";
 import { ranged_actions_for_each_target } from "./rules-common.js";
+import { auto_newlines } from "../system/utility.js";
 
 const destroy_range = new visibility.Range_Diamond(0,7);
 class Destroy extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_delete; }
     static get action_type_name() { return "Destroy"; }
+    static get action_type_description() { return auto_newlines("Destroys the target entity. Brutal and effective, but very expensive.", 35); }
     static get range() { return destroy_range; }
     static get costs(){
         return {
             action_points: 50,
+            integrity: 3,
         };
     }
 

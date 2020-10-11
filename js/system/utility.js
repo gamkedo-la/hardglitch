@@ -314,9 +314,10 @@ function auto_newlines(text, max_size){
         ++current_line_width;
         const char = text[char_idx];
         if(char === ' ' || char === '\n') last_whitespace_idx = char_idx;
+        if(char === '\n') current_line_width = 0;
         if(current_line_width > max_size){
             text = splice(text, last_whitespace_idx, 1, `\n`);
-            current_line_width = 0;
+            current_line_width -= max_size;
         }
     }
     return text;

@@ -14,7 +14,7 @@ import * as animation from "../game-animations.js";
 import * as audio from "../system/audio.js";
 
 import { deal_damage } from "./destruction.js";
-import { lazy_call, random_int } from "../system/utility.js";
+import { auto_newlines, lazy_call, random_int } from "../system/utility.js";
 import { grid_ID, is_valid_world } from "../definitions-world.js";
 import { Character } from "../core/character.js";
 import { Grid } from "../system/grid.js";
@@ -125,6 +125,7 @@ class Corrupted extends concepts.Event {
 class Corrupt extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_corrupt; }
     static get action_type_name() { return "Corrupt"; }
+    static get action_type_description() { return auto_newlines("Corrupts the target memory section.", 35); }
     static get costs(){
         return {
             action_points: corrupt_ap_cost,

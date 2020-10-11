@@ -12,6 +12,7 @@ import { sprite_defs } from "../game-assets.js";
 import { Repaired, repair } from "./recovery.js";
 import { ranged_actions_for_each_target } from "./rules-common.js";
 import { deal_damage } from "./destruction.js";
+import { auto_newlines } from "../system/utility.js";
 
 const repair_points = 5;
 const repair_ap_cost = 5;
@@ -21,6 +22,7 @@ const repair_range = new visibility.Range_Square(0,4);
 class Repair extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_repair; }
     static get action_type_name() { return "Repair"; }
+    static get action_type_description() { return auto_newlines(`Restores ${repair_points} data integrity of the target entity.`, 35); }
     static get range() { return repair_range; }
     static get costs(){
         return {
