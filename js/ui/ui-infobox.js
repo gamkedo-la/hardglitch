@@ -64,6 +64,7 @@ class InfoBox {
     is_under(position) { return is_point_under(position, this._area);}
 
     get _is_open() { return config.enable_infobox; }
+    set _is_open(is_it) { config.enable_infobox = is_it; }
     get visible() { return this._is_open; }
 
     add_text(new_text){
