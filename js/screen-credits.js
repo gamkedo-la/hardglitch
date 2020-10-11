@@ -25,14 +25,14 @@ lightning jump, fade, explosion swirl, blip edge pathing), procedural tile selec
 wall tiles art, decrypt/triangle animations, mock ups (tile bg, walls, void, experimentation with negative space/holes,
 perspective, color tests), color adjustments, moving wall v2, level design concepts art, floor art, NPC wait animation, warm and
 cool level themes, lots of asset and code cleanup, additional tile type rules, seam fix, take/drop animations, move animations,
-highlights art v2, laser walls, tile overlay
+highlights art v2, laser walls, tile overlay, title screen background
 
-Roc Lee: Soundtrack (in-game, levels, victory, game over), all sound effects (jump, gameplay, UI, movement, explosions,
-decrypt, editor), audio normalization, assorted sound integration
+Roc Lee: Soundtrack (in-game, levels, victory, game over, transitions), all sound effects (jump, gameplay, UI, movement,
+explosions, decrypt, editor), audio normalization, assorted sound integration
 
 Ashleigh M.: Description animation and related background, level transitions, character art mock ups and final
 (virus sprite, slime, life-forms, glitches, program, microcode, anti-virus, virus, additional animations),
-detailed playtesting, palette tweaks, font selection
+detailed playtesting, palette tweaks, font selection, texts
 
 Cassidy Noble: Crypto key and crypto file art, items art, Assorted docs images, action and item icons, additional UI
 and menu art, color corrections, highlight art v1, moving wall art v1
