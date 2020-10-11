@@ -25,6 +25,7 @@ import { GameOverScreen_Success, GameOverScreen_Failure } from "./screen-gameove
 import * as level_screens from "./screen-levels.js";
 import { MuteAudioButton } from "./game-ui.js";
 import { OptionsScreen } from "./screen-options.js";
+import { Screen_Demo } from "./screen-demo.js";
 
 let last_update_time = performance.now();
 const max_delta_time = 1000 / 26; // Always assume at worst that we are at 26fps
@@ -46,6 +47,7 @@ const game_state_machine = new class extends fsm.StateMachine {
       intro_level_2: new level_screens.Level_2_IntroScreen(),
       intro_level_3: new level_screens.Level_3_IntroScreen(),
       intro_level_4: new level_screens.Level_4_IntroScreen(),
+      demo: new Screen_Demo(),
     },{
       // This is the transition table, stating which action from one state leads to which other state.
       initial_state: "loading_game",
@@ -74,11 +76,16 @@ const game_state_machine = new class extends fsm.StateMachine {
         level_1: "intro_level_2",
         level_2: "intro_level_3",
         level_3: "intro_level_4",
+        demo: "demo",
       },
       gameover_success: {
         ok: "credits",
       },
       gameover_failure: {
+        back: "title",
+        retry: "game",
+      },
+      demo: {
         back: "title",
         retry: "game",
       },

@@ -23,7 +23,7 @@ import { AudioSettings } from "./game-ui.js";
 
 import { game_levels } from "./definitions-world.js";
 import { tween, easing } from "./system/tweening.js";
-import { is_number } from "./system/utility.js";
+import { is_number, random_sample } from "./system/utility.js";
 import { Character } from "./core/character.js";
 
 class PlayingGame extends fsm.State{
@@ -283,7 +283,7 @@ class GameScreen extends fsm.StateMachine {
 
         audio.stopEvent(music_id.title);
 
-        this.music = Number.isInteger(level_to_play) ? music_id[`level_${level_to_play + 1}`] : music_id.level_1;
+        this.music = Number.isInteger(level_to_play) ? music_id[`level_${level_to_play + 1}`] : random_sample(Object.values(music_id));
         audio.playEvent(this.music);
 
         delete this.current_level_idx;
@@ -393,8 +393,11 @@ class GameScreen extends fsm.StateMachine {
             this.state_machine.push_action("escape");
         }
         else {
+            // DEMO MODE: we just jump to the demo scren
+            this.state_machine.push_action("demo", this._level_to_play, this.game_session.world.exiting_character);
+
             // Pass on the player's character that exited, to continue in the next level.
-            this.state_machine.push_action(`level_${next_level}`, this.game_session.world.exiting_character);
+            // this.state_machine.push_action(`level_${next_level}`, this.game_session.world.exiting_character);
         }
     }
 
