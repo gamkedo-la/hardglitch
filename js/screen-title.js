@@ -27,7 +27,7 @@ class MainMenu {
             width: 1024,
             height: 768,
             sprite: "title_bg",
-            scale: {x: 2, y: 2},
+            //scale: {x: 2, y: 2},
         })
         this.position = position;
 
