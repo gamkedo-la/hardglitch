@@ -367,7 +367,15 @@ class Inventory {
 
     get_enabled_action_types(action_type){
         console.assert(action_type && action_type.prototype instanceof concepts.Action);
-        return this.get_all_enabled_action_types(type => type.prototype.constructor === action_type);
+        return this.get_all_enabled_action_types(type => {
+            while(type){
+                if(type === action_type || type.prototype instanceof action_type)
+                    return true;
+                if(type === type.prototype.constructor)
+                    return false;
+                type = type.prototype.constructor;
+            }
+        });
     }
 
     get_all_enabled_action_types(predicate = ()=>true){
@@ -485,6 +493,10 @@ class Character extends concepts.Body {
             ... this.inventory.get_all_enabled_action_types(),
             TakeItem,
         ];
+    }
+
+    get_enabled_action_types(action_type){
+        return this.inventory.get_enabled_action_types(action_type);
     }
 
 };

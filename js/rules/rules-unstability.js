@@ -200,8 +200,8 @@ class Rule_Unstability extends concepts.Rule {
         const is_valid_target = (position) => world.is_valid_position(position)
                                         && !(corruption_grid.get_at(position) instanceof Unstability);
 
-        const targets = lazy_call(visibility.positions_in_range, character.position, Destabilize.range, is_valid_target);
-        return actions_for_each_target(character, Destabilize, targets);
+        const targets_for_action = (range) => lazy_call(visibility.positions_in_range, character.position, range, is_valid_target);
+        return actions_for_each_target(character, Destabilize, targets_for_action);
     }
 };
 

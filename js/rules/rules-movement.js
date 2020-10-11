@@ -180,7 +180,7 @@ class Rule_Jump extends concepts.Rule {
     get_actions_for(character, world){
         console.assert(character instanceof Character);
 
-        const valid_targets = lazy_call(visibility.valid_move_positions, world, character, Jump.range, tiles.is_walkable);
+        const valid_targets = (range) => lazy_call(visibility.valid_move_positions, world, character, range, tiles.is_walkable);
         const possible_jumps = actions_for_each_target(character, Jump, valid_targets, (jump_type, target)=>{
             const jump = new jump_type(target);
             safe_if_safe_arrival(jump, world);
@@ -332,6 +332,6 @@ class Rule_Swap extends concepts.Rule {
             return false;
         };
 
-        return ranged_actions_for_each_target(world, character, Swap, Swap.range, entity_can_be_moved);
+        return ranged_actions_for_each_target(world, character, Swap, entity_can_be_moved);
     }
 };

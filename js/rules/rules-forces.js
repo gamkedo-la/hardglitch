@@ -6,6 +6,7 @@ export {
     Pushed,
     Pulled,
     Push,
+    Push_Short,
     Pull,
 }
 
@@ -23,6 +24,7 @@ import { is_blocked_position } from "../definitions-world.js";
 import { auto_newlines } from "../system/utility.js";
 
 const push_range = new visibility.Range_Square(1, 5);
+const push_short_range = new visibility.Range_Cross_Axis(1, 2);
 const pull_range = new visibility.Range_Square(1, 5);
 
 class Pushed extends concepts.Event {
@@ -146,6 +148,16 @@ class Push extends concepts.Action {
     }
 }
 
+class Push_Short extends Push {
+    static get range() { return push_short_range; }
+    static get costs(){
+        return {
+            action_points: { value: 5 },
+        };
+    }
+
+}
+
 class Pull extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_pull; }
     static get action_type_name() { return "Pull"; }
@@ -177,7 +189,7 @@ class Rule_Push extends concepts.Rule {
 
     get_actions_for(character, world){
         console.assert(character instanceof Character);
-        return ranged_actions_for_each_target(world, character, Push, Push.range);
+         return ranged_actions_for_each_target(world, character, Push);
     }
 };
 
@@ -186,7 +198,7 @@ class Rule_Pull extends concepts.Rule {
 
     get_actions_for(character, world){
         console.assert(character instanceof Character);
-        return ranged_actions_for_each_target(world, character, Pull, Push.range);
+        return ranged_actions_for_each_target(world, character, Pull);
     }
 };
 
