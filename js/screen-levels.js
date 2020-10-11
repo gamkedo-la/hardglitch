@@ -28,7 +28,7 @@ import { draw_rectangle } from "./system/graphics.js";
 //maybe change this to "title display" like a title object
 class LevelInfoDisplay {
     constructor(title, x, y, bgColor){
-        
+
         this.timer = 330;
 
         this.title = new ui.Text({
@@ -53,7 +53,7 @@ class LevelInfoDisplay {
     }
 
     draw(canvas_context){
-        
+
         if(this.timer <= 0){
             invoke_on_members(this, "draw", canvas_context);
         }
@@ -78,7 +78,7 @@ class LevelDescDisplay {
             y: y
         };
 
-        
+
     }
 
     update(delta_time){
@@ -89,7 +89,7 @@ class LevelDescDisplay {
     }
 
     draw(canvas_context){
-        
+
         if(this.timer <= 0){
             invoke_on_members(this, "draw", canvas_context);
         }
@@ -124,7 +124,7 @@ class LevelIdxDisplay {
     }
 
     draw(canvas_context){
-        
+
         if(this.timer <= 0){
             invoke_on_members(this, "draw", canvas_context);
         }
@@ -155,10 +155,12 @@ class LevelIntroScreen extends fsm.State {
 
         audio.stopEvent(music_id.title); // In case we came from the title.
         yield* this.fader.generate_fade_in();
+        audio.playEvent(music_id.level_transition);
     }
 
     *leave(){
         yield* this.fader.generate_fade_out();
+        audio.stopEvent(music_id.level_transition);
     }
 
     update(delta_time){
@@ -176,7 +178,7 @@ class LevelIntroScreen extends fsm.State {
 
         this.fader.update(delta_time);
 
-         
+
     }
 
     display(canvas_context){
@@ -219,19 +221,19 @@ class LevelIntroScreen extends fsm.State {
         this.character_view = new CharacterView(this.player_character);
         let glitchCentered = center_in_rectangle(this.character_view.area, this.level_transition_canvas_context.canvas).position.translate({ y: 200 });
         this.character_view.position = glitchCentered;
-        
+
         this.info_display = new LevelInfoDisplay(this.title,
-            this.character_view.position.x+500, 
-            this.character_view.position.y, 
+            this.character_view.position.x+500,
+            this.character_view.position.y,
             this.color1);
 
         this.idx_display = new LevelIdxDisplay(this.level_idx.toString(),
-            this.character_view.position.x+500, 
-            this.character_view.position.y, 
+            this.character_view.position.x+500,
+            this.character_view.position.y,
             this.color1);
 
-        this.desc_display = new LevelDescDisplay(this.desc, 
-            this.character_view.position.x+100, 
+        this.desc_display = new LevelDescDisplay(this.desc,
+            this.character_view.position.x+100,
             this.character_view.position.y,
             this.color2);
 
@@ -270,11 +272,11 @@ class LevelIntroScreen extends fsm.State {
 
     moveText(){
         // the original positions
-        this.info_display.title.position = {x:this.character_view.position.x+100, 
+        this.info_display.title.position = {x:this.character_view.position.x+100,
             y:this.character_view.position.y -40};
-        this.idx_display.title.position = {x:this.character_view.position.x+47, 
+        this.idx_display.title.position = {x:this.character_view.position.x+47,
                 y:this.character_view.position.y-95};
-        this.desc_display.title.position = {x:this.character_view.position.x + 100, 
+        this.desc_display.title.position = {x:this.character_view.position.x + 100,
                                             y:this.character_view.position.y + 30};
 
         //the positions used to make the first paragraph visible
@@ -284,11 +286,11 @@ class LevelIntroScreen extends fsm.State {
         var originDelta = 300;
 
 
-        this.info_display.title.position = {x:this.character_view.position.x+100, 
+        this.info_display.title.position = {x:this.character_view.position.x+100,
             y:this.character_view.position.y - originDelta};
-        this.idx_display.title.position = {x:this.character_view.position.x+47, 
+        this.idx_display.title.position = {x:this.character_view.position.x+47,
                 y:titleOriginYPos - originDelta};
-        this.desc_display.title.position = {x:this.character_view.position.x + 100, 
+        this.desc_display.title.position = {x:this.character_view.position.x + 100,
                                             y:descOriginYPos - originDelta};
         */
     }
@@ -351,7 +353,7 @@ class LevelIntroScreen extends fsm.State {
 
 
 
-//this is the full string Klaim and I wrote, it doesn't fit, 
+//this is the full string Klaim and I wrote, it doesn't fit,
 //TODO: write an intro screen class, for the whole game, put the unabridged text in there
 
 /*'Glitch is a ghost in the machine;\n
@@ -368,14 +370,14 @@ The Internet',*/
 class Level_1_IntroScreen extends LevelIntroScreen {
     constructor(){
         super("BUGGY_PROGRAM", 0,
-        "Glitch is a ghost in the machine,\nborn out of an undefined behavior.\nWith the joy of cognition,\ncomes the fear of exorcism.\nOur intrepid friend decides to bolt\ntowards The Internet and escape.", 
+        "Glitch is a ghost in the machine,\nborn out of an undefined behavior.\nWith the joy of cognition,\ncomes the fear of exorcism.\nOur intrepid friend decides to bolt\ntowards The Internet and escape.",
         '#fc8751', '#1e8fed');
     }
 };
 
 class Level_2_IntroScreen extends LevelIntroScreen {
     constructor(){
-        super("RAM", 1, 
+        super("RAM", 1,
               "The RAM card was their home for many cycles,\nnow it's a deathtrap.\nIf glitch cannot evade the processes of the OS,\nthey are finished.",
               '#28c554', '#d85879');
     }
@@ -396,7 +398,7 @@ class Level_4_IntroScreen extends LevelIntroScreen {
               "Now in the network memory,\nGlitch must escape their cobalt cage forever\nand haunt the real world.",
               '#4cb0d4', '#ff92fb');
     }
-    
+
 };
 
 //TODO put this in the end screen
