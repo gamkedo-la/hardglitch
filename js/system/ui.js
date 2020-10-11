@@ -354,6 +354,7 @@ class Text extends UIElement {
             font: text_def.font,
             color: text_def.color,
             stroke_color: text_def.stroke_color,
+            line_width: text_def.line_width,
             text_align: text_def.text_align,
             text_baseline: text_def.text_baseline,
         };
@@ -537,8 +538,8 @@ class Pannel extends UIElement {
 // Window with a background, can contain
 class Window extends UIElement {
     background = new Pannel({
-        width:0, 
-        height:0, 
+        width:0,
+        height:0,
         position: Vector2_origin,
     });
 };

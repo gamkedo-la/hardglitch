@@ -605,6 +605,7 @@ const text_defaults = {
   font: "22px Space Mono",
   color: "black",
   stroke_color: undefined,
+  line_width: undefined,
 };
 
 function text_operation(canvas_context, options, operation){
@@ -613,6 +614,7 @@ function text_operation(canvas_context, options, operation){
   canvas_context.font = options.font ? options.font : text_defaults.font;
   canvas_context.fillStyle = options.color ? options.color : text_defaults.color;
   canvas_context.strokeStyle = options.stroke_color ? options.stroke_color : text_defaults.strole_color;
+  canvas_context.lineWidth = options.line_width ? options.line_width : text_defaults.line_width;
   canvas_context.textAlign = options.text_align ? options.text_align : text_defaults.text_align;
   canvas_context.textBaseline = options.text_baseline ? options.text_baseline: text_defaults.text_baseline;
   const result = operation();

@@ -130,6 +130,8 @@ class TitleScreen extends fsm.State {
             font: "120px ZingDiddlyDooZapped",
             color: "white",
             background_color: "#ffffff00",
+            stroke_color: "purple",
+            line_width: 4,
             position: Vector2_origin
         });
         this.ui.title.position = {
