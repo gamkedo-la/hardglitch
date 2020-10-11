@@ -218,6 +218,7 @@ function make_test_world(test_world_size = world_grid){ // The game assets must 
             const entity = new item_type();
             entity.position = position;
             world.add_entity(entity);
+            is_first_item = false;
         });
 
     // farther voids
