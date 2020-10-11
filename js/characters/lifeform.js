@@ -3,7 +3,7 @@ export { LifeForm_Weak, LifeForm_Strong };
 import * as concepts from "../core/concepts.js";
 import { sprite_defs } from "../game-assets.js";
 import { Character, CharacterStats } from "../core/character.js"
-import { random_sample, rotate_array, random_int } from "../system/utility.js";
+import { random_sample, rotate_array, random_int, auto_newlines } from "../system/utility.js";
 import { Wait } from "../rules/rules-basic.js";
 import { Item_BadCode } from "../definitions-items.js";
 
@@ -112,6 +112,8 @@ class LifeForm_Weak extends Character {
         }}
     };
 
+    description = auto_newlines("Unexpected and unexpecting life-form living in the computer's memory. Nobody knows where they come from.", 35);
+
     constructor(){
         super("Weak Life Form", );
         const behavior_type = random_sample(lifeform_possible_behavior);
@@ -128,6 +130,8 @@ class LifeForm_Strong extends Character {
             sprite_def : sprite_defs.life_form,
         }}
     };
+
+    description = auto_newlines("Stubborn life-form living in the computer's memory. They might not be sentient but they sure know what they want.", 35);
 
     constructor(){
         super("Life Form", new CharacterStats());
