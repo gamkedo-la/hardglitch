@@ -5,7 +5,7 @@ export { Game }
 
 import * as concepts from "./core/concepts.js";
 import * as turns from "./core/action-turn.js";
-import { random_sample } from "./system/utility.js";
+import { random_int, random_sample } from "./system/utility.js";
 import * as tiles from "./definitions-tiles.js";
 import { is_blocked_position, grid_ID, is_valid_world } from "./definitions-world.js";
 import { Character } from "./core/character.js";
@@ -84,7 +84,18 @@ class Game {
         const entry_points = this.all_entry_points_positions;
         console.assert(entry_points);
         const position = random_sample(entry_points);
-        this.add_player_character(position, player_character);
+        if(position){
+            this.add_player_character(position, player_character);
+        } else {
+            console.warn("Could not find an entry point for the player character! - Force place it somewhere safe.");
+            while(true){
+                const random_position = new concepts.Position({ x: random_int(0, this.world.width-1), y: random_int(0, this.world.height-1)});
+                if(tiles.is_safely_walkable(this.world.grids[grid_ID.floor].get_at(random_position))){
+                    this.add_player_character(random_position, player_character);
+                    break;
+                }
+            }
+        }
     }
 
     add_player_character(position, player_character){
