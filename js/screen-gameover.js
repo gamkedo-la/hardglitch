@@ -153,7 +153,7 @@ class GameOverScreen_Failure extends fsm.State {
         };
         */
 
-       this.skull_icon.position = graphics.canvas_center_position().translate({x:-32, y:-150});
+       this.skull_icon.position = graphics.canvas_center_position().translate({x:-100, y:-250});
         //that's a work in progress
 
         // Center the buttons in the screen.

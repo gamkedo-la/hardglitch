@@ -79,7 +79,7 @@ const game_assets = { // Description of the assets to load.
         item_generic_6: "./images/genericitem6.png",
         item_generic_7: "./images/genericitem7.png",
         info_box_button: "./images/infoboxbutton.png",
-        game_over_skull: "./images/scribble-skull.png",
+        game_over_skull: "./images/game-over-skull.png",
 
         // TODO: merge icons into one image
         icon_volume_mute: "./images/iconmute.png",
