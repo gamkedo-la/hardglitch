@@ -23,6 +23,12 @@ class MainMenu {
     constructor(state_machine, position){
         console.assert(state_machine instanceof fsm.StateMachine);
         console.assert(position instanceof Vector2);
+        this.back_panel = new ui.Pannel({
+            width: 1024,
+            height: 768,
+            sprite: "title_bg",
+            scale: {x: 2, y: 2},
+        })
         this.position = position;
 
         this.button_new_game = new ui.TextButton({

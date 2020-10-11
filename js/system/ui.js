@@ -4,6 +4,7 @@
 
 export {
     UIElement,
+    Pannel,
     Button,
     Text,
     HelpText,
@@ -26,6 +27,7 @@ import { is_number } from "./utility.js";
 import * as anim from "./animation.js";
 import { tween } from "./tweening.js";
 import { Color } from "./color.js";
+import { sprite_defs } from "../game-assets.js";
 
 function is_mouse_pointing(area, origin){
     console.assert(area);
@@ -504,16 +506,41 @@ class TextButton extends Button {
 }
 
 class Pannel extends UIElement {
-
     constructor(panel_def){
+        if (panel_def.width === undefined) panel_def.width = 0;
+        if (panel_def.height === undefined) panel_def.height = 0;
+        super(panel_def);
+        if (panel_def.sprite) {
+            let sprite_def = sprite_defs[panel_def.sprite];
+            if (sprite_def) {
+                this.sprite = new graphics.Sprite(sprite_def);
+                if (panel_def.scale) {
+                    this.sprite.transform.scale = panel_def.scale;
+                }
+            }
+        }
+    }
 
+    _on_update(delta_time) {
+        if (this.sprite) {
+            this.sprite.update(delta_time);
+        }
+    }
+
+    _on_draw(canvas_context) {
+        if (this.sprite) {
+            this.sprite.draw(canvas_context);
+        }
     }
 }
 
 // Window with a background, can contain
 class Window extends UIElement {
-    background = new Pannel();
-
+    background = new Pannel({
+        width:0, 
+        height:0, 
+        position: Vector2_origin,
+    });
 };
 
 

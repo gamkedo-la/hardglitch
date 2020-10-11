@@ -17,6 +17,7 @@ const game_assets = { // Description of the assets to load.
         asset_loader : asset_system.image_loader, // This is the function that will be used to convert the following data into usable objects.
 
         level_transition: "./images/level-transitions.png",
+        title_bg: "./images/titlebg.png",
 
         glitch: "./images/glitch-painting.png",
         test_enemy: "./images/test_enemy.png",
@@ -265,6 +266,7 @@ function crypto_key_def(kind){
 const sprite_defs = {
 
     level_transition : { image: "level_transition" },
+    title_bg : { image: "title_bg" },
 
     shadow : {
         image: "shadow",
