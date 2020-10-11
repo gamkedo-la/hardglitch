@@ -13,7 +13,6 @@ import { invoke_on_members } from "./system/utility.js";
 import { Vector2, Vector2_origin } from "./system/spatial.js";
 import { ScreenFader } from "./system/screenfader.js";
 
-import { load_test_level, load_random_test_level } from "./main.js";
 import { HARD_GLITCH_VERSION } from "./version.js";
 
 const buttons_font = "22px Space Mono";
@@ -128,14 +127,14 @@ class TitleScreen extends fsm.State {
         this.ui = {};
         this.ui.title = new ui.Text({
             text: "HARD GLITCH",
-            font: "80px ZingDiddlyDooZapped",
+            font: "120px ZingDiddlyDooZapped",
             color: "white",
             background_color: "#ffffff00",
             position: Vector2_origin
         });
         this.ui.title.position = {
             x: graphics.centered_rectangle_in_screen(this.ui.title.area).position.x,
-            y: 80
+            y: 100
         };
 
         this.ui.main_menu = new MainMenu(this.state_machine, this.ui.title.position.translate({ x:0, y: 100 }));
