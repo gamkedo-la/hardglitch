@@ -6,6 +6,7 @@ import { Character, CharacterStats } from "../core/character.js"
 import { random_sample, rotate_array, random_int, auto_newlines } from "../system/utility.js";
 import { Wait } from "../rules/rules-basic.js";
 import { Item_BadCode } from "../definitions-items.js";
+import { Push, Push_Short } from "../rules/rules-forces.js";
 
 const reverse_move_id = {
     move_east : "move_west",
@@ -17,6 +18,16 @@ const reverse_move_id = {
 class MoveUntilYouCant extends concepts.Actor {
 
     decide_next_action(world, character, possible_actions) {
+        const push_actions_ids = Object.keys(possible_actions)
+            .filter(name => name.startsWith("push_"))
+            ;
+
+
+        if(push_actions_ids.length > 0){
+            if(random_int(0, 100) > 33)
+                return possible_actions[random_sample(push_actions_ids)];
+        }
+
         const move_actions_ids = Object.keys(possible_actions)
             .filter(name => name.startsWith("move_"))
             .filter(name => possible_actions[name].is_safe)
@@ -67,11 +78,20 @@ class MoveInCircles extends concepts.Actor {
     }
 
     decide_next_action(world, character, possible_actions) {
+        const push_actions_ids = Object.keys(possible_actions)
+            .filter(name => name.startsWith("push_"))
+            ;
+
+
+        if(push_actions_ids.length > 0){
+            if(random_int(0, 100) > 33)
+                return possible_actions[random_sample(push_actions_ids)];
+        }
+
         const move_actions_ids = Object.keys(possible_actions)
             .filter(name => name.startsWith("move_"))
             .filter(name => possible_actions[name].is_safe)
             ;
-
         if(move_actions_ids.length === 0)
             return possible_actions.wait;
 
@@ -124,6 +144,25 @@ class LifeForm_Weak extends Character {
     drops = [ new Item_BadCode() ];
 };
 
+class LifeStrengh extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_4,
+        }}
+    };
+
+    get can_be_taken() { return true; }
+
+    constructor(){
+        super("Life Strengh");
+    }
+
+    get_enabled_action_types(){
+        return [ Push_Short ];
+    }
+
+}
+
 class LifeForm_Strong extends Character {
     assets = {
         graphics : { body: {
@@ -140,7 +179,9 @@ class LifeForm_Strong extends Character {
         this.stats.integrity.real_max = 20;
         this.stats.integrity.real_value = 20;
         this.stats.inventory_size.real_value = 2;
+        this.stats.activable_items.real_value = 2;
+        this.inventory.add(new LifeStrengh());
     }
 
-    drops = [ new LifeForm_Weak(), new LifeForm_Weak(), ];
+    drops = [ [ new LifeForm_Weak(), new LifeForm_Weak(), ] ];
 };

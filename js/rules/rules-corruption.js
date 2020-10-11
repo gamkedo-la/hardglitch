@@ -257,7 +257,7 @@ class Rule_Corruption extends concepts.Rule {
         const is_valid_target = (position) => world.is_valid_position(position)
                                         && !(corruption_grid.get_at(position) instanceof Corruption);
 
-        const targets = lazy_call(visibility.positions_in_range, character.position, Corrupt.range, is_valid_target);
+        const targets = (range) => lazy_call(visibility.positions_in_range, character.position, range, is_valid_target);
         return actions_for_each_target(character, Corrupt, targets);
     }
 };

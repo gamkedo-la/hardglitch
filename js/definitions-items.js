@@ -13,10 +13,15 @@ export {
     CryptoKey_Equal,
 
     Item_BadCode,
-    Item_JumpOpCode,
+    Item_Jump,
     Item_Push,
     Item_Pull,
     Item_Swap,
+    Item_Scanner,
+    Item_ClosedScope,
+    Item_ThreadPool,
+    Item_Zip,
+
     MovableWall,
     MovableWall_Blue,
     MovableWall_Green,
@@ -82,10 +87,15 @@ function all_item_types(){
         ...all_crypto_key_types(),
 
         Item_BadCode,
-        Item_JumpOpCode,
+        Item_ClosedScope,
+        Item_Jump,
         Item_Push,
         Item_Pull,
         Item_Swap,
+        Item_Scanner,
+        Item_ThreadPool,
+        Item_Zip,
+
         MovableWall_Blue,
         MovableWall_Green,
         MovableWall_Orange,
@@ -302,7 +312,7 @@ class Item_BadCode extends concepts.Item {
     }
 };
 
-class Item_JumpOpCode extends concepts.Item {
+class Item_Jump extends concepts.Item {
     assets = {
         graphics : { body: {
             sprite_def : sprite_defs.item_generic_3,
@@ -381,6 +391,92 @@ class Item_Swap extends concepts.Item {
 
     get_enabled_action_types(){
         return [ Swap ];
+    }
+
+}
+
+
+class Item_Scanner extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_1,
+        }}
+    };
+
+    get can_be_taken() { return true; }
+
+    description = auto_newlines("Scanner algorithm allowing one to read more memory around at the same time.", 35);
+
+    stats_modifiers = {
+        view_distance: { value: +4 },
+    }
+
+    constructor(){
+        super("Scanner");
+    }
+
+};
+
+class Item_ClosedScope extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_1,
+        }}
+    };
+
+    get can_be_taken() { return true; }
+
+    description = auto_newlines("Reduces the scope of the readable data available.", 35);
+
+    stats_modifiers = {
+        view_distance: { value: -3 },
+    }
+
+    constructor(){
+        super("Closed Scope");
+    }
+
+}
+
+
+class Item_ThreadPool extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_1,
+        }}
+    };
+
+    get can_be_taken() { return true; }
+
+    description = auto_newlines("Enables concurrent execution of tasks. Do not share your data between threads, or at least protect accessing them!", 35);
+
+    stats_modifiers = {
+        activable_items: { value: +4 },
+    }
+
+    constructor(){
+        super("Thread Pool");
+    }
+
+}
+
+class Item_Zip extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_3,
+        }}
+    };
+
+    get can_be_taken() { return true; }
+
+    description = auto_newlines("Compression algorithm allowing to store more data in the same space.", 35);
+
+    stats_modifiers = {
+        inventory_size: { value: +4 },
+    }
+
+    constructor(){
+        super("Zip");
     }
 
 }

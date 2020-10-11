@@ -78,7 +78,7 @@ class Rule_Copy extends concepts.Rule {
 
     get_actions_for(character, world){
         console.assert(character instanceof Character);
-        return ranged_actions_for_each_target(world, character, Copy, Copy.range);
+        return ranged_actions_for_each_target(world, character, Copy);
     }
 
 };

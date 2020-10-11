@@ -54,7 +54,7 @@ class Repair extends concepts.Action {
 class Rule_Repair extends concepts.Rule {
     get_actions_for(character, world){
         console.assert(character instanceof Character);
-        return ranged_actions_for_each_target(world, character, Repair, Repair.range);;
+        return ranged_actions_for_each_target(world, character, Repair);
     }
 
     update_world_at_the_beginning_of_game_turn(world){
