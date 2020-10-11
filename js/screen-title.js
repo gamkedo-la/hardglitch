@@ -136,7 +136,21 @@ class TitleScreen extends fsm.State {
         });
         this.ui.title.position = {
             x: graphics.centered_rectangle_in_screen(this.ui.title.area).position.x,
-            y: 100
+            y: 100,
+        };
+
+        this.ui.demo = new ui.Text({
+            text: "(DEMO)",
+            font: "52px Space Mono",
+            color: "white",
+            background_color: "#ffffff00",
+            stroke_color: "black",
+            line_width: 2,
+            position: Vector2_origin
+        });
+        this.ui.demo.position = {
+            x: graphics.centered_rectangle_in_screen(this.ui.demo.area).position.x,
+            y: 250,
         };
 
         this.ui.main_menu = new MainMenu(this.state_machine, this.ui.title.position.translate({ x:0, y: 100 }));
@@ -174,6 +188,7 @@ class TitleScreen extends fsm.State {
         if(!this.fader.is_fading)
             this.ui.main_menu.update(delta_time);
         this.ui.title.update(delta_time);
+        this.ui.demo.update(delta_time);
     }
 
     display(canvas_context){
@@ -185,6 +200,7 @@ class TitleScreen extends fsm.State {
         }
 
         this.ui.title.draw(canvas_context);
+        this.ui.demo.draw(canvas_context);
         this.ui.version.draw(canvas_context);
 
         this.fader.display(canvas_context);
