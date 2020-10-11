@@ -60,7 +60,7 @@ class MainMenu {
         this.button_empty_level = new ui.TextButton({
             text: "Empty Small Level",
             font: buttons_font,
-            action: ()=> { load_test_level(10, 10); },
+            action: ()=> { load_test_level(8, 8); },
             position: Vector2_origin,
             sprite_def: sprite_defs.button_menu,
             sounds:{
