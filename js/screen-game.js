@@ -9,6 +9,7 @@ import * as input from "./system/input.js";
 import * as fsm from "./system/finite-state-machine.js";
 import * as ui from "./system/ui.js";
 import * as audio from "./system/audio.js";
+import * as texts from "./definitions-texts.js";
 
 import { KEY } from "./game-input.js";
 
@@ -23,7 +24,7 @@ import { AudioSettings } from "./game-ui.js";
 
 import { game_levels } from "./definitions-world.js";
 import { tween, easing } from "./system/tweening.js";
-import { is_number, random_sample } from "./system/utility.js";
+import { auto_newlines, is_number, random_sample } from "./system/utility.js";
 import { Character } from "./core/character.js";
 
 class PlayingGame extends fsm.State{
@@ -143,6 +144,12 @@ class InGameMenu extends fsm.State {
         console.assert(this.ui === undefined);
 
         this.ui = {
+            text_instructions: new ui.Text({
+                text: auto_newlines(texts.help_info, 52),
+                font: "20px Space Mono",
+                color: "white",
+                background_color: "#222222dd",
+            }),
             resume_button: new ui.TextButton({
                 text: "Resume Game",
                 action: ()=>{ this.go_back(); },
@@ -183,13 +190,16 @@ class InGameMenu extends fsm.State {
         };
 
         // Center the buttons in the screen.
-        let button_pad_y = 0;
+        let button_pad_y = +160;
         const next_pad_y = () => button_pad_y += 80;
         Object.values(this.ui).filter(element => element instanceof ui.Button)
             .forEach(button => {
                 const center_pos = graphics.centered_rectangle_in_screen(button.area).position;
                 button.position = center_pos.translate({ x:0, y: next_pad_y() });
             });
+
+        this.ui.text_instructions.position = graphics.centered_rectangle_in_screen(this.ui.text_instructions)
+                                                .position.translate({ y: 0 });
 
     }
 
