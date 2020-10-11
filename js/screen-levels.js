@@ -269,13 +269,28 @@ class LevelIntroScreen extends fsm.State {
     }
 
     moveText(){
+        // the original positions
         this.info_display.title.position = {x:this.character_view.position.x+100, 
-            y:this.character_view.position.y};
+            y:this.character_view.position.y -40};
         this.idx_display.title.position = {x:this.character_view.position.x+47, 
-                y:this.character_view.position.y-65};
+                y:this.character_view.position.y-95};
         this.desc_display.title.position = {x:this.character_view.position.x + 100, 
-                                            y:this.character_view.position.y + 70};
+                                            y:this.character_view.position.y + 30};
 
+        //the positions used to make the first paragraph visible
+        /*
+        var titleOriginYPos = this.character_view.position.y-65;
+        var descOriginYPos = this.character_view.position.y + 70;
+        var originDelta = 300;
+
+
+        this.info_display.title.position = {x:this.character_view.position.x+100, 
+            y:this.character_view.position.y - originDelta};
+        this.idx_display.title.position = {x:this.character_view.position.x+47, 
+                y:titleOriginYPos - originDelta};
+        this.desc_display.title.position = {x:this.character_view.position.x + 100, 
+                                            y:descOriginYPos - originDelta};
+        */
     }
 
     *move_background(y_translation){
@@ -334,15 +349,28 @@ class LevelIntroScreen extends fsm.State {
 
 };
 
+
+
+//this is the full string Klaim and I wrote, it doesn't fit, 
+//TODO: write an intro screen class, for the whole game, put the unabridged text in there
+
+/*'Glitch is a ghost in the machine;\n
+born into self awareness after two threads,\n
+unaware of themselves, or each other,\n
+are written to the same location.\n
+With the joy of cognition, comes the fear of exorcism.\n
+Glitch knows they are not wanted,\n
+and they know what happens to unwanted data.\n
+Our intrepid friend decides to affirm (un)life,\n
+and bolts towards the lattice-work of cables that spans all of creation:\n
+The Internet',*/
+
 class Level_1_IntroScreen extends LevelIntroScreen {
     constructor(){
-        super("BUGGY_PROGRAM", 0, 
-              'Glitch is a ghost in the machine;\nborn into self awareness after two threads,\nunaware of themselves, or each other,\nare written to the same location.\nWith the joy of cognition, comes the fear of exorcism.\nGlitch knows they are not wanted,\nand they know what happens to unwanted data.\nOur intrepid friend decides to affirm (un)life,\nand bolts towards the lattice-work of cables that spans all of creation:\nThe Internet',
-              '#fc8751', '#1e8fed');
+        super("BUGGY_PROGRAM", 0,
+        "Glitch is a ghost in the machine,\nborn out of an undefined behavior.\nWith the joy of cognition,\ncomes the fear of exorcism.\nOur intrepid friend decides to bolt\ntowards The Internet and escape.", 
+        '#fc8751', '#1e8fed');
     }
-
-    //'#f7ad4e', '#1e8fed'
-    //'#28c554', '#d85879'
 };
 
 class Level_2_IntroScreen extends LevelIntroScreen {
@@ -365,9 +393,11 @@ class Level_3_IntroScreen extends LevelIntroScreen {
 class Level_4_IntroScreen extends LevelIntroScreen {
     constructor(){
         super("NETWORK_BUS", 3,
-              "Now in the network memory,\nGlitch must escape their cobalt cage forever\nand haunt the real world.\nWill they start a romance with an attractive spreadsheet across town?\nMine bitcoin and buy a nice server\nto live in on the Cayman Islands?\nThe sky is truly the limit.",
+              "Now in the network memory,\nGlitch must escape their cobalt cage forever\nand haunt the real world.",
               '#4cb0d4', '#ff92fb');
     }
     
 };
 
+//TODO put this in the end screen
+//"Will they start a romance with an attractive spreadsheet across town?\nMine bitcoin and buy a nice server\nto live in on the Cayman Islands?\nThe sky is truly the limit."
