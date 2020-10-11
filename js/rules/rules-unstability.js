@@ -13,7 +13,7 @@ import * as anim from "../system/animation.js";
 import * as animation from "../game-animations.js";
 import * as audio from "../system/audio.js";
 
-import { lazy_call, position_from_index } from "../system/utility.js";
+import { auto_newlines, lazy_call, position_from_index } from "../system/utility.js";
 import { grid_ID } from "../definitions-world.js";
 import { Character } from "../core/character.js";
 import { Grid } from "../system/grid.js";
@@ -123,10 +123,11 @@ class Destabilized extends concepts.Event {
 class Destabilize extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_corrupt; }
     static get action_type_name() { return "Destabilize"; }
+    static get action_type_description() { return auto_newlines("Makes the target memory section unstable, making it teleport data it contains to a random location.", 35); }
     static get range() { return destabilize_range; }
     static get costs(){
         return {
-            action_points: unstable_ap_cost,
+            action_points: { value: unstable_ap_cost },
         };
     }
 

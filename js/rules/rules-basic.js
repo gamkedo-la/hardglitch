@@ -22,6 +22,7 @@ import * as anim from "../game-animations.js";
 import { destroy_entity } from "./destruction.js";
 import * as audio from "../system/audio.js";
 import { grid_ID } from "../definitions-world.js";
+import { auto_newlines } from "../system/utility.js";
 
 // That actor decided to take a pause.
 class Waited extends concepts.Event {
@@ -49,9 +50,10 @@ class Waited extends concepts.Event {
 class Wait extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_wait; }
     static get action_type_name() { return "Wait"; }
+    static get action_type_description() { return auto_newlines("Pass the current turn without spending Action Points.\nThe AP left will be usable next turn.", 35); }
     static get costs(){
         return {
-            action_points: 0
+            action_points: { value: 0 },
         };
     }
 

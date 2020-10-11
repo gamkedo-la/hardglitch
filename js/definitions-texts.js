@@ -146,18 +146,56 @@ cancel_action: `Cancels the current Action.`
 
 function action_description(action_type){ // TODO : also clarify the range.
     return `Action: ${action_type.action_type_name}
-Costs: ${action_type.costs.action_points} AP
+Costs:
+${stats_modifiers_description(action_type.costs, false)}
 
 ${action_type.action_type_description}
 `
 }
 
-function stats_modifiers_description(modifiers){
+function signed_number_str(number){
+    if(number > 0){
+        return `+${number}`;
+    }
+    return `${number}`;
+}
+
+function stats_modifiers_description(modifiers, with_signs = true){
     if(!modifiers)
         return;
-
     console.assert(modifiers instanceof Object);
-    return "INSERT MODIFIERS HERE";
+    let description = "";
+    let line = 0;
+    const maybe_newline = ()=> line++ > 0 ? '\n' : '';
+    const value_str = with_signs ? signed_number_str : (value)=>value;
+    if(modifiers.integrity){
+        if(modifiers.integrity.max)
+            description += `${maybe_newline()}${value_str(modifiers.integrity.max)} Max Integrity`;
+        if(modifiers.integrity.value)
+            description += `${maybe_newline()}${value_str(modifiers.integrity.value)} Integrity`;
+    }
+    if(modifiers.int_recovery){
+        description += `${maybe_newline()}${value_str(modifiers.int_recovery.value)} Integrity / Cycle`;
+    }
+    if(modifiers.action_points){
+        if(modifiers.action_points.max)
+            description += `${maybe_newline()}${value_str(modifiers.action_points.max)} Max Action Points`;
+        if(modifiers.action_points.value)
+            description += `${maybe_newline()}${value_str(modifiers.action_points.value)} Action Points`;
+    }
+    if(modifiers.ap_recovery){
+        description += `${maybe_newline()}${value_str(modifiers.ap_recovery.value)} Action Points / Cycle`;
+    }
+    if(modifiers.inventory_size){
+        description += `${maybe_newline()}${value_str(modifiers.inventory_size.value)} Item Slots`;
+    }
+    if(modifiers.activable_items){
+        description += `${maybe_newline()}${value_str(modifiers.activable_items.value)} Active Item Slots`;
+    }
+    if(modifiers.view_distance){
+        description += `${maybe_newline()}${value_str(modifiers.view_distance.value)} View Distance`;
+    }
+    return description;
 }
 
 const max_action_list_line_width = 30;

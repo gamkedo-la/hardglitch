@@ -13,6 +13,7 @@ import { ranged_actions_for_each_target } from "./rules-common.js";
 import { EntitySpawned, spawn_entities_around } from "./spawn.js";
 import { GameView } from "../game-view.js";
 import * as anim from "../game-animations.js";
+import { auto_newlines } from "../system/utility.js";
 
 const copy_ap_cost = 20;
 
@@ -42,11 +43,12 @@ const copy_range = new visibility.Range_Circle(0, 6);
 class Copy extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_merge; }
     static get action_type_name() { return "Copy"; }
+    static get action_type_description() { return auto_newlines("Duplicates the target entity.", 35); }
 
     static get range() { return copy_range; }
     static get costs(){
         return {
-            action_points: copy_ap_cost,
+            action_points: { value: copy_ap_cost },
         };
     }
 

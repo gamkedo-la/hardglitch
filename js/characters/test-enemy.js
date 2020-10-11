@@ -6,7 +6,7 @@ export {
 };
 
 import * as concepts from "../core/concepts.js";
-import {random_sample} from "../system/utility.js";
+import {auto_newlines, random_sample} from "../system/utility.js";
 import { Wait } from "../rules/rules-basic.js";
 import { sprite_defs } from "../game-assets.js";
 import { Character, CharacterStats } from "../core/character.js"
@@ -37,8 +37,10 @@ class RandomActionEnemy extends Character {
         }}
     };
 
+    description = auto_newlines("Randomly generates data. Best source of randomness used by other programs.", 35);
+
     constructor(){
-        super("Random Man", new CharacterStats());
+        super("Random Device", new CharacterStats());
         this.actor = new RandomActionSelector();
     }
 };

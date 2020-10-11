@@ -11,6 +11,7 @@ import { sprite_defs } from "../game-assets.js";
 import { Damaged, deal_damage } from "./destruction.js";
 import * as anim from "../game-animations.js";
 import { ranged_actions_for_each_target } from "./rules-common.js";
+import { auto_newlines } from "../system/utility.js";
 
 const delete_damage = 5;
 const delete_ap_cost = 5;
@@ -40,10 +41,11 @@ class Deleted extends concepts.Event {
 class Delete extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_delete; }
     static get action_type_name() { return "Delete"; }
+    static get action_type_description() { return auto_newlines("Deletes parts of the memory of the target entity. If the entity loses too much integrity, they will be destroyed. Some entities cannot lose integrity through deletion.", 35); }
     static get range() { return delete_range; }
     static get costs(){
         return {
-            action_points: delete_ap_cost,
+            action_points: { value: delete_ap_cost },
         };
     }
 

@@ -201,12 +201,16 @@ class GameView {
             on_action_selection_begin: (...args) => this.on_action_selection_begin(...args),
             on_action_selection_end: (...args) => this.on_action_selection_end(...args),
             on_action_pointed_begin: (...args) => {
-                this.clear_highlights_basic_actions();
-                this.highlight_action_range(...args);
+                if(!this.ui.is_selecting_action_target){
+                    this.clear_highlights_basic_actions();
+                    this.highlight_action_range(...args);
+                }
             },
             on_action_pointed_end: (...args) => {
-                this.clear_action_range_highlight(...args);
-                this.highlight_available_basic_actions();
+                if(!this.ui.is_selecting_action_target){
+                    this.clear_action_range_highlight(...args);
+                    this.highlight_available_basic_actions();
+                }
             },
             toggle_autofocus: () => {
                 this.enable_auto_camera_center = !this.enable_auto_camera_center;
@@ -334,7 +338,7 @@ class GameView {
             on_mouse_over_begin: () => {
                 if(this.player_character){
                     this.ui.character_status.begin_preview_costs({
-                        action_points: this.player_character.stats.action_points.value - action.constructor.costs.action_points,
+                        action_points: this.player_character.stats.action_points.value - action.constructor.costs.action_points.value,
                     });
                 }
             },
@@ -348,7 +352,7 @@ class GameView {
     help_text_over_action(action){
         console.assert(action instanceof concepts.Action);
         const help_texts = this.help_texts_at(action.target_position);
-        const action_tooltip = `-> Action: ${action.name} (${action.constructor.costs.action_points} AP)`;
+        const action_tooltip = `-> Action: ${action.name} (${action.constructor.costs.action_points.value} AP)`;
         help_texts.tooltip = add_text_line(action_tooltip, help_texts.tooltip);
         help_texts.info = `-> Action: ${action.constructor.action_type_name}\n(see Action buttons for details)\n\n${help_texts.info}`;
         return help_texts;
@@ -426,6 +430,7 @@ class GameView {
     }
 
     on_action_selection_begin(action_info){
+        console.assert(this.ui.is_selecting_action_target);
         this.highlight_selected_action_targets(action_info);
         this.clear_action_range_highlight();
         this.show_turn_message(turn_message_action_selection);
@@ -696,7 +701,7 @@ class GameView {
 
         const is_mouse_dragging = mouse.is_dragging;
         for(const highlight of this.player_actions_highlights){
-            highlight.enabled = !is_mouse_dragging && !this.ui.is_mouse_over;
+            highlight.enabled = !is_mouse_dragging && (!this.ui.is_mouse_over || this.ui.is_selecting_action_target);
             highlight.update(delta_time);
         }
         this._pointed_highlight.update(delta_time);
@@ -801,7 +806,9 @@ class GameView {
         if(!mouse.is_dragging
         && !this.enable_edition
         ){
-            if(this.is_time_for_player_to_chose_action && !this.ui.is_mouse_over){
+            if(this.is_time_for_player_to_chose_action
+            && (!this.ui.is_mouse_over || this.ui.is_selecting_action_target)
+            ){
                 this.player_actions_highlights
                     .filter(highlight=> !this.enable_fog_of_war || this.fog_of_war.is_visible(highlight.position))
                     .forEach(highlight => highlight.draw());

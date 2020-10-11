@@ -20,6 +20,7 @@ import { Character } from "../core/character.js";
 import * as visibility from "../core/visibility.js";
 import { ranged_actions_for_each_target } from "./rules-common.js";
 import { is_blocked_position } from "../definitions-world.js";
+import { auto_newlines } from "../system/utility.js";
 
 const push_range = new visibility.Range_Square(1, 5);
 const pull_range = new visibility.Range_Square(1, 5);
@@ -123,10 +124,11 @@ function compute_push_translation(origin, target){
 class Push extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_push; }
     static get action_type_name() { return "Push"; }
+    static get action_type_description() { return auto_newlines("Tries to move an entity away from this character, bouncing on anything blocking that move.", 35); }
     static get range() { return push_range; }
     static get costs(){
         return {
-            action_points: 5,
+            action_points: { value: 5 },
         };
     }
 
@@ -147,10 +149,11 @@ class Push extends concepts.Action {
 class Pull extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_pull; }
     static get action_type_name() { return "Pull"; }
+    static get action_type_description() { return auto_newlines("Tries to move the target entity towards this character, bouncing on anything blocking that move..", 35); }
     static get range() { return pull_range; }
     static get costs(){
         return {
-            action_points: 5,
+            action_points: { value: 5 },
         };
     }
 

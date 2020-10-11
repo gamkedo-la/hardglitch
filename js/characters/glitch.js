@@ -6,6 +6,7 @@ export {
 import { sprite_defs } from "../game-assets.js";
 import { Character, CharacterStats } from "../core/character.js";
 import * as concepts from "../core/concepts.js";
+import { auto_newlines } from "../system/utility.js";
 
 const default_player_view_distance = 6;
 const default_player_inventory_slots = 3;
@@ -17,6 +18,8 @@ class GlitchyGlitchMacGlitchy extends Character {
             sprite_def : sprite_defs.player,
         }}
     };
+
+    description = auto_newlines("Sentient glitch, computer bug with a conscience, ghost in the machine. Will probably be destroyed by the computer's protection.", 35);
 
     constructor(){
         super("\"Glitch\"", new CharacterStats());

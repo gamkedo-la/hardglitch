@@ -266,7 +266,7 @@ class InventoryUI {
                                 this._dragging_item.destination_slot_idx = destination_slot_idx;
                                 this._dragging_item.swap_action = new SwapItemSlots(this._dragging_item.source_slot_idx, this._dragging_item.destination_slot_idx);
                                 this.character_status.begin_preview_costs({
-                                    action_points: this._current_character.stats.action_points.value - this._dragging_item.swap_action.constructor.costs.action_points,
+                                    action_points: this._current_character.stats.action_points.value - this._dragging_item.swap_action.constructor.costs.action_points.value,
                                 });
                             }
                         } else {
@@ -284,7 +284,7 @@ class InventoryUI {
                                     // It's a droppable position!
                                     this._dragging_item.drop_action = new DropItem(mouse_grid_position, this._dragging_item.source_slot_idx);
                                     this.character_status.begin_preview_costs({
-                                        action_points: this._current_character.stats.action_points.value - this._dragging_item.drop_action.constructor.costs.action_points,
+                                        action_points: this._current_character.stats.action_points.value - this._dragging_item.drop_action.constructor.costs.action_points.value,
                                     });
                                 } else {
                                     // Not droppable, ignore.

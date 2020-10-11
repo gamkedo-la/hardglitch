@@ -457,8 +457,8 @@ class Character extends concepts.Body {
 
         // Pay for this action
         console.assert(action.constructor.costs instanceof Object);
-        console.assert(Number.isInteger(action.constructor.costs.action_points) && action.constructor.costs.action_points >= 0);
-        this.stats.action_points.decrease(action.constructor.costs.action_points);
+        console.assert(Number.isInteger(action.constructor.costs.action_points.value) && action.constructor.costs.action_points.value >= 0);
+        this.stats.action_points.decrease(action.constructor.costs.action_points.value);
 
         // Then execute the action:
         return action.execute(world, this);

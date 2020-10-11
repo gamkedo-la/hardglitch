@@ -24,7 +24,7 @@ import { GameView } from "../game-view.js";
 import { Character } from "../core/character.js";
 import * as visibility from "../core/visibility.js";
 import { ranged_actions_for_each_target, actions_for_each_target } from "./rules-common.js";
-import { lazy_call, random_sample } from "../system/utility.js";
+import { auto_newlines, lazy_call, random_sample } from "../system/utility.js";
 import { is_blocked_position } from "../definitions-world.js";
 
 const move_range = new visibility.Range_Cross_Axis(1,2); // TODO: obtain that from the bodie's data!
@@ -69,10 +69,11 @@ class Moved extends concepts.Event {
 class Move extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_move; }
     static get action_type_name() { return "Move"; }
+    static get action_type_description() { return auto_newlines("Move this character on the target memory section.", 35); }
     static get range(){ return move_range; }
     static get costs(){
         return {
-            action_points: 10,
+            action_points: { value: 10 },
         };
     }
 
@@ -151,10 +152,11 @@ class Jumped extends concepts.Event {
 class Jump extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_move; }
     static get action_type_name() { return "Jump"; }
+    static get action_type_description() { return auto_newlines("Transfers data and execution thread of this character to a remote target readable memory section.", 35); }
     static get range() { return jump_range; }
     static get costs(){
         return {
-            action_points: 20,
+            action_points: { value: 20 },
         };
     }
 
@@ -208,9 +210,10 @@ function random_jump(world, entity, range, position_predicate = ()=>true){
 class RandomJump extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_move; }
     static get action_type_name() { return "RandomJump"; }
+    static get action_type_description() { return auto_newlines("Transfers data and execution of this character to a random memory section, even if unreachable.", 35); }
     static get costs(){
         return {
-            action_points: 20,
+            action_points: { value: 20 },
         };
     }
 
@@ -282,10 +285,11 @@ class Swaped extends concepts.Event {
 class Swap extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_swap; }
     static get action_type_name() { return "Swap"; }
+    static get action_type_description() { return auto_newlines("Exchange position with the target entity.", 35); }
     static get range() { return swap_range; }
     static get costs(){
         return {
-            action_points: 10,
+            action_points: { value: 10 },
         };
     }
 

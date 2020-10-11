@@ -17,6 +17,7 @@ import { CharacterView } from "../view/character-view.js";
 import { sprite_defs } from "../game-assets.js";
 import { ItemView } from "../view/item-view.js";
 import { spawn_entities_around } from "./spawn.js";
+import { auto_newlines } from "../system/utility.js";
 
 const take_item_range = new visibility.Range_Cross_Axis(1,2);
 
@@ -112,10 +113,11 @@ function handle_items_in_limbo(world, character){
 class TakeItem extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_take; }
     static get action_type_name() { return "Take Item"; }
+    static get action_type_description() { return auto_newlines("Transfer the target item in this character's free item slot.", 35); }
     static get range() { return take_item_range; }
     static get costs(){
         return {
-            action_points: 1,
+            action_points: { value: 1 },
         };
     }
 
@@ -176,7 +178,7 @@ class SwapItemSlots extends concepts.Action {
 
     static get costs(){
         return {
-            action_points: 1,
+            action_points: { value: 1 },
         };
     }
 
@@ -206,7 +208,7 @@ class SwapItemSlots extends concepts.Action {
 class DropItem extends concepts.Action {
     static get costs(){
         return {
-            action_points: 1,
+            action_points: { value: 1 },
         };
     }
 
