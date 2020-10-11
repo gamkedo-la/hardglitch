@@ -141,7 +141,7 @@ const defs = {
         is_view_blocking: false,
         editor_name: "Freed Memory",
         name: "Freed Memory",
-        description: "Deallocated freshly used memory.",
+        description: auto_newlines("Deallocated freshly used memory. Some life-forms seems to like these very much. Or are they generating these?", 35),
         is_ground: true,
         shape_template: "lvl2cool_template",
         tile_match_predicate: (v) => (v==ID.MEMFLOORCOOL),
