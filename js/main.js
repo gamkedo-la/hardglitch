@@ -191,7 +191,7 @@ import * as random_test_level from "./testing/test-level.js";
 import { deserialize_world, generate_empty_world } from "./levels/level-tools.js";
 
 function load_level(level_number){
-  console.assert(Number.isInteger(level_number) && level_number > 0);
+  console.assert(Number.isInteger(level_number) && level_number >= 0);
   game_state_machine.push_action("load_game", level_number);
 }
 

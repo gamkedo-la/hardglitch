@@ -90,7 +90,7 @@ class Game {
             console.warn("Could not find an entry point for the player character! - Force place it somewhere safe.");
             while(true){
                 const random_position = new concepts.Position({ x: random_int(0, this.world.width-1), y: random_int(0, this.world.height-1)});
-                if(tiles.is_safely_walkable(this.world.grids[grid_ID.floor].get_at(random_position))){
+                if(this.is_safely_walkable(random_position)){
                     this.add_player_character(random_position, player_character);
                     break;
                 }

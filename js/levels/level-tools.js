@@ -2,8 +2,9 @@ export {
     generate_empty_world,
     serialize_world,
     deserialize_world,
-
     random_variation,
+    merge_world_chunks,
+    add_padding_around,
 
     ChunkGrid,
     unfold_chunk_grid,
