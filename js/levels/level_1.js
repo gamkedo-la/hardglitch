@@ -35,7 +35,7 @@ const startup_rooms = {
         entities: [
             { type: "GlitchyGlitchMacGlitchy", position: { x: 2, y: 3 } },
             { type: "LifeForm_Weak", position: { x: 6, y: 6 } },
-            { type: "CryptoFile_Triangle", position: { x: 2, y: 7 }, drops: ["Item_JumpOpCode"] },
+            { type: "CryptoFile_Triangle", position: { x: 2, y: 7 }, drops: ["Item_Jump"] },
             { type: "CryptoKey_Triangle", position: { x: 5, y: 8 } },
         ],
     },
@@ -174,6 +174,15 @@ function generate_world() {
             { type: "MovableWall_Red", position: { x: 0, y: 0 }, },
             { type: "MovableWall_Red", position: { x: 0, y: 0 }, },
             { type: "MovableWall_Red", position: { x: 0, y: 0 }, },
+            { type: "CryptoFile_Circle", position: { x: 0, y: 0 },
+                drops: [ "Item_Push", "Item_Pull",  "Item_Swap", "Item_Jump"] // TODO: provide an action that's not one of the starting ones.
+            },
+            { type: "CryptoKey_Circle", position: { x: 0, y: 0 } },
+            { type: "Item_Scanner", position:{ x:0, y:0 } },
+            { type: "Item_ThreadPool", position:{ x:0, y:0 } },
+            { type: "Item_Zip", position:{ x:0, y:0 } },
+            { type: "Item_ClosedScope", position:{ x:0, y:0 } },
+            { type: "Item_ClosedScope", position:{ x:0, y:0 } },
         ];
         shuffle_array(bag);
         while (bag.length > 0) {
@@ -203,6 +212,8 @@ function generate_world() {
             random_sample([
                 { type: "LifeForm_Strong", position: { x: 0, y: 0 }, },
                 { type: "LifeForm_Weak", position: { x: 0, y: 0 }, },
+                { type: "Item_BadCode", position:{ x:0, y:0 } },
+                { type: "Item_BadCode", position:{ x:0, y:0 } },
             ]),
         ],
         random_variation: true,

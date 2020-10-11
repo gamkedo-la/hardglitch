@@ -169,12 +169,23 @@ function deserialize_world(world_desc){
         entity.position = entity_desc.position ? entity_desc.position : new concepts.Position();
         entity.is_crucial = entity_desc.is_crucial;
         if(entity_desc.drops){
-            console.assert(entity_desc.drops instanceof Array && entity_desc.drops.every(value => typeof value === "string"));
-            entity.drops = entity_desc.drops.map(drop_type_name => {
+            console.assert(entity_desc.drops instanceof Array);
+            entity.drops = [];
+            const drop_it = (drop_type_name) => {
+                console.assert(typeof drop_type_name === "string");
                 const drop_type = get_entity_type(drop_type_name);
                 const drop = new drop_type();
                 console.assert(drop instanceof concepts.Entity);
-                return drop;
+                entity.drops.push(drop);
+            }
+            entity_desc.drops.forEach(drop_type_name => {
+                if(typeof drop_type_name === "string"){
+                    drop_it(drop_type_name);
+                } else {
+                    console.assert(drop_type_name instanceof Array);
+                    const drops = drop_type_name;
+                    drops.forEach(drop_it);
+                }
             });
         }
         world.add_entity(entity);
