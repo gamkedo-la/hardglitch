@@ -369,7 +369,7 @@ class MenuButton extends ui.Button {
     set position(new_pos){
         super.position = new_pos;
         // this.icons.on.position = center_in_rectangle(this.icons.on, this.area).position;
-        this.help_text.position = { x: graphics.canvas_rect().width - this.help_text.width, y: this.height };
+        this.help_text.position = { x: graphics.canvas_rect().width - this.help_text.width - this.width, y: 0 };
         this.help_text.area_to_help = this.area;
     }
 }

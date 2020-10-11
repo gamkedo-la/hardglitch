@@ -1,3 +1,15 @@
+export {
+    Rule_GameOver,
+    Rule_BasicActions,
+    Rule_LevelExit,
+    Rule_Destroy_NoIntegrity,
+    Wait,
+    Waited,
+    GameOver,
+    PlayerExitLevel,
+    fail_game,
+};
+
 import * as concepts from "../core/concepts.js";
 import * as tiles from "../definitions-tiles.js";
 import { sprite_defs } from "../game-assets.js";
@@ -10,17 +22,7 @@ import * as anim from "../game-animations.js";
 import { destroy_entity } from "./destruction.js";
 import * as audio from "../system/audio.js";
 import { grid_ID } from "../definitions-world.js";
-
-export {
-    Rule_GameOver,
-    Rule_BasicActions,
-    Rule_LevelExit,
-    Rule_Destroy_NoIntegrity,
-    Wait,
-    Waited,
-    GameOver,
-    PlayerExitLevel,
-};
+import { auto_newlines } from "../system/utility.js";
 
 // That actor decided to take a pause.
 class Waited extends concepts.Event {
@@ -48,9 +50,10 @@ class Waited extends concepts.Event {
 class Wait extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_wait; }
     static get action_type_name() { return "Wait"; }
+    static get action_type_description() { return auto_newlines("Pass the current turn without spending Action Points.\nThe AP left will be usable next turn.", 35); }
     static get costs(){
         return {
-            action_points: 0
+            action_points: { value: 0 },
         };
     }
 
@@ -113,15 +116,20 @@ class GameOver extends concepts.Event {
     }
 }
 
+function fail_game(world){
+    world.is_finished = true;
+    return [ new GameOver() ]; // This event will notify the rest of the code that the game is over.
+}
+
 class Rule_GameOver extends concepts.Rule {
 
     check_game_over(world){
         if(world.is_finished) // The game is already finished.
             return [];
 
-        world.is_finished = is_game_over(world);
-        if(world.is_finished)
-            return [ new GameOver() ]; // This event will notify the rest of the code that the game is over.
+        const failed = is_game_over(world);
+        if(failed)
+            return fail_game(world);
         else
             return []; // Nothing happens otherwise.
     }
@@ -163,6 +171,9 @@ class PlayerExitLevel extends concepts.Event {
         game_view.center_on_position(character_view.game_position, 500).then(()=> ready_to_exit = true );
         audio.playEvent("exit_bus");
         while(!ready_to_exit) yield;
+        console.log("here before exited");
+        yield* anim.exited(game_view.fx_view, character_view);
+        console.log("here after exited");
         while(true) yield;
     }
 };

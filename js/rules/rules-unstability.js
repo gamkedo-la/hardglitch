@@ -13,7 +13,7 @@ import * as anim from "../system/animation.js";
 import * as animation from "../game-animations.js";
 import * as audio from "../system/audio.js";
 
-import { lazy_call, position_from_index } from "../system/utility.js";
+import { auto_newlines, lazy_call, position_from_index } from "../system/utility.js";
 import { grid_ID } from "../definitions-world.js";
 import { Character } from "../core/character.js";
 import { Grid } from "../system/grid.js";
@@ -27,8 +27,13 @@ import { audiobuffer_loader } from "../system/assets.js";
 const unstable_ap_cost = 10;
 const destabilize_range = new visibility.Range_Square(0, 6);
 
-class Unstability { // TODO: decide if there are "values?"
-    name = "Unstable";
+class Unstability {
+    name = "Unstable Memory";
+    description =
+`Unstable memory sections will
+teleport any entity that enter them
+to a random location, then the
+memory section will stabilize.`;
     toJSON(key) { return {}; }
 };
 
@@ -118,16 +123,17 @@ class Destabilized extends concepts.Event {
 class Destabilize extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_corrupt; }
     static get action_type_name() { return "Destabilize"; }
+    static get action_type_description() { return auto_newlines("Makes the target memory section unstable, making it teleport data it contains to a random location.", 35); }
     static get range() { return destabilize_range; }
     static get costs(){
         return {
-            action_points: unstable_ap_cost,
+            action_points: { value: unstable_ap_cost },
         };
     }
 
     constructor(target){
         const action_id = `destabilize_${target.x}_${target.y}`;
-        super(action_id, `Destabilize ${JSON.stringify(target)}`, target);
+        super(action_id, `Make this memory section Unstable`, target);
     }
 
     execute(world, character){
@@ -194,8 +200,8 @@ class Rule_Unstability extends concepts.Rule {
         const is_valid_target = (position) => world.is_valid_position(position)
                                         && !(corruption_grid.get_at(position) instanceof Unstability);
 
-        const targets = lazy_call(visibility.positions_in_range, character.position, Destabilize.range, is_valid_target);
-        return actions_for_each_target(character, Destabilize, targets);
+        const targets_for_action = (range) => lazy_call(visibility.positions_in_range, character.position, range, is_valid_target);
+        return actions_for_each_target(character, Destabilize, targets_for_action);
     }
 };
 

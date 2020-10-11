@@ -12,6 +12,7 @@ import { sprite_defs } from "../game-assets.js";
 import { Repaired, repair } from "./recovery.js";
 import { ranged_actions_for_each_target } from "./rules-common.js";
 import { deal_damage } from "./destruction.js";
+import { auto_newlines } from "../system/utility.js";
 
 const repair_points = 5;
 const repair_ap_cost = 5;
@@ -21,16 +22,17 @@ const repair_range = new visibility.Range_Square(0,4);
 class Repair extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_repair; }
     static get action_type_name() { return "Repair"; }
+    static get action_type_description() { return auto_newlines(`Restores ${repair_points} data integrity of the target entity.`, 35); }
     static get range() { return repair_range; }
     static get costs(){
         return {
-            action_points: repair_ap_cost,
+            action_points: { value: repair_ap_cost },
         };
     }
 
     constructor(target_position){
         super(`repair_${target_position.x}_${target_position.y}`,
-                `Repair ${repair_points} Integrity at ${JSON.stringify(target_position)}`,
+                `Repair that entity of ${repair_points} Integrity`,
                 target_position);
         this.repair_points = repair_points;
     }
@@ -52,7 +54,7 @@ class Repair extends concepts.Action {
 class Rule_Repair extends concepts.Rule {
     get_actions_for(character, world){
         console.assert(character instanceof Character);
-        return ranged_actions_for_each_target(world, character, Repair, Repair.range);;
+        return ranged_actions_for_each_target(world, character, Repair);
     }
 
     update_world_at_the_beginning_of_game_turn(world){

@@ -14,7 +14,7 @@ import * as animation from "../game-animations.js";
 import * as audio from "../system/audio.js";
 
 import { deal_damage } from "./destruction.js";
-import { lazy_call, random_int } from "../system/utility.js";
+import { auto_newlines, lazy_call, random_int } from "../system/utility.js";
 import { grid_ID, is_valid_world } from "../definitions-world.js";
 import { Character } from "../core/character.js";
 import { Grid } from "../system/grid.js";
@@ -30,8 +30,14 @@ function corruption_damage() {
 const corrupt_ap_cost = 2;
 const corrupt_range = new visibility.Range_Square(0, 6);
 
-class Corruption { // TODO: decide if there are "values?"
-    name = "Corrupted";
+class Corruption {
+    name = "Corrupted Memory";
+    description =
+`Deals ${corrupt_ap_cost} damages
+BEFORE and AFTER corruption updates.
+Every New Cycle, corruption updates
+following the rules of Conway's
+Game Of Life.`;
     toJSON(key) { return {}; }
 };
 
@@ -119,16 +125,17 @@ class Corrupted extends concepts.Event {
 class Corrupt extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_corrupt; }
     static get action_type_name() { return "Corrupt"; }
+    static get action_type_description() { return auto_newlines("Corrupts the target memory section.", 35); }
     static get costs(){
         return {
-            action_points: corrupt_ap_cost,
+            action_points: { value: corrupt_ap_cost },
         };
     }
     static get range() { return corrupt_range; }
 
     constructor(target){
         const action_id = `corrupt_${target.x}_${target.y}`;
-        super(action_id, `Corrupt ${JSON.stringify(target)}`, target);
+        super(action_id, `Make that memory section Corrupted`, target);
     }
 
     execute(world, character){
@@ -233,9 +240,9 @@ class Rule_Corruption extends concepts.Rule {
             return [];
 
         return [
-            ...damage_anything_in_corrupted_tiles(world),
+            ...damage_anything_in_corrupted_tiles(world), // Before changing
             ...update_corruption_state(world),
-            ...damage_anything_in_corrupted_tiles(world),
+            ...damage_anything_in_corrupted_tiles(world), // After having changed
         ];
     }
 
@@ -250,7 +257,7 @@ class Rule_Corruption extends concepts.Rule {
         const is_valid_target = (position) => world.is_valid_position(position)
                                         && !(corruption_grid.get_at(position) instanceof Corruption);
 
-        const targets = lazy_call(visibility.positions_in_range, character.position, Corrupt.range, is_valid_target);
+        const targets = (range) => lazy_call(visibility.positions_in_range, character.position, range, is_valid_target);
         return actions_for_each_target(character, Corrupt, targets);
     }
 };

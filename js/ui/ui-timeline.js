@@ -38,6 +38,11 @@ const new_cycle = {
     },
 };
 
+const cycle_counter = {
+    text_color: "white",
+    font: "18px Space Mono",
+}
+
 class CycleChangeMarker
 {
     constructor(position){
@@ -78,6 +83,8 @@ class Timeline
 
     update(delta_time, character, world){
         console.assert(world instanceof concepts.World);
+
+        this.cycle_count = world.turn_id;
 
         if(!this.visible || !config.enable_timeline)
             return;
@@ -147,23 +154,64 @@ class Timeline
     }
 
     _draw_cycle_clock(canvas_context){
-
-    }
-
-    _draw_line(canvas_context){
-        const line_length = (this._character_views.length + 2) * timeline_config.space_between_elements;
+        // Inspired by : https://stackoverflow.com/questions/22902427/javascript-canvas-drawing-an-octagon
+        const sides_count = 8;
+        const size = 40;
+        const Xcenter = this.position.x + timeline_config.line_shift_x;
+        const Ycenter = this.position.y;
 
         canvas_context.save();
         canvas_context.beginPath();
+        canvas_context.moveTo (Xcenter +  size * Math.cos(0), Ycenter +  size *  Math.sin(0));
+        for (var i = 1; i <= sides_count +1; i += 1){
+            const circle_position = (i * 2 * Math.PI) + 3;
+            canvas_context.lineTo (Xcenter + (size * Math.cos(circle_position / sides_count)), Ycenter + (size * Math.sin(circle_position / sides_count)));
+        }
+        canvas_context.fillStyle = "#6f33b1";
+        canvas_context.fill();
+
+        const text_position = this.position.translate({ x: 8, y: -16 });
+        graphics.draw_text(canvas_context, `Cycle`, text_position, {
+            color: cycle_counter.text_color,
+            font: cycle_counter.font,
+        });
+
+        graphics.draw_text(canvas_context, `${this.cycle_count}`.padStart(4, "0"), text_position.translate({ x: 7, y: 20 }), {
+            color: cycle_counter.text_color,
+            font: cycle_counter.font,
+        });
+
+
+
+        canvas_context.restore();
+    }
+
+    _draw_line(canvas_context){
+        const line_length = (this._character_views.length + 1.5) * timeline_config.space_between_elements;
+
+        canvas_context.save();
+        canvas_context.beginPath(); // Line
 
         canvas_context.strokeStyle = timeline_config.line_color;
         canvas_context.lineWidth = timeline_config.line_width;
         canvas_context.lineCap = "round";
 
-        canvas_context.moveTo(this.position.x+timeline_config.line_shift_x, this.position.y);
-        canvas_context.lineTo(this.position.x+timeline_config.line_shift_x, this.position.y + line_length);
+        const top_point = { x: this.position.x + timeline_config.line_shift_x, y: this.position.y };
+        const bottom_point = { x: this.position.x + timeline_config.line_shift_x, y: this.position.y + line_length };
+        canvas_context.moveTo(top_point.x, top_point.y);
+        canvas_context.lineTo(bottom_point.x, bottom_point.y);
 
         canvas_context.stroke();
+
+        canvas_context.beginPath(); // Triangle
+        canvas_context.fillStyle = timeline_config.line_color;
+        const triangle_width = 60;
+        const triangle_height = 40;
+        canvas_context.moveTo(bottom_point.x - (triangle_width  / 2), bottom_point.y);
+        canvas_context.lineTo(bottom_point.x + (triangle_width  / 2), bottom_point.y);
+        canvas_context.lineTo(bottom_point.x, bottom_point.y + triangle_height);
+        canvas_context.fill();
+
         canvas_context.restore();
     }
 

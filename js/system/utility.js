@@ -24,6 +24,10 @@ export {
     copy_data,
     is_generator,
     is_generator_function,
+    splice,
+    auto_newlines,
+    some_member,
+    every_members,
 }
 
 
@@ -250,6 +254,20 @@ function set_on_members(object, member_name, value){
             .forEach(member => member[member_name] = value);
 }
 
+// Returns true if all object members return true when passed to the predicate.
+function every_members(object, predicate){
+    return Object.values(object)
+        .filter(member => member instanceof Object)
+        .every(member => predicate(member));
+}
+
+// Returns true if any object members return true when passed to the predicate.
+function some_member(object, predicate){
+    return Object.values(object)
+        .filter(member => member instanceof Object)
+        .some(member => predicate(member));
+}
+
 // Creates a generator function that will yield the value(s) returned by the call to that function with the provided arguments.
 // This will also work if the function returns an iterable, like an array, and will then provide each value one by one.
 // The function will only be called at the first iteration of the generator.
@@ -266,6 +284,41 @@ function add_text_line(text, new_line_string = ""){
         text += `\n${new_line_string}`
     } else {
         text += new_line_string;
+    }
+    return text;
+}
+
+// Source: https://stackoverflow.com/questions/4313841/insert-a-string-at-a-specific-index
+/**
+ * The splice() method changes the content of a string by removing a range of
+ * characters and/or adding new characters.
+ *
+ * @this {String}
+ * @param {number} start Index at which to start changing the string.
+ * @param {number} delCount An integer indicating the number of old chars to remove.
+ * @param {string} newSubStr The String that is spliced in.
+ * @return {string} A new string with the spliced substring.
+ */
+function splice(text, start, delCount, newSubStr) {
+    console.assert(typeof text === "string" || text instanceof String);
+    return text.slice(0, start) + newSubStr + text.slice(start + Math.abs(delCount));
+}
+
+function auto_newlines(text, max_size){
+    console.assert(typeof text === "string" || text instanceof String);
+    console.assert(Number.isInteger(max_size));
+
+    let last_whitespace_idx = 0;
+    let current_line_width = 0;
+    for(let char_idx = 0; char_idx < text.length; ++char_idx){
+        ++current_line_width;
+        const char = text[char_idx];
+        if(char === ' ' || char === '\n') last_whitespace_idx = char_idx;
+        if(char === '\n') current_line_width = 0;
+        if(current_line_width > max_size){
+            text = splice(text, last_whitespace_idx, 1, `\n`);
+            current_line_width -= max_size;
+        }
     }
     return text;
 }

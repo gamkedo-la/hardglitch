@@ -5,6 +5,7 @@ export {
 
 import * as fsm from "./system/finite-state-machine.js";
 import * as input from "./system/input.js";
+import * as audio from "./system/audio.js";
 
 // TODO: add some kind of animation so that we know it's still loading.
 
@@ -43,8 +44,10 @@ class LoadingGameScreen extends fsm.State {
             next_line();
             canvas_context.fillText(this.instructions, 20, next_line());
 
-            if(input.mouse.buttons.is_any_key_just_down()){
-                this.state_machine.push_action("game_ready");
+            if(!this.is_starting && input.mouse.buttons.is_any_key_just_down()){
+                this.is_starting = true;
+                audio.playEvent("EditorButtonClick"); // This is to unlock the audio system.
+                setTimeout(()=> this.state_machine.push_action("game_ready"), 1000 / 2);
             }
         }
 

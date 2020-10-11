@@ -13,10 +13,15 @@ export {
     CryptoKey_Equal,
 
     Item_BadCode,
-    Item_JumpOpCode,
+    Item_Jump,
     Item_Push,
     Item_Pull,
     Item_Swap,
+    Item_Scanner,
+    Item_ClosedScope,
+    Item_ThreadPool,
+    Item_Zip,
+
     MovableWall,
     MovableWall_Blue,
     MovableWall_Green,
@@ -32,7 +37,7 @@ export {
 import * as concepts from "./core/concepts.js";
 import { sprite_defs } from "./game-assets.js";
 import { all_uncommon_action_types } from "./definitions-actions.js";
-import { random_sample } from "./system/utility.js";
+import { auto_newlines, random_sample } from "./system/utility.js";
 import { Jump, Swap } from "./rules/rules-movement.js";
 import { Pull, Push } from "./rules/rules-forces.js";
 
@@ -57,6 +62,7 @@ function all_crypto_key_types() {
 function all_debug_item_types(){
     return [
         Debug_AllActions,
+        Debug_Crucial,
         Debug_AugmentHealth,
         Debug_ReduceHealth,
         Debug_AugmentActionPoints,
@@ -81,11 +87,15 @@ function all_item_types(){
         ...all_crypto_key_types(),
 
         Item_BadCode,
-        Item_JumpOpCode,
+        Item_ClosedScope,
+        Item_Jump,
         Item_Push,
         Item_Pull,
         Item_Swap,
-        MovableWall,
+        Item_Scanner,
+        Item_ThreadPool,
+        Item_Zip,
+
         MovableWall_Blue,
         MovableWall_Green,
         MovableWall_Orange,
@@ -114,10 +124,12 @@ const crypto_names = {
 // TODO: maybe have a separate file for cryptyfile & cryptokey
 class CryptoFile extends concepts.Item {
 
+    description = auto_newlines(`Crypted memory section preventing access to this memory section. Can be decrypted using a Crypto-Key with the same symbol. May contain some secret data item.`, 35);
+
     constructor(kind){
         console.assert(Number.isInteger(kind));
         console.assert(Object.values(crypto_kind).includes(kind));
-        super(`Crypto File ${crypto_names[kind]}`);
+        super(`Crypto File "${crypto_names[kind]}"`);
         this.crypto_kind = kind;
         this.assets = {
             graphics : { body: {
@@ -167,13 +179,15 @@ class CryptoFile_Circle extends CryptoFile {
 
 class CryptoKey extends concepts.Item {
 
+    description = auto_newlines(`Decryption key used to decrypt a Crypto-File with the same symbol.`, 35);
+
     get can_be_taken() { return true; }
     get can_be_moved() { return false; }
 
     constructor(kind){
         console.assert(Number.isInteger(kind));
         console.assert(Object.values(crypto_kind).includes(kind));
-        super(`Crypto Key ${crypto_names[kind]}`);
+        super(`Crypto Key "${crypto_names[kind]}"`);
         this.crypto_kind = kind;
         this.assets = {
             graphics : {
@@ -201,6 +215,7 @@ class CryptoKey_Circle extends CryptoKey{
     constructor() { super(crypto_kind.circle); }
 };
 
+
 class MovableWall extends concepts.Item {
     assets = {
         graphics : { body: {
@@ -208,99 +223,72 @@ class MovableWall extends concepts.Item {
         }}
     };
 
+    description = auto_newlines(`Data access protection mechanism that can be moved in memory.`, 35);
+
+    static get editor_name(){ return "Movable Wall"; };
+
     get can_be_taken() { return false; }
 
     constructor(){
-        super("Movable Wall");
+        super("Mutex");
         this.is_blocking_vision = true;
         this.is_floating = true;
     }
 
 };
 
-class MovableWall_Blue extends concepts.Item {
+class MovableWall_Blue extends MovableWall {
     assets = {
         graphics : { body: {
             sprite_def : sprite_defs.movable_wall_blue,
         }}
     };
 
-    get can_be_taken() { return false; }
+    static get editor_name(){ return "Blue Movable Wall"; };
 
-    constructor(){
-        super("Blue Movable Wall");
-        this.is_blocking_vision = true;
-        this.is_floating = true;
-    }
+    get can_be_taken() { return false; }
 
 };
 
-class MovableWall_Green extends concepts.Item {
+class MovableWall_Green extends MovableWall {
     assets = {
         graphics : { body: {
             sprite_def : sprite_defs.movable_wall_green,
         }}
     };
 
-    get can_be_taken() { return false; }
-
-    constructor(){
-        super("Green Movable Wall");
-        this.is_blocking_vision = true;
-        this.is_floating = true;
-    }
+    static get editor_name(){ return "Green Movable Wall"; };
 
 };
 
-class MovableWall_Orange extends concepts.Item {
+class MovableWall_Orange extends MovableWall {
     assets = {
         graphics : { body: {
             sprite_def : sprite_defs.movable_wall_orange,
         }}
     };
 
-    get can_be_taken() { return false; }
-
-    constructor(){
-        super("Orange Movable Wall");
-        this.is_blocking_vision = true;
-        this.is_floating = true;
-    }
-
+    static get editor_name(){ return "Orange Movable Wall"; };
 };
 
-class MovableWall_Purple extends concepts.Item {
+class MovableWall_Purple extends MovableWall {
     assets = {
         graphics : { body: {
             sprite_def : sprite_defs.movable_wall_purple,
         }}
     };
 
-    get can_be_taken() { return false; }
-
-    constructor(){
-        super("Purple Movable Wall");
-        this.is_blocking_vision = true;
-        this.is_floating = true;
-    }
-
+    static get editor_name(){ return "Purple Movable Wall"; };
 };
 
-class MovableWall_Red extends concepts.Item {
+class MovableWall_Red extends MovableWall {
     assets = {
         graphics : { body: {
             sprite_def : sprite_defs.movable_wall_red,
         }}
     };
 
-    get can_be_taken() { return false; }
-
-    constructor(){
-        super("Red Movable Wall");
-        this.is_blocking_vision = true;
-        this.is_floating = true;
-    }
-
+    static get editor_name(){ return "Red Movable Wall"; };
 };
 
 
@@ -310,6 +298,8 @@ class Item_BadCode extends concepts.Item {
             sprite_def : sprite_defs.item_generic_4,
         }}
     };
+
+    description = auto_newlines(`Scrambled data. Probably dangerous to use.`, 35);
 
     get can_be_taken() { return true; }
 
@@ -322,13 +312,14 @@ class Item_BadCode extends concepts.Item {
     }
 };
 
-class Item_JumpOpCode extends concepts.Item {
+class Item_Jump extends concepts.Item {
     assets = {
         graphics : { body: {
             sprite_def : sprite_defs.item_generic_3,
         }}
     };
 
+    description = auto_newlines("Rare secret CPU instruction, considered taboo by most programmers. Useful if you have an escape plan and are in a hurry.", 35);
     get can_be_taken() { return true; }
 
     constructor(){
@@ -350,6 +341,8 @@ class Item_Push extends concepts.Item {
 
     get can_be_taken() { return true; }
 
+    description = auto_newlines("Producer side of a concurrent data queue mechanism.", 35);
+
     constructor(){
         super("Data Pusher");
     }
@@ -366,6 +359,8 @@ class Item_Pull extends concepts.Item {
             sprite_def : sprite_defs.item_generic_4,
         }}
     };
+
+    description = auto_newlines("Consumer side of a concurrent data queue mechanism.", 35);
 
     get can_be_taken() { return true; }
 
@@ -388,12 +383,100 @@ class Item_Swap extends concepts.Item {
 
     get can_be_taken() { return true; }
 
+    description = auto_newlines("Programming knowledge hold secretly by experienced programmers in sacred books.", 35);
+
     constructor(){
         super("Hexchanger");
     }
 
     get_enabled_action_types(){
         return [ Swap ];
+    }
+
+}
+
+
+class Item_Scanner extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_1,
+        }}
+    };
+
+    get can_be_taken() { return true; }
+
+    description = auto_newlines("Scanner algorithm allowing one to read more memory around at the same time.", 35);
+
+    stats_modifiers = {
+        view_distance: { value: +4 },
+    }
+
+    constructor(){
+        super("Scanner");
+    }
+
+};
+
+class Item_ClosedScope extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_1,
+        }}
+    };
+
+    get can_be_taken() { return true; }
+
+    description = auto_newlines("Reduces the scope of the readable data available.", 35);
+
+    stats_modifiers = {
+        view_distance: { value: -3 },
+    }
+
+    constructor(){
+        super("Closed Scope");
+    }
+
+}
+
+
+class Item_ThreadPool extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_1,
+        }}
+    };
+
+    get can_be_taken() { return true; }
+
+    description = auto_newlines("Enables concurrent execution of tasks. Do not share your data between threads, or at least protect accessing them!", 35);
+
+    stats_modifiers = {
+        activable_items: { value: +4 },
+    }
+
+    constructor(){
+        super("Thread Pool");
+    }
+
+}
+
+class Item_Zip extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_3,
+        }}
+    };
+
+    get can_be_taken() { return true; }
+
+    description = auto_newlines("Compression algorithm allowing to store more data in the same space.", 35);
+
+    stats_modifiers = {
+        inventory_size: { value: +4 },
+    }
+
+    constructor(){
+        super("Zip");
     }
 
 }
@@ -418,6 +501,24 @@ class Debug_AllActions extends concepts.Item {
     get_enabled_action_types(){
         return [ ...Object.values(all_uncommon_action_types) ];
     }
+
+}
+
+
+class Debug_Crucial extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_7,
+        }}
+    };
+
+    get can_be_taken() { return true; }
+
+    constructor(){
+        super("Debug: Crucial");
+    }
+
+    is_crucial = true;
 
 }
 

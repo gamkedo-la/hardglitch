@@ -19,7 +19,29 @@ const defaults = {
     ground : tiles.ID.CALCFLOORWARM,
     ground2 : tiles.ID.CALCFLOORCOOL,
     wall : tiles.ID.WALL,
+    grounds : [
+        tiles.ID.LVL1A,
+        tiles.ID.LVL1B,
+        tiles.ID.LVL2A,
+        tiles.ID.LVL2B,
+        tiles.ID.LVL3A,
+        tiles.ID.LVL3B,
+        tiles.ID.LVL4A,
+        tiles.ID.LVL4B,
+    ],
+    walls : [
+        tiles.ID.WALL1A,
+        tiles.ID.WALL1B,
+        tiles.ID.WALL2A,
+        tiles.ID.WALL2B,
+        tiles.ID.WALL3A,
+        tiles.ID.WALL3B,
+        tiles.ID.WALL4A,
+        tiles.ID.WALL4B,
+    ],
+
 };
+
 
 function make_test_world(test_world_size = world_grid){ // The game assets must have been initialized first.
     const grid_size = test_world_size.height * test_world_size.width;
@@ -73,7 +95,8 @@ function make_test_world(test_world_size = world_grid){ // The game assets must 
             let tileID;
             // check wall pct
             if (choice <= wallPct) {
-                tileID = tiles.ID.WALL;
+                //tileID = tiles.ID.WALL;
+                tileID = random_sample(defaults.walls);
             // check hole pct
             } else if ( choice <= wallPct+holePct) {
                 tileID = tiles.ID.HOLE;
@@ -82,7 +105,8 @@ function make_test_world(test_world_size = world_grid){ // The game assets must 
                 tileID = tiles.ID.VOID;
             // otherwise ground
             } else {
-                tileID = (Math.random() > .8) ? defaults.ground2 : defaults.ground;
+                //tileID = (Math.random() > .8) ? defaults.ground2 : defaults.ground;
+                tileID = random_sample(defaults.grounds);
             }
             // hole/ground/wall tiles get assigned to floor layer (wall gets assigned to both surface/floor)
             set_floor_tile(new concepts.Position({x:i, y:j}), tileID);

@@ -96,7 +96,7 @@ class Actor {
     // Decides what to do for this turn for a specific body, returns an Action or null if players must decide.
     // `possible_actions` is a map of { "action_id" : action_object } possibles.
     // Therefore the Action object can be used directly (for example: `possible_actions.move.execute(...)`).
-    decide_next_action(body, possible_actions){
+    decide_next_action(world, body, possible_actions){
         throw "decide_next_action not implemented";
     }
 };
@@ -105,7 +105,7 @@ class Actor {
 // Any Body having this Actor will let the player chose what to do.
 class Player extends Actor {
 
-    decide_next_action(body, possible_actions){
+    decide_next_action(world, body, possible_actions){
         return null; // By default, let the player decide.
     }
 }
@@ -206,12 +206,11 @@ class Position {
 class Entity {
     _position = new Position();
     _entity_id = new_entity_id();
+    description = "NO DESCRIPTION FOR THIS ENTITY";
 
-    constructor(name, description = ""){
+    constructor(name){
         console.assert(typeof name === 'string');
-        console.assert(typeof description === 'string');
         this.name = name;
-        this.description = description;
     }
 
     get position() { return this._position; }

@@ -223,6 +223,10 @@ class EditPaletteButton extends ui.Button {
 
 };
 
+function editor_name(entity_type){
+    return entity_type.editor_name ? entity_type.editor_name : new entity_type().name;
+}
+
 class EditionPaletteUI {
 
     button_no_selection = new EditPaletteButton("No Selection");
@@ -236,19 +240,19 @@ class EditionPaletteUI {
 
         // Fill our palette with buttons!
         this.palette_buttons.push( ...tiles.floor_tiles.map(tile_id => {
-            return new EditPaletteButton(`Floor Tile: ${tiles.defs[tile_id].description} (${tile_id})`, make_edit_operation_change_tile(tile_id, grid_ID.floor));
+            return new EditPaletteButton(`Floor Tile: ${tiles.defs[tile_id].editor_name} (${tile_id})`, make_edit_operation_change_tile(tile_id, grid_ID.floor));
         }), null);
 
         this.palette_buttons.push( ...tiles.surface_tiles.map(tile_id => {
-            return new EditPaletteButton(`Surface Tile: ${tiles.defs[tile_id].description} (${tile_id})`, make_edit_operation_change_tile(tile_id, grid_ID.surface));
+            return new EditPaletteButton(`Surface Tile: ${tiles.defs[tile_id].editor_name} (${tile_id})`, make_edit_operation_change_tile(tile_id, grid_ID.surface));
         }), null);
 
         this.palette_buttons.push( ...items.all_item_types().map(item_type => {
-            return new EditPaletteButton(`Item: ${new item_type().name}`, make_edit_operation_add_entity_at(item_type));
+            return new EditPaletteButton(`Item: ${editor_name(item_type)}`, make_edit_operation_add_entity_at(item_type));
         }), null);
 
         this.palette_buttons.push( ...all_characters_types().map(character_type => {
-            return new EditPaletteButton(`Character: ${new character_type().name}`, make_edit_operation_add_entity_at(character_type));
+            return new EditPaletteButton(`Character: ${editor_name(character_type)}`, make_edit_operation_add_entity_at(character_type));
         }), null);
 
 

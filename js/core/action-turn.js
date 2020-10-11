@@ -193,7 +193,7 @@ function* execute_turns_v2(world) {
                     character.update_perception(world); // Make sure decisions are taken relative to an up to date view of the world.
                     yield new VisionUpdate(character, world);
                     const possible_actions = world.gather_possible_actions_from_rules(character);
-                    action = actor.decide_next_action(possible_actions);
+                    action = actor.decide_next_action(world, character, possible_actions);
 
                     if (action == null) { // No decision taken? Only players can hesitate!!!!
                         // This is a player: let the player decide what to do (they will store the action in the world state).

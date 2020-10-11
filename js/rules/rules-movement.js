@@ -24,7 +24,7 @@ import { GameView } from "../game-view.js";
 import { Character } from "../core/character.js";
 import * as visibility from "../core/visibility.js";
 import { ranged_actions_for_each_target, actions_for_each_target } from "./rules-common.js";
-import { lazy_call, random_sample } from "../system/utility.js";
+import { auto_newlines, lazy_call, random_sample } from "../system/utility.js";
 import { is_blocked_position } from "../definitions-world.js";
 
 const move_range = new visibility.Range_Cross_Axis(1,2); // TODO: obtain that from the bodie's data!
@@ -69,15 +69,16 @@ class Moved extends concepts.Event {
 class Move extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_move; }
     static get action_type_name() { return "Move"; }
+    static get action_type_description() { return auto_newlines("Move this character on the target memory section.", 35); }
     static get range(){ return move_range; }
     static get costs(){
         return {
-            action_points: 10,
+            action_points: { value: 10 },
         };
     }
 
     constructor(move_name, new_position){
-        super(move_name, `Move to ${JSON.stringify(new_position)}`, new_position);
+        super(move_name, `Move to this memory section`, new_position);
         this.is_basic = true;
     }
 
@@ -151,15 +152,16 @@ class Jumped extends concepts.Event {
 class Jump extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_move; }
     static get action_type_name() { return "Jump"; }
+    static get action_type_description() { return auto_newlines("Transfers data and execution thread of this character to a remote target readable memory section.", 35); }
     static get range() { return jump_range; }
     static get costs(){
         return {
-            action_points: 20,
+            action_points: { value: 20 },
         };
     }
 
     constructor(target){
-        super(`jump_${target.x}_${target.y}`, `Jump to ${JSON.stringify(target)}`, target);
+        super(`jump_${target.x}_${target.y}`, `Jump to this memory section`, target);
         this.is_basic = true;
     }
 
@@ -178,7 +180,7 @@ class Rule_Jump extends concepts.Rule {
     get_actions_for(character, world){
         console.assert(character instanceof Character);
 
-        const valid_targets = lazy_call(visibility.valid_move_positions, world, character, Jump.range, tiles.is_walkable);
+        const valid_targets = (range) => lazy_call(visibility.valid_move_positions, world, character, range, tiles.is_walkable);
         const possible_jumps = actions_for_each_target(character, Jump, valid_targets, (jump_type, target)=>{
             const jump = new jump_type(target);
             safe_if_safe_arrival(jump, world);
@@ -208,9 +210,10 @@ function random_jump(world, entity, range, position_predicate = ()=>true){
 class RandomJump extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_move; }
     static get action_type_name() { return "RandomJump"; }
+    static get action_type_description() { return auto_newlines("Transfers data and execution of this character to a random memory section, even if unreachable.", 35); }
     static get costs(){
         return {
-            action_points: 20,
+            action_points: { value: 20 },
         };
     }
 
@@ -282,16 +285,17 @@ class Swaped extends concepts.Event {
 class Swap extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_swap; }
     static get action_type_name() { return "Swap"; }
+    static get action_type_description() { return auto_newlines("Exchange position with the target entity.", 35); }
     static get range() { return swap_range; }
     static get costs(){
         return {
-            action_points: 10,
+            action_points: { value: 10 },
         };
     }
 
     constructor(target){
         console.assert(target instanceof concepts.Position);
-        super(`swap_${target.x}_${target.y}`, `Swap with ${JSON.stringify(target)}`, target);
+        super(`swap_${target.x}_${target.y}`, `Swap position with that entity`, target);
         this.target = target
     }
 
@@ -328,6 +332,6 @@ class Rule_Swap extends concepts.Rule {
             return false;
         };
 
-        return ranged_actions_for_each_target(world, character, Swap, Swap.range, entity_can_be_moved);
+        return ranged_actions_for_each_target(world, character, Swap, entity_can_be_moved);
     }
 };

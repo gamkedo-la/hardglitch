@@ -18,7 +18,7 @@ import * as concepts from "./core/concepts.js";
 import { Character } from "./core/character.js";
 
 import { Game } from "./game.js";
-import { Vector2, Rectangle, keep_in_rectangle } from "./system/spatial.js";
+import { Vector2, Rectangle, keep_in_rectangle, is_point_under } from "./system/spatial.js";
 
 
 import * as tiles from "./definitions-tiles.js";
@@ -42,6 +42,8 @@ import { turn_sequence } from "./core/action-turn.js";
 import { grid_ID } from "./definitions-world.js";
 import { Corruption } from "./rules/rules-corruption.js";
 import { Unstability } from "./rules/rules-unstability.js";
+import { show_info } from "./ui/ui-infobox.js";
+import { item_description } from "./definitions-texts.js";
 
 const a_very_long_time = 99999999999999;
 const goal_message = "Find The Exit!";
@@ -55,14 +57,15 @@ class Highlight{
     enabled = true;
 
     // Reuse a sprite for highlighting.
-    constructor(position, sprite, text, events){
+    constructor(position, sprite, tooltip, info_text, events){
         console.assert(Number.isInteger(position.x) && Number.isInteger(position.y));
         console.assert(sprite instanceof graphics.Sprite);
-        console.assert(text === undefined || typeof text === 'string');
+        console.assert(tooltip === undefined || typeof tooltip === 'string');
+        console.assert(info_text === undefined || typeof info_text === 'string');
         this._sprite = sprite;
-        if(text){
+        if(tooltip){
             this._help_text = new ui.HelpText({
-                text: text,
+                text: tooltip,
                 area_to_help: new Rectangle(), // will be updated when we set the position.
                 in_screenspace: false, // We will display the text in the game space.
                 delay_ms: 666,
@@ -70,6 +73,7 @@ class Highlight{
         }
         this.position = position;
         this.events = events;
+        this.info_text = info_text;
     }
 
     set position(new_pos) {
@@ -104,7 +108,9 @@ class Highlight{
             }
         }
 
+
         if(this.events){
+            console.assert(this._help_text);
             if(this._help_text.is_mouse_over_area_to_help){
                 if(!this._mouse_is_over){
                     this._mouse_is_over = true;
@@ -130,6 +136,11 @@ class Highlight{
         this._sprite.draw(canvas_context);
         this._drawn_since_last_update = true;
 
+        // We have to do this in the draw function to make sure we get the info of the updated sprite.
+        if(typeof this.info_text === "string"
+        && is_point_under(mouse_game_position(), this._sprite.area)){
+            show_info(this.info_text);
+        }
     }
 
     draw_help(){
@@ -190,12 +201,16 @@ class GameView {
             on_action_selection_begin: (...args) => this.on_action_selection_begin(...args),
             on_action_selection_end: (...args) => this.on_action_selection_end(...args),
             on_action_pointed_begin: (...args) => {
-                this.clear_highlights_basic_actions();
-                this.highlight_action_range(...args);
+                if(!this.ui.is_selecting_action_target){
+                    this.clear_highlights_basic_actions();
+                    this.highlight_action_range(...args);
+                }
             },
             on_action_pointed_end: (...args) => {
-                this.clear_action_range_highlight(...args);
-                this.highlight_available_basic_actions();
+                if(!this.ui.is_selecting_action_target){
+                    this.clear_action_range_highlight(...args);
+                    this.highlight_available_basic_actions();
+                }
             },
             toggle_autofocus: () => {
                 this.enable_auto_camera_center = !this.enable_auto_camera_center;
@@ -295,8 +310,8 @@ class GameView {
         yield* event.animation(this);
     };
 
-    _add_highlight(position, sprite, text, events){
-        this.player_actions_highlights.push(new Highlight(position, sprite, text, events));
+    _add_highlight(position, sprite, tooltip, description, events){
+        this.player_actions_highlights.push(new Highlight(position, sprite, tooltip, description, events));
     }
 
     get_entity_view(entity_id){
@@ -318,17 +333,12 @@ class GameView {
         return this.focus_on_entity(this.player_character.id);
     }
 
-    _action_description(action){ // TODO: make a general function for this AND make it handle also more general description and action icons.
-        console.assert(action instanceof concepts.Action);
-        return `${action.name} -${action.constructor.costs.action_points} AP`;
-    }
-
     _action_highlight_events(action){
         const events = {
             on_mouse_over_begin: () => {
                 if(this.player_character){
                     this.ui.character_status.begin_preview_costs({
-                        action_points: this.player_character.stats.action_points.value - action.constructor.costs.action_points,
+                        action_points: this.player_character.stats.action_points.value - action.constructor.costs.action_points.value,
                     });
                 }
             },
@@ -341,7 +351,11 @@ class GameView {
 
     help_text_over_action(action){
         console.assert(action instanceof concepts.Action);
-        return add_text_line(`Action: ${this._action_description(action)}`, this.help_texts_at(action.target_position));
+        const help_texts = this.help_texts_at(action.target_position);
+        const action_tooltip = `-> Action: ${action.name} (${action.constructor.costs.action_points.value} AP)`;
+        help_texts.tooltip = add_text_line(action_tooltip, help_texts.tooltip);
+        help_texts.info = `-> Action: ${action.constructor.action_type_name}\n(see Action buttons for details)\n\n${help_texts.info}`;
+        return help_texts;
     }
 
     // Setup highlights for actions that are known with a target position.
@@ -353,14 +367,16 @@ class GameView {
         for(const action of Object.values(available_actions)){
             console.assert(action instanceof concepts.Action);
             if(action.is_basic && action.is_safe){
-                const help_text = this.help_text_over_action(action);
+                const help_texts = this.help_text_over_action(action);
+                console.assert(typeof help_texts.info === "string" && help_texts.info.length > 0);
+                console.assert(typeof help_texts.tooltip === "string" && help_texts.tooltip.length > 0);
                 const events = this._action_highlight_events(action);
                 if(action instanceof Move)
-                    this._add_highlight(action.target_position, this._highlight_sprites.movement, help_text, events);
+                    this._add_highlight(action.target_position, this._highlight_sprites.movement, help_texts.tooltip, help_texts.info, events);
                 else if(action instanceof TakeItem)
-                    this._add_highlight(action.target_position, this._highlight_sprites.take, help_text, events);
+                    this._add_highlight(action.target_position, this._highlight_sprites.take, help_texts.tooltip, help_texts.info, events);
                 else
-                    this._add_highlight(action.target_position, this._highlight_sprites.basic_action, help_text, events);
+                    this._add_highlight(action.target_position, this._highlight_sprites.basic_action, help_texts.tooltip, help_texts.info, events);
             }
         }
 
@@ -377,7 +393,8 @@ class GameView {
         for(const action of action_info.actions){
             console.assert(this.player_character instanceof Character);
             if(action.target_position){
-                this._add_highlight(action.target_position, this._highlight_sprites.action, this.help_text_over_action(action), this._action_highlight_events(action));
+                const help_texts = this.help_text_over_action(action);
+                this._add_highlight(action.target_position, this._highlight_sprites.action, help_texts.tooltip, help_texts.info, this._action_highlight_events(action));
             }
         }
     }
@@ -413,6 +430,7 @@ class GameView {
     }
 
     on_action_selection_begin(action_info){
+        console.assert(this.ui.is_selecting_action_target);
         this.highlight_selected_action_targets(action_info);
         this.clear_action_range_highlight();
         this.show_turn_message(turn_message_action_selection);
@@ -616,6 +634,7 @@ class GameView {
         this._turn_message.enabled = false;
     }
 
+
     _update_entities(delta_time){
         const entity_views = this.list_entity_views;
         console.assert(typeof(delta_time) === 'number');
@@ -638,19 +657,34 @@ class GameView {
             .map(view => view.render_graphics(canvas_context));
     }
 
+    _clear_pointed_highlight(){
+        delete this._last_mouse_grid_pos;
+        this._pointed_highlight_edit.enabled = false;
+        this._pointed_highlight.enabled = false;
+    }
+
     _update_highlights(delta_time){
         const mouse_pos = mouse_grid_position();
-        if(mouse_pos){
+        const is_pointing_valid_square = mouse_pos !== undefined // We have a valid mouse position
+                                       && (
+                                            (   !this.ui.is_mouse_over // we are not pointing over the UI.
+                                             && this.fog_of_war.is_visible(mouse_pos) // Player can see the pointed square
+                                             && this.player_actions_highlights.every(highlight=> !highlight.position.equals(mouse_pos)) // Not already pointing an action highlight.
+                                            )
+                                           || this.enable_edition // Or we are in editor mode
+                                          );
+        if(is_pointing_valid_square){
             if(!this._last_mouse_grid_pos || !mouse_pos.equals(this._last_mouse_grid_pos)){
                 this._last_mouse_grid_pos = mouse_pos;
-                if(this.enable_edition)
+                if(this.enable_edition){
                     this._change_highlight_position(this._pointed_highlight_edit, mouse_pos);
-                else
+                }
+                else {
                     this._change_highlight_position(this._pointed_highlight, mouse_pos);
+                }
             }
         } else {
-            this._pointed_highlight_edit.enabled = false;
-            this._pointed_highlight.enabled = false;
+            this._clear_pointed_highlight();
         }
 
         for(const highlight_sprite of Object.values(this._highlight_sprites)){
@@ -667,7 +701,7 @@ class GameView {
 
         const is_mouse_dragging = mouse.is_dragging;
         for(const highlight of this.player_actions_highlights){
-            highlight.enabled = !is_mouse_dragging;
+            highlight.enabled = !is_mouse_dragging && (!this.ui.is_mouse_over || this.ui.is_selecting_action_target);
             highlight.update(delta_time);
         }
         this._pointed_highlight.update(delta_time);
@@ -678,7 +712,9 @@ class GameView {
     _change_highlight_position(highlight, new_pos){
         highlight.enabled = true;
         highlight.position = new_pos;
-        highlight.text = this.help_texts_at(new_pos);
+        const help_texts = this.help_texts_at(new_pos);
+        highlight.text = help_texts.tooltip;
+        highlight.info_text = help_texts.info;
     }
 
     _visibility_predicate(allow_past_visibility = false){
@@ -770,7 +806,9 @@ class GameView {
         if(!mouse.is_dragging
         && !this.enable_edition
         ){
-            if(this.is_time_for_player_to_chose_action){
+            if(this.is_time_for_player_to_chose_action
+            && (!this.ui.is_mouse_over || this.ui.is_selecting_action_target)
+            ){
                 this.player_actions_highlights
                     .filter(highlight=> !this.enable_fog_of_war || this.fog_of_war.is_visible(highlight.position))
                     .forEach(highlight => highlight.draw());
@@ -830,7 +868,11 @@ class GameView {
 
     help_texts_at(position){
 
-        let help_texts = new String();
+        const help_texts = {
+            tooltip: "",
+            info: "",
+        };
+
         const things_found = this.game.world.everything_at(position);
         while(things_found.length){
             const entity_or_tileid = things_found.pop();
@@ -842,19 +884,24 @@ class GameView {
                 const entity = entity_or_tileid;
                 if(entity instanceof Character ){
                     if(entity.is_player_actor){
-                        help_texts = add_text_line(help_texts, `${entity.name} (player)`);
+                        help_texts.tooltip = add_text_line(help_texts.tooltip, `${entity.name} (player)`);
                     } else {
-                        help_texts = add_text_line(help_texts, `${entity.name} (NPC)`);
+                        help_texts.tooltip = add_text_line(help_texts.tooltip, `${entity.name} (NPC)`);
                     }
+                    help_texts.info += `-> Entity: ${entity.name}\n${entity.description}\n\n`;
                 } else {
-                    help_texts = add_text_line(help_texts, `Item: ${entity.name}`);
+                    help_texts.tooltip = add_text_line(help_texts.tooltip, `! Item: ${entity.name}`);
+                    help_texts.info += `! Item: ${item_description(entity)}\n\n`;
                 }
             } else if(Number.isInteger(entity_or_tileid)){ // Integers are tiles ids.
                 const tile_id = entity_or_tileid;
-                help_texts = add_text_line(help_texts, `[${tiles.info_text(tile_id)}]`);
+                const tile_name = tiles.name_text(tile_id);
+                help_texts.tooltip = add_text_line(help_texts.tooltip, `# ${tile_name}`);
+                help_texts.info += `# ${tile_name}:\n${tiles.info_text(tile_id)}\n\n`;
             } else {
                 const thing = entity_or_tileid; // Probably an effect. We just want to display something
-                help_texts = add_text_line(help_texts, `*${thing.name}*`);
+                help_texts.tooltip = add_text_line(help_texts.tooltip, `*${thing.name}*`);
+                help_texts.info += `*${thing.name}*:\n${thing.description}\n\n`;
             }
         }
         return help_texts;
@@ -1073,6 +1120,7 @@ class GameView {
     }
 
 };
+
 
 
 

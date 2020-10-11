@@ -367,7 +367,15 @@ class Inventory {
 
     get_enabled_action_types(action_type){
         console.assert(action_type && action_type.prototype instanceof concepts.Action);
-        return this.get_all_enabled_action_types(type => type.prototype.constructor === action_type);
+        return this.get_all_enabled_action_types(type => {
+            while(type){
+                if(type === action_type || type.prototype instanceof action_type)
+                    return true;
+                if(type === type.prototype.constructor)
+                    return false;
+                type = type.prototype.constructor;
+            }
+        });
     }
 
     get_all_enabled_action_types(predicate = ()=>true){
@@ -457,8 +465,8 @@ class Character extends concepts.Body {
 
         // Pay for this action
         console.assert(action.constructor.costs instanceof Object);
-        console.assert(Number.isInteger(action.constructor.costs.action_points) && action.constructor.costs.action_points >= 0);
-        this.stats.action_points.decrease(action.constructor.costs.action_points);
+        console.assert(Number.isInteger(action.constructor.costs.action_points.value) && action.constructor.costs.action_points.value >= 0);
+        this.stats.action_points.decrease(action.constructor.costs.action_points.value);
 
         // Then execute the action:
         return action.execute(world, this);
@@ -485,6 +493,10 @@ class Character extends concepts.Body {
             ... this.inventory.get_all_enabled_action_types(),
             TakeItem,
         ];
+    }
+
+    get_enabled_action_types(action_type){
+        return this.inventory.get_enabled_action_types(action_type);
     }
 
 };

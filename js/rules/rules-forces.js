@@ -6,6 +6,7 @@ export {
     Pushed,
     Pulled,
     Push,
+    Push_Short,
     Pull,
 }
 
@@ -20,8 +21,10 @@ import { Character } from "../core/character.js";
 import * as visibility from "../core/visibility.js";
 import { ranged_actions_for_each_target } from "./rules-common.js";
 import { is_blocked_position } from "../definitions-world.js";
+import { auto_newlines } from "../system/utility.js";
 
 const push_range = new visibility.Range_Square(1, 5);
+const push_short_range = new visibility.Range_Cross_Axis(1, 2);
 const pull_range = new visibility.Range_Square(1, 5);
 
 class Pushed extends concepts.Event {
@@ -123,16 +126,17 @@ function compute_push_translation(origin, target){
 class Push extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_push; }
     static get action_type_name() { return "Push"; }
+    static get action_type_description() { return auto_newlines("Tries to move an entity away from this character, bouncing on anything blocking that move.", 35); }
     static get range() { return push_range; }
     static get costs(){
         return {
-            action_points: 5,
+            action_points: { value: 5 },
         };
     }
 
     constructor(target){
         const action_id = `push_${target.x}_${target.y}`;
-        super(action_id, `Push ${JSON.stringify(target)}`, target);
+        super(action_id, `Push that entity away`, target);
     }
 
     execute(world, character){
@@ -144,19 +148,30 @@ class Push extends concepts.Action {
     }
 }
 
+class Push_Short extends Push {
+    static get range() { return push_short_range; }
+    static get costs(){
+        return {
+            action_points: { value: 5 },
+        };
+    }
+
+}
+
 class Pull extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_pull; }
     static get action_type_name() { return "Pull"; }
+    static get action_type_description() { return auto_newlines("Tries to move the target entity towards this character, bouncing on anything blocking that move..", 35); }
     static get range() { return pull_range; }
     static get costs(){
         return {
-            action_points: 5,
+            action_points: { value: 5 },
         };
     }
 
     constructor(target){
         const action_id = `pull_${target.x}_${target.y}`;
-        super(action_id, `Pull ${JSON.stringify(target)}`, target);
+        super(action_id, `Pull that entity toward you`, target);
     }
 
     execute(world, character){
@@ -174,7 +189,7 @@ class Rule_Push extends concepts.Rule {
 
     get_actions_for(character, world){
         console.assert(character instanceof Character);
-        return ranged_actions_for_each_target(world, character, Push, Push.range);
+         return ranged_actions_for_each_target(world, character, Push);
     }
 };
 
@@ -183,7 +198,7 @@ class Rule_Pull extends concepts.Rule {
 
     get_actions_for(character, world){
         console.assert(character instanceof Character);
-        return ranged_actions_for_each_target(world, character, Pull, Push.range);
+        return ranged_actions_for_each_target(world, character, Pull);
     }
 };
 

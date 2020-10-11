@@ -2,6 +2,7 @@
 // Export the texts so that we can use them in the rest of the code.
 
 import * as concepts from "./core/concepts.js";
+import { auto_newlines } from "./system/utility.js";
 
 export {
     item_description,
@@ -42,18 +43,17 @@ Moving Items in slots costs 1 AP.
 `,
 
 character_name:
-`
-Name of the digital-life entity you
+`Name of the digital-life entity you
 are currently controlling.
 `,
 
 integrity:
 `Integrity:
 
-If this value reaches 0, this entity
-will be destroyed!
-Try to keep it to the max to have a
-chance to survive.
+Structural integrity, or health,
+of the data constituing this entity.
+
+If at 0, this entity is destroyed!
 `,
 
 action_points:
@@ -146,34 +146,76 @@ cancel_action: `Cancels the current Action.`
 
 function action_description(action_type){ // TODO : also clarify the range.
     return `Action: ${action_type.action_type_name}
-Costs: ${action_type.costs.action_points} AP
+Costs:
+${stats_modifiers_description(action_type.costs, false)}
 
 ${action_type.action_type_description}
 `
 }
 
-function stats_modifiers_description(modifiers){
-    if(!modifiers)
-        return "";
-
-    console.assert(modifiers instanceof Object);
-    return "INSERT MODIFIERS HERE";
+function signed_number_str(number){
+    if(number > 0){
+        return `+${number}`;
+    }
+    return `${number}`;
 }
+
+function stats_modifiers_description(modifiers, with_signs = true){
+    if(!modifiers)
+        return;
+    console.assert(modifiers instanceof Object);
+    let description = "";
+    let line = 0;
+    const maybe_newline = ()=> line++ > 0 ? '\n' : '';
+    const value_str = with_signs ? signed_number_str : (value)=>value;
+    if(modifiers.integrity){
+        if(modifiers.integrity.max)
+            description += `${maybe_newline()}${value_str(modifiers.integrity.max)} Max Integrity`;
+        if(modifiers.integrity.value)
+            description += `${maybe_newline()}${value_str(modifiers.integrity.value)} Integrity`;
+    }
+    if(modifiers.int_recovery){
+        description += `${maybe_newline()}${value_str(modifiers.int_recovery.value)} Integrity / Cycle`;
+    }
+    if(modifiers.action_points){
+        if(modifiers.action_points.max)
+            description += `${maybe_newline()}${value_str(modifiers.action_points.max)} Max Action Points`;
+        if(modifiers.action_points.value)
+            description += `${maybe_newline()}${value_str(modifiers.action_points.value)} Action Points`;
+    }
+    if(modifiers.ap_recovery){
+        description += `${maybe_newline()}${value_str(modifiers.ap_recovery.value)} Action Points / Cycle`;
+    }
+    if(modifiers.inventory_size){
+        description += `${maybe_newline()}${value_str(modifiers.inventory_size.value)} Item Slots`;
+    }
+    if(modifiers.activable_items){
+        description += `${maybe_newline()}${value_str(modifiers.activable_items.value)} Active Item Slots`;
+    }
+    if(modifiers.view_distance){
+        description += `${maybe_newline()}${value_str(modifiers.view_distance.value)} View Distance`;
+    }
+    return description;
+}
+
+const max_action_list_line_width = 30;
 
 function item_description(item){
     console.assert(item instanceof concepts.Item);
 
-    const item_effects_here = stats_modifiers_description(item.stats_modifiers);
-    const item_actions_names = item.get_enabled_actions_names().map(action_name=>{
+    const item_stats_modifiers = stats_modifiers_description(item.stats_modifiers);
+    let action_count = 0;
+    const item_actions_names = item.get_enabled_actions_names()
+        .map(action_name=> `${action_count++ > 0? ', ' : ''}${action_name}`)
+        .reduce((previous, current)=> { return previous += current}, "");
 
-    });
-
-    const description_text = `${item.name}
-
-${item.description}
-${item_actions_names}
-${item_effects_here}
-`;
+    let description_text = `${item.name}\n${item.description}`;
+    if(item_actions_names.length > 0){
+        description_text += `\n+Actions: ${auto_newlines(item_actions_names, max_action_list_line_width)}`;
+    }
+    if(item_stats_modifiers){
+        description_text += `\n${item_stats_modifiers}`;
+    }
 
     return description_text;
 }

@@ -13,6 +13,7 @@ import { GameView } from "../game-view.js";
 import { CharacterView } from "../view/character-view.js";
 import { sprite_defs } from "../game-assets.js";
 import { ItemView } from "../view/item-view.js";
+import { auto_newlines } from "../system/utility.js";
 
 const decrypt_range = new visibility.Range_Cross_Axis(1,2);
 
@@ -67,17 +68,18 @@ class DecryptedFile extends concepts.Event {
 class Decrypt extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_take; }
     static get action_type_name() { return "Decrypt"; }
+    static get action_type_description() { return auto_newlines("Decrypt the target Crypto-File by consuming the Crypto-Key with the same symbol owned by this character.", 35); }
     static get range() { return decrypt_range; }
     static get costs(){
         return {
-            action_points: 10,
+            action_points: { value: 10 },
         };
     }
 
     constructor(target_position){
         console.assert(target_position instanceof concepts.Position);
         super(`decrypt_item_at_${target_position.x}_${target_position.y}`,
-            "Decrypt File", target_position);
+            "Decrypt and open this Crypto-File", target_position);
         this.is_basic = true;
     }
 

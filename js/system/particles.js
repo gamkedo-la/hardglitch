@@ -26,6 +26,7 @@ export {
     TraceArcParticle,
     ComboLockParticle,
     ScanLineParticle,
+    CollapseOrbParticle,
 }
 
 import { camera, create_canvas_context } from "./graphics.js";
@@ -2157,6 +2158,113 @@ class ScanLineParticle extends Particle {
                 canvas_context.stroke();
             }
         }
+        // draw sub particles
+        for (let i=0; i<this.subparticles.length; i++) {
+            this.subparticles[i].draw(canvas_context);
+        }
+    }
+
+}
+
+class CollapseOrbParticle extends Particle {
+
+    constructor(spec) {
+        // parse spec/assign defaults
+        let x = spec.x || 0;
+        let y = spec.y || 0;
+        super(x, y);
+        this.color = spec.color || new Color(0,255,255, .5);
+        let ttl = (spec.ttl || 1.5) * 1000;
+        let growthPct = spec.growthPct || .15;
+        this.growthTTL = ttl * growthPct;
+        this.collapseTTL = ttl - this.growthTTL;
+        this.maxRadius = spec.maxRadius || 32;
+        this.radius = 0;
+        // local vars
+        this.growthRate = this.maxRadius/this.growthTTL;
+        this.collapseRate = this.maxRadius/this.collapseTTL;
+        this.lightningInterval = spec.lightningInterval * 1000 || 100;
+        this.lightningTTL = spec.lightningInterval * 1000 || 60;
+        this.lightning = spec.lightning || {
+            x: x,
+            y: y,
+        }
+        this.lightningCount = (this.lightning.hasOwnProperty("count")) ? this.lightning.count : 5;
+        this.subparticles = [];
+    }
+
+    genLightning(spec) {
+        //console.log("spec: " + spec);
+        let distance = this.radius;
+        let x = spec.x || 0;
+        let y = spec.y || 0;
+        let targetx = spec.x;
+        let targety = spec.y;
+        let segments = spec.segments || random_int(10,15);
+        let width = spec.width || random_int(1,2);
+        let color = (spec.color || new Color(0,255,255)).copy();
+        color.a = random_float(.25,1);
+        let angle = random_float(0,Math.PI*2);
+        let originx = spec.x + Math.cos(angle) * distance;
+        let originy = spec.y + Math.sin(angle) * distance;
+        let variance = spec.variance || 1.5;
+        let endWidth = spec.endWidth || 10;
+        let ttl = spec.ttl || .1;
+        let floaterPct = spec.floaterPct || 0;
+        let p = new LightningParticle({x: originx, y:originy}, {x: targetx, y: targety}, segments, width, color, endWidth, variance, ttl, floaterPct);
+        this.subparticles.push(p);
+        //console.log("sp len: " + this.subparticles.length);
+    }
+
+    get done() {
+        if (!this._done) return false;
+        let subdone = true;
+        for (let i=0; i<this.subparticles.length; i++) {
+            subdone &= this.subparticles[i].done;
+        }
+        return subdone;
+    }
+    set done(value) {
+        this._done = (value) ? true : false;
+    }
+
+    update(delta_time) {
+        for (let i=0; i<this.subparticles.length; i++) {
+            this.subparticles[i].update(delta_time);
+        }
+        if (this.done) return;
+        // growth
+        if (this.growthTTL > 0) {
+            this.growthTTL -= delta_time;
+            if (this.growthTTL < 0) this.growthTTL = 0;
+            this.radius += this.growthRate*delta_time;
+            if (this.radius > this.maxRadius) this.radius = this.maxRadius;
+        // collapse
+        } else {
+            this.collapseTTL -= delta_time;
+            if (this.collapseTTL <= 0) {
+                this.done = true;
+            }
+            this.radius -= this.collapseRate*delta_time;
+            if (this.radius < 0) this.radius = 0;
+        }
+        if (this.collapseTTL <= 0) return;
+        // lightning
+        this.lightningTTL -= delta_time;
+        if (this.lightningTTL <= 0) {
+            this.lightningTTL = this.lightningInterval;
+            for (let i=0; i<this.lightningCount; i++) {
+                this.genLightning(this.lightning);
+            }
+        }
+    }
+
+    draw(canvas_context) {
+        // draw orb
+        canvas_context.beginPath();
+        canvas_context.arc(this.x, this.y, this.radius, 0, Math.PI*2);
+        canvas_context.fillStyle = this.color.toString();
+        canvas_context.fill();
         // draw sub particles
         for (let i=0; i<this.subparticles.length; i++) {
             this.subparticles[i].draw(canvas_context);

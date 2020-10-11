@@ -14,6 +14,7 @@ export {
   draw_text,
   measure_text,
   draw_rectangle,
+  draw_circle,
   canvas_center_position,
   canvas_rect,
   centered_rectangle_in_screen,

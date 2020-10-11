@@ -13,7 +13,6 @@ import { invoke_on_members } from "./system/utility.js";
 import { Vector2, Vector2_origin } from "./system/spatial.js";
 import { ScreenFader } from "./system/screenfader.js";
 
-import { load_test_level, load_random_test_level } from "./main.js";
 import { HARD_GLITCH_VERSION } from "./version.js";
 
 const buttons_font = "22px Space Mono";
@@ -23,6 +22,12 @@ class MainMenu {
     constructor(state_machine, position){
         console.assert(state_machine instanceof fsm.StateMachine);
         console.assert(position instanceof Vector2);
+        this.back_panel = new ui.Pannel({
+            width: 1024,
+            height: 768,
+            sprite: "title_bg",
+            //scale: {x: 2, y: 2},
+        })
         this.position = position;
 
         this.button_new_game = new ui.TextButton({
@@ -51,29 +56,29 @@ class MainMenu {
             },
         });
 
-        this.button_empty_level = new ui.TextButton({
-            text: "Empty Small Level",
-            font: buttons_font,
-            action: ()=> { load_test_level(10, 10); },
-            position: Vector2_origin,
-            sprite_def: sprite_defs.button_menu,
-            sounds:{
-                over: 'selectButton',
-                down: 'clickButton',
-            }
-        });
+        // this.button_empty_level = new ui.TextButton({
+        //     text: "Empty Small Level",
+        //     font: buttons_font,
+        //     action: ()=> { load_test_level(8, 8); },
+        //     position: Vector2_origin,
+        //     sprite_def: sprite_defs.button_menu,
+        //     sounds:{
+        //         over: 'selectButton',
+        //         down: 'clickButton',
+        //     }
+        // });
 
-        this.button_test_level = new ui.TextButton({
-            text: "Random Test Level",
-            font: buttons_font,
-            action: ()=> { load_random_test_level(); },
-            position: Vector2_origin,
-            sprite_def: sprite_defs.button_menu,
-            sounds:{
-                over: 'selectButton',
-                down: 'clickButton',
-            }
-        });
+        // this.button_test_level = new ui.TextButton({
+        //     text: "Random Test Level",
+        //     font: buttons_font,
+        //     action: ()=> { load_random_test_level(); },
+        //     position: Vector2_origin,
+        //     sprite_def: sprite_defs.button_menu,
+        //     sounds:{
+        //         over: 'selectButton',
+        //         down: 'clickButton',
+        //     }
+        // });
 
         this.button_credits = new ui.TextButton({
             text: "Credits",
@@ -122,14 +127,14 @@ class TitleScreen extends fsm.State {
         this.ui = {};
         this.ui.title = new ui.Text({
             text: "HARD GLITCH",
-            font: "80px ZingDiddlyDooZapped",
+            font: "120px ZingDiddlyDooZapped",
             color: "white",
             background_color: "#ffffff00",
             position: Vector2_origin
         });
         this.ui.title.position = {
             x: graphics.centered_rectangle_in_screen(this.ui.title.area).position.x,
-            y: 80
+            y: 100
         };
 
         this.ui.main_menu = new MainMenu(this.state_machine, this.ui.title.position.translate({ x:0, y: 100 }));
