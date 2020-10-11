@@ -79,6 +79,7 @@ const game_assets = { // Description of the assets to load.
         item_generic_6: "./images/genericitem6.png",
         item_generic_7: "./images/genericitem7.png",
         info_box_button: "./images/infoboxbutton.png",
+        game_over_skull: "./images/scribble-skull.png",
 
         // TODO: merge icons into one image
         icon_volume_mute: "./images/iconmute.png",
@@ -268,6 +269,7 @@ const sprite_defs = {
 
     level_transition : { image: "level_transition" },
     title_bg : { image: "title_bg" },
+    game_over_skull : {image: 'game_over_skull'},
 
     shadow : {
         image: "shadow",

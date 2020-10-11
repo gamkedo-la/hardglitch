@@ -22,8 +22,6 @@ import { easing, tween } from "./system/tweening.js";
 import { draw_circle } from "./system/graphics.js";
 import { draw_rectangle } from "./system/graphics.js";
 
-
-
 //right now the below just outputs a title, we need to output a lil more.
 //maybe change this to "title display" like a title object
 class LevelInfoDisplay {

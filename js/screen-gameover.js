@@ -112,7 +112,7 @@ class GameOverScreen_Failure extends fsm.State {
         console.assert(this.ui === undefined);
         this.ui = {
             message : new ui.Text({
-                text: "Game Over - Please Retry, 'Glitch' needs to escape!",
+                text: "Glitch no longer occupies the memory they once did.",
                 position: graphics.canvas_center_position().translate({x:-200, y:0}),
             }),
             button_retry : new ui.TextButton({
@@ -136,6 +136,26 @@ class GameOverScreen_Failure extends fsm.State {
                 }
             }),
         };
+
+        this.skull_icon = new graphics.Sprite(sprite_defs.game_over_skull);
+
+        /*
+        this.skull_icon.position = {
+            x: center_in_rectangle(this.background.area, this.level_transition_canvas_context.canvas).position.x,
+            y: -this.background.size.height + background_y_move + 400,
+        };
+        */ //that's a work in progress
+
+        /*
+        this.skull_icon.position = {
+            x: 500,
+            y: 500
+        };
+        */
+
+       this.skull_icon.position = graphics.canvas_center_position().translate({x:-32, y:-150});
+        //that's a work in progress
+
         // Center the buttons in the screen.
         let button_pad_y = 0;
         const next_pad_y = () => {
@@ -174,6 +194,7 @@ class GameOverScreen_Failure extends fsm.State {
     }
 
     update(delta_time){
+        this.skull_icon.update(delta_time); //in update
         if(!this.fader.is_fading){
             if(input.keyboard.is_just_down(KEY.ESCAPE)){
                 this.back_to_main_menu();
@@ -188,9 +209,8 @@ class GameOverScreen_Failure extends fsm.State {
 
     display(canvas_context){
         graphics.draw_rectangle(canvas_context, graphics.canvas_rect(), "red");
-
         invoke_on_members(this.ui, "draw", canvas_context);
-
+        this.skull_icon.draw(canvas_context); //in display
         this.fader.display(canvas_context);
     }
 
