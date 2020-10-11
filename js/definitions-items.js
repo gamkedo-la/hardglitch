@@ -32,6 +32,9 @@ export {
     all_crypto_file_types,
     all_crypto_key_types,
     all_item_types,
+    all_movable_walls,
+
+    Debug_AllActions,
 }
 
 import * as concepts from "./core/concepts.js";
@@ -77,6 +80,16 @@ function all_debug_item_types(){
         Debug_RemoveActivableItem,
         Debug_AugmentViewDistance,
         Debug_ReduceViewDistance,
+    ];
+}
+
+function all_movable_walls(){
+    return [
+        MovableWall_Blue,
+        MovableWall_Green,
+        MovableWall_Orange,
+        MovableWall_Purple,
+        MovableWall_Red,
     ];
 }
 

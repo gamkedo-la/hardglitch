@@ -14,6 +14,9 @@ import { test_rules } from "./test-rules.js";
 import * as visibility from "../core/visibility.js";
 import { LifeForm_Strong, LifeForm_Weak } from "../characters/lifeform.js";
 import { Grid } from "../system/grid.js";
+import { all_characters_types } from "../deflinitions-characters.js";
+import { GlitchyGlitchMacGlitchy } from "../characters/glitch.js";
+import { DEBUG_TOOLS_ENABLED } from "../editor.js";
 
 const defaults = {
     ground : tiles.ID.CALCFLOORWARM,
@@ -134,11 +137,11 @@ function make_test_world(test_world_size = world_grid){ // The game assets must 
             && ( world.tiles_at(position).length == 0 || !is_blocked_position(world, position, tiles.is_safely_walkable) );
     }
 
-    let ennemy_count = 30;
+    let ennemy_count = 40;
     while(ennemy_count > 0){
         const position = random_position();
         if(can_insert_something_there(position)){
-            const enemy_type = random_int(0, 100) >= 50 ? RandomActionEnemy : LifeForm_Strong;
+            const enemy_type = random_int(0, 100) >= 50 ? random_sample(items.all_item_types()) : random_sample(all_characters_types().filter(type=>type !== GlitchyGlitchMacGlitchy));
             const enemy = new enemy_type();
             enemy.position = position;
             world.add_entity(enemy);
@@ -206,10 +209,12 @@ function make_test_world(test_world_size = world_grid){ // The game assets must 
         });
 
     // closer stuffs
+    let is_first_item = true;
     visibility.positions_in_range(entry_point_position, inner_shape, valid_positions_filter)
         .filter(position => world.is_valid_position(position))
         .forEach(position=>{
-            const item_type = random_int(0, 100) >= 70 ? LifeForm_Weak : random_sample([...items.all_item_types()]);
+            const item_type = is_first_item ? items.Debug_AllActions :
+                                              ( random_int(0, 100) >= 70 ? LifeForm_Weak : random_sample([...items.all_item_types()]) );
             const entity = new item_type();
             entity.position = position;
             world.add_entity(entity);
@@ -226,7 +231,7 @@ function make_test_world(test_world_size = world_grid){ // The game assets must 
     visibility.positions_in_range(entry_point_position, rim_shape, valid_positions_filter)
     .filter(position => world.is_valid_position(position))
     .forEach(position=>{
-        const item_type = /*random_int(0, 100) >= 70 ? items.CryptoFile : */items.MovableWall;
+        const item_type = random_sample(items.all_movable_walls());
         const file = new item_type();
         file.position = position;
         world.add_entity(file);
