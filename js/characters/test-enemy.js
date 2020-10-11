@@ -13,7 +13,7 @@ import { Character, CharacterStats } from "../core/character.js"
 
 class RandomActionSelector extends concepts.Actor {
 
-    decide_next_action(possible_actions) {
+    decide_next_action(world, character, possible_actions) {
         // Just picking a random action is a perfectly valid strategy, lol
         while(true){
             let random_action = random_sample(Object.values(possible_actions));
@@ -55,7 +55,7 @@ class WaitingNPC extends Character {
     constructor(){
         super("Wait Man", new CharacterStats());
         this.actor = new class extends concepts.Actor{
-            decide_next_action(possible_actions) { return possible_actions.wait; }
+            decide_next_action(world, character, possible_actions) { return possible_actions.wait; }
         };
     }
 };

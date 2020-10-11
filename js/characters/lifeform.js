@@ -16,7 +16,7 @@ const reverse_move_id = {
 
 class MoveUntilYouCant extends concepts.Actor {
 
-    decide_next_action(possible_actions) {
+    decide_next_action(world, character, possible_actions) {
         const move_actions_ids = Object.keys(possible_actions)
             .filter(name => name.startsWith("move_"))
             .filter(name => possible_actions[name].is_safe)
@@ -66,7 +66,7 @@ class MoveInCircles extends concepts.Actor {
         this.direction_sequence = this.next_direction();
     }
 
-    decide_next_action(possible_actions) {
+    decide_next_action(world, character, possible_actions) {
         const move_actions_ids = Object.keys(possible_actions)
             .filter(name => name.startsWith("move_"))
             .filter(name => possible_actions[name].is_safe)
@@ -141,4 +141,6 @@ class LifeForm_Strong extends Character {
         this.stats.integrity.real_value = 20;
         this.stats.inventory_size.real_value = 2;
     }
+
+    drops = [ new LifeForm_Weak(), new LifeForm_Weak(), ];
 };
