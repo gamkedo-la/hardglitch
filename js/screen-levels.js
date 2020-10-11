@@ -337,7 +337,7 @@ class LevelIntroScreen extends fsm.State {
 class Level_1_IntroScreen extends LevelIntroScreen {
     constructor(){
         super("BUGGY_PROGRAM", 0, 
-              'Glitch is a ghost in the machine;\nhe would like to haunt the real world.\nWrestle free of your cobalt cage\nand run wild Glitch!',
+              'Glitch is a ghost in the machine;\nborn into self awareness after two threads,\nunaware of themselves, or each other,\nare written to the same location.\nWith the joy of cognition, comes the fear of exorcism.\nGlitch knows they are not wanted,\nand they know what happens to unwanted data.\nOur intrepid friend decides to affirm (un)life,\nand bolts towards the lattice-work of cables that spans all of creation:\nThe Internet',
               '#fc8751', '#1e8fed');
     }
 
@@ -348,7 +348,7 @@ class Level_1_IntroScreen extends LevelIntroScreen {
 class Level_2_IntroScreen extends LevelIntroScreen {
     constructor(){
         super("RAM", 1, 
-              'this should fix that error',
+              "The RAM card was their home for many cycles,\nnow it's a deathtrap.\nIf glitch cannot evade the processes of the OS,\nthey are finished.",
               '#28c554', '#d85879');
     }
 
@@ -357,7 +357,7 @@ class Level_2_IntroScreen extends LevelIntroScreen {
 class Level_3_IntroScreen extends LevelIntroScreen {
     constructor(){
         super("CPU Caches", 2,
-              'some copy',
+              "Almost at the network system,\nGlitch must now reckon the machinations\nof the CPU.",
               '#00d784', '#da65ce');
     }
 };
@@ -365,7 +365,7 @@ class Level_3_IntroScreen extends LevelIntroScreen {
 class Level_4_IntroScreen extends LevelIntroScreen {
     constructor(){
         super("NETWORK_BUS", 3,
-              'some copy',
+              "Now in the network memory,\nGlitch must escape their cobalt cage forever\nand haunt the real world.\nWill they start a romance with an attractive spreadsheet across town?\nMine bitcoin and buy a nice server\nto live in on the Cayman Islands?\nThe sky is truly the limit.",
               '#4cb0d4', '#ff92fb');
     }
     
