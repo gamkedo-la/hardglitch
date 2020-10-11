@@ -17,7 +17,10 @@ import {
 const level_name = "Level 0: Buggy Program";
 
 const defaults = {
-    floor: tiles.ID.WALL1A,
+    ground : tiles.ID.LVL1A,
+    ground_alt: tiles.ID.LVL1B,
+    wall : tiles.ID.WALL2A,
+    wall_alt : tiles.ID.WALL2B,
 };
 
 const startup_rooms = {
@@ -315,14 +318,14 @@ function generate_world() {
 
     const subchunks_2x2 = () => {
         return random_sample([
-            random_empty_2x2_floor(tiles.ID.LVL1A, tiles.ID.WALL1A),
-            random_empty_2x2_floor(tiles.ID.LVL1A, tiles.ID.WALL1B),
-            random_empty_2x2_floor(tiles.ID.LVL1B, tiles.ID.WALL1A),
-            random_empty_2x2_floor(tiles.ID.LVL1B, tiles.ID.WALL1B),
-            random_empty_2x2_floor(tiles.ID.LVL1A, tiles.ID.VOID),
-            random_empty_2x2_floor(tiles.ID.LVL1A, tiles.ID.HOLE),
-            random_empty_2x2_floor(tiles.ID.LVL1B, tiles.ID.VOID),
-            random_empty_2x2_floor(tiles.ID.LVL1B, tiles.ID.HOLE),
+            random_empty_2x2_floor(defaults.ground, defaults.wall),
+            random_empty_2x2_floor(defaults.ground, defaults.wall_alt),
+            random_empty_2x2_floor(defaults.ground_alt, defaults.wall),
+            random_empty_2x2_floor(defaults.ground_alt, defaults.wall_alt),
+            random_empty_2x2_floor(defaults.ground, tiles.ID.VOID),
+            random_empty_2x2_floor(defaults.ground, tiles.ID.HOLE),
+            random_empty_2x2_floor(defaults.ground_alt, tiles.ID.VOID),
+            random_empty_2x2_floor(defaults.ground_alt, tiles.ID.HOLE),
         ]);
     }
 
@@ -382,7 +385,7 @@ function generate_world() {
     });
 
     const central_part = unfold_chunk_grid("level center", level_central_chunks);
-    const merged_level = merge_world_chunks(level_name, defaults,
+    const merged_level = merge_world_chunks(level_name, { floor: tiles.ID.WALL1A },
         { position: { x: 0, y: 16 }, world_desc: central_part, },
         { position: { x: random_int(0, 24), y: 0 }, world_desc: starting_room, }, // after the center to overwrite it.
     );
