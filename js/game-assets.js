@@ -1158,4 +1158,5 @@ const music_id = {
     level_4: "GlitchIsBorn",
     gameover_success: "BrokeTheLoop",
     gameover_failure: "Mistakes",
+    level_transition: "ScopedLifetime",
 };
