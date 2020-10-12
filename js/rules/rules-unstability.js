@@ -12,9 +12,10 @@ import * as visibility from "../core/visibility.js";
 import * as anim from "../system/animation.js";
 import * as animation from "../game-animations.js";
 import * as audio from "../system/audio.js";
+import * as tiles from "../definitions-tiles.js";
 
 import { auto_newlines, lazy_call, position_from_index } from "../system/utility.js";
-import { grid_ID } from "../definitions-world.js";
+import { grid_ID, is_blocked_position } from "../definitions-world.js";
 import { Character } from "../core/character.js";
 import { Grid } from "../system/grid.js";
 import { sprite_defs } from "../game-assets.js";
@@ -22,7 +23,6 @@ import { actions_for_each_target } from "./rules-common.js";
 import { GameView } from "../game-view.js";
 import { graphic_position, square_half_unit_vector } from "../view/entity-view.js";
 import { random_jump } from "./rules-movement.js";
-import { audiobuffer_loader } from "../system/assets.js";
 
 const unstable_ap_cost = 10;
 const destabilize_range = new visibility.Range_Square(0, 6);
@@ -165,7 +165,8 @@ function teleport_entities_in_unstable_tiles_and_vanish(world) {
         const entity = world.entity_at(position);
         if(entity){
             // Randomly teleport the entity
-            events.push(...random_jump(world, entity, unstable_random_jump_range)); // If the entity is a character, they can be teleported outside their range of view.
+            const valid_positions = (pos) => !is_blocked_position(world, pos, tiles.is_walkable); // Can be teleported in unsafe places! As long as it's valid.
+            events.push(...random_jump(world, entity, unstable_random_jump_range, valid_positions)); // If the entity is a character, they can be teleported outside their range of view.
             // Vanish the unstability
             delete unstable_grid.elements[idx];
             events.push(new UnstabilityVanished(position, unstability));
