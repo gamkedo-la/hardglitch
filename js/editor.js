@@ -1,7 +1,6 @@
 // This file contains debug utilities for working with this game.
 
 export {
-    DEBUG_TOOLS_ENABLED,
     is_enabled, is_editing,
     set_text, set_central_text,
     update, display, update_debug_keys, display_debug_info,
@@ -28,7 +27,7 @@ import { all_characters_types } from "./deflinitions-characters.js";
 import { grid_ID } from "./definitions-world.js";
 import { serialize_world } from "./levels/level-tools.js";
 
-const DEBUG_TOOLS_ENABLED = false; // Change to true to use the keys defined bellow.
+window.debug_tools_enabled = false; // Change to true to use the keys defined bellow.
 
 let is_enabled = false; // TURN THIS ON TO SEE THE EDITOR, see the update() function below
 let is_editing = false; // True if we are doing an edition manipulation and no other input should be handled.
@@ -539,7 +538,7 @@ function display_debug_info(game_session){
     if(is_enabled){ // Specific to editor mode.
         draw_text("---====::::  EDITOR MODE  ::::====---", {x: center.x - 200, y: 4 });
         display_editor_help();
-    } else if(DEBUG_TOOLS_ENABLED === true) {
+    } else if(window.debug_tools_enabled === true) {
         display_help(game_session);
     }
 
@@ -569,7 +568,7 @@ function update_debug_keys(game_session){
         export_world(game_session.world);
     }
 
-    if(!is_enabled && DEBUG_TOOLS_ENABLED === false) // All the keys bellow are only active if debug tools are enabled.
+    if(!is_enabled && window.debug_tools_enabled === false) // All the keys bellow are only active if debug tools are enabled.
         return;
 
     if(input.keyboard.is_just_down(KEY.F1)){

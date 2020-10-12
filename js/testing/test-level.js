@@ -12,11 +12,10 @@ import * as items from "../definitions-items.js";
 
 import { test_rules } from "./test-rules.js";
 import * as visibility from "../core/visibility.js";
-import { LifeForm_Strong, LifeForm_Weak } from "../characters/lifeform.js";
+import { LifeForm_Weak } from "../characters/lifeform.js";
 import { Grid } from "../system/grid.js";
 import { all_characters_types } from "../deflinitions-characters.js";
 import { GlitchyGlitchMacGlitchy } from "../characters/glitch.js";
-import { DEBUG_TOOLS_ENABLED } from "../editor.js";
 
 const defaults = {
     ground : tiles.ID.CALCFLOORWARM,
