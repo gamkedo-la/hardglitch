@@ -20,6 +20,7 @@ import { CharacterStatus } from "./ui/ui-characterstatus.js";
 import { InventoryUI } from "./ui/ui-inventory.js";
 import { InfoBox, show_info } from "./ui/ui-infobox.js";
 import { Timeline } from "./ui/ui-timeline.js";
+import { mute_button } from "./main.js";
 
 const action_button_size = 50;
 const player_ui_top_from_bottom = 66;
@@ -426,7 +427,8 @@ class GameInterface {
     }
 
     get is_mouse_over(){
-        return this.elements.some(element => element.visible && element.is_mouse_over);
+        return this.elements.some(element => element.visible && element.is_mouse_over)
+            || mute_button.is_mouse_over;
     }
 
     get is_selecting_action_target(){

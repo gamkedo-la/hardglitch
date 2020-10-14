@@ -4,6 +4,7 @@ export {
   load_level,
   load_test_level,
   load_random_test_level,
+  mute_button,
 }
 
 
