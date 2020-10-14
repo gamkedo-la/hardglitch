@@ -11,7 +11,7 @@ import * as ui from "./system/ui.js";
 import * as audio from "./system/audio.js";
 import * as texts from "./definitions-texts.js";
 
-import { KEY } from "./game-input.js";
+import { KEY, cursors } from "./game-input.js";
 
 import * as editor from "./editor.js";
 import { ScreenFader } from "./system/screenfader.js";
@@ -41,17 +41,25 @@ class PlayingGame extends fsm.State{
     update(delta_time){
 
         if(this.game_session.is_game_finished){
-            if(input.keyboard.is_any_key_just_down() || input.mouse.buttons.is_any_key_just_down()){
+
+            if(!this._player_ready_to_leave
+            && (input.keyboard.is_any_key_just_down() || input.mouse.buttons.is_any_key_just_down())
+            ){
+                this._player_ready_to_leave = true;
                 if(this.game_session.is_any_player_character_alive){
                     this.state_machine.escape();
                 } else {
                     this.state_machine.horrible_death();
                 }
             }
+
             this.game_session.update(delta_time, {
                 is_player_action_allowed: false,
                 is_camera_dragging_allowed: true,
             });
+
+            input.set_cursor(cursors.pointer_cursor);
+
             return;
         }
 

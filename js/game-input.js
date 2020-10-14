@@ -2,6 +2,7 @@
 
 export {
     KEY,
+    cursors,
     update,
     game_position_from_graphic_position,
     mouse_game_position,
@@ -197,7 +198,10 @@ function update_camera_control(delta_time, allow_camera_dragging){
     } else {
         draggin_start_camera_position = undefined;
 
-        if(current_game_view.ui.is_mouse_over || current_game_view.ui.is_selecting_action_target){
+        if(current_game_view.ui.is_mouse_over
+        || current_game_view.ui.is_selecting_action_target
+        || current_game.is_game_finished
+        ){
             input.set_cursor(cursors.pointer_cursor);
         } else if(input.mouse.buttons.is_down(input.MOUSE_BUTTON.LEFT)){
             input.set_cursor(cursors.hand_cursor_closed);
@@ -272,6 +276,8 @@ function update(delta_time, input_config){
                 }
             }
         }
+    } else {
+        input.set_cursor(cursors.pointer_cursor);
     }
 }
 
