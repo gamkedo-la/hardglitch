@@ -4,6 +4,7 @@ export {
 
 }
 
+import * as debug from "../system/debug.js";
 import * as ui from "../system/ui.js";
 import * as texts from "../definitions-texts.js";
 import { invoke_on_members, set_on_members, some_member } from "../system/utility.js";
@@ -27,8 +28,8 @@ const bar_size = {
 };
 
 function update_stat_bar(bar, stat){
-    console.assert(bar instanceof ui.Bar);
-    console.assert(stat instanceof StatValue);
+    debug.assertion(()=>bar instanceof ui.Bar);
+    debug.assertion(()=>stat instanceof StatValue);
     bar.max_value = stat.max;
     bar.value = stat.value;
 }
@@ -37,7 +38,7 @@ class CharacterStatus{
     visible = true;
 
     constructor(position){
-        console.assert(position instanceof Vector2);
+        debug.assertion(()=>position instanceof Vector2);
 
         this.character_name = new ui.Text(Object.assign(stats_text, {
             text: "Unknown Character Name",

@@ -2,8 +2,7 @@ export {
     InventoryUI,
 }
 
-
-
+import * as debug from "../system/debug.js";
 import * as spatial from "../system/spatial.js";
 import * as graphics from "../system/graphics.js";
 import * as input from "../system/input.js";
@@ -29,16 +28,16 @@ const item_slot_name = "Item Slot";
 const active_item_slot_name = "Active Item Slot";
 
 function slot_text(is_active){
-    console.assert(typeof is_active === "boolean");
+    debug.assertion(()=>typeof is_active === "boolean");
     return is_active ? active_item_slot_name : item_slot_name;
 }
 
 class ItemSlot {
 
     constructor(position, is_active, fx_view){
-        console.assert(typeof is_active === "boolean");
-        console.assert(position === undefined || position instanceof spatial.Vector2);
-        console.assert(fx_view instanceof GameFxView);
+        debug.assertion(()=>typeof is_active === "boolean");
+        debug.assertion(()=>position === undefined || position instanceof spatial.Vector2);
+        debug.assertion(()=>fx_view instanceof GameFxView);
 
         this._fx_view = fx_view;
         const sprite_def = is_active ? sprite_defs.item_active_slot : sprite_defs.item_slot;
@@ -65,11 +64,11 @@ class ItemSlot {
     get is_mouse_over() { return this._help_text.is_mouse_over_area_to_help; }
 
     update(delta_time){
-        console.assert(!this._item_view || this._item_view._item_slot === this);
+        debug.assertion(()=>!this._item_view || this._item_view._item_slot === this);
         this._sprite.update(delta_time);
         this._help_text.update(delta_time);
         if(this._item_view){
-            console.assert(this._item_view instanceof ItemView);
+            debug.assertion(()=>this._item_view instanceof ItemView);
             this._item_view.update(delta_time);
         }
     }
@@ -82,7 +81,7 @@ class ItemSlot {
 
     draw_item(canvas_context){
         if(this._item_view){
-            console.assert(this._item_view instanceof ItemView);
+            debug.assertion(()=>this._item_view instanceof ItemView);
             this._item_view.render_graphics(canvas_context);
         }
     }
@@ -101,9 +100,9 @@ class ItemSlot {
 
 
     set_item(new_item){
-        console.assert(this._item_view === null);
-        console.assert(new_item instanceof ItemView);
-        console.assert(typeof new_item.name === "string");
+        debug.assertion(()=>this._item_view === null);
+        debug.assertion(()=>new_item instanceof ItemView);
+        debug.assertion(()=>typeof new_item.name === "string");
         this._item_view = new_item;
         this._item_view._item_slot = this;
         this._item_view.is_visible = true;
@@ -141,7 +140,7 @@ class ItemSlot {
         if(!this._item_view)
             return;
 
-        console.assert(this._item_view instanceof ItemView);
+        debug.assertion(()=>this._item_view instanceof ItemView);
         this._item_view.position = spatial.center_in_rectangle(this._item_view.area, this._sprite.area).position;
     }
 
@@ -172,9 +171,9 @@ class InventoryUI {
     dragging_enabled = false;
 
     constructor(position, character_status, events){
-        console.assert(position instanceof spatial.Vector2);
-        console.assert(character_status instanceof CharacterStatus);
-        console.assert(!events || events instanceof Object);
+        debug.assertion(()=>position instanceof spatial.Vector2);
+        debug.assertion(()=>character_status instanceof CharacterStatus);
+        debug.assertion(()=>!events || events instanceof Object);
         this.position = position;
         this.character_status = character_status;
         this.events = events;
@@ -189,8 +188,8 @@ class InventoryUI {
     }
 
     update(delta_time, current_character, world){
-        console.assert(current_character instanceof Character || current_character === undefined);
-        console.assert(world instanceof concepts.World);
+        debug.assertion(()=>current_character instanceof Character || current_character === undefined);
+        debug.assertion(()=>world instanceof concepts.World);
         this.world = world;
 
         if(current_character){
@@ -218,26 +217,26 @@ class InventoryUI {
     request_refresh(){ this._need_refresh = true; }
 
     get_item_view_at(idx) {
-        console.assert(Number.isInteger(idx));
-        console.assert(idx < this._slots.length);
+        debug.assertion(()=>Number.isInteger(idx));
+        debug.assertion(()=>idx < this._slots.length);
         return this._slots[idx].item;
     }
 
     set_item_view_at(idx, item_view){
-        console.assert(Number.isInteger(idx));
-        console.assert(idx < this._slots.length);
-        console.assert(item_view instanceof ItemView);
+        debug.assertion(()=>Number.isInteger(idx));
+        debug.assertion(()=>idx < this._slots.length);
+        debug.assertion(()=>item_view instanceof ItemView);
         this._slots[idx].set_item(item_view);
     }
 
     remove_item_view_at(idx){
-        console.assert(Number.isInteger(idx));
-        console.assert(idx < this._slots.length);
+        debug.assertion(()=>Number.isInteger(idx));
+        debug.assertion(()=>idx < this._slots.length);
         return this._slots[idx].remove_item();
     }
 
     _find_slot_under(position){
-        console.assert(position instanceof spatial.Vector2);
+        debug.assertion(()=>position instanceof spatial.Vector2);
         return this._slots.find(slot => spatial.is_point_under(position, slot._sprite.area))
     }
 
@@ -262,7 +261,7 @@ class InventoryUI {
                         const destination_slot_idx = this._slots.indexOf(destination_slot);
                         if(destination_slot_idx !== this._dragging_item.source_slot_idx){
                             if(destination_slot_idx !== this._dragging_item.destination_slot_idx){
-                                console.assert(this._current_character instanceof Character);
+                                debug.assertion(()=>this._current_character instanceof Character);
                                 this._dragging_item.destination_slot_idx = destination_slot_idx;
                                 this._dragging_item.swap_action = new SwapItemSlots(this._dragging_item.source_slot_idx, this._dragging_item.destination_slot_idx);
                                 this.character_status.begin_preview_costs({
@@ -304,8 +303,8 @@ class InventoryUI {
                         if(this._dragging_item.source_slot_idx === destination_slot_idx){
                             this._dragging_item.slot._update_item_position(); // Reset the item position.
                         } else {
-                            console.assert(this._dragging_item.swap_action instanceof concepts.Action);
-                            console.assert(this._dragging_item.destination_slot_idx === destination_slot_idx);
+                            debug.assertion(()=>this._dragging_item.swap_action instanceof concepts.Action);
+                            debug.assertion(()=>this._dragging_item.destination_slot_idx === destination_slot_idx);
                             game_input.play_action(this._dragging_item.swap_action);
                         }
 
@@ -316,14 +315,14 @@ class InventoryUI {
                         // Dropped outside in the world
                         if(this._dragging_item.drop_action)
                         { // Dropped in a droppable position!
-                            console.assert(this._dragging_item.drop_action instanceof concepts.Action);
+                            debug.assertion(()=>this._dragging_item.drop_action instanceof concepts.Action);
                             game_input.play_action(this._dragging_item.drop_action);
                         } else { // Dropped too far or in an invalid position.
                             this._dragging_item.slot._update_item_position(); // Reset the item position.
                         }
                     }
                     if(this.events){
-                        console.assert(this._dragging_item.item);
+                        debug.assertion(()=>this._dragging_item.item);
                         this._dragging_item.item.for_each_sprite(sprite=>sprite.reset_origin());
                         this.events.on_item_dragging_end();
                     }
@@ -342,15 +341,15 @@ class InventoryUI {
                 const slot = this._find_slot_under(dragging.begin);
                 this._dragging_item.slot = slot;
                 if(slot){
-                    console.assert(slot instanceof ItemSlot);
+                    debug.assertion(()=>slot instanceof ItemSlot);
                     this._dragging_item.source_slot_idx = this._slots.indexOf(this._dragging_item.slot);
                     const item_view = slot.item;
                     if(item_view){ // Begin dragging an item from a slot.
                         this._dragging_item.item = item_view;
                         this._dragging_item.item.for_each_sprite(sprite=>sprite.move_origin_to_center());
 
-                        console.assert(this._current_character instanceof Character);
-                        console.assert(this.world instanceof concepts.World);
+                        debug.assertion(()=>this._current_character instanceof Character);
+                        debug.assertion(()=>this.world instanceof concepts.World);
                         this._possible_drop_positions = this._current_character.allowed_drops()
                             .filter(position => !is_blocked_position(this.world, position, tiles.is_safely_walkable));
 
@@ -364,14 +363,14 @@ class InventoryUI {
 
 
     draw(canvas_context){
-        console.assert(graphics.camera.is_rendering_in_screen);
+        debug.assertion(()=>graphics.camera.is_rendering_in_screen);
         this._slots.forEach(slot=>slot.draw(canvas_context));
         this._slots.forEach(slot=>slot.draw_item(canvas_context));
         this.fx_view.draw(canvas_context);
     }
 
     refresh(character){
-        console.assert(character instanceof Character);
+        debug.assertion(()=>character instanceof Character);
 
         const previous_character = this._current_character;
         this._current_character = character;
@@ -397,7 +396,7 @@ class InventoryUI {
     }
 
     _reset_slots(slot_count, active_slots_count){
-        console.assert(Number.isInteger(slot_count) && slot_count >= 0);
+        debug.assertion(()=>Number.isInteger(slot_count) && slot_count >= 0);
         const previous_items = this._slots.map(slot=> slot.remove_item());
         this._slots = [];
         this._active_slots_count = active_slots_count;
@@ -415,10 +414,10 @@ class InventoryUI {
     }
 
     _reset_items(inventory){
-        console.assert(inventory instanceof Inventory);
+        debug.assertion(()=>inventory instanceof Inventory);
         const items = inventory.stored_items;
-        console.assert(items instanceof Array);
-        console.assert(this._slots.length >= items.length);
+        debug.assertion(()=>items instanceof Array);
+        debug.assertion(()=>this._slots.length >= items.length);
 
         this._slots.forEach(slot => slot.remove_item());
 
@@ -426,8 +425,8 @@ class InventoryUI {
             if(item instanceof concepts.Item){
                 this.set_item_view_at(item_idx, new ItemView(item));
             } else {
-                console.assert(!item);
-                console.assert(!this._slots[item_idx].item);
+                debug.assertion(()=>!item);
+                debug.assertion(()=>!this._slots[item_idx].item);
             }
         }
 

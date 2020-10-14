@@ -8,6 +8,7 @@ export {
     DropItem,
 }
 
+import * as debug from "../system/debug.js";
 import * as concepts from "../core/concepts.js";
 import * as visibility from "../core/visibility.js";
 import * as anim from "../game-animations.js";
@@ -23,9 +24,9 @@ const take_item_range = new visibility.Range_Cross_Axis(1,2);
 
 class ItemTaken extends concepts.Event {
     constructor(taker, item, inventory_idx){
-        console.assert(taker instanceof Character);
-        console.assert(item instanceof concepts.Item);
-        console.assert(Number.isInteger(inventory_idx));
+        debug.assertion(()=>taker instanceof Character);
+        debug.assertion(()=>item instanceof concepts.Item);
+        debug.assertion(()=>Number.isInteger(inventory_idx));
 
         super({
             description: `Character ${taker.id} took item ${item.id}`,
@@ -41,11 +42,11 @@ class ItemTaken extends concepts.Event {
     get focus_positions() { return [ this.item_position, this.taker_position ]; }
 
     *animation(game_view){
-        console.assert(game_view instanceof GameView);
+        debug.assertion(()=>game_view instanceof GameView);
         const character_view = game_view.get_entity_view(this.taker_id);
-        console.assert(character_view instanceof CharacterView);
+        debug.assertion(()=>character_view instanceof CharacterView);
         const item_view = game_view.focus_on_entity(this.item_id);
-        console.assert(item_view instanceof ItemView);
+        debug.assertion(()=>item_view instanceof ItemView);
         yield* anim.take_item(game_view.fx_view, character_view, item_view);
         game_view.remove_entity_view(this.item_id);
         if(character_view.is_player){
@@ -59,8 +60,8 @@ class ItemTaken extends concepts.Event {
 
 class EntityDropped extends concepts.Event {
     constructor(dropper, item_idx, target, dropped_id){
-        console.assert(dropper instanceof concepts.Entity);
-        console.assert(Number.isInteger(item_idx) || item_idx === undefined);
+        debug.assertion(()=>dropper instanceof concepts.Entity);
+        debug.assertion(()=>Number.isInteger(item_idx) || item_idx === undefined);
 
         super({
             description: `Entity ${dropper.id} dropped entity ${dropped_id} from slot ${item_idx} at ${JSON.stringify(target)}`,
@@ -77,7 +78,7 @@ class EntityDropped extends concepts.Event {
     get focus_positions() { return [ this.drop_position, this.dropper_position ]; }
 
     *animation(game_view){
-        console.assert(game_view instanceof GameView);
+        debug.assertion(()=>game_view instanceof GameView);
         game_view.focus_on_position(this.drop_position);
         if(this.dropper_is_player) {
             yield* anim.inventory_remove(game_view.ui.inventory.fx_view, game_view.ui.inventory, this.item_idx);
@@ -98,9 +99,9 @@ class EntityDropped extends concepts.Event {
 };
 
 function drop_items_around(world, dropper, ...items){
-    console.assert(world instanceof concepts.World);
-    console.assert(dropper instanceof Character);
-    console.assert(items.every(item => item instanceof concepts.Item));
+    debug.assertion(()=>world instanceof concepts.World);
+    debug.assertion(()=>dropper instanceof Character);
+    debug.assertion(()=>items.every(item => item instanceof concepts.Item));
     return spawn_entities_around(world, dropper.position, items);
 }
 
@@ -122,17 +123,17 @@ class TakeItem extends concepts.Action {
     }
 
     constructor(target_position){
-        console.assert(target_position instanceof concepts.Position);
+        debug.assertion(()=>target_position instanceof concepts.Position);
         super(`take_item_at_${target_position.x}_${target_position.y}`,
             "Take this item", target_position);
         this.is_basic = true;
     }
 
     execute(world, character){
-        console.assert(world instanceof concepts.World);
-        console.assert(character instanceof Character);
+        debug.assertion(()=>world instanceof concepts.World);
+        debug.assertion(()=>character instanceof Character);
         const item = world.item_at(this.target_position);
-        console.assert(item instanceof concepts.Item);
+        debug.assertion(()=>item instanceof concepts.Item);
         world.remove_entity(item.id);
         const item_idx = character.inventory.add(item);
         character.inventory.update_modifiers();
@@ -146,7 +147,7 @@ class TakeItem extends concepts.Action {
 
 class SwappedItemsSlots extends concepts.Event {
     constructor(character, left_item_idx, right_item_idx){
-        console.assert(character instanceof Character);
+        debug.assertion(()=>character instanceof Character);
         super({
             description: `Character swaped inventory items ${left_item_idx} and ${right_item_idx}`,
             allow_parallel_animation: false,
@@ -159,7 +160,7 @@ class SwappedItemsSlots extends concepts.Event {
     get focus_positions() { return [ this.character_position ]; }
 
     *animation(game_view){
-        console.assert(game_view instanceof GameView);
+        debug.assertion(()=>game_view instanceof GameView);
         game_view.focus_on_position(this.character_position);
         const inventory = game_view.ui.inventory;
         yield* anim.inventory_remove(game_view.ui.inventory.fx_view, game_view.ui.inventory, this.left_item_idx);
@@ -183,8 +184,8 @@ class SwapItemSlots extends concepts.Action {
     }
 
     constructor(slot_a_idx, slot_b_idx){
-        console.assert(Number.isInteger(slot_a_idx) && slot_a_idx >= 0);
-        console.assert(Number.isInteger(slot_b_idx) && slot_b_idx >= 0);
+        debug.assertion(()=>Number.isInteger(slot_a_idx) && slot_a_idx >= 0);
+        debug.assertion(()=>Number.isInteger(slot_b_idx) && slot_b_idx >= 0);
         super(`swap_items_from_slot_${slot_a_idx}_to_${slot_b_idx}`, "THIS SHOULD NEVER BE DISPLAYED", undefined);
         this.is_generated = true;
 
@@ -193,8 +194,8 @@ class SwapItemSlots extends concepts.Action {
     }
 
     execute(world, character){
-        console.assert(world instanceof concepts.World);
-        console.assert(character instanceof Character);
+        debug.assertion(()=>world instanceof concepts.World);
+        debug.assertion(()=>character instanceof Character);
         const item_a = character.inventory.swap(this.slot_a_idx, this.slot_b_idx);
         character.inventory.update_modifiers();
         // Beware: the inventory size can change because we active items changing it.
@@ -213,8 +214,8 @@ class DropItem extends concepts.Action {
     }
 
     constructor(target, inventory_idx){
-        console.assert(target instanceof concepts.Position);
-        console.assert(Number.isInteger(inventory_idx) && inventory_idx >= 0);
+        debug.assertion(()=>target instanceof concepts.Position);
+        debug.assertion(()=>Number.isInteger(inventory_idx) && inventory_idx >= 0);
         super(`drom_item_at_${target.x}_${target.y}`, "THIS SHOULD NEVER BE DISPLAYED", undefined);
         this.is_generated = true;
 
@@ -223,10 +224,10 @@ class DropItem extends concepts.Action {
     }
 
     execute(world, character){
-        console.assert(world instanceof concepts.World);
-        console.assert(character instanceof Character);
+        debug.assertion(()=>world instanceof concepts.World);
+        debug.assertion(()=>character instanceof Character);
         const item = character.inventory.remove(this.item_idx);
-        console.assert(item instanceof concepts.Item);
+        debug.assertion(()=>item instanceof concepts.Item);
         item.position = this.target;
         world.add_entity(item);
         character.inventory.update_modifiers();
@@ -240,7 +241,7 @@ class DropItem extends concepts.Action {
 class Rule_TakeItem extends concepts.Rule {
 
     get_actions_for(character, world){
-        console.assert(character instanceof Character);
+        debug.assertion(()=>character instanceof Character);
 
         // if(!character.is_player_actor) // Only allow the player to take items. Discutable XD
         //     return {};

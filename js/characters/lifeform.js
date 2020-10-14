@@ -1,12 +1,12 @@
 export { LifeForm_Weak, LifeForm_Strong };
 
+import * as debug from "../system/debug.js";
 import * as concepts from "../core/concepts.js";
 import { sprite_defs } from "../game-assets.js";
 import { Character, CharacterStats } from "../core/character.js"
 import { random_sample, rotate_array, random_int, auto_newlines } from "../system/utility.js";
-import { Wait } from "../rules/rules-basic.js";
 import { Item_BadCode } from "../definitions-items.js";
-import { Push, Push_Short } from "../rules/rules-forces.js";
+import { Push_Short } from "../rules/rules-forces.js";
 
 const reverse_move_id = {
     move_east : "move_west",
@@ -41,20 +41,20 @@ class MoveUntilYouCant extends concepts.Actor {
 
         if(move_actions_ids.includes(this.last_action_id)){
             const action = possible_actions[this.last_action_id];
-            console.assert(action instanceof concepts.Action);
+            debug.assertion(()=>action instanceof concepts.Action);
             return action;
         } else {
             const reverse_action_id = reverse_move_id[this.last_action_id];
             if(move_actions_ids.includes(reverse_action_id)){
                 this.last_action_id = reverse_action_id;
                 const action = possible_actions[reverse_action_id];
-                console.assert(action instanceof concepts.Action);
+                debug.assertion(()=>action instanceof concepts.Action);
                 return action;
             } else {
                 const random_action_id = random_sample(move_actions_ids);
                 this.last_action_id = random_action_id;
                 const action = possible_actions[random_action_id];
-                console.assert(action instanceof concepts.Action);
+                debug.assertion(()=>action instanceof concepts.Action);
                 return action;
             }
         }
@@ -100,7 +100,7 @@ class MoveInCircles extends concepts.Actor {
         if(move_actions_ids.includes(prefered_move_id)){
             this.last_action_id = prefered_move_id;
             const prefered_move = possible_actions[prefered_move_id];
-            console.assert(prefered_move instanceof concepts.Action && prefered_move.is_safe);
+            debug.assertion(()=>prefered_move instanceof concepts.Action && prefered_move.is_safe);
             return prefered_move;
         } else {
             this.directions.reverse();
@@ -108,13 +108,13 @@ class MoveInCircles extends concepts.Actor {
             if(move_actions_ids.includes(reverse_move_id)){
                 this.last_action_id = reversed_move_id;
                 const second_prefered_move = possible_actions[reverse_move_id];
-                console.assert(second_prefered_move instanceof concepts.Action && second_prefered_move.is_safe);
+                debug.assertion(()=>second_prefered_move instanceof concepts.Action && second_prefered_move.is_safe);
                 return second_prefered_move;
             } else {
                 const random_action_id = random_sample(move_actions_ids);
                 const action = possible_actions[random_action_id];
                 this.last_action_id = random_action_id;
-                console.assert(action instanceof concepts.Action && action.is_safe);
+                debug.assertion(()=>action instanceof concepts.Action && action.is_safe);
                 return action;
             }
         }

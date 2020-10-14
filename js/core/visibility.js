@@ -15,6 +15,7 @@ export {
     Range_Cross_Star,
 }
 
+import * as debug from "../system/debug.js";
 import * as concepts from "./concepts.js";
 import { Vector2 } from "../system/spatial.js";
 import { compute_fov } from "../system/shadowcasting.js";
@@ -26,16 +27,16 @@ import { shuffle_array } from "../system/utility.js";
 class RangeShape {
     // The range is [begin_distance, end_distance) , so end_distance is excluded.
     constructor(begin_distance, end_distance){
-        console.assert(Number.isInteger(begin_distance) && begin_distance >= 0);
-        console.assert(Number.isInteger(end_distance) && end_distance > 0);
-        console.assert(begin_distance < end_distance);
+        debug.assertion(()=>Number.isInteger(begin_distance) && begin_distance >= 0);
+        debug.assertion(()=>Number.isInteger(end_distance) && end_distance > 0);
+        debug.assertion(()=>begin_distance < end_distance);
         this.begin_distance = begin_distance;
         this.end_distance = end_distance;
     }
 
     is_inside(center, position){
-        console.assert(center instanceof concepts.Position);
-        console.assert(position instanceof concepts.Position);
+        debug.assertion(()=>center instanceof concepts.Position);
+        debug.assertion(()=>position instanceof concepts.Position);
         return this._range_match(center, position); // Must be implemented by child class
     }
 };
@@ -129,8 +130,8 @@ function always_valid_position(){ return true; }
 
 // Provides a list of all the positions around a given position within a given range.
 function positions_in_range(center_position, range_shape, valid_position_predicate = always_valid_position){
-    console.assert(center_position instanceof concepts.Position);
-    console.assert(range_shape instanceof RangeShape);
+    debug.assertion(()=>center_position instanceof concepts.Position);
+    debug.assertion(()=>range_shape instanceof RangeShape);
 
     const begin =  -range_shape.end_distance -1 ;
     const end =  range_shape.end_distance;
@@ -164,9 +165,9 @@ function is_anything_blocking_view(world, position){
 
 // Provides all the positions that are currently "visible" by a character at the provided center position in the world.
 function find_visible_positions(world, center, view_distance){
-    console.assert(world instanceof concepts.World);
-    console.assert(center instanceof concepts.Position);
-    console.assert(Number.isInteger(view_distance) && view_distance >= 0);
+    debug.assertion(()=>world instanceof concepts.World);
+    debug.assertion(()=>center instanceof concepts.Position);
+    debug.assertion(()=>Number.isInteger(view_distance) && view_distance >= 0);
 
     const test_shape = new Range_Circle(0, view_distance + 1);
 
@@ -189,9 +190,9 @@ function find_visible_positions(world, center, view_distance){
 }
 
 function valid_target_positions(world, character, action_range_shape, predicate = ()=>true){
-    console.assert(world instanceof concepts.World);
-    console.assert(character instanceof Character);
-    console.assert(action_range_shape instanceof RangeShape);
+    debug.assertion(()=>world instanceof concepts.World);
+    debug.assertion(()=>character instanceof Character);
+    debug.assertion(()=>action_range_shape instanceof RangeShape);
     return positions_in_range(character.position, action_range_shape, pos => world.is_valid_position(pos))
             .filter(pos => world.entity_at(pos)
                         && character.can_see(pos)
@@ -199,19 +200,19 @@ function valid_target_positions(world, character, action_range_shape, predicate 
 }
 
 function valid_move_positions(world, character, action_range_shape, tile_filter){
-    console.assert(world instanceof concepts.World);
-    console.assert(character instanceof Character);
-    console.assert(action_range_shape instanceof RangeShape);
-    console.assert(tile_filter instanceof Function);
+    debug.assertion(()=>world instanceof concepts.World);
+    debug.assertion(()=>character instanceof Character);
+    debug.assertion(()=>action_range_shape instanceof RangeShape);
+    debug.assertion(()=>tile_filter instanceof Function);
     return positions_in_range(character.position, action_range_shape, pos => world.is_valid_position(pos))
             .filter(pos => !is_blocked_position(world, pos, tile_filter) && character.can_see(pos));
 }
 
 function valid_spawn_positions(world, center_position, tile_filter, max_range = 16){
-    console.assert(world instanceof concepts.World);
-    console.assert(center_position instanceof concepts.Position);
-    console.assert(tile_filter instanceof Function);
-    console.assert(Number.isInteger(max_range));
+    debug.assertion(()=>world instanceof concepts.World);
+    debug.assertion(()=>center_position instanceof concepts.Position);
+    debug.assertion(()=>tile_filter instanceof Function);
+    debug.assertion(()=>Number.isInteger(max_range));
     let range_size = 0;
     const valid_positions = [];
     while(range_size <= max_range){
@@ -238,8 +239,8 @@ function valid_spawn_positions(world, center_position, tile_filter, max_range = 
 class FieldOfVision {
 
     constructor(position, view_distance){
-        console.assert(position instanceof concepts.Position);
-        console.assert(Number.isInteger(view_distance) && view_distance >= 0);
+        debug.assertion(()=>position instanceof concepts.Position);
+        debug.assertion(()=>Number.isInteger(view_distance) && view_distance >= 0);
         this._center = position;
         this._view_distance = view_distance;
         this._visible_positions = [];
@@ -247,33 +248,33 @@ class FieldOfVision {
 
     get view_distance(){ return this._view_distance; }
     set view_distance(new_distance){
-        console.assert(Number.isInteger(new_distance) && new_distance >= 0);
+        debug.assertion(()=>Number.isInteger(new_distance) && new_distance >= 0);
         this._view_distance = new_distance;
     }
 
     get position() { return this._center; }
     set position(new_position) {
-        console.assert(new_position instanceof concepts.Position);
+        debug.assertion(()=>new_position instanceof concepts.Position);
         this._center = new_position;
     }
 
     get visible_positions() { return [ ...this._visible_positions ]; } // We return a copy.
 
     update(world){
-        console.assert(world instanceof concepts.World);
+        debug.assertion(()=>world instanceof concepts.World);
         this._visible_positions = find_visible_positions(world, this._center, this._view_distance);
     }
 
     is_visible(...positions){ // TODO: probably optimizable
         return positions.every(position => {
-            console.assert(position instanceof concepts.Position);
+            debug.assertion(()=>position instanceof concepts.Position);
             return this._visible_positions.some(visible_pos => position.equals(visible_pos));
         });
     }
 
     filter_visible(...positions){ // TODO: probably optimizable
         return positions.filter(position => {
-            console.assert(position instanceof concepts.Position);
+            debug.assertion(()=>position instanceof concepts.Position);
             return this._visible_positions.some(visible_pos => position.equals(visible_pos));
         });
     }

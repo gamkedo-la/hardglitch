@@ -5,6 +5,7 @@ export {
     ColorSwapDataXForm,
 };
 
+import * as debug from "../system/debug.js";
 import { random_int } from "../system/utility.js";
 
 class ClearOutsideWindowDataXForm {
@@ -43,7 +44,7 @@ class ColorShiftDataXForm {
     }
 
     do(idata) {
-        //console.log("data transform on idata: " + idata.width + "," + idata.height);
+        //debug.log("data transform on idata: " + idata.width + "," + idata.height);
         // create empty data array
         // shift color data
         for (let j=0; j<idata.height; j++) {
@@ -76,7 +77,7 @@ class ColorShiftDataXForm {
                     g += xg*this.gshift;
                     b += xb*this.bshift;
                     a = Math.max(xa,a);
-                    //console.log("i: " + i + " xi: " + xi + " xb: " + xb + " b: " + idata.data[idx+2] + " fb: " + b + " a: " + idata.data[idx+3] + " fa: " + a + " lb: " + lb);
+                    //debug.log("i: " + i + " xi: " + xi + " xb: " + xb + " b: " + idata.data[idx+2] + " fb: " + b + " a: " + idata.data[idx+3] + " fa: " + a + " lb: " + lb);
                 }
                 // set xdata
                 idata.data[idx] = Math.min(Math.round(r), 255);
@@ -146,7 +147,7 @@ class HorizontalBandingDataXForm {
                     let xj = j;
                     if (xi>=0 && xi<idata.width && xj>=0 && xj<idata.height) {
                         let xidx = (xj*idata.width+xi)*4;
-                        if (j===3) console.log("idx: " + idx + " xidx: " + xidx);
+                        if (j===3) debug.log("idx: " + idx + " xidx: " + xidx);
                         idata.data[xidx] = Math.round(r);
                         //idata.data[xidx+1] = Math.round(g);
                         idata.data[xidx+2] = Math.round(b);

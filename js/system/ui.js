@@ -12,6 +12,7 @@ export {
     Bar,
 };
 
+import * as debug from "../system/debug.js";
 import * as audio from "./audio.js";
 import * as graphics from "./graphics.js";
 import {
@@ -30,8 +31,8 @@ import { Color } from "./color.js";
 import { sprite_defs } from "../game-assets.js";
 
 function is_mouse_pointing(area, origin){
-    console.assert(area);
-    console.assert(origin);
+    debug.assertion(()=>area);
+    debug.assertion(()=>origin);
     return is_point_under(mouse.position, area, origin);
 }
 
@@ -49,8 +50,8 @@ class UIElement {
     //   in_screenspace: true // Handle the element as if in screen space if true (default), in the game's space otherwise.
     // }
     constructor(def){
-        console.assert(is_number(def.height));
-        console.assert(is_number(def.width));
+        debug.assertion(()=>is_number(def.height));
+        debug.assertion(()=>is_number(def.width));
         this._visible = def.visible == undefined ? true : def.visible;
         this._enabled = def.enabled == undefined ? true : def.enabled;
         this._in_screenspace = def.in_screenspace == undefined ? true : def.in_screenspace;
@@ -93,7 +94,7 @@ class UIElement {
     get height() { return this._area.height; }
     get area () { return new Rectangle(this._area); }
     set area (new_area) {
-        console.assert(new_area instanceof Rectangle);
+        debug.assertion(()=>new_area instanceof Rectangle);
         this._area = new_area;
     }
 
@@ -125,7 +126,7 @@ class UIElement {
     // Called by graphic systems to display this UI element.
     // ._on_draw(canvas_context) Must be implemented by child classes.
     draw(canvas_context) {
-        console.assert(canvas_context);
+        debug.assertion(()=>canvas_context);
         if(!this.visible)
             return; // TODO: this is not optimal, a better way would be for the thing owning this to have visible elements in an array and non-visible in another array, and only call draw on the visible ones.
 
@@ -174,7 +175,7 @@ class Button extends UIElement {
     // }
     constructor(button_def){
         super(Object.assign(button_def, { width: 1, height: 1 })); // We ignore the width/height because it will be defined by the current frame of the sprite.
-        console.assert(button_def.action instanceof Function);
+        debug.assertion(()=>button_def.action instanceof Function);
         this._sprite = new graphics.Sprite(button_def.sprite_def);
         this._sprite.position = super.position;
         const frames = button_def.frames;
@@ -205,7 +206,7 @@ class Button extends UIElement {
     // We want the size, position etc of this object to be relative to the sprite.
     get area(){ return this._sprite.area; }
     set area(new_area){
-        console.assert(new_area instanceof Rectangle);
+        debug.assertion(()=>new_area instanceof Rectangle);
         super.area = new_area;
         this._sprite.area = new_area;
     }
@@ -264,7 +265,7 @@ class Button extends UIElement {
     }
 
     _play_sound(state_id){
-        console.assert(state_id == 'up' || state_id == 'down' || state_id == 'over' || state_id == 'disabled' || state_id == 'action' );
+        debug.assertion(()=>state_id == 'up' || state_id == 'down' || state_id == 'over' || state_id == 'disabled' || state_id == 'action' );
         if(this._sounds !== undefined) {
             const sound_id = this._sounds[state_id];
             if(sound_id !== undefined){
@@ -274,7 +275,7 @@ class Button extends UIElement {
     }
 
     _change_state(state_id){
-        console.assert(state_id == 'up' || state_id == 'down' || state_id == 'over' || state_id == 'disabled');
+        debug.assertion(()=>state_id == 'up' || state_id == 'down' || state_id == 'over' || state_id == 'disabled');
         this._play_sound(state_id);
         this._sprite.force_frame(this._frames[state_id]);
         super.area = this._sprite.area;
@@ -344,7 +345,7 @@ class Text extends UIElement {
     //    margin_horizontal: 4, margin_vertical: 4
     //}
     constructor(text_def){
-        console.assert(typeof(text_def.text)==="string");
+        debug.assertion(()=>typeof(text_def.text)==="string");
 
         super(Object.assign(text_def, {
             width:1, height:1, // Width and height will be recalculated based on the real size of the text.
@@ -369,14 +370,14 @@ class Text extends UIElement {
 
     get text(){ return this._text_lines; }
     set text(new_text){
-        console.assert(typeof new_text === 'string' || new_text instanceof String);
+        debug.assertion(()=>typeof new_text === 'string' || new_text instanceof String);
         this._text_lines = new_text.split(line_jump).map(text_line => { return { text: text_line, line_height: 0 }; });
         this._request_reset = true;
     }
 
     get color() { return this._font_options.color; }
     set color(new_color) {
-        console.assert(new_color instanceof Color || typeof new_color === "string");
+        debug.assertion(()=>new_color instanceof Color || typeof new_color === "string");
         if(new_color instanceof Color){
             this._font_options.color = new_color.toString();
         } else {
@@ -385,7 +386,7 @@ class Text extends UIElement {
     }
 
     _reset(canvas_context = graphics.screen_canvas_context){
-        console.assert(canvas_context);
+        debug.assertion(()=>canvas_context);
         // Force resize to the actual size of the text graphically.
         // Also split the text according to max size if specified, and line jumps.
 
@@ -442,8 +443,8 @@ class HelpText extends Text {
     //   delay_ms: 1000            // Time (default 1sec) before displaying the help-text once the area is being pointed.
     // }
     constructor(text_def, events){
-        console.assert(text_def.area_to_help instanceof Rectangle);
-        console.assert(text_def.delay_ms === undefined || Number.isInteger(text_def.delay_ms));
+        debug.assertion(()=>text_def.area_to_help instanceof Rectangle);
+        debug.assertion(()=>text_def.delay_ms === undefined || Number.isInteger(text_def.delay_ms));
         super(text_def);
         this.visible = false;
         this._area_to_help = text_def.area_to_help;
@@ -457,7 +458,7 @@ class HelpText extends Text {
     }
 
     set area_to_help(new_area){
-        console.assert(new_area instanceof Rectangle);
+        debug.assertion(()=>new_area instanceof Rectangle);
         this._area_to_help = new_area;
         this._time_since_pointed = 0;
     }
@@ -580,19 +581,19 @@ class Bar extends UIElement {
 
         this.colors = Object.assign(default_bar_colors, bar_def.bar_colors);
         this.change_delay_ms = bar_def.change_delay_ms !== undefined ? bar_def.change_delay_ms : 500;
-        console.assert(Number.isInteger(this.change_delay_ms));
+        debug.assertion(()=>Number.isInteger(this.change_delay_ms));
         this.change_duration_ms = bar_def.change_duration_ms !== undefined ? bar_def.change_duration_ms : 800;
-        console.assert(Number.isInteger(this.change_duration_ms));
+        debug.assertion(()=>Number.isInteger(this.change_duration_ms));
         this._min_value = bar_def.min_value !== undefined ? bar_def.min_value : 0;
-        console.assert(Number.isInteger(this._min_value));
+        debug.assertion(()=>Number.isInteger(this._min_value));
         this._max_value = bar_def.max_value !== undefined ? bar_def.max_value : 100;
-        console.assert(Number.isInteger(this._max_value));
+        debug.assertion(()=>Number.isInteger(this._max_value));
         this._value = bar_def.value !== undefined ? bar_def.value : 50;
-        console.assert(Number.isInteger(this._value));
+        debug.assertion(()=>Number.isInteger(this._value));
         this._name = bar_def.bar_name;
-        console.assert(typeof this._name === "string");
+        debug.assertion(()=>typeof this._name === "string");
         this._is_horizontal_bar = bar_def.is_horizontal_bar ? bar_def.is_horizontal_bar : true;
-        console.assert(typeof this._is_horizontal_bar === "boolean");
+        debug.assertion(()=>typeof this._is_horizontal_bar === "boolean");
         this._animations = new anim.AnimationGroup();
         this._text_always_visible = false;
 
@@ -617,7 +618,7 @@ class Bar extends UIElement {
 
     get value() { return this._value; }
     set value(new_value){
-        console.assert(typeof new_value === "number");
+        debug.assertion(()=>typeof new_value === "number");
         if(new_value !== this._value){
             this._previous_value = this._value;
             this._value = new_value;
@@ -627,9 +628,9 @@ class Bar extends UIElement {
 
     get max_value() { return this._max_value; }
     set max_value(new_value){
-        console.assert(typeof new_value === "number");
+        debug.assertion(()=>typeof new_value === "number");
         if(new_value != this._max_value){
-            console.assert(new_value >= this.min_value);
+            debug.assertion(()=>new_value >= this.min_value);
             this._max_value = new_value;
             this._require_update = true;
         }
@@ -637,9 +638,9 @@ class Bar extends UIElement {
 
     get min_value() { return this._min_value; }
     set min_value(new_value){
-        console.assert(typeof new_value === "number");
+        debug.assertion(()=>typeof new_value === "number");
         if(new_value != this._min_value){
-            console.assert(new_value <= this.max_value);
+            debug.assertion(()=>new_value <= this.max_value);
             this._min_value = new_value;
             this._require_update = true;
         }
@@ -647,7 +648,7 @@ class Bar extends UIElement {
 
     get helptext_always_visible() { return this._text_always_visible; }
     set helptext_always_visible(must_be_visible) {
-        console.assert(typeof must_be_visible === "boolean");
+        debug.assertion(()=>typeof must_be_visible === "boolean");
         this._text_always_visible = must_be_visible;
     }
 
@@ -672,7 +673,7 @@ class Bar extends UIElement {
         if(this._previous_value !== undefined){
             this._cancel_change_animation();
             this._current_change_animation_promise = this._animations.play(this._change_animation(this._previous_value, this.value));
-            console.assert(this._current_change_animation_promise.cancel instanceof Function);
+            debug.assertion(()=>this._current_change_animation_promise.cancel instanceof Function);
             this._current_change_animation_promise.then(()=>{
                 this._cancel_change_animation();
             });

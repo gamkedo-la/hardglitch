@@ -1,3 +1,4 @@
+import * as debug from "../system/debug.js";
 import { ParticleSystem } from "../system/particles.js";
 import { GameFxView } from "../game-effects.js";
 import { initialize as graphicsInit, TileGrid, set_loaded_assets} from "../system/graphics.js";
@@ -153,7 +154,7 @@ class Env {
     }
 
     start() {
-        console.log("env: starting loop...");
+        debug.log("env: starting loop...");
         setInterval(() => { this.loop(); }, this.INTERVAL);
     }
 

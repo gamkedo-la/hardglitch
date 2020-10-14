@@ -8,6 +8,7 @@ export {
     get_entity_type,
 };
 
+import * as debug from "./system/debug.js";
 import * as basic_rules from "./rules/rules-basic.js";
 import * as concepts from "./core/concepts.js";
 import { not } from "./system/utility.js";
@@ -104,9 +105,9 @@ const grid_ID = {
 // Returns true if the position given is blocked by an entity (Body or Item) or a tile that blocks (wall).
 // The meaning of "blocking" depends on the provided predicate.
 function is_blocked_position(world, position, is_not_blocking){
-    console.assert(world instanceof concepts.World);
-    console.assert(position);
-    console.assert(is_not_blocking instanceof Function);
+    debug.assertion(()=>world instanceof concepts.World);
+    debug.assertion(()=>position);
+    debug.assertion(()=>is_not_blocking instanceof Function);
     const is_blocking = not(is_not_blocking); // Why do this instead of taking a is_blocking predicate? Because the code calling this function is far easier to understand (when you read it) if the predicate is not negated.
 
     if(!world.is_valid_position(position))

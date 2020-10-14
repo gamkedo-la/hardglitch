@@ -7,8 +7,7 @@ export {
   mute_button,
 }
 
-
-// save the canvas for dimensions, and its 2d context for drawing to it
+import * as debug from "./system/debug.js";
 import * as audio from "./system/audio.js";
 import * as graphics from "./system/graphics.js";
 import * as input from "./system/input.js";
@@ -120,7 +119,7 @@ const game_state_machine = new class extends fsm.StateMachine {
   }
 
   make_ready_for_canvas_resize(){
-    console.assert(Object.values(this.states).every(state => state.on_canvas_resized instanceof Function));
+    debug.assertion(()=>Object.values(this.states).every(state => state.on_canvas_resized instanceof Function));
     window.addEventListener('resize', ()=>{
       this.current_state.on_canvas_resized();
       Object.values(this.states).filter(state => state !== this.current_state)
@@ -144,14 +143,14 @@ window.onload = async function() {
   };
   window.requestAnimationFrame(loading_update); // Launch the display of the loading screen.
 
-  console.log("Loading assets...");
+  debug.log("Loading assets...");
   const assets = await load_all_assets();
-  console.log("Assets loaded...");
+  debug.log("Assets loaded...");
   graphics.set_loaded_assets(assets);
   tile_select_initialize(tiledefs);
   audio.initialize(assets, sound_event_defs);
   input.initialize(canvas_context);
-  console.log("Systems Initialized");
+  debug.log("Systems Initialized");
   game_state_machine.make_ready_for_canvas_resize(); // This must be called after the rest is initialized as it's implem relies on graphics data etc.
   // OK now we're ready.
   start();
@@ -161,7 +160,7 @@ function start() { // Now we can start the game!
   mute_button = new MuteAudioButton();
   audio.setVolume("Music", 0.8);
   game_state_machine.game_is_ready = true;
-  console.log("GAME READY - STARTING");
+  debug.log("GAME READY - STARTING");
   window.requestAnimationFrame(update_cycle);
 }
 
@@ -173,7 +172,7 @@ function get_delta_time(timestamp_now) {
 }
 
 function update_cycle(highres_timestamp){
-  console.assert(typeof(highres_timestamp) === 'number');
+  debug.assertion(()=>typeof(highres_timestamp) === 'number');
   if(!highres_timestamp)
     return;
   const delta_time = get_delta_time(highres_timestamp);
@@ -199,24 +198,24 @@ import * as random_test_level from "./testing/test-level.js";
 import { deserialize_world, generate_empty_world } from "./levels/level-tools.js";
 
 function load_level(level_number){
-  console.assert(Number.isInteger(level_number) && level_number >= 0);
+  debug.assertion(()=>Number.isInteger(level_number) && level_number >= 0);
   game_state_machine.push_action("load_game", level_number);
 }
 
 function load_test_level(width, height){
-  console.assert(Number.isInteger(width) && width > 1);
-  console.assert( Number.isInteger(height) && height > 1);
+  debug.assertion(()=>Number.isInteger(width) && width > 1);
+  debug.assertion(()=> Number.isInteger(height) && height > 1);
   game_state_machine.push_action("load_game", ()=> generate_empty_world("testing", width, height) );
 }
 
 function load_random_test_level(width, height){
-  console.assert(width === undefined || (Number.isInteger(width) && width > 1));
-  console.assert(height === undefined || (Number.isInteger(height) && height > 1));
+  debug.assertion(()=>width === undefined || (Number.isInteger(width) && width > 1));
+  debug.assertion(()=>height === undefined || (Number.isInteger(height) && height > 1));
   game_state_machine.push_action("load_game", () => random_test_level.make_test_world({ width: width ? width : 64, height:height ? height : 64 }));
 }
 
 function load_serialized_level(world_desc){
-  console.assert(world_desc);
+  debug.assertion(()=>world_desc);
   game_state_machine.push_action("load_game", () => deserialize_world(world_desc));
 }
 

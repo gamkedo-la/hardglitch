@@ -1,3 +1,4 @@
+import * as debug from "../system/debug.js";
 import { Board } from "./blip.js";
 import { initialize } from "../system/graphics.js";
 import { random_int, random_float } from "../system/utility.js";
@@ -140,7 +141,7 @@ class Env {
         this.addBlip(300+32*1, 300+32*13, "ltbc");
         this.addBlip(300+32*2, 300+32*13, "btrc");
 
-        console.log("gb.graphs.length: " + this.gb.graphs.length);
+        debug.log("gb.graphs.length: " + this.gb.graphs.length);
 
         return new Promise((resolve) => {
             let promises = [];
@@ -148,7 +149,7 @@ class Env {
             promise.then(img => this.bgimg = img);
             promises.push(promise);
             Promise.all(promises).then(() => {
-                console.log("setup complete");
+                debug.log("setup complete");
                 resolve();
             })
         });
@@ -187,7 +188,7 @@ class Env {
 
 
     start() {
-        console.log("env: starting loop...");
+        debug.log("env: starting loop...");
         initialize({images:[]});
         setInterval(() => { this.loop(); }, this.INTERVAL);
     }

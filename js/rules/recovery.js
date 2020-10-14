@@ -4,6 +4,7 @@ export {
     repair,
 }
 
+import * as debug from "../system/debug.js";
 import * as concepts from "../core/concepts.js";
 import * as animations from "../game-animations.js";
 import { GameView } from "../game-view.js";
@@ -25,17 +26,17 @@ class Repaired extends concepts.Event {
     get focus_positions() { return [ this.entity_position ]; }
 
     *animation(game_view){
-        console.assert(game_view instanceof GameView);
+        debug.assertion(()=>game_view instanceof GameView);
         const entity_view = game_view.focus_on_entity(this.entity_id);
-        console.assert(entity_view instanceof EntityView);
+        debug.assertion(()=>entity_view instanceof EntityView);
         yield* animations.repaired(game_view.fx_view, entity_view);
     }
 
 }
 
 function repair(entity, amount){
-    console.assert(entity instanceof concepts.Entity);
-    console.assert(Number.isInteger(amount) && amount >= 0);
+    debug.assertion(()=>entity instanceof concepts.Entity);
+    debug.assertion(()=>Number.isInteger(amount) && amount >= 0);
     if(entity instanceof Character){
         entity.repair(amount);
     }

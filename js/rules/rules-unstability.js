@@ -7,6 +7,7 @@ export {
     UnstabilityVanished,
 }
 
+import * as debug from "../system/debug.js";
 import * as concepts from "../core/concepts.js";
 import * as visibility from "../core/visibility.js";
 import * as anim from "../system/animation.js";
@@ -39,7 +40,7 @@ memory section will stabilize.`;
 
 class UnstabilitySpawned extends concepts.Event {
     constructor(position, unstability, from){
-        console.assert(unstability instanceof Unstability);
+        debug.assertion(()=>unstability instanceof Unstability);
         super({
             allow_parallel_animation: false,
             description: `Unstability spawned at ${JSON.stringify(position)}`,
@@ -53,7 +54,7 @@ class UnstabilitySpawned extends concepts.Event {
     get focus_positions() { return [ this.position, this.from ]; }
 
     *animation(game_view){
-        console.assert(game_view instanceof GameView);
+        debug.assertion(()=>game_view instanceof GameView);
 
         const target_gfx_pos = graphic_position(this.position).translate(square_half_unit_vector);
 
@@ -73,7 +74,7 @@ class UnstabilitySpawned extends concepts.Event {
 
 class UnstabilityVanished extends concepts.Event {
     constructor(position, unstability){
-        console.assert(unstability instanceof Unstability);
+        debug.assertion(()=>unstability instanceof Unstability);
         super({
             allow_parallel_animation: false,
             description: `Unstability vanished at ${JSON.stringify(position)}`,
@@ -87,8 +88,8 @@ class UnstabilityVanished extends concepts.Event {
 
 
     *animation(game_view){
-        console.assert(game_view instanceof GameView);
-        console.assert(this.unstability.fx);
+        debug.assertion(()=>game_view instanceof GameView);
+        debug.assertion(()=>this.unstability.fx);
         // TODO: consider adding a "speeshhh" effet just for now.
         this.unstability.fx.done = true;
         // TODO: add sound?
@@ -112,7 +113,7 @@ class Destabilized extends concepts.Event {
     get focus_positions() { return [ this.position, this.from ]; }
 
     *animation(game_view){
-        console.assert(game_view instanceof GameView);
+        debug.assertion(()=>game_view instanceof GameView);
         // TODO: add sound
         audio.playEvent("destabilizeShot");
         // TODO: add an animation here
@@ -137,10 +138,10 @@ class Destabilize extends concepts.Action {
     }
 
     execute(world, character){
-        console.assert(world instanceof concepts.World);
+        debug.assertion(()=>world instanceof concepts.World);
         const unstable_grid = world.grids[grid_ID.unstable];
-        console.assert(unstable_grid instanceof Grid);
-        console.assert(!(unstable_grid.get_at(this.target_position) instanceof Unstability));
+        debug.assertion(()=>unstable_grid instanceof Grid);
+        debug.assertion(()=>!(unstable_grid.get_at(this.target_position) instanceof Unstability));
         const corruption = new Unstability();
         unstable_grid.set_at(corruption, this.target_position);
         return [
@@ -154,13 +155,13 @@ class Destabilize extends concepts.Action {
 const unstable_random_jump_range = new visibility.Range_Square(2, 100);
 
 function teleport_entities_in_unstable_tiles_and_vanish(world) {
-    console.assert(world instanceof concepts.World);
+    debug.assertion(()=>world instanceof concepts.World);
     const unstable_grid = world.grids[grid_ID.unstable];
-    console.assert(unstable_grid instanceof Grid);
+    debug.assertion(()=>unstable_grid instanceof Grid);
     const events = [];
     unstable_grid.elements.forEach((unstability, idx)=>{
-        console.assert(unstability instanceof Unstability);
-        console.assert(unstability.fx);
+        debug.assertion(()=>unstability instanceof Unstability);
+        debug.assertion(()=>unstability.fx);
         const position = position_from_index(world.width, world.height, idx);
         const entity = world.entity_at(position);
         if(entity){
@@ -192,11 +193,11 @@ class Rule_Unstability extends concepts.Rule {
 
 
     get_actions_for(character, world){
-        console.assert(world instanceof concepts.World);
-        console.assert(character instanceof Character);
+        debug.assertion(()=>world instanceof concepts.World);
+        debug.assertion(()=>character instanceof Character);
 
         const corruption_grid = world.grids[grid_ID.unstable];
-        console.assert(corruption_grid instanceof Grid);
+        debug.assertion(()=>corruption_grid instanceof Grid);
 
         const is_valid_target = (position) => world.is_valid_position(position)
                                         && !(corruption_grid.get_at(position) instanceof Unstability);

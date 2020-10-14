@@ -12,6 +12,7 @@ export {
     floor_tiles, surface_tiles
 }
 
+import * as debug from "./system/debug.js";
 import { sprite_defs } from "./game-assets.js";
 import { sides } from "./view/wall-model.js";
 import { Color } from "./system/color.js";
@@ -731,31 +732,31 @@ for(const tile_id of Object.values(ID)){
 
 function is_safely_walkable(tile_id){
     const tile_def = defs[tile_id];
-    console.assert(tile_def);
+    debug.assertion(()=>tile_def);
     return tile_def.is_walkable && tile_def.is_safe;
 }
 
 function is_walkable(tile_id){
     const tile_def = defs[tile_id];
-    console.assert(tile_def);
+    debug.assertion(()=>tile_def);
     return tile_def.is_walkable;
 }
 
 function is_safe(tile_id){
     const tile_def = defs[tile_id];
-    console.assert(tile_def);
+    debug.assertion(()=>tile_def);
     return tile_def.is_safe;
 }
 
 function is_blocking_view(tile_id){
     const tile_def = defs[tile_id];
-    console.assert(tile_def);
+    debug.assertion(()=>tile_def);
     return tile_def.is_view_blocking;
 }
 
 function info_text(tile_id){
     const tile_def = defs[tile_id];
-    console.assert(tile_def);
+    debug.assertion(()=>tile_def);
     if(tile_def.description)
         return auto_newlines(tile_def.description, 36);
     else
@@ -764,6 +765,6 @@ function info_text(tile_id){
 
 function name_text(tile_id){
     const tile_def = defs[tile_id];
-    console.assert(tile_def);
+    debug.assertion(()=>tile_def);
     return tile_def.name;
 }

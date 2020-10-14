@@ -1,15 +1,16 @@
-import { 
-    ParticleSystem, 
-    ParticleEmitter, 
-    ParticleSequence, 
-    FadeLineParticle, 
-    ColorGlitchParticle, 
-    OffsetGlitchParticle, 
-    FadeParticle, 
-    BlipParticle, 
-    ParticleGroup, 
-    RingParticle, 
-    ShootUpParticle, 
+import * as debug from "../system/debug.js";
+import {
+    ParticleSystem,
+    ParticleEmitter,
+    ParticleSequence,
+    FadeLineParticle,
+    ColorGlitchParticle,
+    OffsetGlitchParticle,
+    FadeParticle,
+    BlipParticle,
+    ParticleGroup,
+    RingParticle,
+    ShootUpParticle,
     FlashParticle,
     ThrobParticle,
     LightningParticle,
@@ -200,7 +201,7 @@ class Tests {
     }
 
     lightningstrike(x,y) {
-        this.particles.add(new ParticleSequence(this.particles, [() => { 
+        this.particles.add(new ParticleSequence(this.particles, [() => {
             let angle = random_float(0,Math.PI*2);
             let distance = random_int(175,200);
             let originx = x + Math.cos(angle) * distance;
@@ -402,14 +403,14 @@ class Env {
             promise.then(img => this.groundimg = img);
             promises.push(promise);
             Promise.all(promises).then(() => {
-                console.log("setup complete");
+                debug.log("setup complete");
                 resolve();
             })
         });
     }
 
     start() {
-        console.log("env: starting loop...");
+        debug.log("env: starting loop...");
         initialize({images:[]});
         setInterval(() => { this.loop(); }, this.INTERVAL);
     }

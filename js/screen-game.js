@@ -3,7 +3,7 @@ export {
 
 }
 
-
+import * as debug from "./system/debug.js";
 import * as graphics from "./system/graphics.js";
 import * as input from "./system/input.js";
 import * as fsm from "./system/finite-state-machine.js";
@@ -30,7 +30,7 @@ import { Character } from "./core/character.js";
 class PlayingGame extends fsm.State{
 
     *enter(){
-        console.assert(this.state_machine.game_session instanceof GameSession);
+        debug.assertion(()=>this.state_machine.game_session instanceof GameSession);
         this.game_session = this.state_machine.game_session;
     }
 
@@ -102,7 +102,7 @@ class EditorMode extends fsm.State {
     }
 
     *enter(game_session){
-        console.assert(game_session instanceof GameSession);
+        debug.assertion(()=>game_session instanceof GameSession);
         this.game_session = game_session;
         editor.begin_edition(game_session);
         yield* this.fader.generate_fade_out(0.1);
@@ -149,7 +149,7 @@ class InGameMenu extends fsm.State {
     }
 
     _init_ui(){
-        console.assert(this.ui === undefined);
+        debug.assertion(()=>this.ui === undefined);
 
         this.ui = {
             text_instructions: new ui.Text({
@@ -216,7 +216,7 @@ class InGameMenu extends fsm.State {
     }
 
     exit_game(){
-        console.assert(this.state_machine instanceof GameScreen);
+        debug.assertion(()=>this.state_machine instanceof GameScreen);
         this.state_machine.exit();
     }
 
@@ -246,7 +246,7 @@ class InGameMenu extends fsm.State {
         }
 
         if(input.keyboard.is_just_down(KEY.ENTER)){
-            console.assert(this.state_machine instanceof GameScreen);
+            debug.assertion(()=>this.state_machine instanceof GameScreen);
             this.exit_game();
         }
 
@@ -296,8 +296,8 @@ class GameScreen extends fsm.StateMachine {
     }
 
     *enter(level_to_play, player_character){
-        console.assert(Number.isInteger(level_to_play) || level_to_play !== undefined);
-        console.assert(player_character === undefined || player_character instanceof Character);
+        debug.assertion(()=>Number.isInteger(level_to_play) || level_to_play !== undefined);
+        debug.assertion(()=>player_character === undefined || player_character instanceof Character);
 
         audio.stopEvent(music_id.title);
 
@@ -311,13 +311,13 @@ class GameScreen extends fsm.StateMachine {
 
         const level_generator = (level_idx) => {
             const level = game_levels[level_idx];
-            console.assert(level);
+            debug.assertion(()=>level);
             return level.generate_world;
         };
 
         var level_world_generator;
         if(is_number(level_to_play)){
-            console.assert(Number.isInteger(level_to_play) && level_to_play < game_levels.length);
+            debug.assertion(()=>Number.isInteger(level_to_play) && level_to_play < game_levels.length);
             this.current_level_idx = level_to_play;
             level_world_generator = level_generator(level_to_play);
         }
@@ -328,8 +328,8 @@ class GameScreen extends fsm.StateMachine {
 
 
 
-        console.assert(!this.game_session);
-        console.assert(!this.level_title);
+        debug.assertion(()=>!this.game_session);
+        debug.assertion(()=>!this.level_title);
         this.game_session = new GameSession(level_world_generator, ()=>{ this.ingame_menu(); }, player_character);
         this.level_title = new ui.Text({
             text: this.game_session.world.name,
@@ -338,8 +338,8 @@ class GameScreen extends fsm.StateMachine {
             background_color: "#ffffff00",
         });
 
-        console.assert(this.game_session);
-        console.assert(this.level_title);
+        debug.assertion(()=>this.game_session);
+        debug.assertion(()=>this.level_title);
         this._replace_title();
 
         this.animations.play(this._title_fade());
@@ -354,8 +354,8 @@ class GameScreen extends fsm.StateMachine {
     }
 
     *leave(){
-        console.assert(this.game_session);
-        console.assert(this.level_title);
+        debug.assertion(()=>this.game_session);
+        debug.assertion(()=>this.level_title);
         this.ready = false;
         yield* this.fader.generate_fade_out();
         audio.stopEvent(this.music);
@@ -383,7 +383,7 @@ class GameScreen extends fsm.StateMachine {
     }
 
     display(canvas_context){
-        console.assert(canvas_context);
+        debug.assertion(()=>canvas_context);
 
         this.game_session.display(canvas_context);
         this.current_state.display(canvas_context);
@@ -434,7 +434,7 @@ class GameScreen extends fsm.StateMachine {
     }
 
     _replace_title(){
-        console.assert(this.level_title);
+        debug.assertion(()=>this.level_title);
         this.level_title.position = this.ready ? this._menu_title_position : this._entry_title_position;
     }
 
@@ -450,11 +450,11 @@ class GameScreen extends fsm.StateMachine {
     }
 
     *_title_fade() {
-        console.assert(this.level_title);
+        debug.assertion(()=>this.level_title);
         const color = new Color(255, 255, 255);
 
         const update_fade = (fade_value)=>{
-            // console.log( `title fade = ${fade_value}`);
+            // debug.log( `title fade = ${fade_value}`);
             color.a = fade_value;
             this.level_title.color = color;
         };

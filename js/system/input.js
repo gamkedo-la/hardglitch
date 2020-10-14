@@ -8,6 +8,7 @@ export {
   set_cursor, get_cursor,
 };
 
+import * as debug from "../system/debug.js";
 import * as spatial from "./spatial.js";
 import { is_number, duration, is_valid_duration } from "./utility.js";
 
@@ -40,12 +41,12 @@ class KeyState{
   get since() { return this._since; }
 
   set_state(new_state, new_time) {
-    console.assert(is_valid_key_state(new_state));
-    console.assert(is_valid_duration(new_time));
+    debug.assertion(()=>is_valid_key_state(new_state));
+    debug.assertion(()=>is_valid_duration(new_time));
     if(new_state == this.state) return;
     this._state = new_state;
     this._since = new_time;
-    // console.log(`KEY CHANGE : ${new_state}`);
+    // debug.log(`KEY CHANGE : ${new_state}`);
   }
 };
 
@@ -70,8 +71,8 @@ class Mouse{
   get position(){ return this._position; }
   set position(new_pos){
     // TODO: add checks here
-    console.assert(new_pos);
-    console.assert(new_pos.x >= 0 && new_pos.y >= 0);
+    debug.assertion(()=>new_pos);
+    debug.assertion(()=>new_pos.x >= 0 && new_pos.y >= 0);
     this._position.x = new_pos.x;
     this._position.y = new_pos.y;
   }
@@ -169,12 +170,12 @@ class Keyboard {
   }
 
   set time_until_pressed_becomes_hold(new_duration) {
-    console.assert(is_valid_duration(new_duration));
+    debug.assertion(()=>is_valid_duration(new_duration));
     this._time_until_pressed_becomes_hold = new_duration;
   }
 
   set time_until_released_becomes_not_used(new_duration) {
-    console.assert(is_valid_duration(new_duration));
+    debug.assertion(()=>is_valid_duration(new_duration));
     this._time_until_pressed_becomes_hold = new_duration;
   }
 
@@ -185,7 +186,7 @@ class Keyboard {
 
   // Return the complete state of a key (as a KeyState)
   get_key_state(key_code){
-    console.assert(is_valid_keycode(key_code));
+    debug.assertion(()=>is_valid_keycode(key_code));
     return this._keys_states[key_code];
   }
 
@@ -260,7 +261,7 @@ class Keyboard {
 
   // Returns the time passed (up to last update) since the key was in it's current state.
   key_state_duration(key_state){
-    console.assert(key_state instanceof KeyState);
+    debug.assertion(()=>key_state instanceof KeyState);
     return duration(key_state.since, this._last_update_time);
   }
 
@@ -305,7 +306,7 @@ class Keyboard {
               key_state.set_state(KEY_STATE.DOWN, this._last_update_time);
             break;
           default:
-            console.assert(false);
+            debug.assertion(()=>false);
         }
 
       }
@@ -342,7 +343,7 @@ let current_cursor;
 function set_cursor(image_url) {
   if(image_url === current_cursor)
     return;
-  console.assert(typeof image_url === "string");
+  debug.assertion(()=>typeof image_url === "string");
   document.body.style.cursor = `url(${image_url}), pointer`;
   current_cursor = image_url;
 }
@@ -350,9 +351,9 @@ function set_cursor(image_url) {
 function get_cursor() { return current_cursor; }
 
 function initialize(canvas_context) {
-  console.assert(canvas_context);
+  debug.assertion(()=>canvas_context);
   const canvas = canvas_context.canvas;
-  console.assert(canvas);
+  debug.assertion(()=>canvas);
 
   document.addEventListener("keydown", function(event) {
     event.preventDefault(); // without this, arrow keys scroll the browser!

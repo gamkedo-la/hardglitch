@@ -5,6 +5,7 @@ export {
     Repaired,
 }
 
+import * as debug from "../system/debug.js";
 import { Character } from "../core/character.js";
 import * as concepts from "../core/concepts.js";
 import * as visibility from "../core/visibility.js";
@@ -38,9 +39,9 @@ class Repair extends concepts.Action {
     }
 
     execute(world){
-        console.assert(world instanceof concepts.World);
+        debug.assertion(()=>world instanceof concepts.World);
         const repaired =  world.entity_at(this.target_position);
-        console.assert(repaired instanceof concepts.Entity);
+        debug.assertion(()=>repaired instanceof concepts.Entity);
         if(repaired instanceof Character){
             repaired.repair(this.repair_points);
         }
@@ -53,7 +54,7 @@ class Repair extends concepts.Action {
 
 class Rule_Repair extends concepts.Rule {
     get_actions_for(character, world){
-        console.assert(character instanceof Character);
+        debug.assertion(()=>character instanceof Character);
         return ranged_actions_for_each_target(world, character, Repair);
     }
 
@@ -61,7 +62,7 @@ class Rule_Repair extends concepts.Rule {
         // Characters natural recovery (or hurt).
         const events = [];
         world.bodies.forEach(character => {
-            console.assert(character instanceof Character);
+            debug.assertion(()=>character instanceof Character);
             const recovery_amount = character.stats.int_recovery.value;
             if(recovery_amount > 0){
                 events.push(...repair(character, recovery_amount));

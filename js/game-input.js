@@ -12,6 +12,7 @@ export {
     end_game,
 }
 
+import * as debug from "./system/debug.js";
 import { config } from "./game-config.js";
 import * as input from "./system/input.js";
 import * as graphics from "./system/graphics.js";
@@ -91,7 +92,7 @@ const KEY = {
 
 // Returns the pixel position inside the game space (taking into acount the camera).
 function game_position_from_graphic_position(graphic_position){
-    console.assert(graphic_position instanceof Vector2);
+    debug.assertion(()=>graphic_position instanceof Vector2);
     return graphic_position.translate(graphics.camera.position);
 }
 
@@ -126,7 +127,7 @@ const action_button_keys = [
 ];
 
 function select_player_action(){
-    console.assert(!current_game_view.ui.is_selecting_action_target);
+    debug.assertion(()=>!current_game_view.ui.is_selecting_action_target);
 
     const keyboard = input.keyboard;
     const mouse = input.mouse;
@@ -225,9 +226,9 @@ function update_camera_control(delta_time, allow_camera_dragging){
 // Once the action is played we proceed to execute each character turns until we reach a player's turn again.
 // If the action is null or undefined, we simply update the possible actions and don't progress turns.
 function play_action(player_action){
-    console.assert(current_game_view.is_time_for_player_to_chose_action === true);
-    console.assert(!player_action || player_action instanceof concepts.Action);
-    console.assert(!player_action || player_action.is_generated || Object.values(current_game.turn_info.possible_actions).includes(player_action)); // The action MUST come from the possible actions.
+    debug.assertion(()=>current_game_view.is_time_for_player_to_chose_action === true);
+    debug.assertion(()=>!player_action || player_action instanceof concepts.Action);
+    debug.assertion(()=>!player_action || player_action.is_generated || Object.values(current_game.turn_info.possible_actions).includes(player_action)); // The action MUST come from the possible actions.
 
     const event_sequence = current_game.update_until_player_turn(player_action);
     current_game_view.interpret_turn_events(event_sequence); // Starts showing each event one by one until it's player's turn.
@@ -235,7 +236,7 @@ function play_action(player_action){
 
 
 function begin_game(game_session){
-    console.assert(game_session instanceof GameSession);
+    debug.assertion(()=>game_session instanceof GameSession);
     current_game = game_session.game;
     current_game_view = game_session.view;
 }
@@ -247,9 +248,9 @@ function end_game(){
 
 
 function update(delta_time, input_config){
-    console.assert(input_config instanceof Object);
-    console.assert(current_game instanceof Game);
-    console.assert(current_game_view instanceof GameView);
+    debug.assertion(()=>input_config instanceof Object);
+    debug.assertion(()=>current_game instanceof Game);
+    debug.assertion(()=>current_game_view instanceof GameView);
 
     if(input.keyboard.is_just_down(KEY.F7))
         config.enable_particles = !config.enable_particles;

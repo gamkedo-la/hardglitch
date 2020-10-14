@@ -11,6 +11,7 @@ export {
     set_events_enabled,
 };
 
+import * as debug from "../system/debug.js";
 import { clamp, is_number } from "./utility.js";
 
 let audio_context, mix_groups, audio_buffers, audio_streams;
@@ -22,14 +23,14 @@ function is_muted() { return mix_groups.Mute.gain.value == 0; }
 
 function are_events_enabled() { return events_enabled; }
 function set_events_enabled(is_enabled) {
-    console.assert(typeof is_enabled === "boolean");
+    debug.assertion(()=>typeof is_enabled === "boolean");
     events_enabled = is_enabled;
     return events_enabled;
 }
 
 function initialize(assets, sound_event_defs) {
-    console.assert(assets instanceof Object);
-    console.assert(sound_event_defs instanceof Object);
+    debug.assertion(()=>assets instanceof Object);
+    debug.assertion(()=>sound_event_defs instanceof Object);
 
     event_defs = sound_event_defs;
 
@@ -50,7 +51,7 @@ function initialize(assets, sound_event_defs) {
 }
 
 function playEvent(name, pan) {
-    console.assert(event_defs instanceof Object);
+    debug.assertion(()=>event_defs instanceof Object);
 
     if(!events_enabled)
         return;
@@ -95,11 +96,11 @@ function toggleMute() {
     if (mix_groups.Mute.gain.value) {
         mix_groups.Mute.gain.cancelScheduledValues(audio_context.currentTime);
         mix_groups.Mute.gain.setValueAtTime(0, audio_context.currentTime + 0.2);
-        console.log("Audio muted.")
+        debug.log("Audio muted.")
     } else {
         mix_groups.Mute.gain.cancelScheduledValues(audio_context.currentTime);
         mix_groups.Mute.gain.setValueAtTime(1, audio_context.currentTime + 0.2);
-        console.log("Audio unmuted.")
+        debug.log("Audio unmuted.")
     }
 }
 
@@ -111,7 +112,7 @@ function setVolume(group_name, setValue, addValue) {
     let gain = mix_groups[group_name].gain;
     if (setValue) gain.value = clamp(setValue, 0, 1);
     else if (addValue) gain.value = clamp(gain.value + addValue, 0, 1);
-    console.log(group_name + ' volume: ' + gain.value.toPrecision(4));
+    debug.log(group_name + ' volume: ' + gain.value.toPrecision(4));
 }
 
 function getMixGroup(name) {
@@ -136,7 +137,7 @@ class AudioBufferEvent {
 
         this.loop = event_def.loop ? event_def.loop : false;
 
-        console.assert(is_number(event_def.volume));
+        debug.assertion(()=>is_number(event_def.volume));
         this.volume = event_def.volume;
     }
 
@@ -193,7 +194,7 @@ class AudioStreamEvent {
 
         this.loop = event_def.loop ? event_def.loop : false;
 
-        console.assert(is_number(event_def.volume));
+        debug.assertion(()=>is_number(event_def.volume));
         this.volume = event_def.volume;
     }
 

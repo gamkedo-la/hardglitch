@@ -37,6 +37,7 @@ export {
     Debug_AllActions,
 }
 
+import * as debug from "./system/debug.js";
 import * as concepts from "./core/concepts.js";
 import { sprite_defs } from "./game-assets.js";
 import { all_uncommon_action_types } from "./definitions-actions.js";
@@ -140,8 +141,8 @@ class CryptoFile extends concepts.Item {
     description = auto_newlines(`Crypted memory section preventing access to this memory section. Can be decrypted using a Crypto-Key with the same symbol. May contain some secret data item.`, 35);
 
     constructor(kind){
-        console.assert(Number.isInteger(kind));
-        console.assert(Object.values(crypto_kind).includes(kind));
+        debug.assertion(()=>Number.isInteger(kind));
+        debug.assertion(()=>Object.values(crypto_kind).includes(kind));
         super(`Crypto File "${crypto_names[kind]}"`);
         this.crypto_kind = kind;
         this.assets = {
@@ -158,7 +159,7 @@ class CryptoFile extends concepts.Item {
     // Decrypting can return (or not) an object
     decrypt(){
         if(this.drops){
-            console.assert(this.drops instanceof Array && this.drops.every(entity=>entity instanceof concepts.Entity));
+            debug.assertion(()=>this.drops instanceof Array && this.drops.every(entity=>entity instanceof concepts.Entity));
             return random_sample(this.drops);
         }
     }
@@ -198,8 +199,8 @@ class CryptoKey extends concepts.Item {
     get can_be_moved() { return false; }
 
     constructor(kind){
-        console.assert(Number.isInteger(kind));
-        console.assert(Object.values(crypto_kind).includes(kind));
+        debug.assertion(()=>Number.isInteger(kind));
+        debug.assertion(()=>Object.values(crypto_kind).includes(kind));
         super(`Crypto Key "${crypto_names[kind]}"`);
         this.crypto_kind = kind;
         this.assets = {

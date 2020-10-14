@@ -5,6 +5,7 @@ export {
     Copied,
 }
 
+import * as debug from "../system/debug.js";
 import { Character } from "../core/character.js";
 import * as concepts from "../core/concepts.js";
 import * as visibility from "../core/visibility.js";
@@ -21,7 +22,7 @@ class Copied extends EntitySpawned {}; // Shortcut for now...
 
 class EntityScanned extends concepts.Event {
     constructor(entity) {
-        console.assert(entity instanceof concepts.Entity);
+        debug.assertion(()=>entity instanceof concepts.Entity);
         super({
             description: `Entity scanned`,
             allow_parallel_animation: false,
@@ -32,7 +33,7 @@ class EntityScanned extends concepts.Event {
     get focus_positions() { return [ this.entity_position ]; }
 
     *animation(game_view){
-        console.assert(game_view instanceof GameView);
+        debug.assertion(()=>game_view instanceof GameView);
         game_view.focus_on_position(this.entity_position);
         yield* anim.scanned(game_view.fx_view, this.entity_position);
     }
@@ -59,9 +60,9 @@ class Copy extends concepts.Action {
     }
 
     execute(world){
-        console.assert(world instanceof concepts.World);
+        debug.assertion(()=>world instanceof concepts.World);
         const copied_entity =  world.entity_at(this.target_position);
-        console.assert(copied_entity instanceof concepts.Entity);
+        debug.assertion(()=>copied_entity instanceof concepts.Entity);
 
         // Javascript copy ability is bad, so we will have to do it manually.
         // Copying a character does not imply copying it's inventory.
@@ -77,7 +78,7 @@ class Copy extends concepts.Action {
 class Rule_Copy extends concepts.Rule {
 
     get_actions_for(character, world){
-        console.assert(character instanceof Character);
+        debug.assertion(()=>character instanceof Character);
         return ranged_actions_for_each_target(world, character, Copy);
     }
 

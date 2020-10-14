@@ -6,6 +6,7 @@ export {
     graphic_position, game_position_from_graphic_po,
 }
 
+import * as debug from "../system/debug.js";
 import * as graphics from "../system/graphics.js";
 import * as input from "../system/input.js";
 import * as concepts from "../core/concepts.js";
@@ -47,9 +48,9 @@ class EntityView {
     is_floating = false;
 
     constructor(entity_id, game_position, assets){
-        console.assert(Number.isInteger(entity_id));
-        console.assert(game_position instanceof concepts.Position);
-        console.assert(assets instanceof Object);
+        debug.assertion(()=>Number.isInteger(entity_id));
+        debug.assertion(()=>game_position instanceof concepts.Position);
+        debug.assertion(()=>assets instanceof Object);
         this.id = entity_id;
         const position = graphic_position(game_position);
         for(const [graphics_id, graphic] of Object.entries(assets.graphics)){
@@ -140,7 +141,7 @@ class EntityView {
     set scale(new_scale){
         this._scale = new Vector2(new_scale);
         this.for_each_sprite(sprite => {
-            console.assert(sprite instanceof graphics.Sprite);
+            debug.assertion(()=>sprite instanceof graphics.Sprite);
             sprite.transform.scale = new_scale;
         });
     }
@@ -150,7 +151,7 @@ class EntityView {
     }
 
     set orientation(angle){
-        console.assert(is_number(angle));
+        debug.assertion(()=>is_number(angle));
         this._orientation_degree = angle;
         this.for_each_sprite(sprite => sprite.transform.orientation.degrees = angle);
     }

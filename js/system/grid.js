@@ -6,19 +6,20 @@ export {
     merged_grids_size,
 }
 
+import * as debug from "../system/debug.js";
 import { position_from_index } from "../system/utility.js";
 
 // A grid of elements, representing the topology of a world.
 // Multiple grids can be used to represent layers of the world.
 class Grid {
     constructor(width, height, elements){
-        console.assert(width > 1);
-        console.assert(height > 1);
+        debug.assertion(()=>width > 1);
+        debug.assertion(()=>height > 1);
         this.width = width;
         this.height = height;
         if(elements){
-            console.assert(elements instanceof Array);
-            console.assert(elements.length == width * height);
+            debug.assertion(()=>elements instanceof Array);
+            debug.assertion(()=>elements.length == width * height);
             this.elements = elements;
         } else {
             this.elements = new Array(width * height);
@@ -57,13 +58,13 @@ class Grid {
 
     get_at(p, j){
         const idx = this.index(p, j);
-        console.assert(idx >= 0 && idx < this.elements.length);
+        debug.assertion(()=>idx >= 0 && idx < this.elements.length);
         return this.elements[idx];
     }
 
     set_at(v, p, j){
         const idx = this.index(p, j);
-        console.assert(idx >= 0 && idx < this.elements.length);
+        debug.assertion(()=>idx >= 0 && idx < this.elements.length);
         this.elements[idx] = v;
     }
 
@@ -151,9 +152,9 @@ function merged_grids_size(...position_grids){
     let width = 0;
     let height = 0;
     position_grids.forEach((pos_grid)=> {
-        console.assert(Number.isInteger(pos_grid.position.x) && pos_grid.position.x >= 0);
-        console.assert(Number.isInteger(pos_grid.position.y) && pos_grid.position.y >= 0);
-        console.assert(pos_grid.grid instanceof Grid);
+        debug.assertion(()=>Number.isInteger(pos_grid.position.x) && pos_grid.position.x >= 0);
+        debug.assertion(()=>Number.isInteger(pos_grid.position.y) && pos_grid.position.y >= 0);
+        debug.assertion(()=>pos_grid.grid instanceof Grid);
         width = Math.max(width, pos_grid.position.x + pos_grid.grid.width);
         height = Math.max(height, pos_grid.position.y + pos_grid.grid.height);
     });
@@ -175,8 +176,8 @@ function merge_grids(...position_grids){
     position_grids.forEach((pos_grid)=> {
         const grid_pos = pos_grid.position;
         const grid = pos_grid.grid;
-        console.assert(grid instanceof Grid);
-        console.assert(grid_pos.x !== undefined && grid_pos.y !== undefined);
+        debug.assertion(()=>grid instanceof Grid);
+        debug.assertion(()=>grid_pos.x !== undefined && grid_pos.y !== undefined);
         for(let y = 0; y < grid.height; ++y){
             for(let x = 0; x < grid.width; ++x){
                 const source_pos = { x, y };

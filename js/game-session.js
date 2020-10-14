@@ -2,6 +2,7 @@ export {
     GameSession
 }
 
+import * as debug from "./system/debug.js";
 import * as game_input from "./game-input.js";
 import { Game } from "./game.js";
 import { GameView } from "./game-view.js";
@@ -13,7 +14,7 @@ class GameSession {
 
     constructor(level_generator, open_menu, player_character){
         const world = level_generator();
-        console.assert(world instanceof World);
+        debug.assertion(()=>world instanceof World);
         this.game = new Game(world, player_character);
         this.view = new GameView(this.game, open_menu);
         // Lock the actions interfaces until we are ready.

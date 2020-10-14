@@ -16,6 +16,7 @@ export {
     containing_rectangle,
 };
 
+import * as debug from "../system/debug.js";
 import { is_number } from "./utility.js";
 
 /////////////////////////////////////////////
@@ -46,7 +47,7 @@ class Vector2{
     }
 
     set length(scalar) {
-        console.assert(typeof scalar === "number");;
+        debug.assertion(()=>typeof scalar === "number");;
         if (scalar <= 0) {
             this.x = 0;
             this.y = 0;
@@ -63,8 +64,8 @@ class Vector2{
     }
 
     clamp(min, max) {
-        console.assert(typeof min === "number");
-        console.assert(typeof max === "number");
+        debug.assertion(()=>typeof min === "number");
+        debug.assertion(()=>typeof max === "number");
         let magnitude = this.length;
         if (magnitude > max) {
             this.length = max;
@@ -80,12 +81,12 @@ class Vector2{
     }
 
     multiply(scalar) {
-        console.assert(typeof scalar === "number");
+        debug.assertion(()=>typeof scalar === "number");
         return new Vector2({x: this.x * scalar, y: this.y * scalar});
     }
 
     divide(scalar) {
-        console.assert(typeof scalar === "number");
+        debug.assertion(()=>typeof scalar === "number");
         return new Vector2({x: this.x / scalar, y: this.y / scalar});
     }
 
@@ -96,7 +97,7 @@ class Vector2{
     }
 
     rotate(degrees) {
-        console.assert(typeof degrees === "number");
+        debug.assertion(()=>typeof degrees === "number");
         let rads = Math.radians(degrees);
 
         let rx = this.x * Math.cos(rads) - this.y * Math.sin(rads);
@@ -106,12 +107,12 @@ class Vector2{
     }
 
     substract(other_vec2){
-        console.assert(typeof other_vec2.x === "number" && typeof other_vec2.y === "number");
+        debug.assertion(()=>typeof other_vec2.x === "number" && typeof other_vec2.y === "number");
         return new Vector2({ x: this.x - other_vec2.x, y: this.y - other_vec2.y });
     }
 
     distance(other_vec2){
-        console.assert(typeof other_vec2.x === "number" && typeof other_vec2.y === "number");
+        debug.assertion(()=>typeof other_vec2.x === "number" && typeof other_vec2.y === "number");
         return this.substract(other_vec2).length;
     }
 
@@ -120,7 +121,7 @@ class Vector2{
     }
 
     equals(other_vec2){
-        console.assert(typeof other_vec2.x === "number" && typeof other_vec2.y === "number");
+        debug.assertion(()=>typeof other_vec2.x === "number" && typeof other_vec2.y === "number");
         return this.x === other_vec2.x && this.y === other_vec2.y;
     }
 };
@@ -169,9 +170,9 @@ function is_intersection(rect_a, rect_b){
 }
 
 function is_point_under(position, area, origin={}){
-    console.assert(position.x != undefined && position.y != undefined );
-    console.assert(area);
-    console.assert(origin);
+    debug.assertion(()=>position.x != undefined && position.y != undefined );
+    debug.assertion(()=>area);
+    debug.assertion(()=>origin);
     const real_position = (new Vector2(position)).translate(origin);
     return is_intersection(area, { position: real_position, width:0, height:0 });
 }
@@ -193,14 +194,14 @@ class Rectangle {
 
     get width(){ return this.size.x; }
     set width(new_value){
-        console.assert(typeof new_value === "number");
-        console.assert(new_value >= 0);
+        debug.assertion(()=>typeof new_value === "number");
+        debug.assertion(()=>new_value >= 0);
         return this.size.x = new_value;
     }
 
     set height(new_value){
-        console.assert(typeof new_value === "number");
-        console.assert(new_value >= 0);
+        debug.assertion(()=>typeof new_value === "number");
+        debug.assertion(()=>new_value >= 0);
         return this.size.y = new_value;
     }
     get height(){ return this.size.y; }
@@ -229,8 +230,8 @@ function center_in_rectangle(inner_rectangle, outter_rectangle){
 
 // Returns the re-positionned inner rectangle so that it's always in the outter rectangle.
 function keep_in_rectangle(inner_rectangle, outter_rectangle){
-    console.assert(inner_rectangle.width <= outter_rectangle.width);
-    console.assert(inner_rectangle.height <= outter_rectangle.height);
+    debug.assertion(()=>inner_rectangle.width <= outter_rectangle.width);
+    debug.assertion(()=>inner_rectangle.height <= outter_rectangle.height);
 
     if(inner_rectangle.size.equals(outter_rectangle.size)){
         return new Rectangle({

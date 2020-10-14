@@ -11,6 +11,7 @@ export {
     create_chunk,
 }
 
+import * as debug from "../system/debug.js";
 import * as tiles from "../definitions-tiles.js";
 import * as concepts from "../core/concepts.js";
 import { default_rules, is_valid_world, grid_ID, get_entity_type } from "../definitions-world.js";
@@ -91,7 +92,7 @@ function generate_empty_world(name, width, height, defaults = defaults_gen){
 // Generates a serialized version of the world, in a limited way.
 // It does not keep the state of entities, but it keeps their types.
 function serialize_world(world){
-    console.assert(is_valid_world(world));
+    debug.assertion(()=>is_valid_world(world));
 
     let grids_serialized = "{";
 
@@ -102,7 +103,7 @@ function serialize_world(world){
 
     let entities_serialized = "[";
     world.entities.forEach(entity => {
-        console.assert(entity instanceof concepts.Entity);
+        debug.assertion(()=>entity instanceof concepts.Entity);
         entities_serialized += `\n    { type: "${entity.constructor.name}", position: { x: ${entity.position.x}, y: ${entity.position.y} } },`;
     });
     entities_serialized += "\n  ]";
@@ -128,15 +129,15 @@ function is_entity_desc(desc){
 
 
 function check_world_desc(world_desc){
-    console.assert(world_desc instanceof Object);
-    console.assert(typeof world_desc.name === "string");
-    console.assert(Number.isInteger(world_desc.width) && world_desc.width > 1);
-    console.assert(Number.isInteger(world_desc.height) && world_desc.height > 1);
-    console.assert(world_desc.grids instanceof Object);
-    console.assert(Object.keys(world_desc.grids).every(grid_id => grid_ID[grid_id] !== undefined));
-    console.assert(Object.values(world_desc.grids).every(grid=> grid instanceof Array && grid.length === world_desc.width * world_desc.height));
-    console.assert(world_desc.entities instanceof Array);
-    console.assert(world_desc.entities.every(is_entity_desc));
+    debug.assertion(()=>world_desc instanceof Object);
+    debug.assertion(()=>typeof world_desc.name === "string");
+    debug.assertion(()=>Number.isInteger(world_desc.width) && world_desc.width > 1);
+    debug.assertion(()=>Number.isInteger(world_desc.height) && world_desc.height > 1);
+    debug.assertion(()=>world_desc.grids instanceof Object);
+    debug.assertion(()=>Object.keys(world_desc.grids).every(grid_id => grid_ID[grid_id] !== undefined));
+    debug.assertion(()=>Object.values(world_desc.grids).every(grid=> grid instanceof Array && grid.length === world_desc.width * world_desc.height));
+    debug.assertion(()=>world_desc.entities instanceof Array);
+    debug.assertion(()=>world_desc.entities.every(is_entity_desc));
     return true;
 }
 
@@ -165,24 +166,24 @@ function deserialize_world(world_desc){
     for(const entity_desc of world_desc.entities){
         const entity_type = get_entity_type(entity_desc.type);
         const entity = new entity_type();
-        console.assert(entity instanceof concepts.Entity);
+        debug.assertion(()=>entity instanceof concepts.Entity);
         entity.position = entity_desc.position ? entity_desc.position : new concepts.Position();
         entity.is_crucial = entity_desc.is_crucial;
         if(entity_desc.drops){
-            console.assert(entity_desc.drops instanceof Array);
+            debug.assertion(()=>entity_desc.drops instanceof Array);
             entity.drops = [];
             const drop_it = (drop_type_name) => {
-                console.assert(typeof drop_type_name === "string");
+                debug.assertion(()=>typeof drop_type_name === "string");
                 const drop_type = get_entity_type(drop_type_name);
                 const drop = new drop_type();
-                console.assert(drop instanceof concepts.Entity);
+                debug.assertion(()=>drop instanceof concepts.Entity);
                 entity.drops.push(drop);
             }
             entity_desc.drops.forEach(drop_type_name => {
                 if(typeof drop_type_name === "string"){
                     drop_it(drop_type_name);
                 } else {
-                    console.assert(drop_type_name instanceof Array);
+                    debug.assertion(()=>drop_type_name instanceof Array);
                     const drops = drop_type_name;
                     drops.forEach(drop_it);
                 }
@@ -193,7 +194,7 @@ function deserialize_world(world_desc){
 
     world.set_rules(...default_rules);
 
-    console.assert(is_valid_world(world));
+    debug.assertion(()=>is_valid_world(world));
     return world;
 }
 
@@ -247,7 +248,7 @@ function mirror_world_desc(world_desc, vertical_axe = true){
 
 function rotate_world_desc(world_desc, rotation_count=1){
     check_world_desc(world_desc);
-    console.assert(Number.isInteger(rotation_count) && rotation_count >=0 );
+    debug.assertion(()=>Number.isInteger(rotation_count) && rotation_count >=0 );
     const rotated_world = copy_data(world_desc);
 
 
@@ -299,25 +300,25 @@ function random_variation(world_desc){
     check_world_desc(world_desc);
     let result_world = copy_data(world_desc);
 
-    // console.log("++++++ World Variation BEGIN: ++++++");
+    // debug.log("++++++ World Variation BEGIN: ++++++");
     let variations_count = random_int(0, 5);
     while(variations_count > 0){
         const variation_func = random_sample(world_variations);
         result_world = variation_func(result_world);
         --variations_count;
-        // console.log(` - ${variation_func.name}`);
+        // debug.log(` - ${variation_func.name}`);
     }
-    // console.log("++++++ World Variation END++++++");
+    // debug.log("++++++ World Variation END++++++");
     return result_world;
 }
 
 function merge_world_chunks(name, default_grids_values, ...position_world_chunks){
-    console.assert(typeof name === "string");
-    console.assert(default_grids_values instanceof Object);
-    console.assert(position_world_chunks.every((pos_chunk)=> {
+    debug.assertion(()=>typeof name === "string");
+    debug.assertion(()=>default_grids_values instanceof Object);
+    debug.assertion(()=>position_world_chunks.every((pos_chunk)=> {
         const {position, world_desc} = pos_chunk;
-        console.assert(position.x !== undefined);
-        console.assert(position.y !== undefined);
+        debug.assertion(()=>position.x !== undefined);
+        debug.assertion(()=>position.y !== undefined);
         return check_world_desc(world_desc);
     }));
 
@@ -340,13 +341,13 @@ function merge_world_chunks(name, default_grids_values, ...position_world_chunks
         const position_grids = position_world_chunks.map((pos_chunk)=> {
             const position = pos_chunk.position;
             const world_desc = pos_chunk.world_desc;
-            console.assert(Number.isInteger(position.x));
-            console.assert(Number.isInteger(position.y));
+            debug.assertion(()=>Number.isInteger(position.x));
+            debug.assertion(()=>Number.isInteger(position.y));
             check_world_desc(world_desc);
             return { position, grid: new Grid(world_desc.width, world_desc.height, world_desc.grids[grid_id]) };
         });
         const grid = merge_grids(...position_grids);
-        console.assert(grid.width === width && grid.height === height);
+        debug.assertion(()=>grid.width === width && grid.height === height);
 
         const default_value = default_grids_values[grid_id];
         if(default_value !== undefined){
@@ -362,10 +363,10 @@ function merge_world_chunks(name, default_grids_values, ...position_world_chunks
 
     const set_entity = (origin, entity) => {
         entity = copy_data(entity);
-        //console.log(`set_entity(${JSON.stringify(origin)}, ${JSON.stringify(entity)})`);
+        //debug.log(`set_entity(${JSON.stringify(origin)}, ${JSON.stringify(entity)})`);
         const new_position = { x: origin.x + entity.position.x, y: origin.y + entity.position.y };
-        console.assert(new_position.x >= 0 && new_position.x < world.width);
-        console.assert(new_position.y >= 0 && new_position.y < world.height);
+        debug.assertion(()=>new_position.x >= 0 && new_position.x < world.width);
+        debug.assertion(()=>new_position.y >= 0 && new_position.y < world.height);
         entity.position = new_position;
         // Overwrite previous entities at the same position:
         world.entities = world.entities.filter(existing_entity => !(entity.position.x === existing_entity.position.x
@@ -495,8 +496,8 @@ window.setup_test_levels = ()=>{
 
         { position:{ x:5,  y:28  }, world_desc: window.level_x          },
     );
-    console.assert(window.merged_level.width === 24);
-    console.assert(window.merged_level.height === 36);
+    debug.assertion(()=>window.merged_level.width === 24);
+    debug.assertion(()=>window.merged_level.height === 36);
 
     window.padded_level_initial = add_padding_around(level_initial, { floor: tiles.ID.VOID });
 
@@ -508,14 +509,14 @@ window.setup_test_levels = ()=>{
 
 class ChunkGrid {
     constructor(desc){
-        console.assert(Number.isInteger(desc.width) && desc.width > 0);
-        console.assert(Number.isInteger(desc.height) && desc.height > 0);
-        console.assert(Number.isInteger(desc.chunk_width) && desc.chunk_width > 0);
-        console.assert(Number.isInteger(desc.chunk_height) && desc.chunk_height > 0);
-        console.assert(desc.chunks instanceof Array);
-        console.assert(desc.chunks.length === (desc.width * desc.height));
-        console.assert(desc.entities instanceof Array || desc.entities === undefined);
-        console.assert(desc.default_grid_values instanceof Object || desc.default_grid_values === undefined);
+        debug.assertion(()=>Number.isInteger(desc.width) && desc.width > 0);
+        debug.assertion(()=>Number.isInteger(desc.height) && desc.height > 0);
+        debug.assertion(()=>Number.isInteger(desc.chunk_width) && desc.chunk_width > 0);
+        debug.assertion(()=>Number.isInteger(desc.chunk_height) && desc.chunk_height > 0);
+        debug.assertion(()=>desc.chunks instanceof Array);
+        debug.assertion(()=>desc.chunks.length === (desc.width * desc.height));
+        debug.assertion(()=>desc.entities instanceof Array || desc.entities === undefined);
+        debug.assertion(()=>desc.default_grid_values instanceof Object || desc.default_grid_values === undefined);
         this.width = desc.width;
         this.height = desc.height;
         this.chunk_width = desc.chunk_width;
@@ -524,7 +525,7 @@ class ChunkGrid {
         this.chunks = desc.chunks;
         const grid_size = (this.chunk_width * this.width) * (this.chunk_height* this.height);
         this.entities = desc.entities;
-        console.assert(this.entities === undefined || (this.entities instanceof Array &&this.entities.length <= grid_size));
+        debug.assertion(()=>this.entities === undefined || (this.entities instanceof Array &&this.entities.length <= grid_size));
         this.random_variation = desc.random_variation ? true : false;
         this.random_entities_position = desc.random_entities_position ? true : false;
     }
@@ -551,7 +552,7 @@ function create_chunk(width, height, default_grid_values, entities = []){
                 grid[idx] = value();
             });
         } else if(value instanceof Array){
-            console.assert(value.length === grid.length);
+            debug.assertion(()=>value.length === grid.length);
             grid = value;
         } else{
             grid.fill(value);
@@ -563,13 +564,13 @@ function create_chunk(width, height, default_grid_values, entities = []){
 }
 
 function unfold_chunk_grid(name, chunk_grid){
-    console.assert(typeof name === "string");
-    console.assert(chunk_grid instanceof ChunkGrid);
+    debug.assertion(()=>typeof name === "string");
+    debug.assertion(()=>chunk_grid instanceof ChunkGrid);
 
     const world_chunks = [];
 
     const unfold_chunk = (chunk, grid_pos)=>{
-        console.assert(chunk !== undefined || chunk === null);
+        debug.assertion(()=>chunk !== undefined || chunk === null);
         if(chunk instanceof Object){
             if(is_generator(chunk)){
                 const generated_value = chunk.next().value; // If the generator is done, use the last value.
@@ -583,7 +584,7 @@ function unfold_chunk_grid(name, chunk_grid){
             if(chunk instanceof ChunkGrid){
                 chunk = unfold_chunk_grid(name, chunk); // Recursively unfold grids...
             }
-            console.assert(check_world_desc(chunk));
+            debug.assertion(()=>check_world_desc(chunk));
             return {
                 position: grid_pos,
                 world_desc: chunk,
@@ -631,7 +632,7 @@ function unfold_chunk_grid(name, chunk_grid){
             });
             const pos_idx = index_from_position(world_desc.width, world_desc.height, new_pos);
             const floor_tile = world_desc.grids[grid_ID.floor][pos_idx];
-            console.assert(Number.isInteger(floor_tile));
+            debug.assertion(()=>Number.isInteger(floor_tile));
             if(tiles.is_walkable(floor_tile) && world_desc.entities.every(entity=> !entity.position.equals(new_pos)))
                 return new_pos;
 
@@ -644,7 +645,7 @@ function unfold_chunk_grid(name, chunk_grid){
     for(let chunk_idx = 0; chunk_idx < chunk_grid.chunks.length; ++chunk_idx){
         const chunk = chunk_grid.chunks[chunk_idx];
         const entities = chunk_grid.entities;
-        console.assert(entities instanceof Array || entities === undefined);
+        debug.assertion(()=>entities instanceof Array || entities === undefined);
 
         const chunk_pos = position_from_index(chunk_grid.width, chunk_grid.height, chunk_idx);
         const grid_pos = { x: chunk_pos.x * chunk_grid.chunk_width, y: chunk_pos.y * chunk_grid.chunk_height };
@@ -655,7 +656,7 @@ function unfold_chunk_grid(name, chunk_grid){
             entities.forEach((entity, idx) => {
                 entity = unfold_entity(entity);
                 if(entity){
-                    console.assert(is_entity_desc(entity));
+                    debug.assertion(()=>is_entity_desc(entity));
                     const position = chunk_grid.random_entities_position ? random_pos(world_chunk.world_desc)
                                         : position_from_index(world_chunk.world_desc.width, world_chunk.world_desc.height, idx);
                     entity.position = position;

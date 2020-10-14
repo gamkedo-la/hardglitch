@@ -3,6 +3,7 @@ export {
     GameOverScreen_Failure,
 }
 
+import * as debug from "./system/debug.js";
 import * as fsm from "./system/finite-state-machine.js";
 import * as ui from "./system/ui.js";
 import * as input from "./system/input.js";
@@ -24,7 +25,7 @@ class GameOverScreen_Success extends fsm.State {
     }
 
     _init_ui(){
-        console.assert(this.ui === undefined);
+        debug.assertion(()=>this.ui === undefined);
         this.ui = {
             message : new ui.Text({
                 text: "Congratulations! You escaped the computer!",
@@ -109,7 +110,7 @@ class GameOverScreen_Failure extends fsm.State {
     }
 
     _init_ui(){
-        console.assert(this.ui === undefined);
+        debug.assertion(()=>this.ui === undefined);
         this.ui = {
             message : new ui.Text({
                 text: "Glitch no longer occupies the memory they once did.",
@@ -170,7 +171,7 @@ class GameOverScreen_Failure extends fsm.State {
     }
 
     *enter(level_to_play){
-        console.assert(Number.isInteger(level_to_play) || level_to_play !== undefined);
+        debug.assertion(()=>Number.isInteger(level_to_play) || level_to_play !== undefined);
         this._level_to_play = level_to_play;
         if(!this.ui){
             this._init_ui();

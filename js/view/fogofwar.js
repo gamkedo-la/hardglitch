@@ -3,6 +3,7 @@ export {
     FogOfWar,
 }
 
+import * as debug from "../system/debug.js";
 import * as visibility from "../core/visibility.js";
 import * as graphics from "../system/graphics.js";
 import { PIXELS_PER_TILES_SIDE, graphic_position } from "./entity-view.js";
@@ -17,7 +18,7 @@ class FogOfWar {
     fovs = {}; // { entity_id : FieldOfVision }...
 
     constructor(world){
-        console.assert(world instanceof concepts.World);
+        debug.assertion(()=>world instanceof concepts.World);
         this.graphic_width = world.width * PIXELS_PER_TILES_SIDE;
         this.graphic_height = world.height * PIXELS_PER_TILES_SIDE;
 
@@ -33,13 +34,13 @@ class FogOfWar {
     }
 
     add_fov(entity_id, field_of_vision){
-        console.assert(Number.isInteger(entity_id));
-        console.assert(field_of_vision instanceof visibility.FieldOfVision);
+        debug.assertion(()=>Number.isInteger(entity_id));
+        debug.assertion(()=>field_of_vision instanceof visibility.FieldOfVision);
         this.fovs[entity_id] = field_of_vision;
     }
 
     remove_fov(entity_id){
-        console.assert(Number.isInteger(entity_id));
+        debug.assertion(()=>Number.isInteger(entity_id));
         delete this.fovs[entity_id];
     }
 
@@ -59,7 +60,7 @@ class FogOfWar {
     }
 
     refresh(world){
-        console.assert(world instanceof concepts.World);
+        debug.assertion(()=>world instanceof concepts.World);
         this.world = world;
         this.current_visibility_grid = new Array(this.world.size).fill(false);
 
@@ -81,7 +82,7 @@ class FogOfWar {
     }
 
     display(canvas_context){
-        console.assert(canvas_context);
+        debug.assertion(()=>canvas_context);
         this._draw_dark_unknown(canvas_context);
         this._draw_last_visible_squares(canvas_context);
     }
@@ -114,26 +115,26 @@ class FogOfWar {
 
 
     is_visible(...positions){
-        // console.assert(positions.every(position => position instanceof concepts.Position));
+        // debug.assertion(()=>positions.every(position => position instanceof concepts.Position));
         return positions.every(position => this.world.is_valid_position(position)
                                         && this.current_visibility_grid[this.index(position)] === true
                                         );
     }
 
     is_any_visible(...positions){
-        // console.assert(positions.every(position => position instanceof concepts.Position));
+        // debug.assertion(()=>positions.every(position => position instanceof concepts.Position));
         return positions.some(position => this.world.is_valid_position(position)
                                         && this.current_visibility_grid[this.index(position)] === true);
     }
 
     was_visible(...positions){
-        // console.assert(positions.every(position => position instanceof concepts.Position));
+        // debug.assertion(()=>positions.every(position => position instanceof concepts.Position));
         return positions.every(position => this.world.is_valid_position(position)
                                         && this.viewed_at_least_once_grid[this.index(position)] === true);
     }
 
     was_any_visible(...positions){
-        // console.assert(positions.every(position => position instanceof concepts.Position));
+        // debug.assertion(()=>positions.every(position => position instanceof concepts.Position));
         return positions.some(position => this.world.is_valid_position(position)
                                         && this.viewed_at_least_once_grid[this.index(position)] === true);
     }

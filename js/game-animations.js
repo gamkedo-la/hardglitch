@@ -26,6 +26,7 @@ export {
     exited,
 }
 
+import * as debug from "./system/debug.js";
 import { graphic_position, EntityView, PIXELS_PER_HALF_SIDE, square_half_unit_vector, PIXELS_PER_TILES_SIDE } from "./view/entity-view.js";
 import { tween, easing } from "./system/tweening.js";
 import * as animation from "./system/animation.js";
@@ -44,7 +45,7 @@ const default_move_duration_ms = 250;
 const default_destruction_duration_ms = 666;
 
 function* translate(thing_with_position, target_gfx_pos, duration_ms, easing){
-    console.assert(thing_with_position.position instanceof Vector2);
+    debug.assertion(()=>thing_with_position.position instanceof Vector2);
     yield* tween(thing_with_position.position, {x:target_gfx_pos.x, y:target_gfx_pos.y}, duration_ms,
         (updated_position)=>{
             thing_with_position.position = updated_position;
@@ -52,7 +53,7 @@ function* translate(thing_with_position, target_gfx_pos, duration_ms, easing){
 }
 
 function* move(fx_view, entity_view, target_game_position, duration_ms=default_move_duration_ms){
-    console.assert(entity_view instanceof EntityView);
+    debug.assertion(()=>entity_view instanceof EntityView);
     const target_gfx_pos = graphic_position(target_game_position);
     audio.playEvent('moveAction'); // Add condition for enemy sound?
     const fx = fx_view.move(entity_view.position.translate(square_half_unit_vector));
@@ -65,7 +66,7 @@ function* move(fx_view, entity_view, target_game_position, duration_ms=default_m
 }
 
 function* wait(fx_view, character_view, duration_ms){
-    console.assert(character_view instanceof CharacterView);
+    debug.assertion(()=>character_view instanceof CharacterView);
     // TODO: add some kind of animation here to show that the character is passing their turn.
     if(character_view.is_player){
         audio.playEvent('wait');
@@ -78,8 +79,8 @@ function* wait(fx_view, character_view, duration_ms){
 }
 
 function* jump(fx_view, entity_view, target_game_position){
-    console.assert(fx_view instanceof GameFxView);
-    console.assert(entity_view instanceof EntityView);
+    debug.assertion(()=>fx_view instanceof GameFxView);
+    debug.assertion(()=>entity_view instanceof EntityView);
     const target_gfx_pos = graphic_position(target_game_position);
 
     const jump_height = 50;
@@ -131,9 +132,9 @@ function* bounce(entity_view, target_game_position, duration_ms=default_move_dur
 }
 
 function* swap(fx_view, left_entity_view, right_entity_view){
-    console.assert(fx_view instanceof GameFxView);
-    console.assert(left_entity_view instanceof EntityView);
-    console.assert(right_entity_view instanceof EntityView);
+    debug.assertion(()=>fx_view instanceof GameFxView);
+    debug.assertion(()=>left_entity_view instanceof EntityView);
+    debug.assertion(()=>right_entity_view instanceof EntityView);
 
     const left_final_pos = right_entity_view.game_position;
     const right_final_pos = left_entity_view.game_position;
@@ -144,8 +145,8 @@ function* swap(fx_view, left_entity_view, right_entity_view){
 }
 
 function* destroyed(fx_view, entity_view, duration_ms=default_destruction_duration_ms){
-    console.assert(fx_view instanceof GameFxView);
-    console.assert(entity_view instanceof EntityView);
+    debug.assertion(()=>fx_view instanceof GameFxView);
+    debug.assertion(()=>entity_view instanceof EntityView);
     // Center the sprite so that the rotation origin is in the center of it.
     const effect = fx_view.destruction(entity_view.position.translate(square_half_unit_vector));
     const initial_position = entity_view.position;
@@ -177,8 +178,8 @@ function* destroyed(fx_view, entity_view, duration_ms=default_destruction_durati
 }
 
 function* take_damage(fx_view, entity_view){
-    console.assert(fx_view instanceof GameFxView);
-    console.assert(entity_view instanceof EntityView);
+    debug.assertion(()=>fx_view instanceof GameFxView);
+    debug.assertion(()=>entity_view instanceof EntityView);
     // WwhwhhiiiiiiiiiIIIIIIIIIiiiizzzzzzzzzzZZZZZZZZZZZZZ
     const intensity = 10;
     const time_per_move = Math.round(500 / 4);
@@ -194,7 +195,7 @@ function* take_damage(fx_view, entity_view){
 }
 
 function* repaired(fx_view, entity_view){
-    console.assert(entity_view instanceof EntityView);
+    debug.assertion(()=>entity_view instanceof EntityView);
     const intensity = 32;
     const time_per_move = Math.round(500 / 2);
     const initial_position = new Vector2(entity_view.position);
@@ -216,15 +217,15 @@ function* missile(missile_effect, target_gfx_position, speed = 4.0){
 }
 
 function* deleting_missile(fx_view, source_position, target_position){
-    console.assert(fx_view instanceof GameFxView);
+    debug.assertion(()=>fx_view instanceof GameFxView);
     const missile_effect = fx_view.deleteBall(graphic_position(source_position));
     audio.playEvent('deleteAction');
     yield* missile(missile_effect, graphic_position(target_position));
 }
 
 function* take_item(fx_view, taker_view, item_view){
-    console.assert(taker_view instanceof CharacterView);
-    console.assert(item_view instanceof ItemView);
+    debug.assertion(()=>taker_view instanceof CharacterView);
+    debug.assertion(()=>item_view instanceof ItemView);
     const take_duration_ms = 500;
     audio.playEvent('item');
     const initial_position = item_view.position;
@@ -271,7 +272,7 @@ function* inventory_remove(fx_view, inv, idx) {
 
 
 function* dissolve_item(item_view){
-    console.assert(item_view instanceof ItemView);
+    debug.assertion(()=>item_view instanceof ItemView);
     // TODO: replace this by something better :/
     const duration_ms = 500;
     audio.playEvent('dissolveRev'); // TODO: Replace by another sound?
@@ -291,9 +292,9 @@ function* dissolve_item(item_view){
 }
 
 function* shake(entity_view, amplitude, frequency_ms, duration_or_predicate){
-    console.assert(entity_view instanceof EntityView);
-    console.assert(is_number(amplitude));
-    console.assert((Number.isInteger(duration_or_predicate) && duration_or_predicate >= 0) || duration_or_predicate instanceof Function);
+    debug.assertion(()=>entity_view instanceof EntityView);
+    debug.assertion(()=>is_number(amplitude));
+    debug.assertion(()=>(Number.isInteger(duration_or_predicate) && duration_or_predicate >= 0) || duration_or_predicate instanceof Function);
     let time_passed = 0;
     let time_since_shake = frequency_ms;
     const predicate = duration_or_predicate instanceof Function ? duration_or_predicate : (time_passed)=> time_passed < duration_or_predicate;
@@ -313,12 +314,12 @@ function* shake(entity_view, amplitude, frequency_ms, duration_or_predicate){
 }
 
 function* decrypt_file(file_view, file_fx_view, key_view, key_fx_view, crypto_kind){
-    console.assert(key_view instanceof ItemView);
-    console.assert(file_view instanceof ItemView);
-    console.assert(file_fx_view instanceof GameFxView);
-    console.assert(key_fx_view instanceof GameFxView);
+    debug.assertion(()=>key_view instanceof ItemView);
+    debug.assertion(()=>file_view instanceof ItemView);
+    debug.assertion(()=>file_fx_view instanceof GameFxView);
+    debug.assertion(()=>key_fx_view instanceof GameFxView);
     const file_sprite = file_view.get_sprite("body");
-    console.assert(file_sprite instanceof Sprite);
+    debug.assertion(()=>file_sprite instanceof Sprite);
     yield* animation.wait(100);
     file_sprite.start_animation("decrypt");
     const until_the_animation_ends = ()=> file_sprite.is_playing_animation === true;
@@ -352,8 +353,8 @@ function* decrypt_file(file_view, file_fx_view, key_view, key_fx_view, crypto_ki
 }
 
 function* pushed(fx_view, entity_view, to_position){
-    console.assert(entity_view instanceof EntityView);
-    console.assert(to_position instanceof Position);
+    debug.assertion(()=>entity_view instanceof EntityView);
+    debug.assertion(()=>to_position instanceof Position);
     audio.playEvent('pushPull');
     const fx_start_pos = entity_view.position.translate(square_half_unit_vector);
     const fx_stop_pos = graphic_position(to_position).translate(square_half_unit_vector);
@@ -365,7 +366,7 @@ function* pushed(fx_view, entity_view, to_position){
 const pulled = pushed;
 
 function* scanned(fx_view, game_pos){
-    console.assert(fx_view instanceof GameFxView);
+    debug.assertion(()=>fx_view instanceof GameFxView);
     let fx_pos = graphic_position(game_pos).translate(square_half_unit_vector);
     let fx = fx_view.scan(fx_pos);
     audio.playEvent('scanAnim');
@@ -373,7 +374,7 @@ function* scanned(fx_view, game_pos){
 }
 
 function* spawned(fx_view, game_pos){
-    console.assert(fx_view instanceof GameFxView);
+    debug.assertion(()=>fx_view instanceof GameFxView);
     let fx_pos = graphic_position(game_pos).translate(square_half_unit_vector);
     let fx = fx_view.spawn(fx_pos);
     audio.playEvent('spawnAnim');
@@ -381,8 +382,8 @@ function* spawned(fx_view, game_pos){
 }
 
 function* exited(fx_view, entity_view){
-    console.assert(fx_view instanceof GameFxView);
-    console.assert(entity_view instanceof EntityView);
+    debug.assertion(()=>fx_view instanceof GameFxView);
+    debug.assertion(()=>entity_view instanceof EntityView);
     let fx_pos = entity_view.position.translate(square_half_unit_vector);
     let fx = fx_view.portalOut(fx_pos);
     let duration_ms = 1250;

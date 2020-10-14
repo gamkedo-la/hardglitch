@@ -20,6 +20,7 @@ export {
     Position,
 };
 
+import * as debug from "../system/debug.js";
 import { is_number, clamp } from "../system/utility.js";
 import { Grid } from "../system/grid.js";
 
@@ -38,9 +39,9 @@ function new_actor_id(){
 // world's rules.
 class Action {
     constructor(id, name, target_position){
-        console.assert(typeof id === 'string');
-        console.assert(target_position === undefined || target_position instanceof Position);
-        console.assert(typeof name === 'string');
+        debug.assertion(()=>typeof id === 'string');
+        debug.assertion(()=>target_position === undefined || target_position instanceof Position);
+        debug.assertion(()=>typeof name === 'string');
         this.id = id;                       // Used internally to identify this Action in some special code (for example to identify special moves to bind to keyboard keys)
         this.target_position = target_position; // Position of the target of this action. Could refer to the acting character, another character, an item or a tile at that position.
         this.name = name,                   // Name that will be displayed to the player.
@@ -144,8 +145,8 @@ class Rule {
 class Position {
     constructor(position){
         if(position){
-            console.assert(is_number(position.x));
-            console.assert(is_number(position.y));
+            debug.assertion(()=>is_number(position.x));
+            debug.assertion(()=>is_number(position.y));
             this.x = position.x;
             this.y = position.y;
         } else {
@@ -162,27 +163,27 @@ class Position {
     get south() { return new Position({ x: this.x, y: this.y + 1 }); }
 
     equals(other_position){
-        console.assert(Number.isInteger(other_position.x) && Number.isInteger(other_position.y));
+        debug.assertion(()=>Number.isInteger(other_position.x) && Number.isInteger(other_position.y));
         return other_position.x === this.x && other_position.y === this.y;
     }
 
     distance(other_position){
-        console.assert(Number.isInteger(other_position.x) && Number.isInteger(other_position.y));
+        debug.assertion(()=>Number.isInteger(other_position.x) && Number.isInteger(other_position.y));
         return Math.abs(this.x - other_position.x) + Math.abs(this.y - other_position.y);
     }
 
     translate(translation){
-        console.assert(Number.isInteger(translation.x) && Number.isInteger(translation.y));
+        debug.assertion(()=>Number.isInteger(translation.x) && Number.isInteger(translation.y));
         return new Position({ x: this.x + translation.x, y: this.y + translation.y });
     }
 
     substract(other_position){
-        console.assert(Number.isInteger(other_position.x) && Number.isInteger(other_position.y));
+        debug.assertion(()=>Number.isInteger(other_position.x) && Number.isInteger(other_position.y));
         return new Position({ x: this.x - other_position.x, y: this.y - other_position.y });
     }
 
     multiply(scalar){
-        console.assert(Number.isInteger(scalar));
+        debug.assertion(()=>Number.isInteger(scalar));
         return new Position({ x: this.x * scalar, y: this.y * scalar });
     }
 
@@ -209,7 +210,7 @@ class Entity {
     description = "NO DESCRIPTION FOR THIS ENTITY";
 
     constructor(name){
-        console.assert(typeof name === 'string');
+        debug.assertion(()=>typeof name === 'string');
         this.name = name;
     }
 
@@ -218,7 +219,7 @@ class Entity {
         this._position = new Position(new_pos);
     }
     get id() {
-        console.assert(this._entity_id);
+        debug.assertion(()=>this._entity_id);
         return this._entity_id;
     }
 
@@ -279,11 +280,11 @@ class World
     turn_id = 0;
 
     constructor(name, width, height, grids){
-        console.assert(typeof name === "string" && name.length > 0);
-        console.assert(Number.isInteger(width) && width > 1);
-        console.assert(Number.isInteger(height) && height > 1);
-        console.assert(grids instanceof Object);
-        console.assert(Object.values(grids).every(grid => grid instanceof Grid && grid.width == width && grid.height == height));
+        debug.assertion(()=>typeof name === "string" && name.length > 0);
+        debug.assertion(()=>Number.isInteger(width) && width > 1);
+        debug.assertion(()=>Number.isInteger(height) && height > 1);
+        debug.assertion(()=>grids instanceof Object);
+        debug.assertion(()=>Object.values(grids).every(grid => grid instanceof Grid && grid.width == width && grid.height == height));
         this.name = name;
         this.width = width;
         this.height = height;
@@ -297,7 +298,7 @@ class World
     get all_grids() { return Object.values(this.grids); }
 
     get_entity(entity_id){
-        console.assert(Number.isInteger(entity_id));
+        debug.assertion(()=>Number.isInteger(entity_id));
         const body = this._bodies[entity_id];
         if(body) return body;
         const item = this._items[entity_id];
@@ -305,15 +306,15 @@ class World
     }
 
     add_grid(grid_id, grid = new Grid(this.width, this.height)){
-        console.assert(grid_id !== undefined);
-        console.assert(this.grids[grid_id] === undefined);
-        console.assert(grid instanceof Grid && grid.width == this.width && grid.height == this.height);
+        debug.assertion(()=>grid_id !== undefined);
+        debug.assertion(()=>this.grids[grid_id] === undefined);
+        debug.assertion(()=>grid instanceof Grid && grid.width == this.width && grid.height == this.height);
         this.grids[grid_id] = grid;
         return grid;
     }
 
     remove_grid(grid_id){
-        console.assert(grid_id !== undefined);
+        debug.assertion(()=>grid_id !== undefined);
         const grid = this._grids[grid_id];
         delete this.grids[grid_id];
         return grid;
@@ -321,8 +322,8 @@ class World
 
     // Adds an entity to the world (a Body or an Item), setup the necessary spatial information.
     add_entity(entity){
-        console.assert(entity instanceof Entity);
-        console.assert(entity.position);
+        debug.assertion(()=>entity instanceof Entity);
+        debug.assertion(()=>entity.position);
         this.has_entity_list_changed = true;
         if(entity instanceof Body){
             this._bodies[entity.id] = entity;
@@ -369,15 +370,15 @@ class World
 
     // Set a list of rules that should be ordered as they should be applied.
     set_rules(...rules){
-        console.assert(rules instanceof Array);
-        console.assert(rules.every(rule => rule instanceof Rule));
+        debug.assertion(()=>rules instanceof Array);
+        debug.assertion(()=>rules.every(rule => rule instanceof Rule));
         this._rules = rules;
     }
 
     // Returns a set of possible actions according to the current rules, for the specified body.
     gather_possible_actions_from_rules(body){
-        console.assert(body instanceof Body);
-        console.assert(!body.actor || body.actor instanceof Actor); // If the body have an Actor to control it, then it needs to be an Actor.
+        debug.assertion(()=>body instanceof Body);
+        debug.assertion(()=>!body.actor || body.actor instanceof Actor); // If the body have an Actor to control it, then it needs to be an Actor.
         let possible_actions = {};
         for(const rule of this._rules){
             const actions_from_rule = rule.get_actions_for(body, this);
@@ -421,7 +422,7 @@ class World
     }
 
     body_at(position){
-        console.assert(this.is_valid_position(position));
+        debug.assertion(()=>this.is_valid_position(position));
         // TODO: optimize this if necessary
         for(const body of this.bodies){
             if(body.position.equals(position))
@@ -431,7 +432,7 @@ class World
     }
 
     item_at(position){
-        console.assert(this.is_valid_position(position));
+        debug.assertion(()=>this.is_valid_position(position));
         // TODO: optimize this if necessary
         for(const item of this.items){
             if(item.position.equals(position))
@@ -441,7 +442,7 @@ class World
     }
 
     entity_at(position){
-        console.assert(this.is_valid_position(position));
+        debug.assertion(()=>this.is_valid_position(position));
         const body = this.body_at(position);
         if(body)
             return body;
@@ -450,7 +451,7 @@ class World
     }
 
     tiles_at(position){
-        console.assert(this.is_valid_position(position));
+        debug.assertion(()=>this.is_valid_position(position));
         const things = [
             ...this.all_grids.map(grid => grid.get_at(position)),
         ];
@@ -458,7 +459,7 @@ class World
     }
 
     everything_at(position){
-        console.assert(this.is_valid_position(position));
+        debug.assertion(()=>this.is_valid_position(position));
         const things = [
             ...this.all_grids.map(grid => grid.get_at(position)),
             this.item_at(position),

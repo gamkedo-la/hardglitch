@@ -11,6 +11,7 @@ export {
     wait_while,
 }
 
+import * as debug from "../system/debug.js";
 import { not } from "./utility.js";
 
 
@@ -26,11 +27,11 @@ function* in_parallel(...animations){
 }
 
 function* wait(duration_ms){
-    console.assert(typeof duration_ms === "number");
+    debug.assertion(()=>typeof duration_ms === "number");
     let time_since_start = 0;
     while(time_since_start < duration_ms){
         const delta_time = yield;
-        console.assert(typeof(delta_time) === 'number');
+        debug.assertion(()=>typeof(delta_time) === 'number');
         time_since_start += delta_time;
     }
     return time_since_start;
@@ -38,11 +39,11 @@ function* wait(duration_ms){
 
 
 function* wait_while(predicate){
-    console.assert(predicate instanceof Function);
+    debug.assertion(()=>predicate instanceof Function);
     let time_since_start = 0;
     while(predicate()){
         const delta_time = yield;
-        console.assert(typeof(delta_time) === 'number');
+        debug.assertion(()=>typeof(delta_time) === 'number');
         time_since_start += delta_time;
     }
     return time_since_start;

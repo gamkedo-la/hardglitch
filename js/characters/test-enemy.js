@@ -5,6 +5,7 @@ export {
     WaitingNPC,
 };
 
+import * as debug from "../system/debug.js";
 import * as concepts from "../core/concepts.js";
 import {auto_newlines, random_sample} from "../system/utility.js";
 import { Wait } from "../rules/rules-basic.js";
@@ -21,7 +22,7 @@ class RandomActionSelector extends concepts.Actor {
                 continue;
             if(random_action == null) { // no action found.
                 // In this case just wait:
-                console.assert(possible_actions.wait instanceof Wait);
+                debug.assertion(()=>possible_actions.wait instanceof Wait);
                 return possible_actions.wait;
             }
             return random_action;

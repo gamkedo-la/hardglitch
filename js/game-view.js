@@ -6,6 +6,7 @@
 
 export { GameView, CharacterView, graphic_position };
 
+import * as debug from "./system/debug.js";
 import * as graphics from "./system/graphics.js";
 import * as audio from "./system/audio.js";
 import * as ui from "./system/ui.js";
@@ -58,10 +59,10 @@ class Highlight{
 
     // Reuse a sprite for highlighting.
     constructor(position, sprite, tooltip, info_text, events){
-        console.assert(Number.isInteger(position.x) && Number.isInteger(position.y));
-        console.assert(sprite instanceof graphics.Sprite);
-        console.assert(tooltip === undefined || typeof tooltip === 'string');
-        console.assert(info_text === undefined || typeof info_text === 'string');
+        debug.assertion(()=>Number.isInteger(position.x) && Number.isInteger(position.y));
+        debug.assertion(()=>sprite instanceof graphics.Sprite);
+        debug.assertion(()=>tooltip === undefined || typeof tooltip === 'string');
+        debug.assertion(()=>info_text === undefined || typeof info_text === 'string');
         this._sprite = sprite;
         if(tooltip){
             this._help_text = new ui.HelpText({
@@ -110,7 +111,7 @@ class Highlight{
 
 
         if(this.events){
-            console.assert(this._help_text);
+            debug.assertion(()=>this._help_text);
             if(this._help_text.is_mouse_over_area_to_help){
                 if(!this._mouse_is_over){
                     this._mouse_is_over = true;
@@ -128,7 +129,7 @@ class Highlight{
     draw(canvas_context){
         // if(!graphics.camera.can_see(this._sprite.area)) // TODO: this is buggy, check why
         //     return;
-        console.assert(!graphics.camera.is_rendering_in_screen);
+        debug.assertion(()=>!graphics.camera.is_rendering_in_screen);
         if(!this.enabled)
             return;
 
@@ -144,7 +145,7 @@ class Highlight{
     }
 
     draw_help(){
-        console.assert(!graphics.camera.is_rendering_in_screen);
+        debug.assertion(()=>!graphics.camera.is_rendering_in_screen);
         if(this._help_text && this._drawn_since_last_update){
             this._help_text.draw(graphics.screen_canvas_context);
         }
@@ -169,7 +170,7 @@ class GameView {
 
     get enable_fog_of_war() { return this._enable_fog_of_war; };
     set enable_fog_of_war(new_value) {
-        console.assert(typeof(new_value) === "boolean");
+        debug.assertion(()=>typeof(new_value) === "boolean");
         if(new_value !== this._enable_fog_of_war){
             this._enable_fog_of_war = new_value;
             this._require_tiles_update = true;
@@ -178,7 +179,7 @@ class GameView {
 
     get enable_tile_rendering_debug() { return this._enable_tile_rendering_debug; };
     set enable_tile_rendering_debug(new_value) {
-        console.assert(typeof(new_value) === "boolean");
+        debug.assertion(()=>typeof(new_value) === "boolean");
         if(new_value !== this._enable_tile_rendering_debug){
             this._require_tiles_update = true;
             this._enable_tile_rendering_debug = new_value;
@@ -190,7 +191,7 @@ class GameView {
     enable_auto_camera_center = true;
 
     constructor(game, open_menu){
-        console.assert(game instanceof Game);
+        debug.assertion(()=>game instanceof Game);
         this.game = game;
         this._requires_reset = true;
         this._require_tiles_update = true;
@@ -273,7 +274,7 @@ class GameView {
     }
 
     interpret_turn_events(event_sequence) {
-        console.assert(event_sequence);
+        debug.assertion(()=>event_sequence);
 
         this.event_sequence = event_sequence;
         this._launch_next_animation_batch();
@@ -284,10 +285,10 @@ class GameView {
 
         while(!this.next_event.done){
             const event = this.next_event.value;
-            console.assert(event instanceof concepts.Event);
+            debug.assertion(()=>event instanceof concepts.Event);
 
             if(event.animation){
-                console.assert(event.focus_positions);
+                debug.assertion(()=>event.focus_positions);
                 const animation = {
                         start_animation: ()=> this._start_event_animation(event),
                         parallel: event.allow_parallel_animation,
@@ -306,7 +307,7 @@ class GameView {
     }
 
     *_start_event_animation(event){
-        console.assert(event instanceof concepts.Event);
+        debug.assertion(()=>event instanceof concepts.Event);
         yield* event.animation(this);
     };
 
@@ -315,7 +316,7 @@ class GameView {
     }
 
     get_entity_view(entity_id){
-        console.assert(Number.isInteger(entity_id));
+        debug.assertion(()=>Number.isInteger(entity_id));
         const entity_view = this.entity_views[entity_id];
         return entity_view;
     }
@@ -323,7 +324,7 @@ class GameView {
     focus_on_entity(entity_id){
         const entity_view = this.get_entity_view(entity_id);
         if(entity_view){
-            console.assert(entity_view instanceof EntityView);
+            debug.assertion(()=>entity_view instanceof EntityView);
             this.focus_on_position(entity_view.game_position);
         }
         return entity_view;
@@ -350,7 +351,7 @@ class GameView {
     }
 
     help_text_over_action(action){
-        console.assert(action instanceof concepts.Action);
+        debug.assertion(()=>action instanceof concepts.Action);
         const help_texts = this.help_texts_at(action.target_position);
         const action_tooltip = `-> Action: ${action.name} (${action.constructor.costs.action_points.value} AP)`;
         help_texts.tooltip = add_text_line(action_tooltip, help_texts.tooltip);
@@ -363,13 +364,13 @@ class GameView {
         this.clear_highlights_basic_actions(); // Clear previous highlighting
 
         const available_actions = this.game.turn_info.possible_actions;
-        console.assert(this.player_character instanceof Character);
+        debug.assertion(()=>this.player_character instanceof Character);
         for(const action of Object.values(available_actions)){
-            console.assert(action instanceof concepts.Action);
+            debug.assertion(()=>action instanceof concepts.Action);
             if(action.is_basic && action.is_safe){
                 const help_texts = this.help_text_over_action(action);
-                console.assert(typeof help_texts.info === "string" && help_texts.info.length > 0);
-                console.assert(typeof help_texts.tooltip === "string" && help_texts.tooltip.length > 0);
+                debug.assertion(()=>typeof help_texts.info === "string" && help_texts.info.length > 0);
+                debug.assertion(()=>typeof help_texts.tooltip === "string" && help_texts.tooltip.length > 0);
                 const events = this._action_highlight_events(action);
                 if(action instanceof Move)
                     this._add_highlight(action.target_position, this._highlight_sprites.movement, help_texts.tooltip, help_texts.info, events);
@@ -391,7 +392,7 @@ class GameView {
         this.clear_highlights_basic_actions(); // Clear previous highlighting
 
         for(const action of action_info.actions){
-            console.assert(this.player_character instanceof Character);
+            debug.assertion(()=>this.player_character instanceof Character);
             if(action.target_position){
                 const help_texts = this.help_text_over_action(action);
                 this._add_highlight(action.target_position, this._highlight_sprites.action, help_texts.tooltip, help_texts.info, this._action_highlight_events(action));
@@ -418,7 +419,7 @@ class GameView {
     }
 
     highlight_item_drops(possible_drops){
-        console.assert(possible_drops instanceof Array);
+        debug.assertion(()=>possible_drops instanceof Array);
         this.clear_item_drop_highlight();
         possible_drops.forEach(drop_position => {
             this.item_drop_highlights.push(new Highlight(drop_position, this._highlight_sprites.drop));
@@ -430,7 +431,7 @@ class GameView {
     }
 
     on_action_selection_begin(action_info){
-        console.assert(this.ui.is_selecting_action_target);
+        debug.assertion(()=>this.ui.is_selecting_action_target);
         this.highlight_selected_action_targets(action_info);
         this.clear_action_range_highlight();
         this.show_turn_message(turn_message_action_selection);
@@ -497,14 +498,14 @@ class GameView {
     }
 
     _launch_next_animation_batch(){
-        console.assert(this.current_animations.animation_count === 0);
+        debug.assertion(()=>this.current_animations.animation_count === 0);
         // Get the next animations that are allowed to happen in parallel.
         let delay_for_next_animation = 0;
         const max_frame_time = 1000.0 / 8.0;
         const begin_time = performance.now();
         while(performance.now() - begin_time < max_frame_time){ // timeout!
 
-            console.assert(this.enable_parallel_animations || this.current_animations.animation_count === 0);
+            debug.assertion(()=>this.enable_parallel_animations || this.current_animations.animation_count === 0);
 
             const animation = this._pop_next_event_animation();
             if(!animation) // End of event/animation sequences.
@@ -619,7 +620,7 @@ class GameView {
     }
 
     show_turn_message(message, begin_ms = turn_message_display_begin_ms, end_ms = turn_message_display_end_ms){
-        console.assert(message === undefined || typeof message === "string");
+        debug.assertion(()=>message === undefined || typeof message === "string");
         if(message !== undefined){
             this._turn_message.text = message;
         }
@@ -637,10 +638,10 @@ class GameView {
 
     _update_entities(delta_time){
         const entity_views = this.list_entity_views;
-        console.assert(typeof(delta_time) === 'number');
-        console.assert(entity_views instanceof Array);
+        debug.assertion(()=>typeof(delta_time) === 'number');
+        debug.assertion(()=>entity_views instanceof Array);
         for(const entity_view of entity_views){
-            console.assert(entity_view instanceof EntityView);
+            debug.assertion(()=>entity_view instanceof EntityView);
             entity_view.update(delta_time);
         };
     }
@@ -648,7 +649,7 @@ class GameView {
     get list_entity_views() { return Object.values(this.entity_views); }
 
     _render_entities(canvas_context, filter){
-        console.assert(filter instanceof Function);
+        debug.assertion(()=>filter instanceof Function);
         // We need to render the entities in order of verticality so that things souther
         // than other things can be drawn over, allowing to display higher sprites.
         this.list_entity_views
@@ -857,7 +858,7 @@ class GameView {
     }
 
     focus_on_position(position){
-        console.assert(position instanceof concepts.Position);
+        debug.assertion(()=>position instanceof concepts.Position);
         this._character_focus_highlight.enabled = true;
         this._change_highlight_position(this._character_focus_highlight, position);
     }
@@ -909,10 +910,10 @@ class GameView {
 
     // Re-interpret the game's state from scratch.
     reset(){
-        console.assert(this._requires_reset);
+        debug.assertion(()=>this._requires_reset);
 
         const world = this.game.world;
-        console.assert(world);
+        debug.assertion(()=>world);
 
         this._reset_tilegrid(world);
         this.reset_effects_layers();
@@ -935,7 +936,7 @@ class GameView {
         const add_fx_to_effect = (grid_id, effect_type, effect_func) => {
             const grid = this.game.world.grids[grid_id];
             grid.elements.forEach((effect, idx) => {
-                console.assert(effect instanceof effect_type);
+                debug.assertion(()=>effect instanceof effect_type);
                 if(!effect.fx){
                     const position = position_from_index(this.game.world.width, this.game.world.height, idx);
                     const fx_position = graphic_position(position).translate(square_half_unit_vector);
@@ -962,7 +963,7 @@ class GameView {
 
             const actions_infos = this.player_character.get_all_enabled_actions_types()
                 .map(action_type => {
-                    console.assert(action_type.prototype instanceof concepts.Action);
+                    debug.assertion(()=>action_type.prototype instanceof concepts.Action);
                     const action_type_name = action_type.name;
                     return {
                         [action_type_name]: {
@@ -976,8 +977,8 @@ class GameView {
 
 
             const allowed_actions = Object.values(this.game.turn_info.possible_actions);
-            console.assert(allowed_actions instanceof Array);
-            console.assert(allowed_actions.every(action => action instanceof concepts.Action));
+            debug.assertion(()=>allowed_actions instanceof Array);
+            debug.assertion(()=>allowed_actions.every(action => action instanceof concepts.Action));
             const allowed_actions_per_types = group_per_type(allowed_actions);
             for(const [action_type_name, actions] of Object.entries(allowed_actions_per_types)){
                 if(actions_infos[action_type_name]){
@@ -1021,7 +1022,7 @@ class GameView {
     }
 
     _recreate_entity_views(entities){
-        console.assert(entities instanceof Array);
+        debug.assertion(()=>entities instanceof Array);
         this.entity_views = {};
         entities.forEach(entity => {
             this.add_entity_view(entity);
@@ -1029,13 +1030,13 @@ class GameView {
     }
 
     add_entity_view(entity_or_view_or_id){
-        console.assert(entity_or_view_or_id instanceof concepts.Entity || entity_or_view_or_id instanceof EntityView || Number.isInteger(entity_or_view_or_id));
+        debug.assertion(()=>entity_or_view_or_id instanceof concepts.Entity || entity_or_view_or_id instanceof EntityView || Number.isInteger(entity_or_view_or_id));
 
         let entity_view;
         if(Number.isInteger(entity_or_view_or_id)){
             const entity_id = entity_or_view_or_id;
             entity_or_view_or_id = this.game.world.get_entity(entity_id);
-            console.assert(entity_or_view_or_id instanceof concepts.Entity);
+            debug.assertion(()=>entity_or_view_or_id instanceof concepts.Entity);
         }
 
         if(entity_or_view_or_id instanceof concepts.Entity){
@@ -1047,11 +1048,11 @@ class GameView {
                 this._require_tiles_update = true;
             }
         } else {
-            console.assert(entity_or_view_or_id instanceof EntityView);
+            debug.assertion(()=>entity_or_view_or_id instanceof EntityView);
             entity_view = entity_or_view_or_id;
         }
-        console.assert(entity_view instanceof EntityView);
-        console.assert(this.entity_views[entity_view.id] === undefined || this.entity_views[entity_view.id].id === entity_view.id);
+        debug.assertion(()=>entity_view instanceof EntityView);
+        debug.assertion(()=>this.entity_views[entity_view.id] === undefined || this.entity_views[entity_view.id].id === entity_view.id);
         this.entity_views[entity_view.id] = entity_view;
         entity_view.update(0);
         return entity_view;
@@ -1093,8 +1094,8 @@ class GameView {
     }
 
     center_on_position(grid_position, ms_to_center = 0){
-        console.assert(Number.isInteger(grid_position.x) && Number.isInteger(grid_position.y));
-        console.assert(Number.isInteger(ms_to_center) && ms_to_center >= 0);
+        debug.assertion(()=>Number.isInteger(grid_position.x) && Number.isInteger(grid_position.y));
+        debug.assertion(()=>Number.isInteger(ms_to_center) && ms_to_center >= 0);
         this.stop_camera_animation();
 
         const gfx_position = graphics.from_grid_to_graphic_position(grid_position, PIXELS_PER_TILES_SIDE)

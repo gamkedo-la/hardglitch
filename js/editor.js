@@ -8,6 +8,7 @@ export {
     clear,
 };
 
+import * as debug from "./system/debug.js";
 import * as concepts from "./core/concepts.js";
 import * as audio from "./system/audio.js";
 import * as graphics from "./system/graphics.js";
@@ -53,12 +54,12 @@ function clear(){
 }
 
 function set_text(text){ // TODO: add a text display in the Canvas to display this
-    console.log(text);
+    debug.log(text);
     text_to_display = text;
 }
 
 function set_central_text(text){ // TODO: add a text display in the Canvas to display this
-    console.log(text);
+    debug.log(text);
     central_text = text;
 }
 
@@ -127,12 +128,12 @@ function display_mouse_position(){
 
 function make_edit_operation_remove_any_entity_at(){
     return (game_session, position)=>{
-        console.assert(game_session instanceof GameSession);
-        console.assert(position);
+        debug.assertion(()=>game_session instanceof GameSession);
+        debug.assertion(()=>position);
 
         const removed_entities = game_session.world.remove_entity_at(position);
         if(removed_entities.length > 0){
-            console.log(`REMOVED ${removed_entities.length} ENTITIES`);
+            debug.log(`REMOVED ${removed_entities.length} ENTITIES`);
             return true;
         }
         else
@@ -141,16 +142,16 @@ function make_edit_operation_remove_any_entity_at(){
 }
 
 function make_edit_operation_add_entity_at(entity_type){
-    console.assert(entity_type.prototype instanceof concepts.Entity);
+    debug.assertion(()=>entity_type.prototype instanceof concepts.Entity);
     return (game_session, position) => {
-        console.assert(game_session instanceof GameSession);
-        console.assert(position);
+        debug.assertion(()=>game_session instanceof GameSession);
+        debug.assertion(()=>position);
 
         if(game_session.game.is_walkable(position)){
             const entity = new entity_type();
             entity.position = position;
             game_session.world.add_entity(entity);
-            console.log(`ADDED ${entity.name} ENTITY`);
+            debug.log(`ADDED ${entity.name} ENTITY`);
             return true;
         }
         else
@@ -160,17 +161,17 @@ function make_edit_operation_add_entity_at(entity_type){
 
 
 function make_edit_operation_change_tile(tile_id, world_tile_grid_id){
-    console.assert(Number.isInteger(tile_id) || tile_id === undefined);
-    console.assert(Object.values(grid_ID).includes(world_tile_grid_id));
+    debug.assertion(()=>Number.isInteger(tile_id) || tile_id === undefined);
+    debug.assertion(()=>Object.values(grid_ID).includes(world_tile_grid_id));
     return (game_session, position) => {
-        console.assert(game_session instanceof GameSession);
-        console.assert(position);
+        debug.assertion(()=>game_session instanceof GameSession);
+        debug.assertion(()=>position);
 
         const tile_grid = game_session.world.grids[world_tile_grid_id];
-        console.assert(tile_grid instanceof Grid);
+        debug.assertion(()=>tile_grid instanceof Grid);
         if(tile_grid.get_at(position) != tile_id){
             tile_grid.set_at(tile_id, position);
-            console.log(`CHANGE TILE TO ${tile_id} ENTITY`);
+            debug.log(`CHANGE TILE TO ${tile_id} ENTITY`);
             return true;
         }
         else
@@ -182,8 +183,8 @@ let current_edit_action; // Function that will be called when we click on someth
 
 class EditPaletteButton extends ui.Button {
     constructor(text, edit_action){
-        console.assert(typeof text === "string");
-        console.assert(edit_action === undefined || edit_action instanceof Function);
+        debug.assertion(()=>typeof text === "string");
+        debug.assertion(()=>edit_action === undefined || edit_action instanceof Function);
 
         super({
             position: Vector2_origin,
@@ -209,7 +210,7 @@ class EditPaletteButton extends ui.Button {
         edition_palette.unlock_buttons();
         this.enabled = false;
         current_edit_action = this._edit_action;
-        console.log(`EDITOR PALETTE BUTTON SELECTED : ${this.text}`);
+        debug.log(`EDITOR PALETTE BUTTON SELECTED : ${this.text}`);
     }
 
     get position() { return super.position; }
@@ -233,7 +234,7 @@ class EditionPaletteUI {
     button_remove_entity = new EditPaletteButton("Remove Entity", make_edit_operation_remove_any_entity_at());
 
     constructor(game_session){
-        console.assert(game_session instanceof GameSession);
+        debug.assertion(()=>game_session instanceof GameSession);
 
         this.palette_buttons = [];
 
@@ -343,9 +344,9 @@ class EditionPaletteUI {
 let edition_palette;
 
 function update_world_edition(game_session, delta_time){
-    console.assert(game_session instanceof GameSession);
-    console.assert(typeof delta_time === "number");
-    console.assert(edition_palette instanceof EditionPaletteUI);
+    debug.assertion(()=>game_session instanceof GameSession);
+    debug.assertion(()=>typeof delta_time === "number");
+    debug.assertion(()=>edition_palette instanceof EditionPaletteUI);
     // TODO: use a map of input pattern => action
 
     edition_palette.update(delta_time);
@@ -378,7 +379,7 @@ function help_text_top_left(){
 }
 
 function display_help(game_session){
-    console.assert(game_session instanceof GameSession);
+    debug.assertion(()=>game_session instanceof GameSession);
 
     const display_x = help_text_top_left().x;
 
@@ -476,7 +477,7 @@ function display_editor_help(){
 }
 
 function display_stats_of_pointed_character(game_session){
-    console.assert(game_session instanceof GameSession);
+    debug.assertion(()=>game_session instanceof GameSession);
 
     const center = graphics.canvas_center_position();
     const stats_x = center.x;
@@ -516,7 +517,7 @@ function display_stats_of_pointed_character(game_session){
 }
 
 function display_debug_info(game_session){
-    console.assert(game_session instanceof GameSession);
+    debug.assertion(()=>game_session instanceof GameSession);
     graphics.camera.begin_in_screen_rendering();
 
     const center = graphics.canvas_center_position();
@@ -554,7 +555,7 @@ function display(game_session){
 }
 
 function update_debug_keys(game_session){
-    console.assert(game_session instanceof GameSession);
+    debug.assertion(()=>game_session instanceof GameSession);
 
     const ongoing_target_selection = game_session.view.ui.is_selecting_action_target;
     if(ongoing_target_selection
@@ -638,7 +639,7 @@ function update(game_session, delta_time){
 }
 
 function begin_edition(game_session){
-    console.assert(game_session instanceof GameSession);
+    debug.assertion(()=>game_session instanceof GameSession);
 
     game_session.view.enable_edition = true;
 
@@ -668,9 +669,9 @@ function end_edition(game_session){
 }
 
 function export_world(world){
-    console.assert(world instanceof concepts.World);
+    debug.assertion(()=>world instanceof concepts.World);
 
-    console.log("WORLD EXPORT:");
-    console.log(serialize_world(world));
+    debug.log("WORLD EXPORT:");
+    debug.log(serialize_world(world));
 
 }

@@ -7,6 +7,7 @@ export {
     CorruptionVanished,
 }
 
+import * as debug from "../system/debug.js";
 import * as concepts from "../core/concepts.js";
 import * as visibility from "../core/visibility.js";
 import * as anim from "../system/animation.js";
@@ -43,7 +44,7 @@ Game Of Life.`;
 
 class CorruptionSpawned extends concepts.Event {
     constructor(position, corruption, from){
-        console.assert(corruption instanceof Corruption);
+        debug.assertion(()=>corruption instanceof Corruption);
         super({
             allow_parallel_animation: false,
             description: `Corruption spawned at ${JSON.stringify(position)}`,
@@ -57,7 +58,7 @@ class CorruptionSpawned extends concepts.Event {
     get focus_positions() { return [ this.position, this.from ]; }
 
     *animation(game_view){
-        console.assert(game_view instanceof GameView);
+        debug.assertion(()=>game_view instanceof GameView);
 
         const target_gfx_pos = graphic_position(this.position).translate(square_half_unit_vector);
 
@@ -76,7 +77,7 @@ class CorruptionSpawned extends concepts.Event {
 
 class CorruptionVanished extends concepts.Event {
     constructor(position, corruption){
-        console.assert(corruption instanceof Corruption);
+        debug.assertion(()=>corruption instanceof Corruption);
         super({
             allow_parallel_animation: false,
             description: `Corruption vanished at ${JSON.stringify(position)}`,
@@ -90,8 +91,8 @@ class CorruptionVanished extends concepts.Event {
 
 
     *animation(game_view){
-        console.assert(game_view instanceof GameView);
-        console.assert(this.corruption.fx);
+        debug.assertion(()=>game_view instanceof GameView);
+        debug.assertion(()=>this.corruption.fx);
         // TODO: consider adding a "speeshhh" effet just for now.
         this.corruption.fx.done = true;
         // TODO: add sound?
@@ -114,7 +115,7 @@ class Corrupted extends concepts.Event {
     get focus_positions() { return [ this.position, this.from ]; }
 
     *animation(game_view){
-        console.assert(game_view instanceof GameView);
+        debug.assertion(()=>game_view instanceof GameView);
         // TODO: add sound?
         audio.playEvent("corruptAction");
         // TODO: add an animation here
@@ -139,10 +140,10 @@ class Corrupt extends concepts.Action {
     }
 
     execute(world, character){
-        console.assert(world instanceof concepts.World);
+        debug.assertion(()=>world instanceof concepts.World);
         const corruption_grid = world.grids[grid_ID.corruption];
-        console.assert(corruption_grid instanceof Grid);
-        console.assert(!(corruption_grid.get_at(this.target_position) instanceof Corruption));
+        debug.assertion(()=>corruption_grid instanceof Grid);
+        debug.assertion(()=>!(corruption_grid.get_at(this.target_position) instanceof Corruption));
         const corruption = new Corruption();
         corruption_grid.set_at(corruption, this.target_position);
         return [
@@ -155,12 +156,12 @@ class Corrupt extends concepts.Action {
 // This update the state of squares being corrupted or not by following the game of life's rules.
 // See https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
 function update_corruption_state(world){
-    console.assert(world instanceof concepts.World);
-    console.assert(is_valid_world(world));
+    debug.assertion(()=>world instanceof concepts.World);
+    debug.assertion(()=>is_valid_world(world));
     const events = [];
 
     const corruption_grid = world.grids[grid_ID.corruption];
-    console.assert(corruption_grid instanceof Grid);
+    debug.assertion(()=>corruption_grid instanceof Grid);
 
     const new_corruption_grid = new Grid(corruption_grid.width, corruption_grid.height);
     const count_neighbors = (position) => {
@@ -210,19 +211,19 @@ function update_corruption_state(world){
     }
 
     world.grids[grid_ID.corruption] = new_corruption_grid;
-    console.assert(is_valid_world(world));
+    debug.assertion(()=>is_valid_world(world));
 
     return events;
 }
 
 
 function damage_anything_in_corrupted_tiles(world){
-    console.assert(world instanceof concepts.World);
-    console.assert(is_valid_world(world));
+    debug.assertion(()=>world instanceof concepts.World);
+    debug.assertion(()=>is_valid_world(world));
     const events = [];
 
     const corruption_grid = world.grids[grid_ID.corruption];
-    console.assert(corruption_grid instanceof Grid);
+    debug.assertion(()=>corruption_grid instanceof Grid);
 
     world.entities
         .filter(entity => corruption_grid.get_at(entity.position) instanceof Corruption)
@@ -248,11 +249,11 @@ class Rule_Corruption extends concepts.Rule {
 
 
     get_actions_for(character, world){
-        console.assert(world instanceof concepts.World);
-        console.assert(character instanceof Character);
+        debug.assertion(()=>world instanceof concepts.World);
+        debug.assertion(()=>character instanceof Character);
 
         const corruption_grid = world.grids[grid_ID.corruption];
-        console.assert(corruption_grid instanceof Grid);
+        debug.assertion(()=>corruption_grid instanceof Grid);
 
         const is_valid_target = (position) => world.is_valid_position(position)
                                         && !(corruption_grid.get_at(position) instanceof Corruption);

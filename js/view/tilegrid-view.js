@@ -4,6 +4,7 @@ export {
     TileGridView,
 };
 
+import * as debug from "../system/debug.js";
 import { config } from "../game-config.js";
 
 import { Grid } from "../system/grid.js";
@@ -35,7 +36,7 @@ class TileGridView {
 
     get enable_grid_lines() { return this._enable_grid_lines; }
     set enable_grid_lines(enabled) {
-        console.assert(typeof enabled === "boolean");
+        debug.assertion(()=>typeof enabled === "boolean");
         if(this._enable_grid_lines !== enabled){
             this._redraw_floor_requested = true;
             this._enable_grid_lines = enabled;
@@ -44,7 +45,7 @@ class TileGridView {
 
     get enable_overlay() { return this._enable_overlay; }
     set enable_overlay(enabled) {
-        console.assert(typeof enabled === "boolean");
+        debug.assertion(()=>typeof enabled === "boolean");
         if(this._enable_overlay !== enabled){
             this._redraw_floor_requested = true;
             this._redraw_surface_requested = true;
@@ -54,7 +55,7 @@ class TileGridView {
 
     get enable_tile_sprites() { return this._enable_tile_sprites; }
     set enable_tile_sprites(enabled) {
-        console.assert(typeof enabled === "boolean");
+        debug.assertion(()=>typeof enabled === "boolean");
         if(this._enable_tile_sprites !== enabled){
             this._redraw_floor_requested = true;
             this._redraw_surface_requested = true;
@@ -65,8 +66,8 @@ class TileGridView {
     reset(position, size, ground_tile_grid, surface_tile_grid){
         // initialize game fx view
         this.fx_view = new GameFxView();
-        console.assert(position instanceof Vector2);
-        console.assert(size instanceof Vector2 && size.x > 1 && size.y > 1);
+        debug.assertion(()=>position instanceof Vector2);
+        debug.assertion(()=>size instanceof Vector2 && size.x > 1 && size.y > 1);
         this.position = position;
         this.size = size;
         // FIXME: figure out better way of allocating wall model

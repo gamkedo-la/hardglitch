@@ -5,6 +5,7 @@ export {
     Level_4_IntroScreen,
 }
 
+import * as debug from "./system/debug.js";
 import * as graphics from "./system/graphics.js";
 import * as audio from "./system/audio.js";
 import * as input from "./system/input.js";
@@ -136,8 +137,8 @@ class LevelIntroScreen extends fsm.State {
 
     constructor(level_title, level_idx, level_desc, level_color1, level_color2){
         super();
-        console.assert(typeof level_title ===  "string");
-        console.assert(Number.isInteger(level_idx) && level_idx < game_levels.length);
+        debug.assertion(()=>typeof level_title ===  "string");
+        debug.assertion(()=>Number.isInteger(level_idx) && level_idx < game_levels.length);
         this.title = level_title;
         this.desc = level_desc; //displays the level copy (prose about the level)
         this.level_idx = level_idx;
@@ -235,7 +236,7 @@ class LevelIntroScreen extends fsm.State {
             this.character_view.position.y,
             this.color2);
 
-        console.log(this.character_view.position.y);
+        debug.log(this.character_view.position.y);
 
         this.animations.play(this.animation());
         this.animations.play(this.move_background(background_y_move));
@@ -336,7 +337,7 @@ class LevelIntroScreen extends fsm.State {
     *animateCopy(){
 
         let xPos = this.desc_display.title.position.x //this is the x position of the level desc object
-        //console.log(this.desc_display);
+        //debug.log(this.desc_display);
         /*
         yield * tween(xPos,
                       xPos + 500,

@@ -24,7 +24,8 @@ export {
   camera,
   screen_canvas_context,
 };
-2
+
+import * as debug from "../system/debug.js";
 import * as spatial from "./spatial.js"
 import { is_number, index_from_position } from "./utility.js";
 
@@ -33,8 +34,8 @@ var canvas, screen_canvas_context, loaded_assets;
 
 // Return a vector in the graphic-world by interpreting a fixed-size grid position.
 function from_grid_to_graphic_position(vec2, square_size, graphics_origin = {x:0, y:0}){
-  console.assert(vec2);
-  console.assert(Number.isInteger(square_size));
+  debug.assertion(()=>vec2);
+  debug.assertion(()=>Number.isInteger(square_size));
   return new spatial.Vector2({ x: graphics_origin.x + (vec2.x * square_size)
                              , y: graphics_origin.y + (vec2.y * square_size)
                              });
@@ -42,8 +43,8 @@ function from_grid_to_graphic_position(vec2, square_size, graphics_origin = {x:0
 
 // Return a vector in the game-world by interpreting a graphic-world position.
 function from_graphic_to_grid_position(vec2, square_size, graphics_origin = {x:0, y:0}){
-  console.assert(vec2 && vec2.x != undefined && vec2.y != undefined);
-  console.assert(Number.isInteger(square_size));
+  debug.assertion(()=>vec2 && vec2.x != undefined && vec2.y != undefined);
+  debug.assertion(()=>Number.isInteger(square_size));
   return new spatial.Vector2({ x: Math.floor((vec2.x - graphics_origin.x) / square_size)
                              , y: Math.floor((vec2.y - graphics_origin.y) / square_size)
                              });
@@ -56,7 +57,7 @@ class Camera{
 
   get position() { return new spatial.Vector2(this.transform.position); }
   set position(new_pos) {
-    console.assert(new_pos instanceof spatial.Vector2);
+    debug.assertion(()=>new_pos instanceof spatial.Vector2);
     this.transform.position = new_pos;
     this._rectangle.position = new_pos;
     this._rectangle.size = { x:canvas.width, y:canvas.height };
@@ -68,12 +69,12 @@ class Camera{
   get center_position() { return this.position.translate({ x: canvas.width / 2, y: canvas.height / 2 }); }
 
   center(position_at_center){
-    console.assert(position_at_center instanceof spatial.Vector2);
+    debug.assertion(()=>position_at_center instanceof spatial.Vector2);
     this.position = position_at_center.translate({ x: -(canvas.width / 2), y: -(canvas.height / 2) });
   }
 
   translate(translation){
-    console.assert(translation instanceof spatial.Vector2);
+    debug.assertion(()=>translation instanceof spatial.Vector2);
     this.transform.position = this.transform.position.translate(translation);
     translation = translation.inverse;
     screen_canvas_context.translate(translation.x, translation.y);
@@ -94,7 +95,7 @@ class Camera{
   // This is useful to display things that should appear as part of the interface.
   // BEWARE: don't call this if you didn't call end_in_screen_rendering() before!!!
   begin_in_screen_rendering(){
-    console.assert(!this._in_screen_rendering);
+    debug.assertion(()=>!this._in_screen_rendering);
     this._in_screen_rendering = true;
     screen_canvas_context.save();
     screen_canvas_context.resetTransform();
@@ -103,7 +104,7 @@ class Camera{
   // Back to in-world space rendering (any draw after calling this function will be relative to the position of the camera)
   // BEWARE: will only work if you called begin_in_screen_rendering() first before!!!
   end_in_screen_rendering(){
-    console.assert(this._in_screen_rendering);
+    debug.assertion(()=>this._in_screen_rendering);
     screen_canvas_context.restore();
     this._in_screen_rendering = false;
   }
@@ -178,16 +179,16 @@ class Sprite {
   }
 
   force_frame(frame_idx) {
-    console.assert(is_number(frame_idx));
-    console.assert(frame_idx >= 0 && frame_idx < this.frames.length);
+    debug.assertion(()=>is_number(frame_idx));
+    debug.assertion(()=>frame_idx >= 0 && frame_idx < this.frames.length);
     this._current_frame = this.frames[frame_idx];
     this._frame_changed_since_update = true;
   }
 
   start_animation(animation_id){
-    console.assert(animation_id);
+    debug.assertion(()=>animation_id);
     const animation = this.animations[animation_id];
-    console.assert(animation);
+    debug.assertion(()=>animation);
     this._current_animation = animation;
     this.animation_time = 0.0;
     this.animation_keyframe_idx = 0;
@@ -280,7 +281,7 @@ class Sprite {
     if(!this._current_animation)
       return ;
 
-    console.assert(is_number(this.animation_time));
+    debug.assertion(()=>is_number(this.animation_time));
     this.animation_time += delta_time;
     let need_to_change_frame = false;
     while(true){ // Try to find the right keyframe to display
@@ -343,12 +344,12 @@ class TileGrid
   enable_draw_background = false;
 
   constructor(position, size, square_size, sprite_defs, tile_id_grid){
-    console.assert(position instanceof spatial.Vector2);
-    console.assert(size instanceof spatial.Vector2);
-    console.assert(is_number(square_size));
-    console.assert(tile_id_grid instanceof Array);
-    console.assert(tile_id_grid.length == size.x * size.y);
-    console.assert(sprite_defs);
+    debug.assertion(()=>position instanceof spatial.Vector2);
+    debug.assertion(()=>size instanceof spatial.Vector2);
+    debug.assertion(()=>is_number(square_size));
+    debug.assertion(()=>tile_id_grid instanceof Array);
+    debug.assertion(()=>tile_id_grid.length == size.x * size.y);
+    debug.assertion(()=>sprite_defs);
 
     this.position = position;
     this.size = size;
@@ -371,25 +372,25 @@ class TileGrid
 
   // Adds a sprite that can be used for tiles,
   set_tile_type(tile_id, sprite_def){
-    //console.log("set_tile_type: " + tile_id + " sprite_def: " + sprite_def);
-    console.assert(tile_id !== undefined);
-    console.assert(sprite_def);
+    //debug.log("set_tile_type: " + tile_id + " sprite_def: " + sprite_def);
+    debug.assertion(()=>tile_id !== undefined);
+    debug.assertion(()=>sprite_def);
     const sprite = new Sprite(sprite_def);
     this.sprites[tile_id] = sprite;
     return sprite;
   }
 
   change_tile(position, tile_sprite_id, sprite_def){
-    console.assert(position && Number.isInteger(position.x) && Number.isInteger(position.y));
+    debug.assertion(()=>position && Number.isInteger(position.x) && Number.isInteger(position.y));
 
     // First make sure that the sprite is available.
-    console.assert(tile_sprite_id);
+    debug.assertion(()=>tile_sprite_id);
     let sprite = this.sprites[tile_sprite_id];
     if(!sprite){
-      console.assert(sprite_def);
+      debug.assertion(()=>sprite_def);
       sprite = set_tile_type(tile_sprite_id, sprite_def);
     }
-    console.assert(sprite);
+    debug.assertion(()=>sprite);
 
     // Then record the change.
     this.tile_id_grid[this.index(position)] = tile_sprite_id;
@@ -426,7 +427,7 @@ class TileGrid
         if(sprite_id === undefined) // Undefined means we display no sprite.
           continue;
         const sprite = this.sprites[sprite_id];
-        console.assert(sprite);
+        debug.assertion(()=>sprite);
         const graphic_pos = from_grid_to_graphic_position({x, y}, this.square_size, this.position);
         sprite.position = graphic_pos;
         sprite.draw(this._offscreen_canvas_context);
@@ -447,7 +448,7 @@ class TileGrid
   //   x_end: 42, y_end: 42,   // Bottom right of the squares to redraw
   // }
   request_redraw(rect) {
-    //console.assert(rect && Number.isInteger(rect.x_begin) && Number.isInteger(rect.y_begin) && Number.isInteger(rect.x_end) && Number.isInteger(rect.y_end) );
+    //debug.assertion(()=>rect && Number.isInteger(rect.x_begin) && Number.isInteger(rect.y_begin) && Number.isInteger(rect.x_end) && Number.isInteger(rect.y_end) );
     this._rendering_requests.push(rect);
   }
 
@@ -471,7 +472,7 @@ class TileGrid
 
   tile_sprite_id_at(position){
     const tile_idx = this.index(position);
-    console.assert(tile_idx >= 0 && tile_idx < this.tile_id_grid.length);
+    debug.assertion(()=>tile_idx >= 0 && tile_idx < this.tile_id_grid.length);
     const tile_sprite_id = this.tile_id_grid[tile_idx];
     return tile_sprite_id;
   }
@@ -503,7 +504,7 @@ class TileGrid
   }
 
   draw(canvas_context, position_predicate){
-    console.assert(canvas_context);
+    debug.assertion(()=>canvas_context);
     canvas_context.save();
 
     if(position_predicate)
@@ -537,14 +538,14 @@ function initialize(){
 }
 
 function set_loaded_assets(assets){
-  console.assert(assets);
-  console.assert(assets.images);
+  debug.assertion(()=>assets);
+  debug.assertion(()=>assets.images);
   loaded_assets = assets;
 }
 
 function canvas_resize_to_window(){
-  console.assert(Number.isInteger(window.innerWidth));
-  console.assert(Number.isInteger(window.innerHeight));
+  debug.assertion(()=>Number.isInteger(window.innerWidth));
+  debug.assertion(()=>Number.isInteger(window.innerHeight));
   // We want an even picture to avoid weird scaling issues making sprites display weirdly.
   canvas.width  = window.innerWidth % 2 === 0 ? window.innerWidth : window.innerWidth - 1;
   canvas.height = window.innerHeight % 2 === 0 ? window.innerHeight : window.innerHeight - 1;
@@ -609,7 +610,7 @@ const text_defaults = {
 };
 
 function text_operation(canvas_context, options, operation){
-  console.assert(options instanceof Object)
+  debug.assertion(()=>options instanceof Object)
   canvas_context.save();
   canvas_context.font = options.font ? options.font : text_defaults.font;
   canvas_context.fillStyle = options.color ? options.color : text_defaults.color;

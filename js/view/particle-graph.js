@@ -1,8 +1,8 @@
+import * as debug from "../system/debug.js";
 import { Color } from "../system/color.js";
 import { ofmt, random_int } from "../system/utility.js";
 import { ParticleGroup } from "../system/particles.js";
 import { sides } from "./wall-model.js";
-
 export { Graph, TileGraphBuilder }
 
 class Graph {
@@ -63,7 +63,7 @@ class Graph {
     getRandEdge(v, lastv) {
         let vert = this.getVert(v);
         if (!vert) {
-            console.log("vert not found: " + ofmt(v));
+            debug.log("vert not found: " + ofmt(v));
             return undefined;
         }
         // randomly choose new edge (exclude lastv if given)

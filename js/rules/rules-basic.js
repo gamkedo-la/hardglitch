@@ -10,6 +10,7 @@ export {
     fail_game,
 };
 
+import * as debug from "../system/debug.js";
 import * as concepts from "../core/concepts.js";
 import * as tiles from "../definitions-tiles.js";
 import { sprite_defs } from "../game-assets.js";
@@ -27,7 +28,7 @@ import { auto_newlines } from "../system/utility.js";
 // That actor decided to take a pause.
 class Waited extends concepts.Event {
     constructor(character){
-        console.assert(character instanceof Character);
+        debug.assertion(()=>character instanceof Character);
         super({
             allow_parallel_animation: true,
             description: `Entity ${character.id} Waited`,
@@ -39,9 +40,9 @@ class Waited extends concepts.Event {
     get focus_positions() { return [ this.character_position ]; }
 
     *animation(game_view){
-        console.assert(game_view instanceof GameView);
+        debug.assertion(()=>game_view instanceof GameView);
         const character_view = game_view.focus_on_entity(this.character_id);
-        console.assert(character_view instanceof CharacterView);
+        debug.assertion(()=>character_view instanceof CharacterView);
         yield* anim.wait(game_view.fx_view, character_view, 333);
     }
 };
@@ -58,15 +59,15 @@ class Wait extends concepts.Action {
     }
 
     constructor(character){
-        console.assert(character instanceof Character);
+        debug.assertion(()=>character instanceof Character);
         super("wait", "Wait", undefined,
         ); // Costs the rest of the current AP of the character
         this.is_generated = true;
     }
 
     execute(world, character) {
-        console.assert(world instanceof concepts.World);
-        console.assert(character instanceof Character);
+        debug.assertion(()=>world instanceof concepts.World);
+        debug.assertion(()=>character instanceof Character);
         character.skip_turn = true;
         return [ new Waited(character) ];
     }
@@ -77,7 +78,7 @@ class Wait extends concepts.Action {
 // The most basic rules.
 class Rule_BasicActions extends concepts.Rule {
     get_actions_for(character, world) {
-        console.assert(character instanceof Character);
+        debug.assertion(()=>character instanceof Character);
 
         return {
             wait: new Wait(character) // Anyone can "wait".
@@ -92,7 +93,7 @@ function is_game_over(world){
     // Note that this is different from characters controlled by the player (Actor.decide_next_action() returns null)
     // but not being the player.
     for(const character of world.bodies){
-        console.assert(character instanceof Character);
+        debug.assertion(()=>character instanceof Character);
         if(character.is_player_actor) // found a player character: not game over
             return false;
     }
@@ -110,7 +111,7 @@ class GameOver extends concepts.Event {
     get is_world_event() { return true; }
 
     *animation(game_view){
-        console.assert(game_view instanceof GameView);
+        debug.assertion(()=>game_view instanceof GameView);
         game_view.show_central_message("  GAME OVER!\nPRESS ANY KEY");
         while(true) yield;
     }
@@ -148,7 +149,7 @@ class Rule_GameOver extends concepts.Rule {
 
 class PlayerExitLevel extends concepts.Event {
     constructor(character){
-        console.assert(character instanceof Character);
+        debug.assertion(()=>character instanceof Character);
         super({
             description: `Player character ${character.id} exited the level!`
         });
@@ -161,9 +162,9 @@ class PlayerExitLevel extends concepts.Event {
     get focus_positions() { return [ this.exit_position ]; }
 
     *animation(game_view){
-        console.assert(game_view instanceof GameView);
+        debug.assertion(()=>game_view instanceof GameView);
         const character_view = game_view.focus_on_entity(this.character_id);
-        console.assert(character_view instanceof CharacterView);
+        debug.assertion(()=>character_view instanceof CharacterView);
 
         game_view.show_central_message("YOU FOUND AN EXIT!\n     PRESS ANY KEY");
         game_view.clear_focus();
@@ -171,9 +172,9 @@ class PlayerExitLevel extends concepts.Event {
         game_view.center_on_position(character_view.game_position, 500).then(()=> ready_to_exit = true );
         audio.playEvent("exit_bus");
         while(!ready_to_exit) yield;
-        console.log("here before exited");
+        debug.log("here before exited");
         yield* anim.exited(game_view.fx_view, character_view);
-        console.log("here after exited");
+        debug.log("here after exited");
         while(true) yield;
     }
 };
@@ -183,7 +184,7 @@ class PlayerExitLevel extends concepts.Event {
 class Rule_LevelExit extends concepts.Rule {
 
     any_player_character_on_exit_tile_exits_level(world){
-        console.assert(world instanceof concepts.World);
+        debug.assertion(()=>world instanceof concepts.World);
 
         if(world.is_finished) // The game is already finished.
             return [];
@@ -192,7 +193,7 @@ class Rule_LevelExit extends concepts.Rule {
         const player_characters = world.bodies.filter(character => character.is_player_actor);
 
         for(const player_character of player_characters){
-            console.assert(player_character instanceof Character)
+            debug.assertion(()=>player_character instanceof Character)
             const player_position = player_character.position;
             if(exit_positions.some(position => player_position.equals(position))){
                 world.is_finished = true;
@@ -219,7 +220,7 @@ class Rule_Destroy_NoIntegrity extends concepts.Rule {
     destroy_characters_with_no_integrity(world){
         const events = [];
         world.bodies.forEach(character =>{
-            console.assert(character instanceof Character);
+            debug.assertion(()=>character instanceof Character);
             if(character.stats.integrity.value <= 0){
                 events.push(...destroy_entity(character, world));
             }

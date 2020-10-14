@@ -2,6 +2,7 @@ export {
     Screen_Demo,
 }
 
+import * as debug from "./system/debug.js";
 import * as fsm from "./system/finite-state-machine.js";
 import * as ui from "./system/ui.js";
 import * as input from "./system/input.js";
@@ -25,7 +26,7 @@ class Screen_Demo extends fsm.State {
     }
 
     _init_ui(){
-        console.assert(this.ui === undefined);
+        debug.assertion(()=>this.ui === undefined);
         this.ui = {
             message : new ui.Text({
                 text: "End of the DEMO - More too come very soon!",
@@ -77,7 +78,7 @@ class Screen_Demo extends fsm.State {
     }
 
     *enter(level_to_play){
-        console.assert(Number.isInteger(level_to_play) || level_to_play !== undefined);
+        debug.assertion(()=>Number.isInteger(level_to_play) || level_to_play !== undefined);
         this._level_to_play = level_to_play;
         if(!this.ui){
             this._init_ui();

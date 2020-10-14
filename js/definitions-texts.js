@@ -1,6 +1,7 @@
 // Put here general texts used in the game.
 // Export the texts so that we can use them in the rest of the code.
 
+import * as debug from "./system/debug.js";
 import * as concepts from "./core/concepts.js";
 import { auto_newlines } from "./system/utility.js";
 
@@ -163,7 +164,7 @@ function signed_number_str(number){
 function stats_modifiers_description(modifiers, with_signs = true){
     if(!modifiers)
         return;
-    console.assert(modifiers instanceof Object);
+    debug.assertion(()=>modifiers instanceof Object);
     let description = "";
     let line = 0;
     const maybe_newline = ()=> line++ > 0 ? '\n' : '';
@@ -201,7 +202,7 @@ function stats_modifiers_description(modifiers, with_signs = true){
 const max_action_list_line_width = 30;
 
 function item_description(item){
-    console.assert(item instanceof concepts.Item);
+    debug.assertion(()=>item instanceof concepts.Item);
 
     const item_stats_modifiers = stats_modifiers_description(item.stats_modifiers);
     let action_count = 0;

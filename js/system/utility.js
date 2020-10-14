@@ -30,11 +30,12 @@ export {
     every_members,
 }
 
+import * as debug from "../system/debug.js";
 
 // Rotates the elements of an array-like object.
 function rotate_array(array, count = 1){
-    console.assert(array instanceof Array);
-    console.assert(Number.isInteger(count) && count >=0);
+    debug.assertion(()=>array instanceof Array);
+    debug.assertion(()=>Number.isInteger(count) && count >=0);
     while(count > 0){
         let element = array.shift();
         array.push(element);
@@ -58,7 +59,7 @@ function shuffle_array(a) {
 
 // Return a random element of the provided array.
 function random_sample(array){
-    console.assert(array instanceof Array);
+    debug.assertion(()=>array instanceof Array);
     if(array.length == 0)
         return null;
     return array[ random_int(0, array.length - 1) ];
@@ -72,8 +73,8 @@ function random_float(min, max) {
 // Get a random integer between [min, max] (both inclusive)
 // Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
 function random_int(min, max) {
-    console.assert(Number.isInteger(min));
-    console.assert(Number.isInteger(max));
+    debug.assertion(()=>Number.isInteger(min));
+    debug.assertion(()=>Number.isInteger(max));
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive
@@ -84,22 +85,22 @@ function is_number(n) {
 }
 
 function index_from_position(width, height, position){
-    console.assert(Number.isInteger(width));
-    console.assert(Number.isInteger(height));
-    console.assert(width > 0);
-    console.assert(height > 0);
-    console.assert(Number.isInteger(position.x) && Number.isInteger(position.y));
-    console.assert(position.x < width);
-    console.assert(position.y < height);
+    debug.assertion(()=>Number.isInteger(width));
+    debug.assertion(()=>Number.isInteger(height));
+    debug.assertion(()=>width > 0);
+    debug.assertion(()=>height > 0);
+    debug.assertion(()=>Number.isInteger(position.x) && Number.isInteger(position.y));
+    debug.assertion(()=>position.x < width);
+    debug.assertion(()=>position.y < height);
     return (position.y * width) + position.x;
 }
 
 function position_from_index(width, height, index){
-    console.assert(Number.isInteger(width));
-    console.assert(Number.isInteger(height));
-    console.assert(width > 0);
-    console.assert(height > 0);
-    console.assert(Number.isInteger(index));
+    debug.assertion(()=>Number.isInteger(width));
+    debug.assertion(()=>Number.isInteger(height));
+    debug.assertion(()=>width > 0);
+    debug.assertion(()=>height > 0);
+    debug.assertion(()=>Number.isInteger(index));
 
     return { x: index % width, y: Math.floor(index / width) };
 }
@@ -277,8 +278,8 @@ function* lazy_call(function_to_call, ...args){
 
 // Adds a line with a jumpline character to a string, IFF that string have something already.
 function add_text_line(text, new_line_string = ""){
-    console.assert(typeof text === "string" || text instanceof String);
-    console.assert(typeof new_line_string === "string" || new_line_string instanceof String);
+    debug.assertion(()=>typeof text === "string" || text instanceof String);
+    debug.assertion(()=>typeof new_line_string === "string" || new_line_string instanceof String);
 
     if(text.length > 0){
         text += `\n${new_line_string}`
@@ -300,13 +301,13 @@ function add_text_line(text, new_line_string = ""){
  * @return {string} A new string with the spliced substring.
  */
 function splice(text, start, delCount, newSubStr) {
-    console.assert(typeof text === "string" || text instanceof String);
+    debug.assertion(()=>typeof text === "string" || text instanceof String);
     return text.slice(0, start) + newSubStr + text.slice(start + Math.abs(delCount));
 }
 
 function auto_newlines(text, max_size){
-    console.assert(typeof text === "string" || text instanceof String);
-    console.assert(Number.isInteger(max_size));
+    debug.assertion(()=>typeof text === "string" || text instanceof String);
+    debug.assertion(()=>Number.isInteger(max_size));
 
     let last_whitespace_idx = 0;
     let current_line_width = 0;

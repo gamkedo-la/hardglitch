@@ -1,8 +1,9 @@
 // This file provides tweening functions and easing functions to use with them.
 
-import { is_number } from "./utility.js";
-
 export { Tweening, tween, easing }
+
+import * as debug from "../system/debug.js";
+import { is_number } from "./utility.js";
 
 // Inspired by https://gist.github.com/gre/1650294
 const easing = {
@@ -34,8 +35,8 @@ class AnimatedValue {
 
 class Tweening{
     constructor(initial_values, target_values, duration_ms, easing_funcs = easing.linear){
-        console.assert(is_number(duration_ms));
-        console.assert(duration_ms >= 0);
+        debug.assertion(()=>is_number(duration_ms));
+        debug.assertion(()=>duration_ms >= 0);
 
         this.duration = duration_ms;
         this.time_since_start = 0;
@@ -51,7 +52,7 @@ class Tweening{
                     easing_funcs[value_id] = func;
                 }
             } else {
-                console.assert(easing_funcs instanceof Object);
+                debug.assertion(()=>easing_funcs instanceof Object);
             }
 
             // Then register each value to modify (based on the target values, because the object passed for initial values might have more members than the ones we want to animate).
@@ -61,13 +62,13 @@ class Tweening{
         }
         else{
             // We have only one value to animate.
-            console.assert(easing_funcs instanceof Function);
+            debug.assertion(()=>easing_funcs instanceof Function);
             this.animated_values = new AnimatedValue(initial_values, target_values, easing_funcs);
         }
     }
 
     get_values(ratio){
-        console.assert(ratio >= 0 && ratio <=1);
+        debug.assertion(()=>ratio >= 0 && ratio <=1);
         if(this.animated_values instanceof AnimatedValue){
             return this.animated_values.get_value(ratio);
         } else {
@@ -84,7 +85,7 @@ class Tweening{
     get done() { return this.time_since_start === this.duration; }
 
     update(delta_time){
-        console.assert(typeof(delta_time) === 'number');
+        debug.assertion(()=>typeof(delta_time) === 'number');
         this.time_since_start += delta_time;
 
         if(this.time_since_start > this.duration){
@@ -95,11 +96,11 @@ class Tweening{
     }
 
     *run(update_callback){
-        console.assert(update_callback);
+        debug.assertion(()=>update_callback);
         this.time_since_start = 0;
         do {
             const delta_time = yield this.values;
-            console.assert(typeof(delta_time) === 'number');
+            debug.assertion(()=>typeof(delta_time) === 'number');
             update_callback(this.update(delta_time));
         }
         while(!this.done);

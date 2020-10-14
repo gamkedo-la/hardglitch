@@ -4,6 +4,7 @@ export {
     Delete,
 }
 
+import * as debug from "../system/debug.js";
 import { Character } from "../core/character.js";
 import * as concepts from "../core/concepts.js";
 import * as visibility from "../core/visibility.js";
@@ -58,8 +59,8 @@ class Delete extends concepts.Action {
 
     execute(world, deleter){
         // TODO: generalize the "take damage" functions like the destroy_entity/destroy_at function
-        console.assert(world instanceof concepts.World);
-        console.assert(deleter instanceof Character);
+        debug.assertion(()=>world instanceof concepts.World);
+        debug.assertion(()=>deleter instanceof Character);
 
         const deleted =  world.entity_at(this.target_position);
 
@@ -75,7 +76,7 @@ class Delete extends concepts.Action {
 class Rule_Delete extends concepts.Rule {
 
     get_actions_for(character, world){
-        console.assert(character instanceof Character);
+        debug.assertion(()=>character instanceof Character);
         return ranged_actions_for_each_target(world, character, Delete);
     }
 };

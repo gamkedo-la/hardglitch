@@ -1,3 +1,5 @@
+
+import * as debug from "../system/debug.js";
 import { SeamSelector, genFloorOverlay, genFgOverlay } from "../view/tile-select.js";
 import { Grid } from "../system/grid.js";
 import { tile_defs } from "../game-assets.js";
@@ -126,7 +128,7 @@ class Game {
                 let tiles = {};
                 if (!v) continue;
                 v = v.slice(5);
-                //console.log("v: " + v);
+                //debug.log("v: " + v);
                 if (v.startsWith("w2g")) {
                     v = v.slice(4);
                     tiles = w2gTiles;

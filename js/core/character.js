@@ -6,6 +6,7 @@ export {
     Inventory,
 }
 
+import * as debug from "../system/debug.js";
 import { Wait } from "../rules/rules-basic.js";
 import { TakeItem } from "../rules/rules-items.js";
 import { Move } from "../rules/rules-movement.js";
@@ -19,9 +20,9 @@ const default_activable_items = 1;
 class StatValue {
 
     constructor(initial_value, initial_max, initial_min){
-        console.assert(Number.isInteger(initial_value));
-        console.assert(initial_max === undefined || Number.isInteger(initial_max));
-        console.assert(initial_min === undefined || Number.isInteger(initial_min));
+        debug.assertion(()=>Number.isInteger(initial_value));
+        debug.assertion(()=>initial_max === undefined || Number.isInteger(initial_max));
+        debug.assertion(()=>initial_min === undefined || Number.isInteger(initial_min));
         this._value = initial_value;
         this._max = initial_max;
         this._min = initial_min;
@@ -34,7 +35,7 @@ class StatValue {
     get real_min() { return this._min; }
 
     _accumulate_modifiers(field_name) {
-        console.assert(field_name === "value" || field_name === "max" || field_name === "min");
+        debug.assertion(()=>field_name === "value" || field_name === "max" || field_name === "min");
         return Object.values(this._modifiers)
                     .filter(modifier => modifier[field_name] !== undefined)
                     .reduce((accumulated, modifier)=> accumulated + modifier[field_name], 0);
@@ -67,13 +68,13 @@ class StatValue {
 
     add_modifier(modifier_id, modifier){
 
-        console.assert(typeof modifier_id === "string");
+        debug.assertion(()=>typeof modifier_id === "string");
 
-        console.assert(modifier instanceof Object);
-        console.assert(modifier.value === undefined || Number.isInteger(modifier.value));
+        debug.assertion(()=>modifier instanceof Object);
+        debug.assertion(()=>modifier.value === undefined || Number.isInteger(modifier.value));
         // Min and Max must have been set for this stat to be able to be modified.
-        console.assert(modifier.max === undefined || (Number.isInteger(modifier.max) && this._max !== undefined));
-        console.assert(modifier.min === undefined || (Number.isInteger(modifier.min) && this._min !== undefined));
+        debug.assertion(()=>modifier.max === undefined || (Number.isInteger(modifier.max) && this._max !== undefined));
+        debug.assertion(()=>modifier.min === undefined || (Number.isInteger(modifier.min) && this._min !== undefined));
 
         this._modifiers[modifier_id] = modifier;
         this._notify_listeners();
@@ -81,21 +82,21 @@ class StatValue {
 
     remove_modifier(modifier_id){
 
-        console.assert(typeof modifier_id === "string");
+        debug.assertion(()=>typeof modifier_id === "string");
         delete this._modifiers[modifier_id];
-        console.assert(this.max === undefined || this.min === undefined || this.min <= this.max);
+        debug.assertion(()=>this.max === undefined || this.min === undefined || this.min <= this.max);
         this._notify_listeners();
     }
 
     set real_value(new_value) {
 
-        console.assert(Number.isInteger(new_value) && new_value >= 0);
+        debug.assertion(()=>Number.isInteger(new_value) && new_value >= 0);
 
         if(this._max !== undefined){
-            console.assert(new_value <= this.max);
+            debug.assertion(()=>new_value <= this.max);
         }
         if(this._min !== undefined){
-            console.assert(new_value >= this.min);
+            debug.assertion(()=>new_value >= this.min);
         }
 
         this._value = new_value;
@@ -103,21 +104,21 @@ class StatValue {
     }
 
     set real_max(new_value) {
-        console.assert(Number.isInteger(new_value) && new_value >= 0);
+        debug.assertion(()=>Number.isInteger(new_value) && new_value >= 0);
         this._max = new_value;
         this._notify_listeners();
     }
 
     set real_min(new_value) {
 
-        console.assert(Number.isInteger(new_value) && new_value < this.max);
+        debug.assertion(()=>Number.isInteger(new_value) && new_value < this.max);
         this._min = new_value;
         this._notify_listeners();
     }
 
     increase(value_to_add){
 
-        console.assert(Number.isInteger(value_to_add) && value_to_add >= 0);
+        debug.assertion(()=>Number.isInteger(value_to_add) && value_to_add >= 0);
         const new_value = this.value + value_to_add;
         if(this.max !== undefined)
             this._value = Math.min(new_value, this.max);
@@ -129,7 +130,7 @@ class StatValue {
 
     decrease(value_to_sub){
 
-        console.assert(Number.isInteger(value_to_sub) && value_to_sub >= 0);
+        debug.assertion(()=>Number.isInteger(value_to_sub) && value_to_sub >= 0);
         const new_value = this.value - value_to_sub;
         if(this.min !== undefined)
             this._value = Math.max(new_value, this.min);
@@ -140,15 +141,15 @@ class StatValue {
     }
 
     add_listener(listener_id, listener){
-        console.assert(typeof listener_id === "string");
-        console.assert(listener instanceof Function);
-        console.assert(this._listeners[listener_id] === undefined);
+        debug.assertion(()=>typeof listener_id === "string");
+        debug.assertion(()=>listener instanceof Function);
+        debug.assertion(()=>this._listeners[listener_id] === undefined);
         this._listeners[listener_id] = listener;
         listener(this); // Make sure the listner is up to date.
     }
 
     remove_listener(listener_id){
-        console.assert(typeof listener_id === "string");
+        debug.assertion(()=>typeof listener_id === "string");
         delete this._listeners[listener_id];
     }
 
@@ -190,11 +191,11 @@ class Inventory {
     _limbo = []; // Where the lost items ends-up.
 
     constructor(stats){
-        console.assert(stats instanceof CharacterStats);
+        debug.assertion(()=>stats instanceof CharacterStats);
         this.stats = stats;
 
         this.stats.inventory_size.add_listener("inventory", (inventory_size)=>{
-            console.assert(inventory_size instanceof StatValue);
+            debug.assertion(()=>inventory_size instanceof StatValue);
             if(this.size !== inventory_size.value){
                 const left_items = this.resize(inventory_size.value);
                 this._limbo.push(...left_items);
@@ -202,10 +203,10 @@ class Inventory {
         });
 
         this.stats.activable_items.add_listener("inventory", (activable_items)=>{
-            console.assert(activable_items instanceof StatValue);
+            debug.assertion(()=>activable_items instanceof StatValue);
             if(this._activable_items !== activable_items.value){
                 this._activable_items = activable_items.value;
-                console.assert(Number.isInteger(this._activable_items));
+                debug.assertion(()=>Number.isInteger(this._activable_items));
             }
 
         });
@@ -219,8 +220,8 @@ class Inventory {
 
     add(item){
 
-        console.assert(item instanceof concepts.Item);
-        console.assert(this.have_empty_slots);
+        debug.assertion(()=>item instanceof concepts.Item);
+        debug.assertion(()=>this.have_empty_slots);
 
         // Put the item in the first free slot that is not an active slot.
         for(let idx = this._activable_items; idx < this._item_slots.length; ++idx){
@@ -243,36 +244,36 @@ class Inventory {
 
     set_item_at(idx, item){
         //
-        console.assert(idx >= 0 && idx < this._item_slots.length);
-        console.assert(item instanceof concepts.Item);
-        console.assert(this._item_slots[idx] === undefined);
+        debug.assertion(()=>idx >= 0 && idx < this._item_slots.length);
+        debug.assertion(()=>item instanceof concepts.Item);
+        debug.assertion(()=>this._item_slots[idx] === undefined);
         this._item_slots[idx] = item;
         if(this.is_active_slot(idx))
             this._apply_modifiers(item);
     }
 
     get_item_at(idx){
-        console.assert(idx >= 0 && idx < this._item_slots.length);
+        debug.assertion(()=>idx >= 0 && idx < this._item_slots.length);
         return this._item_slots[idx];
     }
 
     _apply_modifiers(item){
-        console.assert(item instanceof concepts.Item);
+        debug.assertion(()=>item instanceof concepts.Item);
         if(item.stats_modifiers instanceof Object){
             const modifier_id = `item_${item.id}`;
             for(const [stat_name, modifier_value] of Object.entries(item.stats_modifiers)){
-                console.assert(this.stats[stat_name] instanceof StatValue);
+                debug.assertion(()=>this.stats[stat_name] instanceof StatValue);
                 this.stats[stat_name].add_modifier(modifier_id, modifier_value);
             }
         }
     }
 
     _reverse_modifiers(item){
-        console.assert(item instanceof concepts.Item);
+        debug.assertion(()=>item instanceof concepts.Item);
         if(item.stats_modifiers instanceof Object){
             const modifier_id = `item_${item.id}`;
             Object.keys(item.stats_modifiers).forEach(stat_name =>{
-                console.assert(this.stats[stat_name] instanceof StatValue);
+                debug.assertion(()=>this.stats[stat_name] instanceof StatValue);
                 this.stats[stat_name].remove_modifier(modifier_id);
             });
         }
@@ -288,7 +289,7 @@ class Inventory {
     }
 
     remove(idx){
-        console.assert(idx >= 0 && idx < this._item_slots.length);
+        debug.assertion(()=>idx >= 0 && idx < this._item_slots.length);
         const item = this._item_slots[idx];
         this._item_slots[idx] = undefined;
         if(item instanceof concepts.Item
@@ -299,8 +300,8 @@ class Inventory {
     }
 
     swap(idx_a, idx_b){
-        console.assert(idx_a >= 0 && idx_a < this._item_slots.length);
-        console.assert(idx_b >= 0 && idx_b < this._item_slots.length);
+        debug.assertion(()=>idx_a >= 0 && idx_a < this._item_slots.length);
+        debug.assertion(()=>idx_b >= 0 && idx_b < this._item_slots.length);
         const a = this._item_slots[idx_a];
         const b = this._item_slots[idx_b];
         this._item_slots[idx_b] = a;
@@ -323,7 +324,7 @@ class Inventory {
     }
 
     resize(new_size){
-        console.assert(Number.isInteger(new_size) && new_size >= 0);
+        debug.assertion(()=>Number.isInteger(new_size) && new_size >= 0);
         const previous_items = this._item_slots;
         const new_item_storage = new Array(new_size).fill(undefined);
 
@@ -349,7 +350,7 @@ class Inventory {
         while(this.have_empty_slots && left_items.length > 0){ // If we can still put the item somewhere, just put it there.
             this.add(left_items.pop());
         }
-        console.assert(left_items.length === 0 || this.have_empty_slots === false );
+        debug.assertion(()=>left_items.length === 0 || this.have_empty_slots === false );
         return left_items;
     }
 
@@ -361,12 +362,12 @@ class Inventory {
     get is_empty() { return this._item_slots.length === 0; }
 
     is_active_slot(idx){
-        console.assert(idx >= 0 && idx < this._item_slots.length);
+        debug.assertion(()=>idx >= 0 && idx < this._item_slots.length);
         return idx < this._activable_items;
     }
 
     get_enabled_action_types(action_type){
-        console.assert(action_type && action_type.prototype instanceof concepts.Action);
+        debug.assertion(()=>action_type && action_type.prototype instanceof concepts.Action);
         return this.get_all_enabled_action_types(type => {
             while(type){
                 if(type === action_type || type.prototype instanceof action_type)
@@ -460,12 +461,12 @@ class Character extends concepts.Body {
     // Properly performs an action after having spent the action points from the body etc.
     // Returns events resulting from performing the action.
     perform_action(action, world){
-        console.assert(action instanceof concepts.Action);
-        console.assert(world instanceof concepts.World);
+        debug.assertion(()=>action instanceof concepts.Action);
+        debug.assertion(()=>world instanceof concepts.World);
 
         // Pay for this action
-        console.assert(action.constructor.costs instanceof Object);
-        console.assert(Number.isInteger(action.constructor.costs.action_points.value) && action.constructor.costs.action_points.value >= 0);
+        debug.assertion(()=>action.constructor.costs instanceof Object);
+        debug.assertion(()=>Number.isInteger(action.constructor.costs.action_points.value) && action.constructor.costs.action_points.value >= 0);
         this.stats.action_points.decrease(action.constructor.costs.action_points.value);
 
         // Then execute the action:

@@ -10,6 +10,7 @@ export {
     Pull,
 }
 
+import * as debug from "../system/debug.js";
 import * as concepts from "../core/concepts.js";
 import { Vector2 } from "../system/spatial.js";
 import { sprite_defs } from "../game-assets.js";
@@ -41,9 +42,9 @@ class Pushed extends concepts.Event {
     get focus_positions() { return [ this.from_pos, this.to_pos ]; }
 
     *animation(game_view){
-        console.assert(game_view instanceof GameView);
+        debug.assertion(()=>game_view instanceof GameView);
         const entity_view = game_view.focus_on_entity(this.target_entity_id);
-        console.assert(entity_view instanceof EntityView);
+        debug.assertion(()=>entity_view instanceof EntityView);
         yield* animations.pushed(game_view.fx_view, entity_view, this.to_pos);
     }
 };
@@ -64,26 +65,26 @@ class Bounced extends concepts.Event {
     get focus_positions() { return [ this.from_pos, this.to_pos ]; }
 
     *animation(game_view){
-        console.assert(game_view instanceof GameView);
+        debug.assertion(()=>game_view instanceof GameView);
         const entity_view = game_view.focus_on_entity(this.target_entity_id);
-        console.assert(entity_view instanceof EntityView);
+        debug.assertion(()=>entity_view instanceof EntityView);
         yield* animations.bounce(entity_view, this.to_pos);
     }
 }
 
 function apply_directional_force(world, target_pos, direction, force_action){
-    console.assert(world instanceof concepts.World);
-    console.assert(target_pos instanceof concepts.Position);
+    debug.assertion(()=>world instanceof concepts.World);
+    debug.assertion(()=>target_pos instanceof concepts.Position);
     target_pos = new Vector2(target_pos); // convert Position to Vector2
-    console.assert(direction instanceof Vector2);
-    console.assert(direction.length > 0);
+    debug.assertion(()=>direction instanceof Vector2);
+    debug.assertion(()=>direction.length > 0);
 
     const events = [];
 
     // from here, recursively/propagate the force!  AND prevent applying force if there is a wall preventing it
     let target_entity = world.entity_at(target_pos);
     while(target_entity){
-        console.assert(target_entity instanceof concepts.Entity);
+        debug.assertion(()=>target_entity instanceof concepts.Entity);
 
         // By default, all entities are pushable. If one kind is not, it have to provide the is_pushable boolean member.
         const is_pushable = target_entity.can_be_moved === undefined || target_entity.can_be_moved;
@@ -96,7 +97,7 @@ function apply_directional_force(world, target_pos, direction, force_action){
             events.push(new Bounced(target_entity, target_pos, next_pos));
             if(world.is_valid_position(next_pos)){
                 const next_entity = world.entity_at(next_pos);
-                console.assert(!next_entity || next_entity instanceof concepts.Entity);
+                debug.assertion(()=>!next_entity || next_entity instanceof concepts.Entity);
                 target_entity = next_entity;
                 target_pos = next_pos;
             } else { // We reached the boundaries of the world.
@@ -140,10 +141,10 @@ class Push extends concepts.Action {
     }
 
     execute(world, character){
-        console.assert(world instanceof concepts.World);
-        console.assert(character instanceof Character);
+        debug.assertion(()=>world instanceof concepts.World);
+        debug.assertion(()=>character instanceof Character);
         const push_translation = compute_push_translation(character.position, this.target_position);
-        console.assert(push_translation.length == 1);
+        debug.assertion(()=>push_translation.length == 1);
         return apply_directional_force(world, this.target_position, push_translation, Pushed);
     }
 }
@@ -175,10 +176,10 @@ class Pull extends concepts.Action {
     }
 
     execute(world, character){
-        console.assert(world instanceof concepts.World);
-        console.assert(character instanceof Character);
+        debug.assertion(()=>world instanceof concepts.World);
+        debug.assertion(()=>character instanceof Character);
         const pull_translation = compute_push_translation(character.position, this.target_position).inverse;
-        console.assert(pull_translation.length == 1);
+        debug.assertion(()=>pull_translation.length == 1);
         return apply_directional_force(world, this.target_position, pull_translation, Pulled);
     }
 }
@@ -188,7 +189,7 @@ class Pull extends concepts.Action {
 class Rule_Push extends concepts.Rule {
 
     get_actions_for(character, world){
-        console.assert(character instanceof Character);
+        debug.assertion(()=>character instanceof Character);
          return ranged_actions_for_each_target(world, character, Push);
     }
 };
@@ -197,7 +198,7 @@ class Rule_Push extends concepts.Rule {
 class Rule_Pull extends concepts.Rule {
 
     get_actions_for(character, world){
-        console.assert(character instanceof Character);
+        debug.assertion(()=>character instanceof Character);
         return ranged_actions_for_each_target(world, character, Pull);
     }
 };

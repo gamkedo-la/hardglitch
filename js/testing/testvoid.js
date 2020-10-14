@@ -1,3 +1,5 @@
+
+import * as debug from "../system/debug.js";
 import { ParticleSystem, ParticleEmitter, FadeLineParticle, FadeParticle, BlipParticle, ParticleGroup } from "../system/particles.js";
 import { random_float } from "../system/utility.js";
 import { Color } from "../system/color.js";
@@ -107,8 +109,8 @@ class Env {
             promises.push(promise);
             // wait for images to be loaded
             Promise.all(promises).then(() => {
-                console.log("voidimg w: " + this.voidimg.width);
-                console.log("setup complete");
+                debug.log("voidimg w: " + this.voidimg.width);
+                debug.log("setup complete");
                 resolve();
             });
         });
@@ -117,7 +119,7 @@ class Env {
     start() {
         let runningId = -1;
         if (runningId == -1) {
-            console.log("env: starting loop...");
+            debug.log("env: starting loop...");
             runningId = setInterval(() => { this.loop(); }, this.INTERVAL);
         }
     }

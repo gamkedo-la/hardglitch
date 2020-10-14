@@ -4,6 +4,7 @@ export {
     DecryptedFile,
 }
 
+import * as debug from "../system/debug.js";
 import * as items from "../definitions-items.js";
 import * as concepts from "../core/concepts.js";
 import * as visibility from "../core/visibility.js";
@@ -19,9 +20,9 @@ const decrypt_range = new visibility.Range_Cross_Axis(1,2);
 
 class DecryptedFile extends concepts.Event {
     constructor(character, file, key_inventory_idx, crypto_kind){
-        console.assert(character instanceof Character);
-        console.assert(file instanceof items.CryptoFile);
-        console.assert(Number.isInteger(key_inventory_idx));
+        debug.assertion(()=>character instanceof Character);
+        debug.assertion(()=>file instanceof items.CryptoFile);
+        debug.assertion(()=>Number.isInteger(key_inventory_idx));
 
         super({
             description: `Character ${character.id} decrypted file ${file.id}`,
@@ -38,18 +39,18 @@ class DecryptedFile extends concepts.Event {
     get focus_positions() { return [ this.file_position, this.character_position ]; }
 
     *animation(game_view){
-        console.assert(game_view instanceof GameView);
+        debug.assertion(()=>game_view instanceof GameView);
         // TODO: maybe add an effect on the character too?
 
         const character_view = game_view.focus_on_entity(this.character_id);
-        console.assert(character_view instanceof CharacterView);
+        debug.assertion(()=>character_view instanceof CharacterView);
 
         // Make sure the file is visibly open:
         const file_view = game_view.focus_on_entity(this.file_id);
         file_view.get_sprite("body").start_animation("ready_to_decrypt");
         const key_view = game_view.ui.inventory.get_item_view_at(this.key_idx);
-        console.assert(file_view instanceof ItemView);
-        console.assert(key_view instanceof ItemView);
+        debug.assertion(()=>file_view instanceof ItemView);
+        debug.assertion(()=>key_view instanceof ItemView);
 
         // 1. Decrypt animation of the key/file
         yield* anim.decrypt_file(file_view, game_view.fx_view, key_view, game_view.ui.inventory.fx_view, this.crypto_kind);
@@ -77,24 +78,24 @@ class Decrypt extends concepts.Action {
     }
 
     constructor(target_position){
-        console.assert(target_position instanceof concepts.Position);
+        debug.assertion(()=>target_position instanceof concepts.Position);
         super(`decrypt_item_at_${target_position.x}_${target_position.y}`,
             "Decrypt and open this Crypto-File", target_position);
         this.is_basic = true;
     }
 
     execute(world, character){
-        console.assert(world instanceof concepts.World);
-        console.assert(character instanceof Character);
+        debug.assertion(()=>world instanceof concepts.World);
+        debug.assertion(()=>character instanceof Character);
 
         const file = world.item_at(this.target_position);
-        console.assert(file instanceof items.CryptoFile);
+        debug.assertion(()=>file instanceof items.CryptoFile);
 
         const keys = character.inventory.stored_items
             .filter(item => item instanceof items.CryptoKey
                          && item.crypto_kind === file.crypto_kind
                 );
-        console.assert(keys.length > 0);
+        debug.assertion(()=>keys.length > 0);
         const key = keys[0];
         const key_idx = character.inventory.stored_items.indexOf(key);
 
@@ -116,7 +117,7 @@ class Decrypt extends concepts.Action {
 class Rule_Decrypt extends concepts.Rule {
 
     get_actions_for(character, world){
-        console.assert(character instanceof Character);
+        debug.assertion(()=>character instanceof Character);
 
         if(!character.is_player_actor)
             return {};

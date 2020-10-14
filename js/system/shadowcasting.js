@@ -5,6 +5,7 @@ export {
     compute_fov,
 }
 
+import * as debug from "../system/debug.js";
 import { Fraction } from "../3rd-party/fraction.js";
 
 function is_position(thing){
@@ -12,9 +13,9 @@ function is_position(thing){
 }
 
 function* range(begin, end, step = 1){
-    console.assert(Number.isInteger(begin));
-    console.assert(Number.isInteger(end));
-    console.assert(Number.isInteger(end));
+    debug.assertion(()=>Number.isInteger(begin));
+    debug.assertion(()=>Number.isInteger(end));
+    debug.assertion(()=>Number.isInteger(end));
     while(begin !== end){
         yield begin;
         begin += step;
@@ -28,7 +29,7 @@ function slope(tile){
 }
 
 function is_symmetric(row, tile){
-    console.assert(row instanceof Row);
+    debug.assertion(()=>row instanceof Row);
     const [row_depth, col] = tile;
     return col >= row.depth * row.start_slope
         && col <= row.depth * row.end_slope;
@@ -57,8 +58,8 @@ function is_cardinal(value){
 class Quadrant{
 
     constructor(cardinal, origin){
-        console.assert(is_cardinal(cardinal));
-        console.assert(is_position(origin));
+        debug.assertion(()=>is_cardinal(cardinal));
+        debug.assertion(()=>is_position(origin));
         this.cardinal = cardinal;
         this.ox = origin.x;
         this.oy = origin.y;
@@ -74,7 +75,7 @@ class Quadrant{
             return [ this.ox + row, this.oy + col ];
         if (this.cardinal === cardinals.west)
             return [ this.ox - row, this.oy + col ];
-        console.error("WE SHOULD NEVER REACH THIS POINT");
+        debug.error("WE SHOULD NEVER REACH THIS POINT");
     }
 };
 
@@ -102,9 +103,9 @@ class Row {
 
 
 function compute_fov(origin, is_blocking, mark_visible){
-    console.assert(is_position(origin));
-    console.assert(is_blocking instanceof Function);
-    console.assert(mark_visible instanceof Function);
+    debug.assertion(()=>is_position(origin));
+    debug.assertion(()=>is_blocking instanceof Function);
+    debug.assertion(()=>mark_visible instanceof Function);
 
     mark_visible(origin.x, origin.y);
 
@@ -131,8 +132,8 @@ function compute_fov(origin, is_blocking, mark_visible){
         }
 
         function scan_iterative(row){
-            console.assert(row instanceof Row);
-            console.assert(row.depth <= 100);
+            debug.assertion(()=>row instanceof Row);
+            debug.assertion(()=>row.depth <= 100);
             const rows = [row];
             while(rows.length > 0){
                 const row = rows.pop();
@@ -155,8 +156,8 @@ function compute_fov(origin, is_blocking, mark_visible){
         }
 
         const scan = (row)=>{
-            console.assert(row instanceof Row);
-            console.assert(row.depth <= 100);
+            debug.assertion(()=>row instanceof Row);
+            debug.assertion(()=>row.depth <= 100);
             let prev_tile;
             for(const tile of row.tiles()){
                 if(is_wall(tile) || is_symmetric(row, tile))

@@ -7,6 +7,7 @@ export {
     AudioSettings,
 };
 
+import * as debug from "./system/debug.js";
 import * as audio from "./system/audio.js"
 import * as graphics from "./system/graphics.js";
 import * as ui from "./system/ui.js";
@@ -61,9 +62,9 @@ class ActionButton extends ui.Button {
                 over: 'actionSelect',
             }
         });
-        console.assert(typeof info_desc === "string");
-        console.assert(on_begin_mouse_over instanceof Function);
-        console.assert(on_end_mouse_over instanceof Function);
+        debug.assertion(()=>typeof info_desc === "string");
+        debug.assertion(()=>on_begin_mouse_over instanceof Function);
+        debug.assertion(()=>on_end_mouse_over instanceof Function);
         this.on_begin_mouse_over = on_begin_mouse_over;
         this.on_end_mouse_over = on_end_mouse_over;
 
@@ -383,7 +384,7 @@ class MenuButton extends ui.Button {
 class GameInterface {
 
     button_cancel_action_selection = new CancelActionButton(()=>{
-            console.log("CANCEL ACTION BUTTON");
+            debug.log("CANCEL ACTION BUTTON");
             this.cancel_action_target_selection();
             this.button_cancel_action_selection.visible = false;
 
@@ -394,18 +395,18 @@ class GameInterface {
     info_box = new InfoBox(infobox_rectangle());
 
     constructor(config){
-        console.assert(config instanceof Object);
-        console.assert(config.on_action_selection_begin instanceof Function);
-        console.assert(config.on_action_selection_end instanceof Function);
-        console.assert(config.on_action_pointed_begin instanceof Function);
-        console.assert(config.on_action_pointed_end instanceof Function);
-        console.assert(config.toggle_autofocus instanceof Function);
-        console.assert(config.is_autofocus_enabled instanceof Function);
-        console.assert(config.open_menu instanceof Function);
-        console.assert(config.on_item_dragging_begin instanceof Function);
-        console.assert(config.on_item_dragging_end instanceof Function);
-        console.assert(config.view_finder instanceof Function);
-        console.assert(config.visibility_predicate instanceof Function);
+        debug.assertion(()=>config instanceof Object);
+        debug.assertion(()=>config.on_action_selection_begin instanceof Function);
+        debug.assertion(()=>config.on_action_selection_end instanceof Function);
+        debug.assertion(()=>config.on_action_pointed_begin instanceof Function);
+        debug.assertion(()=>config.on_action_pointed_end instanceof Function);
+        debug.assertion(()=>config.toggle_autofocus instanceof Function);
+        debug.assertion(()=>config.is_autofocus_enabled instanceof Function);
+        debug.assertion(()=>config.open_menu instanceof Function);
+        debug.assertion(()=>config.on_item_dragging_begin instanceof Function);
+        debug.assertion(()=>config.on_item_dragging_end instanceof Function);
+        debug.assertion(()=>config.view_finder instanceof Function);
+        debug.assertion(()=>config.visibility_predicate instanceof Function);
         this._action_buttons = [];
         this.config = config;
 
@@ -484,11 +485,11 @@ class GameInterface {
             const action_name_text = action_type.action_type_name;
             const action_button = new ActionButton(position, action_type.icon_def, action_name, action_name_text, key_name, action_description,
                 (clicked_button)=>{ // on clicked
-                    console.assert(action_info.actions instanceof Array && action_info.actions.length > 0); // Only allow clicking enabled (aka allowed) action buttons.
-                    console.assert(action_info.actions.every(action => action instanceof concepts.Action));
+                    debug.assertion(()=>action_info.actions instanceof Array && action_info.actions.length > 0); // Only allow clicking enabled (aka allowed) action buttons.
+                    debug.assertion(()=>action_info.actions.every(action => action instanceof concepts.Action));
                     if(action_info.actions.length == 1 && action_info.action_type.range === undefined){ // No need for targets
                         const action = action_info.actions[0];
-                        console.assert(action instanceof concepts.Action);
+                        debug.assertion(()=>action instanceof concepts.Action);
                         play_action(action); // Play the action immediately
                     } else {
                         // Need to select an highlited target!
@@ -518,8 +519,8 @@ class GameInterface {
     }
 
     play_action_button(action_key_number){
-        console.assert(Number.isInteger(action_key_number));
-        console.assert(!this.is_selecting_action_target);
+        debug.assertion(()=>Number.isInteger(action_key_number));
+        debug.assertion(()=>!this.is_selecting_action_target);
         const action = this._action_buttons[action_key_number];
         if(action){
             action.action();
@@ -545,7 +546,7 @@ class GameInterface {
     }
 
     _end_target_selection(action){
-        console.assert(!action || action instanceof concepts.Action);
+        debug.assertion(()=>!action || action instanceof concepts.Action);
         this._selected_action = undefined;
         this.config.on_action_selection_end(action);
         this.button_cancel_action_selection.visible = false;
@@ -565,7 +566,7 @@ class GameInterface {
             if(target_position) {
                 const selected_action_with_target = this.selected_action.actions.find(action=>action.target_position.equals(target_position));
                 if(selected_action_with_target){
-                    console.assert(selected_action_with_target instanceof concepts.Action);
+                    debug.assertion(()=>selected_action_with_target instanceof concepts.Action);
                     this._end_target_selection(selected_action_with_target);
                     play_action(selected_action_with_target);
                 }

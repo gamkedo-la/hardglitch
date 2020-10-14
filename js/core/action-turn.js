@@ -9,6 +9,7 @@ export {
     NewTurn,
 };
 
+import * as debug from "../system/debug.js";
 import * as concepts from "./concepts.js";
 import { Body as Character } from "./concepts.js";
 
@@ -21,10 +22,10 @@ import { config } from "../game-config.js";
 class PlayerTurn {
 
     constructor(turn_id, world, player_character, possible_actions){
-        console.assert(Number.isInteger(turn_id) && turn_id > 0);
-        console.assert(world instanceof concepts.World);
-        console.assert(!player_character || (player_character instanceof Character && player_character.is_player_actor));
-        console.assert(!possible_actions || possible_actions instanceof Object);
+        debug.assertion(()=>Number.isInteger(turn_id) && turn_id > 0);
+        debug.assertion(()=>world instanceof concepts.World);
+        debug.assertion(()=>!player_character || (player_character instanceof Character && player_character.is_player_actor));
+        debug.assertion(()=>!possible_actions || possible_actions instanceof Object);
 
         this.turn_id = turn_id;                     // Number of world turns.
         this.world = world;                         // The world we need an action for.
@@ -35,7 +36,7 @@ class PlayerTurn {
 
 // Gives the order of turns of characters.
 function ordered_characters(world){
-    console.assert(world instanceof concepts.World);
+    debug.assertion(()=>world instanceof concepts.World);
     return world.bodies.sort((left, right)=>{
         return right.is_player_actor - left.is_player_actor; // Put the player characters first in turn, always.
     });
@@ -43,7 +44,7 @@ function ordered_characters(world){
 
 // Return the sequence of ids of characters per turn for this turn and for the next.
 function turn_sequence(world){
-    console.assert(world instanceof concepts.World);
+    debug.assertion(()=>world instanceof concepts.World);
     const character_sequence = ordered_characters(world);
     const this_turn_ids = [];
     const next_turn_ids = [];
@@ -107,12 +108,12 @@ class VisionUpdate extends concepts.Event {
 // This is basically a "Turn Phase".
 // TODO: specify an order! maybe depending on stats? initiative points?
 function* characters_that_can_act_now(world){
-    console.assert(world instanceof concepts.World);
+    debug.assertion(()=>world instanceof concepts.World);
 
     let character_body_list = ordered_characters(world);
     while(character_body_list.length > 0){
         const character_body = character_body_list.shift(); // Pop from the front
-        console.assert(character_body instanceof Character);
+        debug.assertion(()=>character_body instanceof Character);
         if (character_body.can_perform_actions) {
             yield character_body;
             character_body_list.push(character_body); // Push back at the end
@@ -145,7 +146,7 @@ function* characters_that_can_act_now(world){
 // Returns a generator of the sequence of events since last time the player was requested to act,
 // produced through the turns/actions of the different bodies.
 function* execute_turns_v2(world) {
-    console.assert(world instanceof concepts.World);
+    debug.assertion(()=>world instanceof concepts.World);
 
     function* request_player_action(character, possible_actions) { // Give back control to the player, request them to set an action in the World object.
         const player_action = yield new PlayerTurn(world.turn_id, world, character, possible_actions);
@@ -175,14 +176,14 @@ function* execute_turns_v2(world) {
         const looping_character_sequence = characters_that_can_act_now(world);
 
         for(const character of looping_character_sequence){
-            console.assert(character instanceof Character);
+            debug.assertion(()=>character instanceof Character);
 
             /////////////////////////////////////////////////////////////
             // NEW CHARACTER TURN START HERE: CHOSE ACTIONS UNTIL AP <= 0 OR SKIP TURN!
             /////////////////////////////////////////////////////////////
 
             const actor = character.actor;
-            console.assert(actor instanceof concepts.Actor); // At this point we have to have a decision maker.
+            debug.assertion(()=>actor instanceof concepts.Actor); // At this point we have to have a decision maker.
 
             while(character.can_perform_actions){ // Characters can take actions until they don't have enough action poitns OR until they skip the turn.
 
@@ -213,7 +214,7 @@ function* execute_turns_v2(world) {
                 if (!player_character_exists) // The player character disappeared while selection was occuring (through events or through edition of the world).
                     continue; // Just pass to the next character.
 
-                console.assert(action instanceof concepts.Action);// Ath this point, an action MUST have been defined (even if it's just Wait)
+                debug.assertion(()=>action instanceof concepts.Action);// Ath this point, an action MUST have been defined (even if it's just Wait)
 
                 // Apply the selected action.
                 const action_events = character.perform_action(action, world);

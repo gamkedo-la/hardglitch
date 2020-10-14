@@ -3,6 +3,7 @@ export {
     spawn_entities_around,
 }
 
+import * as debug from "../system/debug.js";
 import * as concepts from "../core/concepts.js";
 import * as tiles from "../definitions-tiles.js";
 import { valid_spawn_positions } from "../core/visibility.js";
@@ -12,8 +13,8 @@ import * as anim from "../game-animations.js";
 
 class EntitySpawned extends concepts.Event {
     constructor(entity, target_position){
-        console.assert(entity instanceof concepts.Entity);
-        console.assert(target_position instanceof concepts.Position);
+        debug.assertion(()=>entity instanceof concepts.Entity);
+        debug.assertion(()=>target_position instanceof concepts.Position);
 
         super({
             description: `Entity spawned at ${JSON.stringify(target_position)}`,
@@ -26,7 +27,7 @@ class EntitySpawned extends concepts.Event {
     get focus_positions() { return [ this.spawn_position ]; }
 
     *animation(game_view){
-        console.assert(game_view instanceof GameView);
+        debug.assertion(()=>game_view instanceof GameView);
         game_view.focus_on_position(this.spawn_position);
         yield* anim.spawned(game_view.fx_view, this.spawn_position);
         const entity_view = game_view.add_entity_view(this.entity_id); // TODO: add some FX and sounds?
@@ -35,9 +36,9 @@ class EntitySpawned extends concepts.Event {
 };
 
 function spawn_entities_around(world, center_position, entities, spawn_event = EntitySpawned, position_predicate = tiles.is_walkable, max_range){
-    console.assert(center_position instanceof concepts.Position);
-    console.assert(entities instanceof Array);
-    console.assert(entities.every(entity => entity instanceof concepts.Entity));
+    debug.assertion(()=>center_position instanceof concepts.Position);
+    debug.assertion(()=>entities instanceof Array);
+    debug.assertion(()=>entities.every(entity => entity instanceof concepts.Entity));
     if(entities.length === 0)
         return [];
 
@@ -46,7 +47,7 @@ function spawn_entities_around(world, center_position, entities, spawn_event = E
     const events = [];
     while(spawn_positions.length > 0 && entities.length > 0){
         const position = spawn_positions.pop();
-        console.assert(position instanceof concepts.Position);
+        debug.assertion(()=>position instanceof concepts.Position);
         const entity = entities.pop();
         entity.position = position;
         world.add_entity(entity);
@@ -54,7 +55,7 @@ function spawn_entities_around(world, center_position, entities, spawn_event = E
     }
     // The other entities will not be spawned...
     for(const entity of entities){
-        console.warn(`COULD NOT SPAWN ENTITY ${entity.id}`); // TODO: maybe create an event for this case, so that we add a sound or animation for the player to know?
+        debug.warn(`COULD NOT SPAWN ENTITY ${entity.id}`); // TODO: maybe create an event for this case, so that we add a sound or animation for the player to know?
     }
     return events;
 }

@@ -4,6 +4,8 @@ export {
     StateMachine,
 }
 
+import * as debug from "../system/debug.js";
+
 class State {
 
     // Called when we enter the state.
@@ -62,11 +64,11 @@ class State {
 class StateMachine extends State {
 
     constructor(states, transition_table){
-        console.assert(transition_table);
-        console.assert(states instanceof Object);
-        console.assert(Object.values(states).every(state => state instanceof State));
-        console.assert(states[transition_table.initial_state] instanceof State); // The initial state must exist in the provided state objects.
-        console.assert(Object.keys(transition_table)             // Transition table requirements:
+        debug.assertion(()=>transition_table);
+        debug.assertion(()=>states instanceof Object);
+        debug.assertion(()=>Object.values(states).every(state => state instanceof State));
+        debug.assertion(()=>states[transition_table.initial_state] instanceof State); // The initial state must exist in the provided state objects.
+        debug.assertion(()=>Object.keys(transition_table)             // Transition table requirements:
             .filter(state_id=> state_id !== "initial_state" && state_id !== "*")     // keys that are not "initial_state" (which is used to specify which state to start with),
             .every(state_id => states[state_id] instanceof State // must exist in the provided states names,
                 && Object.values(transition_table[state_id])     // and for each action of a state...
@@ -87,14 +89,14 @@ class StateMachine extends State {
     get is_running() { return this._started; }
 
     start(...data){
-        console.assert(this._started === false);
-        console.log(`FSM: ${this.constructor.name} STARTING WITH STATE ${this.transition_table.initial_state}`);
+        debug.assertion(()=>this._started === false);
+        debug.log(`FSM: ${this.constructor.name} STARTING WITH STATE ${this.transition_table.initial_state}`);
         this._started = true;
         this._begin_state_transition(this.transition_table.initial_state, ...data);
     }
 
     stop(){
-        console.assert(this._started === true);
+        debug.assertion(()=>this._started === true);
         delete this._transition_sequence;
         delete this._next_state_id;
         delete this._current_state;
@@ -103,22 +105,22 @@ class StateMachine extends State {
     }
 
     *enter(){
-        console.assert(this.is_running);
+        debug.assertion(()=>this.is_running);
     }
 
     *leave(){
-        console.assert(this.is_running);
+        debug.assertion(()=>this.is_running);
     }
 
     get_state(state_id){
-        console.assert(this.is_running);
+        debug.assertion(()=>this.is_running);
         const state = this.states[state_id];
-        console.assert(state instanceof State);
+        debug.assertion(()=>state instanceof State);
         return state;
     }
 
     update(delta_time){
-        console.assert(this.is_running);
+        debug.assertion(()=>this.is_running);
         if(this._transition_sequence !== undefined){
             if(this._transition_sequence.next(delta_time).done){
                 delete this._transition_sequence;
@@ -136,14 +138,14 @@ class StateMachine extends State {
     // If no transition is found, does nothing.
     // Returns `true` if a transition was started.
     push_action(action, ...data){
-        console.assert(this.is_running);
-        console.assert(action !== undefined);
+        debug.assertion(()=>this.is_running);
+        debug.assertion(()=>action !== undefined);
         if(this._next_state_id){
-            console.log(`FSM: ${this.constructor.name} + ${action} (${data}) => IGNORED BECAUSE A TRANSITION TO ${this._next_state_id} IS ONGOING`);
+            debug.log(`FSM: ${this.constructor.name} + ${action} (${data}) => IGNORED BECAUSE A TRANSITION TO ${this._next_state_id} IS ONGOING`);
             return false;
         }
         const next_state_id = this._find_transition(this._current_state_id, action);
-        console.log(`FSM: ${this.constructor.name} + ${action} (${data}) => ${next_state_id}`);
+        debug.log(`FSM: ${this.constructor.name} + ${action} (${data}) => ${next_state_id}`);
         if(next_state_id){
             this._begin_state_transition(next_state_id, ...data);
             return true;
@@ -155,7 +157,7 @@ class StateMachine extends State {
     }
 
     _find_transition(state_id, action){
-        console.assert(this.is_running);
+        debug.assertion(()=>this.is_running);
         const state_transitions = this.transition_table[state_id];
         if(state_transitions instanceof Object){
             const new_state_id = state_transitions[action];
@@ -172,12 +174,12 @@ class StateMachine extends State {
     }
 
     _begin_state_transition(next_state_id, ...data){
-        console.assert(this.is_running);
-        console.assert(this._next_state_id === undefined);
+        debug.assertion(()=>this.is_running);
+        debug.assertion(()=>this._next_state_id === undefined);
         this._transition_data = data;
         this._next_state_id = next_state_id;
         if(this._current_state){
-            console.log(`FSM: LEAVING ${this._current_state_id} ...`);
+            debug.log(`FSM: LEAVING ${this._current_state_id} ...`);
             this._transition_sequence = this._current_state.leave(...this._transition_data);
         } else {
             this._end_state_transition();
@@ -185,21 +187,21 @@ class StateMachine extends State {
     }
 
     _end_state_transition(){
-        console.assert(this.is_running);
-        console.assert(this._next_state_id !== undefined);
+        debug.assertion(()=>this.is_running);
+        debug.assertion(()=>this._next_state_id !== undefined);
 
         if(this._current_state instanceof StateMachine) // If the state we are leaving is a state machine, stop it.
             this._current_state.stop();
 
         const next_state = this.get_state(this._next_state_id);
-        console.assert(next_state instanceof State);
+        debug.assertion(()=>next_state instanceof State);
         this._current_state = next_state;
         this._current_state_id = this._next_state_id;
         const data = this._transition_data;
         delete this._transition_data;
         delete this._next_state_id;
 
-        console.log(`FSM: ENTERING ${this._current_state_id} ...`);
+        debug.log(`FSM: ENTERING ${this._current_state_id} ...`);
         this._transition_sequence = this._current_state.enter(...data);
         this._transition_sequence.next(); // Make sure we executed at least the first part of the entry function.
 

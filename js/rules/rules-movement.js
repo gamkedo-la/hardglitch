@@ -15,6 +15,7 @@ export {
     random_jump,
 }
 
+import * as debug from "../system/debug.js";
 import * as concepts from "../core/concepts.js";
 import * as tiles from "../definitions-tiles.js";
 import { sprite_defs } from "../game-assets.js";
@@ -41,9 +42,9 @@ function safe_if_safe_arrival(move_action, world){
 
 class Moved extends concepts.Event {
     constructor(entity, from_pos, to_pos, duration) {
-        console.assert(entity instanceof concepts.Entity);
-        console.assert(from_pos instanceof concepts.Position);
-        console.assert(to_pos instanceof concepts.Position);
+        debug.assertion(()=>entity instanceof concepts.Entity);
+        debug.assertion(()=>from_pos instanceof concepts.Position);
+        debug.assertion(()=>to_pos instanceof concepts.Position);
         super({
             allow_parallel_animation: true,
             description: `Entity ${entity.id} Moved from ${JSON.stringify(from_pos)} to ${JSON.stringify(to_pos)}`
@@ -57,10 +58,10 @@ class Moved extends concepts.Event {
     get focus_positions() { return [ this.from_pos, this.to_pos ]; }
 
     *animation(game_view){
-        console.assert(game_view instanceof GameView);
+        debug.assertion(()=>game_view instanceof GameView);
         const entity_view = game_view.focus_on_entity(this.entity_id);
-        console.assert(entity_view instanceof EntityView);
-        console.assert(this.to_pos instanceof concepts.Position);
+        debug.assertion(()=>entity_view instanceof EntityView);
+        debug.assertion(()=>this.to_pos instanceof concepts.Position);
         yield* animations.move(game_view.fx_view, entity_view, this.to_pos, this.duration);
     }
 
@@ -83,7 +84,7 @@ class Move extends concepts.Action {
     }
 
     execute(world, character) {
-        console.assert(character instanceof Character);
+        debug.assertion(()=>character instanceof Character);
         const initial_pos = character.position;
         character.position = this.target_position;
         const move_event = new Moved(character, initial_pos, this.target_position);
@@ -98,13 +99,13 @@ class Move extends concepts.Action {
 class Rule_Movements extends concepts.Rule {
 
     get_actions_for(character, world) {
-        console.assert(character);
-        console.assert(world);
+        debug.assertion(()=>character);
+        debug.assertion(()=>world);
 
         const actions = {};
 
         const current_pos = character.position;
-        console.assert(current_pos);
+        debug.assertion(()=>current_pos);
 
         const allowed_moves = character.allowed_moves(); // TODO: filter to what's visible
         for(const [move_id, move_target] of Object.entries(allowed_moves)){
@@ -124,9 +125,9 @@ class Rule_Movements extends concepts.Rule {
 
 class Jumped extends concepts.Event {
     constructor(entity, from_pos, to_pos, duration=666) {
-        console.assert(entity instanceof concepts.Entity);
-        console.assert(from_pos instanceof concepts.Position);
-        console.assert(to_pos instanceof concepts.Position);
+        debug.assertion(()=>entity instanceof concepts.Entity);
+        debug.assertion(()=>from_pos instanceof concepts.Position);
+        debug.assertion(()=>to_pos instanceof concepts.Position);
         super({
             allow_parallel_animation: false,
             description: `Entity ${entity.id} Jumped from ${JSON.stringify(from_pos)} to ${JSON.stringify(to_pos)}`
@@ -140,10 +141,10 @@ class Jumped extends concepts.Event {
     get focus_positions() { return [ this.from_pos, this.to_pos ]; }
 
     *animation(game_view){
-        console.assert(game_view instanceof GameView);
+        debug.assertion(()=>game_view instanceof GameView);
         const entity_view = game_view.focus_on_entity(this.entity_id);
-        console.assert(entity_view instanceof EntityView);
-        console.assert(this.to_pos instanceof concepts.Position);
+        debug.assertion(()=>entity_view instanceof EntityView);
+        debug.assertion(()=>this.to_pos instanceof concepts.Position);
         yield* animations.jump(game_view.fx_view, entity_view, this.to_pos);
     }
 
@@ -166,7 +167,7 @@ class Jump extends concepts.Action {
     }
 
     execute(world, character){
-        console.assert(character instanceof Character);
+        debug.assertion(()=>character instanceof Character);
         const initial_pos = character.position;
         character.position = this.target_position;
         const move_event = new Jumped(character, initial_pos, this.target_position);
@@ -178,7 +179,7 @@ class Jump extends concepts.Action {
 class Rule_Jump extends concepts.Rule {
 
     get_actions_for(character, world){
-        console.assert(character instanceof Character);
+        debug.assertion(()=>character instanceof Character);
 
         const valid_targets = (range) => lazy_call(visibility.valid_move_positions, world, character, range, tiles.is_walkable);
         const possible_jumps = actions_for_each_target(character, Jump, valid_targets, (jump_type, target)=>{
@@ -193,10 +194,10 @@ class Rule_Jump extends concepts.Rule {
 const random_jump_shape = new visibility.Range_Square(3, 64);
 
 function random_jump(world, entity, range, position_predicate = ()=>true){
-    console.assert(world instanceof concepts.World);
-    console.assert(entity instanceof concepts.Entity);
-    console.assert(range instanceof visibility.RangeShape);
-    console.assert(position_predicate instanceof Function);
+    debug.assertion(()=>world instanceof concepts.World);
+    debug.assertion(()=>entity instanceof concepts.Entity);
+    debug.assertion(()=>range instanceof visibility.RangeShape);
+    debug.assertion(()=>position_predicate instanceof Function);
     const initial_pos = entity.position;
     const possible_targets = visibility.positions_in_range(entity.position, range, pos => world.is_valid_position(pos))
                                 .filter(position_predicate);
@@ -223,8 +224,8 @@ class RandomJump extends concepts.Action {
     }
 
     execute(world, character){
-        console.assert(world instanceof concepts.World);
-        console.assert(character instanceof Character);
+        debug.assertion(()=>world instanceof concepts.World);
+        debug.assertion(()=>character instanceof Character);
         // Only jump where the character can see.
         const position_predicate = pos => !is_blocked_position(world, pos, tiles.is_walkable)
                                        && character.can_see(pos);
@@ -235,7 +236,7 @@ class RandomJump extends concepts.Action {
 class Rule_RandomJump extends concepts.Rule {
 
     get_actions_for(character, world){
-        console.assert(character instanceof Character);
+        debug.assertion(()=>character instanceof Character);
         const random_jump_actions = character.inventory.get_enabled_action_types(RandomJump).reverse();
         const events = {};
         while(random_jump_actions.length){
@@ -251,10 +252,10 @@ class Rule_RandomJump extends concepts.Rule {
 
 class Swaped extends concepts.Event {
     constructor(entity_a_id, entity_b_id, pos_a, pos_b) {
-        console.assert(Number.isInteger(entity_a_id));
-        console.assert(Number.isInteger(entity_a_id));
-        console.assert(pos_a instanceof concepts.Position);
-        console.assert(pos_b instanceof concepts.Position);
+        debug.assertion(()=>Number.isInteger(entity_a_id));
+        debug.assertion(()=>Number.isInteger(entity_a_id));
+        debug.assertion(()=>pos_a instanceof concepts.Position);
+        debug.assertion(()=>pos_b instanceof concepts.Position);
         super({
             allow_parallel_animation: false,
             description: `Entity ${entity_a_id} at ${JSON.stringify(pos_a)} and Entity ${entity_b_id} at ${JSON.stringify(pos_b)} exchanged position`
@@ -268,13 +269,13 @@ class Swaped extends concepts.Event {
     get focus_positions() { return [ this.pos_a, this.pos_ ]; }
 
     *animation(game_view){
-        console.assert(game_view instanceof GameView);
+        debug.assertion(()=>game_view instanceof GameView);
         const entity_a_view = game_view.focus_on_entity(this.entity_a_id);
-        console.assert(entity_a_view instanceof EntityView);
+        debug.assertion(()=>entity_a_view instanceof EntityView);
         const entity_b_view = game_view.get_entity_view(this.entity_b_id);
-        console.assert(entity_b_view instanceof EntityView);
-        console.assert(this.pos_a.equals(entity_a_view.game_position));
-        console.assert(this.pos_b.equals(entity_b_view.game_position));
+        debug.assertion(()=>entity_b_view instanceof EntityView);
+        debug.assertion(()=>this.pos_a.equals(entity_a_view.game_position));
+        debug.assertion(()=>this.pos_b.equals(entity_b_view.game_position));
 
         yield* animations.swap(game_view.fx_view, entity_a_view, entity_b_view, animations.default_move_duration_ms * 2);
         game_view.focus_on_entity(this.entity_a_id);
@@ -294,16 +295,16 @@ class Swap extends concepts.Action {
     }
 
     constructor(target){
-        console.assert(target instanceof concepts.Position);
+        debug.assertion(()=>target instanceof concepts.Position);
         super(`swap_${target.x}_${target.y}`, `Swap position with that entity`, target);
         this.target = target
     }
 
     execute(world, character){
-        console.assert(world instanceof concepts.World);
-        console.assert(character instanceof Character);
+        debug.assertion(()=>world instanceof concepts.World);
+        debug.assertion(()=>character instanceof Character);
         const target_entity = world.entity_at(this.target);
-        console.assert(target_entity instanceof concepts.Entity);
+        debug.assertion(()=>target_entity instanceof concepts.Entity);
 
         const pos_a = character.position;
         const pos_b = target_entity.position;
@@ -321,7 +322,7 @@ class Swap extends concepts.Action {
 class Rule_Swap extends concepts.Rule {
 
     get_actions_for(character, world){
-        console.assert(character instanceof Character);
+        debug.assertion(()=>character instanceof Character);
 
         const entity_can_be_moved = (position)=> {
             const entity = world.entity_at(position);

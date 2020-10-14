@@ -4,6 +4,7 @@ export {
     CharacterView,
 }
 
+import * as debug from "../system/debug.js";
 import { EntityView } from "./entity-view.js";
 import { Character } from "../core/character.js";
 
@@ -11,7 +12,7 @@ import { Character } from "../core/character.js";
 class CharacterView extends EntityView {
 
     constructor(character){
-        console.assert(character instanceof Character);
+        debug.assertion(()=>character instanceof Character);
         super(character.id, character.position, character.assets);
         this._character = character;
     }

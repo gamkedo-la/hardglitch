@@ -4,6 +4,7 @@ export {
     Destroy,
 }
 
+import * as debug from "../system/debug.js";
 import * as concepts from "../core/concepts.js";
 import * as visibility from "../core/visibility.js";
 import { sprite_defs } from "../game-assets.js";
@@ -40,7 +41,7 @@ class Destroy extends concepts.Action {
 class Rule_Destroy extends concepts.Rule {
 
     get_actions_for(character, world){
-        console.assert(character instanceof Character);
+        debug.assertion(()=>character instanceof Character);
         return ranged_actions_for_each_target(world, character, Destroy);
     }
 };

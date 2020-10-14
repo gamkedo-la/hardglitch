@@ -11,6 +11,8 @@ export {
     audiostream_loader,
 }
 
+import * as debug from "../system/debug.js";
+
 // Takes an object that looks like this:
 //
 // asset_desc {
@@ -42,22 +44,22 @@ export {
 //
 //
 function load_assets(assets_desc) {
-    console.assert(assets_desc);
-    console.log("Loading assets...");
+    debug.assertion(()=>assets_desc);
+    debug.log("Loading assets...");
     let promises = [];
     const loader_name = "asset_loader";
     // We launch the loadings in "parallel" (as parallel as JS can do...)
     for (let asset_group_name in assets_desc) {
         let asset_group = assets_desc[asset_group_name];
         let loader = asset_group[loader_name];
-        console.assert(loader);
+        debug.assertion(()=>loader);
 
         for (let asset_name in asset_group) {
             if (asset_name == loader_name) // skip the loader function
                 continue;
             let promise = loader(asset_group_name, asset_name, asset_group[asset_name]);
-            console.assert(promise);
-            console.assert(promise instanceof Promise);
+            debug.assertion(()=>promise);
+            debug.assertion(()=>promise instanceof Promise);
             promises.push(promise);
         }
     }
@@ -67,7 +69,7 @@ function load_assets(assets_desc) {
             // Merge all resulting objects together to form one object.
             let all_assets = {};
             all_loaded_assets.forEach(asset => {
-                // console.log(`Asset: ${JSON.stringify(asset)}`);
+                // debug.log(`Asset: ${JSON.stringify(asset)}`);
                 for (const asset_group_name in asset) {
                     let asset_data = asset[asset_group_name];
                     if (!all_assets[asset_group_name])
@@ -75,7 +77,7 @@ function load_assets(assets_desc) {
                     all_assets[asset_group_name] = { ...all_assets[asset_group_name], ...asset_data };
                 }
             });
-            console.log("Loading assets - DONE");
+            debug.log("Loading assets - DONE");
             return all_assets;
         }, (reason) => { // if there is any error
             throw "Failed to load assets: " + reason;
@@ -84,7 +86,7 @@ function load_assets(assets_desc) {
 
 function dummy_loader(group_name, name, path) {
     return new Promise((resolve) => {
-        //console.log( `dummy loading: ${name} => ${path}` );
+        //debug.log( `dummy loading: ${name} => ${path}` );
         let result = {};
         result[group_name] = {};
         result[group_name][name] = { source: path };
@@ -94,13 +96,13 @@ function dummy_loader(group_name, name, path) {
 
 function image_loader(group_name, name, path) {
     return new Promise((resolve) => {
-        //console.log( `image loading: ${name} => ${path} ...` );
+        //debug.log( `image loading: ${name} => ${path} ...` );
         let img = document.createElement("img");
         let result = {};
         result[group_name] = {};
         result[group_name][name] = img;
         img.onload = () => {
-            //console.log( `image loading: ${name} => ${path} - DONE` );
+            //debug.log( `image loading: ${name} => ${path} - DONE` );
             resolve(result);
         };
         img.src = path; // Starts the loading.
@@ -110,7 +112,7 @@ function image_loader(group_name, name, path) {
 function audiobuffer_loader(group_name, name, path) {
     const audio_context = new AudioContext();
     return new Promise((resolve) => {
-        //console.log( `image loading: ${name} => ${path} ...` );
+        //debug.log( `image loading: ${name} => ${path} ...` );
         let request = new XMLHttpRequest();
         let result = {};
         result[group_name] = {};
@@ -118,13 +120,13 @@ function audiobuffer_loader(group_name, name, path) {
         request.open('GET', path);
         request.responseType = 'arraybuffer';
         request.onload = () => {
-            // console.log(`audiobuffer loading: ${name} => ${path} - DONE`);
+            // debug.log(`audiobuffer loading: ${name} => ${path} - DONE`);
             audio_context.decodeAudioData(request.response,
-                (buffer) => { 
+                (buffer) => {
                     result[group_name][name] = buffer;
                     resolve(result);
                 },
-                () => { console.log('buffer decode failed') });
+                () => { debug.log('buffer decode failed') });
         };
         request.send()
     });
@@ -132,13 +134,13 @@ function audiobuffer_loader(group_name, name, path) {
 
 function audiostream_loader(group_name, name, path) {
     return new Promise((resolve) => {
-        //console.log( `image loading: ${name} => ${path} ...` );
+        //debug.log( `image loading: ${name} => ${path} ...` );
         let audiostream = new Audio(path);
         let result = {};
         result[group_name] = {};
         audiostream.oncanplay = () => {
             audiostream.oncanplay = null;
-            console.log(`audiostream loaded: ${name} => ${path} - DONE`);
+            debug.log(`audiostream loaded: ${name} => ${path} - DONE`);
             result[group_name][name] = audiostream;
             resolve(result);
         };

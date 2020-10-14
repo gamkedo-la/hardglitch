@@ -3,6 +3,7 @@ export {
     ScreenFader,
 }
 
+import * as debug from "../system/debug.js";
 import * as graphics from "./graphics.js";
 import { tween } from "./tweening.js";
 import { Color } from "./color.js";
@@ -19,7 +20,7 @@ class ScreenFader {
 
     get color() { return this._color.copy(); }
     set color(new_color){
-        console.assert(new_color instanceof Color);
+        debug.assertion(()=>new_color instanceof Color);
         this._color = new_color;
     }
 

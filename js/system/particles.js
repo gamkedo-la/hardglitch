@@ -29,6 +29,7 @@ export {
     CollapseOrbParticle,
 }
 
+import * as debug from "../system/debug.js";
 import { camera, create_canvas_context } from "./graphics.js";
 import { random_int, random_float, ofmt } from "./utility.js";
 import { Color } from "./color.js";
@@ -110,7 +111,7 @@ class ParticleSystem {
             this.dbgTimer += delta_time;
             if (this.dbgTimer > 1000) {
                 this.dbgTimer = 0;
-                console.log("objs: " + this.items.length + " inactive: " + inactive);
+                debug.log("objs: " + this.items.length + " inactive: " + inactive);
             }
         }
     }
@@ -1370,7 +1371,7 @@ class BlipEdgeParticle extends Particle {
             let nv2 = this.nextEdgeFcn(this.v2, this.v1);
             if (!nv2) {
                 this._done = true;
-                console.log("can't find edge for " + ofmt(this.v2) + "->" + ofmt(this.v1) + " nv2: " + nv2);
+                debug.log("can't find edge for " + ofmt(this.v2) + "->" + ofmt(this.v1) + " nv2: " + nv2);
                 return;
             }
             this.v1 = this.v2;
@@ -2194,7 +2195,7 @@ class CollapseOrbParticle extends Particle {
     }
 
     genLightning(spec) {
-        //console.log("spec: " + spec);
+        //debug.log("spec: " + spec);
         let distance = this.radius;
         let x = spec.x || 0;
         let y = spec.y || 0;
@@ -2213,7 +2214,7 @@ class CollapseOrbParticle extends Particle {
         let floaterPct = spec.floaterPct || 0;
         let p = new LightningParticle({x: originx, y:originy}, {x: targetx, y: targety}, segments, width, color, endWidth, variance, ttl, floaterPct);
         this.subparticles.push(p);
-        //console.log("sp len: " + this.subparticles.length);
+        //debug.log("sp len: " + this.subparticles.length);
     }
 
     get done() {

@@ -2,7 +2,7 @@ export {
     TitleScreen,
 }
 
-
+import * as debug from "./system/debug.js";
 import * as fsm from "./system/finite-state-machine.js";
 import * as graphics from "./system/graphics.js";
 import * as ui from "./system/ui.js";
@@ -20,8 +20,8 @@ const buttons_font = "22px Space Mono";
 class MainMenu {
 
     constructor(state_machine, position){
-        console.assert(state_machine instanceof fsm.StateMachine);
-        console.assert(position instanceof Vector2);
+        debug.assertion(()=>state_machine instanceof fsm.StateMachine);
+        debug.assertion(()=>position instanceof Vector2);
         this.back_panel = new ui.Pannel({
             width: 1024,
             height: 768,
@@ -125,8 +125,8 @@ class TitleScreen extends fsm.State {
     fader = new ScreenFader();
 
     _init_ui(){
-        console.assert(this.main_menu === undefined);
-        console.assert(this.title === undefined);
+        debug.assertion(()=>this.main_menu === undefined);
+        debug.assertion(()=>this.title === undefined);
 
         this.ui = {};
         this.ui.title = new ui.Text({

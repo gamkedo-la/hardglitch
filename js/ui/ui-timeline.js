@@ -2,7 +2,7 @@ export {
     Timeline,
 }
 
-
+import * as debug from "../system/debug.js";
 import * as graphics from "../system/graphics.js";
 import * as input from "../system/input.js";
 import * as concepts from "../core/concepts.js";
@@ -71,8 +71,8 @@ class CycleChangeMarker
 class Timeline
 {
     constructor(position, view_finder, visibility_predicate){
-        console.assert(view_finder instanceof Function);
-        console.assert(visibility_predicate instanceof Function);
+        debug.assertion(()=>view_finder instanceof Function);
+        debug.assertion(()=>visibility_predicate instanceof Function);
         this.position = new Vector2(position);
         this._view_finder = view_finder;
         this._is_entity_visible = visibility_predicate;
@@ -82,7 +82,7 @@ class Timeline
     visible = true;
 
     update(delta_time, character, world){
-        console.assert(world instanceof concepts.World);
+        debug.assertion(()=>world instanceof concepts.World);
 
         this.cycle_count = world.turn_id;
 
@@ -112,9 +112,9 @@ class Timeline
     }
 
     _refresh(){
-        console.assert(this._turn_ids_sequence instanceof Object);
-        console.assert(this._turn_ids_sequence.this_turn_ids instanceof Array);
-        console.assert(this._turn_ids_sequence.next_turn_ids instanceof Array);
+        debug.assertion(()=>this._turn_ids_sequence instanceof Object);
+        debug.assertion(()=>this._turn_ids_sequence.this_turn_ids instanceof Array);
+        debug.assertion(()=>this._turn_ids_sequence.next_turn_ids instanceof Array);
 
         this._character_views = [];
 
@@ -128,12 +128,12 @@ class Timeline
     }
 
     _add_character_views(character_ids) {
-        console.assert(character_ids instanceof Array);
+        debug.assertion(()=>character_ids instanceof Array);
         for(const character_id of character_ids) {
-            console.assert(Number.isInteger(character_id));
+            debug.assertion(()=>Number.isInteger(character_id));
             const character_view = this._view_finder(character_id);
             if(character_view){
-                console.assert(character_view instanceof CharacterView);
+                debug.assertion(()=>character_view instanceof CharacterView);
                 if(!this._is_entity_visible(character_view.game_position))
                     continue; // Don't show characters that are not visible to the player on the timeline.
                 this._character_views.push(character_view);
@@ -247,7 +247,7 @@ class Timeline
     }
 
     find_slot(predicate) {
-        console.assert(predicate instanceof Function);
+        debug.assertion(()=>predicate instanceof Function);
 
         const position_sequence = this.position_sequence();
         const next_position = ()=> position_sequence.next().value;

@@ -3,6 +3,7 @@
 
 export { Game }
 
+import * as debug from "./system/debug.js";
 import * as concepts from "./core/concepts.js";
 import * as turns from "./core/action-turn.js";
 import { random_int, random_sample } from "./system/utility.js";
@@ -18,9 +19,9 @@ class Game {
     turn_info = null;
 
     constructor(world, player_character){
-        console.assert(world instanceof concepts.World);
-        console.assert(is_valid_world(world));
-        console.assert(player_character === undefined || player_character instanceof Character)
+        debug.assertion(()=>world instanceof concepts.World);
+        debug.assertion(()=>is_valid_world(world));
+        debug.assertion(()=>player_character === undefined || player_character instanceof Character)
         this.world = world;
 
         // Prepare the game turns to be ready to play (player's turn)
@@ -41,18 +42,18 @@ class Game {
     // So calling this function with no argument is useful when we change the world and want the rules to update what the new state.
     *update_until_player_turn(next_player_action) {
         if(next_player_action)
-            console.log(`Player Action: ${next_player_action.name}`);
+            debug.log(`Player Action: ${next_player_action.name}`);
 
-        console.log(`SOLVING TURNS ...`);
+        debug.log(`SOLVING TURNS ...`);
         while(true){
             const turn_iter = this.__turn_sequence.next(next_player_action);
-            console.assert(turn_iter.done == false); // We should never be able to end.
-            console.assert(turn_iter.value);
+            debug.assertion(()=>turn_iter.done == false); // We should never be able to end.
+            debug.assertion(()=>turn_iter.value);
             next_player_action = undefined; // Only push the player action once.
 
             if(turn_iter.value instanceof concepts.Event){
                 const event = turn_iter.value;
-                console.log(`-> ${event.constructor.name}: ${event.description}` );
+                debug.log(`-> ${event.constructor.name}: ${event.description}` );
                 yield event;
             } else if(turn_iter.value instanceof turns.PlayerTurn){
                 this.turn_info = turn_iter.value;
@@ -64,11 +65,11 @@ class Game {
 
         this.world = this.turn_info.world;
 
-        console.log(`NEW PLAYER TURN`);
-        // console.log(`Possible Actions: `);
+        debug.log(`NEW PLAYER TURN`);
+        // debug.log(`Possible Actions: `);
         // for(const action_id in this.turn_info.possible_actions){
         //     const action = this.turn_info.possible_actions[action_id];
-        //     console.log(` - ${action.name}`);
+        //     debug.log(` - ${action.name}`);
         // }
         return this.turn_info;
     }
@@ -82,12 +83,12 @@ class Game {
 
     add_player_character_at_random_entry_point(player_character){
         const entry_points = this.all_entry_points_positions;
-        console.assert(entry_points);
+        debug.assertion(()=>entry_points);
         const position = random_sample(entry_points);
         if(position){
             this.add_player_character(position, player_character);
         } else {
-            console.warn("Could not find an entry point for the player character! - Force place it somewhere safe.");
+            debug.warn("Could not find an entry point for the player character! - Force place it somewhere safe.");
             while(true){
                 const random_position = new concepts.Position({ x: random_int(0, this.world.width-1), y: random_int(0, this.world.height-1)});
                 if(this.is_safely_walkable(random_position)){
@@ -99,8 +100,8 @@ class Game {
     }
 
     add_player_character(position, player_character){
-        console.assert(player_character === undefined || player_character instanceof Character);
-        console.assert(this.is_safely_walkable(position));
+        debug.assertion(()=>player_character === undefined || player_character instanceof Character);
+        debug.assertion(()=>this.is_safely_walkable(position));
         const player = player_character ? player_character : new GlitchyGlitchMacGlitchy();
         player.skip_turn = true;
         player.position = position;

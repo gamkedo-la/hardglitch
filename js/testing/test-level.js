@@ -2,6 +2,7 @@
 
 export { make_test_world }
 
+import * as debug from "../system/debug.js";
 import * as concepts from "../core/concepts.js";
 import { random_int, index_from_position, random_sample } from "../system/utility.js";
 import { RandomActionEnemy } from "../characters/test-enemy.js";
@@ -116,7 +117,7 @@ function make_test_world(test_world_size = world_grid){ // The game assets must 
     }
 
     const entry_point_position = set_surface_tile(random_position(), tiles.ID.ENTRY);
-    console.assert(is_floor_walkable(entry_point_position));
+    debug.assertion(()=>is_floor_walkable(entry_point_position));
 
     const world = new concepts.World(`Random Test Level ${test_world_size.width} x ${test_world_size.height}`,
         test_world_size.width, test_world_size.height,
@@ -127,7 +128,7 @@ function make_test_world(test_world_size = world_grid){ // The game assets must 
             [grid_ID.unstable]:     new Grid(test_world_size.width, test_world_size.height),
         }
         );
-    console.assert(world.grids[grid_ID.surface].matching_positions(tileid=> tileid == tiles.ID.ENTRY).length > 0);
+    debug.assertion(()=>world.grids[grid_ID.surface].matching_positions(tileid=> tileid == tiles.ID.ENTRY).length > 0);
 
     world.set_rules(...default_rules, ...test_rules);
 

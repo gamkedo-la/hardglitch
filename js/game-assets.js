@@ -9,6 +9,7 @@ export {
     music_id,
 };
 
+import * as debug from "./system/debug.js";
 import * as asset_system from "./system/assets.js";
 
 
@@ -165,7 +166,7 @@ let loaded_assets = {}; // This object will be set with all the asset converted 
 
 async function load_all_assets(){
     loaded_assets = await asset_system.load_assets(game_assets);
-    // console.log(`ASSETS: ${JSON.stringify(loaded_assets)}`);
+    // debug.log(`ASSETS: ${JSON.stringify(loaded_assets)}`);
     return loaded_assets;
 }
 
@@ -217,7 +218,7 @@ function icon_def_from_image(image){
 }
 
 function crypto_file_def(line){
-    console.assert(Number.isInteger(line));
+    debug.assertion(()=>Number.isInteger(line));
     const y = line * 64;
     const width = 64;
     const height = 64;

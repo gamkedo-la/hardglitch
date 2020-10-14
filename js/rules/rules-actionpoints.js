@@ -2,8 +2,9 @@
 export {
     Rule_ActionPoints,
     Event_ActionPointsRestored,
- }
+}
 
+import * as debug from "../system/debug.js";
 import * as concepts from "../core/concepts.js";
 import { Character } from "../core/character.js";
 
@@ -33,7 +34,7 @@ class Rule_ActionPoints extends concepts.Rule {
 function restore_characters_action_points(world){
     const events = [];
     for(const character of world.bodies){
-        console.assert(character instanceof Character);
+        debug.assertion(()=>character instanceof Character);
         const restored_points = character.restore_action_points();
         events.push( new Event_ActionPointsRestored(character, restored_points) );
     }

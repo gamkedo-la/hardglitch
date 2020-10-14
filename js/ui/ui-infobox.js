@@ -3,6 +3,7 @@ export {
     show_info,
 }
 
+import * as debug from "../system/debug.js";
 import * as ui from "../system/ui.js";
 import * as graphics from "../system/graphics.js";
 import * as input from "../system/input.js";
@@ -71,7 +72,7 @@ class InfoBox {
     get visible() { return this._is_open; }
 
     add_text(new_text){
-        console.assert(typeof new_text === "string");
+        debug.assertion(()=>typeof new_text === "string");
         this._text = add_text_line(this._text, new_text);
     }
 
