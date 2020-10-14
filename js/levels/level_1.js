@@ -19,8 +19,8 @@ const level_name = "Level 0: Buggy Program";
 const defaults = {
     ground : tiles.ID.LVL1A,
     ground_alt: tiles.ID.LVL1B,
-    wall : tiles.ID.WALL2A,
-    wall_alt : tiles.ID.WALL2B,
+    wall : tiles.ID.WALL1A,
+    wall_alt : tiles.ID.WALL1B,
 };
 
 const startup_rooms = {
