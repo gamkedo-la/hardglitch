@@ -761,7 +761,7 @@ class GameView {
             this.fog_of_war.display(graphics.screen_canvas_context);
         }
 
-        this.tile_grid.draw_surface(graphics.screen_canvas_context, wide_visibility_predicate);
+        this.tile_grid.draw_surface(graphics.screen_canvas_context, visibility_predicate);
         this.tile_grid.draw_effects(graphics.screen_canvas_context, effect_visibility_predicate);
 
         this.fog_of_war.capture_visible_squares(this.tile_grid.canvas_context);
