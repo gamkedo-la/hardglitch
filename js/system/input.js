@@ -5,6 +5,7 @@ export {
   initialize, update,
   mouse, keyboard, MOUSE_BUTTON,
   KEY_STATE, KeyState,
+  set_cursor, get_cursor,
 };
 
 import * as spatial from "./spatial.js";
@@ -335,6 +336,19 @@ function canvas_mouse_position(canvas, event) {
 
 const input_update_queue = [];
 
+
+let current_cursor;
+
+function set_cursor(image_url) {
+  if(image_url === current_cursor)
+    return;
+  console.assert(typeof image_url === "string");
+  document.body.style.cursor = `url(${image_url}), pointer`;
+  current_cursor = image_url;
+}
+
+function get_cursor() { return current_cursor; }
+
 function initialize(canvas_context) {
   console.assert(canvas_context);
   const canvas = canvas_context.canvas;
@@ -360,7 +374,6 @@ function initialize(canvas_context) {
   canvas.addEventListener('mouseup', function(event) {
     input_update_queue.push(()=> mouse.on_mouse_button_up(event.button) );
   });
-
 }
 
 function update(delta_time){
@@ -371,3 +384,4 @@ function update(delta_time){
     input_update();
   }
 }
+

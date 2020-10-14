@@ -23,7 +23,16 @@ import { GameSession } from "./game-session.js";
 let current_game;
 let current_game_view;
 
-// TODO: add the system that changes the mouse icons here
+const cursors = {
+    pointer_cursor: "images/mousecursor_pointer_small.png",
+    hand_cursor_open: "images/hand_open2_small.png",
+    hand_cursor_closed: "images/hand_closed2_small.png",
+};
+
+Object.values(cursors).forEach(pointer_url=> input.set_cursor(pointer_url)); // This is to pre-load the mouse cursors.
+input.set_cursor(cursors.pointer_cursor); // We can do that from the beginning because the cursor system doesn't depend on the asset loading being finished.
+
+
 
 // keyboard keycode constants, determined by printing out evt.keyCode from a key handler
 const KEY = {
@@ -116,6 +125,8 @@ const action_button_keys = [
 ];
 
 function select_player_action(){
+    console.assert(!current_game_view.ui.is_selecting_action_target);
+
     const keyboard = input.keyboard;
     const mouse = input.mouse;
     const possible_actions = current_game.turn_info.possible_actions;
@@ -132,18 +143,24 @@ function select_player_action(){
     if(keyboard.is_down(KEY.D) || keyboard.is_down(KEY.RIGHT_ARROW)) return possible_actions.move_east;
     if(keyboard.is_down(KEY.A) || keyboard.is_down(KEY.LEFT_ARROW)) return possible_actions.move_west;
 
-    if(mouse.buttons.is_just_released(input.MOUSE_BUTTON.LEFT) // Select an action which targets the square under the mouse.
-    && !mouse_was_dragging_last_update
-    && !current_game_view.ui.is_selecting_action_target
+    if(!mouse_was_dragging_last_update
     ){
-        const clicked_position = mouse_grid_position();
-        if(clicked_position) {
+        const mouse_pointed_position = mouse_grid_position();
+        if(mouse_pointed_position) {
             for(const action of Object.values(possible_actions)){
-                if(action.is_basic
+                if(action.target_position
+                && action.target_position.equals(mouse_pointed_position)
+                && action.is_basic
                 && action.is_safe
-                && action.target_position
-                && action.target_position.equals(clicked_position))
-                    return action;
+                ){
+                    // Pointing a basic action or pointing because we are selecting an action target.
+                    input.set_cursor(cursors.pointer_cursor);
+
+                    // Select a basic action which targets the square under the mouse.
+                    if(mouse.buttons.is_just_released(input.MOUSE_BUTTON.LEFT)){
+                        return action;
+                    }
+                }
             }
         }
     }
@@ -163,6 +180,7 @@ function update_camera_control(delta_time, allow_camera_dragging){
         current_game_view.center_on_player(500);
     }
 
+
     const drag_pos = input.mouse.dragging_positions;
     if(input.mouse.is_dragging
     && !current_game_view.ui.is_under(drag_pos.begin) // Don't drag the camera if we are manipulating UI
@@ -175,8 +193,18 @@ function update_camera_control(delta_time, allow_camera_dragging){
         }
         graphics.camera.position = draggin_start_camera_position.translate(game_position_from_graphic_position(drag_pos.begin).substract(mouse_game_position()));
 
+        input.set_cursor(cursors.hand_cursor_closed);
     } else {
         draggin_start_camera_position = undefined;
+
+        if(current_game_view.ui.is_mouse_over || current_game_view.ui.is_selecting_action_target){
+            input.set_cursor(cursors.pointer_cursor);
+        } else if(input.mouse.buttons.is_down(input.MOUSE_BUTTON.LEFT)){
+            input.set_cursor(cursors.hand_cursor_closed);
+        } else {
+            input.set_cursor(cursors.hand_cursor_open);
+        }
+
 
         if(keyboard.is_down(KEY.J))
             graphics.camera.translate(Vector2_unit_x.multiply(-current_speed));
@@ -246,6 +274,5 @@ function update(delta_time, input_config){
         }
     }
 }
-
 
 
