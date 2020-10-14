@@ -61,7 +61,10 @@ class InfoBox {
 
     get position() { return new Vector2(this._area.position); }
     get is_mouse_over() { return this.is_under(input.mouse.position); }
-    is_under(position) { return is_point_under(position, this._area);}
+    is_under(position) { return is_point_under(position, this._area)
+                             || (this.visible ? this._button_hide.is_under(position) : this._button_show.is_under(position))
+                             ;
+                        }
 
     get _is_open() { return config.enable_infobox; }
     set _is_open(is_it) { config.enable_infobox = is_it; }
