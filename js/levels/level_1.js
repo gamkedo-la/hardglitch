@@ -39,7 +39,7 @@ const startup_rooms = {
             { type: "GlitchyGlitchMacGlitchy", position: { x: 2, y: 3 } },
             { type: "LifeForm_Weak", position: { x: 6, y: 6 } },
             { type: "CryptoFile_Triangle", position: { x: 2, y: 7 }, drops: ["Item_Jump"] },
-            { type: "CryptoKey_Triangle", position: { x: 5, y: 8 } },
+            { type: "CryptoKey_Triangle", position: { x: 5, y: 8 }, is_crucial: true, },
         ],
     },
 
@@ -77,7 +77,7 @@ const startup_rooms = {
             { type: "GlitchyGlitchMacGlitchy", position: { x: 5, y: 9 } },
             { type: "LifeForm_Weak", position: { x: 5, y: 1 } },
             { type: "CryptoFile_Equal", position: { x: 8, y: 16 } },
-            { type: "CryptoKey_Equal", position: { x: 4, y: 2 } },
+            { type: "CryptoKey_Equal", position: { x: 4, y: 2 }, is_crucial: true, },
             { type: "MovableWall_Purple", position: { x: 2, y: 8 } },
             { type: "MovableWall_Green", position: { x: 1, y: 13 } },
             { type: "MovableWall_Orange", position: { x: 2, y: 13 } },

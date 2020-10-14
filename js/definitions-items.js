@@ -196,7 +196,7 @@ class CryptoKey extends concepts.Item {
     description = auto_newlines(`Decryption key used to decrypt a Crypto-File with the same symbol.`, 35);
 
     get can_be_taken() { return true; }
-    get can_be_moved() { return false; }
+    get can_be_moved() { return true; }
 
     constructor(kind){
         debug.assertion(()=>Number.isInteger(kind));
