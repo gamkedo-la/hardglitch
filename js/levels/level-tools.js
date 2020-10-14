@@ -305,7 +305,7 @@ function random_variation(world_desc){
         const variation_func = random_sample(world_variations);
         result_world = variation_func(result_world);
         --variations_count;
-        console.log(` - ${variation_func.name}`);
+        // console.log(` - ${variation_func.name}`);
     }
     // console.log("++++++ World Variation END++++++");
     return result_world;
