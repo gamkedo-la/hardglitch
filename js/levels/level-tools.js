@@ -299,7 +299,7 @@ function random_variation(world_desc){
     check_world_desc(world_desc);
     let result_world = copy_data(world_desc);
 
-    console.log("++++++ World Variation BEGIN: ++++++");
+    // console.log("++++++ World Variation BEGIN: ++++++");
     let variations_count = random_int(0, 5);
     while(variations_count > 0){
         const variation_func = random_sample(world_variations);
@@ -307,7 +307,7 @@ function random_variation(world_desc){
         --variations_count;
         console.log(` - ${variation_func.name}`);
     }
-    console.log("++++++ World Variation END++++++");
+    // console.log("++++++ World Variation END++++++");
     return result_world;
 }
 
