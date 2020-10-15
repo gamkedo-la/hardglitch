@@ -1176,7 +1176,7 @@ const sound_event_defs = {
 const music_id = {
     title: "HelloWorld",
     level_1: "HGBreakdown",
-    level_2: "GlitchOutTheShell",
+    level_2: "GlitchyLife",
     level_3: "DataMiner",
     level_4: "GlitchIsBorn",
     gameover_success: "BrokeTheLoop",
