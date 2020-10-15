@@ -148,7 +148,7 @@ const game_assets = { // Description of the assets to load.
         testMusic: './audio/test.mp3',
         glitchlife: './audio/music/HardGlitch_GlitchyLife.mp3',
         radream: './audio/music/HardGlitch_RandomAccessDream_Loop.mp3',
-        breakdown: './audio/music/HardGlitchBreakdown.mp3',
+        breakdown: './audio/music/HardGlitchBreakdown_r1.mp3',
         glitchborn: './audio/music/HardGlitch_AGlitchIsBorn.mp3',
         helloworld: './audio/music/HardGlitch_HelloWorld.mp3',
         broketheloop: './audio/music/HardGlitch_BrokeTheLoop.mp3',
