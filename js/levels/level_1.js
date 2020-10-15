@@ -57,7 +57,7 @@ const startup_rooms = {
             { type: "LifeForm_Weak", position: { x: 7, y: 11 }, drops: ["Item_Pull"] },
             { type: "GlitchyGlitchMacGlitchy", position: { x: 2, y: 2 } },
             { type: "CryptoKey_Plus", position: { x: 7, y: 3 }, is_crucial: true, },
-            { type: "MovableWall_Purple", position: { x: 4, y: 12 } },
+            { type: "MovableWall_Purple", position: { x: 4, y: 10 } },
             { type: "CryptoFile_Plus", position: { x: 4, y: 7 }, drops: ["Item_Push"], },
         ],
     },
@@ -150,7 +150,7 @@ const exit_rooms = {
 };
 
 window.startup_rooms = startup_rooms; // For debugging.
-window.startup_rooms = exit_rooms; // For debugging.
+window.exit_rooms = exit_rooms; // For debugging.
 
 function generate_world() {
     // LEVEL 1:
