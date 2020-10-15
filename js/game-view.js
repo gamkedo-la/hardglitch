@@ -163,8 +163,8 @@ class GameView {
     player_actions_highlights = []; // Must contain Highlight objects for the currently playable actions.
     action_range_highlights = []; // Must contain Highlight objects for the currently pointed action's range.
     item_drop_highlights = []; // Must contain Highlight objects for possible item drop positions.
-    delay_between_animations_ms = Math.round(1000 / 5); // we'll try to keep a little delay between each beginning of parallel animation.
-    enable_parallel_animations = false;
+    delay_between_animations_ms = Math.round(1000 / 10); // we'll try to keep a little delay between each beginning of parallel animation.
+    enable_parallel_animations = true;
 
     enable_edition = false; // Turn on to limit view for editor mode.
 
