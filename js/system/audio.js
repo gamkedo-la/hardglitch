@@ -136,6 +136,8 @@ class AudioBufferEvent {
         this.vol.connect(output);
 
         this.loop = event_def.loop ? event_def.loop : false;
+        this.loopStart = event_def.loopStart ? event_def.loopStart : 0;
+        this.loopEnd = event_def.loopEnd ? event_def.loopEnd : 0;
 
         debug.assertion(()=>is_number(event_def.volume));
         this.volume = event_def.volume;
@@ -144,6 +146,8 @@ class AudioBufferEvent {
     play() {
         if (this.loop) {
             this.bufferSource.loop = true;
+            this.bufferSource.loopStart = this.loopStart;
+            this.bufferSource.loopEnd = this.loopEnd;
         } else {
             this.bufferSource.onended = () => {
                 let index = audio_events.findIndex((element) => element === this);
