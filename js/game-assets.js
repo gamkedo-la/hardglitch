@@ -155,6 +155,7 @@ const game_assets = { // Description of the assets to load.
         mistakes: './audio/music/HardGlitch_MistakesWereMade.mp3',
         scopedlife: './audio/music/HardGlitch_ScopedLifetime.mp3',
         datam: './audio/music/HardGlitch_DataMiner.aac',
+        glitchshell: './audio/music/HardGlitch_GlitchOutTheShell.aac',
     }
 };
 
@@ -1161,12 +1162,21 @@ const sound_event_defs = {
         volume: 0.7,
         unique: true, // Will not create a new event instance if true
     },
+
+    'GlitchOutTheShell': {
+        source_type: 'audiostream',
+        source_name: 'glitchshell',
+        group_name: 'Music',
+        loop: true,
+        volume: 0.7,
+        unique: true, // Will not create a new event instance if true
+    },
 }
 
 const music_id = {
     title: "HelloWorld",
     level_1: "HGBreakdown",
-    level_2: "RandomAccessDream",
+    level_2: "GlitchOutTheShell",
     level_3: "DataMiner",
     level_4: "GlitchIsBorn",
     gameover_success: "BrokeTheLoop",
