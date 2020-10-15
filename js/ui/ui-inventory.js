@@ -188,7 +188,7 @@ class InventoryUI {
     }
 
     update(delta_time, current_character, world){
-        debug.assertion(()=>current_character instanceof Character || current_character === undefined);
+        debug.assertion(()=>current_character instanceof Character || current_character == undefined);
         debug.assertion(()=>world instanceof concepts.World);
         this.world = world;
 
