@@ -11,19 +11,19 @@ window.enable_assertions = false; // Set to true (even while playing) to see the
 
 function log(...anything){
     if(window.enable_logs){
-        debug.log(...anything);
+        console.log(...anything);
     }
 }
 
 function warn(...anything){
     if(window.enable_logs){
-        debug.warn(...anything);
+        console.warn(...anything);
     }
 }
 
 function assertion(predicate){
     if(window.enable_assertions){
-        debug.assertion(()=>predicate());
+        console.assert(predicate());
     }
 }
 
