@@ -146,18 +146,14 @@ class InGameMenu extends fsm.State {
         this.fader.color = new Color(255,255,255);
         this.fader.duration_ms = 300;
         this.fader._fade = 0;
+        this.menu_screen = "main"; 
+        // menu_screen options: "main", "instructions", "config"
     }
 
     _init_ui(){
         debug.assertion(()=>this.ui === undefined);
 
         this.ui = {
-            text_instructions: new ui.Text({
-                text: auto_newlines(texts.help_info, 52),
-                font: "20px Space Mono",
-                color: "white",
-                background_color: "#222222dd",
-            }),
             resume_button: new ui.TextButton({
                 text: "Resume Game",
                 action: ()=>{ this.go_back(); },
@@ -166,7 +162,30 @@ class InGameMenu extends fsm.State {
                 sounds:{
                     over: 'selectButton',
                     down: 'clickButton',
-                }
+                },
+                visible: this.menu_screen == "main",
+            }),
+            instructions_button: new ui.TextButton({
+                text: "How To Play",
+                action: ()=>{ this.set_menu_screen("instructions"); },
+                position: Vector2_origin,
+                sprite_def: sprite_defs.button_menu,
+                sounds:{
+                    over: 'selectButton',
+                    down: 'clickButton',
+                },
+                visible: this.menu_screen == "main",
+            }),
+            config_button: new ui.TextButton({
+                text: "Game Options",
+                action: ()=>{ this.set_menu_screen("config"); },
+                position: Vector2_origin,
+                sprite_def: sprite_defs.button_menu,
+                sounds:{
+                    over: 'selectButton',
+                    down: 'clickButton',
+                },
+                visible: this.menu_screen == "main",
             }),
             exit_button: new ui.TextButton({
                 text: "Exit Game",
@@ -176,8 +195,123 @@ class InGameMenu extends fsm.State {
                 sounds:{
                     over: 'selectButton',
                     down: 'clickButton',
-                }
+                },
+                visible: this.menu_screen == "main",
             }),
+
+            // Instructions Menu Screen
+            text_instructions: new ui.Text({
+                text: auto_newlines(texts.help_info, 52),
+                font: "20px Space Mono",
+                color: "white",
+                background_color: "#222222dd",
+                visible: this.menu_screen == "instructions",
+            }),
+
+            // Config Menu Screen
+            particles_button: new ui.TextButton({
+                text: "Particles: " + (
+                    window.game_config.enable_particles ? "On" : "Off"
+                ),
+                action: ()=>{ 
+                    this.toggle_game_config('enable_particles'); 
+                },
+                position: Vector2_origin,
+                sprite_def: sprite_defs.button_menu,
+                sounds:{
+                    over: 'selectButton',
+                    down: 'clickButton',
+                },
+                visible: this.menu_screen == "config",
+            }),
+            status_bar_button: new ui.TextButton({
+                text: "Status Bar: " + (
+                    window.game_config.enable_stats_bar_value_always_visible ? "Always" : "Auto"
+                ),
+                action: ()=>{ 
+                    this.toggle_game_config(
+                        'enable_stats_bar_value_always_visible'
+                    ); 
+                },
+                position: Vector2_origin,
+                sprite_def: sprite_defs.button_menu,
+                sounds:{
+                    over: 'selectButton',
+                    down: 'clickButton',
+                },
+                visible: this.menu_screen == "config",
+            }),
+            turn_message_button: new ui.TextButton({
+                text: "Turn Message: " + (
+                    window.game_config.enable_turn_message ? "On" : "Off"),
+                action: ()=>{ 
+                    this.toggle_game_config('enable_turn_message'); 
+                },
+                position: Vector2_origin,
+                sprite_def: sprite_defs.button_menu,
+                sounds:{
+                    over: 'selectButton',
+                    down: 'clickButton',
+                },
+                visible: this.menu_screen == "config",
+            }),
+            turn_sound_button: new ui.TextButton({
+                text: "Turn Sound: " + (
+                    window.game_config.enable_turn_sound ? "On" : "Off"),
+                action: ()=>{ 
+                    this.toggle_game_config('enable_turn_sound'); 
+                },
+                position: Vector2_origin,
+                sprite_def: sprite_defs.button_menu,
+                sounds:{
+                    over: 'selectButton',
+                    down: 'clickButton',
+                },
+                visible: this.menu_screen == "config",
+            }),
+            timeline_button: new ui.TextButton({
+                text: "Timeline: " + (
+                    window.game_config.enable_timeline ? "On" : "Off"),
+                action: ()=>{ 
+                    this.toggle_game_config('enable_timeline'); 
+                },
+                position: Vector2_origin,
+                sprite_def: sprite_defs.button_menu,
+                sounds:{
+                    over: 'selectButton',
+                    down: 'clickButton',
+                },
+                visible: this.menu_screen == "config",
+            }),
+            infobox_button: new ui.TextButton({
+                text: "infobox: " + (
+                    window.game_config.enable_infobox ? "On" : "Off"),
+                action: ()=>{ 
+                    this.toggle_game_config('enable_particles'); 
+                },
+                position: Vector2_origin,
+                sprite_def: sprite_defs.button_menu,
+                sounds:{
+                    over: 'selectButton',
+                    down: 'clickButton',
+                },
+                visible: this.menu_screen == "config",
+            }),
+
+
+            // Back Button ( for all non-main menu screens ) 
+            menu_back_button: new ui.TextButton({
+                text: "Back",
+                action: ()=>{ this.set_menu_screen("main"); },
+                position: Vector2_origin,
+                sprite_def: sprite_defs.button_menu,
+                sounds:{
+                    over: 'selectButton',
+                    down: 'clickButton',
+                },
+                visible: this.menu_screen != "main",
+            }),
+
             audio_settings: new AudioSettings({
                 position: new Vector2({x: 0, y: graphics.canvas_rect().height/2 - 156}),
             }),
@@ -198,12 +332,19 @@ class InGameMenu extends fsm.State {
         };
 
         // Center the buttons in the screen.
-        let button_pad_y = +160;
+        let button_pad_y = -160; // default
+        if(this.ui.text_instructions.visible) { // instructions screen
+            button_pad_y = 160;
+        } else if (this.ui.particles_button.visible) { // config screen
+            button_pad_y = -300;
+        }
         const next_pad_y = () => button_pad_y += 80;
         Object.values(this.ui).filter(element => element instanceof ui.Button)
             .forEach(button => {
-                const center_pos = graphics.centered_rectangle_in_screen(button.area).position;
-                button.position = center_pos.translate({ x:0, y: next_pad_y() });
+                if(button.visible) {
+                    const center_pos = graphics.centered_rectangle_in_screen(button.area).position;
+                    button.position = center_pos.translate({ x:0, y: next_pad_y() });
+                }
             });
 
         this.ui.text_instructions.position = graphics.centered_rectangle_in_screen(this.ui.text_instructions)
@@ -232,6 +373,16 @@ class InGameMenu extends fsm.State {
     *leave(){
         this.state_machine.hide_title();
         yield* this.fader.generate_fade_in();
+    }
+
+    set_menu_screen(new_menu_screen){
+        this.menu_screen = new_menu_screen;
+        this.on_canvas_resized();
+    }
+
+    toggle_game_config(param) {
+        window.game_config[param] = !window.game_config[param];
+        this.on_canvas_resized();
     }
 
     update(delta_time){
