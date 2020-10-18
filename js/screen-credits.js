@@ -44,9 +44,9 @@ Andy King: Cursor art, including variants and hand icons
 
 Allan Regush: State machine v1
 
-Antonio Malafronte: Special thanks (practice commit - welcome!), playtesting
+Jonathan Peterson: Pause menu options
 
-Chris DeLeon: Compiled credits
+Antonio Malafronte: Special thanks (practice commit - welcome!), playtesting
 
 Game made in HomeTeamGameDev.com Outpost Group - Join us!`;
 
