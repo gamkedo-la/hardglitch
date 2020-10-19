@@ -40,14 +40,18 @@ function initialize(assets, sound_event_defs) {
 
     mix_groups = {};
     mix_groups['Mute'] = audio_context.createGain();
-    mix_groups['Master'] = audio_context.createGain();
-    mix_groups['Music'] = audio_context.createGain();
-    mix_groups['SoundEffects'] = audio_context.createGain();
+    mix_groups['Master'] = new AudioMixNode(1, {});
+    mix_groups['Music'] = new AudioMixNode(1, {});
+    mix_groups['SoundEffects'] = new AudioMixNode(1, {
+        threshold: -44,
+        knee: 16,
+        ratio: 16,
+    });
 
     mix_groups.Mute.connect(audio_context.destination);
     mix_groups.Master.connect(mix_groups.Mute);
-    mix_groups.Music.connect(mix_groups.Master);
-    mix_groups.SoundEffects.connect(mix_groups.Master);
+    mix_groups.Music.connect(mix_groups.Master.input);
+    mix_groups.SoundEffects.connect(mix_groups.Master.input);
 }
 
 function playEvent(name, pan) {
@@ -120,6 +124,35 @@ function getMixGroup(name) {
     else return mix_groups.Master;
 }
 
+class AudioMixNode {
+    output = null;
+    constructor(vol, comp_def) {
+        // Web Audio won't let you look at AudioNode inputs directly, because that would be useful.
+        this.input = audio_context.createDynamicsCompressor();
+        
+        if(comp_def) {
+            this.input.threshold.value = comp_def.threshold ? comp_def.threshold : -24;
+            this.input.knee.value = comp_def.knee ? comp_def.knee : 30;
+            this.input.ratio.value = comp_def.ratio ? comp_def.ratio : 12;
+            this.input.attack.value = comp_def.attack ? comp_def.attack : 0.003;
+            this.input.release.value = comp_def.release ? comp_def.release : 0.25;
+        }
+        
+        this.output = audio_context.createGain();
+
+        this.gain = vol ? vol : 1;
+
+        this.input.connect(this.output);
+    }
+
+    connect(audio_node) {
+        this.output.connect(audio_node)
+    }
+
+    get gain() {return this.output.gain; }
+    set gain(value) { this.output.gain.value = value; }
+}
+
 // Audio Event Classes
 
 class AudioBufferEvent {
@@ -133,7 +166,7 @@ class AudioBufferEvent {
 
         this.panner.connect(this.vol);
         let output = getMixGroup(event_def.group_name);
-        this.vol.connect(output);
+        this.vol.connect(output.input);
 
         this.loop = event_def.loop ? event_def.loop : false;
         this.loopStart = event_def.loopStart ? event_def.loopStart : 0;
@@ -194,7 +227,7 @@ class AudioStreamEvent {
         this.sourceNode.connect(this.panner);
         this.panner.connect(this.vol);
         let output = event_def.group_name ? mix_groups[event_def.group_name] : mix_groups.Master;
-        this.vol.connect(output);
+        this.vol.connect(output.input);
 
         this.loop = event_def.loop ? event_def.loop : false;
 
