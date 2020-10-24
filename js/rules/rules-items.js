@@ -2,6 +2,7 @@
 export {
     Rule_TakeItem,
     ItemTaken,
+    InventoryItemDropped,
     EntityDropped,
     TakeItem,
     SwapItemSlots,
@@ -59,6 +60,30 @@ class ItemTaken extends concepts.Event {
 };
 
 class EntityDropped extends concepts.Event {
+    constructor(dropped, target){
+        debug.assertion(()=> dropped instanceof concepts.Entity);
+        debug.assertion(()=> target instanceof concepts.Position);
+        super({
+            description: `Dropped Item ${dropped.id} at ${JSON.stringify(target)}`,
+            allow_parallel_animation: true,
+        });
+        this.drop_position = target;
+        this.dropped_id = dropped.id;
+    }
+
+    get focus_positions() { return [ this.drop_position ]; }
+
+    *animation(game_view){
+        debug.assertion(()=>game_view instanceof GameView);
+        game_view.focus_on_position(this.drop_position);
+        const item_view = game_view.add_entity_view(this.dropped_id);
+        yield* anim.drop_item(game_view.fx_view, this.drop_position);
+        game_view.add_entity_view(item_view);
+        item_view.is_visible = true;
+    }
+}
+
+class InventoryItemDropped extends concepts.Event {
     constructor(dropper, item_idx, target, dropped_id){
         debug.assertion(()=>dropper instanceof concepts.Entity);
         debug.assertion(()=>Number.isInteger(item_idx) || item_idx === undefined);
@@ -102,7 +127,7 @@ function drop_items_around(world, dropper, ...items){
     debug.assertion(()=>world instanceof concepts.World);
     debug.assertion(()=>dropper instanceof Character);
     debug.assertion(()=>items.every(item => item instanceof concepts.Item));
-    return spawn_entities_around(world, dropper.position, items);
+    return spawn_entities_around(world, dropper.position, items, EntityDropped);
 }
 
 function handle_items_in_limbo(world, character){
@@ -232,7 +257,7 @@ class DropItem extends concepts.Action {
         world.add_entity(item);
         character.inventory.update_modifiers();
         return [
-            new EntityDropped(character, this.item_idx, this.target, item.id),
+            new InventoryItemDropped(character, this.item_idx, this.target, item.id),
             ...handle_items_in_limbo(world, character),
         ];
     }

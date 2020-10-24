@@ -15,7 +15,7 @@ import { GameView } from "../game-view.js";
 import { EntityView } from "../view/entity-view.js";
 import { destroyed, take_damage } from "../game-animations.js";
 import { Character } from "../core/character.js";
-import { EntityDropped } from "./rules-items.js";
+import { InventoryItemDropped } from "./rules-items.js";
 import { random_sample } from "../system/utility.js";
 import { spawn_entities_around } from "./spawn.js";
 import { fail_game } from "./rules-basic.js";
@@ -85,7 +85,7 @@ function drop_entity_drops(entity, world){
             // Only drop around the character's position, where it's safe to walk, or don't.
             const spawn_events = spawn_entities_around(world, entity.position, [dropped], undefined, tiles.is_safely_walkable, 1);
             if(spawn_events.length > 0) // Use that event instead, but only if the item was actually dropped.
-                events.push(new EntityDropped(entity, 0, dropped.position, dropped.id));
+                events.push(new InventoryItemDropped(entity, 0, dropped.position, dropped.id));
         }
         const dropped = random_sample(entity.drops);
         if(dropped instanceof Array){
