@@ -169,7 +169,7 @@ function find_visible_positions(world, center, view_distance){
     debug.assertion(()=>center instanceof concepts.Position);
     debug.assertion(()=>Number.isInteger(view_distance) && view_distance >= 0);
 
-    const test_shape = new Range_Circle(0, view_distance + 1);
+    const test_shape = new Range_Circle(0, view_distance);
 
     const is_blocking_vision = (x, y)=>{
         const position = new concepts.Position({x, y});
