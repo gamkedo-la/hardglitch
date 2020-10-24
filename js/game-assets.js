@@ -625,20 +625,20 @@ const sprite_defs = {
     button_info_box_close: {
         image: "info_box_button",
         frames: [
-            { x: 0, y: 0, width: 400, height: 24 },
-            { x: 0, y: 24, width: 400, height: 24 },
-            { x: 0, y: 48, width: 400, height: 24 },
-            { x: 0, y: 76, width: 400, height: 24 },
+            { x: 0, y: 0, width: 320, height: 24 },
+            { x: 0, y: 24, width: 320, height: 24 },
+            { x: 0, y: 48, width: 320, height: 24 },
+            { x: 0, y: 76, width: 320, height: 24 },
         ]
     },
 
     button_info_box_open: {
         image: "info_box_button",
         frames: [
-            { x: 0, y: 76, width: 400, height: 24 },
-            { x: 0, y: 76+24, width: 400, height: 24 },
-            { x: 0, y: 76+48, width: 400, height: 24 },
-            { x: 0, y: 76+76, width: 400, height: 24 },
+            { x: 0, y: 76+24, width: 320, height: 24 },
+            { x: 0, y: 76+(24*2), width: 320, height: 24 },
+            { x: 0, y: 76+(24*3), width: 320, height: 24 },
+            { x: 0, y: 76+(24*4), width: 320, height: 24 },
         ]
     },
 
