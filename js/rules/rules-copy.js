@@ -48,6 +48,10 @@ class Copy extends concepts.Action {
         // nor does it imply copying it's state.
         // What we want, exactly, is to copy the kind of entity it is.
         const entity_copy = new copied_entity.constructor(); // Warning: This only works because we know that the different Items and Characters types can be built from no parametters.
+        if(copied_entity instanceof Character){
+            // Keep the same actor:
+            entity_copy.actor = new copied_entity.actor.constructor(); // Warning: This only works because we know that the different Actors types can be built from no parametters.
+        }
         const events = [new EntityScanned(copied_entity)];
         return events.concat(spawn_entities_around(world, this.target_position, [ entity_copy ]));
     }
