@@ -7,6 +7,7 @@ export {
     TakeItem,
     SwapItemSlots,
     DropItem,
+    handle_items_in_limbo,
 }
 
 import * as debug from "../system/debug.js";

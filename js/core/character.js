@@ -218,6 +218,13 @@ class Inventory {
         return limbo;
     }
 
+    move_all_items_into_limbo() {
+        this._item_slots
+            .filter(item => item instanceof concepts.Item)
+            .forEach(item => this._limbo.push(item) );
+        this._item_slots = [];
+    }
+
     add(item){
 
         debug.assertion(()=>item instanceof concepts.Item);

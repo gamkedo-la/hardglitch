@@ -11,33 +11,12 @@ import * as concepts from "../core/concepts.js";
 import * as visibility from "../core/visibility.js";
 import { sprite_defs } from "../game-assets.js";
 import { ranged_actions_for_each_target } from "./rules-common.js";
-import { EntitySpawned, spawn_entities_around } from "./spawn.js";
-import { GameView } from "../game-view.js";
-import * as anim from "../game-animations.js";
+import { EntityScanned, EntitySpawned, spawn_entities_around } from "./spawn.js";
 import { auto_newlines } from "../system/utility.js";
 
 const copy_ap_cost = 20;
 
 class Copied extends EntitySpawned {}; // Shortcut for now...
-
-class EntityScanned extends concepts.Event {
-    constructor(entity) {
-        debug.assertion(()=>entity instanceof concepts.Entity);
-        super({
-            description: `Entity scanned`,
-            allow_parallel_animation: false,
-        });
-        this.entity_position = entity.position;
-    }
-
-    get focus_positions() { return [ this.entity_position ]; }
-
-    *animation(game_view){
-        debug.assertion(()=>game_view instanceof GameView);
-        game_view.focus_on_position(this.entity_position);
-        yield* anim.scanned(game_view.fx_view, this.entity_position);
-    }
-};
 
 const copy_range = new visibility.Range_Circle(0, 6);
 

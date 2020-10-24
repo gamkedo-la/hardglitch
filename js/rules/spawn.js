@@ -1,4 +1,5 @@
 export {
+    EntityScanned,
     EntitySpawned,
     spawn_entities_around,
 }
@@ -9,6 +10,26 @@ import * as tiles from "../definitions-tiles.js";
 import { valid_spawn_positions } from "../core/visibility.js";
 import { GameView } from "../game-view.js";
 import * as anim from "../game-animations.js";
+
+
+class EntityScanned extends concepts.Event {
+    constructor(entity) {
+        debug.assertion(()=>entity instanceof concepts.Entity);
+        super({
+            description: `Entity scanned`,
+            allow_parallel_animation: false,
+        });
+        this.entity_position = entity.position;
+    }
+
+    get focus_positions() { return [ this.entity_position ]; }
+
+    *animation(game_view){
+        debug.assertion(()=>game_view instanceof GameView);
+        game_view.focus_on_position(this.entity_position);
+        yield* anim.scanned(game_view.fx_view, this.entity_position);
+    }
+};
 
 
 class EntitySpawned extends concepts.Event {
@@ -49,6 +70,7 @@ function spawn_entities_around(world, center_position, entities, spawn_event = E
         const position = spawn_positions.pop();
         debug.assertion(()=>position instanceof concepts.Position);
         const entity = entities.pop();
+        console.assert(entity instanceof concepts.Entity);
         entity.position = position;
         world.add_entity(entity);
         events.push(new spawn_event(entity, position));

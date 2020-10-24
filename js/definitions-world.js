@@ -25,16 +25,17 @@ import { Rule_Repair } from "./rules/rules-repair.js";
 import { Rule_TakeItem } from "./rules/rules-items.js";
 import { Rule_Decrypt } from "./rules/rules-decrypt.js";
 import { Rule_Copy } from "./rules/rules-copy.js";
+import { Rule_Corruption } from "./rules/rules-corruption.js";
+import { Rule_Unstability } from "./rules/rules-unstability.js";
+import { Rule_Merge } from "./rules/rules-merge.js";
 
 
 import * as level_1 from "./levels/level_1.js";
 import * as level_2 from "./levels/level_2.js";
 import * as level_3 from "./levels/level_3.js";
 import * as level_4 from "./levels/level_4.js";
-import { all_item_types } from "./definitions-items.js";
 import { all_characters_types } from "./deflinitions-characters.js";
-import { Rule_Corruption } from "./rules/rules-corruption.js";
-import { Rule_Unstability } from "./rules/rules-unstability.js";
+import { all_item_types } from "./definitions-items.js";
 
 const world_grid = {
     width: 64,
@@ -56,7 +57,9 @@ const default_rules = [ // BEWARE: rules will be applied in-order.
     new Rule_Repair(),
     new Rule_Destroy(),
     new Rule_Delete(),
+
     new Rule_Copy(),
+    new Rule_Merge(),
 
     new Rule_Corruption(),
     new Rule_Unstability(),

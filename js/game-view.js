@@ -1058,7 +1058,10 @@ class GameView {
         return entity_view;
     }
 
-    remove_entity_view(entity_id){
+    remove_entity_view(entity_or_view_or_id){
+        let entity_id = entity_or_view_or_id;
+        if(entity_or_view_or_id instanceof EntityView)
+            entity_id = entity_or_view_or_id.id;
         delete this.entity_views[entity_id];
         this.fog_of_war.remove_fov(entity_id);
     }

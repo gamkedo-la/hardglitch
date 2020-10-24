@@ -24,6 +24,7 @@ export {
     scanned,
     spawned,
     exited,
+    merge_characters,
 }
 
 import * as debug from "./system/debug.js";
@@ -347,9 +348,6 @@ function* decrypt_file(file_view, file_fx_view, key_view, key_fx_view, crypto_ki
     yield* shake(file_view, 4, 1000 / 24, until_the_animation_ends);
     audio.playEvent('decryptRev');
     file_view.is_visible = false;
-    // TODO: replace by another sound
-    // TODO: Effect for spawing a new object?
-    // TODO: add an effect here
 }
 
 function* pushed(fx_view, entity_view, to_position){
@@ -405,3 +403,34 @@ function* exited(fx_view, entity_view){
     );
     fx.done = true;
 }
+
+
+function* merge_characters(fx_view, merged_view_a, merged_view_b){
+    debug.assertion(()=>fx_view instanceof GameFxView);
+    debug.assertion(()=>merged_view_a instanceof CharacterView);
+    debug.assertion(()=>merged_view_b instanceof CharacterView);
+    // TODO: replace this by something better :/
+    const duration_ms = 500;
+    audio.playEvent('dissolveRev'); // TODO: Replace by another sound
+    const initial_position = merged_view_a.position;
+    const initial_scale = merged_view_a.scale;
+    merged_view_a.for_each_sprite(sprite=>sprite.move_origin_to_center());
+    merged_view_a.position = initial_position.translate(square_half_unit_vector);
+    let fx_pos = initial_position.translate(square_half_unit_vector);
+    const fx = fx_view.take(fx_pos);
+    yield* animation.in_parallel(
+        tween( { scale_x: merged_view_a.scale.x, scale_y: merged_view_a.scale.y, }, { scale_x: 0, scale_y: 0, },
+                duration_ms, (values) => {
+                    merged_view_a.scale = { x: values.scale_x, y: values.scale_y };
+                },
+                easing.in_out_quad
+            ),
+        translate(merged_view_a, merged_view_b.position.translate(square_half_unit_vector), duration_ms),
+    );
+    merged_view_a.is_visible = false;
+    merged_view_a.scale = initial_scale;
+    merged_view_a.position = initial_position;
+    merged_view_a.for_each_sprite(sprite => sprite.reset_origin());
+    fx.done = true;
+}
+

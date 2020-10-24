@@ -10,21 +10,28 @@ import { Destabilize } from "./rules/rules-unstability.js";
 import { Jump, RandomJump, Swap } from "./rules/rules-movement.js";
 import { Repair } from "./rules/rules-repair.js";
 import { Copy } from "./rules/rules-copy.js";
+import { Merge } from "./rules/rules-merge.js";
 import { TakeItem } from "./rules/rules-items.js";
 
 
 const all_uncommon_action_types = { // Action types which are not by default (like Move, etc.)
-    Delete,
-    Destroy,
     Jump,
     RandomJump,
     Swap,
+
     Push,
     Pull,
+
+    Delete,
+    Destroy,
     Repair,
+
     Corrupt,
     Destabilize,
+
     Copy,
+    Merge,
+
     TakeItem,
 };
 
