@@ -797,7 +797,7 @@ const sound_event_defs = {
         source_name: 'jump',
         group_name: 'SoundEffects',
         loop: false,
-        volume: 0.5,
+        volume: 0.2,
         unique: false,
     },
 

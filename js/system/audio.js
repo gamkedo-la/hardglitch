@@ -43,9 +43,9 @@ function initialize(assets, sound_event_defs) {
     mix_groups['Master'] = new AudioMixNode(1, {});
     mix_groups['Music'] = new AudioMixNode(1, {});
     mix_groups['SoundEffects'] = new AudioMixNode(1, {
-        threshold: -44,
-        knee: 16,
-        ratio: 16,
+        threshold: -8,
+        knee: 32,
+        ratio: 64,
     });
 
     mix_groups.Mute.connect(audio_context.destination);
@@ -129,7 +129,7 @@ class AudioMixNode {
     constructor(vol, comp_def) {
         // Web Audio won't let you look at AudioNode inputs directly, because that would be useful.
         this.input = audio_context.createDynamicsCompressor();
-        
+
         if(comp_def) {
             this.input.threshold.value = comp_def.threshold ? comp_def.threshold : -24;
             this.input.knee.value = comp_def.knee ? comp_def.knee : 30;
@@ -137,7 +137,7 @@ class AudioMixNode {
             this.input.attack.value = comp_def.attack ? comp_def.attack : 0.003;
             this.input.release.value = comp_def.release ? comp_def.release : 0.25;
         }
-        
+
         this.output = audio_context.createGain();
 
         this.gain = vol ? vol : 1;
