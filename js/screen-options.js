@@ -43,12 +43,124 @@ class Options {
                                         y: 8,
                                     };
 
+        this.config_buttons = {
+            particles_button: new ui.TextButton({
+                text: "Particles: " + (
+                    window.game_config.enable_particles ? "On" : "Off"
+                ),
+                action: ()=>{ 
+                    console.log("particles", window.game_config.enable_particles);
+                    this.toggle_game_config('enable_particles'); 
+                },
+                position: null,
+                sprite_def: sprite_defs.button_menu,
+                sounds:{
+                    over: 'EditorButtonHover',
+                    down: 'EditorButtonClick',
+                },
+            }),
+            status_bar_button: new ui.TextButton({
+                text: "Status Bar: " + (
+                    window.game_config.enable_stats_bar_value_always_visible ? "Always" : "Auto"
+                ),
+                action: ()=>{ 
+                    this.toggle_game_config(
+                        'enable_stats_bar_value_always_visible'
+                    ); 
+                },
+                position: null,
+                sprite_def: sprite_defs.button_menu,
+                sounds:{
+                    over: 'EditorButtonHover',
+                    down: 'EditorButtonClick',
+                },
+            }),
+            turn_message_button: new ui.TextButton({
+                text: "Cycle Message: " + (
+                    window.game_config.enable_turn_message ? "On" : "Off"),
+                action: ()=>{ 
+                    this.toggle_game_config('enable_turn_message'); 
+                },
+                position: null,
+                sprite_def: sprite_defs.button_menu,
+                sounds:{
+                    over: 'EditorButtonHover',
+                    down: 'EditorButtonClick',
+                },
+            }),
+            turn_sound_button: new ui.TextButton({
+                text: "Cycle Sound: " + (
+                    window.game_config.enable_turn_sound ? "On" : "Off"),
+                action: ()=>{ 
+                    this.toggle_game_config('enable_turn_sound'); 
+                },
+                position: null,
+                sprite_def: sprite_defs.button_menu,
+                sounds:{
+                    over: 'EditorButtonHover',
+                    down: 'EditorButtonClick',
+                },
+            }),
+            timeline_button: new ui.TextButton({
+                text: "Timeline: " + (
+                    window.game_config.enable_timeline ? "On" : "Off"),
+                action: ()=>{ 
+                    this.toggle_game_config('enable_timeline'); 
+                },
+                position: null,
+                sprite_def: sprite_defs.button_menu,
+                sounds:{
+                    over: 'EditorButtonHover',
+                    down: 'EditorButtonClick',
+                },
+            }),
+            infobox_button: new ui.TextButton({
+                text: "Infobox: " + (
+                    window.game_config.enable_infobox ? "On" : "Off"),
+                action: ()=>{ 
+                    this.toggle_game_config('enable_infobox'); 
+                },
+                position: null,
+                sprite_def: sprite_defs.button_menu,
+                sounds:{
+                    over: 'EditorButtonHover',
+                    down: 'EditorButtonClick',
+                },
+            }),
 
-        this.audio_settings = new AudioSettings({ position: new Vector2({x: 0, y: 0}) });
-        const hack_actual_position = graphics.centered_rectangle_in_screen(this.audio_settings).position; // HACK HACK HACK
-        this.audio_settings = new AudioSettings({ position: hack_actual_position });
+            update: function(delta_time) {
+                invoke_on_members(this, "update", delta_time);
+            },
+
+            draw: function(canvas_context) {
+                let button_pad_y = -200;
+                let config_button_count = 0; 
+
+                const next_pad_y = () => button_pad_y += 80;
+                Object.values(this).filter(element => element instanceof ui.Button)
+                .forEach(button => {
+                    const center_pos = graphics.centered_rectangle_in_screen(button.area).position;
+                    if(config_button_count % 2 == 0) { // if config_button_count is even 
+                        button.position = center_pos.translate({ x:-150, y: next_pad_y() });
+                    } else {
+                        button.position = center_pos.translate({ x:+150, y: button_pad_y });
+                    }
+                    config_button_count++;
+                });
+                invoke_on_members(this, "draw", canvas_context);
+            }, // end config_buttons.draw()
+
+
+        } // end this.config_buttons
+
+        this.audio_settings = new AudioSettings({ position: new Vector2({x: 0, y: graphics.canvas_rect().height/2 - 156}) });
     }
 
+    toggle_game_config(param) {
+        window.game_config[param] = !window.game_config[param];
+        //this.config_buttons.draw(); <-- this might work if I could give it the right canvas context, but I'm not sure
+        // need to call a redraw function on button screens
+    }
 
     update(delta_time){
         invoke_on_members(this, "update", delta_time);

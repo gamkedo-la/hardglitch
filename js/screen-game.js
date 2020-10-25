@@ -147,7 +147,7 @@ class InGameMenu extends fsm.State {
         this.fader.duration_ms = 300;
         this.fader._fade = 0;
         this.menu_screen = "main"; 
-        // menu_screen options: "main", "instructions", "config"
+        // valid menu_screen values: "main", "instructions", "config"
     }
 
     _init_ui(){
@@ -242,7 +242,7 @@ class InGameMenu extends fsm.State {
                 visible: this.menu_screen == "config",
             }),
             turn_message_button: new ui.TextButton({
-                text: "Turn Message: " + (
+                text: "Cycle Message: " + (
                     window.game_config.enable_turn_message ? "On" : "Off"),
                 action: ()=>{ 
                     this.toggle_game_config('enable_turn_message'); 
@@ -256,7 +256,7 @@ class InGameMenu extends fsm.State {
                 visible: this.menu_screen == "config",
             }),
             turn_sound_button: new ui.TextButton({
-                text: "Turn Sound: " + (
+                text: "Cycle Sound: " + (
                     window.game_config.enable_turn_sound ? "On" : "Off"),
                 action: ()=>{ 
                     this.toggle_game_config('enable_turn_sound'); 
@@ -284,10 +284,10 @@ class InGameMenu extends fsm.State {
                 visible: this.menu_screen == "config",
             }),
             infobox_button: new ui.TextButton({
-                text: "infobox: " + (
+                text: "Infobox: " + (
                     window.game_config.enable_infobox ? "On" : "Off"),
                 action: ()=>{ 
-                    this.toggle_game_config('enable_particles'); 
+                    this.toggle_game_config('enable_infobox'); 
                 },
                 position: Vector2_origin,
                 sprite_def: sprite_defs.button_menu,
@@ -333,19 +333,38 @@ class InGameMenu extends fsm.State {
 
         // Center the buttons in the screen.
         let button_pad_y = -160; // default
+        let config_button_count = 0; 
+        let is_config_screen = false;
+
         if(this.ui.text_instructions.visible) { // instructions screen
             button_pad_y = 160;
         } else if (this.ui.particles_button.visible) { // config screen
-            button_pad_y = -300;
+            button_pad_y = -200;
+            is_config_screen = true;
         }
         const next_pad_y = () => button_pad_y += 80;
-        Object.values(this.ui).filter(element => element instanceof ui.Button)
-            .forEach(button => {
-                if(button.visible) {
-                    const center_pos = graphics.centered_rectangle_in_screen(button.area).position;
-                    button.position = center_pos.translate({ x:0, y: next_pad_y() });
-                }
-            });
+        if(!is_config_screen) {
+            Object.values(this.ui).filter(element => element instanceof ui.Button)
+                .forEach(button => {
+                    if(button.visible) {
+                        const center_pos = graphics.centered_rectangle_in_screen(button.area).position;
+                        button.position = center_pos.translate({ x:0, y: next_pad_y() });
+                    }
+                });
+        } else {
+            Object.values(this.ui).filter(element => element instanceof ui.Button)
+                .forEach(button => {
+                    if(button.visible) {
+                        const center_pos = graphics.centered_rectangle_in_screen(button.area).position;
+                        if(config_button_count % 2 == 0) {
+                            button.position = center_pos.translate({ x:-150, y: next_pad_y() });
+                        } else {
+                            button.position = center_pos.translate({ x:+150, y: button_pad_y });
+                        }
+                    }
+                    config_button_count++;
+                });
+        }
 
         this.ui.text_instructions.position = graphics.centered_rectangle_in_screen(this.ui.text_instructions)
                                                 .position.translate({ y: 0 });
