@@ -1,8 +1,8 @@
 Change Log
 ==========
 
-Hard Glitch v0.10
------------------
+Hard Glitch v0.10 - 2020-10-25
+------------------------------
 
 These are the changes that can be seen when playing:
 
@@ -25,8 +25,8 @@ These are the changes that can be seen when playing:
 - Fixed view distance of characters being +1 for no reason.
 
 
-Hard Glitch v0.9
-----------------
+Hard Glitch v0.9 - 2020-10-11
+-----------------------------
 
 First release - Demo version
 Only allow playing the level 1.
