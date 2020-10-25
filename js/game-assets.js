@@ -11,6 +11,7 @@ export {
 
 import * as debug from "./system/debug.js";
 import * as asset_system from "./system/assets.js";
+import { Vector2_origin } from "./system/spatial.js";
 
 
 const game_assets = { // Description of the assets to load.
@@ -46,6 +47,7 @@ const game_assets = { // Description of the assets to load.
         hole_template : "./images/hole_template.png",
         wall_template : "./images/wall_template.png",
         test_button : "./images/test_button.png",
+        up_down : "./images/up_down.png",
         highlights : "./images/highlights.png",
         laserwalltemplate : "./images/laserwall.png",
         crypto_file: "./images/allcryptofiles.png",
@@ -175,14 +177,14 @@ async function load_all_assets(){
 
 //////////////////////////////////////////////////////////////////////////////////////
 // Some tools...
-function test_button(image_name = "test_button"){
+function test_button(image_name = "test_button", offset_vec = Vector2_origin){
     return {
         image: image_name,
         frames: [
-            { x: 0, y: 0, width: 50, height: 50 },
-            { x: 50, y: 0, width: 50, height: 50 },
-            { x: 100, y: 0, width: 50, height: 50 },
-            { x: 150, y: 0, width: 50, height: 50 },
+            { x: offset_vec.x + 0, y: offset_vec.y + 0, width: 50, height: 50 },
+            { x: offset_vec.x + 50, y: offset_vec.y + 0, width: 50, height: 50 },
+            { x: offset_vec.x + 100, y: offset_vec.y + 0, width: 50, height: 50 },
+            { x: offset_vec.x + 150, y: offset_vec.y + 0, width: 50, height: 50 },
         ]
     };
 }
@@ -604,6 +606,8 @@ const sprite_defs = {
          ]
     },
 
+    button_up : test_button("up_down"),
+    button_down : test_button("up_down", { x: 0, y: 50 }),
 
     button_cancel_action_target_selection: test_button(),
     button_select_action: test_button(),

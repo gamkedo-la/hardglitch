@@ -10,48 +10,72 @@ import * as audio from "./system/audio.js";
 import * as fsm from "./system/finite-state-machine.js";
 import { KEY } from "./game-input.js";
 import { music_id, sprite_defs } from "./game-assets.js";
-import { invoke_on_members } from "./system/utility.js";
+import { auto_newlines, invoke_on_members, no_linejumps } from "./system/utility.js";
 import { ScreenFader } from "./system/screenfader.js";
 
 const credits_text =
-`Klaim (A. Joël Lamotte): Project lead, core gameplay functionality, level generation, turn system, animation code,
+`Game made in HomeTeamGameDev.com Outpost Group - Join us!
+<br><br>
+Klaim (A. Joël Lamotte): <br>Project lead, core gameplay functionality, level generation, turn system, animation code,
 agents/actors system, FSM v2, actions framework, in-game editor, input handling, UI, optimizations, asset integration,
 menus, original placeholder art, event debug display, NPCs behavior (LifeForms, Virus, Anti-Virus, Programs, etc.),
 game end, spawn code, actions (jump, pull, swap, void, take item, repair, copy, others), fog of war, field of view, shadows,
-camera logic, main palette, many crash fixes and tuning tweaks, inventory, crypto key authoring, loading screen, help text
-
-Tylor Allison: Particle systems (glitch, trace, scan, portal, spawn, missile, color, spark, repair, wait, hex spin,
+camera logic, main palette, many crash fixes and tuning tweaks, inventory, crypto key authoring, loading screen, help text,
+credits screen v2
+<br><br>
+Tylor Allison: <br>Particle systems (glitch, trace, scan, portal, spawn, missile, color, spark, repair, wait, hex spin,
 lightning jump, fade, explosion swirl, blip edge pathing), procedural tile selection and wall generation, FX randomization,
 wall tiles art, decrypt/triangle animations, mock ups (tile bg, walls, void, experimentation with negative space/holes,
 perspective, color tests), color adjustments, moving wall v2, level design concepts art, floor art, NPC wait animation, warm and
 cool level themes, lots of asset and code cleanup, additional tile type rules, seam fix, take/drop animations, move animations,
 highlights art v2, laser walls, tile overlay, title screen background
-
-Roc Lee: Soundtrack (in-game, levels, victory, game over, transitions), all sound effects (jump, gameplay, UI, movement,
+<br><br>
+Roc Lee: <br>Soundtrack (in-game, levels, victory, game over, transitions), all sound effects (jump, gameplay, UI, movement,
 explosions, decrypt, editor), audio normalization, assorted sound integration
-
-Ashleigh M.: Description animation and related background, level transitions, character art mock ups and final
+<br><br>
+Ashleigh M.: <br>Description animation and related background, level transitions, character art mock ups and final
 (virus sprite, slime, life-forms, glitches, program, microcode, anti-virus, virus, additional animations),
 detailed playtesting, palette tweaks, font selection, texts
-
-Cassidy Noble: Crypto key and crypto file art, items art, Assorted docs images, action and item icons, additional UI
+<br><br>
+Cassidy Noble: <br>Crypto key and crypto file art, items art, Assorted docs images, action and item icons, additional UI
 and menu art, color corrections, highlight art v1, moving wall art v1
-
-Andrew Mushel: Vector/math code improvements, audio system, one shot audio integration, music stream support,
+<br><br>
+Andrew Mushel: <br>Vector/math code improvements, audio system, one shot audio integration, music stream support,
 poositional audio, volume controls, mute toggle
+<br><br>
+Andy King: <br>Cursor art, including variants and hand icons
+<br><br>
+Allan Regush: <br>State machine v1
+<br><br>
+Jonathan Peterson: <br>Pause menu options
+<br><br>
+Antonio Malafronte: <br>Special thanks (practice commit - welcome!), playtesting
+<br><br>`;
 
-Andy King: Cursor art, including variants and hand icons
-
-Allan Regush: State machine v1
-
-Jonathan Peterson: Pause menu options
-
-Antonio Malafronte: Special thanks (practice commit - welcome!), playtesting
-
-Game made in HomeTeamGameDev.com Outpost Group - Join us!`;
+const initial_credits_y = 100;
+let credits_y = initial_credits_y;
+const scroll_speed = 100;
 
 class Credits {
     constructor(on_back_button){
+        const processed_credits_text = auto_newlines(no_linejumps(credits_text).replace(/<br>/g, "\n"), 60);
+
+        this.credits_text = new ui.Text({
+            text: processed_credits_text,
+            font: "22px Space Mono",
+            color: "orange",
+            background_color: "#42359b",
+            margin_vertical: 2,
+        });
+        this.credits_text.position = { x: graphics.centered_rectangle_in_screen(this.credits_text).position.x, y: credits_y};
+
+        const update_credits_y = (y_translation) => {
+            this.credits_text.position = this.credits_text.position.translate({ y: y_translation });
+            if(this.credits_text.area.top_left.y > initial_credits_y)
+                this.credits_text.position = { x: this.credits_text.position.x, y: initial_credits_y };
+            else if(this.credits_text.area.bottom_right.y < graphics.canvas_rect().height - initial_credits_y)
+                this.credits_text.position = { x: this.credits_text.position.x, y: graphics.canvas_rect().height - initial_credits_y - this.credits_text.height };
+        };
 
         this.title = new ui.Text({
             text: "CREDITS",
@@ -80,16 +104,30 @@ class Credits {
                                         y: 8,
                                     };
 
-        // FOR CHRIS: this works but will end up overflowing the screen if too big text.
-        // maybe we can add some way to move the text or something.
-        this.credits_text = new ui.Text({
-            text: credits_text,
-            font: "12px Space Mono",
-            color: "orange",
-            background_color: "#42359b",
-            margin_vertical: 2,
+        this.button_up = new ui.Button({
+            action: ()=> { update_credits_y(scroll_speed); },
+            is_action_on_up: false,
+            position: {},
+            sprite_def: sprite_defs.button_up,
+            sounds:{
+                over: 'EditorButtonHover',
+                down: 'EditorButtonClick',
+            }
         });
-        this.credits_text.position = graphics.centered_rectangle_in_screen(this.credits_text).position;
+        this.button_up.position = this.credits_text.position.translate({ x: this.credits_text.width });
+
+        this.button_down = new ui.Button({
+            action: ()=> { update_credits_y(-scroll_speed); },
+            is_action_on_up: false,
+            position: {},
+            sprite_def: sprite_defs.button_down,
+            sounds:{
+                over: 'EditorButtonHover',
+                down: 'EditorButtonClick',
+            }
+        });
+        this.button_down.position = this.button_up.position.translate({ y: this.button_up.height });
+
     }
 
 
@@ -111,9 +149,8 @@ class CreditsScreen extends fsm.State {
     }
 
     *enter(){
-        if(!this.credits){
-            this.create_ui();
-        }
+        credits_y = initial_credits_y;
+        this.create_ui();
         yield* this.fader.generate_fade_in();
     }
 

@@ -26,6 +26,7 @@ export {
     is_generator_function,
     splice,
     auto_newlines,
+    no_linejumps,
     some_member,
     every_members,
 }
@@ -322,6 +323,12 @@ function auto_newlines(text, max_size){
         }
     }
     return text;
+}
+
+// Returns the same text without any line jumps.
+function no_linejumps(text){
+    debug.assertion(()=>typeof text === "string" || text instanceof String);
+    return text.replace(/\r?\n|\r/g, "");
 }
 
 // Adds double quote esquapes to double quotes.

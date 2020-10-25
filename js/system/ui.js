@@ -15,6 +15,7 @@ export {
 import * as debug from "../system/debug.js";
 import * as audio from "./audio.js";
 import * as graphics from "./graphics.js";
+import * as input from "./input.js";
 import {
     Vector2,
     Rectangle,
@@ -23,7 +24,6 @@ import {
     center_in_rectangle,
     is_point_under,
 } from "./spatial.js";
-import { mouse, MOUSE_BUTTON } from "./input.js";
 import { is_number } from "./utility.js";
 import * as anim from "./animation.js";
 import { tween } from "./tweening.js";
@@ -33,7 +33,7 @@ import { sprite_defs } from "../game-assets.js";
 function is_mouse_pointing(area, origin){
     debug.assertion(()=>area);
     debug.assertion(()=>origin);
-    return is_point_under(mouse.position, area, origin);
+    return is_point_under(input.mouse.position, area, origin);
 }
 
 class UIElement {
@@ -229,12 +229,12 @@ class Button extends UIElement {
         if(this.enabled){
             switch(this.state){
                 case ButtonState.UP:
-                    if(mouse.buttons.is_down(MOUSE_BUTTON.LEFT) && mouse_is_over_now){
+                    if(input.mouse.buttons.is_down(input.MOUSE_BUTTON.LEFT) && mouse_is_over_now){
                         this._on_down();
                     }
                     break;
                 case ButtonState.DOWN:
-                    if(mouse.buttons.is_up(MOUSE_BUTTON.LEFT) || !mouse_is_over_now){
+                    if(input.mouse.buttons.is_up(input.MOUSE_BUTTON.LEFT) || !mouse_is_over_now){
                         this._on_up();
                     }
                     break;
@@ -249,8 +249,8 @@ class Button extends UIElement {
                 this._on_end_over();
         }
 
-        if(this.enabled && mouse_is_over_now && !mouse.was_dragging){
-            const is_time_to_trigger_action = this.is_action_on_up ? mouse.buttons.is_just_released(MOUSE_BUTTON.LEFT) : mouse.buttons.is_just_down(MOUSE_BUTTON.LEFT);
+        if(this.enabled && mouse_is_over_now && !input.mouse.was_dragging){
+            const is_time_to_trigger_action = this.is_action_on_up ? input.mouse.buttons.is_just_released(input.MOUSE_BUTTON.LEFT) : input.mouse.buttons.is_just_down(input.MOUSE_BUTTON.LEFT);
             if(is_time_to_trigger_action && this.action != undefined){
                 this.action();
             }
@@ -817,4 +817,3 @@ class Bar extends UIElement {
     }
 
 }
-
