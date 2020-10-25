@@ -35,13 +35,13 @@ explosions, decrypt, editor), audio normalization, assorted sound integration
 <br><br>
 Ashleigh M.: <br>Description animation and related background, level transitions, character art mock ups and final
 (virus sprite, slime, life-forms, glitches, program, microcode, anti-virus, virus, additional animations),
-detailed playtesting, palette tweaks, font selection, texts
+detailed playtesting, palette tweaks, font selection, texts, game-over graphics,
 <br><br>
 Cassidy Noble: <br>Crypto key and crypto file art, items art, Assorted docs images, action and item icons, additional UI
 and menu art, color corrections, highlight art v1, moving wall art v1
 <br><br>
 Andrew Mushel: <br>Vector/math code improvements, audio system, one shot audio integration, music stream support,
-poositional audio, volume controls, mute toggle
+poositional audio, volume controls, mute toggle, audio loopstart/loopend system, audio compression on sounds,
 <br><br>
 Andy King: <br>Cursor art, including variants and hand icons
 <br><br>
@@ -49,7 +49,7 @@ Allan Regush: <br>State machine v1
 <br><br>
 Jonathan Peterson: <br>Pause menu options
 <br><br>
-Antonio Malafronte: <br>Special thanks (practice commit - welcome!), playtesting
+Antonio Malafronte: <br>Special thanks (practice commit - welcome!), playtesting, game options (ingame and in main options)
 <br><br>`;
 
 const initial_credits_y = 100;
