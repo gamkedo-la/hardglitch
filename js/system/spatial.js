@@ -124,7 +124,10 @@ class Vector2{
         debug.assertion(()=>typeof other_vec2.x === "number" && typeof other_vec2.y === "number");
         return this.x === other_vec2.x && this.y === other_vec2.y;
     }
-};
+
+    to_zero() { this.x = 0; this.y = 0; }
+
+    };
 
 const Vector2_origin = new Vector2();
 const Vector2_unit_x = new Vector2({ x: 1.0 });

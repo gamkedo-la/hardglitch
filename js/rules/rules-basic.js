@@ -169,7 +169,7 @@ class PlayerExitLevel extends concepts.Event {
         game_view.show_central_message("YOU FOUND AN EXIT!\n     PRESS ANY KEY");
         game_view.clear_focus();
         let ready_to_exit = false;
-        game_view.center_on_position(character_view.game_position, 500).then(()=> ready_to_exit = true );
+        game_view.center_on_position(character_view.game_position).then(()=> ready_to_exit = true );
         audio.playEvent("exit_bus");
         while(!ready_to_exit) yield;
         debug.log("here before exited");

@@ -13,7 +13,7 @@ import * as ui from "./system/ui.js";
 import * as anim from "./system/animation.js";
 import * as visibility from "./core/visibility.js";
 import { mouse } from "./system/input.js";
-import { tween, easing } from "./system/tweening.js";
+import * as steering from "./system/steering.js";
 
 import * as concepts from "./core/concepts.js";
 import { Character } from "./core/character.js";
@@ -159,14 +159,14 @@ class GameView {
     fx_view = new GameFxView();
     current_animations = new anim.AnimationGroup(); // Plays animations that have started.
     skipped_animations = new anim.AnimationGroup(); // Plays animations that needs to be done in one update.
-    camera_animations = new anim.AnimationGroup(); // Plays camera animations.
     player_actions_highlights = []; // Must contain Highlight objects for the currently playable actions.
     action_range_highlights = []; // Must contain Highlight objects for the currently pointed action's range.
     item_drop_highlights = []; // Must contain Highlight objects for possible item drop positions.
     delay_between_animations_ms = Math.round(1000 / 10); // we'll try to keep a little delay between each beginning of parallel animation.
     enable_parallel_animations = true;
-
     enable_edition = false; // Turn on to limit view for editor mode.
+
+    camera_kinematics = new steering.Kinematics();
 
     get enable_fog_of_war() { return this._enable_fog_of_war; };
     set enable_fog_of_war(new_value) {
@@ -197,6 +197,7 @@ class GameView {
         this._require_tiles_update = true;
         this._enable_fog_of_war = true;
         this._enable_tile_rendering_debug = false;
+        this.camera_steering = new steering.SteeringSystem(this.camera_kinematics);
 
         const ui_config = {
             on_action_selection_begin: (...args) => this.on_action_selection_begin(...args),
@@ -216,7 +217,7 @@ class GameView {
             toggle_autofocus: () => {
                 this.enable_auto_camera_center = !this.enable_auto_camera_center;
                 if(this.enable_auto_camera_center)
-                    this.center_on_player(500);
+                    this.center_on_player();
             },
             open_menu: open_menu,
             is_autofocus_enabled: () => this.enable_auto_camera_center,
@@ -264,6 +265,12 @@ class GameView {
             enabled: true,
         });
 
+        if(this.player_character){
+            // force-place the camera centered on the player character.
+            const gfx_position = graphics.from_grid_to_graphic_position(this.player_character, PIXELS_PER_TILES_SIDE)
+                                            .translate(square_half_unit_vector); // center in the square
+            graphics.camera.center_position = gfx_position;
+        }
 
         this.reset();
         this._start_player_turn();
@@ -455,7 +462,13 @@ class GameView {
         audio.set_events_enabled(true);
         ///////////////////////////////////////////////////////////////////////////
 
-        this.camera_animations.update(delta_time);
+        if(mouse.is_dragging){
+            this.camera_kinematics.velocity.to_zero();
+            this.stop_camera_animation();
+        }
+        this.camera_kinematics.position = graphics.camera.center_position;
+        this.camera_steering.update(delta_time, this.camera_kinematics);
+        graphics.camera.center_position = this.camera_kinematics.position;
 
         this._update_highlights(delta_time);
 
@@ -601,7 +614,7 @@ class GameView {
         if(this.player_character){
 
             if(this.enable_auto_camera_center && this.player_character){
-                this.center_on_player(250);
+                this.center_on_player();
             }
 
             this.focus_on_current_player_character();
@@ -1084,34 +1097,40 @@ class GameView {
     }
 
     stop_camera_animation(){
-        if(this._current_camera_animation_promise){
-            this._current_camera_animation_promise.cancel();
-            this._current_camera_animation_promise = undefined;
-        }
+        this.camera_steering.clear();
     }
 
-    center_on_player(ms_to_center = 0){
+    center_on_player(){
         const player = this.player_character;
         const player_position = player.position;
-        return this.center_on_position(player_position, ms_to_center);
+        return this.center_on_position(player_position);
     }
 
-    center_on_position(grid_position, ms_to_center = 0){
+    center_on_position(grid_position){
         debug.assertion(()=>Number.isInteger(grid_position.x) && Number.isInteger(grid_position.y));
-        debug.assertion(()=>Number.isInteger(ms_to_center) && ms_to_center >= 0);
         this.stop_camera_animation();
 
         const gfx_position = graphics.from_grid_to_graphic_position(grid_position, PIXELS_PER_TILES_SIDE)
             .translate(square_half_unit_vector); // center in the square
-        const camera_move_animation = tween(graphics.camera.center_position, gfx_position, ms_to_center, (new_center)=>{ // TODO: replace this by a steering behavior! Currently we are always moving even if we already are at the right place.
-            graphics.camera.center(new Vector2(new_center));
-        }, easing.in_out_quad);
 
-        this._current_camera_animation_promise = this.camera_animations.play(camera_move_animation);
-        this._current_camera_animation_promise.then(()=>{
-            this._current_camera_animation_promise = undefined;
+        let resolver;
+        const promise = new Promise((r)=>{ resolver = r });
+
+        const arrive = new steering.Arrive({
+            target: { position: gfx_position },
+            max_acceleration: 10000.0,
+            max_speed: 2000.0,
+            slow_radius: 250,
+            target_radius: 10,
+            on_arrived: ()=>{
+                this.camera_kinematics.velocity.to_zero();
+                graphics.camera.center_position = gfx_position;
+                resolver();
+            },
         });
-        return this._current_camera_animation_promise;
+        this.camera_steering.add(arrive);
+
+        return promise;
     }
 
     show_central_message(text, duration_ms = 0){

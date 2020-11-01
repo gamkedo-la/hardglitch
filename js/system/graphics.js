@@ -67,6 +67,7 @@ class Camera{
   }
 
   get center_position() { return this.position.translate({ x: canvas.width / 2, y: canvas.height / 2 }); }
+  set center_position(new_pos) { return this.position = new spatial.Vector2(new_pos).translate({ x: -(canvas.width / 2), y: -(canvas.height / 2) }); }
 
   center(position_at_center){
     debug.assertion(()=>position_at_center instanceof spatial.Vector2);
