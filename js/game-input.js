@@ -179,7 +179,7 @@ function update_camera_control(delta_time, allow_camera_dragging){
 
 
     if(keyboard.is_just_down(KEY.F) && current_game_view.player_character){
-        current_game_view.center_on_player(500);
+        current_game_view.focus_on_current_player_character(true);
     }
 
 

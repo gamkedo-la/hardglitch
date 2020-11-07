@@ -107,6 +107,7 @@ class Arrive extends Steering {
         debug.assertion(()=>desc.slow_radius === undefined || is_number(desc.slow_radius));
         debug.assertion(()=>desc.time_to_target === undefined || is_number(desc.time_to_target));
         debug.assertion(()=>desc.on_arrived === undefined || desc.on_arrived instanceof Function);
+        debug.assertion(()=>desc.never_done === undefined || typeof desc.never_done === "boolean");
         super();
         this.target = desc.target;
         this.max_acceleration = desc.max_acceleration !== undefined ? desc.max_acceleration : 0; // no max by default
@@ -115,21 +116,28 @@ class Arrive extends Steering {
         this.slow_radius = desc.slow_radius !== undefined ? desc.slow_radius : 100;
         this.time_to_target = desc.time_to_target !== undefined ? desc.time_to_target : 0.1;
         this.on_arrived = desc.on_arrived;
+        this.never_done = desc.never_done;
     }
 
     update(physic_props){
         debug.assertion(()=>physic_props instanceof Kinematics);
         const direction = this.target.position.substract(physic_props.position);
-        const distance = direction.length;
+        let distance = direction.length;
 
         if(distance < this.target_radius){
-            this.done = true;
-            if(this.on_arrived){
-                this.on_arrived();
-                delete this.on_arrived;
+            if(this.never_done){
+                distance = 0;
+            } else {
+                this.done = true;
+                if(this.on_arrived){
+                    this.on_arrived();
+                    delete this.on_arrived;
+                }
+                return;
             }
-            return;
         }
+
+
 
         let target_speed = this.max_speed;
         if(distance < this.slow_radius){

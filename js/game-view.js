@@ -45,6 +45,7 @@ import { Corruption } from "./rules/rules-corruption.js";
 import { Unstability } from "./rules/rules-unstability.js";
 import { show_info } from "./ui/ui-infobox.js";
 import { item_description } from "./definitions-texts.js";
+import { CameraControl } from "./view/camera-control.js";
 
 const a_very_long_time = 99999999999999;
 const goal_message = "Find The Exit!";
@@ -166,7 +167,7 @@ class GameView {
     enable_parallel_animations = true;
     enable_edition = false; // Turn on to limit view for editor mode.
 
-    camera_kinematics = new steering.Kinematics();
+    camera_control = new CameraControl();
 
     get enable_fog_of_war() { return this._enable_fog_of_war; };
     set enable_fog_of_war(new_value) {
@@ -197,7 +198,6 @@ class GameView {
         this._require_tiles_update = true;
         this._enable_fog_of_war = true;
         this._enable_tile_rendering_debug = false;
-        this.camera_steering = new steering.SteeringSystem(this.camera_kinematics);
 
         const ui_config = {
             on_action_selection_begin: (...args) => this.on_action_selection_begin(...args),
@@ -216,8 +216,11 @@ class GameView {
             },
             toggle_autofocus: () => {
                 this.enable_auto_camera_center = !this.enable_auto_camera_center;
-                if(this.enable_auto_camera_center)
-                    this.center_on_player();
+                if(this.enable_auto_camera_center){
+                    this.focus_on_current_player_character();
+                } else {
+                    this.camera_control.stop();
+                }
             },
             open_menu: open_menu,
             is_autofocus_enabled: () => this.enable_auto_camera_center,
@@ -265,14 +268,14 @@ class GameView {
             enabled: true,
         });
 
+        this.reset();
+
         if(this.player_character){
             // force-place the camera centered on the player character.
-            const gfx_position = graphics.from_grid_to_graphic_position(this.player_character, PIXELS_PER_TILES_SIDE)
-                                            .translate(square_half_unit_vector); // center in the square
+            const gfx_position = this.get_entity_view(this.player_character.id).position;
             graphics.camera.center_position = gfx_position;
         }
 
-        this.reset();
         this._start_player_turn();
 
         // Display the goal message and disappear.
@@ -328,17 +331,30 @@ class GameView {
         return entity_view;
     }
 
-    focus_on_entity(entity_id){
+    focus_on_entity(entity_id, force){
         const entity_view = this.get_entity_view(entity_id);
-        if(entity_view){
-            debug.assertion(()=>entity_view instanceof EntityView);
+
+        if(entity_view instanceof EntityView
+        && this.fog_of_war.is_visible(entity_view.game_position)
+        ){
             this.focus_on_position(entity_view.game_position);
+
+            if(this.enable_auto_camera_center){
+                if((entity_view instanceof CharacterView && entity_view.is_player))
+                    this.camera_control.track(entity_view);
+                // else
+                //     this.camera_control.focus_on(entity_view.game_position);
+            } else {
+                if(force){
+                    this.camera_control.focus_on(entity_view.game_position, window.camera_tracking.target_radius);
+                }
+            }
         }
         return entity_view;
     }
 
-    focus_on_current_player_character(){
-        return this.focus_on_entity(this.player_character.id);
+    focus_on_current_player_character(force=false){
+        return this.focus_on_entity(this.player_character.id, force);
     }
 
     _action_highlight_events(action){
@@ -463,12 +479,9 @@ class GameView {
         ///////////////////////////////////////////////////////////////////////////
 
         if(mouse.is_dragging){
-            this.camera_kinematics.velocity.to_zero();
-            this.stop_camera_animation();
+            this.camera_control.stop();
         }
-        this.camera_kinematics.position = graphics.camera.center_position;
-        this.camera_steering.update(delta_time, this.camera_kinematics);
-        graphics.camera.center_position = this.camera_kinematics.position;
+        this.camera_control.update(delta_time);
 
         this._update_highlights(delta_time);
 
@@ -614,7 +627,7 @@ class GameView {
         if(this.player_character){
 
             if(this.enable_auto_camera_center && this.player_character){
-                this.center_on_player();
+                this.focus_on_current_player_character();
             }
 
             this.focus_on_current_player_character();
@@ -970,7 +983,9 @@ class GameView {
             this._last_turn_ids_sequence = turn_sequence(this.game.world);
         this.ui.timeline.request_refresh(this._last_turn_ids_sequence);
         this._require_tiles_update = true;
-        this.focus_on_current_player_character();
+        if(!this.enable_edition && this.enable_auto_camera_center){
+            this.focus_on_current_player_character();
+        }
         this.highlight_available_basic_actions();
         if(this.player_character){
 
@@ -1013,7 +1028,7 @@ class GameView {
         this.ui.cancel_action_target_selection(false);
         this.ui.on_canvas_resized();
         this.notify_edition();
-        this.center_on_player();
+        this.focus_on_current_player_character();
 
         this._relocate_goal_text();
     }
@@ -1100,37 +1115,8 @@ class GameView {
         this.camera_steering.clear();
     }
 
-    center_on_player(){
-        const player = this.player_character;
-        const player_position = player.position;
-        return this.center_on_position(player_position);
-    }
-
     center_on_position(grid_position){
-        debug.assertion(()=>Number.isInteger(grid_position.x) && Number.isInteger(grid_position.y));
-        this.stop_camera_animation();
-
-        const gfx_position = graphics.from_grid_to_graphic_position(grid_position, PIXELS_PER_TILES_SIDE)
-            .translate(square_half_unit_vector); // center in the square
-
-        let resolver;
-        const promise = new Promise((r)=>{ resolver = r });
-
-        const arrive = new steering.Arrive({
-            target: { position: gfx_position },
-            max_acceleration: 10000.0,
-            max_speed: 2000.0,
-            slow_radius: 250,
-            target_radius: 10,
-            on_arrived: ()=>{
-                this.camera_kinematics.velocity.to_zero();
-                graphics.camera.center_position = gfx_position;
-                resolver();
-            },
-        });
-        this.camera_steering.add(arrive);
-
-        return promise;
+        return this.camera_control.focus_on(grid_position);
     }
 
     show_central_message(text, duration_ms = 0){
