@@ -9,6 +9,7 @@ import { sprite_defs } from "../game-assets.js";
 import { auto_newlines } from "../system/utility.js";
 import { Delete } from "../rules/rules-delete.js";
 import { Move } from "../rules/rules-movement.js";
+import { distance_grid_precise } from "../system/spatial.js";
 
 
 class AnomalyHunter extends concepts.Actor {
@@ -47,8 +48,8 @@ class AnomalyHunter extends concepts.Actor {
             const move_action_b = possible_actions[b];
             debug.assertion(()=>move_action_a instanceof Move);
             debug.assertion(()=>move_action_b instanceof Move);
-            const distance_a = move_action_a.target_position.distance(target.position);
-            const distance_b = move_action_b.target_position.distance(target.position);
+            const distance_a = distance_grid_precise(move_action_a.target_position, target.position);
+            const distance_b = distance_grid_precise(move_action_b.target_position, target.position);
             return distance_a - distance_b;
         })[0];
 
@@ -64,9 +65,13 @@ class AnomalyHunter extends concepts.Actor {
         }
 
         if(this.target_id){
-            const target = world.get_entity(this.target_id);
-            if(!target) delete this.target_id;
-            return target;
+            let target = world.get_entity(this.target_id);
+            if(target && character.field_of_vision.is_visible(target.position)){
+                return target;
+            }
+
+            delete this.target_id;
+            return this._update_target(character, world);
         }
         // return undefined in all other cases.
     }
@@ -115,6 +120,9 @@ class AntiVirus extends Character {
         this.actor = new AnomalyHunter;
         this.stats.inventory_size.real_value = 1;
         this.stats.view_distance.real_value = 7;
+        this.stats.ap_recovery.real_value = 10;
+        this.stats.action_points.real_max = 20;
+        this.stats.action_points.real_value = 20;
         this.inventory.add(new ByteCleaner());
     }
 
