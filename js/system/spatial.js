@@ -14,6 +14,7 @@ export {
     center_in_rectangle,
     keep_in_rectangle,
     containing_rectangle,
+    distance_grid_precise,
 };
 
 import * as debug from "../system/debug.js";
@@ -278,4 +279,10 @@ function containing_rectangle(...rectangles){
         size.y = Math.max(rectangle.height, size.y);
     }
     return new Rectangle({ position, size });
+}
+
+
+// Return the distance between two positions on a grid, but with high precision (not Manhatan distance).
+function distance_grid_precise(source, target){
+    return Math.ceil(new Vector2(source).distance(new Vector2(target)));
 }

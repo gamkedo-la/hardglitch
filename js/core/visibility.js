@@ -17,7 +17,7 @@ export {
 
 import * as debug from "../system/debug.js";
 import * as concepts from "./concepts.js";
-import { Vector2 } from "../system/spatial.js";
+import { distance_grid_precise, Vector2 } from "../system/spatial.js";
 import { compute_fov } from "../system/shadowcasting.js";
 import * as tiles from "../definitions-tiles.js";
 import { Character } from "./character.js";
@@ -58,7 +58,7 @@ class Range_Circle extends RangeShape {
     }
 
     _range_match(center, position){
-        const distance = Math.round((new Vector2(center)).distance(position));
+        const distance = distance_grid_precise(center, position);
         return distance < this.end_distance && distance >= this.begin_distance;
     }
 };
@@ -226,11 +226,7 @@ function valid_spawn_positions(world, center_position, tile_filter, max_range = 
     const sorted_positions = valid_positions.sort((left, right)=>{
         const right_distance = right.distance(center_position);
         const left_distance = left.distance(center_position);
-        if(left_distance > right_distance)
-            return 1;
-        if(left_distance < right_distance)
-            return -1;
-        return 0;
+        return left_distance - right_distance;
     });
     return sorted_positions;
 }
@@ -285,7 +281,7 @@ class FieldOfVision {
             .filter(position => world.is_valid_position(position))
             .map(position => world.entity_at(position))
             .filter(entity => entity instanceof concepts.Entity)
-            .sort((entity_a, entity_b)=> this._center.distance(entity_a.position) - this._center.distance(entity_b.position));
+            .sort((entity_a, entity_b)=> distance_grid_precise(this._center,entity_a.position) - distance_grid_precise(this._center, entity_b.position));
     }
 
 };
