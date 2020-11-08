@@ -385,9 +385,9 @@ function* exited(fx_view, entity_view){
     let fx_pos = entity_view.position.translate(square_half_unit_vector);
     let fx = fx_view.portalOut(fx_pos);
     let duration_ms = 1250;
-    const initial_position = entity_view.position;
-    entity_view.position = initial_position.translate(square_half_unit_vector);
-    entity_view.for_each_sprite(sprite=>sprite.move_origin_to_center());
+    //entity_view.for_each_sprite(sprite=>sprite.move_origin_to_center());
+    //const initial_position = entity_view.position;
+    //entity_view.position = initial_position.translate(square_half_unit_vector);
     yield* tween( {
                 scale_x: entity_view.scale.x,
                 scale_y: entity_view.scale.y,
