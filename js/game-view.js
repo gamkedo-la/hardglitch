@@ -385,9 +385,11 @@ class GameView {
     // Setup highlights for actions that are known with a target position.
     highlight_available_basic_actions(){
         this.clear_highlights_basic_actions(); // Clear previous highlighting
+        if(!this.player_character)
+            return;
 
-        const available_actions = this.game.turn_info.possible_actions;
         debug.assertion(()=>this.player_character instanceof Character);
+        const available_actions = this.game.turn_info.possible_actions;
         for(const action of Object.values(available_actions)){
             debug.assertion(()=>action instanceof concepts.Action);
             if(action.is_basic && action.is_safe){
