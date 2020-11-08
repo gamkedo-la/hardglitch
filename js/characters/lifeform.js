@@ -133,6 +133,7 @@ class LifeForm_Weak extends Character {
     };
 
     description = auto_newlines("Unexpected and unexpecting life-form living in the computer's memory. Nobody knows where they come from.", 35);
+    is_anomaly = true;
 
     constructor(){
         super("Weak Life Form", );
@@ -171,6 +172,7 @@ class LifeForm_Strong extends Character {
     };
 
     description = auto_newlines("Stubborn life-form living in the computer's memory. They might not be sentient but they sure know what they want.", 35);
+    is_anomaly = true;
 
     constructor(){
         super("Life Form", new CharacterStats());

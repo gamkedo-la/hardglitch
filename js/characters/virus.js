@@ -18,6 +18,7 @@ class Virus extends Character {
     };
 
     description = auto_newlines("Self-replicating malware. Beware of it's resistance and agressivity. Hunted by Anti-Viruses.", 35);
+    is_anomaly = true;
 
     constructor(){
         super("Virus", );

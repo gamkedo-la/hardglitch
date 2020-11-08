@@ -279,6 +279,15 @@ class FieldOfVision {
         });
     }
 
+    // Returns the visible entities ordered by distance from the center.
+    visible_entities(world){
+        return this._visible_positions
+            .filter(position => world.is_valid_position(position))
+            .map(position => world.entity_at(position))
+            .filter(entity => entity instanceof concepts.Entity)
+            .sort((entity_a, entity_b)=> this._center.distance(entity_a.position) - this._center.distance(entity_b.position));
+    }
+
 };
 
 

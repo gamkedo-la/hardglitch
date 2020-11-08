@@ -21,6 +21,8 @@ class GlitchyGlitchMacGlitchy extends Character {
 
     description = auto_newlines("Sentient glitch, computer bug with a conscience, ghost in the machine. Will probably be destroyed by the computer's protection.", 35);
 
+    is_anomaly = true;
+
     constructor(){
         super("\"Glitch\"", new CharacterStats());
         this.actor = new concepts.Player();

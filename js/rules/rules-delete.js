@@ -16,7 +16,7 @@ import { auto_newlines } from "../system/utility.js";
 
 const delete_damage = 5;
 const delete_ap_cost = 5;
-const delete_range = new visibility.Range_Diamond(0,7);
+const delete_range = new visibility.Range_Diamond(0,5);
 
 class Deleted extends concepts.Event {
     constructor(deleter_character, deleted_character){
