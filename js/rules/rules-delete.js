@@ -14,8 +14,8 @@ import * as anim from "../game-animations.js";
 import { ranged_actions_for_each_target } from "./rules-common.js";
 import { auto_newlines } from "../system/utility.js";
 
-const delete_damage = 5;
-const delete_ap_cost = 5;
+const delete_damage = 8;
+const delete_ap_cost = 20;
 const delete_range = new visibility.Range_Diamond(0,5);
 
 class Deleted extends concepts.Event {
