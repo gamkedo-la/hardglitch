@@ -469,11 +469,10 @@ function* value_animation(game_view, value, gfx_position, duration_ms, text_desc
 
 function* integrity_value_change(game_view, value, gfx_position){
     yield* value_animation(game_view, value, gfx_position, default_move_duration_ms, {
-        // TODO: change font here.
         color: "white",
         // stroke_color: "black",
         // line_width: 1,
-        background_color: "red",
+        background_color: value < 0 ? "red" : value > 0 ? "green" : undefined,
         font: "24px Space Mono",
     });
 }

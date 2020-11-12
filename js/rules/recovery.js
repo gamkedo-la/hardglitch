@@ -10,6 +10,7 @@ import * as animations from "../game-animations.js";
 import { GameView } from "../game-view.js";
 import { EntityView } from "../view/entity-view.js";
 import { Character } from "../core/character.js";
+import { in_parallel } from "../system/animation.js";
 
 class Repaired extends concepts.Event {
     constructor(entity_id, entity_position, repair_amount){
@@ -29,7 +30,10 @@ class Repaired extends concepts.Event {
         debug.assertion(()=>game_view instanceof GameView);
         const entity_view = game_view.focus_on_entity(this.entity_id);
         debug.assertion(()=>entity_view instanceof EntityView);
-        yield* animations.repaired(game_view.fx_view, entity_view);
+        yield* in_parallel(
+            animations.repaired(game_view.fx_view, entity_view),
+            animations.integrity_value_change(game_view, this.repair_amount, entity_view.position),
+        );
     }
 
 }
