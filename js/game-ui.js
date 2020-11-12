@@ -383,6 +383,8 @@ class MenuButton extends ui.Button {
 //       at specific times in the life of the game, and it's easier to do if its just an object.
 class GameInterface {
 
+    ingame_elements = {}; // UI elements which are displayed in the game space instead of screen space.
+
     button_cancel_action_selection = new CancelActionButton(()=>{
             debug.log("CANCEL ACTION BUTTON");
             this.cancel_action_target_selection();
@@ -437,11 +439,13 @@ class GameInterface {
     }
 
     update(delta_time, current_character, world){
+        Object.values(this.ingame_elements).forEach(element => element.update(delta_time, current_character, world));
         this.elements.forEach(element => element.update(delta_time, current_character, world));
         this._handle_action_target_selection(delta_time);
     }
 
     display() {
+        Object.values(this.ingame_elements).forEach(element => element.draw(graphics.screen_canvas_context)); // These must not be drawn in-screen, but in-game.
         graphics.camera.begin_in_screen_rendering();
         this.elements.forEach(element => element.draw(graphics.screen_canvas_context));
         graphics.camera.end_in_screen_rendering();

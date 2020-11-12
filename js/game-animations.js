@@ -1,4 +1,4 @@
-// This file provide animations as coroutines to be used when effects are played.
+1// This file provide animations as coroutines to be used when effects are played.
 
 export {
     default_move_duration_ms,
@@ -25,22 +25,25 @@ export {
     spawned,
     exited,
     merge_characters,
+    value_animation,
+    integrity_value_change,
 }
 
 import * as debug from "./system/debug.js";
 import { graphic_position, EntityView, PIXELS_PER_HALF_SIDE, square_half_unit_vector, PIXELS_PER_TILES_SIDE } from "./view/entity-view.js";
 import { tween, easing } from "./system/tweening.js";
 import * as animation from "./system/animation.js";
+import * as ui from "./system/ui.js";
 import { Vector2 } from "./system/spatial.js";
 import { GameFxView } from "./game-effects.js";
 import * as audio from "./system/audio.js";
 import { CharacterView } from "./view/character-view.js";
 import { ItemView } from "./view/item-view.js";
 import { Position } from "./core/concepts.js";
-import { GameView } from "./game-view.js";
 import { Sprite } from "./system/graphics.js";
-import { is_number, ofmt, random_float } from "./system/utility.js";
+import { is_number, random_float } from "./system/utility.js";
 import { crypto_kind as crypto_kinds } from "./definitions-items.js";
+import { GameView } from "./game-view.js";
 
 const default_move_duration_ms = 1000 / 8;
 const default_destruction_duration_ms = 666;
@@ -432,5 +435,46 @@ function* merge_characters(fx_view, merged_view_a, merged_view_b){
     merged_view_a.position = initial_position;
     merged_view_a.for_each_sprite(sprite => sprite.reset_origin());
     fx.done = true;
+}
+
+function* value_animation(game_view, value, gfx_position, duration_ms, text_descs = {}){
+    debug.assertion(()=> game_view instanceof GameView);
+    debug.assertion(()=> Number.isInteger(value));
+    debug.assertion(()=> typeof duration_ms === "number");
+    debug.assertion(()=> gfx_position instanceof Object && Number.isInteger(gfx_position.x) && Number.isInteger(gfx_position.y));
+    debug.assertion(()=> text_descs instanceof Object);
+
+    text_descs = Object.assign({
+                                    text: `${value>0?'+':''}${value}`,
+                                    position: gfx_position
+                                }, text_descs);
+    const value_text = new ui.Text(text_descs);
+    if(game_view.ui._next_value_text_id === undefined){
+        game_view.ui._next_value_text_id = 0;
+    }
+    const value_text_id = `value_text_${game_view.ui._next_value_text_id}`;
+    game_view.ui.ingame_elements[value_text_id] = value_text;
+
+    const initial_position = new Vector2(gfx_position);
+    const top_position = initial_position.translate({ y: -60 });
+
+    yield* tween(initial_position, top_position, duration_ms, (new_position)=>{
+            value_text.position = new_position;
+        }, easing.in_out_quad);
+    yield* animation.wait(1000);
+
+    value_text.enabled = false;
+    delete game_view.ui.ingame_elements[value_text_id];
+}
+
+function* integrity_value_change(game_view, value, gfx_position){
+    yield* value_animation(game_view, value, gfx_position, default_move_duration_ms, {
+        // TODO: change font here.
+        color: "white",
+        // stroke_color: "black",
+        // line_width: 1,
+        background_color: "red",
+        font: "24px Space Mono",
+    });
 }
 

@@ -13,12 +13,13 @@ import * as concepts from "../core/concepts.js";
 import * as tiles from "../definitions-tiles.js";
 import { GameView } from "../game-view.js";
 import { EntityView } from "../view/entity-view.js";
-import { destroyed, take_damage } from "../game-animations.js";
+import { destroyed, integrity_value_change, take_damage } from "../game-animations.js";
 import { Character } from "../core/character.js";
 import { InventoryItemDropped } from "./rules-items.js";
 import { random_sample } from "../system/utility.js";
 import { spawn_entities_around } from "./spawn.js";
 import { fail_game } from "./rules-basic.js";
+import { in_parallel } from "../system/animation.js";
 
 
 class Damaged extends concepts.Event {
@@ -39,7 +40,10 @@ class Damaged extends concepts.Event {
         debug.assertion(()=>game_view instanceof GameView);
         const entity_view = game_view.focus_on_entity(this.entity_id);
         debug.assertion(()=>entity_view instanceof EntityView);
-        yield* take_damage(game_view.fx_view, entity_view);
+        yield* in_parallel(
+            integrity_value_change(game_view, -this.damage_count, entity_view.position),
+            take_damage(game_view.fx_view, entity_view)
+        );
     }
 
 }
