@@ -485,7 +485,8 @@ class GameInterface {
             const action_name_text = action_type.action_type_name;
             const action_button = new ActionButton(position, action_type.icon_def, action_name, action_name_text, key_name, action_description,
                 (clicked_button)=>{ // on clicked
-                    debug.assertion(()=>action_info.actions instanceof Array && action_info.actions.length > 0); // Only allow clicking enabled (aka allowed) action buttons.
+                    debug.assertion(()=>action_info.actions instanceof Array);
+                    if(action_info.actions.length == 0) return; // Only allow clicking enabled (aka allowed) action buttons.
                     debug.assertion(()=>action_info.actions.every(action => action instanceof concepts.Action));
                     if(action_info.actions.length == 1 && action_info.action_type.range === undefined){ // No need for targets
                         const action = action_info.actions[0];
