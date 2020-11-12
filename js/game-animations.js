@@ -9,7 +9,7 @@ export {
     bounce,
     swap,
     destroyed,
-    take_damage,
+    take_hit_damage,
     repaired,
     missile,
     deleting_missile,
@@ -181,7 +181,7 @@ function* destroyed(fx_view, entity_view, duration_ms=default_destruction_durati
     entity_view.position = initial_position;
 }
 
-function* take_damage(fx_view, entity_view){
+function* take_hit_damage(fx_view, entity_view){
     debug.assertion(()=>fx_view instanceof GameFxView);
     debug.assertion(()=>entity_view instanceof EntityView);
     // WwhwhhiiiiiiiiiIIIIIIIIIiiiizzzzzzzzzzZZZZZZZZZZZZZ

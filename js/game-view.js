@@ -158,8 +158,9 @@ class GameView {
     entity_views = {};
     is_time_for_player_to_chose_action = true;
     fx_view = new GameFxView();
-    current_animations = new anim.AnimationGroup(); // Plays animations that have started.
-    skipped_animations = new anim.AnimationGroup(); // Plays animations that needs to be done in one update.
+    current_animations = new anim.AnimationGroup(); // Plays event animations that have started.
+    skipped_animations = new anim.AnimationGroup(); // Plays event animations that needs to be done in one update.
+    special_animations = new anim.AnimationGroup();
     player_actions_highlights = []; // Must contain Highlight objects for the currently playable actions.
     action_range_highlights = []; // Must contain Highlight objects for the currently pointed action's range.
     item_drop_highlights = []; // Must contain Highlight objects for possible item drop positions.
@@ -499,6 +500,7 @@ class GameView {
         this._update_animations(delta_time);
         this._update_entities(delta_time);
 
+        this.special_animations.update(delta_time);
         this.fx_view.update(delta_time);
 
         if(this.enable_edition)

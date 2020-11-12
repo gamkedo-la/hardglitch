@@ -27,14 +27,15 @@ class Deleted extends concepts.Event {
         this.allow_parallel_animation = false;
         this.deleter_position = deleter_character.position;
         this.deleted_position = deleted_character.position;
-        this._deleter_id = deleter_character.id;
+        this._deleted_id = deleted_character.id;
     }
 
     get focus_positions() { return [ this.deleter_position, this.deleted_position ]; }
 
     *animation(game_view){
-        game_view.focus_on_entity(this._deleter_id);
+        const entity_view = game_view.focus_on_entity(this._deleted_id);
         yield* anim.deleting_missile(game_view.fx_view, this.deleter_position, this.deleted_position);
+        yield* anim.take_hit_damage(game_view.fx_view, entity_view);
     }
 };
 
