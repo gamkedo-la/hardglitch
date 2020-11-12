@@ -23,6 +23,7 @@ import * as visibility from "../core/visibility.js";
 import { ranged_actions_for_each_target } from "./rules-common.js";
 import { is_blocked_position } from "../definitions-world.js";
 import { auto_newlines } from "../system/utility.js";
+import { deal_damage } from "./destruction.js";
 
 const push_range = new visibility.Range_Square(1, 5);
 const push_short_range = new visibility.Range_Cross_Axis(1, 2);
@@ -94,7 +95,10 @@ function apply_directional_force(world, target_pos, direction, force_action){
         || is_blocked_position(world, next_pos, tiles.is_walkable) // Something is behind, we'll bounce against it.
         ){
             // TODO: only bounce IFF the kind of entity will not moved if second-pushed XD
-            events.push(new Bounced(target_entity, target_pos, next_pos));
+            events.push(new Bounced(target_entity, target_pos, next_pos),
+                ...deal_damage(target_entity, 2),
+            );
+
             if(world.is_valid_position(next_pos)){
                 const next_entity = world.entity_at(next_pos);
                 debug.assertion(()=>!next_entity || next_entity instanceof concepts.Entity);
