@@ -146,7 +146,7 @@ class InGameMenu extends fsm.State {
         this.fader.color = new Color(255,255,255);
         this.fader.duration_ms = 300;
         this.fader._fade = 0;
-        this.menu_screen = "main"; 
+        this.menu_screen = "main";
         // valid menu_screen values: "main", "instructions", "config"
     }
 
@@ -213,8 +213,8 @@ class InGameMenu extends fsm.State {
                 text: "Particles: " + (
                     window.game_config.enable_particles ? "On" : "Off"
                 ),
-                action: ()=>{ 
-                    this.toggle_game_config('enable_particles'); 
+                action: ()=>{
+                    this.toggle_game_config('enable_particles');
                 },
                 position: Vector2_origin,
                 sprite_def: sprite_defs.button_menu,
@@ -228,10 +228,10 @@ class InGameMenu extends fsm.State {
                 text: "Status Bar: " + (
                     window.game_config.enable_stats_bar_value_always_visible ? "Always" : "Auto"
                 ),
-                action: ()=>{ 
+                action: ()=>{
                     this.toggle_game_config(
                         'enable_stats_bar_value_always_visible'
-                    ); 
+                    );
                 },
                 position: Vector2_origin,
                 sprite_def: sprite_defs.button_menu,
@@ -244,8 +244,8 @@ class InGameMenu extends fsm.State {
             turn_message_button: new ui.TextButton({
                 text: "Cycle Message: " + (
                     window.game_config.enable_turn_message ? "On" : "Off"),
-                action: ()=>{ 
-                    this.toggle_game_config('enable_turn_message'); 
+                action: ()=>{
+                    this.toggle_game_config('enable_turn_message');
                 },
                 position: Vector2_origin,
                 sprite_def: sprite_defs.button_menu,
@@ -258,8 +258,8 @@ class InGameMenu extends fsm.State {
             turn_sound_button: new ui.TextButton({
                 text: "Cycle Sound: " + (
                     window.game_config.enable_turn_sound ? "On" : "Off"),
-                action: ()=>{ 
-                    this.toggle_game_config('enable_turn_sound'); 
+                action: ()=>{
+                    this.toggle_game_config('enable_turn_sound');
                 },
                 position: Vector2_origin,
                 sprite_def: sprite_defs.button_menu,
@@ -272,8 +272,8 @@ class InGameMenu extends fsm.State {
             timeline_button: new ui.TextButton({
                 text: "Timeline: " + (
                     window.game_config.enable_timeline ? "On" : "Off"),
-                action: ()=>{ 
-                    this.toggle_game_config('enable_timeline'); 
+                action: ()=>{
+                    this.toggle_game_config('enable_timeline');
                 },
                 position: Vector2_origin,
                 sprite_def: sprite_defs.button_menu,
@@ -286,8 +286,8 @@ class InGameMenu extends fsm.State {
             infobox_button: new ui.TextButton({
                 text: "Infobox: " + (
                     window.game_config.enable_infobox ? "On" : "Off"),
-                action: ()=>{ 
-                    this.toggle_game_config('enable_infobox'); 
+                action: ()=>{
+                    this.toggle_game_config('enable_infobox');
                 },
                 position: Vector2_origin,
                 sprite_def: sprite_defs.button_menu,
@@ -299,7 +299,7 @@ class InGameMenu extends fsm.State {
             }),
 
 
-            // Back Button ( for all non-main menu screens ) 
+            // Back Button ( for all non-main menu screens )
             menu_back_button: new ui.TextButton({
                 text: "Back",
                 action: ()=>{ this.set_menu_screen("main"); },
@@ -333,7 +333,7 @@ class InGameMenu extends fsm.State {
 
         // Center the buttons in the screen.
         let button_pad_y = -160; // default
-        let config_button_count = 0; 
+        let config_button_count = 0;
         let is_config_screen = false;
 
         if(this.ui.text_instructions.visible) { // instructions screen
@@ -471,8 +471,11 @@ class GameScreen extends fsm.StateMachine {
 
         audio.stopEvent(music_id.title);
 
-        this.music = Number.isInteger(level_to_play) ? music_id[`level_${level_to_play + 1}`] : random_sample(Object.values(music_id));
-        audio.playEvent(this.music);
+        delete this.music;
+        if(Number.isInteger(level_to_play)){
+            this.music = music_id[`level_${level_to_play + 1}`];
+            audio.playEvent(this.music);
+        } // Otherwise don't play music at all.
 
         delete this.current_level_idx;
         this._level_to_play = level_to_play;
@@ -528,7 +531,9 @@ class GameScreen extends fsm.StateMachine {
         debug.assertion(()=>this.level_title);
         this.ready = false;
         yield* this.fader.generate_fade_out();
-        audio.stopEvent(this.music);
+
+        if(this.music) audio.stopEvent(this.music);
+
         this.game_session.stop();
         // ...
         delete this.level_title;
