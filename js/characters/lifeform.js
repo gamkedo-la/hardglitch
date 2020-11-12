@@ -152,6 +152,7 @@ class LifeStrengh extends concepts.Item {
         }}
     };
 
+    description = auto_newlines("Instinct of the newborn who needs to push things around. Allow to push close entities.", 35);
     get can_be_taken() { return true; }
 
     constructor(){

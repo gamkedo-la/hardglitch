@@ -150,6 +150,8 @@ class Push extends concepts.Action {
 }
 
 class Push_Short extends Push {
+    static get action_type_description() { return auto_newlines("Tries to move a close entity away from this character, bouncing on anything blocking that move.", 35); }
+    static get action_type_name() { return "Short Push"; }
     static get range() { return push_short_range; }
     static get costs(){
         return {

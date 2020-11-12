@@ -89,10 +89,11 @@ class AnomalyHunter extends concepts.Actor {
 class ByteCleaner extends concepts.Item {
     assets = {
         graphics : { body: {
-            sprite_def : sprite_defs.item_generic_4,
+            sprite_def : sprite_defs.item_generic_6,
         }}
     };
 
+    description = auto_newlines("Simple data deletion tool, used by Anti-Virus to clean \"anomalies\" from the system.", 35);
     get can_be_taken() { return true; }
 
     constructor(){
