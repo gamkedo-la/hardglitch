@@ -289,7 +289,7 @@ const defs = {
         is_safe: true,
         is_view_blocking: false,
         editor_name: "Entry",
-        name: "Input BUS",
+        name: "Input BUS - ENTRY",
         description: "Data from other part of the computer comes through here.",
         is_surface: true,
     },

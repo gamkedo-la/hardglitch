@@ -925,10 +925,12 @@ class GameView {
                     help_texts.info += `! Item: ${item_description(entity)}\n\n`;
                 }
             } else if(Number.isInteger(entity_or_tileid)){ // Integers are tiles ids.
-                const tile_id = entity_or_tileid;
-                const tile_name = tiles.name_text(tile_id);
-                help_texts.tooltip = add_text_line(help_texts.tooltip, `# ${tile_name}`);
-                help_texts.info += `# ${tile_name}:\n${tiles.info_text(tile_id)}\n\n`;
+                if(config.enable_ground_descriptions || !tiles.defs[entity_or_tileid].is_ground){
+                    const tile_id = entity_or_tileid;
+                    const tile_name = tiles.name_text(tile_id);
+                    help_texts.tooltip = add_text_line(help_texts.tooltip, `# ${tile_name}`);
+                    help_texts.info += `# ${tile_name}:\n${tiles.info_text(tile_id)}\n\n`;
+                }
             } else {
                 const thing = entity_or_tileid; // Probably an effect. We just want to display something
                 help_texts.tooltip = add_text_line(help_texts.tooltip, `*${thing.name}*`);
