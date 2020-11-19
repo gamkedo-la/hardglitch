@@ -355,7 +355,9 @@ class GameView {
     }
 
     focus_on_current_player_character(force=false){
-        return this.focus_on_entity(this.player_character.id, force);
+        if(this.player_character){
+            return this.focus_on_entity(this.player_character.id, force);
+        }
     }
 
     _action_highlight_events(action){
