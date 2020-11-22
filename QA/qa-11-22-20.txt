@@ -1,0 +1,15 @@
+played thru the demo again:
+some observations
+
+- "destroy"ing yourself will occassionally freeze the program at "game over"
+  or throw a red error
+  - destroy doesn't seem to throw any errors if done on an enemy
+
+- couldn't find a way to clear the "push" or "jump" versions 
+  of the first level
+  - in "push" it's not possible to get past that first corner
+    bc you don't have pull or swap
+  - in "jump" I couldn't find a "swap" or a "pull" that 
+    would let me get past the mutexes surrounding the exit
+
+- the game kinda lags once you get out into the larger part of level 1
