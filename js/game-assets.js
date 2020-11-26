@@ -61,6 +61,12 @@ const game_assets = { // Description of the assets to load.
         movewall_orange: "./images/movewall_orange.png",
         movewall_purple: "./images/movewall_purple.png",
         movewall_red: "./images/movewall_red.png",
+        movable_glass_wall: "./images/column2.png",
+        movewall_glass_blue: "./images/movewall_blue3.png",
+        movewall_glass_green: "./images/movewall_green3.png",
+        movewall_glass_orange: "./images/movewall_orange3.png",
+        movewall_glass_purple: "./images/movewall_purple3.png",
+        movewall_glass_red: "./images/movewall_red3.png",
         shadow: "./images/shadow.png",
         shadow2: "./images/shadow2.png",
         shadow_lg: "./images/shadow_lg.png",
@@ -464,6 +470,24 @@ const sprite_defs = {
     },
     movable_wall_red : {
         image: "movewall_red",
+    },
+    movable_glass_wall: {
+        image: "movable_glass_wall",
+    },
+    movable_glass_wall_blue : {
+        image: "movewall_glass_blue",
+    },
+    movable_glass_wall_green : {
+        image: "movewall_glass_green",
+    },
+    movable_glass_wall_orange : {
+        image: "movewall_glass_orange",
+    },
+    movable_glass_wall_purple : {
+        image: "movewall_glass_purple",
+    },
+    movable_glass_wall_red : {
+        image: "movewall_glass_red",
     },
     void : {
         image: "void",

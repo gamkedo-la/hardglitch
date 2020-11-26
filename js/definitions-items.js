@@ -29,6 +29,13 @@ export {
     MovableWall_Purple,
     MovableWall_Red,
 
+    MovableWall_Glass,
+    MovableWall_Glass_Blue,
+    MovableWall_Glass_Green,
+    MovableWall_Glass_Orange,
+    MovableWall_Glass_Purple,
+    MovableWall_Glass_Red,
+
     all_crypto_file_types,
     all_crypto_key_types,
     all_item_types,
@@ -91,6 +98,11 @@ function all_movable_walls(){
         MovableWall_Orange,
         MovableWall_Purple,
         MovableWall_Red,
+        MovableWall_Glass_Blue,
+        MovableWall_Glass_Green,
+        MovableWall_Glass_Orange,
+        MovableWall_Glass_Purple,
+        MovableWall_Glass_Red,
     ];
 }
 
@@ -110,11 +122,7 @@ function all_item_types(){
         Item_ThreadPool,
         Item_Zip,
 
-        MovableWall_Blue,
-        MovableWall_Green,
-        MovableWall_Orange,
-        MovableWall_Purple,
-        MovableWall_Red,
+        ...all_movable_walls(),
 
         ...all_debug_item_types(),
     ];
@@ -303,6 +311,82 @@ class MovableWall_Red extends MovableWall {
     };
 
     static get editor_name(){ return "Red Movable Wall"; };
+};
+
+
+class MovableWall_Glass extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.movable_glass_wall,
+        }}
+    };
+
+    description = auto_newlines(`Data access protection mechanism that can be moved in memory.`, 35);
+
+    static get editor_name(){ return "Movable Wall"; };
+
+    get can_be_taken() { return false; }
+
+    constructor(){
+        super("Atomic Block");
+        this.is_blocking_vision = false;
+        this.is_floating = true;
+    }
+
+};
+
+class MovableWall_Glass_Blue extends MovableWall_Glass {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.movable_glass_wall_blue,
+        }}
+    };
+
+    static get editor_name(){ return "Blue Movable Glass Wall"; };
+
+    get can_be_taken() { return false; }
+
+};
+
+class MovableWall_Glass_Green extends MovableWall_Glass {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.movable_glass_wall_green,
+        }}
+    };
+
+    static get editor_name(){ return "Green Movable Glass Wall"; };
+
+};
+
+class MovableWall_Glass_Orange extends MovableWall_Glass {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.movable_glass_wall_orange,
+        }}
+    };
+
+    static get editor_name(){ return "Orange Movable Glass Wall"; };
+};
+
+class MovableWall_Glass_Purple extends MovableWall_Glass {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.movable_glass_wall_purple,
+        }}
+    };
+
+    static get editor_name(){ return "Purple Movable Glass Wall"; };
+};
+
+class MovableWall_Glass_Red extends MovableWall_Glass {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.movable_glass_wall_red,
+        }}
+    };
+
+    static get editor_name(){ return "Red Movable Glass Wall"; };
 };
 
 
