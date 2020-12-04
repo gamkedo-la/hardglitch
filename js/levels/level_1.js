@@ -372,15 +372,13 @@ function generate_world() {
 
 
     const level_central_chunks = new ChunkGrid({
-        width: 5, height: 5, // These are number of chunks
+        width: 3, height: 3, // These are number of chunks
         chunk_width: 8, chunk_height: 8,
         default_grid_values: { floor: tiles.ID.WALL1A },
         chunks: [
-            subchunk_8x8,       subchunk_8x8,       subchunk_8x8,       subchunk_8x8,       subchunk_8x8,
-            subchunk_8x8,       subchunk_8x8,       subchunk_8x8,       subchunk_8x8,       subchunk_8x8,
-            subchunk_8x8,       subchunk_8x8,       subchunk_8x8,       subchunk_8x8,       subchunk_8x8,
-            subchunk_or_exit,   subchunk_or_exit,   subchunk_or_exit,   subchunk_or_exit,   subchunk_or_exit,
-            subchunk_or_exit,   subchunk_or_exit,   subchunk_or_exit,   subchunk_or_exit,   subchunk_or_exit,
+            subchunk_8x8,       subchunk_8x8,       subchunk_8x8,
+            subchunk_8x8,       subchunk_8x8,       subchunk_8x8,
+            subchunk_or_exit,   subchunk_or_exit,   subchunk_or_exit,
         ],
     });
 
