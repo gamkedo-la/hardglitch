@@ -161,20 +161,8 @@ function generate_world() {
         const bag = [
             { type: "LifeForm_Strong", position: { x: 0, y: 0 }, },
             { type: "LifeForm_Strong", position: { x: 0, y: 0 }, },
-            { type: "LifeForm_Weak", position: { x: 0, y: 0 }, },
-            { type: "LifeForm_Weak", position: { x: 0, y: 0 }, },
-            { type: "LifeForm_Weak", position: { x: 0, y: 0 }, },
-            { type: "LifeForm_Weak", position: { x: 0, y: 0 }, },
             { type: "MovableWall_Purple", position: { x: 0, y: 0 }, },
             { type: "MovableWall_Purple", position: { x: 0, y: 0 }, },
-            { type: "MovableWall_Purple", position: { x: 0, y: 0 }, },
-            { type: "MovableWall_Purple", position: { x: 0, y: 0 }, },
-            { type: "MovableWall_Purple", position: { x: 0, y: 0 }, },
-            { type: "MovableWall_Purple", position: { x: 0, y: 0 }, },
-            { type: "MovableWall_Red", position: { x: 0, y: 0 }, },
-            { type: "MovableWall_Red", position: { x: 0, y: 0 }, },
-            { type: "MovableWall_Red", position: { x: 0, y: 0 }, },
-            { type: "MovableWall_Red", position: { x: 0, y: 0 }, },
             { type: "MovableWall_Red", position: { x: 0, y: 0 }, },
             { type: "MovableWall_Red", position: { x: 0, y: 0 }, },
             { type: "CryptoFile_Circle", position: { x: 0, y: 0 },
@@ -184,7 +172,6 @@ function generate_world() {
             { type: "Item_Scanner", position:{ x:0, y:0 } },
             { type: "Item_ThreadPool", position:{ x:0, y:0 } },
             { type: "Item_Zip", position:{ x:0, y:0 } },
-            { type: "Item_ClosedScope", position:{ x:0, y:0 } },
             { type: "Item_ClosedScope", position:{ x:0, y:0 } },
         ];
         shuffle_array(bag);
@@ -214,9 +201,10 @@ function generate_world() {
         entities: [
             random_sample([
                 { type: "LifeForm_Strong", position: { x: 0, y: 0 }, },
-                { type: "LifeForm_Weak", position: { x: 0, y: 0 }, },
                 { type: "Item_BadCode", position:{ x:0, y:0 } },
-                { type: "Item_BadCode", position:{ x:0, y:0 } },
+                null,
+                null,
+                null,
             ]),
         ],
         random_variation: true,
@@ -355,7 +343,7 @@ function generate_world() {
 
     function* subchunk_8x8_maybe_exit(exit_room) {
         const chunk_bag = [
-            exit_room, subchunk_8x8, subchunk_8x8, subchunk_8x8, subchunk_8x8, subchunk_8x8, subchunk_8x8, subchunk_8x8,
+            exit_room, subchunk_8x8, subchunk_8x8,
         ];
         shuffle_array(chunk_bag);
         while (chunk_bag.length > 0) {
@@ -382,10 +370,12 @@ function generate_world() {
         ],
     });
 
+    const start_left_max = (level_central_chunks.width * level_central_chunks.chunk_width) - starting_room.width;
+    const start_left = random_int(0, start_left_max);
     const central_part = unfold_chunk_grid("level center", level_central_chunks);
     const merged_level = merge_world_chunks(level_name, { floor: tiles.ID.WALL1A },
         { position: { x: 0, y: 18 }, world_desc: central_part, },
-        { position: { x: random_int(0, 24), y: 0 }, world_desc: starting_room, }, // after the center to overwrite it.
+        { position: { x: start_left, y: 0 }, world_desc: starting_room, }, // after the center to overwrite it.
     );
     const level_desc = add_padding_around(merged_level, { floor: tiles.ID.WALL1A });
     return deserialize_world(random_variation(level_desc));
