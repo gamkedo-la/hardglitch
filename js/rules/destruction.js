@@ -40,7 +40,9 @@ class Damaged extends concepts.Event {
         debug.assertion(()=>game_view instanceof GameView);
         const entity_view = game_view.focus_on_entity(this.entity_id);
         debug.assertion(()=>entity_view instanceof EntityView);
-        game_view.special_animations.play(integrity_value_change(game_view, -this.damage_count, entity_view.position));
+        if(game_view.fog_of_war.is_visible(entity_view.game_position)){
+            game_view.special_animations.play(integrity_value_change(game_view, -this.damage_count, entity_view.position));
+        }
         yield* wait(1);
     }
 
