@@ -4,11 +4,12 @@ export {
 
 import * as debug from "../system/debug.js";
 import * as concepts from "../core/concepts.js";
+import * as items from "../definitions-items.js";
 import { Character } from "../core/character.js";
 import { sprite_defs } from "../game-assets.js";
 import { auto_newlines } from "../system/utility.js";
 import { Delete } from "../rules/rules-delete.js";
-import { Move } from "../rules/rules-movement.js";
+import { Jump, Move } from "../rules/rules-movement.js";
 import { distance_grid_precise } from "../system/spatial.js";
 
 
@@ -37,7 +38,7 @@ class AnomalyHunter extends concepts.Actor {
             return possible_actions[delete_target_id];
 
         const move_actions_ids = Object.keys(possible_actions)
-            .filter(name => name.startsWith("move_"))
+            .filter(name => name.startsWith("move_") || name.startsWith("jump_"))
             .filter(name => possible_actions[name].is_safe);
 
         if(move_actions_ids.length === 0)
@@ -46,8 +47,8 @@ class AnomalyHunter extends concepts.Actor {
         const move_towards_target_id = move_actions_ids.sort((a, b)=>{
             const move_action_a = possible_actions[a];
             const move_action_b = possible_actions[b];
-            debug.assertion(()=>move_action_a instanceof Move);
-            debug.assertion(()=>move_action_b instanceof Move);
+            debug.assertion(()=>move_action_a instanceof Move || move_action_a instanceof Jump);
+            debug.assertion(()=>move_action_b instanceof Move || move_action_b instanceof Jump);
             const distance_a = distance_grid_precise(move_action_a.target_position, target.position);
             const distance_b = distance_grid_precise(move_action_b.target_position, target.position);
             return distance_a - distance_b;
@@ -119,13 +120,14 @@ class AntiVirus extends Character {
     constructor(){
         super("Anti-Virus");
         this.actor = new AnomalyHunter;
-        this.stats.inventory_size.real_value = 1;
-        this.stats.view_distance.real_value = 7;
-        this.stats.ap_recovery.real_value = 10;
+        this.stats.inventory_size.real_value = 3;
+        this.stats.activable_items.real_value = 3;
+        this.stats.view_distance.real_value = 12;
+        this.stats.ap_recovery.real_value = 20;
         this.stats.action_points.real_max = 20;
         this.stats.action_points.real_value = 20;
         this.inventory.add(new ByteCleaner());
+        this.inventory.add(new items.Item_Jump());
     }
 
 };
-
