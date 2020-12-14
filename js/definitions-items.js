@@ -112,6 +112,8 @@ function all_movable_walls(){
 
 function all_item_types(){
     return [
+        ...all_debug_item_types(),
+
         ...all_crypto_file_types(),
         ...all_crypto_key_types(),
 
@@ -129,7 +131,6 @@ function all_item_types(){
 
         ...all_movable_walls(),
 
-        ...all_debug_item_types(),
     ];
 }
 
