@@ -510,7 +510,8 @@ class GameView {
 
         this.fog_of_war.update(delta_time);
 
-        this.ui.update(delta_time, this.player_character, this.game.world);
+        if(this.player_character)
+            this.ui.update(delta_time, this.player_character, this.game.world);
 
         this._update_turn_message(delta_time);
 
@@ -804,7 +805,7 @@ class GameView {
 
         this._render_top_highlights();
 
-        if(!this.enable_edition)
+        if(!this.enable_edition && this.player_character)
             this.ui.display();
 
         this._render_turn_message();
