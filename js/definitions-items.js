@@ -21,6 +21,7 @@ export {
     Item_ClosedScope,
     Item_ThreadPool,
     Item_Zip,
+    Item_LifeStrength,
 
     MovableWall,
     MovableWall_Blue,
@@ -50,7 +51,7 @@ import { sprite_defs } from "./game-assets.js";
 import { all_uncommon_action_types } from "./definitions-actions.js";
 import { auto_newlines, random_sample } from "./system/utility.js";
 import { Jump, Swap } from "./rules/rules-movement.js";
-import { Pull, Push } from "./rules/rules-forces.js";
+import { Pull, Push, Push_Short } from "./rules/rules-forces.js";
 
 function all_crypto_file_types() {
     return [
@@ -121,6 +122,7 @@ function all_item_types(){
         Item_Scanner,
         Item_ThreadPool,
         Item_Zip,
+        Item_LifeStrength,
 
         ...all_movable_walls(),
 
@@ -578,6 +580,28 @@ class Item_Zip extends concepts.Item {
     }
 
 }
+
+
+class Item_LifeStrength extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_4,
+        }}
+    };
+
+    description = auto_newlines("Instinct of the newborn who needs to push things around. Allow to push close entities.", 35);
+    get can_be_taken() { return true; }
+
+    constructor(){
+        super("Life Strengh");
+    }
+
+    get_enabled_action_types(){
+        return [ Push_Short ];
+    }
+
+}
+
 
 ///////////////////////////////////////////////////////////////////////////
 // DEBUG ITEMS

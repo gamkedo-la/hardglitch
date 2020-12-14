@@ -5,8 +5,7 @@ import * as concepts from "../core/concepts.js";
 import { sprite_defs } from "../game-assets.js";
 import { Character, CharacterStats } from "../core/character.js"
 import { random_sample, rotate_array, random_int, auto_newlines } from "../system/utility.js";
-import { Item_BadCode } from "../definitions-items.js";
-import { Push_Short } from "../rules/rules-forces.js";
+import { Item_BadCode, Item_LifeStrength } from "../definitions-items.js";
 
 const reverse_move_id = {
     move_east : "move_west",
@@ -144,27 +143,6 @@ class LifeForm_Weak extends Character {
 
     drops = [ new Item_BadCode() ];
 };
-
-class LifeStrengh extends concepts.Item {
-    assets = {
-        graphics : { body: {
-            sprite_def : sprite_defs.item_generic_4,
-        }}
-    };
-
-    description = auto_newlines("Instinct of the newborn who needs to push things around. Allow to push close entities.", 35);
-    get can_be_taken() { return true; }
-
-    constructor(){
-        super("Life Strengh");
-    }
-
-    get_enabled_action_types(){
-        return [ Push_Short ];
-    }
-
-}
-
 class LifeForm_Strong extends Character {
     assets = {
         graphics : { body: {
@@ -183,7 +161,7 @@ class LifeForm_Strong extends Character {
         this.stats.integrity.real_value = 20;
         this.stats.inventory_size.real_value = 2;
         this.stats.activable_items.real_value = 2;
-        this.inventory.add(new LifeStrengh());
+        this.inventory.add(new Item_LifeStrength());
     }
 
     drops = [ [ new LifeForm_Weak(), new LifeForm_Weak(), ] ];
