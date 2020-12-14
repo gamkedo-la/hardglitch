@@ -14,11 +14,11 @@ import { Repaired, repair } from "./recovery.js";
 import { ranged_actions_for_each_target } from "./rules-common.js";
 import { deal_damage } from "./destruction.js";
 import { auto_newlines } from "../system/utility.js";
+import * as recovery from "./recovery.js";
 
-const repair_points = 5;
-const repair_ap_cost = 5;
-const repair_range = new visibility.Range_Square(0,4);
-
+const repair_points = 6;
+const repair_ap_cost = 15;
+const repair_range = new visibility.Range_Square(0,3);
 
 class Repair extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_repair; }
@@ -38,16 +38,12 @@ class Repair extends concepts.Action {
         this.repair_points = repair_points;
     }
 
-    execute(world){
+    execute(world, character){
         debug.assertion(()=>world instanceof concepts.World);
+        debug.assertion(()=>character instanceof Character);
         const repaired =  world.entity_at(this.target_position);
         debug.assertion(()=>repaired instanceof concepts.Entity);
-        if(repaired instanceof Character){
-            repaired.repair(this.repair_points);
-        }
-        return [
-            new Repaired(repaired.id, repaired.position, this.repair_points),
-        ];
+        return recovery.repair(repaired, this.repair_points, character.position);
     }
 };
 

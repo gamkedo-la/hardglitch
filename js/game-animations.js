@@ -13,6 +13,7 @@ export {
     repaired,
     missile,
     deleting_missile,
+    repairing_missile,
     take_item,
     drop_item,
     inventory_add,
@@ -224,6 +225,13 @@ function* deleting_missile(fx_view, source_position, target_position){
     debug.assertion(()=>fx_view instanceof GameFxView);
     const missile_effect = fx_view.deleteBall(graphic_position(source_position));
     audio.playEvent('deleteAction');
+    yield* missile(missile_effect, graphic_position(target_position));
+}
+
+function* repairing_missile(fx_view, source_position, target_position){
+    debug.assertion(()=>fx_view instanceof GameFxView);
+    const missile_effect = fx_view.missile(graphic_position(source_position));
+    audio.playEvent('shakeAnim'); // TODO: replace by a proper sound for this!
     yield* missile(missile_effect, graphic_position(target_position));
 }
 
