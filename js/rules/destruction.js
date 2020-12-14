@@ -144,6 +144,8 @@ function deal_damage(entity, damage){
     debug.assertion(()=>entity instanceof concepts.Entity);
     if(entity instanceof Character){
         entity.take_damage(damage);
+    } else {
+        damage = 0; // All other entities take 0 damage.
     }
     return [ new Damaged(entity.id, entity.position, damage) ];
 }
