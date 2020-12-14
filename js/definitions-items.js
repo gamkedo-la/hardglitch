@@ -22,6 +22,7 @@ export {
     Item_ThreadPool,
     Item_Zip,
     Item_LifeStrength,
+    Item_MemoryCleanup,
 
     MovableWall,
     MovableWall_Blue,
@@ -52,6 +53,7 @@ import { all_uncommon_action_types } from "./definitions-actions.js";
 import { auto_newlines, random_sample } from "./system/utility.js";
 import { Jump, Swap } from "./rules/rules-movement.js";
 import { Pull, Push, Push_Short } from "./rules/rules-forces.js";
+import { Repair } from "./rules/rules-repair.js";
 
 function all_crypto_file_types() {
     return [
@@ -123,6 +125,7 @@ function all_item_types(){
         Item_ThreadPool,
         Item_Zip,
         Item_LifeStrength,
+        Item_MemoryCleanup,
 
         ...all_movable_walls(),
 
@@ -601,6 +604,28 @@ class Item_LifeStrength extends concepts.Item {
     }
 
 }
+
+
+class Item_MemoryCleanup extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_4,
+        }}
+    };
+
+    description = auto_newlines("Cleans up memory and restore it to it's initial state.", 35);
+    get can_be_taken() { return true; }
+
+    constructor(){
+        super("Memory Cleanup");
+    }
+
+    get_enabled_action_types(){
+        return [ Repair ];
+    }
+
+}
+
 
 
 ///////////////////////////////////////////////////////////////////////////
