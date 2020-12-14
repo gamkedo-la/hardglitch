@@ -469,7 +469,7 @@ function* value_animation(game_view, value, gfx_position, duration_ms, text_desc
 
 function* integrity_value_change(game_view, value, gfx_position){
     yield* value_animation(game_view, value, gfx_position, default_move_duration_ms, {
-        color: "white",
+        color: value === 0 ? "black" : "white",
         // stroke_color: "black",
         // line_width: 1,
         background_color: value < 0 ? "red" : value > 0 ? "green" : undefined,
