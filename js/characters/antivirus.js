@@ -12,6 +12,7 @@ import { Delete } from "../rules/rules-delete.js";
 import { Jump, Move } from "../rules/rules-movement.js";
 import { distance_grid_precise } from "../system/spatial.js";
 import { Repair } from "../rules/rules-repair.js";
+import { find_entity_id, move_towards, select_action_by_type } from "./characters-common.js";
 
 
 class AnomalyHunter extends concepts.Actor {
@@ -52,60 +53,19 @@ class AnomalyHunter extends concepts.Actor {
 
 
     _heal_target(possible_actions, target_position){
-        debug.assertion(()=>target_position instanceof concepts.Position);
-        const repair_actions_ids = Object.keys(possible_actions)
-                                    .filter(name => name.startsWith("repair_"));
-
-        const repair_target_id = repair_actions_ids.find((repair_id)=>{
-            const delete_action = possible_actions[repair_id];
-            debug.assertion(()=>delete_action instanceof Repair);
-            return delete_action.target_position.equals(target_position);
-        });
-
-        if(repair_target_id)
-            return possible_actions[repair_target_id];
+        return select_action_by_type(possible_actions, target_position, Repair);
     }
 
     _attack_target(possible_actions, target_position){
-        debug.assertion(()=>target_position instanceof concepts.Position);
-        const delete_actions_ids = Object.keys(possible_actions)
-                                    .filter(name => name.startsWith("delete_"));
-
-        const delete_target_id = delete_actions_ids.find((delete_id)=>{
-            const delete_action = possible_actions[delete_id];
-            debug.assertion(()=>delete_action instanceof Delete);
-            return delete_action.target_position.equals(target_position);
-        });
-
-        if(delete_target_id)
-            return possible_actions[delete_target_id];
+        return select_action_by_type(possible_actions, target_position, Delete);
     }
 
     _move_towards(possible_actions, target_position){
-        debug.assertion(()=>target_position instanceof concepts.Position);
-
-        const move_actions_ids = Object.keys(possible_actions)
-            .filter(name => name.startsWith("move_") || name.startsWith("jump_"))
-            .filter(name => possible_actions[name].is_safe);
-
-        if(move_actions_ids.length === 0)
-            return possible_actions.wait;
-
-        const move_towards_target_id = move_actions_ids.sort((a, b)=>{
-            const move_action_a = possible_actions[a];
-            const move_action_b = possible_actions[b];
-            debug.assertion(()=>move_action_a instanceof Move || move_action_a instanceof Jump);
-            debug.assertion(()=>move_action_b instanceof Move || move_action_b instanceof Jump);
-            const distance_a = distance_grid_precise(move_action_a.target_position, target_position);
-            const distance_b = distance_grid_precise(move_action_b.target_position, target_position);
-            return distance_a - distance_b;
-        })[0];
-
-        if(move_towards_target_id)
-            return possible_actions[move_towards_target_id];
+        return move_towards(possible_actions, target_position);
     }
 
     _update_target(character, world){
+        // Keep track of the current target, or find a new one.
         if(!this.target_id){
             this.target_id = this._find_new_target(character, world);
         }
@@ -123,21 +83,11 @@ class AnomalyHunter extends concepts.Actor {
     }
 
     _find_new_target(character, world){
-        const potential_targets = character.field_of_vision.visible_entities(world)
-                                    .filter(entity => entity instanceof Character && entity.is_anomaly);
-
-        if(potential_targets.length > 0){
-            return potential_targets[0].id;
-        }
+        return find_entity_id(character, world, (entity)=>entity instanceof Character && entity.is_anomaly);
     }
 
     _find_friend_to_heal(character, world){
-        const potential_friends = character.field_of_vision.visible_entities(world)
-                                    .filter(entity => entity instanceof Character && !entity.is_anomaly && entity.stats.integrity.value < entity.stats.integrity.max);
-
-        if(potential_friends.length > 0){
-            return potential_friends[0].id;
-        }
+        return find_entity_id(character, world, (entity)=>entity instanceof Character && !entity.is_anomaly && entity.stats.integrity.value < entity.stats.integrity.max);
     }
 }
 
