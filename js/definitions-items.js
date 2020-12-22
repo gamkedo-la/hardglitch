@@ -23,6 +23,8 @@ export {
     Item_Zip,
     Item_LifeStrength,
     Item_MemoryCleanup,
+    Item_ByteClearer,
+    Item_Corrupt,
 
     MovableWall,
     MovableWall_Blue,
@@ -54,6 +56,8 @@ import { auto_newlines, random_sample } from "./system/utility.js";
 import { Jump, Swap } from "./rules/rules-movement.js";
 import { Pull, Push, Push_Short } from "./rules/rules-forces.js";
 import { Repair } from "./rules/rules-repair.js";
+import { Corrupt } from "./rules/rules-corruption.js";
+import { Delete } from "./rules/rules-delete.js";
 
 function all_crypto_file_types() {
     return [
@@ -128,6 +132,8 @@ function all_item_types(){
         Item_Zip,
         Item_LifeStrength,
         Item_MemoryCleanup,
+        Item_ByteClearer,
+        Item_Corrupt,
 
         ...all_movable_walls(),
 
@@ -623,6 +629,46 @@ class Item_MemoryCleanup extends concepts.Item {
 
     get_enabled_action_types(){
         return [ Repair ];
+    }
+
+}
+
+class Item_ByteClearer extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_6,
+        }}
+    };
+
+    description = auto_newlines("Simple data deletion tool, used by Anti-Virus to clear \"anomalies\" from the system.", 35);
+    get can_be_taken() { return true; }
+
+    constructor(){
+        super("Byte Clearer");
+    }
+
+    get_enabled_action_types(){
+        return [ Delete ];
+    }
+
+}
+
+class Item_Corrupt extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_6,
+        }}
+    };
+
+    description = auto_newlines("Trashes memory to corrupt it.", 35);
+    get can_be_taken() { return true; }
+
+    constructor(){
+        super("Memory Trasher");
+    }
+
+    get_enabled_action_types(){
+        return [ Corrupt ];
     }
 
 }
