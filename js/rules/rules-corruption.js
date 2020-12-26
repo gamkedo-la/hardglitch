@@ -22,10 +22,13 @@ import { Grid } from "../system/grid.js";
 import { sprite_defs } from "../game-assets.js";
 import { actions_for_each_target } from "./rules-common.js";
 import { GameView } from "../game-view.js";
-import { graphic_position, square_half_unit_vector } from "../view/entity-view.js";
+import { EntityView, graphic_position, square_half_unit_vector } from "../view/entity-view.js";
+
+const corruption_damage_min = 1;
+const corruption_damage_max = 5;
 
 function corruption_damage() {
-    return random_int(1, 20);
+    return random_int(corruption_damage_min, corruption_damage_max);
 }
 
 const corrupt_ap_cost = 2;
@@ -33,12 +36,8 @@ const corrupt_range = new visibility.Range_Square(0, 6);
 
 class Corruption {
     name = "Corrupted Memory";
-    description =
-`Deals ${corrupt_ap_cost} damages
-BEFORE and AFTER corruption updates.
-Every New Cycle, corruption updates
-following the rules of Conway's
-Game Of Life.`;
+    description = auto_newlines(`Deals from ${corruption_damage_min} to ${corruption_damage_max} damages to entities here at the end of every Cycles.
+Every even Cycle, corruption updates following the rules\nof Conway's Game Of Life.`, 33);
     toJSON(key) { return {}; }
 };
 
@@ -101,6 +100,32 @@ class CorruptionVanished extends concepts.Event {
 
 };
 
+class CorruptionDamage extends concepts.Event {
+    constructor(position, entity_id){
+        debug.assertion(()=>Number.isInteger(entity_id));
+        super({
+            allow_parallel_animation: true,
+            description: `Corruption deals damage at ${JSON.stringify(position)} to entity ${entity_id}`,
+        })
+        this.position = new concepts.Position(position);
+        this.entity_id = entity_id;
+    }
+
+    get is_world_event() { return false; }
+    get focus_positions() { return [ this.position ]; }
+
+    *animation(game_view){
+        debug.assertion(()=>game_view instanceof GameView);
+
+        const entity_view = game_view.get_entity_view(this.entity_id);
+        debug.assertion(()=>entity_view instanceof EntityView);
+
+        audio.playEvent("corruptAction");
+        yield* animation.take_hit_damage(game_view.fx_view, entity_view);
+        yield* anim.wait(1000 / 64);
+    }
+};
+
 class Corrupted extends concepts.Event {
     constructor(position, from){
         super({
@@ -116,7 +141,6 @@ class Corrupted extends concepts.Event {
 
     *animation(game_view){
         debug.assertion(()=>game_view instanceof GameView);
-        // TODO: add sound?
         audio.playEvent("corruptAction");
         // TODO: add an animation here
         yield* anim.wait(1000 / 64);
@@ -126,7 +150,7 @@ class Corrupted extends concepts.Event {
 class Corrupt extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_corrupt; }
     static get action_type_name() { return "Corrupt"; }
-    static get action_type_description() { return auto_newlines("Corrupts the target memory section.", 35); }
+    static get action_type_description() { return auto_newlines("Corrupts the target memory section.\nThe corrupted memory will deal damage every even cycle to any entity in it.", 35); }
     static get costs(){
         return {
             action_points: { value: corrupt_ap_cost },
@@ -227,7 +251,8 @@ function damage_anything_in_corrupted_tiles(world){
 
     world.entities
         .filter(entity => corruption_grid.get_at(entity.position) instanceof Corruption)
-        .map((entity) => {
+        .forEach(entity => {
+            events.push(new CorruptionDamage(entity.position, entity.id));
             events.push(...deal_damage(entity, corruption_damage()));
         });
 
@@ -238,13 +263,17 @@ class Rule_Corruption extends concepts.Rule {
 
     update_world_at_the_beginning_of_game_turn(world){
         if(world.turn_id <= 1) // Don't apply this rule on the first turn.
-            return [];
+        return [];
 
-        return [
-            ...damage_anything_in_corrupted_tiles(world), // Before changing
-            ...update_corruption_state(world),
-            ...damage_anything_in_corrupted_tiles(world), // After having changed
-        ];
+        const events = [];
+
+        if(world.turn_id % 2 == 0){ // We update the corruption positions only on even turns.
+            events.push(...update_corruption_state(world));
+        }
+
+        events.push(...damage_anything_in_corrupted_tiles(world));
+
+        return events;
     }
 
 
