@@ -449,7 +449,7 @@ function* value_animation(game_view, value, gfx_position, duration_ms, text_desc
     debug.assertion(()=> game_view instanceof GameView);
     debug.assertion(()=> Number.isInteger(value));
     debug.assertion(()=> typeof duration_ms === "number");
-    debug.assertion(()=> gfx_position instanceof Object && Number.isInteger(gfx_position.x) && Number.isInteger(gfx_position.y));
+    debug.assertion(()=> gfx_position instanceof Object && is_number(gfx_position.x) &&is_number(gfx_position.y));
     debug.assertion(()=> text_descs instanceof Object);
 
     text_descs = Object.assign({
