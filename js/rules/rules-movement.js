@@ -60,6 +60,8 @@ class Moved extends concepts.Event {
     *animation(game_view){
         debug.assertion(()=>game_view instanceof GameView);
         const entity_view = game_view.focus_on_entity(this.entity_id);
+        if(!entity_view) // FIXME: why does this happen?
+            return;
         debug.assertion(()=>entity_view instanceof EntityView);
         debug.assertion(()=>this.to_pos instanceof concepts.Position);
         yield* animations.move(game_view.fx_view, entity_view, this.to_pos, this.duration);
