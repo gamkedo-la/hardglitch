@@ -47,7 +47,11 @@ class Microcode extends Character {
         }}
     };
 
-    description = auto_newlines("Complex but swiftly optimized code sequences. Avoid them if you do not want your data to be corrupted.", 34);
+    description = auto_newlines("Complex but swiftly optimized code sequences. Avoid them if you do not want your data to be corrupted.\nImmune to corruption.", 34);
+
+    immunity = {
+        corruption: true,
+    }
 
     constructor(){
         super("Micro-Code", );

@@ -252,8 +252,10 @@ function damage_anything_in_corrupted_tiles(world){
     world.entities
         .filter(entity => corruption_grid.get_at(entity.position) instanceof Corruption)
         .forEach(entity => {
-            events.push(new CorruptionDamage(entity.position, entity.id));
-            events.push(...deal_damage(entity, corruption_damage()));
+            if(!entity.immunity || !entity.immunity.corruption){
+                events.push(new CorruptionDamage(entity.position, entity.id));
+                events.push(...deal_damage(entity, corruption_damage()));
+            }
         });
 
     return events;
