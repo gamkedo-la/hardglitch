@@ -25,6 +25,8 @@ export {
     Item_MemoryCleanup,
     Item_ByteClearer,
     Item_Corrupt,
+    Item_Copy,
+    Item_Merge,
 
     MovableWall,
     MovableWall_Blue,
@@ -58,6 +60,8 @@ import { Pull, Push, Push_Short } from "./rules/rules-forces.js";
 import { Repair } from "./rules/rules-repair.js";
 import { Corrupt } from "./rules/rules-corruption.js";
 import { Delete } from "./rules/rules-delete.js";
+import { Copy } from "./rules/rules-copy.js";
+import { Merge } from "./rules/rules-merge.js";
 
 function all_crypto_file_types() {
     return [
@@ -134,6 +138,8 @@ function all_item_types(){
         Item_MemoryCleanup,
         Item_ByteClearer,
         Item_Corrupt,
+        Item_Copy,
+        Item_Merge,
 
         ...all_movable_walls(),
 
@@ -672,6 +678,48 @@ class Item_Corrupt extends concepts.Item {
     }
 
 }
+
+class Item_Copy extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_6,
+        }}
+    };
+
+    description = auto_newlines("Allows duplicating entities in memory.", 35);
+    get can_be_taken() { return true; }
+
+    constructor(){
+        super("Cloner");
+    }
+
+    get_enabled_action_types(){
+        return [ Copy ];
+    }
+
+}
+
+
+class Item_Merge extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_6,
+        }}
+    };
+
+    description = auto_newlines("Allows merging an entity into another one.", 35);
+    get can_be_taken() { return true; }
+
+    constructor(){
+        super("Memory Mixer");
+    }
+
+    get_enabled_action_types(){
+        return [ Merge ];
+    }
+
+}
+
 
 
 
