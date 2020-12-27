@@ -212,7 +212,7 @@ function item_description(item){
 
     let description_text = `${item.name}\n${item.description}`;
     if(item_actions_names.length > 0){
-        description_text += `\n+Actions: ${auto_newlines(item_actions_names, max_action_list_line_width)}`;
+        description_text += `\n${auto_newlines("  ++Actions : " + item_actions_names, max_action_list_line_width)}`;
     }
     if(item_stats_modifiers){
         description_text += `\n${item_stats_modifiers}`;

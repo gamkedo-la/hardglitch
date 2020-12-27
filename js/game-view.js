@@ -379,9 +379,9 @@ class GameView {
     help_text_over_action(action){
         debug.assertion(()=>action instanceof concepts.Action);
         const help_texts = this.help_texts_at(action.target_position);
-        const action_tooltip = `-> Action: ${action.name} (${action.constructor.costs.action_points.value} AP)`;
-        help_texts.tooltip = add_text_line(action_tooltip, help_texts.tooltip);
-        help_texts.info = `-> Action: ${action.constructor.action_type_name}\n(see Action buttons for details)\n\n${help_texts.info}`;
+        const action_tooltip = `-> ACTION: ${action.name} (${action.constructor.costs.action_points.value} AP)`;
+        help_texts.tooltip = add_text_line(help_texts.tooltip, action_tooltip);
+        help_texts.info = add_text_line(help_texts.info, `-> ACTION: ${action.constructor.action_type_name}\n(see Action buttons for details)`);
         return help_texts;
     }
 
@@ -922,22 +922,22 @@ class GameView {
                     } else {
                         help_texts.tooltip = add_text_line(help_texts.tooltip, `${entity.name} (NPC)`);
                     }
-                    help_texts.info += `-> Entity: ${entity.name}\n${entity.description}\n\n`;
+                    help_texts.info = add_text_line(help_texts.info, `@ ENTITY: ${entity.name}\n${entity.description}`);
                 } else {
-                    help_texts.tooltip = add_text_line(help_texts.tooltip, `! Item: ${entity.name}`);
-                    help_texts.info += `! Item: ${item_description(entity)}\n\n`;
+                    help_texts.tooltip = add_text_line(help_texts.tooltip, `! ITEM: ${entity.name}`);
+                    help_texts.info = add_text_line(help_texts.info, `! ITEM: ${item_description(entity)}`);
                 }
             } else if(Number.isInteger(entity_or_tileid)){ // Integers are tiles ids.
                 if(config.enable_ground_descriptions || !tiles.defs[entity_or_tileid].is_ground){
                     const tile_id = entity_or_tileid;
                     const tile_name = tiles.name_text(tile_id);
                     help_texts.tooltip = add_text_line(help_texts.tooltip, `# ${tile_name}`);
-                    help_texts.info += `# ${tile_name}:\n${tiles.info_text(tile_id)}\n\n`;
+                    help_texts.info = add_text_line(help_texts.info, `# ${tile_name}:\n${tiles.info_text(tile_id)}`);
                 }
             } else {
                 const thing = entity_or_tileid; // Probably an effect. We just want to display something
                 help_texts.tooltip = add_text_line(help_texts.tooltip, `*${thing.name}*`);
-                help_texts.info += `*${thing.name}*:\n${thing.description}\n\n`;
+                help_texts.info = add_text_line(help_texts.info, `*${thing.name}*:\n${thing.description}`);
             }
         }
         return help_texts;
