@@ -167,7 +167,7 @@ function stats_modifiers_description(modifiers, with_signs = true){
     debug.assertion(()=>modifiers instanceof Object);
     let description = "";
     let line = 0;
-    const maybe_newline = ()=> line++ > 0 ? '\n' : '';
+    const maybe_newline = ()=> line++ > 0 ? '\n  ' : '  ';
     const value_str = with_signs ? signed_number_str : (value)=>value;
     if(modifiers.integrity){
         if(modifiers.integrity.max)
