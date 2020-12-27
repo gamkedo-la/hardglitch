@@ -4,6 +4,7 @@ export {
 import * as debug from "../system/debug.js";
 import * as concepts from "../core/concepts.js";
 import * as items from "../definitions-items.js";
+import * as tiles from "../definitions-tiles.js";
 import { Character } from "../core/character.js";
 import { sprite_defs } from "../game-assets.js";
 import { auto_newlines } from "../system/utility.js";
@@ -11,10 +12,12 @@ import { closest_entity, move_away, move_towards, scan_entities_around, select_a
 import { AntiVirus } from "./antivirus.js";
 import { Copy } from "../rules/rules-copy.js";
 import { Merge } from "../rules/rules-merge.js";
+import { DropItem, TakeItem } from "../rules/rules-items.js";
+import { valid_spawn_positions } from "../core/visibility.js";
 
 const virus_gang_size = 3;
 const virus_gang_distance = 5;
-
+const interersting_item_types = [ items.Item_Copy, items.Item_Merge, items.Item_Jump ];
 class VirulentInvader extends concepts.Actor {
 
     decide_next_action(world, character, possible_actions){
@@ -26,6 +29,14 @@ class VirulentInvader extends concepts.Actor {
         if(antivirus instanceof Character){
             return move_away(possible_actions, antivirus.position);
         }
+
+        const drop_item = this._drop_item(character, world);
+        if(drop_item instanceof concepts.Action)
+            return drop_item;
+
+        const gather_items = this._gather_items_around(possible_actions, character, world);
+        if(gather_items instanceof concepts.Action)
+            return gather_items;
 
         const target = this._get_target(character, world);
         if(target instanceof Character){
@@ -56,6 +67,39 @@ class VirulentInvader extends concepts.Actor {
         return possible_actions.wait;
     }
 
+    _gather_items_around(possible_actions, character, world){
+        if(this._have_item_clone(character) && this._have_item_merge(character))
+            return;
+
+        const interesting_item_around = closest_entity(character, world, entity => interersting_item_types.some(item_type => entity instanceof item_type));
+        if(interesting_item_around){
+            const take_action = select_action_by_type(possible_actions, interesting_item_around.position, TakeItem);
+            if(take_action instanceof concepts.Action)
+                return take_action;
+
+            return move_towards(possible_actions, interesting_item_around.position);
+        }
+    }
+
+    _drop_item(character, world){
+        const uninteresting_items = character.inventory.stored_items
+                                        .map((item, idx)=> { return {idx, item} })
+                                        .filter(info => info.item instanceof concepts.Item
+                                                        && !interersting_item_types.some(item_type => info.item instanceof item_type));
+        if(uninteresting_items.length > 0){
+            const drop_positions = valid_spawn_positions(world, character.position, tiles.is_walkable).reverse(); // Reversed so that pop gives us the closest position.
+            return new DropItem(drop_positions.shift(), uninteresting_items.shift().idx);
+        }
+    }
+
+    _have_item_clone(character){
+        return character.inventory.stored_items.some(item => item instanceof items.Item_Copy);
+    }
+
+    _have_item_merge(character){
+        return character.inventory.stored_items.some(item => item instanceof items.Item_Merge);
+    }
+
     _get_target(character, world){
         const target = closest_entity(character, world, entity => entity instanceof Character
                                                                      && !(entity instanceof Virus)
@@ -66,7 +110,7 @@ class VirulentInvader extends concepts.Actor {
     }
 
     _find_antivirus(character, world){
-        return closest_entity(character, world, entity => entity instanceof AntiVirus);
+        return closest_entity(character, world, entity => entity instanceof AntiVirus && !(entity.actor instanceof VirulentInvader));
     }
 
     _merge_in_target(possible_actions, target){
