@@ -1,5 +1,5 @@
 export {
-    find_entity_id,
+    closest_entity,
     select_action_by_type,
     move_towards,
     wander,
@@ -7,18 +7,19 @@ export {
 
 import * as debug from "../system/debug.js";
 import * as concepts from "../core/concepts.js";
-import { Character } from "../core/character.js";
 import { Jump, Move } from "../rules/rules-movement.js";
 import { distance_grid_precise } from "../system/spatial.js";
 import { random_sample } from "../system/utility.js";
 
 const default_movement_types = [Move, Jump];
 
-function find_entity_id(character, world, predicate){
+// Returns the closest visible entity from the specified character, which matches the given predicate.
+// Returns undefined if none matches these conditions.
+function closest_entity(character, world, predicate){
     const potential_targets = character.field_of_vision.visible_entities(world)
-                                .filter(entity => entity instanceof Character && predicate(entity));
+                                .filter(predicate);
     if(potential_targets.length > 0){
-        return potential_targets[0].id;
+        return potential_targets[0];
     }
 }
 

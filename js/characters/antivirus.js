@@ -10,7 +10,7 @@ import { sprite_defs } from "../game-assets.js";
 import { auto_newlines } from "../system/utility.js";
 import { Delete } from "../rules/rules-delete.js";
 import { Repair } from "../rules/rules-repair.js";
-import { find_entity_id, move_towards, select_action_by_type } from "./characters-common.js";
+import { closest_entity, move_towards, select_action_by_type } from "./characters-common.js";
 
 
 class AnomalyHunter extends concepts.Actor {
@@ -19,10 +19,8 @@ class AnomalyHunter extends concepts.Actor {
         debug.assertion(()=>character instanceof Character);
         debug.assertion(()=>possible_actions instanceof Object);
 
-        const friend_to_heal_id = this._find_friend_to_heal(character, world);
-        if(friend_to_heal_id !== undefined){
-            const friend_to_heal = world.get_entity(friend_to_heal_id);
-            debug.assertion(()=>friend_to_heal instanceof Character);
+        const friend_to_heal = this._find_friend_to_heal(character, world);
+        if(friend_to_heal instanceof Character){
             const heal_friend = this._heal_target(possible_actions, friend_to_heal.position);
             if(heal_friend instanceof concepts.Action)
                 return heal_friend;
@@ -65,28 +63,27 @@ class AnomalyHunter extends concepts.Actor {
 
     _update_target(character, world){
         // Keep track of the current target, or find a new one.
-        if(!this.target_id){
-            this.target_id = this._find_new_target(character, world);
+        if(!this.target){
+            this.target = this._find_new_target(character, world);
         }
 
-        if(this.target_id){
-            let target = world.get_entity(this.target_id);
-            if(target && character.field_of_vision.is_visible(target.position)){
-                return target;
+        if(this.target instanceof Character){
+            if(this.target && character.field_of_vision.is_visible(this.target.position)){
+                return this.target;
             }
 
-            delete this.target_id;
+            delete this.target;
             return this._update_target(character, world);
         }
         // return undefined in all other cases.
     }
 
     _find_new_target(character, world){
-        return find_entity_id(character, world, (entity)=>entity instanceof Character && entity.is_anomaly);
+        return closest_entity(character, world, (entity)=>entity instanceof Character && entity.is_anomaly);
     }
 
     _find_friend_to_heal(character, world){
-        return find_entity_id(character, world, (entity)=>entity instanceof Character && !entity.is_anomaly && entity.stats.integrity.value < entity.stats.integrity.max);
+        return closest_entity(character, world, (entity)=>entity instanceof Character && !entity.is_anomaly && entity.stats.integrity.value < entity.stats.integrity.max);
     }
 }
 
