@@ -2,6 +2,7 @@ export {
     find_entity_id,
     select_action_by_type,
     move_towards,
+    wander,
 }
 
 import * as debug from "../system/debug.js";
@@ -9,7 +10,9 @@ import * as concepts from "../core/concepts.js";
 import { Character } from "../core/character.js";
 import { Jump, Move } from "../rules/rules-movement.js";
 import { distance_grid_precise } from "../system/spatial.js";
+import { random_sample } from "../system/utility.js";
 
+const default_movement_types = [Move, Jump];
 
 function find_entity_id(character, world, predicate){
     const potential_targets = character.field_of_vision.visible_entities(world)
@@ -32,7 +35,7 @@ function select_action_by_type(possible_actions, target_position, action_type){
     return selected_action;
 }
 
-function move_towards(possible_actions, target_position, allowed_move_types = [Move, Jump]){
+function move_towards(possible_actions, target_position, allowed_move_types = default_movement_types){
     debug.assertion(()=>target_position instanceof concepts.Position);
 
     const move_actions = Object.values(possible_actions)
@@ -50,4 +53,9 @@ function move_towards(possible_actions, target_position, allowed_move_types = [M
     })[0];
 
     return move_towards_target;
+}
+
+function wander(possible_actions, allowed_move_types = default_movement_types){
+    const all_moves = Object.values(possible_actions).filter(action => allowed_move_types.some(move_type => action instanceof move_type));
+    return random_sample(all_moves);
 }

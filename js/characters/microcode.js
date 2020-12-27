@@ -8,7 +8,7 @@ import * as items from "../definitions-items.js";
 import { Character } from "../core/character.js";
 import { sprite_defs } from "../game-assets.js";
 import { auto_newlines, random_int, random_sample } from "../system/utility.js";
-import { move_towards, select_action_by_type } from "./characters-common.js";
+import { select_action_by_type, wander } from "./characters-common.js";
 import { Corrupt } from "../rules/rules-corruption.js";
 import { Jump } from "../rules/rules-movement.js";
 
@@ -57,8 +57,7 @@ class Corrupter extends concepts.Actor {
     }
 
     _jump_around(character, possible_actions){
-        const all_jumps = Object.values(possible_actions).filter(action => action instanceof Jump);
-        return random_sample(all_jumps);
+        return wander(possible_actions, [ Jump ]); // Only allow jumping.
     }
 };
 
