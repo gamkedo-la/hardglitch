@@ -83,7 +83,7 @@ class MoveInCircles extends concepts.Actor {
 
 
         if(push_actions_ids.length > 0){
-            if(random_int(0, 100) > 33)
+            if(random_int(0, 100) > 75)
                 return possible_actions[random_sample(push_actions_ids)];
         }
 
