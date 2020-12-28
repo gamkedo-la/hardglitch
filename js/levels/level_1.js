@@ -159,12 +159,30 @@ const exit_rooms = {
 window.startup_rooms = startup_rooms; // For debugging.
 window.exit_rooms = exit_rooms; // For debugging.
 
+const starting_items = [ "Item_Push", "Item_Pull",  "Item_Swap", "Item_Jump"];
+
 function generate_world() {
     // LEVEL 1:
     // Buggy Program: https://trello.com/c/wEnOf3hQ/74-level-1-buggy-program
     //
 
-   const entity_bag =  function*() {
+    let special_items = [...starting_items];
+
+    const starting_room_id = random_sample(Object.keys(startup_rooms));
+    switch(starting_room_id){
+        case "jump":
+            special_items = special_items.filter(item_id => item_id != "Item_Jump");
+            break;
+        case "push_pull":
+            special_items = special_items.filter(item_id => item_id != "Item_Push" && item_id != "Item_Pull");
+            break;
+        case "swap":
+            special_items = special_items.filter(item_id => item_id != "Item_Swap");
+            break;
+    }
+
+
+    const entity_bag =  function*() {
         const bag = [
             { type: "LifeForm_Strong", position: { x: 0, y: 0 }, },
             { type: "LifeForm_Strong", position: { x: 0, y: 0 }, },
@@ -173,7 +191,7 @@ function generate_world() {
             { type: "MovableWall_Red", position: { x: 0, y: 0 }, },
             { type: "MovableWall_Red", position: { x: 0, y: 0 }, },
             { type: "CryptoFile_Circle", position: { x: 0, y: 0 },
-                drops: [ "Item_Push", "Item_Pull",  "Item_Swap", "Item_Jump"] // TODO: provide an action that's not one of the starting ones.
+                drops: special_items
             },
             { type: "CryptoKey_Circle", position: { x: 0, y: 0 } },
             { type: "Item_Scanner", position:{ x:0, y:0 } },
@@ -361,7 +379,7 @@ function generate_world() {
     }
 
 
-    const starting_room = random_sample(Object.values(startup_rooms));
+    const starting_room = startup_rooms[starting_room_id];
     const exit_room = random_variation(random_sample(Object.values(exit_rooms)));
     const subchunk_or_exit = subchunk_8x8_maybe_exit(exit_room);
 
