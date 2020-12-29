@@ -57,7 +57,7 @@ function moves_sorted_by_distance(possible_actions, target_position, allowed_mov
         );
 
     if(move_actions.length === 0)
-        return [ possible_actions.wait ];
+        return [];
 
     const moves_by_distance = move_actions.sort((move_action_a, move_action_b)=>{
         const distance_a = distance_grid_precise(move_action_a.target_position, target_position);
@@ -68,16 +68,24 @@ function moves_sorted_by_distance(possible_actions, target_position, allowed_mov
     return moves_by_distance;
 }
 
-function move_towards(possible_actions, target_position, allowed_move_types = default_movement_types){
+function move_towards(character, possible_actions, target_position, allowed_move_types = default_movement_types){
     const moves = moves_sorted_by_distance(possible_actions, target_position, allowed_move_types);
-    debug.assertion(()=>moves.length > 0);
-    return moves.shift();
+    const best_move = moves.shift();
+    if(best_move
+    && distance_grid_precise(best_move.target_position, target_position) < distance_grid_precise(character.position, target_position))
+        return best_move;
+    else
+        return undefined;
 }
 
-function move_away(possible_actions, target_position, allowed_move_types = default_movement_types){
+function move_away(character, possible_actions, target_position, allowed_move_types = default_movement_types){
     const moves = moves_sorted_by_distance(possible_actions, target_position, allowed_move_types);
-    debug.assertion(()=>moves.length > 0);
-    return moves.pop();
+    const best_move = moves.pop();
+    if(best_move
+    && distance_grid_precise(best_move.target_position, target_position) > distance_grid_precise(character.position, target_position))
+        return best_move;
+    else
+        return undefined;
 }
 
 function wander(possible_actions, allowed_move_types = default_movement_types){

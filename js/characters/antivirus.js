@@ -25,7 +25,7 @@ class AnomalyHunter extends concepts.Actor {
             if(heal_friend instanceof concepts.Action)
                 return heal_friend;
 
-            const move_closer_to_friend = this._move_towards(possible_actions, friend_to_heal.position);
+            const move_closer_to_friend = this._move_towards(character, possible_actions, friend_to_heal.position);
             if(move_closer_to_friend instanceof concepts.Action)
                 return move_closer_to_friend;
         }
@@ -41,7 +41,7 @@ class AnomalyHunter extends concepts.Actor {
         if(delete_target instanceof concepts.Action)
             return delete_target;
 
-        const move_towards_target = this._move_towards(possible_actions, target.position);
+        const move_towards_target = this._move_towards(character, possible_actions, target.position);
         if(move_towards_target instanceof concepts.Action)
             return move_towards_target;
         else
@@ -57,8 +57,8 @@ class AnomalyHunter extends concepts.Actor {
         return select_action_by_type(possible_actions, target_position, Delete);
     }
 
-    _move_towards(possible_actions, target_position){
-        return move_towards(possible_actions, target_position);
+    _move_towards(character, possible_actions, target_position){
+        return move_towards(character, possible_actions, target_position);
     }
 
     _update_target(character, world){
@@ -68,7 +68,9 @@ class AnomalyHunter extends concepts.Actor {
         }
 
         if(this.target instanceof Character){
-            if(this.target && character.field_of_vision.is_visible(this.target.position)){
+            if(this.target
+            && world.bodies.includes(this.target)
+            && character.field_of_vision.is_visible(this.target.position)){
                 return this.target;
             }
 

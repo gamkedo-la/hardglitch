@@ -1,5 +1,6 @@
 export {
     Virus,
+    VirusBehavior,
 }
 import * as debug from "../system/debug.js";
 import * as concepts from "../core/concepts.js";
@@ -18,7 +19,7 @@ import { valid_spawn_positions } from "../core/visibility.js";
 const virus_gang_size = 3;
 const virus_gang_distance = 5;
 const interersting_item_types = [ items.Item_Copy, items.Item_Merge, items.Item_Jump ];
-class VirulentInvader extends concepts.Actor {
+class VirusBehavior extends concepts.Actor {
 
     decide_next_action(world, character, possible_actions){
         debug.assertion(()=>world instanceof concepts.World);
@@ -27,7 +28,9 @@ class VirulentInvader extends concepts.Actor {
 
         const antivirus = this._find_antivirus(character, world);
         if(antivirus instanceof Character){
-            return move_away(possible_actions, antivirus.position);
+            const move = move_away(character, possible_actions, antivirus.position);
+            if(move instanceof concepts.Action)
+                return move;
         }
 
         const drop_item = this._drop_item(character, world);
@@ -48,7 +51,7 @@ class VirulentInvader extends concepts.Actor {
                         return duplicates;
                 }
 
-                const move = move_towards(possible_actions, target.position);
+                const move = move_towards(character, possible_actions, target.position);
                 if(move instanceof concepts.Action)
                     return move;
 
@@ -77,7 +80,7 @@ class VirulentInvader extends concepts.Actor {
             if(take_action instanceof concepts.Action)
                 return take_action;
 
-            return move_towards(possible_actions, interesting_item_around.position);
+            return move_towards(character, possible_actions, interesting_item_around.position);
         }
     }
 
@@ -104,13 +107,13 @@ class VirulentInvader extends concepts.Actor {
         const target = closest_entity(character, world, entity => entity instanceof Character
                                                                      && !(entity instanceof Virus)
                                                                      && !(entity instanceof AntiVirus)
-                                                                     && !(entity.actor instanceof VirulentInvader)
+                                                                     && !(entity.actor instanceof VirusBehavior)
                                             );
         return target;
     }
 
     _find_antivirus(character, world){
-        return closest_entity(character, world, entity => entity instanceof AntiVirus && !(entity.actor instanceof VirulentInvader));
+        return closest_entity(character, world, entity => entity instanceof AntiVirus && !(entity.actor instanceof VirusBehavior));
     }
 
     _merge_in_target(possible_actions, target){
@@ -123,7 +126,7 @@ class VirulentInvader extends concepts.Actor {
 
     _gang_size(character, world){
         const gang = scan_entities_around(character, world, entity => entity instanceof Character
-                                                                   && entity.actor instanceof VirulentInvader
+                                                                   && entity.actor instanceof VirusBehavior
                                                                    && entity.position.distance(character.position) <= virus_gang_distance);
         return gang.length;
     }
@@ -142,7 +145,7 @@ class Virus extends Character {
 
     constructor(){
         super("Virus", );
-        this.actor = new VirulentInvader;
+        this.actor = new VirusBehavior;
         this.stats.inventory_size.real_value = 3;
         this.stats.activable_items.real_value = 3;
         this.stats.view_distance.real_value = 8;
