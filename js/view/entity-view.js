@@ -63,18 +63,23 @@ class EntityView {
             });
         }
 
-        // Add a shadow:
-        const shadow_sprite = new graphics.Sprite(sprite_defs.shadow);
-        shadow_sprite.position = new Vector2(position);
+        this._area = containing_rectangle(...this.sprites.map(sprite=>sprite.area));
+        this._area.position = position;
+
+        this.set_shadow(sprite_defs.shadow);
+    }
+
+    set_shadow(shadow_sprite_def){
+        this._graphics = this._graphics.filter(sprite => !sprite.is_shadow);
+
+        const shadow_sprite = new graphics.Sprite(shadow_sprite_def);
+        shadow_sprite.position = this.position;
         shadow_sprite.is_shadow = true;
         this._graphics.push({
             id: "shadow",
             sprite: shadow_sprite,
             order: -999999, // Must always be in the background.
         });
-
-        this._area = containing_rectangle(...this.sprites.map(sprite=>sprite.area));
-        this._area.position = position;
     }
 
     update(delta_time){ // TODO: make this a generator with an infinite loop

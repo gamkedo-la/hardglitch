@@ -70,6 +70,7 @@ const game_assets = { // Description of the assets to load.
         shadow: "./images/shadow.png",
         shadow2: "./images/shadow2.png",
         shadow_lg: "./images/shadow_lg.png",
+        shadow_red: "./images/shadow_red.png",
         life_form: "./images/life-form.png",
         life_form_weak: "./images/life_form_weak.png",
         virus: "./images/virus.png",
@@ -285,6 +286,13 @@ const sprite_defs = {
 
     shadow : {
         image: "shadow",
+        frames: [
+                    { x: 0, y: 0, width: 64, height: 64 },
+                ],
+    },
+
+    shadow_red : {
+        image: "shadow_red",
         frames: [
                     { x: 0, y: 0, width: 64, height: 64 },
                 ],

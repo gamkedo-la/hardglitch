@@ -21,7 +21,9 @@ const virus_gang_distance = 5;
 const interersting_item_types = [ items.Item_Copy, items.Item_Merge, items.Item_Jump ];
 class VirusBehavior extends concepts.Actor {
 
+    is_virus = true;
     is_daring = random_int(1, 100) > 66 ? true : false;
+
 
     decide_next_action(world, character, possible_actions){
         debug.assertion(()=>world instanceof concepts.World);
