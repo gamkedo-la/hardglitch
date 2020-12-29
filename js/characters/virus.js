@@ -8,7 +8,7 @@ import * as items from "../definitions-items.js";
 import * as tiles from "../definitions-tiles.js";
 import { Character } from "../core/character.js";
 import { sprite_defs } from "../game-assets.js";
-import { auto_newlines } from "../system/utility.js";
+import { auto_newlines, random_int } from "../system/utility.js";
 import { closest_entity, move_away, move_towards, scan_entities_around, select_action_by_type, wander } from "./characters-common.js";
 import { AntiVirus } from "./antivirus.js";
 import { Copy } from "../rules/rules-copy.js";
@@ -21,16 +21,20 @@ const virus_gang_distance = 5;
 const interersting_item_types = [ items.Item_Copy, items.Item_Merge, items.Item_Jump ];
 class VirusBehavior extends concepts.Actor {
 
+    is_daring = random_int(1, 100) > 66 ? true : false;
+
     decide_next_action(world, character, possible_actions){
         debug.assertion(()=>world instanceof concepts.World);
         debug.assertion(()=>character instanceof Character);
         debug.assertion(()=>possible_actions instanceof Object);
 
-        const antivirus = this._find_antivirus(character, world);
-        if(antivirus instanceof Character){
-            const move = move_away(character, possible_actions, antivirus.position);
-            if(move instanceof concepts.Action)
-                return move;
+        if(!this.is_daring){
+            const antivirus = this._find_antivirus(character, world);
+            if(antivirus instanceof Character){
+                const move =  move_away(character, possible_actions, antivirus.position);
+                if(move instanceof concepts.Action)
+                    return move;
+            }
         }
 
         const drop_item = this._drop_item(character, world);
@@ -106,8 +110,8 @@ class VirusBehavior extends concepts.Actor {
     _get_target(character, world){
         const target = closest_entity(character, world, entity => entity instanceof Character
                                                                      && !(entity instanceof Virus)
-                                                                     && !(entity instanceof AntiVirus)
                                                                      && !(entity.actor instanceof VirusBehavior)
+                                                                     && (!(entity instanceof AntiVirus) || this.is_daring)
                                             );
         return target;
     }
