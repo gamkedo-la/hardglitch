@@ -15,6 +15,7 @@ import { Copy } from "../rules/rules-copy.js";
 import { Merge } from "../rules/rules-merge.js";
 import { DropItem, TakeItem } from "../rules/rules-items.js";
 import { valid_spawn_positions } from "../core/visibility.js";
+import { Delete } from "../rules/rules-delete.js";
 
 const virus_gang_size = 3;
 const virus_gang_distance = 5;
@@ -33,17 +34,21 @@ class VirusBehavior extends concepts.Actor {
         if(!this.is_daring){
             const antivirus = this._find_antivirus(character, world);
             if(antivirus instanceof Character){
-                const dice_roll = random_int(1, 100);
 
+                const dice_roll = random_int(1, 100);
                 if(dice_roll >= 90){
                     const duplicates = this._duplicates(possible_actions, character);
                     if(duplicates instanceof concepts.Action)
                         return duplicates;
                 }
 
+                const attack = select_action_by_type(possible_actions, antivirus.position, Delete);
+                if(attack instanceof concepts.Action)
+                    return attack;
+
                 const move =  move_away(character, possible_actions, antivirus.position);
-                    if(move instanceof concepts.Action)
-                        return move;
+                if(move instanceof concepts.Action)
+                    return move;
             }
         }
 
@@ -127,7 +132,7 @@ class VirusBehavior extends concepts.Actor {
     }
 
     _find_antivirus(character, world){
-        return closest_entity(character, world, entity => entity instanceof AntiVirus && !(entity.actor instanceof VirusBehavior));
+        return closest_entity(character, world, entity => entity instanceof AntiVirus && !entity.is_virus);
     }
 
     _merge_in_target(possible_actions, target){
