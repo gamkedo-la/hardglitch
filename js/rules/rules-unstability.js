@@ -64,9 +64,9 @@ class UnstabilitySpawned extends concepts.Event {
             yield* animation.missile(unstable_missile_fx, target_gfx_pos, missile_speed);
         }
 
-        // TODO: consider adding a spawining effet just for now.
         this.unstability.fx = game_view.fx_view.unstable(target_gfx_pos);
-        // TODO: add sound?
+        debug.assertion(()=>this.unstability.fx);
+
         audio.playEvent("destabilizeScan");
         yield* anim.wait(1000 / 64);
     }
@@ -89,9 +89,9 @@ class UnstabilityVanished extends concepts.Event {
 
     *animation(game_view){
         debug.assertion(()=>game_view instanceof GameView);
-        debug.assertion(()=>this.unstability.fx);
         // TODO: consider adding a "speeshhh" effet just for now.
-        this.unstability.fx.done = true;
+        if(this.unstability.fx)
+            this.unstability.fx.done = true;
         // TODO: add sound?
         yield* anim.wait(1000 / 64);
     }
@@ -161,7 +161,7 @@ function teleport_entities_in_unstable_tiles_and_vanish(world) {
     const events = [];
     unstable_grid.elements.forEach((unstability, idx)=>{
         debug.assertion(()=>unstability instanceof Unstability);
-        debug.assertion(()=>unstability.fx);
+
         const position = position_from_index(world.width, world.height, idx);
         const entity = world.entity_at(position);
         if(entity){
