@@ -19,7 +19,7 @@ import { Delete } from "../rules/rules-delete.js";
 
 const virus_gang_size = 3;
 const virus_gang_distance = 5;
-const interersting_item_types = [ items.Item_Copy, items.Item_Merge, items.Item_Jump ];
+const interersting_item_types = [ items.Item_Copy, items.Item_Merge, items.Item_Jump, items.Item_ByteClearer ];
 class VirusBehavior extends concepts.Actor {
 
     is_virus = true;
@@ -124,8 +124,7 @@ class VirusBehavior extends concepts.Actor {
 
     _get_target(character, world){
         const target = closest_entity(character, world, entity => entity instanceof Character
-                                                                     && !(entity instanceof Virus)
-                                                                     && !(entity.actor instanceof VirusBehavior)
+                                                                     && !entity.is_virus
                                                                      && (!(entity instanceof AntiVirus) || this.is_daring)
                                             );
         return target;
