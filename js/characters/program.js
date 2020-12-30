@@ -7,10 +7,11 @@ import * as concepts from "../core/concepts.js";
 import * as items from "../definitions-items.js";
 import { Character } from "../core/character.js";
 import { sprite_defs } from "../game-assets.js";
-import { auto_newlines, random_int } from "../system/utility.js";
+import { auto_newlines, random_int, random_sample } from "../system/utility.js";
 import { closest_entity, move_away, select_action_by_type } from "./characters-common.js";
 import { VirusBehavior } from "./virus.js";
-import { Destabilize } from "../rules/rules-unstability.js";
+import { Destabilize, Unstability } from "../rules/rules-unstability.js";
+import { grid_ID } from "../definitions-world.js";
 
 class ProgramBehavior extends concepts.Actor {
     decide_next_action(world, character, possible_actions){
@@ -22,18 +23,22 @@ class ProgramBehavior extends concepts.Actor {
         if(enemy instanceof Character){
             const dice_roll = random_int(1, 100);
 
-            if(dice_roll > 70){
-                const repel = this._repel_enemy(possible_actions, character, enemy);
-                if(repel instanceof concepts.Action){
+            if(dice_roll > 90){
+                const repel = this._repel_enemy(possible_actions, world, enemy);
+                if(repel instanceof concepts.Action)
                     return repel;
-                }
-            } else {
-                const move = move_away(character, possible_actions, enemy.position);
+            }
+
+            if(dice_roll > 50) {
+                const shield = this._shield_thyself(possible_actions, world, character);
+                if(shield instanceof concepts.Action)
+                    return shield;
+            }
+
+            const move = move_away(character, possible_actions, enemy.position);
                 if(move instanceof concepts.Action)
                     return move;
-            }
         }
-
 
 
         return possible_actions.wait;
@@ -45,9 +50,20 @@ class ProgramBehavior extends concepts.Actor {
                                                             || entity.is_anomaly));
     }
 
-    _repel_enemy(possible_actions, character, enemy){
-        return select_action_by_type(possible_actions, enemy.position, Destabilize);
+    _repel_enemy(possible_actions, world, enemy){
+        const positions_around_enemy = [enemy.position, ...enemy.position.adjacents_diags ]
+            .filter(position => world.is_valid_position(position) && !(world.grids[grid_ID.unstable].get_at(position) instanceof Unstability)); // TODO: factorize
+        const target_position = random_sample(positions_around_enemy);
+        return select_action_by_type(possible_actions, target_position, Destabilize);
     }
+
+    _shield_thyself(possible_actions, world, character){
+        const positions_around_me = character.position.adjacents_diags
+            .filter(position => world.is_valid_position(position) && !(world.grids[grid_ID.unstable].get_at(position) instanceof Unstability)); // TODO: factorize
+        const target_position = random_sample(positions_around_me);
+        return select_action_by_type(possible_actions, target_position, Destabilize);
+    }
+
 
 }
 
@@ -68,9 +84,9 @@ class Program extends Character {
         this.stats.inventory_size.real_value = 12;
         this.stats.activable_items.real_value = 2;
         this.stats.view_distance.real_value = 5;
-        this.stats.ap_recovery.real_value = 10;
-        this.stats.action_points.real_max = 10;
-        this.stats.action_points.real_value = 10;
+        this.stats.ap_recovery.real_value = 20;
+        this.stats.action_points.real_max = 30;
+        this.stats.action_points.real_value = 30;
         this.stats.integrity.real_max = 40;
         this.stats.integrity.real_value = 40;
 

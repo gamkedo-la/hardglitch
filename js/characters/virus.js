@@ -23,7 +23,7 @@ const interersting_item_types = [ items.Item_Copy, items.Item_Merge, items.Item_
 class VirusBehavior extends concepts.Actor {
 
     is_virus = true;
-    is_daring = random_int(1, 100) > 90 ? true : false;
+    is_daring = random_int(1, 100) > 80 ? true : false;
 
 
     decide_next_action(world, character, possible_actions){
@@ -36,7 +36,7 @@ class VirusBehavior extends concepts.Actor {
             if(antivirus instanceof Character){
 
                 const dice_roll = random_int(1, 100);
-                if(dice_roll >= 90){
+                if(dice_roll >= 80){
                     const duplicates = this._duplicates(possible_actions, character);
                     if(duplicates instanceof concepts.Action)
                         return duplicates;
@@ -170,8 +170,8 @@ class Virus extends Character {
         this.stats.ap_recovery.real_value = 20;
         this.stats.action_points.real_max = 15;
         this.stats.action_points.real_value = 15;
-        this.stats.integrity.real_max = 20;
-        this.stats.integrity.real_value = 20;
+        this.stats.integrity.real_max = 4;
+        this.stats.integrity.real_value = 4;
         this.inventory.add(new items.Item_Copy());
         this.inventory.add(new items.Item_Merge());
     }
