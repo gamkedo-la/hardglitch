@@ -22,7 +22,7 @@ const interersting_item_types = [ items.Item_Copy, items.Item_Merge, items.Item_
 class VirusBehavior extends concepts.Actor {
 
     is_virus = true;
-    is_daring = random_int(1, 100) > 66 ? true : false;
+    is_daring = random_int(1, 100) > 90 ? true : false;
 
 
     decide_next_action(world, character, possible_actions){
