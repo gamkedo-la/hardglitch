@@ -63,6 +63,10 @@ class AnomalyHunter extends concepts.Actor {
 
     _update_target(character, world){
         // Keep track of the current target, or find a new one.
+        if(this.target && !this.target.is_virus){
+            delete this.target;
+        }
+
         if(!this.target){
             this.target = this._find_new_target(character, world);
         }
