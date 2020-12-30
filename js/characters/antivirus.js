@@ -89,7 +89,10 @@ class AnomalyHunter extends concepts.Actor {
     }
 
     _find_friend_to_heal(character, world){
-        return closest_entity(character, world, (entity)=>entity instanceof Character && !entity.is_anomaly && entity.stats.integrity.value < entity.stats.integrity.max);
+        return closest_entity(character, world, (entity)=>entity instanceof Character
+                                                        && !entity.is_virus
+                                                        && !entity.is_anomaly
+                                                        && entity.stats.integrity.value < entity.stats.integrity.max);
     }
 }
 
