@@ -88,7 +88,7 @@ class AnomalyHunter extends concepts.Actor {
 
     _move_towards_safely(character, possible_actions, target_position){
         const safe_actions = Object.values(possible_actions)
-                                .filter(action => action.target_position === undefined
+                                .filter(action => !action.target_position
                                             || target_position.adjacents_diags.every(position => !action.target_position.equals(position))
                                 );
         return move_towards(character, safe_actions, target_position);

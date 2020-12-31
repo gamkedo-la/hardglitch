@@ -167,7 +167,7 @@ class Position {
     get south_west() { return new Position({ x: this.x - 1, y: this.y + 1 }); }
     get south_east() { return new Position({ x: this.x + 1, y: this.y + 1 }); }
 
-    get adjacents() { return [this.north, this.east, this.west, this.east]; }
+    get adjacents() { return [this.north, this.east, this.west, this.south]; }
     get adjacents_diags() { return [ ...this.adjacents, this.north_east, this.north_west, this.south_east, this.south_west ]; }
 
     equals(other_position){
