@@ -36,7 +36,7 @@ class VirusBehavior extends concepts.Actor {
             if(antivirus instanceof Character){
 
                 const dice_roll = random_int(1, 100);
-                if(dice_roll >= 80){
+                if(dice_roll >= 95){
                     const duplicates = this._duplicates(possible_actions, character);
                     if(duplicates instanceof concepts.Action)
                         return duplicates;
