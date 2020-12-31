@@ -25,9 +25,9 @@ import { is_blocked_position } from "../definitions-world.js";
 import { auto_newlines } from "../system/utility.js";
 import { deal_damage } from "./destruction.js";
 
-const push_range = new visibility.Range_Square(1, 5);
+const push_range = new visibility.Range_Square(1, 4);
 const push_short_range = new visibility.Range_Cross_Axis(1, 2);
-const pull_range = new visibility.Range_Square(1, 5);
+const pull_range = new visibility.Range_Square(1, 4);
 
 class Pushed extends concepts.Event {
     constructor(entity, from, to){
