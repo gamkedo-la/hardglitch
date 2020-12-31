@@ -35,10 +35,11 @@ function closest_entity(character, world, predicate){
 
 
 function select_action_by_type(possible_actions, target_position, action_type){
+    debug.assertion(()=>possible_actions instanceof Array || possible_actions instanceof Object);
     debug.assertion(()=>target_position instanceof concepts.Position);
 
-    const selected_action = Object.values(possible_actions)
-                                .find(action => action instanceof action_type
+    if(possible_actions instanceof Object) possible_actions = Object.values(possible_actions);
+    const selected_action = possible_actions.find(action => action instanceof action_type
                                         && action.target_position instanceof concepts.Position
                                         && action.target_position.equals(target_position)
                                 );
@@ -47,12 +48,12 @@ function select_action_by_type(possible_actions, target_position, action_type){
 }
 
 function moves_sorted_by_distance(possible_actions, target_position, allowed_move_types = default_movement_types){
-    debug.assertion(()=>possible_actions instanceof Object);
+    debug.assertion(()=>possible_actions instanceof Array || possible_actions instanceof Object);
     debug.assertion(()=>target_position instanceof concepts.Position);
     debug.assertion(()=>allowed_move_types instanceof Array);
 
-    const move_actions = Object.values(possible_actions)
-        .filter(move_action => allowed_move_types.some(move_type => move_action instanceof move_type)
+    if(possible_actions instanceof Object) possible_actions = Object.values(possible_actions);
+    const move_actions = possible_actions.filter(move_action => allowed_move_types.some(move_type => move_action instanceof move_type)
                             && move_action.is_safe
         );
 
@@ -89,6 +90,8 @@ function move_away(character, possible_actions, target_position, allowed_move_ty
 }
 
 function wander(possible_actions, allowed_move_types = default_movement_types){
-    const all_moves = Object.values(possible_actions).filter(action => allowed_move_types.some(move_type => action instanceof move_type));
+    debug.assertion(()=>possible_actions instanceof Array || possible_actions instanceof Object);
+    if(possible_actions instanceof Object) possible_actions = Object.values(possible_actions);
+    const all_moves = possible_actions.filter(action => allowed_move_types.some(move_type => action instanceof move_type));
     return random_sample(all_moves);
 }
