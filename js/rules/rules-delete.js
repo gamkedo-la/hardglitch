@@ -65,10 +65,10 @@ class Delete extends concepts.Action {
 
         const deleted =  world.entity_at(this.target_position);
 
-        const events = deal_damage(deleted, this.delete_damage);
-        if(!deleted.position.equals(deleter.position)){
-            events.unshift(new Deleted(deleter, deleted));
-        }
+        const events = [
+                            new Deleted(deleter, deleted),
+                            ...deal_damage(deleted, this.delete_damage),
+                        ];
         return events;
     }
 };
