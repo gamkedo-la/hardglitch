@@ -365,8 +365,8 @@ function merge_world_chunks(name, default_grids_values, ...position_world_chunks
         entity = copy_data(entity);
         //debug.log(`set_entity(${JSON.stringify(origin)}, ${JSON.stringify(entity)})`);
         const new_position = { x: origin.x + entity.position.x, y: origin.y + entity.position.y };
-        debug.assertion(()=>new_position.x >= 0 && new_position.x < world.width);
-        debug.assertion(()=>new_position.y >= 0 && new_position.y < world.height);
+        // debug.assertion(()=>new_position.x >= 0 && new_position.x < world.width);
+        // debug.assertion(()=>new_position.y >= 0 && new_position.y < world.height);
         entity.position = new_position;
         // Overwrite previous entities at the same position:
         world.entities = world.entities.filter(existing_entity => !(entity.position.x === existing_entity.position.x

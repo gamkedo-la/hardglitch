@@ -366,22 +366,9 @@ function generate_world() {
         });
     }
 
-    function* subchunk_8x8_maybe_exit(exit_room) {
-        const chunk_bag = [
-            exit_room, subchunk_8x8, subchunk_8x8,
-        ];
-        shuffle_array(chunk_bag);
-        while (chunk_bag.length > 0) {
-            yield chunk_bag.pop();
-        }
-
-        while(true) yield subchunk_8x8;
-    }
-
 
     const starting_room = startup_rooms[starting_room_id];
     const exit_room = random_variation(random_sample(Object.values(exit_rooms)));
-    const subchunk_or_exit = subchunk_8x8_maybe_exit(exit_room);
 
 
     const level_central_chunks = new ChunkGrid({
@@ -391,17 +378,30 @@ function generate_world() {
         chunks: [
             subchunk_8x8,       subchunk_8x8,       subchunk_8x8,
             subchunk_8x8,       subchunk_8x8,       subchunk_8x8,
-            subchunk_or_exit,   subchunk_or_exit,   subchunk_or_exit,
+            subchunk_8x8,       subchunk_8x8,       subchunk_8x8,
         ],
     });
 
-    const start_left_max = (level_central_chunks.width * level_central_chunks.chunk_width) - starting_room.width;
-    const start_left = random_int(0, start_left_max);
+    const central_chunk_width = level_central_chunks.width * level_central_chunks.chunk_width;
+    const central_chunk_height = level_central_chunks.height * level_central_chunks.chunk_height;
+
+    const start_left = random_int(0, central_chunk_width - starting_room.width);
+    const start_top = 0;
+
     const central_part = unfold_chunk_grid("level center", level_central_chunks);
-    const merged_level = merge_world_chunks(level_name, { floor: tiles.ID.WALL1A },
+    const level_with_starting_room = merge_world_chunks(level_name, { floor: tiles.ID.WALL1A },
         { position: { x: 0, y: 18 }, world_desc: central_part, },
-        { position: { x: start_left, y: 0 }, world_desc: starting_room, }, // after the center to overwrite it.
+        { position: { x: start_left, y: start_top }, world_desc: starting_room, },
     );
-    const level_desc = add_padding_around(merged_level, { floor: tiles.ID.WALL1A });
+
+    const exit_left = random_int(-5, level_with_starting_room.width - exit_room.width + 5);
+    const exit_top = level_with_starting_room.height - random_int(0, 4);
+    const level_with_exit_room = merge_world_chunks(level_name, { floor: tiles.ID.WALL1A },
+        { position: { x: 0, y: 0 }, world_desc: level_with_starting_room, },
+        { position: { x: exit_left, y: exit_top }, world_desc: exit_room, },
+    );
+
+
+    const level_desc = add_padding_around(level_with_exit_room, { floor: tiles.ID.WALL1A });
     return deserialize_world(random_variation(level_desc));
 }

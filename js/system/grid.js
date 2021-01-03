@@ -152,8 +152,8 @@ function merged_grids_size(...position_grids){
     let width = 0;
     let height = 0;
     position_grids.forEach((pos_grid)=> {
-        debug.assertion(()=>Number.isInteger(pos_grid.position.x) && pos_grid.position.x >= 0);
-        debug.assertion(()=>Number.isInteger(pos_grid.position.y) && pos_grid.position.y >= 0);
+        debug.assertion(()=>Number.isInteger(pos_grid.position.x));
+        debug.assertion(()=>Number.isInteger(pos_grid.position.y));
         debug.assertion(()=>pos_grid.grid instanceof Grid);
         width = Math.max(width, pos_grid.position.x + pos_grid.grid.width);
         height = Math.max(height, pos_grid.position.y + pos_grid.grid.height);
