@@ -395,7 +395,7 @@ class GameView {
         const available_actions = this.game.turn_info.possible_actions;
         for(const action of Object.values(available_actions)){
             debug.assertion(()=>action instanceof concepts.Action);
-            if(action.is_basic && action.is_safe){
+            if(action.is_basic ){ //&& action.is_safe){
                 const help_texts = this.help_text_over_action(action);
                 debug.assertion(()=>typeof help_texts.info === "string" && help_texts.info.length > 0);
                 debug.assertion(()=>typeof help_texts.tooltip === "string" && help_texts.tooltip.length > 0);
