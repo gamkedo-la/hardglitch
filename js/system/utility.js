@@ -2,6 +2,7 @@ export {
     rotate_array,
     shuffle_array,
     random_sample,
+    random_bag_pick,
     random_float,
     random_int,
     is_number,
@@ -64,6 +65,22 @@ function random_sample(array){
     if(array.length == 0)
         return null;
     return array[ random_int(0, array.length - 1) ];
+}
+
+// Return several elements from the provided array, picked randomly and removed when picked.
+function random_bag_pick(array, count){
+    debug.assertion(()=>array instanceof Array);
+    debug.assertion(()=>Number.isInteger(count) && count >= 0);
+    array = new Array(...array); // Make sure to not change the original array.
+    const picked = [];
+    while(count > 0 && array.length > 0){
+        --count;
+        const picked_idx = random_int(0, array.length - 1);
+        const picked_elements = array.splice(picked_idx, 1);
+        debug.assertion(()=>picked_elements instanceof Array && picked_elements.length <= 1);
+        picked.push(...picked_elements);
+    }
+    return picked;
 }
 
 // pick a float between min/max

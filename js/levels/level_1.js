@@ -2,8 +2,9 @@ export {
     generate_world,
 }
 
+import * as debug from "../system/debug.js";
 import * as tiles from "../definitions-tiles.js";
-import { random_int, random_sample, shuffle_array } from "../system/utility.js";
+import { random_bag_pick, random_int, random_sample, shuffle_array } from "../system/utility.js";
 import {
     ChunkGrid,
     deserialize_world,
@@ -56,9 +57,9 @@ const startup_rooms = {
         entities: [
             { type: "LifeForm_Weak", position: { x: 7, y: 11 }, drops: ["Item_Pull"] },
             { type: "GlitchyGlitchMacGlitchy", position: { x: 2, y: 2 } },
-            { type: "CryptoKey_Plus", position: { x: 7, y: 3 }, is_crucial: true, },
+            { type: "CryptoKey_Triangle", position: { x: 7, y: 3 }, is_crucial: true, },
             { type: "MovableWall_Purple", position: { x: 4, y: 10 } },
-            { type: "CryptoFile_Plus", position: { x: 4, y: 7 }, drops: ["Item_Push"], },
+            { type: "CryptoFile_Triangle", position: { x: 4, y: 7 }, drops: ["Item_Push"], },
         ],
     },
 
@@ -76,8 +77,8 @@ const startup_rooms = {
             { type: "LifeForm_Weak", position: { x: 5, y: 5 } },
             { type: "GlitchyGlitchMacGlitchy", position: { x: 5, y: 9 } },
             { type: "LifeForm_Weak", position: { x: 5, y: 1 } },
-            { type: "CryptoFile_Equal", position: { x: 8, y: 16 } },
-            { type: "CryptoKey_Equal", position: { x: 4, y: 2 }, is_crucial: true, },
+            { type: "CryptoFile_Triangle", position: { x: 8, y: 16 } },
+            { type: "CryptoKey_Triangle", position: { x: 4, y: 2 }, is_crucial: true, },
             { type: "MovableWall_Purple", position: { x: 2, y: 8 } },
             { type: "MovableWall_Green", position: { x: 1, y: 13 } },
             { type: "MovableWall_Orange", position: { x: 2, y: 13 } },
@@ -156,8 +157,59 @@ const exit_rooms = {
     },
 };
 
+const level1_special_rooms = {
+    room_plus_file: {
+        name: "room plus file",
+        width: 8,
+        height: 8,
+        grids: {
+          floor : [30,30,30,100,100,30,30,30,30,100,100,100,100,100,100,30,30,100,30,100,100,30,100,30,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,30,100,30,100,100,30,100,30,30,100,100,100,100,100,100,30,30,30,30,100,100,30,30,30],
+          surface : [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+          corruption : [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+          unstable : [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+        },
+        entities: [
+          { type: "LifeForm_Strong", position: { x: 4, y: 4 } },
+          { type: "LifeForm_Strong", position: { x: 3, y: 3 } },
+          { type: "MovableWall_Blue", position: { x: 3, y: 7 } },
+          { type: "MovableWall_Blue", position: { x: 4, y: 7 } },
+          { type: "MovableWall_Orange", position: { x: 7, y: 3 } },
+          { type: "MovableWall_Orange", position: { x: 7, y: 4 } },
+          { type: "MovableWall_Blue", position: { x: 0, y: 3 } },
+          { type: "MovableWall_Blue", position: { x: 0, y: 4 } },
+          { type: "MovableWall_Orange", position: { x: 3, y: 0 } },
+          { type: "MovableWall_Orange", position: { x: 4, y: 0 } },
+          { type: "CryptoKey_Plus", position: { x: 1, y: 6 } },
+          { type: "CryptoFile_Plus", position: { x: 4, y: 3 } },
+        ],
+      },
+    room_equal_file: {
+        name: "room equal file",
+        width: 8,
+        height: 8,
+        grids: {
+          floor : [120,120,120,40,40,120,120,120,120,100,100,100,100,100,100,120,120,100,120,100,100,120,100,120,40,100,100,100,100,100,100,40,40,100,100,100,100,100,100,40,120,100,120,120,100,120,100,120,120,100,100,100,100,100,100,120,120,120,120,40,40,120,120,120],
+          surface : [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+          corruption : [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+          unstable : [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+        },
+        entities: [
+          { type: "LifeForm_Strong", position: { x: 1, y: 5 } },
+          { type: "LifeForm_Strong", position: { x: 4, y: 2 } },
+          { type: "LifeForm_Strong", position: { x: 3, y: 1 } },
+          { type: "LifeForm_Strong", position: { x: 4, y: 6 } },
+          { type: "LifeForm_Strong", position: { x: 6, y: 4 } },
+          { type: "LifeForm_Strong", position: { x: 2, y: 4 } },
+          { type: "CryptoFile_Equal", position: { x: 1, y: 6 } },
+          { type: "CryptoKey_Equal", position: { x: 6, y: 1 } },
+        ],
+      }
+}
+
+
 window.startup_rooms = startup_rooms; // For debugging.
 window.exit_rooms = exit_rooms; // For debugging.
+window.level1_special_rooms = level1_special_rooms; // For debugging.
 
 const starting_items = [ "Item_Push", "Item_Pull",  "Item_Swap", "Item_Jump"];
 
@@ -401,7 +453,28 @@ function generate_world() {
         { position: { x: exit_left, y: exit_top }, world_desc: exit_room, },
     );
 
+    const [special_room_east, special_room_west] = random_bag_pick(Object.values(level1_special_rooms), 2).map(random_variation);
+    debug.assertion(()=>special_room_east && special_room_west);
+    const west_room = {
+        world_desc: special_room_west,
+        position: {
+            x: random_int(0, 4),
+            y: starting_room.height + random_int(-4, central_chunk_height - special_room_east.height - 4)
+        }
+    };
+    const east_room = {
+        world_desc: special_room_east,
+        position: {
+            x: special_room_west.width + central_chunk_width - random_int(0, 4),
+            y: starting_room.height + random_int(-4, central_chunk_height - special_room_east.height - 4)
+        }
+    };
+    const level_with_special_rooms = merge_world_chunks(level_name, { floor: tiles.ID.WALL1A },
+        { position: { x: special_room_west.width, y: 0 }, world_desc: level_with_exit_room, },
+        east_room, west_room,
+    );
 
-    const level_desc = add_padding_around(level_with_exit_room, { floor: tiles.ID.WALL1A });
+
+    const level_desc = add_padding_around(level_with_special_rooms, { floor: tiles.ID.WALL1A });
     return deserialize_world(random_variation(level_desc));
 }
