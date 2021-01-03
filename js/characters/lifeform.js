@@ -6,6 +6,7 @@ import { sprite_defs } from "../game-assets.js";
 import { Character, CharacterStats } from "../core/character.js"
 import { random_sample, rotate_array, random_int, auto_newlines } from "../system/utility.js";
 import { Item_BadCode, Item_LifeStrength } from "../definitions-items.js";
+import { Push } from "../rules/rules-forces.js";
 
 const reverse_move_id = {
     move_east : "move_west",
@@ -14,18 +15,31 @@ const reverse_move_id = {
     move_south: "move_north",
 };
 
+function maybe_push(world, possible_actions){
+    const push_actions = Object.values(possible_actions)
+        .filter(action => {
+                if(!(action instanceof Push))
+                    return false;
+
+                const target = world.entity_at(action.target_position);
+                return !(target instanceof concepts.Item)
+                    && !(target instanceof LifeForm_Strong)
+                    ;
+        });
+
+
+    if(push_actions.length > 0){
+        if(random_int(0, 100) > 75)
+            return random_sample(push_actions);
+    }
+}
+
 class MoveUntilYouCant extends concepts.Actor {
 
     decide_next_action(world, character, possible_actions) {
-        const push_actions_ids = Object.keys(possible_actions)
-            .filter(name => name.startsWith("push_"))
-            ;
-
-
-        if(push_actions_ids.length > 0){
-            if(random_int(0, 100) > 33)
-                return possible_actions[random_sample(push_actions_ids)];
-        }
+        const push_action = maybe_push(world, possible_actions);
+        if(push_action instanceof concepts.Action)
+            return push_action;
 
         const move_actions_ids = Object.keys(possible_actions)
             .filter(name => name.startsWith("move_"))
@@ -77,15 +91,9 @@ class MoveInCircles extends concepts.Actor {
     }
 
     decide_next_action(world, character, possible_actions) {
-        const push_actions_ids = Object.keys(possible_actions)
-            .filter(name => name.startsWith("push_"))
-            ;
-
-
-        if(push_actions_ids.length > 0){
-            if(random_int(0, 100) > 75)
-                return possible_actions[random_sample(push_actions_ids)];
-        }
+        const push_action = maybe_push(world, possible_actions);
+        if(push_action instanceof concepts.Action)
+            return push_action;
 
         const move_actions_ids = Object.keys(possible_actions)
             .filter(name => name.startsWith("move_"))
