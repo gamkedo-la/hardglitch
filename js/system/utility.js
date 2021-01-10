@@ -71,7 +71,6 @@ function random_sample(array){
 function random_bag_pick(array, count){
     debug.assertion(()=>array instanceof Array);
     debug.assertion(()=>Number.isInteger(count) && count >= 0);
-    array = new Array(...array); // Make sure to not change the original array.
     const picked = [];
     while(count > 0 && array.length > 0){
         --count;

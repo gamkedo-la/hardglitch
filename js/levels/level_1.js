@@ -213,55 +213,64 @@ window.level1_special_rooms = level1_special_rooms; // For debugging.
 
 const starting_items = [ "Item_Push", "Item_Pull",  "Item_Swap", "Item_Jump"];
 
+function populate_entities(world){
+
+    const crypto_stuffs = [
+        { type: "CryptoFile_Circle", position: { x: 0, y: 0 },
+            drops: start_items
+        },
+        { type: "CryptoKey_Circle", position: { x: 0, y: 0 } },
+    ];
+
+    const bonus_bag = [
+        { type: "Item_Scanner", position:{ x:0, y:0 } },
+        { type: "Item_ThreadPool", position:{ x:0, y:0 } },
+        { type: "Item_Zip", position:{ x:0, y:0 } },
+    ];
+
+    const entity_bag =  function*() {
+        // const bag = [
+        //     { type: "LifeForm_Strong", position: { x: 0, y: 0 }, },
+        //     { type: "LifeForm_Strong", position: { x: 0, y: 0 }, },
+        //     { type: "LifeForm_Strong", position: { x: 0, y: 0 }, },
+        //     { type: "MovableWall_Purple", position: { x: 0, y: 0 }, },
+        //     { type: "MovableWall_Purple", position: { x: 0, y: 0 }, },
+        //     { type: "MovableWall_Red", position: { x: 0, y: 0 }, },
+        //     { type: "MovableWall_Red", position: { x: 0, y: 0 }, },
+        // ];
+        // shuffle_array(bag);
+        // while (bag.length > 0) {
+        //     if (random_int(0, 100) > 50)
+        //         yield bag.pop();
+        //     else
+        //         yield null;
+        // }
+        while(true) yield null;
+    };
+
+    const entities_generator = entity_bag();
+}
+
 function generate_world() {
     // LEVEL 1:
     // Buggy Program: https://trello.com/c/wEnOf3hQ/74-level-1-buggy-program
     //
 
-    let special_items = [...starting_items];
+    let start_items = [...starting_items];
 
     const starting_room_id = random_sample(Object.keys(startup_rooms));
     switch(starting_room_id){
         case "jump":
-            special_items = special_items.filter(item_id => item_id != "Item_Jump");
+            start_items = start_items.filter(item_id => item_id != "Item_Jump");
             break;
         case "push_pull":
-            special_items = special_items.filter(item_id => item_id != "Item_Push" && item_id != "Item_Pull");
+            start_items = start_items.filter(item_id => item_id != "Item_Push" && item_id != "Item_Pull");
             break;
         case "swap":
-            special_items = special_items.filter(item_id => item_id != "Item_Swap");
+            start_items = start_items.filter(item_id => item_id != "Item_Swap");
             break;
     }
 
-
-    const entity_bag =  function*() {
-        const bag = [
-            { type: "LifeForm_Strong", position: { x: 0, y: 0 }, },
-            { type: "LifeForm_Strong", position: { x: 0, y: 0 }, },
-            { type: "MovableWall_Purple", position: { x: 0, y: 0 }, },
-            { type: "MovableWall_Purple", position: { x: 0, y: 0 }, },
-            { type: "MovableWall_Red", position: { x: 0, y: 0 }, },
-            { type: "MovableWall_Red", position: { x: 0, y: 0 }, },
-            { type: "CryptoFile_Circle", position: { x: 0, y: 0 },
-                drops: special_items
-            },
-            { type: "CryptoKey_Circle", position: { x: 0, y: 0 } },
-            { type: "Item_Scanner", position:{ x:0, y:0 } },
-            { type: "Item_ThreadPool", position:{ x:0, y:0 } },
-            { type: "Item_Zip", position:{ x:0, y:0 } },
-            { type: "Item_ClosedScope", position:{ x:0, y:0 } },
-        ];
-        shuffle_array(bag);
-        while (bag.length > 0) {
-            if (random_int(0, 100) > 90)
-                yield bag.pop();
-            else
-                yield null;
-        }
-        while(true) yield null;
-    };
-
-    const entities_generator = entity_bag();
 
     const lifeform_chunk_2x2 = new ChunkGrid({
         width: 1, height: 1, // These are number of chunks
@@ -303,7 +312,6 @@ function generate_world() {
                     }),
                 ],
                 random_variation: true,
-                entities: [entities_generator],
                 random_entities_position: true,
             }),
             xooo: new ChunkGrid({
@@ -318,7 +326,6 @@ function generate_world() {
                     }),
                 ],
                 random_variation: true,
-                entities: [entities_generator],
                 random_entities_position: true,
             }),
             xxoo: new ChunkGrid({
@@ -333,7 +340,6 @@ function generate_world() {
                     }),
                 ],
                 random_variation: true,
-                entities: [entities_generator],
                 random_entities_position: true,
             }),
             xxxo: new ChunkGrid({
@@ -348,7 +354,6 @@ function generate_world() {
                     }),
                 ],
                 random_variation: true,
-                entities: [entities_generator],
                 random_entities_position: true,
             }),
             xxxx: new ChunkGrid({
@@ -367,11 +372,13 @@ function generate_world() {
 
         const chunk = random_sample([ // This table is basically a probability table.
             basic_chunks.oooo, basic_chunks.oooo, basic_chunks.oooo, basic_chunks.oooo,
+            basic_chunks.oooo, basic_chunks.oooo, basic_chunks.oooo, basic_chunks.oooo,
             basic_chunks.xooo, basic_chunks.xooo, basic_chunks.xooo, basic_chunks.xooo,
             basic_chunks.xxoo, basic_chunks.xxoo, basic_chunks.xxxo, basic_chunks.xxxx,
             basic_chunks.oooo, basic_chunks.oooo, basic_chunks.oooo, basic_chunks.oooo,
             basic_chunks.xooo, basic_chunks.xooo, basic_chunks.xooo, basic_chunks.xooo,
             basic_chunks.xxoo, basic_chunks.xxoo, basic_chunks.xxxo, basic_chunks.xxxx,
+            basic_chunks.oooo, basic_chunks.oooo, basic_chunks.oooo, basic_chunks.oooo,
             basic_chunks.oooo, basic_chunks.oooo, basic_chunks.oooo, basic_chunks.oooo,
             basic_chunks.xooo, basic_chunks.xooo, basic_chunks.xooo, basic_chunks.xooo,
             basic_chunks.xxoo, basic_chunks.xxoo, basic_chunks.xxxo, basic_chunks.xxxx,
@@ -385,12 +392,12 @@ function generate_world() {
         return random_sample([
             random_empty_2x2_floor(defaults.ground, defaults.wall),
             random_empty_2x2_floor(defaults.ground, defaults.wall_alt),
-            random_empty_2x2_floor(defaults.ground_alt, defaults.wall),
-            random_empty_2x2_floor(defaults.ground_alt, defaults.wall_alt),
+            // random_empty_2x2_floor(defaults.ground_alt, defaults.wall),
+            // random_empty_2x2_floor(defaults.ground_alt, defaults.wall_alt),
             random_empty_2x2_floor(defaults.ground, tiles.ID.VOID),
             random_empty_2x2_floor(defaults.ground, tiles.ID.HOLE),
-            random_empty_2x2_floor(defaults.ground_alt, tiles.ID.VOID),
-            random_empty_2x2_floor(defaults.ground_alt, tiles.ID.HOLE),
+            // random_empty_2x2_floor(defaults.ground_alt, tiles.ID.VOID),
+            // random_empty_2x2_floor(defaults.ground_alt, tiles.ID.HOLE),
         ]);
     }
 
@@ -424,10 +431,11 @@ function generate_world() {
 
 
     const level_central_chunks = new ChunkGrid({
-        width: 3, height: 3, // These are number of chunks
+        width: 3, height: 4, // These are number of chunks
         chunk_width: 8, chunk_height: 8,
         default_grid_values: { floor: tiles.ID.WALL1A },
         chunks: [
+            subchunk_8x8,       subchunk_8x8,       subchunk_8x8,
             subchunk_8x8,       subchunk_8x8,       subchunk_8x8,
             subchunk_8x8,       subchunk_8x8,       subchunk_8x8,
             subchunk_8x8,       subchunk_8x8,       subchunk_8x8,
