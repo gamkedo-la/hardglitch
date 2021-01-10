@@ -87,7 +87,7 @@ class PlayingGame extends fsm.State{
 
     display(canvas_context){
         if(window.debug_tools_enabled)
-            editor.display_debug_info(this.state_machine.game_session); // Display debug info // TODO: remove this later
+            editor.display_debug_info(this.state_machine.game_session);
     }
 };
 
@@ -154,17 +154,7 @@ class InGameMenu extends fsm.State {
         debug.assertion(()=>this.ui === undefined);
 
         this.ui = {
-            resume_button: new ui.TextButton({
-                text: "Resume Game",
-                action: ()=>{ this.go_back(); },
-                position: Vector2_origin,
-                sprite_def: sprite_defs.button_menu,
-                sounds:{
-                    over: 'EditorButtonHover',
-                    down: 'EditorButtonClick',
-                },
-                visible: this.menu_screen == "main",
-            }),
+
             instructions_button: new ui.TextButton({
                 text: "How To Play",
                 action: ()=>{ this.set_menu_screen("instructions"); },
@@ -298,7 +288,17 @@ class InGameMenu extends fsm.State {
                 visible: this.menu_screen == "config",
             }),
 
-
+            resume_button: new ui.TextButton({
+                text: "Resume Game",
+                action: ()=>{ this.go_back(); },
+                position: Vector2_origin,
+                sprite_def: sprite_defs.button_menu,
+                sounds:{
+                    over: 'EditorButtonHover',
+                    down: 'EditorButtonClick',
+                },
+                visible: this.menu_screen == "main",
+            }),
             // Back Button ( for all non-main menu screens )
             menu_back_button: new ui.TextButton({
                 text: "Back",
