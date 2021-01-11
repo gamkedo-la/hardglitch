@@ -2,6 +2,7 @@ export {
     generate_empty_world,
     serialize_world,
     deserialize_world,
+    deserialize_entities,
     random_variation,
     merge_world_chunks,
     add_padding_around,
@@ -77,7 +78,7 @@ function generate_empty_world(name, width, height, defaults = defaults_gen){
     surface_tile_grid.set_at(tiles.ID.ENTRY, {x: 0, y:0 });
     surface_tile_grid.set_at(tiles.ID.EXIT, { x: width - 1, y: height - 1 });
 
-    const world = new concepts.World(`Test Level \"${name}\" ${width} x ${height}`,
+    const world = new concepts.World(`Test Level '${name}' ${width} x ${height}`,
                                     width, height,
                                     {
                                         [grid_ID.floor]:        floor_tile_grid,
@@ -94,28 +95,29 @@ function generate_empty_world(name, width, height, defaults = defaults_gen){
 function serialize_world(world){
     debug.assertion(()=>is_valid_world(world));
 
-    let grids_serialized = "{";
-
+    let grids = {};
     for(const [grid_id, grid] of Object.entries(world.grids)){
-        grids_serialized += `\n    ${grid_id} : ${JSON.stringify(grid.elements)},`
+        grids[grid_id] = new Array(...grid.elements);
     };
-    grids_serialized += "\n  }";
 
-    let entities_serialized = "[";
+    let entities = [];
     world.entities.forEach(entity => {
         debug.assertion(()=>entity instanceof concepts.Entity);
-        entities_serialized += `\n    { type: "${entity.constructor.name}", position: { x: ${entity.position.x}, y: ${entity.position.y} } },`;
+        entities.push({
+            type: entity.constructor.name,
+            position: { x: entity.position.x, y: entity.position.y }
+        });
     });
-    entities_serialized += "\n  ]";
 
-    const world_serialized =
-`{
-  name: "${escaped(world.name)}",
-  width: ${world.width},
-  height: ${world.height},
-  grids: ${grids_serialized},
-  entities: ${entities_serialized},
-}`;
+    const world_desc = {
+        name: escaped(world.name),
+        width: world.width,
+        height: world.height,
+        grids: grids,
+        entities: entities,
+    };
+
+    const world_serialized = JSON.stringify(world_desc, null, 0);
 
     return world_serialized;
 }
@@ -152,18 +154,11 @@ function deserialize_grid_elements(grid_id, grid_elements){
     }
 }
 
-function deserialize_world(world_desc){
-    check_world_desc(world_desc);
+function deserialize_entities(entities_desc_list){
+    debug.assertion(()=>entities_desc_list instanceof Array);
+    const entities = [];
 
-    const world = new concepts.World(world_desc.name, world_desc.width, world_desc.height, {});
-
-    for(const [grid_id, grid_elements] of Object.entries(world_desc.grids)){
-        const elements = deserialize_grid_elements(grid_id, grid_elements);
-        const grid = new Grid(world_desc.width, world_desc.height, elements);
-        world.add_grid(grid_id, grid);
-    }
-
-    for(const entity_desc of world_desc.entities){
+    for(const entity_desc of entities_desc_list){
         const entity_type = get_entity_type(entity_desc.type);
         const entity = new entity_type();
         debug.assertion(()=>entity instanceof concepts.Entity);
@@ -189,8 +184,25 @@ function deserialize_world(world_desc){
                 }
             });
         }
-        world.add_entity(entity);
+        entities.push(entity);
     }
+
+    return entities;
+}
+
+function deserialize_world(world_desc){
+    check_world_desc(world_desc);
+
+    const world = new concepts.World(world_desc.name, world_desc.width, world_desc.height, {});
+
+    for(const [grid_id, grid_elements] of Object.entries(world_desc.grids)){
+        const elements = deserialize_grid_elements(grid_id, grid_elements);
+        const grid = new Grid(world_desc.width, world_desc.height, elements);
+        world.add_grid(grid_id, grid);
+    }
+
+    const entities = deserialize_entities(world_desc.entities);
+    entities.forEach(entity => world.add_entity(entity));
 
     world.set_rules(...default_rules);
 
@@ -523,9 +535,9 @@ class ChunkGrid {
         this.chunk_height = desc.chunk_height;
         this.default_grid_values = desc.default_grid_values ? desc.default_grid_values : {};
         this.chunks = desc.chunks;
-        const grid_size = (this.chunk_width * this.width) * (this.chunk_height* this.height);
+        this.grid_size = (this.chunk_width * this.width) * (this.chunk_height* this.height);
         this.entities = desc.entities;
-        debug.assertion(()=>this.entities === undefined || (this.entities instanceof Array &&this.entities.length <= grid_size));
+        debug.assertion(()=>this.entities === undefined || (this.entities instanceof Array &&this.entities.length <= this.grid_size));
         this.random_variation = desc.random_variation ? true : false;
         this.random_entities_position = desc.random_entities_position ? true : false;
     }

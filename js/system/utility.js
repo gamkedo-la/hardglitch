@@ -349,7 +349,7 @@ function no_linejumps(text){
 
 // Adds double quote esquapes to double quotes.
 function escaped(str){
-    return str.replace(/\"/g, `\\"`);
+    return str.replace(/\"/g, `\\\\"`);
 }
 
 // Makes a (deep) copy of a simple (non-typed) data object and returns it.
