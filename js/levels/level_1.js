@@ -4,16 +4,21 @@ export {
 
 import * as debug from "../system/debug.js";
 import * as tiles from "../definitions-tiles.js";
-import { random_bag_pick, random_int, random_sample, shuffle_array } from "../system/utility.js";
+import { not, random_bag_pick, random_int, random_sample } from "../system/utility.js";
 import {
     ChunkGrid,
     deserialize_world,
+    deserialize_entities,
     random_variation,
     unfold_chunk_grid,
     merge_world_chunks,
     add_padding_around,
     create_chunk,
+    serialize_world,
 } from "./level-tools.js";
+import { Position, World } from "../core/concepts.js";
+import { Rectangle } from "../system/spatial.js";
+import { is_blocked_position } from "../definitions-world.js";
 
 const level_name = "Level 0: Buggy Program";
 
@@ -213,14 +218,47 @@ window.level1_special_rooms = level1_special_rooms; // For debugging.
 
 const starting_items = [ "Item_Push", "Item_Pull",  "Item_Swap", "Item_Jump"];
 
-function populate_entities(world){
+function predicate_entity_spawn_pos(world){
+    debug.assertion(()=> world instanceof World);
+    return position => not(is_blocked_position)(world, position, tiles.is_walkable);
+}
 
-    const crypto_stuffs = [
-        { type: "CryptoFile_Circle", position: { x: 0, y: 0 },
-            drops: start_items
-        },
-        { type: "CryptoKey_Circle", position: { x: 0, y: 0 } },
-    ];
+function random_available_entity_position(world, area, predicate = predicate_entity_spawn_pos(world)){
+    debug.assertion(()=> world instanceof World);
+    debug.assertion(()=> area instanceof Rectangle);
+    debug.assertion(()=> predicate instanceof Function);
+
+    while(true){
+        const x = random_int(area.top_left.x, area.bottom_right.x - 1);
+        const y = random_int(area.top_left.y, area.bottom_right.y - 1);
+        if(predicate({x, y})){
+            return new Position({x, y});
+        }
+    }
+}
+
+function populate_entities(world, central_area_rect){
+    debug.assertion(()=> world instanceof World);
+    debug.assertion(()=> central_area_rect instanceof Rectangle);
+
+    const entities = [];
+    const add_entities_from_desc = (...entities_descs)=>{ // FIXME: THIS IS A HACK TO KEEP THE WORLD AND DESCS IN SYNC ;__;
+        entities.push(...entities_descs);
+        deserialize_entities(entities_descs).forEach(entity => world.add_entity(entity));
+    };
+    const is_spawn_position = predicate_entity_spawn_pos(world);
+    const random_spawn_pos = (area = central_area_rect)=> random_available_entity_position(world, area);
+
+    const crypto = {
+        files: [
+                { type: "CryptoFile_Circle", position: { x: 0, y: 0 },
+                    drops: []
+        }],
+
+        keys: [
+            { type: "CryptoKey_Circle", position: { x: 0, y: 0 } },
+        ],
+    };
 
     const bonus_bag = [
         { type: "Item_Scanner", position:{ x:0, y:0 } },
@@ -248,7 +286,32 @@ function populate_entities(world){
         while(true) yield null;
     };
 
-    const entities_generator = entity_bag();
+    // const entities_generator = entity_bag();
+
+    // 1: add crypto keys/files in the central area - with special items
+
+    // 2: add some entities in the central area - some items in particular
+
+    // 3: add a dangerous foe close to the exit
+    const dangerous_length = 8;
+    const dangerous_area = new Rectangle({
+        x: central_area_rect.position.x,
+        y: central_area_rect.position.y + central_area_rect.height - dangerous_length,
+        width: central_area_rect.width,
+        height: dangerous_length,
+    });
+    const dangerous_foe_type = random_sample(["Microcode", "Virus"]);
+    const dangerous_foe_pos = random_spawn_pos(dangerous_area);
+    const dangerous_foe = { type: dangerous_foe_type, position: dangerous_foe_pos };
+    add_entities_from_desc(dangerous_foe);
+    add_entities_from_desc(...dangerous_foe_pos.adjacents_diags
+                                .filter(is_spawn_position)
+                                .map(position=> {
+                                    return { type: "MovableWall_Red", position };
+                                })
+                            );
+
+    return entities;
 }
 
 function generate_world() {
@@ -448,9 +511,10 @@ function generate_world() {
     const start_left = random_int(0, central_chunk_width - starting_room.width);
     const start_top = 0;
 
+    const central_part_pos = { x: 0, y: 18 };
     const central_part = unfold_chunk_grid("level center", level_central_chunks);
     const level_with_starting_room = merge_world_chunks(level_name, { floor: tiles.ID.WALL1A },
-        { position: { x: 0, y: 18 }, world_desc: central_part, },
+        { position: central_part_pos, world_desc: central_part, },
         { position: { x: start_left, y: start_top }, world_desc: starting_room, },
     );
 
@@ -482,7 +546,18 @@ function generate_world() {
         east_room, west_room,
     );
 
-
     const level_desc = add_padding_around(level_with_special_rooms, { floor: tiles.ID.WALL1A });
-    return deserialize_world(random_variation(level_desc));
+    const world_so_far = deserialize_world(level_desc);
+
+    const central_area = new Rectangle({
+        position: central_part_pos,
+        width: central_part.width,
+        height: central_part.height
+    });
+    level_desc.entities.push(...populate_entities(world_so_far, central_area));
+
+    const world_desc = random_variation(level_desc);
+    const world = deserialize_world(world_desc);
+
+    return world;
 }
