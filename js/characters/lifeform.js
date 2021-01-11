@@ -42,8 +42,7 @@ class MoveUntilYouCant extends concepts.Actor {
             return push_action;
 
         const move_actions_ids = Object.keys(possible_actions)
-            .filter(name => name.startsWith("move_"))
-            .filter(name => possible_actions[name].is_safe)
+            .filter(name => name.startsWith("move_") && possible_actions[name].is_safe)
             ;
 
         if(move_actions_ids.length === 0)
