@@ -91,10 +91,11 @@ class CorruptionVanished extends concepts.Event {
 
     *animation(game_view){
         debug.assertion(()=>game_view instanceof GameView);
-        debug.assertion(()=>this.corruption.fx);
-        // TODO: consider adding a "speeshhh" effet just for now.
-        this.corruption.fx.done = true;
-        // TODO: add sound?
+        if(this.corruption.fx){
+            // TODO: consider adding a "speeshhh" effet just for now.
+            this.corruption.fx.done = true;
+            // TODO: add sound?
+        }
         yield* anim.wait(1000 / 64);
     }
 

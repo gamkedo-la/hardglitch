@@ -36,7 +36,7 @@ const swap_range = new visibility.Range_Diamond(1, 4);
 // Set the action as unsafe if the target tile is unsafe.
 function safe_if_safe_arrival(move_action, world){
     const tiles_under_target = world.tiles_at(move_action.target_position);
-    move_action.is_safe = tiles_under_target.some(tiles.is_safe);
+    move_action.is_safe = tiles_under_target.some(tile_id => Number.isInteger(tile_id) && tiles.is_safe(tile_id));
 }
 
 
