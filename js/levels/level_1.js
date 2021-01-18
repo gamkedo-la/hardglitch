@@ -534,7 +534,7 @@ function generate_world() {
         { position: { x: start_left, y: start_top }, world_desc: starting_room, },
     );
 
-    const exit_left = random_int(-5, level_with_starting_room.width - exit_room.width + 5);
+    const exit_left = random_int(0, level_with_starting_room.width - exit_room.width);
     const exit_top = level_with_starting_room.height - random_int(0, 4);
     const level_with_exit_room = merge_world_chunks(level_name, { floor: tiles.ID.WALL1A },
         { position: { x: 0, y: 0 }, world_desc: level_with_starting_room, },
