@@ -36,18 +36,18 @@ class Corrupter extends concepts.Actor {
 
         --this.actions_until_jump;
 
-        const corrupt = this._corrupt_randomly(character, possible_actions);
+        const corrupt = this._corrupt_randomly(character, possible_actions, world);
         if(corrupt)
             return corrupt;
 
         return possible_actions.wait;
     }
 
-    _corrupt_randomly(character, possible_actions){
+    _corrupt_randomly(character, possible_actions, world){
         debug.assertion(()=>character instanceof Character);
         debug.assertion(()=>possible_actions instanceof Object);
         const visible_targets = character.field_of_vision.visible_positions
-                .filter(position => !position.equals(character.position));
+                .filter(position => !position.equals(character.position) && !(world.entity_at(position) instanceof concepts.Item));
         const random_target = random_sample(visible_targets);
         if(!random_target)
             return;
