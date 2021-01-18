@@ -237,9 +237,10 @@ function random_available_entity_position(world, area, predicate = predicate_ent
     }
 }
 
-function populate_entities(world, central_area_rect){
+function populate_entities(world, central_area_rect, start_items){
     debug.assertion(()=> world instanceof World);
     debug.assertion(()=> central_area_rect instanceof Rectangle);
+    debug.assertion(()=>start_items instanceof Array);
 
     const entities = [];
     const add_entities_from_desc = (...entities_descs)=>{ // FIXME: THIS IS A HACK TO KEEP THE WORLD AND DESCS IN SYNC ;__;
@@ -248,17 +249,6 @@ function populate_entities(world, central_area_rect){
     };
     const is_spawn_position = predicate_entity_spawn_pos(world);
     const random_spawn_pos = (area = central_area_rect)=> random_available_entity_position(world, area);
-
-    const crypto = {
-        files: [
-                { type: "CryptoFile_Circle", position: { x: 0, y: 0 },
-                    drops: []
-        }],
-
-        keys: [
-            { type: "CryptoKey_Circle", position: { x: 0, y: 0 } },
-        ],
-    };
 
     const bonus_bag = [
         { type: "Item_Scanner", position:{ x:0, y:0 } },
@@ -289,8 +279,48 @@ function populate_entities(world, central_area_rect){
     // const entities_generator = entity_bag();
 
     // 1: add crypto keys/files in the central area - with special items
+    const is_crypto_stuffs_splitt_horizontal = random_int(1, 100) > 50;
+    const crypto_areas = [];
+    if(is_crypto_stuffs_splitt_horizontal){
+        crypto_areas.push(new Rectangle({
+            position: central_area_rect.position,
+            width: central_area_rect.width,
+            height: Math.ceil(central_area_rect.height/2),
+        }),
+        new Rectangle({
+            position: {
+                x: central_area_rect.position.x,
+                y: central_area_rect.position.y + Math.ceil(central_area_rect.height/2) + 1,
+            },
+            width: central_area_rect.width,
+            height: Math.ceil(central_area_rect.height/2),
+        }),);
+    } else {
+        crypto_areas.push(new Rectangle({
+            position: central_area_rect.position,
+            width: Math.ceil(central_area_rect.width/2),
+            height: central_area_rect.height,
+        }),
+        new Rectangle({
+            position: {
+                x: central_area_rect.position.x + Math.ceil(central_area_rect.width/2) + 1,
+                y: central_area_rect.position.y,
+            },
+            width: Math.ceil(central_area_rect.width/2),
+            height: central_area_rect.height,
+        }),);
+    };
+    const crypto_key_area = random_bag_pick(crypto_areas, 1)[0];
+    const crypto_file_area = random_bag_pick(crypto_areas, 1)[0];
+    debug.assertion(()=>crypto_key_area instanceof Rectangle);
+    debug.assertion(()=>crypto_file_area instanceof Rectangle);
+    add_entities_from_desc(
+        { type: "CryptoFile_Circle", position: random_spawn_pos(crypto_file_area), drops: start_items },
+        { type: "CryptoKey_Circle", position: random_spawn_pos(crypto_key_area) },
+    );
 
     // 2: add some entities in the central area - some items in particular
+
 
     // 3: add a dangerous foe close to the exit
     const dangerous_length = 8;
@@ -307,7 +337,7 @@ function populate_entities(world, central_area_rect){
     add_entities_from_desc(...dangerous_foe_pos.adjacents_diags
                                 .filter(is_spawn_position)
                                 .map(position=> {
-                                    return { type: "MovableWall_Red", position };
+                                    return { type: "MovableWall_Purple", position };
                                 })
                             );
 
@@ -345,16 +375,6 @@ function generate_world() {
                     tiles.ID.MEMFLOORCOOL, tiles.ID.MEMFLOORCOOL,
                 ]
             }),
-        ],
-        random_variation: true,
-        entities: [
-            random_sample([
-                { type: "LifeForm_Strong", position: { x: 0, y: 0 }, },
-                { type: "Item_BadCode", position:{ x:0, y:0 } },
-                null,
-                null,
-                null,
-            ]),
         ],
         random_variation: true,
         random_entities_position: true,
@@ -455,12 +475,8 @@ function generate_world() {
         return random_sample([
             random_empty_2x2_floor(defaults.ground, defaults.wall),
             random_empty_2x2_floor(defaults.ground, defaults.wall_alt),
-            // random_empty_2x2_floor(defaults.ground_alt, defaults.wall),
-            // random_empty_2x2_floor(defaults.ground_alt, defaults.wall_alt),
             random_empty_2x2_floor(defaults.ground, tiles.ID.VOID),
             random_empty_2x2_floor(defaults.ground, tiles.ID.HOLE),
-            // random_empty_2x2_floor(defaults.ground_alt, tiles.ID.VOID),
-            // random_empty_2x2_floor(defaults.ground_alt, tiles.ID.HOLE),
         ]);
     }
 
@@ -554,7 +570,7 @@ function generate_world() {
         width: central_part.width,
         height: central_part.height
     });
-    level_desc.entities.push(...populate_entities(world_so_far, central_area));
+    level_desc.entities.push(...populate_entities(world_so_far, central_area, start_items));
 
     const world_desc = random_variation(level_desc);
     const world = deserialize_world(world_desc);
