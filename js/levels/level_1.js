@@ -4,7 +4,7 @@ export {
 
 import * as debug from "../system/debug.js";
 import * as tiles from "../definitions-tiles.js";
-import { not, random_bag_pick, random_int, random_sample } from "../system/utility.js";
+import { not, random_bag_pick, random_int, random_sample, shuffle_array } from "../system/utility.js";
 import {
     ChunkGrid,
     deserialize_world,
@@ -257,26 +257,36 @@ function populate_entities(world, central_area_rect, start_items){
     ];
 
     const entity_bag =  function*() {
-        // const bag = [
-        //     { type: "LifeForm_Strong", position: { x: 0, y: 0 }, },
-        //     { type: "LifeForm_Strong", position: { x: 0, y: 0 }, },
-        //     { type: "LifeForm_Strong", position: { x: 0, y: 0 }, },
-        //     { type: "MovableWall_Purple", position: { x: 0, y: 0 }, },
-        //     { type: "MovableWall_Purple", position: { x: 0, y: 0 }, },
-        //     { type: "MovableWall_Red", position: { x: 0, y: 0 }, },
-        //     { type: "MovableWall_Red", position: { x: 0, y: 0 }, },
-        // ];
-        // shuffle_array(bag);
-        // while (bag.length > 0) {
-        //     if (random_int(0, 100) > 50)
-        //         yield bag.pop();
-        //     else
-        //         yield null;
-        // }
+        const bag = [
+            { type: "LifeForm_Strong" },
+            { type: "LifeForm_Strong" },
+            { type: "LifeForm_Strong" },
+            { type: "LifeForm_Weak" },
+            { type: "LifeForm_Weak" },
+            { type: "LifeForm_Weak" },
+            { type: "MovableWall_Purple" },
+            { type: "MovableWall_Purple" },
+            { type: "MovableWall_Red" },
+            { type: "MovableWall_Red" },
+            { type: "Item_BadCode" },
+            { type: "Item_BadCode" },
+            { type: "Item_BadCode" },
+            { type: "Item_BadCode" },
+        ];
+        shuffle_array(bag);
+        while (bag.length > 0) {
+            if (random_int(0, 100) > 33){
+                const desc = bag.pop();
+                desc.position = random_spawn_pos(central_area_rect);
+                yield desc;
+            }
+            else
+                yield null;
+        }
         while(true) yield null;
     };
 
-    // const entities_generator = entity_bag();
+    const entities_generator = entity_bag();
 
     // 1: add crypto keys/files in the central area - with special items
     const is_crypto_stuffs_splitt_horizontal = random_int(1, 100) > 50;
@@ -320,7 +330,12 @@ function populate_entities(world, central_area_rect, start_items){
     );
 
     // 2: add some entities in the central area - some items in particular
-
+    add_entities_from_desc(...bonus_bag.map(desc => { desc.position = random_spawn_pos(central_area_rect); return desc; }));
+    for(let i = 0; i < 8; ++i){
+        const entity_desc = entities_generator.next().value;
+        if(entity_desc)
+            add_entities_from_desc(entity_desc);
+    }
 
     // 3: add a dangerous foe close to the exit
     const dangerous_length = 8;
