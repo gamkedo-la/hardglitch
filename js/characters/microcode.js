@@ -47,7 +47,7 @@ class Corrupter extends concepts.Actor {
         debug.assertion(()=>character instanceof Character);
         debug.assertion(()=>possible_actions instanceof Object);
         const visible_targets = character.field_of_vision.visible_positions
-                .filter(position => !position.equals(character.position) && !(world.entity_at(position) instanceof concepts.Item));
+                .filter(position => !position.equals(character.position));
         const random_target = random_sample(visible_targets);
         if(!random_target)
             return;
@@ -80,9 +80,9 @@ class Microcode extends Character {
         this.stats.inventory_size.real_value = 3;
         this.stats.activable_items.real_value = 3;
         this.stats.view_distance.real_value = 3;
-        this.stats.ap_recovery.real_value = 20;
-        this.stats.action_points.real_max = 20;
-        this.stats.action_points.real_value = 20;
+        this.stats.ap_recovery.real_value = 10;
+        this.stats.action_points.real_max = 10;
+        this.stats.action_points.real_value = 10;
         this.inventory.add(new items.Item_Corrupt());
         this.inventory.add(new items.Item_Jump());
     }
