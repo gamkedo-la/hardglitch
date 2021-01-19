@@ -8,9 +8,10 @@ import * as items from "../definitions-items.js";
 import { Character } from "../core/character.js";
 import { sprite_defs } from "../game-assets.js";
 import { auto_newlines, random_int, random_sample } from "../system/utility.js";
-import { select_action_by_type, wander } from "./characters-common.js";
+import { scan_entities_around, select_action_by_type, wander } from "./characters-common.js";
 import { Corrupt } from "../rules/rules-corruption.js";
 import { Jump } from "../rules/rules-movement.js";
+import { is_walkable } from "../definitions-tiles.js";
 
 function actions_to_jump(){
     return random_int(10,30);
@@ -24,7 +25,7 @@ class Corrupter extends concepts.Actor {
         debug.assertion(()=>character instanceof Character);
         debug.assertion(()=>possible_actions instanceof Object);
 
-        if(this.actions_until_jump == 0){
+        if(this.actions_until_jump <= 0){
             this.actions_until_jump = actions_to_jump();
 
             const jump = this._jump_around(character, possible_actions);
@@ -36,18 +37,28 @@ class Corrupter extends concepts.Actor {
 
         --this.actions_until_jump;
 
-        const corrupt = this._corrupt_randomly(character, possible_actions, world);
-        if(corrupt)
-            return corrupt;
+        if(this.can_see_another_character(character, world)){
+            const corrupt = this._corrupt_randomly(character, possible_actions, world);
+            if(corrupt)
+                return corrupt;
+        }
 
         return possible_actions.wait;
+    }
+
+    can_see_another_character(character, world) {
+        return scan_entities_around(character, world, entity=> entity instanceof Character
+                                                            && !(entity instanceof Microcode)
+                                                            && entity !== character
+                                    ).length > 0;
     }
 
     _corrupt_randomly(character, possible_actions, world){
         debug.assertion(()=>character instanceof Character);
         debug.assertion(()=>possible_actions instanceof Object);
         const visible_targets = character.field_of_vision.visible_positions
-                .filter(position => !position.equals(character.position));
+                .filter(position => !position.equals(character.position)); // Don't corrupt your own memory directly.
+
         const random_target = random_sample(visible_targets);
         if(!random_target)
             return;
@@ -79,10 +90,10 @@ class Microcode extends Character {
         this.actor = new Corrupter;
         this.stats.inventory_size.real_value = 3;
         this.stats.activable_items.real_value = 3;
-        this.stats.view_distance.real_value = 3;
-        this.stats.ap_recovery.real_value = 10;
-        this.stats.action_points.real_max = 10;
-        this.stats.action_points.real_value = 10;
+        this.stats.view_distance.real_value = 4;
+        this.stats.ap_recovery.real_value = 20;
+        this.stats.action_points.real_max = 20;
+        this.stats.action_points.real_value = 20;
         this.inventory.add(new items.Item_Corrupt());
         this.inventory.add(new items.Item_Jump());
     }
