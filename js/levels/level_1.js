@@ -220,7 +220,7 @@ const starting_items = [ "Item_Push", "Item_Pull",  "Item_Swap", "Item_Jump"];
 
 function predicate_entity_spawn_pos(world){
     debug.assertion(()=> world instanceof World);
-    return position => not(is_blocked_position)(world, position, tiles.is_walkable);
+    return position => not(is_blocked_position)(world, position, tiles.is_safely_walkable);
 }
 
 function random_available_entity_position(world, area, predicate = predicate_entity_spawn_pos(world)){
@@ -345,16 +345,24 @@ function populate_entities(world, central_area_rect, start_items){
         width: central_area_rect.width,
         height: dangerous_length,
     });
+    const find_nice_spot_for_dangerous_foe = () => {
+        // We look for a position which is surrounded by other spawn positions,
+        const max_attempts = 1000;
+        let attempts = 0;
+        while(++attempts < max_attempts){
+            const pos = random_spawn_pos(dangerous_area);
+            if(pos.adjacents_diags.every(is_spawn_position))
+                return pos;
+        }
+
+        // Or... do what you can
+        return random_spawn_pos(dangerous_area);
+    };
     const dangerous_foe_type = random_sample(["Microcode", "Virus"]);
-    const dangerous_foe_pos = random_spawn_pos(dangerous_area);
+    const dangerous_foe_pos = find_nice_spot_for_dangerous_foe();
     const dangerous_foe = { type: dangerous_foe_type, position: dangerous_foe_pos };
     add_entities_from_desc(dangerous_foe);
-    add_entities_from_desc(...dangerous_foe_pos.adjacents_diags
-                                .filter(is_spawn_position)
-                                .map(position=> {
-                                    return { type: "MovableWall_Purple", position };
-                                })
-                            );
+    add_entities_from_desc(...dangerous_foe_pos.adjacents_diags.map(position=> { return { type: "MovableWall_Purple", position }; }));
 
     return entities;
 }
