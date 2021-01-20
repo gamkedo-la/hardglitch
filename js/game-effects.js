@@ -24,7 +24,7 @@ import {
     ComboLockParticle,
     TraceParticle,
     TraceArcParticle,
-    ScanLineParticle, 
+    ScanLineParticle,
     CollapseOrbParticle,
 } from "./system/particles.js";
 import { Color } from "./system/color.js";

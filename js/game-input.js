@@ -153,7 +153,7 @@ function select_player_action(){
                 if(action.target_position
                 && action.target_position.equals(mouse_pointed_position)
                 && action.is_basic
-                && action.is_safe
+                // && action.is_safe // it's ok, players will decide if it's safe.
                 ){
                     // Pointing a basic action or pointing because we are selecting an action target.
                     input.set_cursor(cursors.pointer_cursor);
@@ -272,7 +272,7 @@ function update(delta_time, input_config){
             ){
                 const player_action = select_player_action();
 
-                if(player_action && player_action.is_safe){ // Player just selected an action (only safe ones are considered)
+                if(player_action /*&& player_action.is_safe8*/){ // Player just selected an action (only safe ones are considered - NOT)
                     play_action(player_action);
                 }
             }
