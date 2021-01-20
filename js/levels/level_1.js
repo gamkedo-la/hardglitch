@@ -19,6 +19,7 @@ import {
 import { Position, World } from "../core/concepts.js";
 import { Rectangle } from "../system/spatial.js";
 import { is_blocked_position } from "../definitions-world.js";
+import * as items from "../definitions-items.js";
 
 const level_name = "Level 0: Buggy Program";
 
@@ -597,6 +598,13 @@ function generate_world() {
 
     const world_desc = random_variation(level_desc);
     const world = deserialize_world(world_desc);
+
+    // Fill crypto-files which are empty with nice items.
+    world.items.filter(item => item instanceof items.CryptoFile && (!item.drops || item.drops.length == 0))
+        .forEach(cryptofile => {
+            if(!cryptofile.drops) cryptofile.drops = [];
+            cryptofile.drops.push( new items.Debug_AllActions() );
+        });
 
     return world;
 }

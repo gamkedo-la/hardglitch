@@ -164,7 +164,6 @@ const crypto_names = {
 };
 
 
-// TODO: maybe have a separate file for cryptyfile & cryptokey
 class CryptoFile extends concepts.Item {
 
     description = auto_newlines(`Crypted memory section preventing access to this memory section. Can be decrypted using a Crypto-Key with the same symbol. May contain some secret data item.`, 35);
