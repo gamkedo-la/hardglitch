@@ -28,6 +28,11 @@ export {
     Item_Destabilize,
     Item_Copy,
     Item_Merge,
+    Item_AutoRepair,
+    Item_IntegrityBoost,
+    Item_FrequencyBoost,
+    Item_DataBender,
+
 
     MovableWall,
     MovableWall_Blue,
@@ -143,6 +148,10 @@ function all_item_types(){
         Item_Destabilize,
         Item_Copy,
         Item_Merge,
+        Item_AutoRepair,
+        Item_IntegrityBoost,
+        Item_FrequencyBoost,
+        Item_DataBender,
 
         ...all_movable_walls(),
 
@@ -514,6 +523,27 @@ class Item_Swap extends concepts.Item {
 }
 
 
+class Item_DataBender extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_5,
+        }}
+    };
+
+    get can_be_taken() { return true; }
+
+    description = auto_newlines("Provides data manipulation and transfer powers beyond imagination.", 35);
+
+    constructor(){
+        super("Data Bender");
+    }
+
+    get_enabled_action_types(){
+        return [ Push, Pull, Swap, Jump ];
+    }
+
+}
+
 class Item_Scanner extends concepts.Item {
     assets = {
         graphics : { body: {
@@ -742,6 +772,62 @@ class Item_Merge extends concepts.Item {
 
 }
 
+class Item_AutoRepair extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_6,
+        }}
+    };
+    description = auto_newlines("Repairs a bit it's owner's memory at each new cycle.", 35);
+    get can_be_taken() { return true; }
+
+    stats_modifiers = {
+        int_recovery: { value: +2 },
+    }
+
+    constructor(){
+        super("Auto-Repair");
+    }
+};
+
+class Item_IntegrityBoost extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_5,
+        }}
+    };
+
+    description = auto_newlines("Boosts the memory integrity of it's owner.", 35);
+    get can_be_taken() { return true; }
+
+    stats_modifiers = {
+        integrity: { max: +10 },
+    }
+
+    constructor(){
+        super("Integrity Booster");
+    }
+};
+
+class Item_FrequencyBoost extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_1,
+        }}
+    };
+
+    get can_be_taken() { return true; }
+    description = auto_newlines("Boosts frequency of the owner's code, making them faster.", 35);
+
+    stats_modifiers = {
+        action_points: { max: +10 },
+        ap_recovery: { max: +10 },
+    }
+
+    constructor(){
+        super("Frequency Booster");
+    }
+};
 
 
 

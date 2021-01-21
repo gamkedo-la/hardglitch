@@ -252,9 +252,9 @@ function populate_entities(world, central_area_rect, start_items){
     const random_spawn_pos = (area = central_area_rect)=> random_available_entity_position(world, area);
 
     const bonus_bag = [
-        { type: "Item_Scanner", position:{ x:0, y:0 } },
-        { type: "Item_ThreadPool", position:{ x:0, y:0 } },
-        { type: "Item_Zip", position:{ x:0, y:0 } },
+        { type: "Item_Scanner" },
+        { type: "Item_ThreadPool" },
+        { type: "Item_Zip" },
     ];
 
     const entity_bag =  function*() {
@@ -600,10 +600,24 @@ function generate_world() {
     const world = deserialize_world(world_desc);
 
     // Fill crypto-files which are empty with nice items.
+    const rare_items = [
+        { type: "Item_AutoRepair" },
+        { type: "Item_MemoryCleanup" },
+        { type: "Item_Copy" },
+        { type: "Item_Scanner" },
+        { type: "Item_ThreadPool" },
+        { type: "Item_Zip" },
+        { type: "Item_IntegrityBoost" },
+        { type: "Item_FrequencyBoost" },
+        { type: "Item_DataBender" },
+    ];
+
     world.items.filter(item => item instanceof items.CryptoFile && (!item.drops || item.drops.length == 0))
         .forEach(cryptofile => {
             if(!cryptofile.drops) cryptofile.drops = [];
-            cryptofile.drops.push( new items.Debug_AllActions() );
+            const items = deserialize_entities(random_bag_pick(rare_items, 1));
+            debug.assertion(()=>items.length === 1);
+            cryptofile.drops.push(items[0]);
         });
 
     return world;
