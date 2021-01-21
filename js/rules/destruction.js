@@ -82,28 +82,27 @@ function drop_entity_drops(entity, world){
 
     const events = [];
 
-    const drop = (dropped) => {
-        debug.assertion(()=>dropped instanceof concepts.Entity);
+    const drop = (dropped, idx) => {
+        if(!(dropped instanceof concepts.Entity)) return;
         // Only drop around the character's position, where it's safe to walk, or don't.
         const spawn_events = spawn_entities_around(world, entity.position, [dropped], undefined, tiles.is_safely_walkable, 1);
         if(spawn_events.length > 0) // Use that event instead, but only if the item was actually dropped.
-            events.push(new InventoryItemDropped(entity, 0, dropped.position, dropped.id));
+            events.push(new InventoryItemDropped(entity, idx, dropped.position, dropped.id));
     }
 
     if(entity.drops){
         debug.assertion(()=>entity.drops instanceof Array);
         const dropped = random_sample(entity.drops);
         if(dropped instanceof Array){
-            dropped.forEach(drop);
+            dropped.forEach(item => drop(item, -1)); // -1 idx means it's not from the inventory.
         } else {
             drop(dropped);
         }
     }
 
     if(entity instanceof Character){
-        entity.inventory.move_all_items_into_limbo();
-        const items = entity.inventory.extract_items_from_limbo();
-        items.forEach(drop);
+        const items_slots = entity.inventory.extract_all_items_slots();
+        items_slots.forEach(drop);
     }
 
     return events;

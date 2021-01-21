@@ -225,6 +225,12 @@ class Inventory {
         this._item_slots = [];
     }
 
+    extract_all_items_slots() {
+        const slots = this._item_slots;
+        this._item_slots = [];
+        return slots;
+    }
+
     add(item){
 
         debug.assertion(()=>item instanceof concepts.Item);
