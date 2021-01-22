@@ -140,10 +140,16 @@ function select_player_action(){
         }
     }
 
-    if(keyboard.is_down(KEY.W) || keyboard.is_down(KEY.UP_ARROW)) return possible_actions.move_north;
-    if(keyboard.is_down(KEY.S) || keyboard.is_down(KEY.DOWN_ARROW)) return possible_actions.move_south;
-    if(keyboard.is_down(KEY.D) || keyboard.is_down(KEY.RIGHT_ARROW)) return possible_actions.move_east;
-    if(keyboard.is_down(KEY.A) || keyboard.is_down(KEY.LEFT_ARROW)) return possible_actions.move_west;
+    let move_through_keyboard;
+    if(keyboard.is_down(KEY.W) || keyboard.is_down(KEY.UP_ARROW)) move_through_keyboard = possible_actions.move_north;
+    if(keyboard.is_down(KEY.S) || keyboard.is_down(KEY.DOWN_ARROW)) move_through_keyboard = possible_actions.move_south;
+    if(keyboard.is_down(KEY.D) || keyboard.is_down(KEY.RIGHT_ARROW)) move_through_keyboard = possible_actions.move_east;
+    if(keyboard.is_down(KEY.A) || keyboard.is_down(KEY.LEFT_ARROW)) move_through_keyboard = possible_actions.move_west;
+    if(move_through_keyboard instanceof concepts.Action
+    && move_through_keyboard.is_safe // Using the keyboard, it's too easy to walk into unsafe places, so we don't allow it. It can be done with the mouse though.
+    ){
+        return move_through_keyboard;
+    }
 
     if(!mouse_was_dragging_last_update
     ){
