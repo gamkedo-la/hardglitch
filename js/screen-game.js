@@ -32,6 +32,7 @@ class PlayingGame extends fsm.State{
     *enter(){
         debug.assertion(()=>this.state_machine.game_session instanceof GameSession);
         this.game_session = this.state_machine.game_session;
+        this._player_ready_to_leave = false;
     }
 
     *leave(){
