@@ -101,8 +101,8 @@ class Program extends Character {
         this.stats.ap_recovery.real_value = 20;
         this.stats.action_points.real_max = 30;
         this.stats.action_points.real_value = 30;
-        this.stats.integrity.real_max = 40;
-        this.stats.integrity.real_value = 40;
+        this.stats.integrity.real_max = 30;
+        this.stats.integrity.real_value = 30;
 
         this.inventory.set_item_at(0, new items.Item_Destabilize());
         this.inventory.set_item_at(1, new items.Item_Push());

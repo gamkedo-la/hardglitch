@@ -154,6 +154,8 @@ class AntiVirus extends Character {
     constructor(){
         super("Anti-Virus");
         this.actor = new AnomalyHunter;
+        this.stats.integrity.real_max = 12;
+        this.stats.integrity.real_value = 12;
         this.stats.inventory_size.real_value = 3;
         this.stats.activable_items.real_value = 3;
         this.stats.view_distance.real_value = 12;
