@@ -253,9 +253,11 @@ function damage_anything_in_corrupted_tiles(world){
     world.entities
         .filter(entity => corruption_grid.get_at(entity.position) instanceof Corruption)
         .forEach(entity => {
-            if(!entity.immunity || !entity.immunity.corruption){
-                events.push(new CorruptionDamage(entity.position, entity.id));
-                events.push(...deal_damage(entity, corruption_damage()));
+            if((!entity.immunity || !entity.immunity.corruption)
+            && !(entity instanceof concepts.Item)){ // Disable corruption effects on Items.
+                events.push( new CorruptionDamage(entity.position, entity.id)
+                           , ...deal_damage(entity, corruption_damage())
+                           );
             }
         });
 
