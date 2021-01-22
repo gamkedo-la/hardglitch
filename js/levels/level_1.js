@@ -612,7 +612,9 @@ function generate_world() {
         { type: "Item_DataBender" },
     ];
 
-    world.items.filter(item => item instanceof items.CryptoFile && (!item.drops || item.drops.length == 0))
+    world.items.filter(item => item instanceof items.CryptoFile  // Crypto-files...
+                            && !(item instanceof items.CryptoFile_Triangle) // ... which are not starting room crypto-files...
+                             && (!item.drops || item.drops.length == 0)) // ... and didn't already have dropes set.
         .forEach(cryptofile => {
             if(!cryptofile.drops) cryptofile.drops = [];
             const items = deserialize_entities(random_bag_pick(rare_items, 1));
