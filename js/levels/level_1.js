@@ -3,7 +3,9 @@ export {
 }
 
 import * as debug from "../system/debug.js";
+import * as visibility from "../core/visibility.js";
 import * as tiles from "../definitions-tiles.js";
+import * as items from "../definitions-items.js";
 import { not, random_bag_pick, random_int, random_sample, shuffle_array } from "../system/utility.js";
 import {
     ChunkGrid,
@@ -14,12 +16,10 @@ import {
     merge_world_chunks,
     add_padding_around,
     create_chunk,
-    serialize_world,
 } from "./level-tools.js";
 import { Position, World } from "../core/concepts.js";
 import { Rectangle } from "../system/spatial.js";
-import { is_blocked_position } from "../definitions-world.js";
-import * as items from "../definitions-items.js";
+import { grid_ID, is_blocked_position } from "../definitions-world.js";
 
 const level_name = "Level 0: Buggy Program";
 
@@ -618,6 +618,17 @@ function generate_world() {
             const items = deserialize_entities(random_bag_pick(rare_items, 1));
             debug.assertion(()=>items.length === 1);
             cryptofile.drops.push(items[0]);
+        });
+
+    // Paint with the second ground tile around the exit, as a clue
+    const exit_positions = world.grids[grid_ID.surface].matching_positions(tile_id => tile_id == tiles.ID.EXIT);
+    debug.assertion(()=>exit_positions.length === 1);
+    const exit_position = new Position(exit_positions[0]);
+    const close_to_exit_range = new visibility.Range_Circle(0, 16);
+    visibility.positions_in_range(exit_position, close_to_exit_range,
+                                position => world.is_valid_position(position) && world.grids[grid_ID.floor].get_at(position) === defaults.ground)
+        .forEach(position => {
+            world.grids[grid_ID.floor].set_at(defaults.ground_alt, position);
         });
 
     return world;
