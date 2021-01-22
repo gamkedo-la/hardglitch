@@ -29,7 +29,7 @@ function maybe_push(world, possible_actions){
 
 
     if(push_actions.length > 0){
-        if(random_int(0, 100) > 75)
+        if(random_int(0, 100) > 60)
             return random_sample(push_actions);
     }
 }
