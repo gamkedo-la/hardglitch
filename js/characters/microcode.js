@@ -25,19 +25,20 @@ class Corrupter extends concepts.Actor {
         debug.assertion(()=>character instanceof Character);
         debug.assertion(()=>possible_actions instanceof Object);
 
-        if(this.actions_until_jump <= 0){
-            this.actions_until_jump = actions_to_jump();
-
-            const jump = this._jump_around(character, possible_actions);
-            if(jump)
-                return jump;
-            else
-                return possible_actions.wait; // Skip the turn if we can't jump now.
-        }
-
-        --this.actions_until_jump;
-
         if(this.can_see_another_character(character, world)){
+
+            if(this.actions_until_jump <= 0){
+                this.actions_until_jump = actions_to_jump();
+
+                const jump = this._jump_around(character, possible_actions);
+                if(jump)
+                    return jump;
+                else
+                    return possible_actions.wait; // Skip the turn if we can't jump now.
+            }
+
+            --this.actions_until_jump;
+
             const corrupt = this._corrupt_randomly(character, possible_actions, world);
             if(corrupt)
                 return corrupt;
