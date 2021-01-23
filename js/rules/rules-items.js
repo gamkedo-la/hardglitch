@@ -110,12 +110,13 @@ class InventoryItemDropped extends concepts.Event {
         if(this.dropper_is_player) {
             yield* anim.inventory_remove(game_view.ui.inventory.fx_view, game_view.ui.inventory, this.item_idx);
             const item_view = game_view.ui.inventory.remove_item_view_at(this.item_idx);
-            debug.assertion(()=>item_view instanceof ItemView);
-            item_view.is_visible = false;
-            item_view.game_position = this.drop_position;
-            yield* anim.drop_item(game_view.fx_view, this.drop_position);
-            game_view.add_entity_view(item_view);
-            item_view.is_visible = true;
+            if(item_view instanceof ItemView){
+                item_view.is_visible = false;
+                item_view.game_position = this.drop_position;
+                yield* anim.drop_item(game_view.fx_view, this.drop_position);
+                game_view.add_entity_view(item_view);
+                item_view.is_visible = true;
+            }
             game_view.ui.inventory.request_refresh();
         } else {
             const dropped_view = game_view.add_entity_view(this.dropped_id);
