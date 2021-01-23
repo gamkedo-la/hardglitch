@@ -43,16 +43,16 @@ class Screen_Demo extends fsm.State {
                     down: 'clickButton',
                 }
             }),
-            button_random_level : new ui.TextButton({
-                text: "Random Test Level",
-                position: Vector2_origin,
-                sprite_def: sprite_defs.button_menu,
-                action: ()=> { load_random_test_level(); },
-                sounds:{
-                    over: 'selectButton',
-                    down: 'clickButton',
-                }
-            }),
+            // button_random_level : new ui.TextButton({
+            //     text: "Random Test Level",
+            //     position: Vector2_origin,
+            //     sprite_def: sprite_defs.button_menu,
+            //     action: ()=> { load_random_test_level(); },
+            //     sounds:{
+            //         over: 'selectButton',
+            //         down: 'clickButton',
+            //     }
+            // }),
             button_back : new ui.TextButton({
                 text: "End Game [TAB]",
                 position: Vector2_origin,
