@@ -168,8 +168,8 @@ class Virus extends Character {
         this.stats.activable_items.real_value = 3;
         this.stats.view_distance.real_value = 8;
         this.stats.ap_recovery.real_value = 20;
-        this.stats.action_points.real_max = 15;
-        this.stats.action_points.real_value = 15;
+        this.stats.action_points.real_max = 10;
+        this.stats.action_points.real_value = 10;
         this.stats.integrity.real_max = 4;
         this.stats.integrity.real_value = 4;
         this.inventory.add(new items.Item_Copy());
