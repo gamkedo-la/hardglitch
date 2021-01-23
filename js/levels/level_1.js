@@ -164,8 +164,8 @@ const exit_rooms = {
 };
 
 const level1_special_rooms = {
-    room_plus_file: {
-        name: "room plus file",
+    room_plus_file_1: {
+        name: "room plus file 1",
         width: 8,
         height: 8,
         grids: {
@@ -189,8 +189,30 @@ const level1_special_rooms = {
           { type: "CryptoFile_Plus", position: { x: 4, y: 3 } },
         ],
       },
-    room_equal_file: {
-        name: "room equal file",
+    room_plus_file_2: {
+        "name": "room plus file 2",
+        "width": 8,
+        "height": 8,
+        "grids": {
+            "floor": [30, 30, 30, 101, 101, 30, 30, 30, 30, 101, 101, 101, 101, 101, 101, 30, 30, 101, 30, 101, 101, 30, 101, 30, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 30, 101, 30, 101, 101, 30, 101, 30, 30, 101, 101, 101, 101, 101, 101, 30, 30, 30, 30, 101, 101, 30, 30, 30],
+            "surface": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+            "corruption": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null], "unstable": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null] }, "entities": [{ "type": "LifeForm_Aggressive", "position": { "x": 3, "y": 3 } }, { "type": "MovableWall_Blue", "position": { "x": 3, "y": 7 } }, { "type": "MovableWall_Blue", "position": { "x": 4, "y": 7 } }, { "type": "MovableWall_Orange", "position": { "x": 7, "y": 3 } }, { "type": "MovableWall_Orange", "position": { "x": 7, "y": 4 } }, { "type": "MovableWall_Blue", "position": { "x": 0, "y": 3 } }, { "type": "MovableWall_Blue", "position": { "x": 0, "y": 4 } }, { "type": "MovableWall_Orange", "position": { "x": 3, "y": 0 } }, { "type": "MovableWall_Orange", "position": { "x": 4, "y": 0 } }, { "type": "CryptoKey_Plus", "position": { "x": 1, "y": 6 } }, { "type": "CryptoFile_Plus", "position": { "x": 4, "y": 3 } }]
+    },
+    room_plus_file_3: {
+        "name": "room plus file 3",
+        "width": 8,
+        "height": 8,
+        "grids": {
+            "floor": [30, 30, 30, 30, 30, 30, 30, 30, 30, 101, 101, 101, 101, 101, 101, 30, 30, 101, 101, 101, 101, 101, 101, 30, 30, 101, 101, 101, 101, 101, 101, 30, 30, 101, 101, 101, 101, 101, 101, 30, 30, 101, 101, 101, 101, 101, 101, 30, 30, 101, 101, 101, 101, 101, 101, 30, 30, 30, 30, 30, 30, 30, 30, 30],
+            "surface": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+            "corruption": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+            "unstable": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
+        },
+        "entities": [
+            { "type": "LifeForm_Aggressive", "position": { "x": 3, "y": 3 } }, { "type": "LifeForm_Aggressive", "position": { "x": 4, "y": 4 } }, { "type": "CryptoKey_Plus", "position": { "x": 3, "y": 4 } }, { "type": "CryptoFile_Plus", "position": { "x": 4, "y": 3 } }]
+    },
+    room_equal_file_1: {
+        name: "room equal file 1",
         width: 8,
         height: 8,
         grids: {
@@ -209,7 +231,26 @@ const level1_special_rooms = {
           { type: "CryptoFile_Equal", position: { x: 1, y: 6 } },
           { type: "CryptoKey_Equal", position: { x: 6, y: 1 } },
         ],
-      }
+      },
+    room_equal_file_2: {
+        name: "room equal file 2",
+        width: 8,
+        height: 8,
+        grids: {
+          floor : [120,120,120,40,40,120,120,120,120,101,101,101,101,101,101,120,120,101,120,101,101,120,101,120,40,101,101,101,101,101,101,40,40,101,101,101,101,101,101,40,120,101,120,120,101,120,101,120,120,101,101,101,101,101,101,120,120,120,120,40,40,120,120,120],
+          surface : [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+          corruption : [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+          unstable : [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+        },
+        entities: [
+          { "type": "LifeForm_Aggressive", "position": { "x": 3, "y": 3 } },
+          { "type": "LifeForm_Aggressive", "position": { "x": 4, "y": 4 } },
+          { type: "CryptoFile_Equal", position: { x: 1, y: 6 } },
+          { type: "CryptoKey_Equal", position: { x: 6, y: 1 } },
+        ],
+      },
+
+
 }
 
 
