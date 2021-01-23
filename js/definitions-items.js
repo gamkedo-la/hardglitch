@@ -821,7 +821,7 @@ class Item_FrequencyBoost extends concepts.Item {
 
     stats_modifiers = {
         action_points: { max: +10 },
-        ap_recovery: { max: +10 },
+        ap_recovery: { value: +10 },
     }
 
     constructor(){
