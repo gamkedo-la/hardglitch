@@ -203,7 +203,7 @@ class LevelIntroScreen extends fsm.State {
     init_level_transition(){
         // Initialize sprites and other things necessary to display the level transition
         const fixed_size = { x: 1100, y: 750 };
-        this.level_transition_canvas_context = graphics.create_canvas_context(fixed_size.x, graphics.canvas_rect().height);
+        this.level_transition_canvas_context = graphics.create_canvas_context(fixed_size.x, fixed_size.y);
         this.animations = new AnimationGroup();
 
 
