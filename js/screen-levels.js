@@ -22,6 +22,7 @@ import { AnimationGroup, in_parallel, wait } from "./system/animation.js";
 import { easing, tween } from "./system/tweening.js";
 import { draw_circle } from "./system/graphics.js";
 import { draw_rectangle } from "./system/graphics.js";
+import { KEY } from "./game-input.js";
 
 //right now the below just outputs a title, we need to output a lil more.
 //maybe change this to "title display" like a title object
@@ -150,7 +151,6 @@ class LevelIntroScreen extends fsm.State {
 
         this.player_character = player_character ? player_character : new GlitchyGlitchMacGlitchy();
         this.init_level_transition();
-        this.on_canvas_resized();
 
         audio.stopEvent(music_id.title); // In case we came from the title.
         yield* this.fader.generate_fade_in();
@@ -163,7 +163,7 @@ class LevelIntroScreen extends fsm.State {
     }
 
     update(delta_time){
-        if(input.keyboard.is_any_key_just_down() || input.mouse.buttons.is_any_key_just_down()){
+        if(input.keyboard.is_down(KEY.SPACE) || input.mouse.buttons.is_any_key_just_down()){
             this.continue();
         }
 
@@ -197,12 +197,13 @@ class LevelIntroScreen extends fsm.State {
     }
 
     on_canvas_resized(){
+        this.init_level_transition();
     }
 
     init_level_transition(){
         // Initialize sprites and other things necessary to display the level transition
         const fixed_size = { x: 1100, y: 750 };
-        this.level_transition_canvas_context = graphics.create_canvas_context(fixed_size.x, fixed_size.y);
+        this.level_transition_canvas_context = graphics.create_canvas_context(fixed_size.x, graphics.canvas_rect().height);
         this.animations = new AnimationGroup();
 
 
