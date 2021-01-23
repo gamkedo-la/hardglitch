@@ -365,6 +365,9 @@ function populate_entities(world, central_area_rect, start_items){
     add_entities_from_desc(dangerous_foe);
     add_entities_from_desc(...dangerous_foe_pos.adjacents_diags.map(position=> { return { type: "MovableWall_Purple", position }; }));
 
+    // 4: add one sample slightly aggressive kind of lifeform...
+    add_entities_from_desc({ type: "LifeForm_Aggressive", position: random_spawn_pos(dangerous_area) });
+
     return entities;
 }
 
