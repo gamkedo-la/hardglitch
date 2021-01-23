@@ -25,7 +25,8 @@ function maybe_push(world, possible_actions){
                     return false;
 
                 const target = world.entity_at(action.target_position);
-                return all_lifeform_types().every(lifeform_type => !(target instanceof lifeform_type));
+                return !(target instanceof concepts.Item)
+                    && all_lifeform_types().every(lifeform_type => !(target instanceof lifeform_type));
         });
 
 
