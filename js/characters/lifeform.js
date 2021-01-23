@@ -7,6 +7,7 @@ import { Character, CharacterStats } from "../core/character.js"
 import { random_sample, rotate_array, random_int, auto_newlines } from "../system/utility.js";
 import { Item_BadCode, Item_LifeStrength } from "../definitions-items.js";
 import { Push } from "../rules/rules-forces.js";
+import { move_towards, select_action_by_type, closest_entity } from "./characters-common.js";
 
 const reverse_move_id = {
     move_east : "move_west",
@@ -15,6 +16,8 @@ const reverse_move_id = {
     move_south: "move_north",
 };
 
+function all_lifeform_types() { return [ LifeForm_Strong, LifeForm_Weak, LifeForm_Aggressive ]; };
+
 function maybe_push(world, possible_actions){
     const push_actions = Object.values(possible_actions)
         .filter(action => {
@@ -22,14 +25,12 @@ function maybe_push(world, possible_actions){
                     return false;
 
                 const target = world.entity_at(action.target_position);
-                return !(target instanceof concepts.Item)
-                    && !(target instanceof LifeForm_Strong)
-                    ;
+                return all_lifeform_types().every(lifeform_type => !(target instanceof lifeform_type));
         });
 
 
     if(push_actions.length > 0){
-        if(random_int(0, 100) > 60)
+        if(random_int(1, 100) > 33)
             return random_sample(push_actions);
     }
 }
@@ -148,7 +149,7 @@ class LifeForm_Weak extends Character {
         this.stats.inventory_size.real_value = 1;
     }
 
-    drops = [ new Item_BadCode() ];
+    drops = [ new Item_BadCode(), null, null ];
 };
 class LifeForm_Strong extends Character {
     assets = {
@@ -174,6 +175,46 @@ class LifeForm_Strong extends Character {
     drops = [ [ new LifeForm_Weak(), new LifeForm_Weak(), ] ];
 };
 
+
+
+class Crusher extends concepts.Actor {
+
+    constructor(){
+        super();
+        const base_behavior_type = random_sample(lifeform_possible_behavior);
+        this.base_behavior = new base_behavior_type();
+    }
+
+    decide_next_action(world, character, possible_actions) {
+        const target = this.find_someone_to_crush(world, character);
+        if(target instanceof Character){
+            const push_action = this.push(target, possible_actions);
+            if(push_action instanceof concepts.Action){
+                return push_action;
+            } else {
+                const approach = move_towards(character, possible_actions, target.position);
+                if(approach instanceof concepts.Action)
+                    return approach;
+            }
+        }
+
+        return this.base_behavior.decide_next_action(world, character, possible_actions);
+    }
+
+    find_someone_to_crush(world, character){
+        const target = closest_entity(character, world,
+            entity => entity instanceof Character && all_lifeform_types().every(lifeform_type => !(entity instanceof lifeform_type))
+        );
+        return target;
+    }
+
+    push(target, possible_actions){
+        return select_action_by_type(possible_actions, target.position, Push);
+    }
+
+};
+
+
 class LifeForm_Aggressive extends Character {
     assets = {
         graphics : { body: {
@@ -181,19 +222,22 @@ class LifeForm_Aggressive extends Character {
         }}
     };
 
-    description = auto_newlines("AGGRESSIVE LIFE FORM", 35);
+    description = auto_newlines("Uncivilized life-form living in the computer's memory. They crush anyone coming in their sight.", 35);
     is_anomaly = true;
 
     constructor(){
         super("Aggressive Life Form", new CharacterStats());
-        const behavior_type = random_sample(lifeform_possible_behavior);
-        this.actor = new behavior_type();
-        this.stats.integrity.real_max = 20;
-        this.stats.integrity.real_value = 20;
+        this.actor = new Crusher();
+        this.stats.integrity.real_max = 8;
+        this.stats.integrity.real_value = 8;
         this.stats.inventory_size.real_value = 2;
         this.stats.activable_items.real_value = 2;
+        this.stats.view_distance.real_value = 6;
+        this.stats.ap_recovery.real_value = 10;
+        this.stats.action_points.real_max = 10;
+        this.stats.action_points.real_value = 10;
         this.inventory.add(new Item_LifeStrength());
     }
 
-    drops = [ [ new LifeForm_Weak(), new LifeForm_Weak(), ] ];
+    drops = [ new LifeForm_Weak(), null, null ];
 };

@@ -73,7 +73,7 @@ const game_assets = { // Description of the assets to load.
         shadow_red: "./images/shadow_red.png",
         life_form: "./images/life-form.png",
         life_form_weak: "./images/life_form_weak.png",
-        life_form_expanding: "./images/expanding-life-form.png", //klaim, idk what you wanna call this. 
+        life_form_expanding: "./images/expanding-life-form.png", //klaim, idk what you wanna call this.
         virus: "./images/virus.png",
         antivirus: "./images/anti-virus.png",
         program: "./images/program.png",
@@ -432,8 +432,25 @@ const sprite_defs = {
         },
     },
 
+
     life_form: {
-        image: "life_form_expanding", //image: "life_form"
+        image: "life_form",
+        frames: [
+                    { x: 0, y: 0, width: 64, height: 64 }
+                ],
+        animations: {
+            idle: {
+                    loop: true,
+                    timeline: [
+                                { frame: 0, duration: 200 }
+                              ],
+                  },
+        },
+    },
+
+
+    life_form_aggressive: {
+        image: "life_form_expanding",
         frames: [
             { x: 0, y: 0, width: 64, height: 64 },
             { x: 64, y: 0, width: 64, height: 64 },
