@@ -82,7 +82,7 @@ const startup_rooms = {
         entities: [
             { type: "LifeForm_Weak", position: { x: 5, y: 5 } },
             { type: "GlitchyGlitchMacGlitchy", position: { x: 5, y: 9 } },
-            { type: "LifeForm_Weak", position: { x: 5, y: 1 } },
+            { type: "LifeForm_Aggressive", position: { x: 5, y: 1 } },
             { type: "CryptoFile_Triangle", position: { x: 8, y: 16 } },
             { type: "CryptoKey_Triangle", position: { x: 4, y: 2 }, is_crucial: true, },
             { type: "MovableWall_Purple", position: { x: 2, y: 8 } },
@@ -333,6 +333,7 @@ function populate_entities(world, central_area_rect, start_items){
             { type: "LifeForm_Weak" },
             { type: "LifeForm_Weak" },
             { type: "LifeForm_Weak" },
+            { type: "LifeForm_Aggressive" },
             { type: "MovableWall_Purple" },
             { type: "MovableWall_Purple" },
             { type: "MovableWall_Red" },
