@@ -1,4 +1,4 @@
-export { LifeForm_Weak, LifeForm_Strong };
+export { LifeForm_Weak, LifeForm_Strong, LifeForm_Aggressive };
 
 import * as debug from "../system/debug.js";
 import * as concepts from "../core/concepts.js";
@@ -162,6 +162,30 @@ class LifeForm_Strong extends Character {
 
     constructor(){
         super("Life Form", new CharacterStats());
+        const behavior_type = random_sample(lifeform_possible_behavior);
+        this.actor = new behavior_type();
+        this.stats.integrity.real_max = 20;
+        this.stats.integrity.real_value = 20;
+        this.stats.inventory_size.real_value = 2;
+        this.stats.activable_items.real_value = 2;
+        this.inventory.add(new Item_LifeStrength());
+    }
+
+    drops = [ [ new LifeForm_Weak(), new LifeForm_Weak(), ] ];
+};
+
+class LifeForm_Aggressive extends Character {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.life_form_aggressive,
+        }}
+    };
+
+    description = auto_newlines("AGGRESSIVE LIFE FORM", 35);
+    is_anomaly = true;
+
+    constructor(){
+        super("Aggressive Life Form", new CharacterStats());
         const behavior_type = random_sample(lifeform_possible_behavior);
         this.actor = new behavior_type();
         this.stats.integrity.real_max = 20;

@@ -6,7 +6,7 @@ export {
 
 
 import { GlitchyGlitchMacGlitchy } from "./characters/glitch.js";
-import { LifeForm_Strong, LifeForm_Weak } from "./characters/lifeform.js"
+import { LifeForm_Strong, LifeForm_Weak, LifeForm_Aggressive } from "./characters/lifeform.js"
 import { RandomActionEnemy, WaitingNPC } from "./characters/test-enemy.js"
 import { Virus } from "./characters/virus.js";
 import { AntiVirus } from "./characters/antivirus.js";
@@ -21,6 +21,7 @@ function all_characters_types() {
         GlitchyGlitchMacGlitchy,
         LifeForm_Strong,
         LifeForm_Weak,
+        LifeForm_Aggressive,
         RandomActionEnemy,
         WaitingNPC,
         Virus,
