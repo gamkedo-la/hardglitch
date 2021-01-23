@@ -21,6 +21,7 @@ import { sprite_defs } from "../game-assets.js";
 import { ItemView } from "../view/item-view.js";
 import { spawn_entities_around } from "./spawn.js";
 import { auto_newlines } from "../system/utility.js";
+import { EntityView } from "../view/entity-view.js";
 
 const take_item_range = new visibility.Range_Cross_Axis(1,2);
 
@@ -117,11 +118,11 @@ class InventoryItemDropped extends concepts.Event {
             item_view.is_visible = true;
             game_view.ui.inventory.request_refresh();
         } else {
-            const item_view = game_view.add_entity_view(this.dropped_id);
-            debug.assertion(()=>item_view instanceof ItemView);
+            const dropped_view = game_view.add_entity_view(this.dropped_id);
+            debug.assertion(()=>dropped_view instanceof EntityView); // Could be something else than an item.
             yield* anim.drop_item(game_view.fx_view, this.drop_position);
-            game_view.add_entity_view(item_view);
-            item_view.is_visible = true;
+            game_view.add_entity_view(dropped_view);
+            dropped_view.is_visible = true;
         }
     }
 };
