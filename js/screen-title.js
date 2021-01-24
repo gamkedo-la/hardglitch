@@ -144,7 +144,7 @@ class TitleScreen extends fsm.State {
         };
 
         this.ui.demo = new ui.Text({
-            text: "(DEMO)",
+            text: "(DEMO 2)",
             font: "52px Space Mono",
             color: "white",
             background_color: "#ffffff00",

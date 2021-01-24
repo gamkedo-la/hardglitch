@@ -1,4 +1,4 @@
 
 
-export const HARD_GLITCH_VERSION = "v0.10-2020.10.25";
+export const HARD_GLITCH_VERSION = "v0.11-2021.01.24";
 
