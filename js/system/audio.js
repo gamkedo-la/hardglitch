@@ -3,6 +3,7 @@ export {
     playEvent,
     pauseEvent,
     stopEvent,
+    stopAllEvents,
     getVolume,
     setVolume,
     toggleMute,
@@ -94,6 +95,11 @@ function pauseEvent(name) {
 function stopEvent(name) {
     let index = audio_events.findIndex((element) => element.event_name === name);
     if (index >= 0 && index < audio_events.length) audio_events[index].stop();
+}
+
+function stopAllEvents(){
+    audio_events.forEach(event => event.stop());
+    audio_events = [];
 }
 
 function toggleMute() {

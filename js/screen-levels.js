@@ -148,18 +148,19 @@ class LevelIntroScreen extends fsm.State {
     }
 
     *enter(player_character){
+        audio.stopAllEvents(); // In case we came from the title.
 
         this.player_character = player_character ? player_character : new GlitchyGlitchMacGlitchy();
         this.init_level_transition();
 
-        audio.stopEvent(music_id.title); // In case we came from the title.
+
         yield* this.fader.generate_fade_in();
         audio.playEvent(music_id.level_transition);
     }
 
     *leave(){
         yield* this.fader.generate_fade_out();
-        audio.stopEvent(music_id.level_transition);
+        // audio.stopEvent(music_id.level_transition); // we don't stop the music on purpose.
     }
 
     update(delta_time){

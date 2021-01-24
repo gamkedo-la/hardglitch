@@ -48,6 +48,7 @@ const game_state_machine = new class extends fsm.StateMachine {
       intro_level_3: new level_screens.Level_3_IntroScreen(),
       intro_level_4: new level_screens.Level_4_IntroScreen(),
       demo: new Screen_Demo(),
+      procgen_warning: new ProcgenWarningScreen(),
     },{
       // This is the transition table, stating which action from one state leads to which other state.
       initial_state: "loading_game",
@@ -89,8 +90,11 @@ const game_state_machine = new class extends fsm.StateMachine {
         back: "title",
         retry: "game",
       },
+      procgen_warning: {
+        ok: "game",
+      },
       intro_level_1: {
-        continue: "game"
+        continue: "procgen_warning"
       },
       intro_level_2: {
         continue: "game"
@@ -196,6 +200,7 @@ function update_cycle(highres_timestamp){
 
 import * as random_test_level from "./testing/test-level.js";
 import { deserialize_world, generate_empty_world } from "./levels/level-tools.js";
+import { ProcgenWarningScreen } from "./screen-procgenwarning.js";
 
 function load_level(level_number){
   debug.assertion(()=>Number.isInteger(level_number) && level_number >= 0);

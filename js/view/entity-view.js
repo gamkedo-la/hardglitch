@@ -38,6 +38,7 @@ window.float_x = 0.00;      // for debug, you can change this in the console
 // Common parts used by both body/character and items views.
 class EntityView {
     is_visible = true;
+    force_visible = false; // Used to bypass visibility checks.
     is_flying = false; // Set to true if you want to display the character over anything in the game world.
     _graphics = [];
 
@@ -104,9 +105,9 @@ class EntityView {
     }
 
     render_graphics(canvas_context){
-        if(this.is_visible){
+        if(this.is_visible || this.force_visible){
             this._graphics
-                .filter(graphic => graphics.camera.can_see(graphic.sprite.area))
+                .filter(graphic => this.force_visible || graphics.camera.can_see(graphic.sprite.area))
                 .sort((left, right) => left.order - right.order)
                 .forEach(graphic => graphic.sprite.draw(canvas_context));
         }
