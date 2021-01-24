@@ -24,6 +24,7 @@ import { actions_for_each_target } from "./rules-common.js";
 import { GameView } from "../game-view.js";
 import { EntityView, graphic_position, square_half_unit_vector } from "../view/entity-view.js";
 
+const corruption_turns_to_update = 8;
 const corruption_damage_min = 1;
 const corruption_damage_max = 5;
 
@@ -34,10 +35,15 @@ function corruption_damage() {
 const corrupt_ap_cost = 2;
 const corrupt_range = new visibility.Range_Square(0, 6);
 
+const corruption_desc = auto_newlines(`Deals from ${corruption_damage_min} to ${corruption_damage_max} damages to entities here at the end of every Cycles.
+Every ${corruption_turns_to_update} computer Cycles, all corruption updates following the rules of Conway's Game Of Life.`, 33);
+
+const corrupt_desc = auto_newlines(`Corrupts the target memory section.\nThe corrupted memory will deal damage every cycles to any entity in it.
+All corruption updates every ${corruption_turns_to_update} computer Cycles following the rules of Conway's Game Of Life.`, 35);
+
 class Corruption {
     name = "Corrupted Memory";
-    description = auto_newlines(`Deals from ${corruption_damage_min} to ${corruption_damage_max} damages to entities here at the end of every Cycles.
-Every even Cycle, corruption updates following the rules\nof Conway's Game Of Life.`, 33);
+    description = corruption_desc;
     toJSON(key) { return {}; }
 };
 
@@ -151,7 +157,7 @@ class Corrupted extends concepts.Event {
 class Corrupt extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_corrupt; }
     static get action_type_name() { return "Corrupt"; }
-    static get action_type_description() { return auto_newlines("Corrupts the target memory section.\nThe corrupted memory will deal damage every even cycle to any entity in it.", 35); }
+    static get action_type_description() { return corrupt_desc; }
     static get costs(){
         return {
             action_points: { value: corrupt_ap_cost },
@@ -266,14 +272,20 @@ function damage_anything_in_corrupted_tiles(world){
 
 class Rule_Corruption extends concepts.Rule {
 
+    turns_since_last_corruption_update = 0;
+
     update_world_at_the_beginning_of_game_turn(world){
+        ++this.turns_since_last_corruption_update;
+
         if(world.turn_id <= 1) // Don't apply this rule on the first turn.
-        return [];
+            return [];
+
 
         const events = [];
 
-        if(world.turn_id % 2 == 0){ // We update the corruption positions only on even turns.
+        if(this.turns_since_last_corruption_update >= corruption_turns_to_update){ // We update the corruption positions.
             events.push(...update_corruption_state(world));
+            this.turns_since_last_corruption_update = 0;
         }
 
         events.push(...damage_anything_in_corrupted_tiles(world));
