@@ -470,7 +470,8 @@ class GameScreen extends fsm.StateMachine {
         debug.assertion(()=>Number.isInteger(level_to_play) || level_to_play !== undefined);
         debug.assertion(()=>player_character === undefined || player_character instanceof Character);
 
-        audio.stopAllEvents();
+        audio.stopEvent(music_id.level_transition);
+        audio.stopEvent(music_id.title);
 
         delete this.music;
         if(Number.isInteger(level_to_play)){
