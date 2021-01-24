@@ -148,7 +148,7 @@ class LevelIntroScreen extends fsm.State {
     }
 
     *enter(player_character){
-        audio.stopAllEvents(); // In case we came from the title.
+        audio.stopEvent(music_id.title); // In case we came from the title.
 
         this.player_character = player_character ? player_character : new GlitchyGlitchMacGlitchy();
         this.init_level_transition();

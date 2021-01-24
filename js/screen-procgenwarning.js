@@ -90,7 +90,6 @@ Click or [Space] to continue.
     }
 
     *leave(){
-        audio.stopAllEvents();
         yield* this.fader.generate_fade_out();
     }
 

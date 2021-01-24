@@ -3,7 +3,7 @@ export {
     playEvent,
     pauseEvent,
     stopEvent,
-    stopAllEvents,
+//    stopAllEvents, FIXME, see below
     getVolume,
     setVolume,
     toggleMute,
@@ -97,10 +97,11 @@ function stopEvent(name) {
     if (index >= 0 && index < audio_events.length) audio_events[index].stop();
 }
 
-function stopAllEvents(){
-    audio_events.forEach(event => event.stop());
-    audio_events = [];
-}
+// FIXME: provokes tons of crash, not sure why
+// function stopAllEvents(){
+//     audio_events.forEach(event => event.stop());
+//     audio_events = [];
+// }
 
 function toggleMute() {
     if (mix_groups.Mute.gain.value) {
