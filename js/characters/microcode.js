@@ -14,7 +14,7 @@ import { Jump } from "../rules/rules-movement.js";
 import { is_walkable } from "../definitions-tiles.js";
 
 function actions_to_jump(){
-    return random_int(10,30);
+    return random_int(5,15);
 }
 
 class Corrupter extends concepts.Actor {
@@ -57,6 +57,11 @@ class Corrupter extends concepts.Actor {
     _corrupt_randomly(character, possible_actions, world){
         debug.assertion(()=>character instanceof Character);
         debug.assertion(()=>possible_actions instanceof Object);
+
+        if(random_int(1, 100) > 66){ // Don't always corrupt.
+            return;
+        }
+
         const visible_targets = character.field_of_vision.visible_positions
                 .filter(position => !position.equals(character.position)); // Don't corrupt your own memory directly.
 
@@ -93,10 +98,10 @@ class Microcode extends Character {
         this.stats.integrity.real_value = 4;
         this.stats.inventory_size.real_value = 3;
         this.stats.activable_items.real_value = 3;
-        this.stats.view_distance.real_value = 4;
+        this.stats.view_distance.real_value = 5;
         this.stats.ap_recovery.real_value = 20;
-        this.stats.action_points.real_max = 20;
-        this.stats.action_points.real_value = 20;
+        this.stats.action_points.real_max = 10;
+        this.stats.action_points.real_value = 10;
         this.inventory.add(new items.Item_Corrupt());
         this.inventory.add(new items.Item_Jump());
     }
