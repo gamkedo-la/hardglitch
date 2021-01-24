@@ -1,6 +1,46 @@
 Change Log
 ==========
 
+Hard Glitch v0.11 - 2021-01-24
+------------------------------
+
+These are the changes that can be seen when playing:
+
+- Level 1 is complete (procedural generation & whole content) - the 3 other levels will be released in a later version.
+- Completed all NPCs AI/behavior (Virus, Anti-Virus, Microcode, Program, Aggressive Life Form).
+- Added an aggressive kind of Life Form (sprite is temporary)
+- Added transparent versions of block elements (movable walls) - you can see through them but they still block movement, and you can push/pull them.
+- Level 1 exit area now uses transparent blocks instead of opaque ones, to let the player see the exit.
+- Added a screen clarifying that the levels are procedurally generated.
+- Characters drop their items when destroyed, letting the player steal their powers.
+- Damage and healing values are now visible through an animated number.
+- Bouncing on something (after being pushed or pulled) will do some damage.
+- Reduced size of Level 1.
+- Reduced "Delete" range and changed it's range shape.
+- Info text will now show the most important thing first.
+- Deactivated parallel turn animations to avoid some "physics" issues.
+- Level 1: modified exit area to allow "Jump" to reach the exit.
+- Level 1: items found in crypto-files are far better and more varied.
+- Unsafe basic actions are now visible by default, player can do them by clicking, but not through the keyboard.
+- Life Forms don't push items and each-other around anymore.
+- Corruption now only updates at multiple of 8 computer cycle.
+- Various NPCs stats tweaks.
+
+- Removed most description of the ground tiles to have less text as noise.
+- Improved Camera movements (though still unperfect)
+- Improved text descriptions of items, actions, effects and characters.
+- Tweaked speed of movement animations.
+- Removed the random test level.
+- Improved animations of many characters (thanks Ash).
+- No music in test levels (console `debug_tools_enabled = true` to enable them).
+- Improved starting rooms design.
+- Improved editor buttons order (console `debug_tools_enabled = true` then F2 in-game to open the editor).
+- Deactivated sound on "Wait" action (even for player).
+- Tweaked order of buttons in in-game menu.
+
+- Fixed numerous crashes.
+- Fixed: no "Delete" animation when targetting yourself.
+
 Hard Glitch v0.10 - 2020-10-25
 ------------------------------
 
