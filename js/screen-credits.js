@@ -16,26 +16,26 @@ import { ScreenFader } from "./system/screenfader.js";
 const credits_text =
 `Game made in HomeTeamGameDev.com Outpost Group - Join us!
 <br><br>
-Klaim (A. Joël Lamotte): <br>Project lead, core gameplay functionality, level generation, turn system, animation code,
+Klaim (A. Joël Lamotte): <br>Project lead, core gameplay functionality, level generation, level design, turn system, animation code,
 agents/actors system, FSM v2, actions framework, in-game editor, input handling, UI, optimizations, asset integration,
-menus, original placeholder art, event debug display, NPCs behavior (LifeForms, Virus, Anti-Virus, Programs, etc.),
+menus, original placeholder art, event debug display, NPCs behavior/AI (LifeForms, Virus, Anti-Virus, Programs, etc.),
 game end, spawn code, actions (jump, pull, swap, void, take item, repair, copy, others), fog of war, field of view, shadows,
 camera logic, main palette, many crash fixes and tuning tweaks, inventory, crypto key authoring, loading screen, help text,
-credits screen v2
+credits screen v2, camera system, steering behaviors, tweening, dammage effects, items definitions and descs
 <br><br>
 Tylor Allison: <br>Particle systems (glitch, trace, scan, portal, spawn, missile, color, spark, repair, wait, hex spin,
 lightning jump, fade, explosion swirl, blip edge pathing), procedural tile selection and wall generation, FX randomization,
 wall tiles art, decrypt/triangle animations, mock ups (tile bg, walls, void, experimentation with negative space/holes,
 perspective, color tests), color adjustments, moving wall v2, level design concepts art, floor art, NPC wait animation, warm and
 cool level themes, lots of asset and code cleanup, additional tile type rules, seam fix, take/drop animations, move animations,
-highlights art v2, laser walls, tile overlay, title screen background
+highlights art v2, laser walls, tile overlay, title screen background, block (transparent and not) items sprites
 <br><br>
 Roc Lee: <br>Soundtrack (in-game, levels, victory, game over, transitions), all sound effects (jump, gameplay, UI, movement,
 explosions, decrypt, editor), audio normalization, assorted sound integration
 <br><br>
-Ashleigh M.: <br>Description animation and related background, level transitions, character art mock ups and final
-(virus sprite, slime, life-forms, glitches, program, microcode, anti-virus, virus, additional animations),
-detailed playtesting, palette tweaks, font selection, texts, game-over graphics,
+Ashleigh M.: <br>Description animation and related background, level transitions, character art mock ups and final sprites and animations
+(virus, slime, life-forms, glitches, program, microcode, anti-virus, virus, additional animations...),
+detailed playtesting, palette tweaks, font selection, texts, game-over graphics
 <br><br>
 Cassidy Noble: <br>Crypto key and crypto file art, items art, Assorted docs images, action and item icons, additional UI
 and menu art, color corrections, highlight art v1, moving wall art v1
