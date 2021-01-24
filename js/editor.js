@@ -671,7 +671,8 @@ function end_edition(game_session){
 function export_world(world){
     debug.assertion(()=>world instanceof concepts.World);
 
-    debug.log("WORLD EXPORT:");
-    debug.log(serialize_world(world));
+    window.last_serialized_world = serialize_world(world);
 
+    debug.log("WORLD EXPORT:");
+    debug.log(window.last_serialized_world);
 }
