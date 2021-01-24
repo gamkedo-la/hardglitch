@@ -70,18 +70,20 @@ class PlayingGame extends fsm.State{
             is_camera_dragging_allowed: true,
         });
 
-        editor.update_debug_keys(this.game_session); // Debug action update // TODO: remove this later
+        if(window.debug_tools_enabled){
+            editor.update_debug_keys(this.game_session); // Debug action update // TODO: remove this later
 
-        if(!ongoing_target_selection
-        && this.game_session.view.is_time_for_player_to_chose_action
-        && !input.mouse.is_dragging
-        ){
-            if(input.keyboard.is_just_down(KEY.F2)){
-                this.state_machine.push_action("edit", this.game_session);
-            }
+            if(!ongoing_target_selection
+            && this.game_session.view.is_time_for_player_to_chose_action
+            && !input.mouse.is_dragging
+            ){
+                if(input.keyboard.is_just_down(KEY.F2)){
+                    this.state_machine.push_action("edit", this.game_session);
+                }
 
-            if(input.keyboard.is_just_down(KEY.TAB)){
-                this.state_machine.push_action("back");
+                if(input.keyboard.is_just_down(KEY.TAB)){
+                    this.state_machine.push_action("back");
+                }
             }
         }
     }
