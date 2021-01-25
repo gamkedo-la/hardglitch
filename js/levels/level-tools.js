@@ -113,11 +113,11 @@ function serialize_world(world){
 
     const world_serialized =
 `{
-    name: ${as_string(escaped(world.name))},
-    width: ${world.width},
-    height: ${world.height},
-    grids: ${as_string(grids)},
-    entities: ${as_string(entities)},
+    "name" : ${as_string(escaped(world.name))},
+    "width" : ${world.width},
+    "height" : ${world.height},
+    "grids" : ${as_string(grids)},
+    "entities" : ${as_string(entities)}
 }`;
 
     return world_serialized;

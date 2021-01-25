@@ -671,8 +671,10 @@ function end_edition(game_session){
 function export_world(world){
     debug.assertion(()=>world instanceof concepts.World);
 
-    window.last_serialized_world = serialize_world(world);
+    const world_json = serialize_world(world);
 
     debug.log("WORLD EXPORT:");
-    debug.log(window.last_serialized_world);
+    debug.log(world_json);
+
+    window.last_serialized_world = JSON.parse(world_json);
 }
