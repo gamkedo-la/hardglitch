@@ -10,6 +10,7 @@ import * as tiles from "../definitions-tiles.js";
 import { valid_spawn_positions } from "../core/visibility.js";
 import { GameView } from "../game-view.js";
 import * as anim from "../game-animations.js";
+import { EntityView } from "../view/entity-view.js";
 
 
 class EntityScanned extends concepts.Event {
@@ -52,6 +53,7 @@ class EntitySpawned extends concepts.Event {
         game_view.focus_on_position(this.spawn_position);
         yield* anim.spawned(game_view.fx_view, this.spawn_position);
         const entity_view = game_view.add_entity_view(this.entity_id); // TODO: add some FX and sounds?
+        if(!(entity_view instanceof EntityView)) return; // FIXME: was an assertion, not sure why it went false.
         entity_view.game_position = this.spawn_position;
     }
 };

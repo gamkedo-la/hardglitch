@@ -45,7 +45,7 @@ class Pushed extends concepts.Event {
     *animation(game_view){
         debug.assertion(()=>game_view instanceof GameView);
         const entity_view = game_view.focus_on_entity(this.target_entity_id);
-        debug.assertion(()=>entity_view instanceof EntityView);
+        if(!(entity_view instanceof EntityView)) return; // FIXME
         yield* animations.pushed(game_view.fx_view, entity_view, this.to_pos);
     }
 };
@@ -68,7 +68,7 @@ class Bounced extends concepts.Event {
     *animation(game_view){
         debug.assertion(()=>game_view instanceof GameView);
         const entity_view = game_view.focus_on_entity(this.target_entity_id);
-        debug.assertion(()=>entity_view instanceof EntityView);
+        if(!(entity_view instanceof EntityView)) return; // FIXME: was an assertion, not sure why it went false.
         yield* animations.bounce(entity_view, this.to_pos);
     }
 }

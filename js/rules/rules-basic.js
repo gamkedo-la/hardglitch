@@ -42,6 +42,7 @@ class Waited extends concepts.Event {
     *animation(game_view){
         debug.assertion(()=>game_view instanceof GameView);
         const character_view = game_view.focus_on_entity(this.character_id);
+        if(!(character_view instanceof CharacterView)) return; // FIXME
         debug.assertion(()=>character_view instanceof CharacterView);
         yield* anim.wait(game_view.fx_view, character_view, 333);
     }

@@ -13,6 +13,7 @@ import { Damaged, deal_damage } from "./destruction.js";
 import * as anim from "../game-animations.js";
 import { ranged_actions_for_each_target } from "./rules-common.js";
 import { auto_newlines } from "../system/utility.js";
+import { EntityView } from "../view/entity-view.js";
 
 const delete_damage = 8;
 const delete_ap_cost = 10;
@@ -34,6 +35,7 @@ class Deleted extends concepts.Event {
 
     *animation(game_view){
         const entity_view = game_view.focus_on_entity(this._deleted_id);
+        if(!(entity_view instanceof EntityView)) return; // FIXME
         yield* anim.deleting_missile(game_view.fx_view, this.deleter_position, this.deleted_position);
         yield* anim.take_hit_damage(game_view.fx_view, entity_view);
     }

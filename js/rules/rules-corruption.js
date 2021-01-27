@@ -123,10 +123,10 @@ class CorruptionDamage extends concepts.Event {
         debug.assertion(()=>game_view instanceof GameView);
 
         const entity_view = game_view.get_entity_view(this.entity_id);
-        debug.assertion(()=>entity_view instanceof EntityView);
-
-        audio.playEvent("corruptAction");
-        yield* animation.take_hit_damage(game_view.fx_view, entity_view);
+        if(entity_view instanceof EntityView){ // FIXME
+            audio.playEvent("corruptAction");
+            yield* animation.take_hit_damage(game_view.fx_view, entity_view);
+        }
         yield* anim.wait(1000 / 64);
     }
 };

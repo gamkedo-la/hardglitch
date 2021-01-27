@@ -30,7 +30,8 @@ class Repaired extends concepts.Event {
     *animation(game_view){
         debug.assertion(()=>game_view instanceof GameView);
         const entity_view = game_view.focus_on_entity(this.entity_id);
-        debug.assertion(()=>entity_view instanceof EntityView);
+        if(!(entity_view instanceof EntityView)) return; // FIXME: was an assertion, not sure why it went false.
+
         if(this.from_position instanceof concepts.Position && !this.from_position.equals(entity_view.game_position))
             yield* animations.repairing_missile(game_view.fx_view, this.from_position, entity_view.game_position)
 

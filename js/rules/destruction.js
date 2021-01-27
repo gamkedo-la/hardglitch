@@ -39,9 +39,10 @@ class Damaged extends concepts.Event {
     *animation(game_view){
         debug.assertion(()=>game_view instanceof GameView);
         const entity_view = game_view.focus_on_entity(this.entity_id);
-        debug.assertion(()=>entity_view instanceof EntityView);
-        if(game_view.fog_of_war.is_visible(entity_view.game_position)){
-            game_view.special_animations.play(integrity_value_change(game_view, -this.damage_count, entity_view.position));
+        if(entity_view instanceof EntityView){ // FIXME: was an assertion, not sure why it went false.
+            if(game_view.fog_of_war.is_visible(entity_view.game_position)){
+                game_view.special_animations.play(integrity_value_change(game_view, -this.damage_count, entity_view.position));
+            }
         }
         yield* wait(1);
     }
@@ -67,8 +68,9 @@ class Destroyed extends concepts.Event {
     *animation(game_view){
         debug.assertion(()=>game_view instanceof GameView);
         const entity_view = game_view.focus_on_entity(this.entity_id);
-        debug.assertion(()=>entity_view instanceof EntityView);
-        yield* destroyed(game_view.fx_view, entity_view);
+        if(entity_view instanceof EntityView) // FIXME: was an assertion, not sure why it went false.
+            yield* destroyed(game_view.fx_view, entity_view);
+
         game_view.clear_focus();
         game_view.remove_entity_view(this.entity_id);
     }

@@ -1073,6 +1073,7 @@ class GameView {
         if(Number.isInteger(entity_or_view_or_id)){
             const entity_id = entity_or_view_or_id;
             entity_or_view_or_id = this.game.world.get_entity(entity_id);
+            if(entity_or_view_or_id === undefined) return;
             debug.assertion(()=>entity_or_view_or_id instanceof concepts.Entity);
         }
 

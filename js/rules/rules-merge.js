@@ -17,6 +17,8 @@ import { handle_items_in_limbo } from "./rules-items.js";
 import { EntityScanned } from "./spawn.js";
 import { auto_newlines } from "../system/utility.js";
 import { GameView } from "../game-view.js";
+import { EntityView } from "../view/entity-view.js";
+import { CharacterView } from "../view/character-view.js";
 
 const merge_ap_cost = 20;
 const merge_range = new visibility.Range_Cross_Axis(1, 2);
@@ -42,7 +44,8 @@ class Merged extends concepts.Event {
         debug.assertion(()=>game_view instanceof GameView);
         const merger_view = game_view.get_entity_view(this.merger_id);
         const mergedin_view = game_view.focus_on_entity(this.merged_in_id);
-        yield* anim.merge_characters(game_view.fx_view, merger_view, mergedin_view);
+        if(merger_view instanceof CharacterView && mergedin_view instanceof CharacterView)
+            yield* anim.merge_characters(game_view.fx_view, merger_view, mergedin_view);
         game_view.reset_entities();
     }
 };

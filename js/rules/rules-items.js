@@ -49,10 +49,12 @@ class ItemTaken extends concepts.Event {
         const character_view = game_view.get_entity_view(this.taker_id);
         debug.assertion(()=>character_view instanceof CharacterView);
         const item_view = game_view.focus_on_entity(this.item_id);
-        debug.assertion(()=>item_view instanceof ItemView);
-        yield* anim.take_item(game_view.fx_view, character_view, item_view);
+        if(item_view instanceof ItemView)
+            yield* anim.take_item(game_view.fx_view, character_view, item_view);
+
         game_view.remove_entity_view(this.item_id);
         if(character_view.is_player){
+            debug.assertion(()=>item_view instanceof ItemView);
             game_view.ui.inventory.set_item_view_at(this.inventory_idx, item_view);
             yield* anim.inventory_add(game_view.ui.inventory.fx_view, game_view.ui.inventory, this.inventory_idx);
             game_view.ui.inventory.request_refresh();

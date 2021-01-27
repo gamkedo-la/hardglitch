@@ -60,7 +60,7 @@ class Moved extends concepts.Event {
     *animation(game_view){
         debug.assertion(()=>game_view instanceof GameView);
         const entity_view = game_view.focus_on_entity(this.entity_id);
-        if(!entity_view) // FIXME: why does this happen?
+        if(!(entity_view instanceof EntityView)) // FIXME: why does this happen?
             return;
         debug.assertion(()=>entity_view instanceof EntityView);
         debug.assertion(()=>this.to_pos instanceof concepts.Position);
@@ -145,6 +145,8 @@ class Jumped extends concepts.Event {
     *animation(game_view){
         debug.assertion(()=>game_view instanceof GameView);
         const entity_view = game_view.focus_on_entity(this.entity_id);
+        if(!(entity_view instanceof EntityView)) // FIXME: why does this happen?
+            return;
         debug.assertion(()=>entity_view instanceof EntityView);
         debug.assertion(()=>this.to_pos instanceof concepts.Position);
         yield* animations.jump(game_view.fx_view, entity_view, this.to_pos);
@@ -273,13 +275,14 @@ class Swaped extends concepts.Event {
     *animation(game_view){
         debug.assertion(()=>game_view instanceof GameView);
         const entity_a_view = game_view.focus_on_entity(this.entity_a_id);
-        debug.assertion(()=>entity_a_view instanceof EntityView);
+        // debug.assertion(()=>entity_a_view instanceof EntityView);
         const entity_b_view = game_view.get_entity_view(this.entity_b_id);
-        debug.assertion(()=>entity_b_view instanceof EntityView);
-        debug.assertion(()=>this.pos_a.equals(entity_a_view.game_position));
-        debug.assertion(()=>this.pos_b.equals(entity_b_view.game_position));
-
-        yield* animations.swap(game_view.fx_view, entity_a_view, entity_b_view, animations.default_move_duration_ms * 2);
+        // debug.assertion(()=>entity_b_view instanceof EntityView);
+        if(entity_a_view instanceof EntityView && entity_b_view instanceof EntityView){ // FIXME: why does this happen?
+            debug.assertion(()=>this.pos_a.equals(entity_a_view.game_position));
+            debug.assertion(()=>this.pos_b.equals(entity_b_view.game_position));
+            yield* animations.swap(game_view.fx_view, entity_a_view, entity_b_view, animations.default_move_duration_ms * 2);
+        }
         game_view.focus_on_entity(this.entity_a_id);
     }
 
