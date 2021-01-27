@@ -15,7 +15,7 @@ import { ranged_actions_for_each_target } from "./rules-common.js";
 import { auto_newlines } from "../system/utility.js";
 import { EntityView } from "../view/entity-view.js";
 
-const delete_damage = 8;
+const delete_damage = 4;
 const delete_ap_cost = 10;
 const delete_range = new visibility.Range_Cross_Star(0,4);
 
