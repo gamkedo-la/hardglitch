@@ -81,9 +81,10 @@ class EntityDropped extends concepts.Event {
         debug.assertion(()=>game_view instanceof GameView);
         game_view.focus_on_position(this.drop_position);
         const item_view = game_view.add_entity_view(this.dropped_id);
+        const previous_visibility = item_view.is_visible;
         yield* anim.drop_item(game_view.fx_view, this.drop_position);
         game_view.add_entity_view(item_view);
-        item_view.is_visible = true;
+        item_view.is_visible = previous_visibility;
     }
 }
 
@@ -113,19 +114,21 @@ class InventoryItemDropped extends concepts.Event {
             yield* anim.inventory_remove(game_view.ui.inventory.fx_view, game_view.ui.inventory, this.item_idx);
             const item_view = game_view.ui.inventory.remove_item_view_at(this.item_idx);
             if(item_view instanceof ItemView){
+                const previous_visibility = item_view.is_visible;
                 item_view.is_visible = false;
                 item_view.game_position = this.drop_position;
                 yield* anim.drop_item(game_view.fx_view, this.drop_position);
                 game_view.add_entity_view(item_view);
-                item_view.is_visible = true;
+                item_view.is_visible = previous_visibility;
             }
             game_view.ui.inventory.request_refresh();
         } else {
             const dropped_view = game_view.add_entity_view(this.dropped_id);
+            const previous_visibility = dropped_view.is_visible;
             debug.assertion(()=>dropped_view instanceof EntityView); // Could be something else than an item.
             yield* anim.drop_item(game_view.fx_view, this.drop_position);
             game_view.add_entity_view(dropped_view);
-            dropped_view.is_visible = true;
+            dropped_view.is_visible = previous_visibility;
         }
     }
 };

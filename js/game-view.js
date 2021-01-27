@@ -801,7 +801,7 @@ class GameView {
 
         this.fx_view.draw(graphics.screen_canvas_context, effect_visibility_predicate);
 
-        this._render_entities(graphics.screen_canvas_context, entity_view => entity_view.is_flying);
+        this._render_entities(graphics.screen_canvas_context, entity_view => entity_view.is_flying && this.fog_of_war.is_visible(entity_view.game_position));
 
         this._render_top_highlights();
 
