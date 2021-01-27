@@ -208,7 +208,7 @@ function valid_move_positions(world, character, action_range_shape, tile_filter)
             .filter(pos => !is_blocked_position(world, pos, tile_filter) && character.can_see(pos));
 }
 
-function valid_spawn_positions(world, center_position, tile_filter, max_range = 16){
+function valid_spawn_positions(world, center_position, tile_filter, max_range = 8){
     debug.assertion(()=>world instanceof concepts.World);
     debug.assertion(()=>center_position instanceof concepts.Position);
     debug.assertion(()=>tile_filter instanceof Function);
