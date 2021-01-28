@@ -6,7 +6,7 @@ import * as debug from "../system/debug.js";
 import * as visibility from "../core/visibility.js";
 import * as tiles from "../definitions-tiles.js";
 import * as items from "../definitions-items.js";
-import { not, random_bag_pick, random_int, random_sample, shuffle_array } from "../system/utility.js";
+import { index_from_position, not, random_bag_pick, random_int, random_sample, shuffle_array } from "../system/utility.js";
 import {
     ChunkGrid,
     deserialize_world,
@@ -24,8 +24,8 @@ import { grid_ID, is_blocked_position } from "../definitions-world.js";
 const level_name = "Level 0: Buggy Program";
 
 const defaults = {
-    ground : tiles.ID.LVL1A,
-    ground_alt: tiles.ID.LVL1B,
+    floor : tiles.ID.LVL1A,
+    floor_alt: tiles.ID.LVL1B,
     wall : tiles.ID.WALL1A,
     wall_alt : tiles.ID.WALL1B,
 };
@@ -440,6 +440,18 @@ function populate_entities(world, central_area_rect, start_items){
     return entities;
 }
 
+function fill_area_floor(world_desc, rectangle, tileid){
+    debug.assertion(()=> world_desc instanceof Object);
+    debug.assertion(()=> rectangle instanceof Rectangle);
+    debug.assertion(()=> Number.isInteger(tileid));
+    for(let y = rectangle.top_left.y; y < rectangle.bottom_right.y; ++y){
+        for(let x = rectangle.top_left.x; x < rectangle.bottom_right.x; ++x){
+            const idx = index_from_position(world_desc.width, world_desc.height, {x, y});
+            world_desc.grids.floor[idx] = tileid;
+        }
+    }
+}
+
 function generate_world() {
     // LEVEL 1:
     // Buggy Program: https://trello.com/c/wEnOf3hQ/74-level-1-buggy-program
@@ -569,10 +581,10 @@ function generate_world() {
 
     const subchunks_2x2 = () => {
         return random_sample([
-            random_empty_2x2_floor(defaults.ground, defaults.wall),
-            random_empty_2x2_floor(defaults.ground, defaults.wall_alt),
-            random_empty_2x2_floor(defaults.ground, tiles.ID.VOID),
-            random_empty_2x2_floor(defaults.ground, tiles.ID.HOLE),
+            random_empty_2x2_floor(defaults.floor, defaults.wall),
+            random_empty_2x2_floor(defaults.floor, defaults.wall_alt),
+            random_empty_2x2_floor(defaults.floor, tiles.ID.VOID),
+            random_empty_2x2_floor(defaults.floor, tiles.ID.HOLE),
         ]);
     }
 
@@ -608,7 +620,7 @@ function generate_world() {
     const level_central_chunks = new ChunkGrid({
         width: 3, height: 4, // These are number of chunks
         chunk_width: 8, chunk_height: 8,
-        default_grid_values: { floor: tiles.ID.WALL1A },
+        default_grid_values: defaults,
         chunks: [
             subchunk_8x8,       subchunk_8x8,       subchunk_8x8,
             subchunk_8x8,       subchunk_8x8,       subchunk_8x8,
@@ -620,19 +632,27 @@ function generate_world() {
     const central_chunk_width = level_central_chunks.width * level_central_chunks.chunk_width;
     const central_chunk_height = level_central_chunks.height * level_central_chunks.chunk_height;
 
-    const start_left = random_int(0, central_chunk_width - starting_room.width);
-    const start_top = 0;
-
-    const central_part_pos = { x: 0, y: 18 };
+    const start_pos = {
+        x: random_int(0, central_chunk_width - starting_room.width),
+        y: 0
+    };
+    const central_part_pos = { x: 0, y: starting_room.height };
     const central_part = unfold_chunk_grid("level center", level_central_chunks);
-    const level_with_starting_room = merge_world_chunks(level_name, { floor: tiles.ID.WALL1A },
+
+    // Make sure the entry and exit areas in the central part is not blocked
+    const safe_space = 2;
+    fill_area_floor(central_part, new Rectangle({ position:{ x:0, y:0 }, width: central_part.width, height: safe_space}), defaults.floor);
+    fill_area_floor(central_part, new Rectangle({ position:{ x:0, y:central_part.height - safe_space }, width: central_part.width, height: safe_space}), defaults.floor);
+
+    const level_with_starting_room = merge_world_chunks(level_name, { floor: defaults.wall },
         { position: central_part_pos, world_desc: central_part, },
-        { position: { x: start_left, y: start_top }, world_desc: starting_room, },
+        { position: start_pos, world_desc: starting_room, },
     );
+
 
     const exit_left = random_int(0, level_with_starting_room.width - exit_room.width);
     const exit_top = level_with_starting_room.height - random_int(0, 4);
-    const level_with_exit_room = merge_world_chunks(level_name, { floor: tiles.ID.WALL1A },
+    const level_with_exit_room = merge_world_chunks(level_name, { floor: defaults.wall },
         { position: { x: 0, y: 0 }, world_desc: level_with_starting_room, },
         { position: { x: exit_left, y: exit_top }, world_desc: exit_room, },
     );
@@ -653,12 +673,12 @@ function generate_world() {
             y: starting_room.height + random_int(-4, central_chunk_height - special_room_east.height - 4)
         }
     };
-    const level_with_special_rooms = merge_world_chunks(level_name, { floor: tiles.ID.WALL1A },
+    const level_with_special_rooms = merge_world_chunks(level_name, { floor: defaults.wall },
         { position: { x: special_room_west.width, y: 0 }, world_desc: level_with_exit_room, },
         east_room, west_room,
     );
 
-    const level_desc = add_padding_around(level_with_special_rooms, { floor: tiles.ID.WALL1A });
+    const level_desc = add_padding_around(level_with_special_rooms, { floor: defaults.wall });
     const world_so_far = deserialize_world(level_desc);
 
     const central_area = new Rectangle({
@@ -697,9 +717,9 @@ function generate_world() {
     const exit_position = new Position(exit_positions[0]);
     const close_to_exit_range = new visibility.Range_Circle(0, 16);
     visibility.positions_in_range(exit_position, close_to_exit_range,
-                                position => world.is_valid_position(position) && world.grids[grid_ID.floor].get_at(position) === defaults.ground)
+                                position => world.is_valid_position(position) && world.grids[grid_ID.floor].get_at(position) === defaults.floor)
         .forEach(position => {
-            world.grids[grid_ID.floor].set_at(defaults.ground_alt, position);
+            world.grids[grid_ID.floor].set_at(defaults.floor_alt, position);
         });
 
     return world;
