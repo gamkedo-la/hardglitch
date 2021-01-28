@@ -83,8 +83,8 @@ const startup_rooms = {
             { type: "LifeForm_Weak", position: { x: 5, y: 5 } },
             { type: "GlitchyGlitchMacGlitchy", position: { x: 5, y: 9 } },
             { type: "LifeForm_Aggressive", position: { x: 5, y: 1 } },
-            { type: "CryptoFile_Triangle", position: { x: 8, y: 16 } },
-            { type: "CryptoKey_Triangle", position: { x: 4, y: 2 }, is_crucial: true, },
+            { type: "CryptoFile_Triangle", position: { x: 8, y: 16 }, drops: [ "MovableWall_Glass_Orange" ], },
+            { type: "CryptoKey_Triangle", position: { x: 4, y: 2 }, is_crucial: true },
             { type: "MovableWall_Purple", position: { x: 2, y: 8 } },
             { type: "MovableWall_Green", position: { x: 1, y: 13 } },
             { type: "MovableWall_Orange", position: { x: 2, y: 13 } },
@@ -702,8 +702,7 @@ function generate_world() {
     ];
 
     world.items.filter(item => item instanceof items.CryptoFile  // Crypto-files...
-                            && !(item instanceof items.CryptoFile_Triangle) // ... which are not starting room crypto-files...
-                             && (!item.drops || item.drops.length == 0)) // ... and didn't already have dropes set.
+                             && (!item.drops || item.drops.length == 0)) // ... that didn't already have dropes set.
         .forEach(cryptofile => {
             if(!cryptofile.drops) cryptofile.drops = [];
             const items = deserialize_entities(random_bag_pick(rare_items, 1));
