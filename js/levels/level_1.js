@@ -662,14 +662,14 @@ function generate_world() {
     const west_room = {
         world_desc: special_room_west,
         position: {
-            x: random_int(0, 4),
+            x: random_int(0, 2),
             y: starting_room.height + random_int(-4, central_chunk_height - special_room_east.height - 4)
         }
     };
     const east_room = {
         world_desc: special_room_east,
         position: {
-            x: special_room_west.width + central_chunk_width - random_int(0, 4),
+            x: special_room_west.width + central_chunk_width - random_int(0, 2),
             y: starting_room.height + random_int(-4, central_chunk_height - special_room_east.height - 4)
         }
     };
