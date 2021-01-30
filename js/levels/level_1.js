@@ -696,6 +696,7 @@ function generate_world() {
         { type: "Item_AutoRepair" },
         { type: "Item_MemoryCleanup" },
         { type: "Item_Copy" },
+        { type: "Item_Merge" },
         { type: "Item_IntegrityBoost" },
         { type: "Item_FrequencyBoost" },
         { type: "Item_DataBender" },
