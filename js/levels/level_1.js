@@ -289,7 +289,9 @@ const starting_items = [ "Item_Push", "Item_Pull",  "Item_Swap", "Item_Jump"];
 
 function predicate_entity_spawn_pos(world){
     debug.assertion(()=> world instanceof World);
-    return position => not(is_blocked_position)(world, position, tiles.is_safely_walkable);
+    const is_free_spot = (position) => not(is_blocked_position)(world, position, tiles.is_safely_walkable);
+    const have_free_adjacent_pos = (position) => new Position(position).adjacents.some(is_free_spot); // Make sure entities have at least one adjacent square to move to or to be taken from.
+    return position =>  is_free_spot(position) && have_free_adjacent_pos(position);
 }
 
 function random_available_entity_position(world, area, predicate = predicate_entity_spawn_pos(world)){
