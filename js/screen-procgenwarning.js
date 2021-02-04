@@ -31,12 +31,12 @@ class ProcgenWarningScreen extends fsm.State {
         this.ui = {
             message : new ui.Text({
                 text: auto_newlines(
-`In this game, levels are procedurally generated (with a bit of randomness).
+`--==# THE COMPUTER WORLD CHANGES CONSTANTLY ##==--
 
-If you are stuck, you can retry the game: the levels will have changed and will probably be easier.
+If you are stuck, you can retry the game: the world will have changed and will probably be easier.
 
-You can also find some tips and help in the menu
-(the button located on the top right of the screen).
+Tips and help can be found in the menu
+(top left of the screen).
 
 Click or [Space] to continue.
 `, 80),
