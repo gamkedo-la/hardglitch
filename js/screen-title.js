@@ -16,6 +16,7 @@ import { ScreenFader } from "./system/screenfader.js";
 import { HARD_GLITCH_VERSION } from "./version.js";
 
 const buttons_font = "22px Space Mono";
+const button_text_color = "#32258b";
 
 class MainMenu {
 
@@ -32,7 +33,7 @@ class MainMenu {
 
         this.button_new_game = new ui.TextButton({
             text: "New Game",
-            color: "#ffffff",
+            color: button_text_color,
             font: buttons_font,
             action: ()=> { state_machine.push_action("new_game"); },
             position: Vector2_origin,
@@ -45,7 +46,7 @@ class MainMenu {
 
         this.button_options = new ui.TextButton({
             text: "Options",
-            color: "#ffffff",
+            color: button_text_color,
             font: buttons_font,
             action: ()=> { state_machine.push_action("options"); },
             position: Vector2_origin,
