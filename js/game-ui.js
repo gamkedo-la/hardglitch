@@ -370,9 +370,8 @@ class MenuButton extends ui.Button {
     get position() { return super.position; }
     set position(new_pos){
         super.position = new_pos;
-        // this.icons.on.position = center_in_rectangle(this.icons.on, this.area).position;
-        this.help_text.position = { x: graphics.canvas_rect().width - this.help_text.width - this.width, y: 0 };
         this.help_text.area_to_help = this.area;
+        this.help_text.position = { x: 0, y: this.height };
     }
 }
 
@@ -589,10 +588,12 @@ class GameInterface {
 
     on_canvas_resized(){
         // TODO: check if we need to do more.
-        this.button_main_menu = new MenuButton(this.config.open_menu);
-        this.button_main_menu.position = { x: graphics.canvas_rect().width - this.button_main_menu.width, y: 0 },
         this.button_auto_focus = new AutoFocusButton(this.config.toggle_autofocus, this.config.is_autofocus_enabled);
         this.button_auto_focus.position = this.button_auto_focus.position.translate({ x: this.button_auto_focus.width }); // Assuming the mute button is the same size as the auto-focus button
+
+        this.button_main_menu = new MenuButton(this.config.open_menu);
+        this.button_main_menu.position = this.button_main_menu.position.translate({ x: this.button_main_menu.width * 2 }); // Assuming the mute button is the same size as the menu button
+
         this.character_status = new CharacterStatus(character_status_position());
         this.inventory = new InventoryUI(inventory_position(), this.character_status, this.config);
         this.timeline = new Timeline(timeline_position(), this.config.view_finder, this.config.visibility_predicate);
