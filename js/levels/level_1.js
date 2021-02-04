@@ -362,36 +362,51 @@ function populate_entities(world, central_area_rect, start_items){
     const is_crypto_stuffs_splitt_horizontal = random_int(1, 100) > 50;
     const crypto_areas = [];
     if(is_crypto_stuffs_splitt_horizontal){
-        crypto_areas.push(new Rectangle({
-            position: central_area_rect.position,
-            width: central_area_rect.width,
-            height: Math.ceil(central_area_rect.height/2),
-        }),
-        new Rectangle({
-            position: {
-                x: central_area_rect.position.x,
-                y: central_area_rect.position.y + Math.ceil(central_area_rect.height/2) + 1,
-            },
-            width: central_area_rect.width,
-            height: Math.ceil(central_area_rect.height/2),
-        }),);
+        const half_height = Math.ceil(central_area_rect.height/2);
+        crypto_areas.push(
+            new Rectangle({
+                position: central_area_rect.position,
+                width: central_area_rect.width,
+                height: half_height,
+            }),
+            new Rectangle({
+                position: {
+                    x: central_area_rect.position.x,
+                    y: central_area_rect.position.y + half_height + 1,
+                },
+                width: central_area_rect.width,
+                height: half_height,
+            }),
+        );
     } else {
-        crypto_areas.push(new Rectangle({
-            position: central_area_rect.position,
-            width: Math.ceil(central_area_rect.width/2),
-            height: central_area_rect.height,
-        }),
-        new Rectangle({
-            position: {
-                x: central_area_rect.position.x + Math.ceil(central_area_rect.width/2) + 1,
-                y: central_area_rect.position.y,
-            },
-            width: Math.ceil(central_area_rect.width/2),
-            height: central_area_rect.height,
-        }),);
-    };
-    const crypto_key_area = random_bag_pick(crypto_areas, 1)[0];
-    const crypto_file_area = random_bag_pick(crypto_areas, 1)[0];
+        const half_width = Math.ceil(central_area_rect.width/2);
+        crypto_areas.push(
+            new Rectangle({
+                position: central_area_rect.position,
+                width: half_width,
+                height: central_area_rect.height,
+            }),
+            new Rectangle({
+                position: {
+                    x: central_area_rect.position.x + half_width + 1,
+                    y: central_area_rect.position.y,
+                },
+                width: half_width,
+                height: central_area_rect.height,
+            }),
+        );
+    }
+
+    const crypto_safe_marge = 2;
+    const crypto_areas_marge = crypto_areas.map(rect => {
+        rect.position = rect.position.translate({x:crypto_safe_marge, y:crypto_safe_marge});
+        rect.width -= (crypto_safe_marge * 2);
+        rect.height -= (crypto_safe_marge * 2);
+        return rect;
+    });
+
+    const crypto_key_area = random_bag_pick(crypto_areas_marge, 1)[0];
+    const crypto_file_area = random_bag_pick(crypto_areas_marge, 1)[0];
     debug.assertion(()=>crypto_key_area instanceof Rectangle);
     debug.assertion(()=>crypto_file_area instanceof Rectangle);
     add_entities_from_desc(
@@ -682,7 +697,7 @@ function generate_world() {
     const world_so_far = deserialize_world(level_desc);
 
     const central_area = new Rectangle({
-        position: central_part_pos,
+        position: { x: west_room.world_desc.width + central_part_pos.x, y: central_part_pos.y }, // the central area is pushed on the east by the west room, so we need to take that into acount to find it's real position (FIXME)
         width: central_part.width,
         height: central_part.height
     });

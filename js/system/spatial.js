@@ -92,6 +92,7 @@ class Vector2{
     }
 
     translate(translation){
+        debug.assertion(()=>translation instanceof Object);
         const translate_x = is_number(translation.x) ? translation.x : 0;
         const translate_y = is_number(translation.y) ? translation.y : 0;
         return new Vector2({ x: this.x + translate_x, y: this.y + translate_y });
