@@ -1134,7 +1134,7 @@ class GameView {
         this._central_message.text = text;
         this._relocate_goal_text();
         if(duration_ms > 0)
-            this.current_animations.play(anim.wait(duration_ms))
+            this.special_animations.play(anim.wait(duration_ms))
                                     .then(()=> this._central_message.enabled = false);
     }
 
