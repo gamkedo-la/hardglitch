@@ -1,6 +1,23 @@
 Change Log
 ==========
 
+Hard Glitch v0.11.1 - 2021-02-05
+--------------------------------
+
+This version fixes most bugs and balance issues.
+
+These are the changes that can be seen when playing:
+
+- Final sprite for "Aggressive Life Form".
+- Level 1 content generation is fixed and improved, better placement, removed difficult items and entities, etc.
+- "Delete" action damages are reduced to 4.
+- Made extremely rare the probability to be blocked in Level 1 at the exit of the first room.
+- The text "Find The Exit" will not prevent anymore the player from playing while it is displayed.
+- Tweaked UI in-game and in title screen to help with visibility.
+- Improved "procgen warning" screen text.
+- Fixed random crashes (when animations were played outside the field-of-view of the player).
+- Fixed sprite visibility glitch when "Jump" or "Swap" is used outside the field-of-view of the player.
+
 Hard Glitch v0.11 - 2021-01-24
 ------------------------------
 
