@@ -6,7 +6,7 @@ import * as debug from "../system/debug.js";
 import * as visibility from "../core/visibility.js";
 import * as tiles from "../definitions-tiles.js";
 import * as items from "../definitions-items.js";
-import { index_from_position, not, random_bag_pick, random_int, random_sample, shuffle_array } from "../system/utility.js";
+import { random_bag_pick, random_int, random_sample, shuffle_array } from "../system/utility.js";
 import {
     ChunkGrid,
     deserialize_world,
@@ -18,10 +18,11 @@ import {
     create_chunk,
     random_available_entity_position,
     predicate_entity_spawn_pos,
+    fill_area_floor,
 } from "./level-tools.js";
 import { Position, World } from "../core/concepts.js";
 import { Rectangle } from "../system/spatial.js";
-import { grid_ID, is_blocked_position } from "../definitions-world.js";
+import { grid_ID } from "../definitions-world.js";
 
 const level_name = "Level 0: Buggy Program";
 
@@ -447,17 +448,6 @@ function populate_entities(world, central_area_rect, start_items){
     return entities;
 }
 
-function fill_area_floor(world_desc, rectangle, tileid){
-    debug.assertion(()=> world_desc instanceof Object);
-    debug.assertion(()=> rectangle instanceof Rectangle);
-    debug.assertion(()=> Number.isInteger(tileid));
-    for(let y = rectangle.top_left.y; y < rectangle.bottom_right.y; ++y){
-        for(let x = rectangle.top_left.x; x < rectangle.bottom_right.x; ++x){
-            const idx = index_from_position(world_desc.width, world_desc.height, {x, y});
-            world_desc.grids.floor[idx] = tileid;
-        }
-    }
-}
 
 function generate_world() {
     // LEVEL 1:

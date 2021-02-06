@@ -9,6 +9,7 @@ export {
 
     predicate_entity_spawn_pos,
     random_available_entity_position,
+    fill_area_floor,
 
     ChunkGrid,
     unfold_chunk_grid,
@@ -93,6 +94,19 @@ function random_available_entity_position(world, area, predicate = predicate_ent
         }
     }
 }
+
+function fill_area_floor(world_desc, rectangle, tileid){
+    debug.assertion(()=> world_desc instanceof Object && !(world_desc instanceof concepts.World));
+    debug.assertion(()=> rectangle instanceof Rectangle);
+    debug.assertion(()=> Number.isInteger(tileid));
+    for(let y = rectangle.top_left.y; y < rectangle.bottom_right.y; ++y){
+        for(let x = rectangle.top_left.x; x < rectangle.bottom_right.x; ++x){
+            const idx = index_from_position(world_desc.width, world_desc.height, {x, y});
+            world_desc.grids.floor[idx] = tileid;
+        }
+    }
+}
+
 
 function generate_empty_world(name, width, height, defaults = defaults_gen){
 
