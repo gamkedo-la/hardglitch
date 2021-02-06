@@ -16,6 +16,8 @@ import {
     merge_world_chunks,
     add_padding_around,
     create_chunk,
+    random_available_entity_position,
+    predicate_entity_spawn_pos,
 } from "./level-tools.js";
 import { Position, World } from "../core/concepts.js";
 import { Rectangle } from "../system/spatial.js";
@@ -287,26 +289,7 @@ window.level1_special_rooms = level1_special_rooms; // For debugging.
 
 const starting_items = [ "Item_Push", "Item_Pull",  "Item_Swap", "Item_Jump"];
 
-function predicate_entity_spawn_pos(world){
-    debug.assertion(()=> world instanceof World);
-    const is_free_spot = (position) => not(is_blocked_position)(world, position, tiles.is_safely_walkable);
-    const have_free_adjacent_pos = (position) => new Position(position).adjacents.some(is_free_spot); // Make sure entities have at least one adjacent square to move to or to be taken from.
-    return position =>  is_free_spot(position) && have_free_adjacent_pos(position);
-}
 
-function random_available_entity_position(world, area, predicate = predicate_entity_spawn_pos(world)){
-    debug.assertion(()=> world instanceof World);
-    debug.assertion(()=> area instanceof Rectangle);
-    debug.assertion(()=> predicate instanceof Function);
-
-    while(true){
-        const x = random_int(area.top_left.x, area.bottom_right.x - 1);
-        const y = random_int(area.top_left.y, area.bottom_right.y - 1);
-        if(predicate({x, y})){
-            return new Position({x, y});
-        }
-    }
-}
 
 function populate_entities(world, central_area_rect, start_items){
     debug.assertion(()=> world instanceof World);
@@ -319,6 +302,7 @@ function populate_entities(world, central_area_rect, start_items){
         deserialize_entities(entities_descs).forEach(entity => world.add_entity(entity));
     };
     const is_spawn_position = predicate_entity_spawn_pos(world);
+
     const random_spawn_pos = (area = central_area_rect)=> random_available_entity_position(world, area);
 
     const bonus_bag = [

@@ -7,6 +7,9 @@ export {
     merge_world_chunks,
     add_padding_around,
 
+    predicate_entity_spawn_pos,
+    random_available_entity_position,
+
     ChunkGrid,
     unfold_chunk_grid,
     create_chunk,
@@ -15,12 +18,13 @@ export {
 import * as debug from "../system/debug.js";
 import * as tiles from "../definitions-tiles.js";
 import * as concepts from "../core/concepts.js";
-import { default_rules, is_valid_world, grid_ID, get_entity_type } from "../definitions-world.js";
+import { default_rules, is_valid_world, grid_ID, get_entity_type, is_blocked_position } from "../definitions-world.js";
 import { Grid, merged_grids_size, merge_grids } from "../system/grid.js";
-import { escaped, index_from_position, random_int, random_sample, copy_data, position_from_index, is_generator } from "../system/utility.js";
+import { escaped, index_from_position, random_int, random_sample, copy_data, position_from_index, is_generator, not } from "../system/utility.js";
 import { Corruption } from "../rules/rules-corruption.js";
 import { Unstability } from "../rules/rules-unstability.js";
 import { all_item_types } from "../definitions-items.js";
+import { Rectangle } from "../system/spatial.js";
 
 const default_defaults = {
     ground : tiles.ID.GROUND,
@@ -68,6 +72,27 @@ class DefaultsGen {
 }
 
 const defaults_gen = new DefaultsGen();
+
+function predicate_entity_spawn_pos(world){
+    debug.assertion(()=> world instanceof concepts.World);
+    const is_free_spot = (position) => not(is_blocked_position)(world, position, tiles.is_safely_walkable);
+    const have_free_adjacent_pos = (position) => new concepts.Position(position).adjacents.some(is_free_spot); // Make sure entities have at least one adjacent square to move to or to be taken from.
+    return position =>  is_free_spot(position) && have_free_adjacent_pos(position);
+}
+
+function random_available_entity_position(world, area, predicate = predicate_entity_spawn_pos(world)){
+    debug.assertion(()=> world instanceof concepts.World);
+    debug.assertion(()=> area instanceof Rectangle);
+    debug.assertion(()=> predicate instanceof Function);
+
+    while(true){
+        const x = random_int(area.top_left.x, area.bottom_right.x - 1);
+        const y = random_int(area.top_left.y, area.bottom_right.y - 1);
+        if(predicate({x, y})){
+            return new concepts.Position({x, y});
+        }
+    }
+}
 
 function generate_empty_world(name, width, height, defaults = defaults_gen){
 
