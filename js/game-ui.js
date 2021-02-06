@@ -39,7 +39,7 @@ function inventory_position() {
 
 function timeline_position() {
     const canvas_rect = graphics.canvas_rect();
-    return new Vector2({ x:canvas_rect.width - 80, y: 100 });
+    return new Vector2({ x:canvas_rect.width - 80, y: 40 });
 }
 
 function infobox_rectangle() {
