@@ -591,10 +591,10 @@ class GameScreen extends fsm.StateMachine {
         }
         else {
             // DEMO MODE: we just jump to the demo scren
-            this.state_machine.push_action("demo", this._level_to_play, this.game_session.world.exiting_character);
+            // this.state_machine.push_action("demo", this._level_to_play, this.game_session.world.exiting_character);
 
             // Pass on the player's character that exited, to continue in the next level.
-            // this.state_machine.push_action(`level_${next_level}`, this.game_session.world.exiting_character);
+            this.state_machine.push_action(`level_${next_level}`, this.game_session.world.exiting_character);
         }
     }
 
