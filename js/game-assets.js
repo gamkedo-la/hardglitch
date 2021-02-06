@@ -49,6 +49,7 @@ const game_assets = { // Description of the assets to load.
         test_button : "./images/test_button.png",
         up_down : "./images/up_down.png",
         highlights : "./images/highlights.png",
+        highlightsv2 : "./images/highlightsv2.png",
         laserwalltemplate : "./images/laserwall.png",
         crypto_file: "./images/allcryptofiles.png",
         crypto_key_0: "./images/cryptokeytriangle2.png",
@@ -743,7 +744,7 @@ const sprite_defs = {
 
 
     highlight_purple : {
-        image: "highlights",
+        image: "highlightsv2",
         frames: [
             { x:0, y:0, width:64, height:64 },
             { x:0, y:64, width:64, height:64 },
@@ -752,7 +753,7 @@ const sprite_defs = {
         animations: highlight_animations,
     },
     highlight_green : {
-        image: "highlights",
+        image: "highlightsv2",
         frames: [
             { x:64, y:0, width:64, height:64 },
             { x:64, y:64, width:64, height:64 },
@@ -760,7 +761,7 @@ const sprite_defs = {
         animations: highlight_animations,
     },
     highlight_red : {
-        image: "highlights",
+        image: "highlightsv2",
         frames: [
             { x:128, y:0, width:64, height:64 },
             { x:128, y:64, width:64, height:64 },
@@ -768,7 +769,7 @@ const sprite_defs = {
         animations: highlight_animations,
     },
     highlight_yellow : {
-        image: "highlights",
+        image: "highlightsv2",
         frames: [
             { x:192, y:0, width:64, height:64 },
             { x:192, y:64, width:64, height:64 },
@@ -776,7 +777,7 @@ const sprite_defs = {
         animations: highlight_animations,
     },
     highlight_blue : {
-        image: "highlights",
+        image: "highlightsv2",
         frames: [
             { x:256, y:0, width:64, height:64 },
             { x:256, y:64, width:64, height:64 },
@@ -784,7 +785,7 @@ const sprite_defs = {
         animations: highlight_animations,
     },
     highlight_gray : {
-        image: "highlights",
+        image: "highlightsv2",
         frames: [
             { x:320, y:0, width:64, height:64 },
             { x:320, y:64, width:64, height:64 },
