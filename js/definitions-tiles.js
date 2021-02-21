@@ -61,6 +61,17 @@ const ID = {
     WALL4A: 126,
     WALL4B: 127,
 
+    //// PROCEDURAL GENERATION SPECIAL TILES
+    PROCGEN_TILE_1: 9000,
+    PROCGEN_TILE_2: 9001,
+    PROCGEN_TILE_3: 9002,
+    PROCGEN_TILE_4: 9003,
+    PROCGEN_TILE_5: 9004,
+    PROCGEN_SPAWN_1: 9100,
+    PROCGEN_SPAWN_2: 9101,
+    PROCGEN_SPAWN_3: 9102,
+    PROCGEN_SPAWN_4: 9103,
+    PROCGEN_SPAWN_5: 9104,
 };
 
 // NOTE: these are filled out by iterating through the definitions below.  if is_surface is included, the tile type is added to surface_tiles, otherwise to floor tiles
@@ -714,8 +725,27 @@ const defs = {
 
 };
 
+// Generate tile definitions for pro-gen:
+Object.entries(ID).filter(([key, value]) => key.startsWith("PROCGEN_"))
+    .forEach(([key, value]) => {
+        const is_surface = key.startsWith("PROCGEN_SPAWN_");
+        defs[value] = {
+            sprite_def: sprite_defs[key],
+            is_walkable: true,
+            is_safe: true,
+            is_view_blocking: false,
+            editor_name: key,
+            name: key,
+            description: key,
+            is_ground: !is_surface,
+            is_surface: is_surface,
+        };
+    });
+
+// Sort out the surface tiles and floor tiles for later usage.
 for (const id of Object.values(ID)) {
     const def = defs[id];
+    debug.assertion(()=>def instanceof Object);
     if (def.is_surface) {
         surface_tiles.push(id);
     } else {
