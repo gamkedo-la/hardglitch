@@ -46,7 +46,6 @@ const game_assets = { // Description of the assets to load.
         void_template : "./images/void_template.png",
         hole_template : "./images/hole_template.png",
         wall_template : "./images/wall_template.png",
-        procgen_template : "./images/procgen_tiles_template.png",
         test_button : "./images/test_button.png",
         up_down : "./images/up_down.png",
         highlights : "./images/highlights.png",
@@ -112,7 +111,11 @@ const game_assets = { // Description of the assets to load.
         icon_observe: "./images/iconobserve.png",
 
         // FIXME:
-        procgen_tile: "./images/unused/world_ground.png",
+        procgen_template : "./images/procgen_tiles_template.png",
+        procgen_tile_1: "./images/procgen_tile_1.png",
+        procgen_tile_2: "./images/procgen_tile_2.png",
+        procgen_tile_3: "./images/procgen_tile_3.png",
+        procgen_tile_4: "./images/procgen_tile_4.png",
         procgen_spawn_1: "./images/procgen_spawn_1.png",
         procgen_spawn_2: "./images/procgen_spawn_2.png",
         procgen_spawn_3: "./images/procgen_spawn_3.png",
@@ -809,7 +812,7 @@ for(let i = 1; i < 6; ++i){
     const id_tile = `PROCGEN_TILE_${i}`;
     const id_spawn = `PROCGEN_SPAWN_${i}`;
     sprite_defs[id_tile] = {
-        image: "procgen_tile",
+        image: `procgen_tile_${i}`,
     };
     sprite_defs[id_spawn] = {
         image: `procgen_spawn_${i}`,
