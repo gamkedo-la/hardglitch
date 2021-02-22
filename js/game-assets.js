@@ -116,6 +116,7 @@ const game_assets = { // Description of the assets to load.
         procgen_tile_2: "./images/procgen_tile_2.png",
         procgen_tile_3: "./images/procgen_tile_3.png",
         procgen_tile_4: "./images/procgen_tile_4.png",
+        procgen_tile_5: "./images/procgen_tile_5.png",
         procgen_spawn_1: "./images/procgen_spawn_1.png",
         procgen_spawn_2: "./images/procgen_spawn_2.png",
         procgen_spawn_3: "./images/procgen_spawn_3.png",
