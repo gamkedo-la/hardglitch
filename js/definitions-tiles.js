@@ -725,6 +725,22 @@ const defs = {
 
 };
 
+/*
+    [ID.LVL4B] : {
+        sprite_def: sprite_defs.ground,
+        is_walkable: true,
+        is_safe: true,
+        is_view_blocking: false,
+        editor_name: "LVL4B",
+        name: "Message Buffer",
+        description: "Memory used to write messages to be sent over the network.",
+        is_ground: true,
+        shape_template: "lvl4b_template",
+        tile_match_predicate: (v) => (v==ID.LVL4B),
+        tile_same_predicate: (v) => (v==ID.LVL4B),
+    },
+    */
+
 // Generate tile definitions for pro-gen:
 Object.entries(ID).filter(([key, value]) => key.startsWith("PROCGEN_"))
     .forEach(([key, value]) => {
@@ -740,6 +756,11 @@ Object.entries(ID).filter(([key, value]) => key.startsWith("PROCGEN_"))
             is_ground: !is_surface,
             is_surface: is_surface,
         };
+        if (!is_surface) {
+            defs[value].shape_template = "procgen_template";
+            defs[value].tile_match_predicate = (v) => (v==value);
+            defs[value].tile_same_predicate = (v) => (v==value);
+        }
     });
 
 // Sort out the surface tiles and floor tiles for later usage.

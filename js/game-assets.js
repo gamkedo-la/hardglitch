@@ -46,6 +46,7 @@ const game_assets = { // Description of the assets to load.
         void_template : "./images/void_template.png",
         hole_template : "./images/hole_template.png",
         wall_template : "./images/wall_template.png",
+        procgen_template : "./images/procgen_tiles_template.png",
         test_button : "./images/test_button.png",
         up_down : "./images/up_down.png",
         highlights : "./images/highlights.png",
