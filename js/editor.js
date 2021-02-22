@@ -239,6 +239,15 @@ class EditionPaletteUI {
         this.palette_buttons = [];
 
         // Fill our palette with buttons!
+
+        this.palette_buttons.push( ...tiles.procgen_floor_tiles.map(tile_id => {
+            return new EditPaletteButton(`ProcGen Floor Tile: ${tiles.defs[tile_id].editor_name} (${tile_id})`, make_edit_operation_change_tile(tile_id, grid_ID.floor));
+        }), null);
+
+        this.palette_buttons.push( ...tiles.procgen_surface_tiles.map(tile_id => {
+            return new EditPaletteButton(`ProcGen Surface Tile: ${tiles.defs[tile_id].editor_name} (${tile_id})`, make_edit_operation_change_tile(tile_id, grid_ID.surface));
+        }), null);
+
         this.palette_buttons.push( ...tiles.floor_tiles.map(tile_id => {
             return new EditPaletteButton(`Floor Tile: ${tiles.defs[tile_id].editor_name} (${tile_id})`, make_edit_operation_change_tile(tile_id, grid_ID.floor));
         }), null);

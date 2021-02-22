@@ -9,7 +9,7 @@ export {
     is_blocking_view,
     info_text,
     name_text,
-    floor_tiles, surface_tiles
+    floor_tiles, surface_tiles, procgen_floor_tiles, procgen_surface_tiles,
 }
 
 import * as debug from "./system/debug.js";
@@ -77,6 +77,8 @@ const ID = {
 // NOTE: these are filled out by iterating through the definitions below.  if is_surface is included, the tile type is added to surface_tiles, otherwise to floor tiles
 const floor_tiles = [];
 const surface_tiles = [];
+const procgen_floor_tiles = [];
+const procgen_surface_tiles = [];
 
 // Tile Types Descritions:
 const defs = {
@@ -739,6 +741,7 @@ Object.entries(ID).filter(([key, value]) => key.startsWith("PROCGEN_"))
             description: key,
             is_ground: !is_surface,
             is_surface: is_surface,
+            is_procgen: true,
         };
         if (!is_surface) {
             defs[value].shape_template = `${key.toLowerCase()}`;
@@ -751,7 +754,13 @@ Object.entries(ID).filter(([key, value]) => key.startsWith("PROCGEN_"))
 for (const id of Object.values(ID)) {
     const def = defs[id];
     debug.assertion(()=>def instanceof Object);
-    if (def.is_surface) {
+    if(def.is_procgen){
+        if (def.is_surface) {
+            procgen_surface_tiles.push(id);
+        } else {
+            procgen_floor_tiles.push(id);
+        }
+    } else if (def.is_surface) {
         surface_tiles.push(id);
     } else {
         floor_tiles.push(id);
