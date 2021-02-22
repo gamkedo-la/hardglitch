@@ -1,12 +1,14 @@
 export {
     generate_world,
+
+    process_procgen_tiles,
 }
 
 import * as debug from "../system/debug.js";
 import * as tiles from "../definitions-tiles.js";
 import * as tools from "./level-tools.js";
 import { Position } from "../core/concepts.js";
-import { random_int, random_sample } from "../system/utility.js";
+import { copy_data, random_int, random_sample } from "../system/utility.js";
 
 
 const level_name = "Level 1: Random Access Memory";
@@ -311,11 +313,60 @@ const rooms = {
 
 window.level_2_rooms = rooms;
 
+window.level_2_procgen_test_room = {
+    "name" : "Test Level 'testing' 9 x 9",
+    "width" : 9,
+    "height" : 9,
+    "grids" : {"floor":[104,104,104,9003,9003,9003,9002,9002,9002,104,104,104,9003,9003,9003,9002,9002,9002,104,104,104,9003,9003,9003,9002,9002,9002,104,104,104,9000,9000,9000,9001,9001,9001,104,104,104,9000,9000,9000,9001,9001,9001,104,104,104,9000,9000,9000,9001,9001,9001,104,104,104,9004,9004,9004,104,104,104,104,104,104,9004,9004,9004,104,104,104,104,104,104,9004,9004,9004,104,104,104],"surface":[0,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,1],"corruption":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"unstable":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},
+    "entities" : [{"type":"GlitchyGlitchMacGlitchy","position":{"x":0,"y":0}}]
+};
+window.level_2_process_procgen_tiles = process_procgen_tiles;
+
+function process_procgen_tiles(world_desc){
+    tools.check_world_desc(world_desc);
+    const converted_desc = copy_data(world_desc);
+    // We convert proc-gen tiles to some choices, the choices must be the same for the whole chunk being worked on.
+
+    const make_tile_converter = (tile_match, possible_tiles) => {
+        debug.assertion(()=>Number.isInteger(tile_match) && tile_match >= 0);
+        debug.assertion(()=>possible_tiles instanceof Array && possible_tiles.every(tile=> Number.isInteger(tile) && tile >= 0));
+
+        const selected_tile = random_sample(possible_tiles);
+        return (tile) => {
+            return tile === tile_match ? selected_tile : tile
+        };
+    }
+
+    const tile_conversions = [
+        // PROCGEN_TILE_1 : Ground or Wall
+        make_tile_converter(tiles.ID.PROCGEN_TILE_1, [defaults.floor, defaults.wall]),
+
+        // PROCGEN_TILE_2 : Wall or Void or Hole
+        make_tile_converter(tiles.ID.PROCGEN_TILE_2, [defaults.wall, tiles.ID.VOID, tiles.ID.HOLE]),
+
+        // PROCGEN_TILE_3 : Void or Hole
+        make_tile_converter(tiles.ID.PROCGEN_TILE_3, [tiles.ID.VOID, tiles.ID.HOLE]),
+
+        // PROCGEN_TILE_4 : Ground or Void
+        make_tile_converter(tiles.ID.PROCGEN_TILE_4, [tiles.ID.VOID, defaults.floor]),
+
+    ].reduce((acc, val) => (x => val(acc(x))), x => x); // Reduced to 1 function
+
+
+    converted_desc.grids.floor = world_desc.grids.floor.map(tile => tile_conversions(tile));
+
+    return converted_desc;
+}
+
+
 function* generate_room_selection(room_count){
     debug.assertion(()=>Number.isInteger(room_count) && room_count >= 0);
     const possible_rooms = Object.values(rooms);
     while(room_count > 0){
-        yield tools.random_variation(random_sample(possible_rooms));
+        const selected_room = random_sample(possible_rooms);
+        const procgen_processed_room = process_procgen_tiles(selected_room);
+        const tweaked_room = tools.random_variation(procgen_processed_room)
+        yield tweaked_room;
         --room_count;
     }
 }
@@ -355,7 +406,12 @@ function generate_world(){
     const room_count = room_grid.x * room_grid.y;
     const room_positions_iter = generate_room_positions(room_grid.x, room_grid.y);
     const selected_rooms_iter = generate_room_selection(room_count);
-    const positionned_selected_rooms = Array.from({length:room_count}, ()=> { return { position: room_positions_iter.next().value, world_desc: selected_rooms_iter.next().value } });
+    const positionned_selected_rooms = Array.from({length:room_count}, ()=> {
+        return {
+            position: room_positions_iter.next().value,
+            world_desc: process_procgen_tiles(selected_rooms_iter.next().value)
+        };
+    });
 
     const ram_world_with_rooms = tools.merge_world_chunks(level_name, defaults,
         { position: { x:0, y: 0}, world_desc: ram_world_chunk },

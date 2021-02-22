@@ -1,4 +1,5 @@
 export {
+    check_world_desc,
     generate_empty_world,
     serialize_world,
     deserialize_world,
