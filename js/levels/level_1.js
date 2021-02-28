@@ -696,7 +696,10 @@ function generate_world() {
         { type: "Item_Merge" },
         { type: "Item_IntegrityBoost" },
         { type: "Item_FrequencyBoost" },
-        { type: "Item_DataBender" },
+        { type: "Item_DataBender" }, // FIXME: too powerfull
+        { type: "Item_Scanner" },
+        { type: "Item_ThreadPool" },
+        { type: "Item_Zip" },
     ];
 
     world.items.filter(item => item instanceof items.CryptoFile  // Crypto-files...
