@@ -23,7 +23,13 @@ import { GameFxView } from "../game-effects.js";
 import { is_blocked_position } from "../definitions-world.js";
 import { show_info } from "./ui-infobox.js";
 
-const item_slot_vertical_space = 0;
+const item_slot_vertical_padding = 0;
+const item_slot_vertical_size = 72;
+const item_slot_vertical_half_size = item_slot_vertical_size /2;
+const item_slot_column_width = 52;
+const item_slots_relative_position = { x: 0, y: -item_slot_vertical_size };
+const item_slots_vertical_space = item_slot_vertical_size + item_slot_vertical_padding;
+const item_slot_vertical_top_padding = 64 * 2;
 const item_slot_name = "Item Slot";
 const active_item_slot_name = "Active Item Slot";
 
@@ -364,8 +370,8 @@ class InventoryUI {
 
     draw(canvas_context){
         debug.assertion(()=>graphics.camera.is_rendering_in_screen);
-        this._slots.forEach(slot=>slot.draw(canvas_context));
-        this._slots.forEach(slot=>slot.draw_item(canvas_context));
+        this._slots.slice().reverse().forEach(slot=>slot.draw(canvas_context));
+        this._slots.slice().reverse().forEach(slot=>slot.draw_item(canvas_context));
         this.fx_view.draw(canvas_context);
     }
 
@@ -400,10 +406,44 @@ class InventoryUI {
         const previous_items = this._slots.map(slot=> slot.remove_item());
         this._slots = [];
         this._active_slots_count = active_slots_count;
+
+        const min_slots_per_column = 4;
+        const vertical_space_in_screen = (graphics.canvas_rect().height + item_slots_relative_position.y - item_slot_vertical_top_padding);
+        const vertical_slots_that_could_be_in_screen = Math.ceil(vertical_space_in_screen / item_slots_vertical_space);
+        const max_vertical_slots_in_screen = vertical_slots_that_could_be_in_screen;
+        const slots_per_column = Math.min(Math.max(min_slots_per_column, max_vertical_slots_in_screen), 8);
+        let column_max_slots = slots_per_column;
+        let column_idx = 0;
+        let column_slots = 0;
+        let hexagonal_shift = 0;
+
+        const next_slot_position = ()=>{
+            if(column_slots >= column_max_slots){
+                column_slots = 0;
+                ++column_idx;
+                if(column_idx % 2 === 0){
+                    hexagonal_shift = item_slot_vertical_half_size * 2;
+                    column_max_slots = slots_per_column - 2;
+                } else {
+                    hexagonal_shift = item_slot_vertical_half_size;
+                    column_max_slots = slots_per_column - 1;
+                }
+            }
+
+            const x_shift = (column_idx * item_slot_column_width);
+            const y_shift = -((column_slots * item_slots_vertical_space) + hexagonal_shift);
+
+            ++column_slots;
+
+            return this.position.translate({ x: item_slots_relative_position.x + x_shift, y: item_slots_relative_position.y + y_shift });
+        };
+
         while(this._slots.length !== slot_count){
             const is_active = this._slots.length < this._active_slots_count;
             const item_slot = new ItemSlot(undefined, is_active, this.fx_view);
-            item_slot.position = this.position.translate({ y: -(((this._slots.length + 1) * item_slot.size.height) + item_slot_vertical_space) });
+
+            item_slot.position = next_slot_position();
+
             this._slots.push(item_slot);
             if(this._slots.length <= previous_items.length){
                 const previous_item = previous_items[this._slots.length -1];
