@@ -33,6 +33,7 @@ class PlayingGame extends fsm.State{
         debug.assertion(()=>this.state_machine.game_session instanceof GameSession);
         this.game_session = this.state_machine.game_session;
         this._player_ready_to_leave = false;
+        this.on_canvas_resized();
     }
 
     *leave(){
@@ -43,15 +44,13 @@ class PlayingGame extends fsm.State{
 
         if(this.game_session.is_game_finished){
 
+            this.ui.is_visible = this.game_session.view.allow_exit;
+            this.ui.update(delta_time);
+
             if(!this._player_ready_to_leave
-            && (input.keyboard.is_any_key_just_down() || input.mouse.buttons.is_any_key_just_down())
+            && (input.keyboard.is_just_down(KEY.SPACE))
             ){
-                this._player_ready_to_leave = true;
-                if(this.game_session.is_any_player_character_alive){
-                    this.state_machine.escape();
-                } else {
-                    this.state_machine.horrible_death();
-                }
+                this.on_player_ready_to_leave();
             }
 
             this.game_session.update(delta_time, {
@@ -91,6 +90,57 @@ class PlayingGame extends fsm.State{
     display(canvas_context){
         if(window.debug_tools_enabled)
             editor.display_debug_info(this.state_machine.game_session);
+        this.ui.display(canvas_context);
+    }
+
+    on_player_ready_to_leave(){
+        this._player_ready_to_leave = true;
+        if(this.game_session.is_any_player_character_alive){
+            this.state_machine.escape();
+        } else {
+            this.state_machine.horrible_death();
+        }
+    }
+
+    _init_ui(){
+        debug.assertion(()=>this.ui === undefined);
+
+        this.ui = {
+            is_visible: false,
+            continue_button: new ui.TextButton({
+                text: "Continue [SPACE]",
+                action: ()=>{ this.on_player_ready_to_leave(); },
+                position: Vector2_origin,
+                sprite_def: sprite_defs.button_menu,
+                sounds:{
+                    over: 'EditorButtonHover',
+                    down: 'EditorButtonClick',
+                },
+            }),
+
+            update: function(delta_time) {
+                if(!this.is_visible) return;
+                Object.values(this)
+                    .filter(member => member instanceof ui.UIElement)
+                    .forEach(element => element.update(delta_time));
+            },
+
+            display: function (canvas_context){
+                if(!this.is_visible) return;
+                graphics.camera.begin_in_screen_rendering();
+                Object.values(this)
+                    .filter(member => member instanceof ui.UIElement)
+                    .forEach(element => element.draw(canvas_context));
+                graphics.camera.end_in_screen_rendering();
+            },
+        };
+
+        this.ui.continue_button.position = graphics.centered_rectangle_in_screen(this.ui.continue_button).position.translate({ y: 220 });
+    }
+
+    on_canvas_resized(){
+        delete this.ui;
+        this._init_ui();
     }
 };
 

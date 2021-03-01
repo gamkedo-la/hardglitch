@@ -32,7 +32,7 @@ class GameOverScreen_Success extends fsm.State {
                 position: graphics.canvas_center_position().translate({x:-200, y:0}),
             }),
             button_back : new ui.TextButton({
-                text: "Continue [ANY KEY]",
+                text: "Continue [SPACE]",
                 position: Vector2_origin,
                 sprite_def: sprite_defs.button_menu,
                 action: ()=> { this.go_to_next_screen(); },
@@ -75,7 +75,7 @@ class GameOverScreen_Success extends fsm.State {
     update(delta_time){
 
         if(!this.fader.is_fading){
-            if(input.keyboard.is_any_key_just_down()){
+            if(input.keyboard.is_just_down(KEY.SPACE)){
                 this.go_to_next_screen();
             } else {
                 invoke_on_members(this.ui, "update", delta_time);

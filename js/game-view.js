@@ -267,6 +267,7 @@ class GameView {
             background_color: "#000000a0",
             color: "white",
             enabled: true,
+            align: "center",
         });
 
         this.reset();

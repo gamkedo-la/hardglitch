@@ -114,7 +114,8 @@ class GameOver extends concepts.Event {
     *animation(game_view){
         debug.assertion(()=>game_view instanceof GameView);
         game_view.enable_fog_of_war = false;
-        game_view.show_central_message("  GAME OVER!\nPRESS ANY KEY");
+        game_view.show_central_message("GAME OVER!");
+        game_view.allow_exit = true;
         while(true) yield;
     }
 }
@@ -177,7 +178,8 @@ class PlayerExitLevel extends concepts.Event {
         yield* anim.exited(game_view.fx_view, character_view);
         debug.log("here after exited");
         game_view.enable_fog_of_war = false;
-        game_view.show_central_message("YOU FOUND AN EXIT!\n     PRESS ANY KEY");
+        game_view.show_central_message("YOU FOUND AN EXIT!");
+        game_view.allow_exit = true;
         while(true) yield;
     }
 };
