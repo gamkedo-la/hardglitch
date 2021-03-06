@@ -81,8 +81,9 @@ Click or [Space] to continue.
         this.life_form.direction = 1.0;
     }
 
-    *enter(level_to_play){
+    *enter(level_to_play, ...data){
         this.level_to_play = level_to_play;
+        this.other_data = data;
         if(!this.ui){
             this._init_ui();
         }
@@ -94,7 +95,7 @@ Click or [Space] to continue.
     }
 
     go_to_next_screen(){
-        this.state_machine.push_action("ok", this.level_to_play);
+        this.state_machine.push_action("ok", this.level_to_play, ...this.other_data);
     }
 
     update(delta_time){
