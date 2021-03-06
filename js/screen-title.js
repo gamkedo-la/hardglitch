@@ -35,7 +35,7 @@ class MainMenu {
             text: "New Game",
             color: button_text_color,
             font: buttons_font,
-            action: ()=> { state_machine.push_action("new_game"); },
+            action: ()=> { state_machine.push_action("new_game", 0); },
             position: Vector2_origin,
             sprite_def: sprite_defs.button_menu,
             sounds:{

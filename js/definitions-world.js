@@ -30,6 +30,7 @@ import { Rule_Unstability } from "./rules/rules-unstability.js";
 import { Rule_Merge } from "./rules/rules-merge.js";
 
 
+import * as level_0 from "./levels/level_0.js";
 import * as level_1 from "./levels/level_1.js";
 import * as level_2 from "./levels/level_2.js";
 import * as level_3 from "./levels/level_3.js";
@@ -95,7 +96,7 @@ function get_entity_type(type_name){
 }
 
 const game_levels = [
-    level_1, level_2, level_3, level_4,
+    level_0, level_1, level_2, level_3, level_4,
 ];
 
 const grid_ID = {

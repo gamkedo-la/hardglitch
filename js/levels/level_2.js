@@ -11,7 +11,7 @@ import { Position } from "../core/concepts.js";
 import { copy_data, random_int, random_sample } from "../system/utility.js";
 
 
-const level_name = "Level 1: Random Access Memory";
+const level_name = "Level 2: Random Access Memory";
 
 const defaults = {
     floor : tiles.ID.LVL2A,
@@ -353,7 +353,7 @@ function process_procgen_tiles(world_desc){
     ].reduce((acc, val) => (x => val(acc(x))), x => x); // Reduced to 1 function
 
 
-    converted_desc.grids.floor = world_desc.grids.floor.map(tile => tile_conversions(tile));
+    converted_desc.grids.floor = converted_desc.grids.floor.map(tile => tile_conversions(tile));
 
     return converted_desc;
 }

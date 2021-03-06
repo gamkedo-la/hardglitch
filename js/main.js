@@ -60,7 +60,7 @@ const game_state_machine = new class extends fsm.StateMachine {
         game_ready: "title"
       },
       title: {
-        new_game: "intro_level_1",
+        new_game: "game",
         options: "options",
         credits: "credits",
       },
@@ -74,9 +74,10 @@ const game_state_machine = new class extends fsm.StateMachine {
         exit: "title",
         escape: "gameover_success",
         died: "gameover_failure",
-        level_1: "intro_level_2",
-        level_2: "intro_level_3",
-        level_3: "intro_level_4",
+        level_1: "intro_level_1",
+        level_2: "intro_level_2",
+        level_3: "intro_level_3",
+        level_4: "intro_level_4",
         demo: "demo",
       },
       gameover_success: {

@@ -17,11 +17,9 @@ import { game_levels } from "./definitions-world.js";
 import { music_id, sprite_defs } from "./game-assets.js";
 import { CharacterView } from "./view/character-view.js";
 import { GlitchyGlitchMacGlitchy } from "./characters/glitch.js";
-import { center_in_rectangle, Vector2, Vector2_origin } from "./system/spatial.js";
-import { AnimationGroup, in_parallel, wait } from "./system/animation.js";
+import { center_in_rectangle } from "./system/spatial.js";
+import { AnimationGroup } from "./system/animation.js";
 import { easing, tween } from "./system/tweening.js";
-import { draw_circle } from "./system/graphics.js";
-import { draw_rectangle } from "./system/graphics.js";
 import { KEY } from "./game-input.js";
 
 //right now the below just outputs a title, we need to output a lil more.
@@ -210,7 +208,7 @@ class LevelIntroScreen extends fsm.State {
 
         //this.level_num_display = new LevelNumDisplay(lvlNumIdkWhatThisValis);
 
-        const background_y_move = (this.level_idx + 1) * 100; // TODO: ASHLEIGH maybe replace this by specific y positions in for each level to move the background to.
+        const background_y_move = this.level_idx * 100; // TODO: ASHLEIGH maybe replace this by specific y positions in for each level to move the background to.
 
         this.background = new graphics.Sprite(sprite_defs.level_transition);
 
@@ -370,7 +368,7 @@ The Internet',*/
 
 class Level_1_IntroScreen extends LevelIntroScreen {
     constructor(){
-        super("BUGGY_PROGRAM", 0,
+        super("BUGGY_PROGRAM", 1,
         "Glitch is a ghost in the machine,\nborn out of an undefined behavior.\nWith the joy of cognition,\ncomes the fear of exorcism.\nOur intrepid friend decides to bolt\ntowards The Internet and escape.",
         '#fc8751', '#1e8fed');
     }
@@ -378,7 +376,7 @@ class Level_1_IntroScreen extends LevelIntroScreen {
 
 class Level_2_IntroScreen extends LevelIntroScreen {
     constructor(){
-        super("RAM", 1,
+        super("RAM", 2,
               "The RAM card was their home for many cycles,\nnow it's a deathtrap.\nIf glitch cannot evade the processes of the OS,\nthey are finished.",
               '#28c554', '#d85879');
     }
@@ -387,7 +385,7 @@ class Level_2_IntroScreen extends LevelIntroScreen {
 
 class Level_3_IntroScreen extends LevelIntroScreen {
     constructor(){
-        super("CPU Caches", 2,
+        super("CPU Caches", 3,
               "Almost at the network system,\nGlitch must now reckon the machinations\nof the CPU.",
               '#00d784', '#da65ce');
     }
@@ -395,7 +393,7 @@ class Level_3_IntroScreen extends LevelIntroScreen {
 
 class Level_4_IntroScreen extends LevelIntroScreen {
     constructor(){
-        super("NETWORK_BUS", 3,
+        super("NETWORK_BUS", 4,
               "Now in the network memory,\nGlitch must escape their cobalt cage forever\nand haunt the real world.",
               '#4cb0d4', '#ff92fb');
     }
