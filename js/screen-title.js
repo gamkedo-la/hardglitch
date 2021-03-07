@@ -23,13 +23,29 @@ class MainMenu {
     constructor(state_machine, position){
         debug.assertion(()=>state_machine instanceof fsm.StateMachine);
         debug.assertion(()=>position instanceof Vector2);
-        this.back_panel = new ui.Pannel({
-            width: 1024,
-            height: 768,
-            sprite: "title_bg",
-            //scale: {x: 2, y: 2},
-        })
+
+
         this.position = position;
+
+        this.background = {
+            sprite: new graphics.Sprite({
+                    image: "title_bg",
+            }),
+        };
+
+        this.background.draw = (canvas_context)=>{ // We want to make sure the background is always filling the whole screen even with very big screens.
+            const horizontal_times = Math.ceil(graphics.canvas_rect().width / this.background.sprite.size.width);
+            const vertical_times = Math.ceil(graphics.canvas_rect().height / this.background.sprite.size.height);
+            const max_x = horizontal_times * this.background.sprite.size.width;
+            const max_y = vertical_times * this.background.sprite.size.height;
+            for(let y = 0; y < max_y; y += this.background.sprite.size.height){
+                for(let x = 0; x < max_x; x += this.background.sprite.size.width){
+                    this.background.sprite.position = {x, y};
+                    this.background.sprite.draw(canvas_context);
+                }
+            }
+
+        };
 
         this.button_new_game = new ui.TextButton({
             text: "New Game",

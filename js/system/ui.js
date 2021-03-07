@@ -517,7 +517,7 @@ class Pannel extends UIElement {
             if (sprite_def) {
                 this.sprite = new graphics.Sprite(sprite_def);
                 if (panel_def.scale) {
-                    this.sprite.transform.scale = panel_def.scale;
+                    this.sprite.scale = panel_def.scale;
                 }
             }
         }
