@@ -81,14 +81,20 @@ class Vector2{
         return this.divide(magnitude);
     }
 
-    multiply(scalar) {
-        debug.assertion(()=>typeof scalar === "number");
-        return new Vector2({x: this.x * scalar, y: this.y * scalar});
+    multiply(scalar_or_vector2) {
+        debug.assertion(()=>typeof scalar_or_vector2 === "number" || scalar_or_vector2 instanceof Object);
+        if(typeof scalar_or_vector2 === "number")
+            return new Vector2({ x: this.x * scalar_or_vector2, y: this.y * scalar_or_vector2 });
+        else
+            return new Vector2({ x: this.x * scalar_or_vector2.x, y: this.y * scalar_or_vector2.y });
     }
 
-    divide(scalar) {
-        debug.assertion(()=>typeof scalar === "number");
-        return new Vector2({x: this.x / scalar, y: this.y / scalar});
+    divide(scalar_or_vector2) {
+        debug.assertion(()=>typeof scalar_or_vector2 === "number" || scalar_or_vector2 instanceof Object);
+        if(typeof scalar_or_vector2 === "number")
+            return new Vector2({ x: this.x / scalar_or_vector2, y: this.y / scalar_or_vector2 });
+        else
+            return new Vector2({ x: this.x / scalar_or_vector2.x, y: this.y / scalar_or_vector2.y });
     }
 
     translate(translation){

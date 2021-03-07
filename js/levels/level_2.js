@@ -8,7 +8,8 @@ import * as debug from "../system/debug.js";
 import * as tiles from "../definitions-tiles.js";
 import * as tools from "./level-tools.js";
 import { Position } from "../core/concepts.js";
-import { copy_data, random_int, random_sample } from "../system/utility.js";
+import { copy_data, position_from_index, random_int, random_sample } from "../system/utility.js";
+import { Vector2 } from "../system/spatial.js";
 
 
 const level_name = "Level 2: Random Access Memory";
@@ -465,15 +466,105 @@ function* generate_room_positions(horizontal_room_count, vertical_room_count){
 
     const room_size = { x: 9, y: 9 };
 
-    const inter_room_space = { x: 2, y: 2 };
-    for(let y = 0; y < vertical_room_count; ++y){
-        for(let x = 0; x < horizontal_room_count; ++x){
-            const normal_position = new Position({x: x * (room_size.x + inter_room_space.x), y: y * (room_size.y + inter_room_space.y)})
-                .translate(inter_room_space); // top-left inter-room space.
-            const tweaked_position = random_int(1, 100) < 20 ? normal_position : random_sample(normal_position.adjacents_diags);
-            yield tweaked_position;
+
+    const rules = {
+        spaced_grid: function*(){
+            const inter_room_space = { x: 2, y: 2 };
+            for(let y = 0; y < vertical_room_count; ++y){
+                for(let x = 0; x < horizontal_room_count; ++x){
+                    const normal_position = new Position({x: x * (room_size.x + inter_room_space.x), y: y * (room_size.y + inter_room_space.y)})
+                        .translate(inter_room_space); // top-left inter-room space.
+                    yield normal_position;
+                }
+            }
+        },
+        spaced_grid_tweaked: function*(){
+            const inter_room_space = { x: 2, y: 2 };
+            for(let y = 0; y < vertical_room_count; ++y){
+                for(let x = 0; x < horizontal_room_count; ++x){
+                    const normal_position = new Position({x: x * (room_size.x + inter_room_space.x), y: y * (room_size.y + inter_room_space.y)})
+                        .translate(inter_room_space); // top-left inter-room space.
+                    const tweaked_position = random_int(1, 100) < 10 ? normal_position : random_sample(normal_position.adjacents_diags);
+                    yield tweaked_position;
+                }
+            }
+        },
+        big_blob: function*(){
+            const inter_room_space = { x: 5, y: 5 };
+            for(let y = 0; y < vertical_room_count; ++y){
+                for(let x = 0; x < horizontal_room_count; ++x){
+                    const normal_position = new Position({x: x * room_size.x, y: y * room_size.y}).translate(inter_room_space); // top-left inter-room space.
+                    yield normal_position;
+                }
+            }
+        },
+        square_2x2_blobs: function*(){
+            const inter_room_space = { x: 3, y: 3 };
+            const drift = { x: 0, y: 0};
+            for(let y = 0; y < vertical_room_count; ++y){
+                if(y > 0 && y % 2 === 0){
+                    drift.y += inter_room_space.y;
+                }
+                drift.x = 0;
+                for(let x = 0; x < horizontal_room_count; ++x){
+                    if(x > 0 && x % 2 === 0){
+                        drift.x += inter_room_space.x;
+                    }
+
+                    const normal_position = new Position({x: x * room_size.x, y: y * room_size.y})
+                        .translate(inter_room_space)
+                        .translate(drift); // top-left inter-room space.
+
+                    yield normal_position;
+                }
+            }
+        },
+        square_3x3_blobs: function*(){
+            const inter_room_space = { x: 3, y: 3 };
+            const drift = { x: 0, y: 0};
+            for(let y = 0; y < vertical_room_count; ++y){
+                if(y > 0 && y % 3 === 0){
+                    drift.y += inter_room_space.y;
+                }
+                drift.x = 0;
+                for(let x = 0; x < horizontal_room_count; ++x){
+                    if(x > 0 && x % 3 === 0){
+                        drift.x += inter_room_space.x;
+                    }
+
+                    const normal_position = new Position({x: x * room_size.x, y: y * room_size.y})
+                        .translate(inter_room_space)
+                        .translate(drift); // top-left inter-room space.
+
+                    yield normal_position;
+                }
+            }
+        },
+        random_grid: function*(){
+            const inter_room_space = { x: 2, y: 2 };
+            const room_count = vertical_room_count * horizontal_room_count;
+            const virtual_grid_size = {
+                width: horizontal_room_count + 1,
+                height: vertical_room_count + 1,
+            };
+            const virtual_grid = new Array(virtual_grid_size.width * virtual_grid_size.height).fill(false);
+            for(let idx = 0; idx < room_count; ++idx){
+                while(true){
+                    const virtual_idx = random_int(0, virtual_grid.length - 1);
+                    if(virtual_grid[virtual_idx] === false){
+                        virtual_grid[virtual_idx] = true;
+                        const virtual_pos = position_from_index(virtual_grid_size.width, virtual_grid_size.height, virtual_idx);
+                        const pos = new Vector2(virtual_pos).multiply(room_size).translate(inter_room_space);
+                        yield pos;
+                        break;
+                    }
+                }
+            }
         }
     }
+
+    const selected_generation_rule = random_sample(Object.values(rules));
+    yield* selected_generation_rule();
 }
 
 function generate_world(){
@@ -508,7 +599,7 @@ function generate_world(){
 
     // Pass 3: fill the inter-room corridors with walls and entities
 
-    const world_desc = tools.add_padding_around(ram_world_with_rooms, { floor: tiles.ID.VOID });// tools.random_variation(ram_world_with_rooms);
+    const world_desc = tools.random_variation(tools.add_padding_around(ram_world_with_rooms, { floor: tiles.ID.VOID }));
     const world = tools.deserialize_world(world_desc);
 
     return world;
