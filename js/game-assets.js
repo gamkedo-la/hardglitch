@@ -130,6 +130,7 @@ const game_assets = { // Description of the assets to load.
         newCycle: './audio/NewCycle4.mp3',
         click: './audio/Click.mp3',
         delete: './audio/Delete3.mp3',
+        delete2: './audio/Delete2.mp3',
         destroy: './audio/Destroy.mp3',
         error: './audio/Error.mp3',
         exitbus: './audio/ExitBus.mp3',
@@ -867,6 +868,15 @@ const sound_event_defs = {
     'deleteAction': {
         source_type: 'audiobuffer',
         source_name: 'delete',
+        group_name: 'SoundEffects',
+        loop: false,
+        volume: 0.5,
+        unique: false,
+    },
+
+    'deleteAction2': {
+        source_type: 'audiobuffer',
+        source_name: 'delete2',
         group_name: 'SoundEffects',
         loop: false,
         volume: 0.5,

@@ -43,6 +43,7 @@ const game_state_machine = new class extends fsm.StateMachine {
       game: new GameScreen(),
       gameover_success: new GameOverScreen_Success(),
       gameover_failure: new GameOverScreen_Failure(),
+      game_intro: new IntroScreen(),
       intro_level_1: new level_screens.Level_1_IntroScreen(),
       intro_level_2: new level_screens.Level_2_IntroScreen(),
       intro_level_3: new level_screens.Level_3_IntroScreen(),
@@ -60,7 +61,7 @@ const game_state_machine = new class extends fsm.StateMachine {
         game_ready: "title"
       },
       title: {
-        new_game: "game",
+        new_game: "game_intro",
         options: "options",
         credits: "credits",
       },
@@ -69,6 +70,9 @@ const game_state_machine = new class extends fsm.StateMachine {
       },
       credits: {
         back: "title",
+      },
+      game_intro: {
+        ok: "game",
       },
       game: {
         exit: "title",
@@ -204,6 +208,7 @@ function update_cycle(highres_timestamp){
 import * as random_test_level from "./testing/test-level.js";
 import { deserialize_world, generate_empty_world } from "./levels/level-tools.js";
 import { ProcgenWarningScreen } from "./screen-procgenwarning.js";
+import { IntroScreen } from "./screen-intro.js";
 
 function load_level(level_number){
   debug.assertion(()=>Number.isInteger(level_number) && level_number >= 0);

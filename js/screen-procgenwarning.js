@@ -7,15 +7,11 @@ import * as fsm from "./system/finite-state-machine.js";
 import * as ui from "./system/ui.js";
 import * as input from "./system/input.js";
 import * as graphics from "./system/graphics.js";
-import * as audio from "./system/audio.js";
 import { Color } from "./system/color.js";
 import { ScreenFader } from "./system/screenfader.js";
-import { center_in_rectangle, Vector2_origin } from "./system/spatial.js";
 import { auto_newlines, invoke_on_members } from "./system/utility.js";
-import { music_id, sprite_defs } from "./game-assets.js";
 import { KEY } from "./game-input.js";
 import { LifeForm_Weak } from "./characters/lifeform.js";
-import { Character } from "./core/character.js";
 import { CharacterView } from "./view/character-view.js";
 
 class ProcgenWarningScreen extends fsm.State {
