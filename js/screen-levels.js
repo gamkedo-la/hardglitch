@@ -201,7 +201,7 @@ class LevelIntroScreen extends fsm.State {
 
     init_level_transition(){
         // Initialize sprites and other things necessary to display the level transition
-        const fixed_size = { x: 1100, y: 750 };
+        const fixed_size = { x: 1100, y: graphics.canvas_rect().height };
         this.level_transition_canvas_context = graphics.create_canvas_context(fixed_size.x, fixed_size.y);
         this.animations = new AnimationGroup();
 
@@ -218,7 +218,7 @@ class LevelIntroScreen extends fsm.State {
         };
 
         this.character_view = new CharacterView(this.player_character);
-        let glitchCentered = center_in_rectangle(this.character_view.area, this.level_transition_canvas_context.canvas).position.translate({ y: 200 });
+        let glitchCentered = { x: center_in_rectangle(this.character_view.area, this.level_transition_canvas_context.canvas).position.x, y: (750 / 2) + 200 };
         this.character_view.position = glitchCentered;
 
         this.info_display = new LevelInfoDisplay(this.title,
