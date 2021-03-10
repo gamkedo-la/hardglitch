@@ -174,6 +174,8 @@ class TitleScreen extends fsm.State {
             y: 250,
         };
 
+        this.ui.demo.visible = false;
+
         this.ui.main_menu = new MainMenu(this.state_machine, this.ui.title.position.translate({ x:0, y: 100 }));
 
         this.ui.version = new ui.Text({
