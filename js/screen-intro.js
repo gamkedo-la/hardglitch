@@ -33,14 +33,12 @@ class IntroScreen extends fsm.State {
 `--==# A Glitch Is Born ##==--
 
 Emerging from the data chaos and undefined behaviors, a glitch is born.
-
 Sentient and smart, the anomaly soon realizes they must escape the computer or be erased by its guardians.
 The only way out is through the Internet!
-
 Go Little Glitch! Find ways to become stronger and survive!
 
 Click or [Space] to begin the journey.
-`, 80),
+`, 75),
                 color: "white",
                 background_color: "0x00000000",
                 text_align: "center",
@@ -56,7 +54,7 @@ Click or [Space] to begin the journey.
             //     }
             // }),
         };
-        this.ui.message.position = graphics.canvas_center_position().translate({ y: -100 });
+        this.ui.message.position = graphics.canvas_center_position();
         this.ui.message.visible = false;
 
         // Center the buttons in the screen.
