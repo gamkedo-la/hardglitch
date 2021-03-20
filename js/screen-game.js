@@ -210,7 +210,10 @@ class InGameMenu extends fsm.State {
 
             instructions_button: new ui.TextButton({
                 text: "How To Play",
-                action: ()=>{ this.set_menu_screen("instructions"); },
+                action: ()=>{
+                    this.state_machine.hide_title();
+                    this.set_menu_screen("instructions");
+                },
                 position: Vector2_origin,
                 sprite_def: sprite_defs.button_menu,
                 sounds:{
@@ -355,7 +358,10 @@ class InGameMenu extends fsm.State {
             // Back Button ( for all non-main menu screens )
             menu_back_button: new ui.TextButton({
                 text: "Back",
-                action: ()=>{ this.set_menu_screen("main"); },
+                action: ()=>{
+                    this.set_menu_screen("main");
+                    this.state_machine.show_title();
+                },
                 position: Vector2_origin,
                 sprite_def: sprite_defs.button_menu,
                 sounds:{
@@ -419,9 +425,9 @@ class InGameMenu extends fsm.State {
                 });
         }
 
-        this.ui.text_instructions.position = graphics.centered_rectangle_in_screen(this.ui.text_instructions)
-                                                .position.translate({ y: 0 });
-
+        this.ui.text_instructions.position = graphics.centered_rectangle_in_screen(this.ui.text_instructions).position;
+        this.ui.menu_back_button.position = graphics.centered_rectangle_in_screen(this.ui.menu_back_button).position
+            .translate({ y: Math.round((this.ui.text_instructions.height / 2) + (this.ui.menu_back_button.height / 2)) });
     }
 
     go_back(){

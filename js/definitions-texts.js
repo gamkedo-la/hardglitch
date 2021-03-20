@@ -10,12 +10,15 @@ export {
     action_description,
 }
 
-export const help_info = `How To Play in 5 points:
+export const help_info = `How To Play:
 1. Your Goal: FIND and REACH THE EXIT of the level.
-2. Actions: Use the Action buttons at the bottom of the screen.
+2. Actions: Use the Action buttons at the bottom of the screen. Items in active slots can enable new actions that will appear as additional action buttons.
 3. Movement: Use "WASD" keys, click on green highlighted squares or use the "Move" action button.
 4. Information: Point anything to get info through tooltips or the info-box (bottom right of the screen).
 5. Camera: Drag'n'drop the world to move the camera, or use "IJKL" keys.
+6. Item Slots: Click on an item in the world to take it. The item will appear in the bottom left item slots. Drag items between slots to change or exchange slots.
+7. Activate Items: Some item slots have a yellow border, they are "Active". Putting an item in an Active slot enables it's powers.
+8. Drop Items: drag items from the item slots to white squares around your character to drop the item there.
 `;
 
 export const ui = {
