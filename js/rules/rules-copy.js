@@ -23,7 +23,7 @@ const copy_range = new visibility.Range_Circle(0, 6);
 class Copy extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_merge; }
     static get action_type_name() { return "Copy"; }
-    static get action_type_description() { return auto_newlines("Duplicates the target entity.", 35); }
+    static get action_type_description() { return auto_newlines("Duplicates the target entity.\nCannot duplicate an Item providing the Copy action.", 35); }
 
     static get range() { return copy_range; }
     static get costs(){
@@ -62,7 +62,17 @@ class Rule_Copy extends concepts.Rule {
 
     get_actions_for(character, world){
         debug.assertion(()=>character instanceof Character);
-        return ranged_actions_for_each_target(world, character, Copy);
+        return ranged_actions_for_each_target(world, character, Copy, (position)=> {
+            const item = world.item_at(position);
+            // Disable copy of items that provide copy (otherwise it's too easy to copy these items to get more copy actions)
+            if(item){
+                debug.assertion(()=>item instanceof concepts.Item);
+                if(item.get_enabled_action_types().some((action_type)=> action_type === Copy)){
+                    return false;
+                }
+            }
+            return true;
+        });
     }
 
 };
