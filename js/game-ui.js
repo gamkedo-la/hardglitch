@@ -22,6 +22,8 @@ import { InventoryUI } from "./ui/ui-inventory.js";
 import { InfoBox, show_info } from "./ui/ui-infobox.js";
 import { Timeline } from "./ui/ui-timeline.js";
 import { mute_button } from "./main.js";
+import { AnimationGroup } from "./system/animation.js";
+import { easing, tween } from "./system/tweening.js";
 
 const action_button_size = 50;
 const player_ui_top_from_bottom = 66;
@@ -71,7 +73,7 @@ class ActionButton extends ui.Button {
         this.allow_disabled_update = true; // To enabled displaying info when the mouse is over.
 
         this.icon = new graphics.Sprite(icon_def);
-        this.icon.position = center_in_rectangle(this.icon, this.area).position;
+        this.position = position;
 
         if(key_name !== ""){
             this.key_label = new ui.Text({
@@ -83,7 +85,7 @@ class ActionButton extends ui.Button {
                 y: this.height - this.key_label.height,
             });
         }
-
+        this.action_text_name = action_text_name;
         this.help_text = new ui.HelpText({
             area_to_help: this.area,
             text: action_text_name,
@@ -92,6 +94,12 @@ class ActionButton extends ui.Button {
             on_mouse_over: ()=> { show_info(info_desc); }
         });
         this.help_text.position = this.position.translate({x:0, y: -this.help_text.height - 4 });
+    }
+
+    get position() { return super.position; }
+    set position(new_pos) {
+        super.position = new_pos;
+        this.icon.position = center_in_rectangle(this.icon, this.area).position;
     }
 
     _on_begin_over(){
@@ -383,6 +391,7 @@ class MenuButton extends ui.Button {
 class GameInterface {
 
     ingame_elements = {}; // UI elements which are displayed in the game space instead of screen space.
+    animations = new AnimationGroup();
 
     button_cancel_action_selection = new CancelActionButton(()=>{
             debug.log("CANCEL ACTION BUTTON");
@@ -438,6 +447,7 @@ class GameInterface {
     }
 
     update(delta_time, current_character, world){
+        this.animations.update(delta_time);
         Object.values(this.ingame_elements).forEach(element => element.update(delta_time, current_character, world));
         this.elements.forEach(element => element.update(delta_time, current_character, world));
         this._handle_action_target_selection(delta_time);
@@ -451,6 +461,8 @@ class GameInterface {
     }
 
     show_action_buttons(actions_per_types){
+
+        const previous_actions_names = this._action_buttons.map((action_button)=> action_button.action_text_name);
 
         this._action_buttons = []; // Clear the previous set of buttons.
 
@@ -517,7 +529,12 @@ class GameInterface {
 
         this._action_buttons.forEach(action_button => {
             action_button.help_text.position = { x: action_button.position.x, y: line_y - action_button.help_text.height };
-            action_button.cancel_button_position = { x: action_button.position.x, y: line_y - this.button_cancel_action_selection.width };;
+            action_button.cancel_button_position = { x: action_button.position.x, y: line_y - this.button_cancel_action_selection.width };
+
+            if(!previous_actions_names.includes(action_button.action_text_name)){ // Actions that were added will play the animation.
+                const animation = tween(action_button.position.translate({ y: -action_button.height }), action_button.position, 500, (new_pos) => action_button.position = new_pos, easing.in_out_quad);
+                this.animations.play(animation);
+            }
         });
 
     }
