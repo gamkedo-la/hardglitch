@@ -149,6 +149,10 @@ class ItemSlot {
             return;
         }
 
+        if(this.is_active){
+            new_item.on_active_begin();
+        }
+
         this._item_view = new_item;
         this._item_view._item_slot = this;
         this._item_view.is_visible = true;
@@ -161,8 +165,12 @@ class ItemSlot {
         this._stop_fx();
         const item = this._item_view;
         if(item){
+            if(this.is_active){
+                item.on_active_end();
+            }
             delete item._item_slot;
         }
+
         this._item_view = null;
         this._help_text.text = slot_text(this.type);
         return item;
@@ -361,6 +369,7 @@ class InventoryUI {
 
                     }
                 } else { // Stopped dragging.
+                    this._dragging_item.item.on_dragging_end();
                     const destination_slot = this._find_slot_under(input.mouse.dragging_positions.end);
                     if(destination_slot){
                         const destination_slot_idx = this._slots.indexOf(destination_slot);
@@ -416,6 +425,7 @@ class InventoryUI {
                     if(item_view){ // Begin dragging an item from a slot.
                         this._dragging_item.item = item_view;
                         this._dragging_item.item.for_each_sprite(sprite=>sprite.move_origin_to_center());
+                        this._dragging_item.item.on_dragging_begin();
 
                         debug.assertion(()=>this._current_character instanceof Character);
                         debug.assertion(()=>this.world instanceof concepts.World);

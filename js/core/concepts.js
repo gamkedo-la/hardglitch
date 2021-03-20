@@ -231,7 +231,7 @@ class Entity {
         return this._entity_id;
     }
 
-    get is_blocking_vision() { return false; } // Some entities can block visibility, so don't.
+    is_blocking_vision = false; // Some entities can block visibility, so don't.
 };
 
 // Items are entities that cannot ever move by themselves.
