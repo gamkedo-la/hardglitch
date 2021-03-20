@@ -442,7 +442,7 @@ class Item_BadCode extends concepts.Item {
 class Item_Jump extends concepts.Item {
     assets = {
         graphics : { body: {
-            sprite_def : sprite_defs.item_generic_3,
+            sprite_def : sprite_defs.item_generic_3_1,
         }}
     };
 
@@ -462,7 +462,7 @@ class Item_Jump extends concepts.Item {
 class Item_Push extends concepts.Item {
     assets = {
         graphics : { body: {
-            sprite_def : sprite_defs.item_generic_4,
+            sprite_def : sprite_defs.item_generic_4_2,
         }}
     };
 
@@ -483,7 +483,7 @@ class Item_Push extends concepts.Item {
 class Item_Pull extends concepts.Item {
     assets = {
         graphics : { body: {
-            sprite_def : sprite_defs.item_generic_4,
+            sprite_def : sprite_defs.item_generic_4_1,
         }}
     };
 
@@ -504,7 +504,7 @@ class Item_Pull extends concepts.Item {
 class Item_Swap extends concepts.Item {
     assets = {
         graphics : { body: {
-            sprite_def : sprite_defs.item_generic_1,
+            sprite_def : sprite_defs.item_generic_4_3,
         }}
     };
 

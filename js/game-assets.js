@@ -86,7 +86,11 @@ const game_assets = { // Description of the assets to load.
         item_generic_1: "./images/genericitem1.png",
         item_generic_2: "./images/genericitem2.png",
         item_generic_3: "./images/genericitem3.png",
+        item_generic_3_1: "./images/genericitem3.1.png",
         item_generic_4: "./images/genericitem4.png",
+        item_generic_4_1: "./images/genericitem4.1.png",
+        item_generic_4_2: "./images/genericitem4.2.png",
+        item_generic_4_3: "./images/genericitem4.3.png",
         item_generic_5: "./images/genericitem5.png",
         item_generic_6: "./images/genericitem6.png",
         item_generic_7: "./images/genericitem7.png",
@@ -665,45 +669,36 @@ const sprite_defs = {
 
     item_generic_1 : {
         image: "item_generic_1",
-        frames: [
-            { x:0, y:0, width:64, height:64 }
-         ]
     },
     item_generic_2 : {
         image: "item_generic_1",
-        frames: [
-            { x:0, y:0, width:64, height:64 }
-         ]
     },
     item_generic_3 : {
         image: "item_generic_3",
-        frames: [
-            { x:0, y:0, width:64, height:64 }
-         ]
+    },
+    item_generic_3_1 : {
+        image: "item_generic_3_1",
     },
     item_generic_4 : {
         image: "item_generic_4",
-        frames: [
-            { x:0, y:0, width:64, height:64 }
-         ]
+    },
+    item_generic_4_1 : {
+        image: "item_generic_4_1",
+    },
+    item_generic_4_2 : {
+        image: "item_generic_4_2",
+    },
+    item_generic_4_3 : {
+        image: "item_generic_4_3",
     },
     item_generic_5 : {
         image: "item_generic_5",
-        frames: [
-            { x:0, y:0, width:64, height:64 }
-         ]
     },
     item_generic_6 : {
         image: "item_generic_6",
-        frames: [
-            { x:0, y:0, width:64, height:64 }
-         ]
     },
     item_generic_7 : {
         image: "item_generic_7",
-        frames: [
-            { x:0, y:0, width:64, height:64 }
-         ]
     },
 
     button_up : test_button("up_down"),
