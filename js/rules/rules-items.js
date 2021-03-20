@@ -7,6 +7,7 @@ export {
     TakeItem,
     SwapItemSlots,
     DropItem,
+    DestroyInventoryItem,
     handle_items_in_limbo,
 }
 
@@ -210,6 +211,7 @@ class SwappedItemsSlots extends concepts.Event {
     }
 }
 
+
 class SwapItemSlots extends concepts.Action {
 
     static get costs(){
@@ -240,6 +242,66 @@ class SwapItemSlots extends concepts.Action {
         ];
     }
 };
+
+
+
+class InventoryItemDestroyed extends concepts.Event {
+    constructor(dropper, item_idx, dropped_id){
+        debug.assertion(()=>dropper instanceof concepts.Entity);
+        debug.assertion(()=>Number.isInteger(item_idx) || item_idx === undefined);
+
+        super({
+            description: `Entity ${dropper.id} destroyed entity ${dropped_id} that was in slot ${item_idx}`,
+            allow_parallel_animation: false,
+        });
+        this.dropper_id = dropper.id;
+        this.dropper_position = dropper.position;
+        this.item_idx = item_idx;
+        this.dropper_is_player = dropper.is_player_actor;
+        this.dropped_id = dropped_id;
+    }
+
+    get focus_positions() { return [ this.dropper_position ]; }
+
+    *animation(game_view){
+        debug.assertion(()=>game_view instanceof GameView);
+        game_view.focus_on_position(this.dropper_position);
+        if(this.dropper_is_player) {
+            game_view.ui.inventory.remove_item_view_at(this.item_idx);
+            game_view.ui.inventory.request_refresh();
+            yield* anim.inventory_destroy(game_view.ui.inventory.fx_view, game_view.ui.inventory, game_view.ui.inventory.destroy_item_slot.idx);
+        }
+    }
+};
+
+class DestroyInventoryItem extends concepts.Action {
+
+    static get costs(){
+        return {
+            action_points: { value: 1 },
+        };
+    }
+
+    constructor(slot_idx){
+        debug.assertion(()=>Number.isInteger(slot_idx) && slot_idx >= 0);
+        super(`destroy_inventory_item_${slot_idx}`, "THIS SHOULD NEVER BE DISPLAYED", undefined);
+        this.is_generated = true;
+
+        this.slot_idx = slot_idx;
+    }
+
+    execute(world, character){
+        debug.assertion(()=>world instanceof concepts.World);
+        debug.assertion(()=>character instanceof Character);
+        const item_to_destroy = character.inventory.remove(this.slot_idx);
+        character.inventory.update_modifiers();
+        // Beware: the inventory size can change because we active items changing it.
+        return [
+            new InventoryItemDestroyed(character, this.slot_idx, item_to_destroy.id),
+        ];
+    }
+};
+
 
 class DropItem extends concepts.Action {
     static get costs(){

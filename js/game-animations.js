@@ -18,6 +18,7 @@ export {
     drop_item,
     inventory_add,
     inventory_remove,
+    inventory_destroy,
     dissolve_item,
     decrypt_file,
     pushed,
@@ -283,6 +284,11 @@ function* inventory_remove(fx_view, inv, idx) {
     audio.playEvent('swapItem');
 }
 
+function* inventory_destroy(fx_view, inv, idx) {
+    const fx_pos = inv._slots[idx].position.translate({x:36,y:36});
+    const fx = fx_view.destruction(fx_pos, .25);
+    audio.playEvent('explode');
+}
 
 function* dissolve_item(item_view){
     debug.assertion(()=>item_view instanceof ItemView);

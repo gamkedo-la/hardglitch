@@ -16,7 +16,7 @@ import { Character, Inventory } from "../core/character.js";
 import { sprite_defs } from "../game-assets.js";
 import { HelpText } from "../system/ui.js";
 import { ItemView } from "../view/item-view.js";
-import { SwapItemSlots, DropItem } from "../rules/rules-items.js";
+import { SwapItemSlots, DropItem, DestroyInventoryItem } from "../rules/rules-items.js";
 
 import { CharacterStatus } from "./ui-characterstatus.js";
 import { GameFxView } from "../game-effects.js";
@@ -32,26 +32,59 @@ const item_slots_vertical_space = item_slot_vertical_size + item_slot_vertical_p
 const item_slot_vertical_top_padding = 64 * 2;
 const item_slot_name = "Item Slot";
 const active_item_slot_name = "Active Item Slot";
+const destroy_item_slot_name = "Destruction Slot";
 
-function slot_text(is_active){
-    debug.assertion(()=>typeof is_active === "boolean");
-    return is_active ? active_item_slot_name : item_slot_name;
+
+const slot_types = {
+    NORMAL: 0,
+    ACTIVE: 1,
+    DESTROY: 2,
+};
+
+function is_slot_type(value){
+    return Number.isInteger(value) && Object.values(slot_types).includes(value);
 }
+
+function slot_text(slot_type){
+    debug.assertion(()=>is_slot_type(slot_type));
+    switch(slot_type)
+    {
+        case slot_types.NORMAL:
+            return item_slot_name;
+        case slot_types.ACTIVE:
+            return active_item_slot_name;
+        case slot_types.DESTROY:
+            return destroy_item_slot_name;
+    }
+}
+
+function select_item_slot_sprite_def(slot_type){
+    switch(slot_type)
+    {
+        case slot_types.NORMAL:
+            return sprite_defs.item_slot;
+        case slot_types.ACTIVE:
+            return sprite_defs.item_active_slot;
+        case slot_types.DESTROY:
+            return sprite_defs.item_destroy_slot;
+    }
+};
 
 class ItemSlot {
 
-    constructor(position, is_active, fx_view){
-        debug.assertion(()=>typeof is_active === "boolean");
+    constructor(position, slot_type, fx_view){
+        debug.assertion(()=>is_slot_type(slot_type));
         debug.assertion(()=>position === undefined || position instanceof spatial.Vector2);
         debug.assertion(()=>fx_view instanceof GameFxView);
 
         this._fx_view = fx_view;
-        const sprite_def = is_active ? sprite_defs.item_active_slot : sprite_defs.item_slot;
+        this.type = slot_type;
+        const sprite_def = select_item_slot_sprite_def(slot_type);
         this._sprite = new graphics.Sprite(sprite_def);
         this._item_view = null;
 
         this._help_text = new HelpText({
-            text: slot_text(is_active),
+            text: slot_text(slot_type),
             area_to_help: this._sprite.area,
             delay_ms: 0, // Display the help text immediately when pointed.
 
@@ -63,7 +96,7 @@ class ItemSlot {
         if(position)
             this.position = position;
 
-        this.is_active = is_active;
+        this.is_active = this.type === slot_types.ACTIVE;
         this._fx = null;
     }
 
@@ -109,6 +142,13 @@ class ItemSlot {
         debug.assertion(()=>this._item_view === null);
         debug.assertion(()=>new_item instanceof ItemView);
         debug.assertion(()=>typeof new_item.name === "string");
+
+        if(this.type === slot_types.DESTROY){
+            // Destroy the item
+            this._destroy_fx();
+            return;
+        }
+
         this._item_view = new_item;
         this._item_view._item_slot = this;
         this._item_view.is_visible = true;
@@ -124,7 +164,7 @@ class ItemSlot {
             delete item._item_slot;
         }
         this._item_view = null;
-        this._help_text.text = slot_text(this.is_active);
+        this._help_text.text = slot_text(this.type);
         return item;
     }
 
@@ -140,6 +180,11 @@ class ItemSlot {
             this.fx.done = true;
             delete this.fx;
         }
+    }
+
+    _destroy_fx(){
+        let fx_pos = this._sprite.area.center;
+        this.fx = this._fx_view.destruction(fx_pos);
     }
 
     _update_item_position(){
@@ -158,10 +203,11 @@ class ItemSlot {
                 show_info(`Item: ${this._item_view.description}`);
             }
         } else {
-            if(this.is_active){
-                show_info(texts.ui.empty_active_slot);
-            } else {
-                show_info(texts.ui.empty_slot);
+            switch(this.type)
+            {
+                case slot_types.NORMAL: show_info(texts.ui.empty_slot);  break;
+                case slot_types.ACTIVE: show_info(texts.ui.empty_active_slot);  break;
+                case slot_types.DESTROY: show_info(texts.ui.detroy_slot);  break;
             }
         }
     }
@@ -269,10 +315,17 @@ class InventoryUI {
                             if(destination_slot_idx !== this._dragging_item.destination_slot_idx){
                                 debug.assertion(()=>this._current_character instanceof Character);
                                 this._dragging_item.destination_slot_idx = destination_slot_idx;
-                                this._dragging_item.swap_action = new SwapItemSlots(this._dragging_item.source_slot_idx, this._dragging_item.destination_slot_idx);
-                                this.character_status.begin_preview_costs({
-                                    action_points: this._current_character.stats.action_points.value - this._dragging_item.swap_action.constructor.costs.action_points.value,
-                                });
+                                if(destination_slot.type === slot_types.DESTROY){
+                                    this._dragging_item.destroy_action = new DestroyInventoryItem(this._dragging_item.source_slot_idx);
+                                    this.character_status.begin_preview_costs({
+                                        action_points: this._current_character.stats.action_points.value - this._dragging_item.destroy_action.constructor.costs.action_points.value,
+                                    });
+                                } else {
+                                    this._dragging_item.swap_action = new SwapItemSlots(this._dragging_item.source_slot_idx, this._dragging_item.destination_slot_idx);
+                                    this.character_status.begin_preview_costs({
+                                        action_points: this._current_character.stats.action_points.value - this._dragging_item.swap_action.constructor.costs.action_points.value,
+                                    });
+                                }
                             }
                         } else {
                             // Same slot than source
@@ -309,9 +362,14 @@ class InventoryUI {
                         if(this._dragging_item.source_slot_idx === destination_slot_idx){
                             this._dragging_item.slot._update_item_position(); // Reset the item position.
                         } else {
-                            debug.assertion(()=>this._dragging_item.swap_action instanceof concepts.Action);
                             debug.assertion(()=>this._dragging_item.destination_slot_idx === destination_slot_idx);
-                            game_input.play_action(this._dragging_item.swap_action);
+                            if(destination_slot.type === slot_types.DESTROY){
+                                debug.assertion(()=>this._dragging_item.destroy_action instanceof concepts.Action);
+                                game_input.play_action(this._dragging_item.destroy_action);
+                            } else {
+                                debug.assertion(()=>this._dragging_item.swap_action instanceof concepts.Action);
+                                game_input.play_action(this._dragging_item.swap_action);
+                            }
                         }
 
                         if(destination_slot.is_active)
@@ -417,17 +475,21 @@ class InventoryUI {
         let column_slots = 0;
         let hexagonal_shift = 0;
 
+        const next_column = () =>{
+            column_slots = 0;
+            ++column_idx;
+            if(column_idx % 2 === 0){
+                hexagonal_shift = item_slot_vertical_half_size * 2;
+                column_max_slots = slots_per_column - 2;
+            } else {
+                hexagonal_shift = item_slot_vertical_half_size;
+                column_max_slots = slots_per_column - 1;
+            }
+        };
+
         const next_slot_position = ()=>{
             if(column_slots >= column_max_slots){
-                column_slots = 0;
-                ++column_idx;
-                if(column_idx % 2 === 0){
-                    hexagonal_shift = item_slot_vertical_half_size * 2;
-                    column_max_slots = slots_per_column - 2;
-                } else {
-                    hexagonal_shift = item_slot_vertical_half_size;
-                    column_max_slots = slots_per_column - 1;
-                }
+                next_column();
             }
 
             const x_shift = (column_idx * item_slot_column_width);
@@ -440,7 +502,7 @@ class InventoryUI {
 
         while(this._slots.length !== slot_count){
             const is_active = this._slots.length < this._active_slots_count;
-            const item_slot = new ItemSlot(undefined, is_active, this.fx_view);
+            const item_slot = new ItemSlot(undefined, is_active ? slot_types.ACTIVE : slot_types.NORMAL, this.fx_view);
 
             item_slot.position = next_slot_position();
 
@@ -451,6 +513,13 @@ class InventoryUI {
                     item_slot.set_item(previous_item);
             }
         }
+
+        // Last slot is always the one to destroy items.
+        next_column();
+        this.destroy_item_slot = new ItemSlot(undefined, slot_types.DESTROY, this.fx_view);
+        this.destroy_item_slot.position = next_slot_position().translate({ x: 20 });
+        this._slots.push(this.destroy_item_slot);
+        this.destroy_item_slot.idx = this._slots.length - 1;
     }
 
     _reset_items(inventory){
