@@ -470,7 +470,7 @@ class Character extends concepts.Body {
 
     // Describe the possible positions relative to the current one where an item can be dropped by this character.
     allowed_drops() {
-        return this.field_of_vision.filter_visible(...Object.values(this.allowed_moves())); // Close to the character, and visible (which means valid to walk in, even if it's lethal).
+        return this.field_of_vision.filter_visible(...this.position.adjacents_diags); // Close to the character, and visible (which means valid to walk in, even if it's lethal).
     }
 
     // Properly performs an action after having spent the action points from the body etc.
