@@ -42,7 +42,7 @@ import * as audio from "./system/audio.js";
 import { CharacterView } from "./view/character-view.js";
 import { ItemView } from "./view/item-view.js";
 import { Position } from "./core/concepts.js";
-import { Sprite } from "./system/graphics.js";
+import * as graphics from "./system/graphics.js";
 import { is_number, random_float } from "./system/utility.js";
 import { crypto_kind as crypto_kinds } from "./definitions-items.js";
 import { GameView } from "./game-view.js";
@@ -237,32 +237,39 @@ function* repairing_missile(fx_view, source_position, target_position){
     yield* missile(missile_effect, graphic_position(target_position));
 }
 
-function* take_item(fx_view, taker_view, item_view){
+function* take_item(fx_view, taker_view, item_view, target_slot_pos){
     debug.assertion(()=>taker_view instanceof CharacterView);
     debug.assertion(()=>item_view instanceof ItemView);
-    const take_duration_ms = 500;
+    const take_duration_ms = 250;
+
+    // Make the move into the inventory visible:
+    target_slot_pos = new Vector2(target_slot_pos).translate(graphics.camera.position);
     audio.playEvent('item');
-    const initial_position = item_view.position;
-    const initial_scale = item_view.scale;
-    item_view.for_each_sprite(sprite=>sprite.move_origin_to_center());
-    item_view.position = initial_position.translate(square_half_unit_vector);
-    let fx_pos = initial_position.translate(square_half_unit_vector);
-    const fx = fx_view.take(fx_pos);
-    yield* animation.in_parallel(
-        tween( { scale_x: item_view.scale.x, scale_y: item_view.scale.y, }, { scale_x: 0, scale_y: 0, },
-                take_duration_ms,
-                (values) => {
-                    item_view.scale = { x: values.scale_x, y: values.scale_y };
-                },
-                easing.in_out_quad
-            ),
-        translate(item_view, taker_view.position.translate(square_half_unit_vector), take_duration_ms),
-    );
-    item_view.is_visible = false;
-    item_view.scale = initial_scale;
-    item_view.position = initial_position;
-    item_view.for_each_sprite(sprite => sprite.reset_origin());
-    fx.done = true;
+    item_view.force_visible = true;
+    yield* translate(item_view, target_slot_pos, take_duration_ms);
+    item_view.force_visible = false;
+
+    // const initial_position = item_view.position;
+    // const initial_scale = item_view.scale;
+    // item_view.for_each_sprite(sprite=>sprite.move_origin_to_center());
+    // item_view.position = initial_position.translate(square_half_unit_vector);
+    // let fx_pos = initial_position.translate(square_half_unit_vector);
+    // const fx = fx_view.take(fx_pos);
+    // yield* animation.in_parallel(
+    //     tween( { scale_x: item_view.scale.x, scale_y: item_view.scale.y, }, { scale_x: 0, scale_y: 0, },
+    //             take_duration_ms,
+    //             (values) => {
+    //                 item_view.scale = { x: values.scale_x, y: values.scale_y };
+    //             },
+    //             easing.in_out_quad
+    //         ),
+    //     translate(item_view, taker_view.position.translate(square_half_unit_vector), take_duration_ms),
+    // );
+    // item_view.is_visible = false;
+    // item_view.scale = initial_scale;
+    // item_view.position = initial_position;
+    // item_view.for_each_sprite(sprite => sprite.reset_origin());
+    // fx.done = true;
 }
 
 function* drop_item(fx_view, drop_position, raw_position=false) {
@@ -338,7 +345,7 @@ function* decrypt_file(file_view, file_fx_view, key_view, key_fx_view, crypto_ki
     debug.assertion(()=>file_fx_view instanceof GameFxView);
     debug.assertion(()=>key_fx_view instanceof GameFxView);
     const file_sprite = file_view.get_sprite("body");
-    debug.assertion(()=>file_sprite instanceof Sprite);
+    debug.assertion(()=>file_sprite instanceof graphics.Sprite);
     yield* animation.wait(100);
     file_sprite.start_animation("decrypt");
     const until_the_animation_ends = ()=> file_sprite.is_playing_animation === true;

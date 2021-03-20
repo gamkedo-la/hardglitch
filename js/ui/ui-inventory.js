@@ -268,6 +268,11 @@ class InventoryUI {
 
     request_refresh(){ this._need_refresh = true; }
 
+    get_slot_position(idx) {
+        debug.assertion(()=>idx < this._slots.length);
+        return this._slots[idx].position;
+    }
+
     get_item_view_at(idx) {
         debug.assertion(()=>Number.isInteger(idx));
         debug.assertion(()=>idx < this._slots.length);
