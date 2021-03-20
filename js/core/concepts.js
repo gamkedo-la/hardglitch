@@ -215,7 +215,7 @@ class Position {
 class Entity {
     _position = new Position();
     _entity_id = new_entity_id();
-    description = "NO DESCRIPTION FOR THIS ENTITY";
+    get description(){ return "NO DESCRIPTION FOR THIS ENTITY"; }
 
     constructor(name){
         debug.assertion(()=>typeof name === 'string');
@@ -231,7 +231,7 @@ class Entity {
         return this._entity_id;
     }
 
-    is_blocking_vision = false; // Some entities can block visibility, so don't.
+    get is_blocking_vision() { return false; } // Some entities can block visibility, so don't.
 };
 
 // Items are entities that cannot ever move by themselves.
@@ -253,6 +253,11 @@ class Item extends Entity {
         return this.get_enabled_action_types()
                    .map(action_type => action_type.action_type_name)
                    ;
+    }
+
+    // Called when an action provided by this item have been used.
+    on_action_used(){
+
     }
 
 };

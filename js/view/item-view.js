@@ -16,8 +16,10 @@ class ItemView extends EntityView {
         debug.assertion(()=>item instanceof concepts.Item);
         super(item.id, item.position, item.assets);
         this.name = item.name;
-        this.description = item_description(item);
+        this.item = item;
         this.is_floating = item.is_floating;
     }
+
+    get description() { return item_description(this.item); }
 };
 

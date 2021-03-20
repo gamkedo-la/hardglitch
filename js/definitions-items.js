@@ -738,7 +738,9 @@ class Item_Copy extends concepts.Item {
         }}
     };
 
-    description = auto_newlines("Allows duplicating entities in memory.", 35);
+    count = 3; // How many times we can use this item's action.
+
+    get description(){ return auto_newlines(`Allows duplicating entities in memory. Usage left: ${this.count}`, 35); }
     get can_be_taken() { return true; }
 
     constructor(){
@@ -746,7 +748,14 @@ class Item_Copy extends concepts.Item {
     }
 
     get_enabled_action_types(){
-        return [ Copy ];
+        if(this.count > 0)
+            return [ Copy ];
+        else
+            return [];
+    }
+
+    on_action_used(){
+        --this.count;
     }
 
 }

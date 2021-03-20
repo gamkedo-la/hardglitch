@@ -368,6 +368,7 @@ class Inventory {
     }
 
     get stored_items() { return this._item_slots; }
+    get active_items() { return this._item_slots.slice(0, this._activable_items); }
     get size() { return this._item_slots.length; }
 
     get have_empty_slots() { return this._item_slots.some(item => item === undefined); }
@@ -484,8 +485,17 @@ class Character extends concepts.Body {
         debug.assertion(()=>Number.isInteger(action.constructor.costs.action_points.value) && action.constructor.costs.action_points.value >= 0);
         this.stats.action_points.decrease(action.constructor.costs.action_points.value);
 
+        // Make sure the item providing that action will be updated, if any:
+        const item = this.inventory.active_items.find(item=> item instanceof concepts.Item && item.get_enabled_action_types().some((action_type)=> action instanceof action_type));
+
         // Then execute the action:
-        return action.execute(world, this);
+        const action_result = action.execute(world, this);
+
+        // Update the item.
+        if(item){
+            item.on_action_used();
+        }
+        return action_result;
     }
 
     take_damage(damage_count){ // TODO: maybe handle some kind of armor
