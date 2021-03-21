@@ -32,13 +32,20 @@ class Repaired extends concepts.Event {
         const entity_view = game_view.focus_on_entity(this.entity_id);
         if(!(entity_view instanceof EntityView)) return; // FIXME: was an assertion, not sure why it went false.
 
-        if(this.from_position instanceof concepts.Position && !this.from_position.equals(entity_view.game_position))
+        // If we repair through targetting another (via an action), we show the whole animation.
+        // Otherwise we just show the value change.
+        if(this.from_position instanceof concepts.Position /*&& !this.from_position.equals(entity_view.game_position)*/){
             yield* animations.repairing_missile(game_view.fx_view, this.from_position, entity_view.game_position)
+            yield* in_parallel(
+                animations.repaired(game_view.fx_view, entity_view),
+                animations.integrity_value_change(game_view, this.repair_amount, entity_view.position),
+            );
+        } else {
+            if(this.repair_amount != 0)
+                game_view.special_animations.play(animations.integrity_value_change(game_view, this.repair_amount, entity_view.position));
+        }
 
-        yield* in_parallel(
-            animations.repaired(game_view.fx_view, entity_view),
-            animations.integrity_value_change(game_view, this.repair_amount, entity_view.position),
-        );
+
     }
 
 }
@@ -48,12 +55,14 @@ function repair(entity, amount, repairer_position){
     debug.assertion(()=>repairer_position instanceof concepts.Position || repairer_position === undefined);
     debug.assertion(()=>Number.isInteger(amount) && amount >= 0);
     if(entity instanceof Character){
-        entity.repair(amount);
+        amount = entity.repair(amount);
     } else {
         amount = 0; // Other kinds of entities can't really be repaired.
     }
     return [
         new Repaired(entity.id, entity.position, amount, repairer_position),
     ];
+
+
 }
 

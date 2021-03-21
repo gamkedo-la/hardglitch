@@ -137,7 +137,7 @@ class StatValue {
         else
             this._value = new_value;
 
-            this._notify_listeners();
+        this._notify_listeners();
     }
 
     add_listener(listener_id, listener){
@@ -499,11 +499,17 @@ class Character extends concepts.Body {
     }
 
     take_damage(damage_count){ // TODO: maybe handle some kind of armor
+        const initial_value = this.stats.integrity.value;
         this.stats.integrity.decrease(damage_count);
+        const damage_taken = initial_value - this.stats.integrity.value;
+        return damage_taken;
     }
 
     repair(integrity_amount){
+        const initial_value = this.stats.integrity.value;
         this.stats.integrity.increase(integrity_amount);
+        const repaired = this.stats.integrity.value - initial_value;
+        return repaired;
     }
 
     restore_action_points(){
