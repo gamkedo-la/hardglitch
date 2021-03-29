@@ -181,7 +181,8 @@ function find_visible_positions(world, center, view_distance){
 
     const visible_positions = [];
     const mark_visible = (x, y)=>{
-        visible_positions.push(new concepts.Position({x,y}));
+        if(visible_positions.every(position=> !position.equals({x, y})))
+            visible_positions.push(new concepts.Position({x,y}));
     };
 
     compute_fov(center, is_blocking_vision, mark_visible);
