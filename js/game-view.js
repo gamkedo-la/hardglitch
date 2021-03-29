@@ -798,7 +798,7 @@ class GameView {
         this.tile_grid.draw_floor(graphics.screen_canvas_context, visibility_predicate);
 
         this._render_ground_highlights();
-        this._render_entities(graphics.screen_canvas_context, entity_view => !entity_view.is_flying && !entity_view.force_visible);
+        this._render_entities(graphics.screen_canvas_context, entity_view => this.enable_edition || (!entity_view.is_flying && !entity_view.force_visible && this.fog_of_war.is_visible(entity_view.game_position)));
 
         if(this.enable_fog_of_war){
             this.fog_of_war.display(graphics.screen_canvas_context);
@@ -811,7 +811,7 @@ class GameView {
 
         this.fx_view.draw(graphics.screen_canvas_context, effect_visibility_predicate);
 
-        this._render_entities(graphics.screen_canvas_context, entity_view => (entity_view.is_flying && this.fog_of_war.is_visible(entity_view.game_position)) || entity_view.force_visible);
+        this._render_entities(graphics.screen_canvas_context, entity_view => (entity_view.is_flying && this.fog_of_war.is_visible(entity_view.game_position)) || entity_view.force_visible || this.enable_edition);
 
         this._render_top_highlights();
 
