@@ -256,10 +256,12 @@ class FieldOfVision {
     }
 
     get visible_positions() { return [ ...this._visible_positions ]; } // We return a copy.
+    get visible_unblocked_positions() { return [ ...this._visible_unblocked_positions ]; } // We return a copy.
 
     update(world){
         debug.assertion(()=>world instanceof concepts.World);
         this._visible_positions = find_visible_positions(world, this._center, this._view_distance);
+        this._visible_unblocked_positions = this._visible_positions.filter(position => !is_blocked_position(world, position, tiles.is_walkable));
     }
 
     is_visible(...positions){ // TODO: probably optimizable

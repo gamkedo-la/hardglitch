@@ -4,6 +4,12 @@
 // They should be designed so that changing them will change the game
 // immediately live while playing.
 
+export const fov_view_styles = {
+    WHITE_SQUARE: 0,
+    EYE : 1,
+    EYE_ON_SQUARE : 2,
+};
+
 
 export const config = {
 
@@ -14,6 +20,7 @@ export const config = {
     enable_timeline: true,
     enable_infobox: true,
     enable_ground_descriptions: false,
+    fov_view_style: fov_view_styles.EYE_ON_SQUARE,
 };
 
 window.game_config = config;

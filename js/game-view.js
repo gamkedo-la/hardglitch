@@ -13,7 +13,6 @@ import * as ui from "./system/ui.js";
 import * as anim from "./system/animation.js";
 import * as visibility from "./core/visibility.js";
 import { mouse } from "./system/input.js";
-import * as steering from "./system/steering.js";
 
 import * as concepts from "./core/concepts.js";
 import { Character } from "./core/character.js";
@@ -632,9 +631,15 @@ class GameView {
 
     _start_player_turn(){
         this.is_time_for_player_to_chose_action = true;
+        this._clear_current_playing_character_view();
         if(this.player_character){
 
-            if(this.enable_auto_camera_center && this.player_character){
+            const player_view = this.get_entity_view(this.player_character.id);
+            if(player_view instanceof CharacterView){
+                player_view.is_playing = true;
+            }
+
+            if(this.enable_auto_camera_center){
                 this.focus_on_current_player_character();
             }
 
@@ -651,6 +656,10 @@ class GameView {
             this.clear_focus();
             this.lock_actions();
         }
+    }
+
+    _clear_current_playing_character_view(){
+        this.list_entity_views.forEach(view=> view.is_playing = false);
     }
 
     show_turn_message(message, begin_ms = turn_message_display_begin_ms, end_ms = turn_message_display_end_ms){
@@ -689,7 +698,7 @@ class GameView {
         this.list_entity_views
             .filter(filter)
             .sort((left_view, right_view) => left_view.position.y - right_view.position.y)
-            .map(view => view.render_graphics(canvas_context));
+            .forEach(view => view.render_graphics(canvas_context));
     }
 
     _clear_pointed_highlight(){
@@ -1085,6 +1094,9 @@ class GameView {
             if(entity.is_player_actor){
                 this.fog_of_war.add_fov(entity.id, entity.field_of_vision);
                 this._require_tiles_update = true;
+            }
+            if(entity.id === this.player_character.id){
+                entity_view.is_playing = true;
             }
         } else {
             debug.assertion(()=>entity_or_view_or_id instanceof EntityView);
