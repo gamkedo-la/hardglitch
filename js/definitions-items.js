@@ -553,7 +553,7 @@ class Item_Scanner extends concepts.Item {
 
     get can_be_taken() { return true; }
 
-    description = auto_newlines("Scanner algorithm allowing one to read more memory around at the same time.", 35);
+    description = auto_newlines("Scanner algorithm allowing one to read more memory arosund at the same time.", 35);
 
     stats_modifiers = {
         view_distance: { value: +4 },

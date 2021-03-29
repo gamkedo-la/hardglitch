@@ -30,13 +30,9 @@ class CharacterView extends EntityView {
             this.set_shadow(sprite_defs.shadow_red);
         }
         super.render_graphics(canvas_context);
-
-        if(!this.is_playing && this.is_mouse_over){
-            this._draw_fov(canvas_context);
-        }
     }
 
-    _draw_fov(canvas_context){
+    draw_fov(canvas_context){
         canvas_context.save();
 
         canvas_context.lineWidth = 0;
