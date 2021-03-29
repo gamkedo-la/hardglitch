@@ -61,7 +61,7 @@ class CameraControl {
             return;
         }
 
-        this.stop();
+        this.clear_tracking();
         this.tracking_steer = new steering.Arrive({
             target: entity_view,
             max_acceleration: window.camera_tracking.max_acceleration,
@@ -76,6 +76,10 @@ class CameraControl {
 
     stop(){
         this.camera_kinematics.velocity.to_zero();
+        this.clear_tracking();
+    }
+
+    clear_tracking(){
         this.steering_system.clear();
         delete this.tracking_steer;
     }

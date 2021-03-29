@@ -195,6 +195,7 @@ function update_camera_control(delta_time, allow_camera_dragging){
     && allow_camera_dragging
     ){
         // Map dragging
+        current_game_view.camera_control.stop();
         if(!draggin_start_camera_position){
             draggin_start_camera_position = graphics.camera.position;
             mouse_was_dragging_last_update = true;
