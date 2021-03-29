@@ -702,6 +702,8 @@ class GameView {
     }
 
     _render_fov_view(canvas_context){
+        if(!this.is_time_for_player_to_chose_action)
+            return;
         const entity_view = this.list_entity_views.find(entity_view=> entity_view.is_mouse_over);
         if(entity_view instanceof CharacterView
         && !entity_view.is_playing
