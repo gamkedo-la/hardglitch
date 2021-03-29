@@ -8,7 +8,7 @@ import { Character, CharacterStats } from "../core/character.js";
 import * as concepts from "../core/concepts.js";
 import { auto_newlines } from "../system/utility.js";
 
-const default_player_view_distance = 6;
+const default_player_view_distance = 5;
 const default_player_inventory_slots = 3;
 const default_player_active_slots = 1;
 

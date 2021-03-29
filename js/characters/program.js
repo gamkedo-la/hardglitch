@@ -97,7 +97,7 @@ class Program extends Character {
 
         this.stats.inventory_size.real_value = 12;
         this.stats.activable_items.real_value = 2;
-        this.stats.view_distance.real_value = 5;
+        this.stats.view_distance.real_value = 3;
         this.stats.ap_recovery.real_value = 20;
         this.stats.action_points.real_max = 30;
         this.stats.action_points.real_value = 30;
