@@ -108,7 +108,7 @@ const grid_ID = {
 
 // Returns true if the position given is blocked by an entity (Body or Item) or a tile that blocks (wall).
 // The meaning of "blocking" depends on the provided predicate.
-function is_blocked_position(world, position, is_not_blocking){
+function is_blocked_position(world, position, is_not_blocking, entities_blocks = true){
     debug.assertion(()=>world instanceof concepts.World);
     debug.assertion(()=>position);
     debug.assertion(()=>is_not_blocking instanceof Function);
@@ -125,11 +125,13 @@ function is_blocked_position(world, position, is_not_blocking){
     if(surface_tile && is_blocking(surface_tile))
         return true;
 
-    if(world.body_at(position))
-        return true;
+    if(entities_blocks){
+        if(world.body_at(position))
+            return true;
 
-    if(world.item_at(position))
-        return true;
+        if(world.item_at(position))
+            return true;
+    }
 
     return false;
 }

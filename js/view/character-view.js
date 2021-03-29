@@ -81,7 +81,7 @@ class CharacterView extends EntityView {
                 draw_func = draw_square;
         }
 
-        this._character.field_of_vision.visible_unblocked_positions.forEach(position => {
+        this._character.field_of_vision.visible_walkable_positions.forEach(position => {
             if(position.equals(this._character.position)) // Ignore the square where this entity is.
                 return;
             const gfx_pos = graphic_position(position);
