@@ -69,7 +69,7 @@ class Highlight{
                 text: tooltip,
                 area_to_help: new Rectangle(), // will be updated when we set the position.
                 in_screenspace: false, // We will display the text in the game space.
-                delay_ms: 666,
+                delay_ms: 200,
             });
         }
         this.position = position;
