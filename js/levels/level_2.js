@@ -567,42 +567,63 @@ function* generate_room_positions(horizontal_room_count, vertical_room_count){
     yield* selected_generation_rule();
 }
 
+// Checks that the generated world matches our requirements for a decent level.
+function validate(world){
+    // At least one exit is "reachable".
+    // etc.
+
+
+    // All tests passed.
+    return true;
+}
+
 function generate_world(){
 
     // LEVEL 2:
     // RAM: https://trello.com/c/wQCJeRfn/75-level-2-ram
     //
 
-    // Lesson learn from level 1: it's far better to build in layers/pass than to predetermine details and assemble later.
-    // Therefore, we'll fill the world with different passes.
+    const max_attempts = 20;
+    let attempts = 0;
+    while(true){
+        // Lesson learn from level 1: it's far better to build in layers/pass than to predetermine details and assemble later.
+        // Therefore, we'll fill the world with different passes.
 
-    // Pass 1: empty world, with the appropriate size.
-    const ram_world_chunk = tools.create_chunk(16, 16, defaults);
-    ram_world_chunk.name = level_name;
+        // Pass 1: empty world, with the appropriate size.
+        const ram_world_chunk = tools.create_chunk(16, 16, defaults);
+        ram_world_chunk.name = level_name;
 
-    // Pass 2: put some rooms in a grid, with variations, including the exit and entry
-    const room_grid = { x: 7, y: 4 };
-    const room_count = room_grid.x * room_grid.y;
-    const room_positions_iter = generate_room_positions(room_grid.x, room_grid.y);
-    const selected_rooms_iter = generate_room_selection(room_count);
-    const positionned_selected_rooms = Array.from({length:room_count}, ()=> {
-        return {
-            position: room_positions_iter.next().value,
-            world_desc: process_procgen_tiles(selected_rooms_iter.next().value)
-        };
-    });
+        // Pass 2: put some rooms in a grid, with variations, including the exit and entry
+        const room_grid = { x: 7, y: 4 };
+        const room_count = room_grid.x * room_grid.y;
+        const room_positions_iter = generate_room_positions(room_grid.x, room_grid.y);
+        const selected_rooms_iter = generate_room_selection(room_count);
+        const positionned_selected_rooms = Array.from({length:room_count}, ()=> {
+            return {
+                position: room_positions_iter.next().value,
+                world_desc: process_procgen_tiles(selected_rooms_iter.next().value)
+            };
+        });
 
-    const ram_world_with_rooms = tools.merge_world_chunks(level_name, defaults,
-        { position: { x:0, y: 0}, world_desc: ram_world_chunk },
-        ...positionned_selected_rooms
-    );
+        const ram_world_with_rooms = tools.merge_world_chunks(level_name, defaults,
+            { position: { x:0, y: 0}, world_desc: ram_world_chunk },
+            ...positionned_selected_rooms
+        );
 
-    // Pass 3: fill the inter-room corridors with walls and entities
+        // Pass 3: fill the inter-room corridors with walls and entities
 
-    const world_desc = tools.random_variation(tools.add_padding_around(ram_world_with_rooms, { floor: tiles.ID.VOID }));
+        const world_desc = tools.random_variation(tools.add_padding_around(ram_world_with_rooms, { floor: tiles.ID.VOID }));
 
-    // Pass 4: add entities
+        // Pass 4: add entities
 
-    const world = tools.deserialize_world(world_desc);
-    return world;
+        const world = tools.deserialize_world(world_desc);
+        if(validate(world))
+            return world;
+
+        ++attempts;
+        if(attempts >= max_attempts){
+            console.warn(`Failed to produce a valid level after ${attempts} attempts - we will  the last generated level. ;_; `);
+            return world;
+        }
+    }
 }
