@@ -490,7 +490,7 @@ function* generate_room_positions(horizontal_room_count, vertical_room_count){
             }
         },
         big_blob: function*(){
-            const inter_room_space = { x: 5, y: 5 };
+            const inter_room_space = { x: random_int(3, 5), y: random_int(3, 5) };
             for(let y = 0; y < vertical_room_count; ++y){
                 for(let x = 0; x < horizontal_room_count; ++x){
                     const normal_position = new Position({x: x * room_size.x, y: y * room_size.y}).translate(inter_room_space); // top-left inter-room space.
@@ -499,7 +499,7 @@ function* generate_room_positions(horizontal_room_count, vertical_room_count){
             }
         },
         square_2x2_blobs: function*(){
-            const inter_room_space = { x: 3, y: 3 };
+            const inter_room_space = { x: random_int(2, 3), y: random_int(2, 3) };
             const drift = { x: 0, y: 0};
             for(let y = 0; y < vertical_room_count; ++y){
                 if(y > 0 && y % 2 === 0){
@@ -520,7 +520,7 @@ function* generate_room_positions(horizontal_room_count, vertical_room_count){
             }
         },
         square_3x3_blobs: function*(){
-            const inter_room_space = { x: 3, y: 3 };
+            const inter_room_space = { x: random_int(2, 3), y: random_int(2, 3) };
             const drift = { x: 0, y: 0};
             for(let y = 0; y < vertical_room_count; ++y){
                 if(y > 0 && y % 3 === 0){
@@ -577,11 +577,11 @@ function generate_world(){
     // Therefore, we'll fill the world with different passes.
 
     // Pass 1: empty world, with the appropriate size.
-    const ram_world_chunk = tools.create_chunk(64, 64, defaults);
+    const ram_world_chunk = tools.create_chunk(16, 16, defaults);
     ram_world_chunk.name = level_name;
 
     // Pass 2: put some rooms in a grid, with variations, including the exit and entry
-    const room_grid = { x: 6, y: 6 };
+    const room_grid = { x: 7, y: 4 };
     const room_count = room_grid.x * room_grid.y;
     const room_positions_iter = generate_room_positions(room_grid.x, room_grid.y);
     const selected_rooms_iter = generate_room_selection(room_count);
@@ -600,7 +600,9 @@ function generate_world(){
     // Pass 3: fill the inter-room corridors with walls and entities
 
     const world_desc = tools.random_variation(tools.add_padding_around(ram_world_with_rooms, { floor: tiles.ID.VOID }));
-    const world = tools.deserialize_world(world_desc);
 
+    // Pass 4: add entities
+
+    const world = tools.deserialize_world(world_desc);
     return world;
 }
