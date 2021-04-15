@@ -96,10 +96,12 @@ class ActionButton extends ui.Button {
     set position(new_pos) {
         super.position = new_pos;
         this.icon.position = center_in_rectangle(this.icon, this.area).position;
-        this.key_label.position = this.position.translate({
-            x: this.width - this.key_label.width,
-            y: this.height - this.key_label.height,
-        });
+        if(this.key_label){
+            this.key_label.position = this.position.translate({
+                x: this.width - this.key_label.width,
+                y: this.height - this.key_label.height,
+            });
+        }
         this.help_text.position = this.position.translate({x:0, y: -this.help_text.height - 4 });
     }
 
