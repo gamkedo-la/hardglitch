@@ -11,6 +11,7 @@ import * as debug from "./system/debug.js";
 import * as audio from "./system/audio.js"
 import * as graphics from "./system/graphics.js";
 import * as ui from "./system/ui.js";
+import * as anim from "./system/animation.js";
 import { sprite_defs } from "./game-assets.js";
 import * as concepts from "./core/concepts.js";
 import * as texts from "./definitions-texts.js";
@@ -22,7 +23,6 @@ import { InventoryUI } from "./ui/ui-inventory.js";
 import { InfoBox, show_info } from "./ui/ui-infobox.js";
 import { Timeline } from "./ui/ui-timeline.js";
 import { mute_button } from "./main.js";
-import { AnimationGroup } from "./system/animation.js";
 import { easing, tween } from "./system/tweening.js";
 
 const action_button_size = 50;
@@ -73,16 +73,11 @@ class ActionButton extends ui.Button {
         this.allow_disabled_update = true; // To enabled displaying info when the mouse is over.
 
         this.icon = new graphics.Sprite(icon_def);
-        this.position = position;
 
         if(key_name !== ""){
             this.key_label = new ui.Text({
                 text: key_name,
                 font: "12px Space Mono",
-            });
-            this.key_label.position = this.position.translate({
-                x: this.width - this.key_label.width,
-                y: this.height - this.key_label.height,
             });
         }
         this.action_text_name = action_text_name;
@@ -93,13 +88,19 @@ class ActionButton extends ui.Button {
         }, {
             on_mouse_over: ()=> { show_info(info_desc); }
         });
-        this.help_text.position = this.position.translate({x:0, y: -this.help_text.height - 4 });
+        this.position = position;
+
     }
 
     get position() { return super.position; }
     set position(new_pos) {
         super.position = new_pos;
         this.icon.position = center_in_rectangle(this.icon, this.area).position;
+        this.key_label.position = this.position.translate({
+            x: this.width - this.key_label.width,
+            y: this.height - this.key_label.height,
+        });
+        this.help_text.position = this.position.translate({x:0, y: -this.help_text.height - 4 });
     }
 
     _on_begin_over(){
@@ -391,7 +392,7 @@ class MenuButton extends ui.Button {
 class GameInterface {
 
     ingame_elements = {}; // UI elements which are displayed in the game space instead of screen space.
-    animations = new AnimationGroup();
+    animations = new anim.AnimationGroup();
 
     button_cancel_action_selection = new CancelActionButton(()=>{
             debug.log("CANCEL ACTION BUTTON");
@@ -532,8 +533,13 @@ class GameInterface {
             action_button.cancel_button_position = { x: action_button.position.x, y: line_y - this.button_cancel_action_selection.width };
 
             if(!previous_actions_names.includes(action_button.action_text_name)){ // Actions that were added will play the animation.
-                const animation = tween(action_button.position.translate({ y: -action_button.height }), action_button.position, 500, (new_pos) => action_button.position = new_pos, easing.in_out_quad);
-                this.animations.play(animation);
+                const animation = function*(){
+                    const target_position = action_button.position;
+                    action_button.position = action_button.position.translate({ y: -action_button.height });
+                    yield* anim.wait(500);
+                    yield* tween(action_button.position, target_position, 500, (new_pos) => action_button.position = new_pos, easing.in_out_quad);
+                };
+                this.animations.play(animation());
             }
         });
 
