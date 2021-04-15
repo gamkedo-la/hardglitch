@@ -17,6 +17,7 @@ class CharacterView extends EntityView {
         debug.assertion(()=>character instanceof Character);
         super(character.id, character.position, character.assets);
         this._character = character;
+        this.is_floating = character.is_floating ? true : false;
     }
 
     get is_player() { return this._character.is_player_actor; }

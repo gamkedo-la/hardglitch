@@ -19,6 +19,8 @@ class GlitchyGlitchMacGlitchy extends Character {
         }}
     };
 
+    is_floating = true; // For graphic coolness.
+
     description = auto_newlines("Sentient glitch, computer bug with a conscience, ghost in the machine. Will probably be destroyed by the computer's protection.", 35);
 
     is_anomaly = true;
