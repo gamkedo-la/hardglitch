@@ -32,6 +32,7 @@ const move_range = new visibility.Range_Cross_Axis(1,2); // TODO: obtain that fr
 const jump_range = new visibility.Range_Cross_Star(3, 4);
 const swap_range = new visibility.Range_Diamond(1, 4);
 
+const move_base_cost = 10;
 
 // Set the action as unsafe if the target tile is unsafe.
 function safe_if_safe_arrival(move_action, world){
@@ -76,7 +77,7 @@ class Move extends concepts.Action {
     static get range(){ return move_range; }
     static get costs(){
         return {
-            action_points: { value: 10 },
+            action_points: { value: move_base_cost },
         };
     }
 
@@ -161,7 +162,7 @@ class Jump extends concepts.Action {
     static get range() { return jump_range; }
     static get costs(){
         return {
-            action_points: { value: 20 },
+            action_points: { value: move_base_cost },
         };
     }
 
@@ -295,7 +296,7 @@ class Swap extends concepts.Action {
     static get range() { return swap_range; }
     static get costs(){
         return {
-            action_points: { value: 10 },
+            action_points: { value: move_base_cost },
         };
     }
 
