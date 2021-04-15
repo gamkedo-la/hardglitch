@@ -150,6 +150,7 @@ class AntiVirus extends Character {
     };
 
     description = auto_newlines("Hunts defects, glitches, viruses, malwares. Very agressive and does not have any kind of pity.", 35);
+    is_floating = true; // rule of cool
 
     constructor(){
         super("Anti-Virus");

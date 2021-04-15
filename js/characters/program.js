@@ -91,6 +91,8 @@ class Program extends Character {
 
     description = auto_newlines("User-space program. Eats memory for no reason.", 30);
 
+    is_floating = true; // rule of cool
+
     constructor(){
         super("Program", );
         this.actor = new ProgramBehavior;
