@@ -12,7 +12,7 @@ import * as tiledefs from "../definitions-tiles.js";
 import { SeamSelector, genFloorOverlay, genSeamOverlay } from "./tile-select.js";
 
 import * as graphics from "../system/graphics.js";
-import { Vector2 } from "../system/spatial.js";
+import { Rectangle, Vector2 } from "../system/spatial.js";
 import { PIXELS_PER_TILES_SIDE, PIXELS_PER_HALF_SIDE, graphic_position } from "./entity-view.js";
 import { TileGraphBuilder } from "./particle-graph.js";
 import { GameFxView } from "../game-effects.js";
@@ -200,15 +200,25 @@ class TileGridView {
     }
 
     _draw_offscreen_canvas(canvas_context, offscreen_canvas_context, position_predicate){
-        canvas_context.drawImage(offscreen_canvas_context.canvas, 0, 0);
+
+        const camera_rect = graphics.canvas_rect();
+        camera_rect.position = graphics.camera.position;
+        canvas_context.drawImage(offscreen_canvas_context.canvas,
+            camera_rect.position.x, camera_rect.position.y, camera_rect.width, camera_rect.height,
+            camera_rect.position.x, camera_rect.position.y, camera_rect.width, camera_rect.height,
+        );
 
         if(!position_predicate)
             return;
 
+        const square_rect = new Rectangle({ size: { x: PIXELS_PER_TILES_SIDE, y: PIXELS_PER_TILES_SIDE }});
         for(let y = 0; y < this.height; ++y){
             for(let x = 0; x < this.width; ++x){
-                const position = new Position({x, y});
-                if(!position_predicate(position))
+                const position = {x, y};
+                square_rect.position = graphic_position(position);
+                if(!position_predicate(position)
+                || !graphics.camera.can_see(square_rect)
+                )
                     continue;
 
                 const gfx_position = graphic_position(position);
@@ -242,8 +252,8 @@ class TileGridView {
         graphics.clear(canvas_context);
 
         if(this._enable_tile_sprites) {
-            canvas_context =this.floor_tile_grid.draw(canvas_context, this._half_tile_predicate(position_predicate));
-            canvas_context =this.seam_tile_grid.draw(canvas_context, this._half_tile_predicate(position_predicate));
+            canvas_context = this.floor_tile_grid.draw(canvas_context, this._half_tile_predicate(position_predicate));
+            canvas_context = this.seam_tile_grid.draw(canvas_context, this._half_tile_predicate(position_predicate));
         }
 
         if(this.enable_grid_lines){
