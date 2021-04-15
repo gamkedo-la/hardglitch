@@ -31,7 +31,7 @@ function maybe_push(world, possible_actions){
 
 
     if(push_actions.length > 0){
-        if(random_int(1, 100) > 33)
+        if(random_int(1, 100) > 5)
             return random_sample(push_actions);
     }
 }
