@@ -239,6 +239,7 @@ class GameView {
             drop: new graphics.Sprite(sprite_defs.highlight_gray),
             basic_action: new graphics.Sprite(sprite_defs.highlight_yellow),
             action_range: new graphics.Sprite(sprite_defs.highlight_yellow),
+            action_range_forbidden: new graphics.Sprite(sprite_defs.highlight_gray),
             action: new graphics.Sprite(sprite_defs.highlight_red),
             edit: new graphics.Sprite(sprite_defs.highlight_purple),
             turn: new graphics.Sprite(sprite_defs.highlight_purple),
@@ -436,7 +437,7 @@ class GameView {
                 action_range,
                 (pos)=>this.game.world.is_valid_position(pos));
             for(const target of possible_targets){
-                const highlight_sprite = action_targets.some(action_target=> action_target.equals(target)) ? this._highlight_sprites.action : this._highlight_sprites.action_range;
+                const highlight_sprite = action_targets.some(action_target=> action_target.equals(target)) ? this._highlight_sprites.action_range : this._highlight_sprites.action_range_forbidden;
                 this.action_range_highlights.push(new Highlight(target, highlight_sprite));
             }
         }
