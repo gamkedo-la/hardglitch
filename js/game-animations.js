@@ -48,7 +48,7 @@ import { crypto_kind as crypto_kinds } from "./definitions-items.js";
 import { GameView } from "./game-view.js";
 import { Color } from "./system/color.js";
 
-const default_move_duration_ms = 1000 / 8;
+const default_move_duration_ms = 1000 / 12;
 const default_destruction_duration_ms = 666;
 
 function* translate(thing_with_position, target_gfx_pos, duration_ms, easing){
