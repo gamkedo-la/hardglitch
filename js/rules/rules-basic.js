@@ -113,6 +113,7 @@ class GameOver extends concepts.Event {
 
     *animation(game_view){
         debug.assertion(()=>game_view instanceof GameView);
+        game_view.stop_camera_animation();
         game_view.enable_fog_of_war = false;
         game_view.show_central_message("GAME OVER!");
         game_view.allow_exit = true;

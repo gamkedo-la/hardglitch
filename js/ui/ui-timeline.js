@@ -12,7 +12,7 @@ import { config } from "../game-config.js";
 import { Vector2, Rectangle, is_point_under } from "../system/spatial.js";
 import { CharacterView } from "../view/character-view.js";
 import { show_info } from "./ui-infobox.js";
-import { EntityView } from "../view/entity-view.js";
+import { EntityView, square_half_unit_vector } from "../view/entity-view.js";
 
 const timeline_config = {
     line_width: 16,
@@ -238,14 +238,12 @@ class Timeline
 
             view.position = next_position();
             if(view.is_being_destroyed){
-                view.for_each_sprite(sprite=>sprite.reset_origin());
+                view.position = view.position.translate(square_half_unit_vector);
             }
             view.render_graphics(canvas_context);
-            if(view.is_being_destroyed){
-                view.for_each_sprite(sprite=>sprite.move_origin_to_center());
-            }
 
             view.position = initial_position;
+
             if(view instanceof EntityView)
                 view.for_each_sprite(sprite => sprite.position = initial_sprite_positions.shift());
         });

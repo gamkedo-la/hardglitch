@@ -158,8 +158,8 @@ function* destroyed(fx_view, entity_view, duration_ms=default_destruction_durati
     // Center the sprite so that the rotation origin is in the center of it.
     const effect = fx_view.destruction(entity_view.position.translate(square_half_unit_vector));
     const initial_position = entity_view.position;
-    entity_view.position = initial_position.translate(square_half_unit_vector);
     entity_view.for_each_sprite(sprite=>sprite.move_origin_to_center());
+    entity_view.position = initial_position.translate(square_half_unit_vector);
     entity_view.is_being_destroyed = true;
     // WwhwhhiiiiiiiiiIIIIIIIIIiiiizzzzzzzzzzZZZZZZZZZZZZZ
     audio.playEvent('explode');

@@ -1150,7 +1150,7 @@ class GameView {
     }
 
     stop_camera_animation(){
-        this.camera_steering.clear();
+        this.camera_control.stop();
     }
 
     center_on_position(grid_position){
