@@ -373,7 +373,23 @@ function* decrypt_file(file_view, file_fx_view, key_view, key_fx_view, crypto_ki
             file_fx_view.unlockCircle(filePos, fileFxTTL);
             break;
     }
-    yield* shake(file_view, 4, 1000 / 24, until_the_animation_ends);
+
+    const file_view_pos_in_screen = ()=> file_view.position.translate(graphics.camera.position.inverse).translate(square_half_unit_vector);
+    const key_view_pos_in_screen = key_view.position.translate(square_half_unit_vector);
+    const fx = key_fx_view.lightningJump(file_view_pos_in_screen(), key_view_pos_in_screen, [ new Color(255, 255, 255), new Color(0, 0, 0), new Color(122, 64, 188), new Color(247, 173, 77) ]);
+    const update_fx_pos = function*(){
+        while(until_the_animation_ends()){
+            fx.position = file_view_pos_in_screen();;
+            yield;
+        }
+    };
+
+    yield* animation.in_parallel(
+        shake(file_view, 4, 1000 / 24, until_the_animation_ends),
+        update_fx_pos()
+    );
+
+    fx.done = true;
     audio.playEvent('decryptRev');
     file_view.is_visible = false;
 }

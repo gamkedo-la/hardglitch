@@ -270,15 +270,14 @@ class GameFxView {
         return fx;
     }
 
-    lightningJump(origin, target) {
+    lightningJump(origin, target, colorOptions = [
+        new Color(0,0,255),
+        new Color(0,255,255),
+    ]) {
         let emitInterval = .1;
         let emitJitter = 25;
         let emitTTL = 0;
         let emitCount = 4;
-        let colorOptions = [
-            new Color(0,0,255),
-            new Color(0,255,255),
-        ]
         let emitter = new ParticleEmitter(this.particleSystem, origin.x, origin.y, (e) => {
             let segments = random_int(10,15);
             let width = random_int(1,2);
