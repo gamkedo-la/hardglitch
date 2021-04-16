@@ -46,6 +46,7 @@ import * as graphics from "./system/graphics.js";
 import { is_number, random_float } from "./system/utility.js";
 import { crypto_kind as crypto_kinds } from "./definitions-items.js";
 import { GameView } from "./game-view.js";
+import { Color } from "./system/color.js";
 
 const default_move_duration_ms = 1000 / 8;
 const default_destruction_duration_ms = 666;
@@ -305,10 +306,12 @@ function* dissolve_item(item_view){
     // TODO: add effects here ;__;
     const initial_scale = item_view.scale;
     const initial_position = item_view.position;
+    item_view.is_being_destroyed = true;
     item_view.for_each_sprite(sprite=>sprite.move_origin_to_center());
-    item_view.position = initial_position.translate(square_half_unit_vector);
     yield* tween( item_view.scale.y, 0, duration_ms,
-                (value) => { item_view.scale = { x: initial_scale.x, y: value }; },
+                (value) => {
+                    item_view.scale = { x: initial_scale.x, y: value };
+                },
                 easing.in_out_quad
             );
     item_view.is_visible = false;

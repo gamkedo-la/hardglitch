@@ -22,6 +22,7 @@ import { CharacterStatus } from "./ui-characterstatus.js";
 import { GameFxView } from "../game-effects.js";
 import { is_blocked_position } from "../definitions-world.js";
 import { show_info } from "./ui-infobox.js";
+import { square_half_unit_vector } from "../view/entity-view.js";
 
 const item_slot_vertical_padding = 0;
 const item_slot_vertical_size = 72;
@@ -201,6 +202,9 @@ class ItemSlot {
 
         debug.assertion(()=>this._item_view instanceof ItemView);
         this._item_view.position = spatial.center_in_rectangle(this._item_view.area, this._sprite.area).position;
+        if(this._item_view.is_being_destroyed){
+            this._item_view.position = this._item_view.position.translate(square_half_unit_vector);
+        }
     }
 
     _show_info(){
