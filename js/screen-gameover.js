@@ -116,18 +116,18 @@ class GameOverScreen_Failure extends fsm.State {
                 text: "Glitch no longer occupies the memory they once did.",
                 position: graphics.canvas_center_position().translate({x:-200, y:0}),
             }),
-            button_retry : new ui.TextButton({
-                text: "Retry [SPACE]",
-                position: Vector2_origin,
-                sprite_def: sprite_defs.button_menu,
-                action: ()=> { this.retry_new_game(); },
-                sounds:{
-                    over: 'selectButton',
-                    down: 'clickButton',
-                }
-            }),
+            // button_retry : new ui.TextButton({
+            //     text: "Retry [ENTER]",
+            //     position: Vector2_origin,
+            //     sprite_def: sprite_defs.button_menu,
+            //     action: ()=> { this.retry_new_game(); },
+            //     sounds:{
+            //         over: 'selectButton',
+            //         down: 'clickButton',
+            //     }
+            // }),
             button_back : new ui.TextButton({
-                text: "End Game [TAB]",
+                text: "End Game [SPACE]",
                 position: Vector2_origin,
                 sprite_def: sprite_defs.button_menu,
                 action: ()=> { this.back_to_main_menu(); },
@@ -197,10 +197,10 @@ class GameOverScreen_Failure extends fsm.State {
     update(delta_time){
         this.skull_icon.update(delta_time); //in update
         if(!this.fader.is_fading){
-            if(input.keyboard.is_just_down(KEY.ESCAPE)){
+            if(input.keyboard.is_just_down(KEY.SPACE)){
                 this.back_to_main_menu();
-            } else if(input.keyboard.is_just_down(KEY.SPACE)){
-                this.retry_new_game();
+            // } else if(input.keyboard.is_just_down(KEY.ENTER)){
+            //     this.retry_new_game();
             } else{
                 invoke_on_members(this.ui, "update", delta_time);
             }
