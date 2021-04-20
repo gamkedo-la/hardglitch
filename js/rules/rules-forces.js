@@ -135,7 +135,7 @@ class Push extends concepts.Action {
     static get range() { return push_range; }
     static get costs(){
         return {
-            action_points: { value: 5 },
+            action_points: { value: 3 },
         };
     }
 
@@ -159,7 +159,7 @@ class Push_Short extends Push {
     static get range() { return push_short_range; }
     static get costs(){
         return {
-            action_points: { value: 5 },
+            action_points: { value: 3 },
         };
     }
 
@@ -172,7 +172,7 @@ class Pull extends concepts.Action {
     static get range() { return pull_range; }
     static get costs(){
         return {
-            action_points: { value: 5 },
+            action_points: { value: 3 },
         };
     }
 
