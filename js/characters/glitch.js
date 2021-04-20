@@ -31,6 +31,9 @@ class GlitchyGlitchMacGlitchy extends Character {
         this.stats.view_distance.real_value = default_player_view_distance;
         this.stats.inventory_size.real_value = default_player_inventory_slots;
         this.stats.activable_items.real_value = default_player_active_slots
+        this.stats.action_points.real_max = 20;
+        this.stats.action_points.real_value = 20;
+        this.stats.ap_recovery.real_value = 20;
     }
 }
 

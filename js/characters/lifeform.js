@@ -170,6 +170,9 @@ class LifeForm_Strong extends Character {
         this.stats.integrity.real_value = 20;
         this.stats.inventory_size.real_value = 2;
         this.stats.activable_items.real_value = 2;
+        this.stats.ap_recovery.real_value = 20;
+        this.stats.action_points.real_max = 20;
+        this.stats.action_points.real_value = 20;
         this.inventory.add(new Item_LifeStrength());
     }
 
@@ -234,9 +237,9 @@ class LifeForm_Aggressive extends Character {
         this.stats.inventory_size.real_value = 2;
         this.stats.activable_items.real_value = 2;
         this.stats.view_distance.real_value = 4;
-        this.stats.ap_recovery.real_value = 10;
-        this.stats.action_points.real_max = 10;
-        this.stats.action_points.real_value = 10;
+        this.stats.ap_recovery.real_value = 20;
+        this.stats.action_points.real_max = 20;
+        this.stats.action_points.real_value = 20;
         this.inventory.add(new Item_LifeStrength());
     }
 
