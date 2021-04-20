@@ -35,9 +35,9 @@ function corruption_damage() {
 const corrupt_ap_cost = 2;
 const corrupt_range = new visibility.Range_Square(0, 6);
 
-const corruption_desc = auto_newlines(`Deals from ${corruption_damage_min} to ${corruption_damage_max} damages to entities here at the end of every Cycles. Every ${corruption_turns_to_update} computer Cycles, all corruption updates following the rules of Conway's Game Of Life.`, 33);
+const corruption_desc = auto_newlines(`Deals from ${corruption_damage_min} to ${corruption_damage_max} damages to entities here at the end of every Cycles. Every computer Cycle multiple of ${corruption_turns_to_update}, all corruption updates following the rules of Conway's Game Of Life.`, 33);
 
-const corrupt_desc = auto_newlines(`Corrupts the target memory section.\nThe corrupted memory will deal damage every cycles to any entity in it. All corruption updates every ${corruption_turns_to_update} computer Cycles following the rules of Conway's Game Of Life.`, 35);
+const corrupt_desc = auto_newlines(`Corrupts the target memory section.\nThe corrupted memory will deal damage every cycles to any entity in it. All corruption updates every computer Cycle multiple of ${corruption_turns_to_update} following the rules of Conway's Game Of Life.`, 35);
 
 class Corruption {
     name = "Corrupted Memory";
