@@ -15,6 +15,7 @@ export {
     deleting_missile,
     repairing_missile,
     take_item,
+    player_take_item,
     drop_item,
     inventory_add,
     inventory_remove,
@@ -242,6 +243,35 @@ function* take_item(fx_view, taker_view, item_view, target_slot_pos){
     debug.assertion(()=>taker_view instanceof CharacterView);
     debug.assertion(()=>item_view instanceof ItemView);
     const take_duration_ms = 500;
+    const initial_position = item_view.position;
+    const initial_scale = item_view.scale;
+    audio.playEvent('item');
+    item_view.for_each_sprite(sprite=>sprite.move_origin_to_center());
+    item_view.position = initial_position.translate(square_half_unit_vector);
+    let fx_pos = initial_position.translate(square_half_unit_vector);
+    const fx = fx_view.take(fx_pos);
+    yield* animation.in_parallel(
+        tween( { scale_x: item_view.scale.x, scale_y: item_view.scale.y, }, { scale_x: 0, scale_y: 0, },
+                take_duration_ms,
+                (values) => {
+                    item_view.scale = { x: values.scale_x, y: values.scale_y };
+                },
+                easing.in_out_quad
+            ),
+        translate(item_view, taker_view.position.translate(square_half_unit_vector), take_duration_ms),
+    );
+    item_view.is_visible = false;
+    item_view.scale = initial_scale;
+    item_view.position = initial_position;
+    item_view.for_each_sprite(sprite => sprite.reset_origin());
+    fx.done = true;
+}
+
+
+function* player_take_item(fx_view, taker_view, item_view, target_slot_pos){
+    debug.assertion(()=>taker_view instanceof CharacterView);
+    debug.assertion(()=>item_view instanceof ItemView);
+    const take_duration_ms = 500;
 
     // Make the move into the inventory visible:
     target_slot_pos = new Vector2(target_slot_pos).translate(graphics.camera.position);
@@ -249,28 +279,6 @@ function* take_item(fx_view, taker_view, item_view, target_slot_pos){
     item_view.force_visible = true;
     yield* translate(item_view, target_slot_pos, take_duration_ms);
     item_view.force_visible = false;
-
-    // const initial_position = item_view.position;
-    // const initial_scale = item_view.scale;
-    // item_view.for_each_sprite(sprite=>sprite.move_origin_to_center());
-    // item_view.position = initial_position.translate(square_half_unit_vector);
-    // let fx_pos = initial_position.translate(square_half_unit_vector);
-    // const fx = fx_view.take(fx_pos);
-    // yield* animation.in_parallel(
-    //     tween( { scale_x: item_view.scale.x, scale_y: item_view.scale.y, }, { scale_x: 0, scale_y: 0, },
-    //             take_duration_ms,
-    //             (values) => {
-    //                 item_view.scale = { x: values.scale_x, y: values.scale_y };
-    //             },
-    //             easing.in_out_quad
-    //         ),
-    //     translate(item_view, taker_view.position.translate(square_half_unit_vector), take_duration_ms),
-    // );
-    // item_view.is_visible = false;
-    // item_view.scale = initial_scale;
-    // item_view.position = initial_position;
-    // item_view.for_each_sprite(sprite => sprite.reset_origin());
-    // fx.done = true;
 }
 
 function* drop_item(fx_view, drop_position, raw_position=false) {
