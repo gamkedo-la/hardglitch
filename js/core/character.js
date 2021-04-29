@@ -423,6 +423,7 @@ class Character extends concepts.Body {
     get position() { return super.position; }
     set position(new_pos) {
         super.position = new_pos;
+        this._need_perception_update = true;
     }
 
     get is_virus() { return this.actor instanceof concepts.Actor && this.actor.is_virus === true; }
@@ -431,6 +432,8 @@ class Character extends concepts.Body {
         this.field_of_vision.position = this.position;
         this.field_of_vision.view_distance = this.stats.view_distance.value;
         this.field_of_vision.update(world);
+
+        this._need_perception_update = false;
     }
 
     can_see(...positions){

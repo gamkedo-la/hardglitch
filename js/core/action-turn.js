@@ -153,6 +153,18 @@ function* execute_turns_v2(world) {
         return player_action;
     }
 
+    function* update_characters_views(current_character){
+        const characters = world.bodies;
+        current_character.update_perception(world);
+        characters.forEach(character => {
+            if(character !== current_character
+            && character._need_perception_update){
+                character.update_perception(world);
+            }
+        });
+        yield new VisionUpdate(current_character, world);
+    }
+
     while(true){ // This is a virtually infinite sequence of turns.
 
         // Make sure there are characters ready to do act!
@@ -191,8 +203,7 @@ function* execute_turns_v2(world) {
                 let action = null;
                 while (!action && player_character_exists) { // Update the current possible actions and request an action from the character
                     // until we obtain a usable action.
-                    character.update_perception(world); // Make sure decisions are taken relative to an up to date view of the world.
-                    yield new VisionUpdate(character, world);
+                    yield* update_characters_views(character); // Make sure decisions are taken relative to an up to date view of the world.
                     const possible_actions = world.gather_possible_actions_from_rules(character);
                     action = actor.decide_next_action(world, character, possible_actions);
 
@@ -227,8 +238,7 @@ function* execute_turns_v2(world) {
 
                 // Keep the view of the world up to date after having performed the action and it's consequences.
                 if (action_events.length > 0 || rules_events.length > 0) {
-                    character.update_perception(world);
-                    yield new VisionUpdate(character, world);
+                    yield* update_characters_views(character);
                 }
 
             }
