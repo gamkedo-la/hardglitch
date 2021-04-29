@@ -18,10 +18,10 @@ class ItemView extends EntityView {
         debug.assertion(()=>item instanceof concepts.Item);
         super(item.id, item.position, item.assets);
         this.name = item.name;
-        this.item = item;
+        this._item = item;
         this.is_floating = item.is_floating;
 
-        if(Number.isInteger(this.item.count)){ // This is an item with limited usage: display that usage.
+        if(Number.isInteger(this._item.count)){ // This is an item with limited usage: display that usage.
             this.usage_count_text = new ui.Text({
                 text: "XXX",
             });
@@ -31,7 +31,7 @@ class ItemView extends EntityView {
         this._update_usage_count_text();
     }
 
-    get description() { return item_description(this.item); }
+    get description() { return item_description(this._item); }
 
     get position() { return super.position; }
     set position(new_pos){
@@ -59,8 +59,8 @@ class ItemView extends EntityView {
 
     _update_usage_count_text(){
         if(this.usage_count_text){
-            this.usage_count_text.text = `${this.item.count}`;
-            if(this.item.count == 0){
+            this.usage_count_text.text = `${this._item.count}`;
+            if(this._item.count == 0){
                 this.usage_count_text.color = "red";
             } else {
                 this.usage_count_text.color = "black";

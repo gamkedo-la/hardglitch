@@ -581,6 +581,26 @@ class GameView {
         }
     }
 
+    // This is a "hack" to "fix" the following issue: when entity views are moving (through animations) outside the FOV of the player,
+    // they might end up 1 square shifted from the actual position they should be in.
+    // Here we detect that situation and correct the view positions, just to be completely sure.
+    _sync_fix_entity_view_positions(){
+        // We assume that the world's entities and views are in sync right now (this must not be called while animations are being played).
+        this.list_entity_views
+            .forEach(view => {
+                const entity = view._character ? view._character : view._item; // this.game.world.get_entity(view.id); // it should have been this but oh well...
+                debug.assertion(()=>entity instanceof concepts.Entity);
+                if(!view.game_position.equals(entity.position)){
+                    // console.log(`WTF ${entity.id}: view = { ${view.game_position.x}, ${view.game_position.y} }, entity = { ${entity.position.x}, ${entity.position.y} }`);
+                    view.game_position = entity.position;
+                    if(entity instanceof Character
+                    && !entity.position.equals(entity.field_of_vision.position)){
+                        console.warn(`INCONSISTENT FOV  ${entity.id}: entity = { ${entity.position.x}, ${entity.position.y} }, fov = { ${entity.field_of_vision.position.x}, ${entity.field_of_vision.position.y} }`);
+                    }
+                }
+            });
+    }
+
     _update_animations(delta_time){
         // Update the current animation, if any, or switch to the next one, until there isn't any left.
         if(this.current_animations.animation_count != 0 || (this.next_event && !this.next_event.done)){
@@ -598,6 +618,7 @@ class GameView {
             && this.current_animations.animation_count === 0
             && this.next_event === undefined
             ){
+                this._sync_fix_entity_view_positions();
                 this._start_player_turn();
             } else {
                 if(this.player_character
