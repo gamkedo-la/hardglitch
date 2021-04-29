@@ -148,9 +148,6 @@ class LifeForm_Weak extends Character {
         const behavior_type = random_sample(lifeform_possible_behavior);
         this.actor = new behavior_type();
         this.stats.inventory_size.real_value = 1;
-        this.stats.ap_recovery.real_value = 10;
-        this.stats.action_points.real_max = 5;
-        this.stats.action_points.real_value = 5;
     }
 
     drops = [ new Item_BadCode(), null, null ];

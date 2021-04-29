@@ -29,6 +29,8 @@ const push_range = new visibility.Range_Square(1, 4);
 const push_short_range = new visibility.Range_Cross_Axis(1, 2);
 const pull_range = new visibility.Range_Square(1, 4);
 
+const base_force_cost = 5;
+
 class Pushed extends concepts.Event {
     constructor(entity, from, to){
         super({
@@ -135,7 +137,7 @@ class Push extends concepts.Action {
     static get range() { return push_range; }
     static get costs(){
         return {
-            action_points: { value: 3 },
+            action_points: { value: base_force_cost },
         };
     }
 
@@ -159,7 +161,7 @@ class Push_Short extends Push {
     static get range() { return push_short_range; }
     static get costs(){
         return {
-            action_points: { value: 3 },
+            action_points: { value: base_force_cost },
         };
     }
 
@@ -172,7 +174,7 @@ class Pull extends concepts.Action {
     static get range() { return pull_range; }
     static get costs(){
         return {
-            action_points: { value: 3 },
+            action_points: { value: base_force_cost },
         };
     }
 
