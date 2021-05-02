@@ -964,15 +964,13 @@ class GameView {
 
                 const entity = entity_or_tileid;
                 if(entity instanceof Character ){
-                    if(entity.is_player_actor){
-                        help_texts.tooltip = add_text_line(help_texts.tooltip, `${entity.name} (player)`);
-                    } else {
-                        help_texts.tooltip = add_text_line(help_texts.tooltip, `${entity.name} (NPC)`);
-                    }
-                    help_texts.info = add_text_line(help_texts.info, `@ ENTITY: ${entity.name}\n${entity.description}`);
+                    const controller = entity.is_player_actor ? "(Player)" : "(AI)";
+                    help_texts.tooltip = add_text_line(help_texts.tooltip, `${entity.name} ${controller}`);
+                    help_texts.info = add_text_line(help_texts.info, `@ ${entity.name}:\n${entity.description}`);
                 } else {
-                    help_texts.tooltip = add_text_line(help_texts.tooltip, `! ITEM: ${entity.name}`);
-                    help_texts.info = add_text_line(help_texts.info, `! ITEM: ${item_description(entity)}`);
+                    const item_desc = entity.can_be_taken ? "! ITEM: " : "! ";
+                    help_texts.tooltip = add_text_line(help_texts.tooltip, `${item_desc}${entity.name}`);
+                    help_texts.info = add_text_line(help_texts.info, `${item_desc}${item_description(entity)}`);
                 }
             } else if(Number.isInteger(entity_or_tileid)){ // Integers are tiles ids.
                 if(config.enable_ground_descriptions || !tiles.defs[entity_or_tileid].is_ground){
