@@ -380,9 +380,10 @@ class GameView {
     help_text_over_action(action){
         debug.assertion(()=>action instanceof concepts.Action);
         const help_texts = this.help_texts_at(action.target_position);
+        const maybe_linejump = help_texts.tooltip.length > 0 ? `\n` : '';
         const action_tooltip = `-> ACTION: ${action.name} (${action.constructor.costs.action_points.value} AP)`;
         help_texts.tooltip = add_text_line(help_texts.tooltip, action_tooltip);
-        help_texts.info = add_text_line(help_texts.info, `-> ACTION: ${action.constructor.action_type_name}\n(see Action buttons for details)`);
+        help_texts.info = add_text_line(help_texts.info, `${maybe_linejump}-> ACTION: ${action.constructor.action_type_name}\n(see Action buttons for details)`);
         return help_texts;
     }
 
