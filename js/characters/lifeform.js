@@ -140,7 +140,7 @@ class LifeForm_Weak extends Character {
         }}
     };
 
-    description = auto_newlines("Unexpected and unexpecting life-form living in the computer's memory. Nobody knows where they come from.", 35);
+    description = auto_newlines("Unexpected anomaly life-form living in the computer's memory. Nobody knows where they come from.", 35);
     is_anomaly = true;
 
     constructor(){

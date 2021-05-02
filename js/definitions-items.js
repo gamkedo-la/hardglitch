@@ -510,7 +510,7 @@ class Item_Swap extends concepts.Item {
 
     get can_be_taken() { return true; }
 
-    description = auto_newlines("Programming knowledge hold secretly by experienced programmers in sacred books.", 35);
+    description = auto_newlines("Programming knowledge held secretly by experienced programmers in sacred books.", 35);
 
     constructor(){
         super("Hexchanger");
