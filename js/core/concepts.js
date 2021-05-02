@@ -35,7 +35,7 @@ function new_actor_id(){
 }
 
 
-// An action is when an Actor changes something (using it's Body) in the world, following the
+// An action is when an Actor changes something (using its Body) in the world, following the
 // world's rules.
 class Action {
     constructor(id, name, target_position){
@@ -242,7 +242,7 @@ class Item extends Entity {
 
     get item_id() { return this.id; }
 
-    // Return all the types of Action that this item provides to it's owner.
+    // Return all the types of Action that this item provides to its owner.
     // Must return an array of types inheriting from the provided Action type.
     get_enabled_action_types() {
         return [];

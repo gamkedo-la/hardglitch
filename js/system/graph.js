@@ -26,7 +26,7 @@ class Vertice {
     // Add a vertex and optionally set a value.
     add(vertex_id, value){ throw "missing implementation"; }
 
-    // Removes a vertex and it's value.
+    // Removes a vertex and its value.
     remove(id){ throw "missing implementation"; }
 
 };

@@ -17,7 +17,7 @@ export const help_info = `How To Play:
 4. Information: Point anything to get info through tooltips or the info-box (bottom right of the screen).
 5. Camera: Drag'n'drop the world to move the camera, or use "IJKL" keys.
 6. Item Slots: Click on an item in the world to take it. The item will appear in the bottom left item slots. Drag items between slots to change or exchange slots.
-7. Activate Items: Some item slots have a yellow border, they are "Active". Putting an item in an Active slot enables it's powers.
+7. Activate Items: Some item slots have a yellow border, they are "Active". Putting an item in an Active slot enables its powers.
 8. Drop Items: drag items from the item slots to white squares around your character to drop the item there.
 `;
 
@@ -29,7 +29,7 @@ Taken items will be put here.
 Drag'n'drop items to different slots
 to organize your inventory.
 Drag'n'drop an item in an Active
-slot to enable it's powers.
+slot to enable its powers.
 
 Moving Items in slots costs 1 AP.
 `,
@@ -41,7 +41,7 @@ Items put here will have their
 powers activated (shining).
 
 Drag'n'drop the item in an normal
-item slot to disable it's powers.
+item slot to disable its powers.
 
 Moving Items in slots costs 1 AP.
 `,

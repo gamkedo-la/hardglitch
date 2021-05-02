@@ -53,7 +53,7 @@ class Merged extends concepts.Event {
 class Merge extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_merge; }
     static get action_type_name() { return "Merge"; }
-    static get action_type_description() { return auto_newlines("Merges into the entity and take it's shape and characteristics.", 35); }
+    static get action_type_description() { return auto_newlines("Merges into the entity and take its shape and characteristics.\nDoes not work on items.", 35); }
 
     static get range() { return merge_range; }
     static get costs(){

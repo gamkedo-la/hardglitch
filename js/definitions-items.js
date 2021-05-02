@@ -658,7 +658,7 @@ class Item_MemoryCleanup extends concepts.Item {
         }}
     };
 
-    description = auto_newlines("Cleans up memory and restore it to it's initial state.", 35);
+    description = auto_newlines("Cleans up memory and restore it to its initial state.", 35);
     get can_be_taken() { return true; }
 
     constructor(){
@@ -787,7 +787,7 @@ class Item_AutoRepair extends concepts.Item {
             sprite_def : sprite_defs.item_generic_6,
         }}
     };
-    description = auto_newlines("Repairs a bit it's owner's memory at each new cycle.", 35);
+    description = auto_newlines("Repairs a bit its owner's memory at each new cycle.", 35);
     get can_be_taken() { return true; }
 
     stats_modifiers = {
@@ -806,7 +806,7 @@ class Item_IntegrityBoost extends concepts.Item {
         }}
     };
 
-    description = auto_newlines("Boosts the memory integrity of it's owner.", 35);
+    description = auto_newlines("Boosts the memory integrity of its owner.", 35);
     get can_be_taken() { return true; }
 
     stats_modifiers = {
