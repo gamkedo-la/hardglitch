@@ -274,7 +274,7 @@ class MovableWall extends concepts.Item {
         }}
     };
 
-    description = auto_newlines(`Data access protection mechanism that can be moved in memory.`, 35);
+    description = auto_newlines(`Data access protection mechanism that can be moved in memory.\nDo not allow seeing what is beyond it.`, 35);
 
     static get editor_name(){ return "Movable Wall"; };
 
@@ -350,7 +350,7 @@ class MovableWall_Glass extends concepts.Item {
         }}
     };
 
-    description = auto_newlines(`Data access protection mechanism that can be moved in memory.`, 35);
+    description = auto_newlines(`Data access protection mechanism that can be moved in memory.\nAllows seeing what is beyond it.`, 35);
 
     static get editor_name(){ return "Movable Wall"; };
 
