@@ -59,6 +59,7 @@ class UnstabilitySpawned extends concepts.Event {
         const target_gfx_pos = graphic_position(this.position).translate(square_half_unit_vector);
 
         if(this.from){
+            audio.playEvent("destroyAction");
             const unstable_missile_fx = game_view.fx_view.missile(graphic_position(this.from));
             const missile_speed = 8;
             yield* animation.missile(unstable_missile_fx, target_gfx_pos, missile_speed);
@@ -114,7 +115,6 @@ class Destabilized extends concepts.Event {
 
     *animation(game_view){
         debug.assertion(()=>game_view instanceof GameView);
-        // TODO: add sound
         audio.playEvent("destabilizeShot");
         // TODO: add an animation here
         yield* anim.wait(1000 / 64);
@@ -142,11 +142,11 @@ class Destabilize extends concepts.Action {
         const unstable_grid = world.grids[grid_ID.unstable];
         debug.assertion(()=>unstable_grid instanceof Grid);
         debug.assertion(()=>!(unstable_grid.get_at(this.target_position) instanceof Unstability));
-        const corruption = new Unstability();
-        unstable_grid.set_at(corruption, this.target_position);
+        const unstability = new Unstability();
+        unstable_grid.set_at(unstability, this.target_position);
         return [
             new Destabilized(this.target_position, character.position),
-            new UnstabilitySpawned(this.target_position, corruption, character.position),
+            new UnstabilitySpawned(this.target_position, unstability, character.position),
         ];
     }
 };

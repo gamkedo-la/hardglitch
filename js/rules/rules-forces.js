@@ -15,8 +15,9 @@ import * as concepts from "../core/concepts.js";
 import { Vector2 } from "../system/spatial.js";
 import { sprite_defs } from "../game-assets.js";
 import * as animations from "../game-animations.js";
+import * as audio from "../system/audio.js";
 import * as tiles from "../definitions-tiles.js";
-import { EntityView } from "../view/entity-view.js";
+import { EntityView, graphic_position } from "../view/entity-view.js";
 import { GameView } from "../game-view.js";
 import { Character } from "../core/character.js";
 import * as visibility from "../core/visibility.js";
@@ -30,6 +31,34 @@ const push_short_range = new visibility.Range_Cross_Axis(1, 2);
 const pull_range = new visibility.Range_Square(1, 4);
 
 const base_force_cost = 5;
+
+class Telekynesy extends concepts.Event {
+    constructor(from_pos, to_pos){
+        debug.assertion(()=>from_pos instanceof concepts.Position);
+        debug.assertion(()=>to_pos instanceof concepts.Position);
+        super({
+            allow_parallel_animation: false,
+            description: `Telekynesy visible from ${JSON.stringify(from_pos)} to ${JSON.stringify(to_pos)}`,
+        });
+        this.from_pos = from_pos;
+        this.to_pos = to_pos;
+    }
+
+    get focus_positions() { return [ this.from_pos, this.to_pos ]; }
+
+    *animation(game_view){
+        debug.assertion(()=>game_view instanceof GameView);
+        game_view.focus_on_position(this.to_pos);
+
+        audio.playEvent("destroyAction");
+        const launcher_gfx_pos = graphic_position(this.from_pos);
+        const target_gfx_pos = graphic_position(this.to_pos);
+        const missile_fx = game_view.fx_view.missile(launcher_gfx_pos);
+        const missile_speed = 4;
+        yield* animations.missile(missile_fx, target_gfx_pos, missile_speed);
+    }
+
+};
 
 class Pushed extends concepts.Event {
     constructor(entity, from, to){
@@ -75,14 +104,21 @@ class Bounced extends concepts.Event {
     }
 }
 
-function apply_directional_force(world, target_pos, direction, force_action){
+function apply_directional_force(world, target_pos, direction, force_action, origin_pos){
     debug.assertion(()=>world instanceof concepts.World);
     debug.assertion(()=>target_pos instanceof concepts.Position);
-    target_pos = new Vector2(target_pos); // convert Position to Vector2
     debug.assertion(()=>direction instanceof Vector2);
     debug.assertion(()=>direction.length > 0);
 
     const events = [];
+
+    if(origin_pos instanceof concepts.Position
+    && origin_pos.distance(target_pos) > 1
+    ){
+        events.push(new Telekynesy(origin_pos, target_pos));
+    }
+
+    target_pos = new Vector2(target_pos); // convert Position to Vector2
 
     // from here, recursively/propagate the force!  AND prevent applying force if there is a wall preventing it
     let target_entity = world.entity_at(target_pos);
@@ -130,6 +166,7 @@ function compute_push_translation(origin, target){
     });
 }
 
+
 class Push extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_push; }
     static get action_type_name() { return "Push"; }
@@ -151,7 +188,7 @@ class Push extends concepts.Action {
         debug.assertion(()=>character instanceof Character);
         const push_translation = compute_push_translation(character.position, this.target_position);
         debug.assertion(()=>push_translation.length == 1);
-        return apply_directional_force(world, this.target_position, push_translation, Pushed);
+        return apply_directional_force(world, this.target_position, push_translation, Pushed, character.position);
     }
 }
 
@@ -188,7 +225,7 @@ class Pull extends concepts.Action {
         debug.assertion(()=>character instanceof Character);
         const pull_translation = compute_push_translation(character.position, this.target_position).inverse;
         debug.assertion(()=>pull_translation.length == 1);
-        return apply_directional_force(world, this.target_position, pull_translation, Pulled);
+        return apply_directional_force(world, this.target_position, pull_translation, Pulled, character.position);
     }
 }
 
