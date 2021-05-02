@@ -159,9 +159,7 @@ cancel_action: `Cancels the current Action.`
 
 function action_description(action_type){ // TODO : also clarify the range.
     return `Action: ${action_type.action_type_name}
-Costs:
-${stats_modifiers_description(action_type.costs, false)}
-
+${action_type.action_type_name == "Wait" ? "" : `Costs:\n${stats_modifiers_description(action_type.costs, false)}\n`}
 ${action_type.action_type_description}
 `
 }
