@@ -107,7 +107,7 @@ function* jump(fx_view, entity_view, target_game_position){
     const fx_origin = top_initial_pos.translate({x:PIXELS_PER_HALF_SIDE, y: PIXELS_PER_HALF_SIDE});
     const fx_target = top_target_pos.translate({x:PIXELS_PER_HALF_SIDE, y: PIXELS_PER_HALF_SIDE});
     const jump_distance = fx_target.substract(fx_origin).length;
-    const fx_duration = jump_distance * 2.5;
+     const fx_duration = Math.min(1000, jump_distance * 2.5);
     let fx = fx_view.lightningJump(fx_origin, fx_target);
     audio.playEvent('jumpAction');
     yield* translate(fx, fx_target, fx_duration, easing.in_out_quad);
