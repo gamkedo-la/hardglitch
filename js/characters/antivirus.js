@@ -7,7 +7,7 @@ import * as concepts from "../core/concepts.js";
 import * as items from "../definitions-items.js";
 import { Character } from "../core/character.js";
 import { sprite_defs } from "../game-assets.js";
-import { auto_newlines, random_sample } from "../system/utility.js";
+import { auto_newlines, random_int, random_sample } from "../system/utility.js";
 import { Delete } from "../rules/rules-delete.js";
 import { Repair } from "../rules/rules-repair.js";
 import { closest_entity, move_towards, select_action_by_type, wander } from "./characters-common.js";
@@ -20,7 +20,11 @@ class AnomalyHunter extends concepts.Actor {
         debug.assertion(()=>possible_actions instanceof Object);
 
         const friend_to_heal = this._find_friend_to_heal(character, world);
-        if(friend_to_heal instanceof Character){
+        const attack = this._attack_any_virus_around(possible_actions, character, world);
+
+        if(friend_to_heal instanceof Character
+        && (!attack || random_int(1, 100) > 50) // Don't heal all the time if there are enemies around.
+        ){
             const heal_friend = this._heal_target(possible_actions, friend_to_heal.position);
             if(heal_friend instanceof concepts.Action)
                 return heal_friend;
@@ -30,7 +34,6 @@ class AnomalyHunter extends concepts.Actor {
                 return move_closer_to_friend;
         }
 
-        const attack = this._attack_any_virus_around(possible_actions, character, world);
         if(attack instanceof concepts.Action)
             return attack;
 
