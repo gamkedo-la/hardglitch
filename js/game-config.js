@@ -8,6 +8,7 @@ export const fov_view_styles = {
     WHITE_SQUARE: 0,
     EYE : 1,
     EYE_ON_SQUARE : 2,
+    EYE_SPRITE: 3,
 };
 
 
@@ -20,7 +21,7 @@ export const config = {
     enable_timeline: true,
     enable_infobox: true,
     enable_ground_descriptions: false,
-    fov_view_style: fov_view_styles.EYE_ON_SQUARE,
+    fov_view_style: fov_view_styles.EYE_SPRITE,
 };
 
 window.game_config = config;

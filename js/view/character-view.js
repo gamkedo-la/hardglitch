@@ -9,6 +9,7 @@ import { config, fov_view_styles } from "../game-config.js";
 import { EntityView, graphic_position, PIXELS_PER_HALF_SIDE, PIXELS_PER_TILES_SIDE } from "./entity-view.js";
 import { Character } from "../core/character.js";
 import { sprite_defs } from "../game-assets.js";
+import { Sprite } from "../system/graphics.js";
 
 // Representation of a character's body.
 class CharacterView extends EntityView {
@@ -18,6 +19,7 @@ class CharacterView extends EntityView {
         super(character.id, character.position, character.assets);
         this._character = character;
         this.is_floating = character.is_floating ? true : false;
+        this._fov_sprite = new Sprite(sprite_defs.vision);
     }
 
     get is_player() { return this._character.is_player_actor; }
@@ -55,12 +57,20 @@ class CharacterView extends EntityView {
             canvas_context.fill();
         }
 
+        const draw_eye_sprite = (gfx_pos) => {
+            this._fov_sprite.position = gfx_pos;
+            this._fov_sprite.draw(canvas_context);
+        }
+
 
         let draw_func;
         switch(config.fov_view_style){
 
             case fov_view_styles.EYE:
                 draw_func = draw_eye;
+                break;
+            case fov_view_styles.EYE_SPRITE:
+                draw_func = draw_eye_sprite;
                 break;
 
             case fov_view_styles.WHITE_SQUARE:
