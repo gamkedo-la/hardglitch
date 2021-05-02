@@ -15,6 +15,7 @@ import { CharacterView } from "../view/character-view.js";
 import { sprite_defs } from "../game-assets.js";
 import { ItemView } from "../view/item-view.js";
 import { auto_newlines } from "../system/utility.js";
+import { add_default_action_if_adjacent } from "./rules-common.js";
 
 const decrypt_range = new visibility.Range_Cross_Axis(1,2);
 
@@ -138,6 +139,7 @@ class Rule_Decrypt extends concepts.Rule {
             .forEach((target)=>{
                 const action = new Decrypt(target);
                 actions[action.id] = action;
+                add_default_action_if_adjacent(character.position, actions, action, target);
             });
         return actions;
     }

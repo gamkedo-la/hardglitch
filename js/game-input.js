@@ -21,6 +21,7 @@ import * as concepts from "./core/concepts.js";
 import { Game } from "./game.js";
 import { GameView } from "./game-view.js";
 import { GameSession } from "./game-session.js";
+import { Move } from "./rules/rules-movement.js";
 
 let current_game;
 let current_game_view;
@@ -140,15 +141,15 @@ function select_player_action(){
         }
     }
 
-    let move_through_keyboard;
-    if(keyboard.is_down(KEY.W) || keyboard.is_down(KEY.UP_ARROW)) move_through_keyboard = possible_actions.move_north;
-    if(keyboard.is_down(KEY.S) || keyboard.is_down(KEY.DOWN_ARROW)) move_through_keyboard = possible_actions.move_south;
-    if(keyboard.is_down(KEY.D) || keyboard.is_down(KEY.RIGHT_ARROW)) move_through_keyboard = possible_actions.move_east;
-    if(keyboard.is_down(KEY.A) || keyboard.is_down(KEY.LEFT_ARROW)) move_through_keyboard = possible_actions.move_west;
-    if(move_through_keyboard instanceof concepts.Action
-    && move_through_keyboard.is_safe // Using the keyboard, it's too easy to walk into unsafe places, so we don't allow it. It can be done with the mouse though.
+    let default_action_through_keyboard;
+    if(keyboard.is_down(KEY.W) || keyboard.is_down(KEY.UP_ARROW)) default_action_through_keyboard = possible_actions.default_north;
+    if(keyboard.is_down(KEY.S) || keyboard.is_down(KEY.DOWN_ARROW)) default_action_through_keyboard = possible_actions.default_south;
+    if(keyboard.is_down(KEY.D) || keyboard.is_down(KEY.RIGHT_ARROW)) default_action_through_keyboard = possible_actions.default_east;
+    if(keyboard.is_down(KEY.A) || keyboard.is_down(KEY.LEFT_ARROW)) default_action_through_keyboard = possible_actions.default_west;
+    if(default_action_through_keyboard instanceof concepts.Action
+    && (!(default_action_through_keyboard instanceof Move) || default_action_through_keyboard.is_safe) // Using the keyboard, it's too easy to walk into unsafe places, so we don't allow it. It can be done with the mouse though.
     ){
-        return move_through_keyboard;
+        return default_action_through_keyboard;
     }
 
     if(!mouse_was_dragging_last_update

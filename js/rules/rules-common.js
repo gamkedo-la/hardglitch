@@ -1,5 +1,6 @@
 
 export {
+    add_default_action_if_adjacent,
     actions_for_each_target,
     ranged_actions_for_each_target,
 }
@@ -11,6 +12,17 @@ import * as visibility from "../core/visibility.js";
 import { Character } from "../core/character.js";
 import { lazy_call } from "../system/utility.js";
 
+function add_default_action_if_adjacent(character_position, possible_actions, action, action_target){
+    debug.assertion(()=> character_position instanceof concepts.Position);
+    debug.assertion(()=> possible_actions instanceof Object);
+    debug.assertion(()=> action_target instanceof concepts.Position);
+    debug.assertion(()=> action instanceof concepts.Action);
+
+    if(character_position.north.equals(action_target)) possible_actions["default_north"] = action;
+    else if(character_position.south.equals(action_target)) possible_actions["default_south"] = action;
+    else if(character_position.east.equals(action_target)) possible_actions["default_east"] = action;
+    else if(character_position.west.equals(action_target)) possible_actions["default_west"] = action;
+}
 
 function actions_for_each_target(character, parent_action_type, valid_target_generator, action_maker = (action_type, target) => new action_type(target)){
     debug.assertion(()=>character instanceof Character);

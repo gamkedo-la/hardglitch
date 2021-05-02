@@ -23,6 +23,7 @@ import { ItemView } from "../view/item-view.js";
 import { spawn_entities_around } from "./spawn.js";
 import { auto_newlines } from "../system/utility.js";
 import { EntityView } from "../view/entity-view.js";
+import { add_default_action_if_adjacent } from "./rules-common.js";
 
 const take_item_range = new visibility.Range_Cross_Axis(1,2);
 
@@ -358,6 +359,7 @@ class Rule_TakeItem extends concepts.Rule {
             .forEach((target)=>{
                 const action = new TakeItem(target);
                 actions[action.id] = action;
+                add_default_action_if_adjacent(character.position, actions, action, target);
             });
         return actions;
     }

@@ -24,7 +24,7 @@ import { EntityView } from "../view/entity-view.js";
 import { GameView } from "../game-view.js";
 import { Character } from "../core/character.js";
 import * as visibility from "../core/visibility.js";
-import { ranged_actions_for_each_target, actions_for_each_target } from "./rules-common.js";
+import { ranged_actions_for_each_target, actions_for_each_target, add_default_action_if_adjacent } from "./rules-common.js";
 import { auto_newlines, lazy_call, random_sample } from "../system/utility.js";
 import { is_blocked_position } from "../definitions-world.js";
 
@@ -118,6 +118,7 @@ class Rule_Movements extends concepts.Rule {
                 const move = new Move(move_id, move_target);
                 safe_if_safe_arrival(move, world);
                 actions[move_id] = move;
+                add_default_action_if_adjacent(character.position, actions, move, move_target)
             }
         }
 
