@@ -217,16 +217,17 @@ function item_description(item){
     const item_stats_modifiers = stats_modifiers_description(item.stats_modifiers);
     let action_count = 0;
     const item_actions_names = item.get_enabled_actions_names()
-        .map(action_name=> `${action_count++ > 0? ', ' : ''}${action_name}`)
+        .map(action_name=> `${action_count++ > 0 ? ', ' : ''}${action_name}`)
         .reduce((previous, current)=> { return previous += current}, "");
 
-    let description_text = `${item.name}\n${item.description}`;
+    let description_text = `${item.name}`;
     if(item_actions_names.length > 0){
         description_text += `\n${auto_newlines("  ++Actions : " + item_actions_names, max_action_list_line_width)}`;
     }
     if(item_stats_modifiers){
         description_text += `\n${item_stats_modifiers}`;
     }
+    description_text += `\n\n${item.description}`;
 
     return description_text;
 }
