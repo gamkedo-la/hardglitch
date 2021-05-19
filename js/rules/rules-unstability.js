@@ -28,13 +28,16 @@ import { random_jump } from "./rules-movement.js";
 const unstable_ap_cost = 10;
 const destabilize_range = new visibility.Range_Square(0, 6);
 
-class Unstability {
-    name = "Unstable Memory";
-    description =
-`Unstable memory sections will
+const unstability_name = "Unstable Memory";
+const unstability_description = `Unstable memory sections will
 teleport any entity that enter them
 to a random location, then the
 memory section will stabilize.`;
+
+
+class Unstability {
+    get name(){ return unstability_name; }
+    get description() { return unstability_description; }
     toJSON(key) { return {}; }
 };
 
