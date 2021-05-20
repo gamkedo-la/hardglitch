@@ -354,7 +354,8 @@ class Rule_TakeItem extends concepts.Rule {
         visibility.valid_target_positions(world, character, TakeItem.range)
             .filter(target=> { // Only if there is an item to take.
                 const item = world.item_at(target);
-                return item && item.can_be_taken === true;
+                return item instanceof concepts.Item
+                    && item.can_be_taken === true;
             })
             .forEach((target)=>{
                 const action = new TakeItem(target);

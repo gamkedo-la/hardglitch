@@ -1,5 +1,6 @@
 export {
     Program,
+    ProgramBehavior,
 }
 
 import * as debug from "../system/debug.js";

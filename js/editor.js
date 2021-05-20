@@ -578,6 +578,10 @@ function update_debug_keys(game_session){
         export_world(game_session.world);
     }
 
+    if (input.keyboard.is_just_down(KEY.F5)) { // Log the state of the world (for level edition).
+        export_world(game_session.world, true);
+    }
+
     if(!is_enabled && window.debug_tools_enabled === false) // All the keys bellow are only active if debug tools are enabled.
         return;
 
@@ -677,10 +681,10 @@ function end_edition(game_session){
     is_enabled = false;
 }
 
-function export_world(world){
+function export_world(world, complete_state = false){
     debug.assertion(()=>world instanceof concepts.World);
 
-    const world_json = serialize_world(world);
+    const world_json = serialize_world(world, complete_state);
 
     debug.log("WORLD EXPORT:");
     debug.log(world_json);

@@ -6,6 +6,7 @@ export {
     random_float,
     random_int,
     is_number,
+    is_iterable,
     index_from_position,
     position_from_index,
     remove_array_item,
@@ -383,4 +384,8 @@ function is_generator_function(fn) {
 return typeof fn === 'function' &&
     fn.constructor &&
     fn.constructor.name === 'GeneratorFunction';
+}
+
+function is_iterable(object){
+    return object != null && typeof object[Symbol.iterator] === 'function';
 }

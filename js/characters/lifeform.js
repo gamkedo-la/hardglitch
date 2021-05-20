@@ -1,4 +1,12 @@
-export { LifeForm_Weak, LifeForm_Strong, LifeForm_Aggressive };
+export {
+    LifeForm_Weak,
+    LifeForm_Strong,
+    LifeForm_Aggressive,
+
+    MoveUntilYouCant,
+    MoveInCircles,
+    Crusher,
+};
 
 import * as debug from "../system/debug.js";
 import * as concepts from "../core/concepts.js";
@@ -76,20 +84,17 @@ class MoveUntilYouCant extends concepts.Actor {
 };
 
 class MoveInCircles extends concepts.Actor {
-    directions = rotate_array([ "north", "east", "south", "west" ], random_int(0, 4));
-
-    *next_direction(){
-        while(true){
-            for(const direction of this.directions){
-                yield direction;
-            }
-        }
-    }
-
     constructor(){
         super();
-        this.direction_sequence = this.next_direction();
+        this.directions = rotate_array([ "north", "east", "south", "west" ], random_int(0, 4));
+        if(random_int(1, 100) > 50) this.directions.reverse();
     }
+
+    next_direction(){
+        this.directions = rotate_array(this.directions, 1);
+        return this.directions[0];
+    }
+
 
     decide_next_action(world, character, possible_actions) {
         const push_action = maybe_push(world, possible_actions);
@@ -103,7 +108,7 @@ class MoveInCircles extends concepts.Actor {
         if(move_actions_ids.length === 0)
             return possible_actions.wait;
 
-        const prefered_direction = this.direction_sequence.next().value;
+        const prefered_direction = this.next_direction();
         const prefered_move_id = `move_${prefered_direction}`;
         if(move_actions_ids.includes(prefered_move_id)){
             this.last_action_id = prefered_move_id;

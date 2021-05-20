@@ -236,10 +236,10 @@ function valid_spawn_positions(world, center_position, tile_filter, max_range = 
 class FieldOfVision {
 
     constructor(position, view_distance){
-        debug.assertion(()=>position instanceof concepts.Position);
-        debug.assertion(()=>Number.isInteger(view_distance) && view_distance >= 0);
-        this._center = position;
-        this._view_distance = view_distance;
+        debug.assertion(()=>position instanceof concepts.Position || position === undefined);
+        debug.assertion(()=>(Number.isInteger(view_distance) && view_distance >= 0) || view_distance === undefined);
+        this._center = position === undefined ? new concepts.Position() : position;
+        this._view_distance = view_distance === undefined ? 1 : view_distance;
         this._visible_positions = [];
     }
 

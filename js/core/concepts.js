@@ -206,6 +206,7 @@ class Position {
     get inverse() {
         return new Position({x: -this.x, y: -this.y });
     }
+
 };
 
 

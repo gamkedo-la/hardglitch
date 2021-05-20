@@ -19,10 +19,10 @@ const default_activable_items = 1;
 
 class StatValue {
 
-    constructor(initial_value, initial_max, initial_min){
+    constructor(initial_value = 0, initial_max, initial_min){
         debug.assertion(()=>Number.isInteger(initial_value));
-        debug.assertion(()=>initial_max === undefined || Number.isInteger(initial_max));
-        debug.assertion(()=>initial_min === undefined || Number.isInteger(initial_min));
+        debug.assertion(()=>initial_max == null || Number.isInteger(initial_max));
+        debug.assertion(()=>initial_min == null || Number.isInteger(initial_min));
         this._value = initial_value;
         this._max = initial_max;
         this._min = initial_min;
@@ -63,18 +63,18 @@ class StatValue {
         }
         return value;
      }
-    get max() { return this._max === undefined ? undefined : this._max + this.accumulated_max_modifiers; }
-    get min() { return this._min === undefined ? undefined : this._min + this.accumulated_min_modifiers; }
+    get max() { return this._max == null ? undefined : this._max + this.accumulated_max_modifiers; }
+    get min() { return this._min == null ? undefined : this._min + this.accumulated_min_modifiers; }
 
     add_modifier(modifier_id, modifier){
 
         debug.assertion(()=>typeof modifier_id === "string");
 
         debug.assertion(()=>modifier instanceof Object);
-        debug.assertion(()=>modifier.value === undefined || Number.isInteger(modifier.value));
+        debug.assertion(()=>modifier.value == null || Number.isInteger(modifier.value));
         // Min and Max must have been set for this stat to be able to be modified.
-        debug.assertion(()=>modifier.max === undefined || (Number.isInteger(modifier.max) && this._max !== undefined));
-        debug.assertion(()=>modifier.min === undefined || (Number.isInteger(modifier.min) && this._min !== undefined));
+        debug.assertion(()=>modifier.max == null || (Number.isInteger(modifier.max) && this._max !== undefined));
+        debug.assertion(()=>modifier.min == null || (Number.isInteger(modifier.min) && this._min !== undefined));
 
         this._modifiers[modifier_id] = modifier;
         this._notify_listeners();
@@ -84,7 +84,7 @@ class StatValue {
 
         debug.assertion(()=>typeof modifier_id === "string");
         delete this._modifiers[modifier_id];
-        debug.assertion(()=>this.max === undefined || this.min === undefined || this.min <= this.max);
+        debug.assertion(()=>this.max == null || this.min == null || this.min <= this.max);
         this._notify_listeners();
     }
 
@@ -143,7 +143,7 @@ class StatValue {
     add_listener(listener_id, listener){
         debug.assertion(()=>typeof listener_id === "string");
         debug.assertion(()=>listener instanceof Function);
-        debug.assertion(()=>this._listeners[listener_id] === undefined);
+        debug.assertion(()=>this._listeners[listener_id] == null);
         this._listeners[listener_id] = listener;
         listener(this); // Make sure the listner is up to date.
     }
@@ -175,6 +175,10 @@ class CharacterStats{
     activable_items = new StatValue(default_activable_items, undefined, 0); // How many inventory slots can active items.
 
     constructor(){
+        this._on_deserialized();
+    }
+    _on_deserialized(){
+        this.inventory_size.remove_listener("activable_items");
         this.inventory_size.add_listener("activable_items", (inventory_size)=>{
             this.activable_items.real_max = inventory_size.value;
         });
@@ -191,9 +195,13 @@ class Inventory {
     _limbo = []; // Where the lost items ends-up.
 
     constructor(stats){
-        debug.assertion(()=>stats instanceof CharacterStats);
-        this.stats = stats;
+        debug.assertion(()=>stats instanceof CharacterStats || stats == null);
+        this.stats = stats == null ? new CharacterStats() : stats;
+        this._on_deserialized();
+    }
 
+    _on_deserialized(){
+        this.stats.inventory_size.remove_listener("inventory");
         this.stats.inventory_size.add_listener("inventory", (inventory_size)=>{
             debug.assertion(()=>inventory_size instanceof StatValue);
             if(this.size !== inventory_size.value){
@@ -202,6 +210,7 @@ class Inventory {
             }
         });
 
+        this.stats.activable_items.remove_listener("inventory");
         this.stats.activable_items.add_listener("inventory", (activable_items)=>{
             debug.assertion(()=>activable_items instanceof StatValue);
             if(this._activable_items !== activable_items.value){
@@ -238,7 +247,7 @@ class Inventory {
 
         // Put the item in the first free slot that is not an active slot.
         for(let idx = this._activable_items; idx < this._item_slots.length; ++idx){
-            if(this._item_slots[idx] === undefined){
+            if(this._item_slots[idx] == null){
                 this.set_item_at(idx, item);
                 return idx;
             }
@@ -246,7 +255,7 @@ class Inventory {
 
         // Otherwise, put it in an active slot.
         for(let idx = 0; idx < this._activable_items; ++idx){
-            if(this._item_slots[idx] === undefined){
+            if(this._item_slots[idx] == null){
                 this.set_item_at(idx, item);
                 return idx;
             }
@@ -259,7 +268,7 @@ class Inventory {
         //
         debug.assertion(()=>idx >= 0 && idx < this._item_slots.length);
         debug.assertion(()=>item instanceof concepts.Item);
-        debug.assertion(()=>this._item_slots[idx] === undefined);
+        debug.assertion(()=>this._item_slots[idx] == null);
         this._item_slots[idx] = item;
         if(this.is_active_slot(idx))
             this._apply_modifiers(item);
@@ -371,7 +380,7 @@ class Inventory {
     get active_items() { return this._item_slots.slice(0, this._activable_items); }
     get size() { return this._item_slots.length; }
 
-    get have_empty_slots() { return this._item_slots.some(item => item === undefined); }
+    get have_empty_slots() { return this._item_slots.some(item => item == null); }
     get is_full() { return !this.have_empty_slots; }
     get is_empty() { return this._item_slots.length === 0; }
 

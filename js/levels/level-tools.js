@@ -20,9 +20,9 @@ export {
 import * as debug from "../system/debug.js";
 import * as tiles from "../definitions-tiles.js";
 import * as concepts from "../core/concepts.js";
-import { default_rules, is_valid_world, grid_ID, get_entity_type, is_blocked_position } from "../definitions-world.js";
+import { default_rules, is_valid_world, grid_ID, get_entity_type, is_blocked_position, get_any_serializable_type } from "../definitions-world.js";
 import { Grid, merged_grids_size, merge_grids } from "../system/grid.js";
-import { escaped, index_from_position, random_int, random_sample, copy_data, position_from_index, is_generator, not } from "../system/utility.js";
+import { escaped, index_from_position, random_int, random_sample, copy_data, position_from_index, is_generator, not, is_iterable } from "../system/utility.js";
 import { Corruption } from "../rules/rules-corruption.js";
 import { Unstability } from "../rules/rules-unstability.js";
 import { all_item_types } from "../definitions-items.js";
@@ -130,24 +130,87 @@ function generate_empty_world(name, width, height, defaults = defaults_gen){
     return world;
 }
 
-// Generates a serialized version of the world, in a limited way.
-// It does not keep the state of entities, but it keeps their types.
-function serialize_world(world){
+// Inject the name of the type/class (if any) inside each Object recursively to be able to serialize it and find it again when deserialized.
+function encode_type_recursively(object){
+    if(object == null)
+        return object;
+
+    if(object instanceof Object
+    && !(object instanceof Array)
+    && object.constructor.name !== "Object"){ // An object built with an actual type name (as in `class`)
+
+        object.__class_type_name = object.constructor.name;
+        Object.values(object).forEach(encode_type_recursively);
+
+    } else if(is_iterable(object) && typeof object !== "string" ){
+        for(const value of object){
+            encode_type_recursively(value);
+        }
+    }
+
+    return object;
+}
+
+function decode_type_recursively(object, type_finder){
+    debug.assertion(()=>type_finder instanceof Function);
+
+    if(!(object instanceof Object)){
+        if(is_iterable(object) && typeof object !== "string"){
+            return object.map(value=>decode_type_recursively(value, type_finder));
+        } else {
+            return object;
+        }
+    }
+
+    if(typeof object.__class_type_name !== "string"){
+        return object;
+    }
+
+    const actual_type = type_finder(object.__class_type_name);
+    if(actual_type != null){
+        const new_instance = new actual_type();
+        const merged_instance = Object.assign(new_instance, object);
+        debug.assertion(()=>merged_instance instanceof actual_type);
+
+        Object.keys(merged_instance).forEach(key => merged_instance[key] = decode_type_recursively(merged_instance[key], type_finder));
+
+        if(merged_instance._on_deserialized instanceof Function){
+            merged_instance._on_deserialized();
+        }
+
+        return merged_instance;
+    }
+
+    return object;
+}
+
+// For testing:
+window.encode_type_recursively = encode_type_recursively;
+window.decode_type_recursively = decode_type_recursively;
+
+// Generates a serialized version of the world.
+function serialize_world(world, complete_state){
     debug.assertion(()=>is_valid_world(world));
+    debug.assertion(()=>typeof complete_state === "boolean");
 
     let grids = {};
     for(const [grid_id, grid] of Object.entries(world.grids)){
         grids[grid_id] = new Array(...grid.elements);
     };
 
-    let entities = [];
-    world.entities.forEach(entity => {
-        debug.assertion(()=>entity instanceof concepts.Entity);
-        entities.push({
-            type: entity.constructor.name,
-            position: { x: entity.position.x, y: entity.position.y }
+    const gather_simplified_entities = ()=> {
+        const entities = [];
+        world.entities.forEach(entity => {
+            debug.assertion(()=>entity instanceof concepts.Entity);
+            entities.push({
+                type: entity.constructor.name,
+                position: { x: entity.position.x, y: entity.position.y }
+            });
         });
-    });
+        return entities;
+    }
+
+    const entities = complete_state ? world.entities.map(encode_type_recursively) : gather_simplified_entities();
 
     const as_string = (object) => JSON.stringify(object, null, 0);
 
@@ -165,11 +228,12 @@ function serialize_world(world){
 
 function is_entity_desc(desc){
     return desc instanceof Object
-        && typeof desc.type === "string"
+        &&  (   typeof desc.type === "string"   // desc without state
+            ||  typeof desc.__class_type_name === "string" // true serialized object
+            )
         && (desc.position === undefined || ( Number.isInteger(desc.position.x) && Number.isInteger(desc.position.y) ) )
         ;
 }
-
 
 function check_world_desc(world_desc){
     debug.assertion(()=>world_desc instanceof Object);
@@ -195,36 +259,48 @@ function deserialize_grid_elements(grid_id, grid_elements){
     }
 }
 
+function deserialize_entity_desc(entity_desc){
+    debug.assertion(()=>is_entity_desc(entity_desc));
+    const entity_type = get_entity_type(entity_desc.type);
+    const entity = new entity_type();
+    debug.assertion(()=>entity instanceof concepts.Entity);
+    entity.position = entity_desc.position ? entity_desc.position : new concepts.Position();
+    entity.is_crucial = entity_desc.is_crucial;
+    if(entity_desc.drops){
+        debug.assertion(()=>entity_desc.drops instanceof Array);
+        entity.drops = [];
+        const drop_it = (drop_type_name) => {
+            debug.assertion(()=>typeof drop_type_name === "string");
+            const drop_type = get_entity_type(drop_type_name);
+            const drop = new drop_type();
+            debug.assertion(()=>drop instanceof concepts.Entity);
+            entity.drops.push(drop);
+        }
+        entity_desc.drops.forEach(drop_type_name => {
+            if(typeof drop_type_name === "string"){
+                drop_it(drop_type_name);
+            } else {
+                debug.assertion(()=>drop_type_name instanceof Array);
+                const drops = drop_type_name;
+                drops.forEach(drop_it);
+            }
+        });
+    }
+    return entity;
+}
+
 function deserialize_entities(entities_desc_list){
     debug.assertion(()=>entities_desc_list instanceof Array);
     const entities = [];
 
     for(const entity_desc of entities_desc_list){
-        const entity_type = get_entity_type(entity_desc.type);
-        const entity = new entity_type();
-        debug.assertion(()=>entity instanceof concepts.Entity);
-        entity.position = entity_desc.position ? entity_desc.position : new concepts.Position();
-        entity.is_crucial = entity_desc.is_crucial;
-        if(entity_desc.drops){
-            debug.assertion(()=>entity_desc.drops instanceof Array);
-            entity.drops = [];
-            const drop_it = (drop_type_name) => {
-                debug.assertion(()=>typeof drop_type_name === "string");
-                const drop_type = get_entity_type(drop_type_name);
-                const drop = new drop_type();
-                debug.assertion(()=>drop instanceof concepts.Entity);
-                entity.drops.push(drop);
-            }
-            entity_desc.drops.forEach(drop_type_name => {
-                if(typeof drop_type_name === "string"){
-                    drop_it(drop_type_name);
-                } else {
-                    debug.assertion(()=>drop_type_name instanceof Array);
-                    const drops = drop_type_name;
-                    drops.forEach(drop_it);
-                }
-            });
+        let entity;
+        if(typeof entity_desc.__class_type_name === "string") {
+            entity = decode_type_recursively(entity_desc, get_any_serializable_type); // deserialize true serialized entity, with a state.
+        } else {
+            entity = deserialize_entity_desc(entity_desc); // create an entity from the description
         }
+        debug.assertion(()=>entity instanceof Object);
         entities.push(entity);
     }
 

@@ -1,5 +1,6 @@
 export {
     AntiVirus,
+    AnomalyHunter,
 }
 
 import * as debug from "../system/debug.js";

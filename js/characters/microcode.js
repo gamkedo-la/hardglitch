@@ -1,5 +1,6 @@
 export {
     Microcode,
+    Corrupter,
 }
 
 import * as debug from "../system/debug.js";

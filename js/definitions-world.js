@@ -6,6 +6,7 @@ export {
     is_blocked_position,
     is_valid_world,
     get_entity_type,
+    get_any_serializable_type,
 };
 
 import * as debug from "./system/debug.js";
@@ -35,8 +36,10 @@ import * as level_1 from "./levels/level_1.js";
 import * as level_2 from "./levels/level_2.js";
 import * as level_3 from "./levels/level_3.js";
 import * as level_4 from "./levels/level_4.js";
-import { all_characters_types } from "./deflinitions-characters.js";
+import { all_characters_types, all_actor_types } from "./deflinitions-characters.js";
 import { all_item_types } from "./definitions-items.js";
+import { CharacterStats, StatValue, Inventory } from "./core/character.js";
+import { FieldOfVision } from "./core/visibility.js";
 
 const world_grid = {
     width: 64,
@@ -95,6 +98,28 @@ function get_entity_type(type_name){
     return all_entity_types()[type_name];
 }
 
+let _all_serializable_types;
+
+function all_serializable_types(){
+    if(!_all_serializable_types){
+        const types = [
+            concepts.Position,
+            CharacterStats, StatValue, Inventory,
+            FieldOfVision,
+            ...all_actor_types(),
+        ];
+        _all_serializable_types = Object.assign({}, all_entity_types()); // Start from entity types, then add missing types. Make sure it's a copy, don't modify the entity type list.
+        for(const type of types){
+            _all_serializable_types[type.name] = type;
+        }
+    }
+    return _all_serializable_types;
+}
+
+function get_any_serializable_type(type_name){
+    return all_serializable_types()[type_name];
+}
+
 const game_levels = [
     level_0, level_1, level_2, level_3, level_4,
 ];
@@ -142,5 +167,6 @@ function is_valid_world(world){
         && world.all_grids.length >= Object.keys(grid_ID).length
         && Object.values(grid_ID).every(grid_id => world.grids[grid_id] instanceof Grid)
         && world.all_grids.every(grid => grid.width === world.width && grid.height === world.height)
+        && world.entities.every(entity => entity instanceof concepts.Entity)
         ;
 }
