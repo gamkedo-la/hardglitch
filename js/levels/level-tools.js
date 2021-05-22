@@ -154,7 +154,7 @@ function encode_type_recursively(object){
 function decode_type_recursively(object, type_finder){
     debug.assertion(()=>type_finder instanceof Function);
 
-    if(!(object instanceof Object)){
+    if(!(object instanceof Object) || object instanceof Array){
         if(is_iterable(object) && typeof object !== "string"){
             return object.map(value=>decode_type_recursively(value, type_finder));
         } else {

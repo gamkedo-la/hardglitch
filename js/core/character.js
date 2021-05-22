@@ -194,15 +194,10 @@ class Inventory {
     _listeners = {};
     _limbo = []; // Where the lost items ends-up.
 
-    constructor(stats){
+    connect_stats(stats){
         debug.assertion(()=>stats instanceof CharacterStats || stats == null);
-        this.stats = stats == null ? new CharacterStats() : stats;
-        this._on_deserialized();
-    }
-
-    _on_deserialized(){
-        this.stats.inventory_size.remove_listener("inventory");
-        this.stats.inventory_size.add_listener("inventory", (inventory_size)=>{
+        stats.inventory_size.remove_listener("inventory");
+        stats.inventory_size.add_listener("inventory", (inventory_size)=>{
             debug.assertion(()=>inventory_size instanceof StatValue);
             if(this.size !== inventory_size.value){
                 const left_items = this.resize(inventory_size.value);
@@ -210,8 +205,8 @@ class Inventory {
             }
         });
 
-        this.stats.activable_items.remove_listener("inventory");
-        this.stats.activable_items.add_listener("inventory", (activable_items)=>{
+        stats.activable_items.remove_listener("inventory");
+        stats.activable_items.add_listener("inventory", (activable_items)=>{
             debug.assertion(()=>activable_items instanceof StatValue);
             if(this._activable_items !== activable_items.value){
                 this._activable_items = activable_items.value;
@@ -421,12 +416,17 @@ class Inventory {
 // Some rules will rely on properties provided there.
 class Character extends concepts.Body {
     stats = new CharacterStats();
-    inventory = new Inventory(this.stats);
+    inventory = new Inventory();
     field_of_vision = new FieldOfVision(this.position, default_view_distance);
 
     constructor(name){
         super(name);
         this.skip_turn = true;
+        this._on_deserialized();
+    }
+
+    _on_deserialized(){
+        this.inventory.connect_stats(this.stats);
     }
 
     get position() { return super.position; }
