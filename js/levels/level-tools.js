@@ -1,8 +1,10 @@
 export {
     check_world_desc,
     generate_empty_world,
+    serialize_entity,
     serialize_world,
     deserialize_world,
+    deserialize_entity,
     deserialize_entities,
     random_variation,
     merge_world_chunks,
@@ -192,9 +194,17 @@ function decode_type_recursively(object, type_finder){
     return object;
 }
 
-// For testing:
-window.encode_type_recursively = encode_type_recursively;
-window.decode_type_recursively = decode_type_recursively;
+function serialize_entity(entity){
+    debug.assertion(()=>entity instanceof concepts.Entity);
+    entity = encode_type_recursively(entity);
+    return JSON.stringify(entity);
+}
+
+function deserialize_entity(entity_json){
+    const object = JSON.parse(entity_json);
+    const real_entity = decode_type_recursively(object, get_any_serializable_type);
+    return real_entity;
+}
 
 // Generates a serialized version of the world.
 function serialize_world(world, complete_state){
@@ -266,6 +276,7 @@ function deserialize_grid_elements(grid_id, grid_elements){
             return grid_elements;
     }
 }
+
 
 function deserialize_entity_desc(entity_desc){
     debug.assertion(()=>is_entity_desc(entity_desc));

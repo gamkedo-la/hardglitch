@@ -26,6 +26,8 @@ import { game_levels } from "./definitions-world.js";
 import { tween, easing } from "./system/tweening.js";
 import { auto_newlines, is_number, random_sample } from "./system/utility.js";
 import { Character } from "./core/character.js";
+import { serialize_entity } from "./levels/level-tools.js";
+import { Entity } from "./core/concepts.js";
 
 class PlayingGame extends fsm.State{
 
@@ -571,8 +573,8 @@ class GameScreen extends fsm.StateMachine {
             background_color: "#ffffff00",
         });
 
-        debug.assertion(()=>this.game_session);
-        debug.assertion(()=>this.level_title);
+        debug.assertion(()=>this.game_session instanceof GameSession);
+        debug.assertion(()=>this.level_title instanceof ui.Text);
         this._replace_title();
 
         this.animations.play(this._title_fade());
@@ -584,6 +586,10 @@ class GameScreen extends fsm.StateMachine {
         this.game_session.start();
         this.ready = true;
 
+        // Save the state of the world once beginning so that when the player dies they can come back at that exact point.
+        window.last_world_entered = editor.export_world(this.game_session.world, true); // Complete save for when the player dies.
+        window.last_level_played = level_to_play;
+        window.last_player_character = player_character instanceof Entity ? serialize_entity(player_character) : player_character;
     }
 
     *leave(){

@@ -12,9 +12,15 @@ import * as audio from "./system/audio.js";
 import { Color } from "./system/color.js";
 import { ScreenFader } from "./system/screenfader.js";
 import { Vector2_origin } from "./system/spatial.js";
-import { invoke_on_members } from "./system/utility.js";
+import { auto_newlines, invoke_on_members } from "./system/utility.js";
 import { music_id, sprite_defs } from "./game-assets.js";
 import { KEY } from "./game-input.js";
+import { deserialize_entity } from "./levels/level-tools.js";
+import { Character } from "./core/character.js";
+
+const button_text_font = "22px Space Mono";
+const button_text_align = undefined; // "center";
+
 
 class GameOverScreen_Success extends fsm.State {
     fader = new ScreenFader();
@@ -26,6 +32,8 @@ class GameOverScreen_Success extends fsm.State {
 
     _init_ui(){
         debug.assertion(()=>this.ui === undefined);
+
+
         this.ui = {
             message : new ui.Text({
                 text: "Congratulations! You escaped the computer!",
@@ -33,6 +41,8 @@ class GameOverScreen_Success extends fsm.State {
             }),
             button_back : new ui.TextButton({
                 text: "Continue [SPACE]",
+                font: button_text_font,
+                text_align: button_text_align,
                 position: Vector2_origin,
                 sprite_def: sprite_defs.button_menu,
                 action: ()=> { this.go_to_next_screen(); },
@@ -111,26 +121,44 @@ class GameOverScreen_Failure extends fsm.State {
 
     _init_ui(){
         debug.assertion(()=>this.ui === undefined);
+
         this.ui = {
             message : new ui.Text({
                 text: "Glitch no longer occupies the memory they once did.",
                 position: graphics.canvas_center_position().translate({x:-200, y:0}),
             }),
-            // button_retry : new ui.TextButton({
-            //     text: "Retry [ENTER]",
-            //     position: Vector2_origin,
-            //     sprite_def: sprite_defs.button_menu,
-            //     action: ()=> { this.retry_new_game(); },
-            //     sounds:{
-            //         over: 'selectButton',
-            //         down: 'clickButton',
-            //     }
-            // }),
-            button_back : new ui.TextButton({
-                text: "End Game [SPACE]",
+
+            button_retry : new ui.TextButton({
+                text: "Retry [SPACE]",
+                font: button_text_font,
                 position: Vector2_origin,
+                text_align: button_text_align,
                 sprite_def: sprite_defs.button_menu,
-                action: ()=> { this.back_to_main_menu(); },
+                action: ()=> { this.retry_level(); },
+                sounds:{
+                    over: 'selectButton',
+                    down: 'clickButton',
+                },
+            }),
+            button_restart : new ui.TextButton({
+                text: "New Game [ENTER]",
+                font: button_text_font,
+                position: Vector2_origin,
+                text_align: button_text_align,
+                sprite_def: sprite_defs.button_menu,
+                action: ()=> { this.restart_game(); },
+                sounds:{
+                    over: 'selectButton',
+                    down: 'clickButton',
+                }
+            }),
+            button_back : new ui.TextButton({
+                text: "Back [ESCAPE]",
+                position: Vector2_origin,
+                font: button_text_font,
+                text_align: button_text_align,
+                sprite_def: sprite_defs.button_menu,
+                action: ()=> { this.back_to_title_screen(); },
                 sounds:{
                     over: 'selectButton',
                     down: 'clickButton',
@@ -138,24 +166,10 @@ class GameOverScreen_Failure extends fsm.State {
             }),
         };
 
+
         this.skull_icon = new graphics.Sprite(sprite_defs.game_over_skull);
-
-        /*
-        this.skull_icon.position = {
-            x: center_in_rectangle(this.background.area, this.level_transition_canvas_context.canvas).position.x,
-            y: -this.background.size.height + background_y_move + 400,
-        };
-        */ //that's a work in progress
-
-        /*
-        this.skull_icon.position = {
-            x: 500,
-            y: 500
-        };
-        */
-
-       this.skull_icon.position = graphics.canvas_center_position().translate({x:-100, y:-250});
-        //that's a work in progress
+        this.skull_icon.position = graphics.canvas_center_position().translate({x:-100, y:-250});
+        // TODO: animate skull
 
         // Center the buttons in the screen.
         let button_pad_y = 0;
@@ -167,6 +181,28 @@ class GameOverScreen_Failure extends fsm.State {
         Object.values(this.ui).forEach(button => {
             const center_pos = graphics.centered_rectangle_in_screen(button.area).position;
             button.position = center_pos.translate({ x:0, y: next_pad_y() });
+        });
+
+
+        this.ui.button_retry.helptext = new ui.HelpText({
+            text: auto_newlines("Back to the beginning of this level with the items you had when entering.\nThe level will be bit different...", 24),
+            area_to_help: this.ui.button_retry.area,
+            delay_ms: 0,
+            position: this.ui.button_retry.position.translate({ x: this.ui.button_retry.width }),
+        });
+
+        this.ui.button_restart.helptext = new ui.HelpText({
+            text: auto_newlines("Reboot the computer,\nretry from scratch!", 20),
+            area_to_help: this.ui.button_restart.area,
+            delay_ms: 0,
+            position: this.ui.button_restart.position.translate({ x: this.ui.button_restart.width }),
+        });
+
+        this.ui.button_back.helptext = new ui.HelpText({
+            text: "Back to title screen.",
+            area_to_help: this.ui.button_back.area,
+            delay_ms: 0,
+            position: this.ui.button_back.position.translate({ x: this.ui.button_back.width }),
         });
     }
 
@@ -186,21 +222,31 @@ class GameOverScreen_Failure extends fsm.State {
         yield* this.fader.generate_fade_out();
     }
 
-    back_to_main_menu(){
+    back_to_title_screen(){
         this.state_machine.push_action("back");
     }
 
-    retry_new_game(){
-        this.state_machine.push_action("retry", this._level_to_play);
+    retry_level(){
+        // this.state_machine.push_action("retry", () => deserialize_world(window.last_world_entered)); // exact same level
+
+        const player_character = typeof window.last_player_character === "string" ? deserialize_entity(window.last_player_character) : window.last_player_character;
+        debug.assertion(()=>player_character instanceof Character || player_character === undefined);
+        this.state_machine.push_action("retry", window.last_level_played, player_character) // regenerated version of the same level but keep the same character
+    }
+
+    restart_game(){
+        this.state_machine.push_action("retry", 0);
     }
 
     update(delta_time){
         this.skull_icon.update(delta_time); //in update
         if(!this.fader.is_fading){
-            if(input.keyboard.is_just_down(KEY.SPACE)){
-                this.back_to_main_menu();
-            // } else if(input.keyboard.is_just_down(KEY.ENTER)){
-            //     this.retry_new_game();
+            if(input.keyboard.is_just_down(KEY.ESCAPE)){
+                this.back_to_title_screen();
+            } else if(input.keyboard.is_just_down(KEY.SPACE)){
+                this.retry_level();
+            } else if(input.keyboard.is_just_down(KEY.ENTER)){
+                this.restart_game();
             } else{
                 invoke_on_members(this.ui, "update", delta_time);
             }
