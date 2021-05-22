@@ -30,6 +30,7 @@ class GameSession {
 
     start(){
         game_input.begin_game(this);
+        this.view.ui.unlock_actions();
         this.view.refresh();
         this.view.show_turn_message();
     }
