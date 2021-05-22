@@ -526,7 +526,7 @@ class GameScreen extends fsm.StateMachine {
         this.fader.duration_ms = 2000;
     }
 
-    *enter(level_to_play, player_character){
+    *enter(level_to_play, player_character, options){
         debug.assertion(()=>Number.isInteger(level_to_play) || level_to_play !== undefined);
         debug.assertion(()=>player_character === undefined || player_character instanceof Character);
 
@@ -536,8 +536,14 @@ class GameScreen extends fsm.StateMachine {
         delete this.music;
         if(Number.isInteger(level_to_play)){
             this.music = music_id[`level_${level_to_play}`];
+        }
+        if(options instanceof Object && Number.isInteger(options.play_music)){
+            this.music = music_id[`level_${level_to_play}`];
+        }
+        if(this.music){
             audio.playEvent(this.music);
-        } // Otherwise don't play music at all.
+        }
+        // Otherwise don't play music at all. (for the sanity of the devs)
 
         delete this.current_level_idx;
         this._level_to_play = level_to_play;

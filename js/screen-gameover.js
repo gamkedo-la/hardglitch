@@ -231,7 +231,7 @@ class GameOverScreen_Failure extends fsm.State {
 
         const player_character = typeof window.last_player_character === "string" ? deserialize_entity(window.last_player_character) : window.last_player_character;
         debug.assertion(()=>player_character instanceof Character || player_character === undefined);
-        this.state_machine.push_action("retry", window.last_level_played, player_character) // regenerated version of the same level but keep the same character
+        this.state_machine.push_action("retry", window.last_level_played, player_character, { play_music: window.last_level_played }) // regenerated version of the same level but keep the same character
     }
 
     restart_game(){
