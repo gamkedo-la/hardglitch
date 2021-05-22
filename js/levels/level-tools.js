@@ -139,13 +139,21 @@ function encode_type_recursively(object){
     && !(object instanceof Array)
     && object.constructor.name !== "Object"){ // An object built with an actual type name (as in `class`)
 
-        object.__class_type_name = object.constructor.name;
-        Object.values(object).forEach(encode_type_recursively);
+        const result_object = {
+            __class_type_name: object.constructor.name,
+        };
 
-    } else if(is_iterable(object) && typeof object !== "string" ){
-        for(const value of object){
-            encode_type_recursively(value);
-        }
+        const ignore_list = object.__serialization_ignore_list instanceof Array ? object.__serialization_ignore_list : [];
+
+        Object.entries(object).forEach(([key, value])=>{
+            if(!ignore_list.includes(key))
+                result_object[key] = encode_type_recursively(value);
+        });
+
+        return result_object;
+
+    } else if(is_iterable(object) && typeof object !== "string"){
+        return object.map(encode_type_recursively);
     }
 
     return object;

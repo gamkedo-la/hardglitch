@@ -162,7 +162,7 @@ class StatValue {
 // Statistics of the character.
 // This is a separate class so that I can add tons of checks and make sure
 // I'm not doing anything wrong when manipulating it.
-class CharacterStats{
+class CharacterStats {
 
     integrity = new StatValue(10, 10, 0);       // Health, but for software.
     int_recovery = new StatValue(0);            // How much Integrity to restore each turn.
@@ -186,6 +186,7 @@ class CharacterStats{
 
 };
 
+const __inventory_serialization_ignore_list = ["stats"];
 
 // Character's inventory, where to store Items.
 class Inventory {
@@ -194,10 +195,19 @@ class Inventory {
     _listeners = {};
     _limbo = []; // Where the lost items ends-up.
 
+    get __serialization_ignore_list() { return  __inventory_serialization_ignore_list; }
+
     connect_stats(stats){
         debug.assertion(()=>stats instanceof CharacterStats || stats == null);
-        stats.inventory_size.remove_listener("inventory");
-        stats.inventory_size.add_listener("inventory", (inventory_size)=>{
+
+        if(this.stats){
+            this.stats.inventory_size.remove_listener("inventory");
+            this.stats.activable_items.remove_listener("inventory");
+        }
+
+        this.stats = stats;
+
+        this.stats.inventory_size.add_listener("inventory", (inventory_size)=>{
             debug.assertion(()=>inventory_size instanceof StatValue);
             if(this.size !== inventory_size.value){
                 const left_items = this.resize(inventory_size.value);
@@ -205,15 +215,14 @@ class Inventory {
             }
         });
 
-        stats.activable_items.remove_listener("inventory");
-        stats.activable_items.add_listener("inventory", (activable_items)=>{
+        this.stats.activable_items.add_listener("inventory", (activable_items)=>{
             debug.assertion(()=>activable_items instanceof StatValue);
             if(this._activable_items !== activable_items.value){
                 this._activable_items = activable_items.value;
                 debug.assertion(()=>Number.isInteger(this._activable_items));
             }
-
         });
+
     }
 
     extract_items_from_limbo() {
@@ -411,6 +420,8 @@ class Inventory {
 };
 
 
+const __character_serialization_ignore_list = [ ...concepts.__entity_serialization_ignore_list, "field_of_vision" ];
+
 // All characters types from the game must derive from this type.
 // Provides everything common to all characters.
 // Some rules will rely on properties provided there.
@@ -418,6 +429,9 @@ class Character extends concepts.Body {
     stats = new CharacterStats();
     inventory = new Inventory();
     field_of_vision = new FieldOfVision(this.position, default_view_distance);
+
+
+    get __serialization_ignore_list() { return __character_serialization_ignore_list; }
 
     constructor(name){
         super(name);
