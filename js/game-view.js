@@ -1179,12 +1179,21 @@ class GameView {
     }
 
     show_central_message(text, duration_ms = 0){
+        if(this._promise_central_message_stop){
+            this._promise_central_message_stop.cancel();
+            delete this._promise_central_message_stop;
+        }
         this._central_message.enabled = true;
         this._central_message.text = text;
         this._relocate_goal_text();
-        if(duration_ms > 0)
-            this.special_animations.play(anim.wait(duration_ms))
-                                    .then(()=> this._central_message.enabled = false);
+        if(duration_ms > 0){
+            this._promise_central_message_stop = this.special_animations.play(anim.wait(duration_ms));
+            this._promise_central_message_stop.then((token)=> {
+                if(token instanceof anim.CancelToken)
+                    return;
+                this._central_message.enabled = false
+            });
+        }
     }
 
 };

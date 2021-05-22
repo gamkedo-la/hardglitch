@@ -9,6 +9,8 @@ export {
     delay,
     wait_until,
     wait_while,
+
+    CancelToken,
 }
 
 import * as debug from "../system/debug.js";
@@ -59,6 +61,8 @@ function* delay(duration_ms, animation_function){
     yield* animation_function();
 }
 
+class CancelToken {};
+
 // Animations that must be executed together.
 class AnimationGroup {
     animations = [];
@@ -94,7 +98,7 @@ class AnimationGroup {
 
         promise.cancel = ()=>{
             this.animations.slice(this.animations.indexOf(animation), 1);
-            animation.resolver();
+            animation.resolver(new CancelToken());
         };
 
         return promise;
