@@ -349,13 +349,20 @@ class World
         debug.assertion(()=>entity instanceof Entity);
         debug.assertion(()=>entity.position);
         this.has_entity_list_changed = true;
+
+        // Make sure that new ids are always up to date (otherwise deserialized objects could have ids colliding):
+        next_entity_id = Math.max(next_entity_id, entity.id + 1);
+
         if(entity instanceof Body){
+            debug.assertion(()=>this._bodies[entity.id] == null);
             this._bodies[entity.id] = entity;
             if(entity.update_perception) // HACK! TODO: find a way to avoid this code to know that this function exits...
                 entity.update_perception(this);
         }
-        else if(entity instanceof Item)
+        else if(entity instanceof Item){
+            debug.assertion(()=>this._items[entity.id] == null);
             this._items[entity.id] = entity;
+        }
         else throw "Tried to add to the World an unknown type of Entity";
     }
 
