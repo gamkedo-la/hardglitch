@@ -371,7 +371,7 @@ class MenuButton extends ui.Button {
 
         this.help_text = new ui.HelpText({
             area_to_help: this.area,
-            text: "Menu [TAB]",
+            text: "Menu [TAB] or [ESC]",
             delay_ms: 0,
         },{
             on_mouse_over: ()=> show_info(texts.ui.menu_button),

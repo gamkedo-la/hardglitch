@@ -153,7 +153,7 @@ class GameOverScreen_Failure extends fsm.State {
                 }
             }),
             button_back : new ui.TextButton({
-                text: "Back [ESCAPE]",
+                text: "Back [ESC]",
                 position: Vector2_origin,
                 font: button_text_font,
                 text_align: button_text_align,

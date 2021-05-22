@@ -82,7 +82,7 @@ class PlayingGame extends fsm.State{
                     this.state_machine.push_action("edit", this.game_session);
                 }
 
-                if(input.keyboard.is_just_down(KEY.TAB)){
+                if(input.keyboard.is_just_down(KEY.TAB) || input.keyboard.is_just_down(KEY.ESCAPE)){
                     this.state_machine.push_action("back");
                 }
             }
@@ -182,6 +182,7 @@ class EditorMode extends fsm.State {
 
         if(input.keyboard.is_just_down(KEY.F2)
         || (input.keyboard.is_just_down(KEY.TAB) && !editor.is_editing)
+        || (input.keyboard.is_just_down(KEY.ESCAPE) && !editor.is_editing)
         ){
             this.state_machine.push_action("back");
         }
@@ -472,7 +473,7 @@ class InGameMenu extends fsm.State {
 
         this.ui.update(delta_time);
 
-        if(input.keyboard.is_just_down(KEY.SPACE) || input.keyboard.is_just_down(KEY.TAB)){
+        if(input.keyboard.is_just_down(KEY.TAB) || input.keyboard.is_just_down(KEY.ESCAPE)){
             this.go_back();
         }
 
