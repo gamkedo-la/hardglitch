@@ -6,6 +6,7 @@ export {
     update, display, update_debug_keys, display_debug_info,
     begin_edition, end_edition,
     clear,
+    export_world,
 };
 
 import * as debug from "./system/debug.js";
@@ -376,7 +377,7 @@ function update_world_edition(game_session, delta_time){
                 game_session.view.notify_edition();
         }
 
-        if(input.keyboard.is_just_down(KEY.TAB)){
+        if(input.keyboard.is_just_down(KEY.TAB) || input.keyboard.is_just_down(KEY.ESCAPE)){
             edition_palette.unselect_edit_action();
         }
 
@@ -407,11 +408,11 @@ function display_help(game_session){
 
     const is_selecting_action_target = game_session.view.ui.is_selecting_action_target;
     if(!is_selecting_action_target){
-        draw_text("[TAB]  - MENU", {x: display_x, y: next_line() });
+        draw_text("[TAB] or [ESC]  - MENU", {x: display_x, y: next_line() });
     }
 
     if(is_selecting_action_target){
-        draw_text("[TAB] - CANCEL TARGET SELECTION", {x: display_x, y: next_line() });
+        draw_text("[TAB] or [ESC] - CANCEL TARGET SELECTION", {x: display_x, y: next_line() });
     } else {
         if(game_session.view.is_time_for_player_to_chose_action
         && !input.mouse.is_dragging
@@ -575,11 +576,11 @@ function update_debug_keys(game_session){
 
 
     if (input.keyboard.is_just_down(KEY.F4)) { // Log the state of the world (for level edition).
-        export_world(game_session.world);
+        window.last_serialized_world = export_world(game_session.world);
     }
 
     if (input.keyboard.is_just_down(KEY.F5)) { // Log the state of the world (for level edition).
-        export_world(game_session.world, true);
+        window.last_serialized_world = export_world(game_session.world, true);
     }
 
     if(!is_enabled && window.debug_tools_enabled === false) // All the keys bellow are only active if debug tools are enabled.
@@ -686,8 +687,11 @@ function export_world(world, complete_state = false){
 
     const world_json = serialize_world(world, complete_state);
 
-    debug.log("WORLD EXPORT:");
-    debug.log(world_json);
+    if(window.debug_tools_enabled){
+        debug.log("WORLD EXPORT:");
+        debug.log(world_json);
+    }
 
-    window.last_serialized_world = JSON.parse(world_json);
+    const world_desc = JSON.parse(world_json);
+    return world_desc;
 }
