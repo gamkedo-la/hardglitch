@@ -643,8 +643,6 @@ function generate_world() {
 
     // Fill crypto-files which are empty with nice items.
     const rare_items = [
-        { type: "Item_AutoRepair" },
-        { type: "Item_MemoryCleanup" },
         { type: "Item_Copy" },
         { type: "Item_Merge" },
         { type: "Item_IntegrityBoost" },
