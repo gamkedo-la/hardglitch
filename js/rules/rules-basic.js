@@ -24,6 +24,7 @@ import { destroy_entity } from "./destruction.js";
 import * as audio from "../system/audio.js";
 import { grid_ID } from "../definitions-world.js";
 import { auto_newlines } from "../system/utility.js";
+import { FieldOfVision } from "../core/visibility.js";
 
 // That actor decided to take a pause.
 class Waited extends concepts.Event {
@@ -87,6 +88,13 @@ class Rule_BasicActions extends concepts.Rule {
     }
 };
 
+function keep_fov_after_game_over(game_view){
+    const last_fov = game_view.player_character ? game_view.player_character.field_of_vision : game_view.last_removed_player_fov;
+    if(last_fov instanceof FieldOfVision){
+        game_view.fog_of_war.add_fov(0, last_fov, true);
+    }
+    game_view.fog_of_war.refresh(game_view.fog_of_war.world); // FIXME: order issue makes me force a refresh here
+}
 
 // Check if that world is in a state where the game is over.
 function is_game_over(world){
@@ -114,7 +122,10 @@ class GameOver extends concepts.Event {
     *animation(game_view){
         debug.assertion(()=>game_view instanceof GameView);
         game_view.stop_camera_animation();
-        game_view.enable_fog_of_war = false;
+
+        // game_view.enable_fog_of_war = false;
+        keep_fov_after_game_over(game_view);
+
         game_view.show_central_message("GAME OVER!");
         game_view.allow_exit = true;
         while(true) yield;
@@ -178,7 +189,9 @@ class PlayerExitLevel extends concepts.Event {
         debug.log("here before exited");
         yield* anim.exited(game_view.fx_view, character_view);
         debug.log("here after exited");
-        game_view.enable_fog_of_war = false;
+
+        keep_fov_after_game_over(game_view);
+
         game_view.show_central_message("YOU FOUND AN EXIT!");
         game_view.allow_exit = true;
         while(true) yield;

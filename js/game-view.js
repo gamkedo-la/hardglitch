@@ -1152,8 +1152,12 @@ class GameView {
         let entity_id = entity_or_view_or_id;
         if(entity_or_view_or_id instanceof EntityView)
             entity_id = entity_or_view_or_id.id;
+        const entity_view = this.entity_views[entity_id];
         delete this.entity_views[entity_id];
         this.fog_of_war.remove_fov(entity_id);
+        if(entity_view instanceof CharacterView && entity_view.is_player){
+            this.last_removed_player_fov = entity_view._character.field_of_vision;
+        }
     }
 
     // Called by the editor code when editing the game in a way the require re-interpreting the game's state.

@@ -30,13 +30,18 @@ class FogOfWar {
         this._fog_canvas_context = graphics.create_canvas_context( this.graphic_width, this.graphic_height);
         this._dark_canvas_context = graphics.create_canvas_context( this.graphic_width, this.graphic_height);
 
+        this._permanent_fovs = {};
+
         this.refresh(world);
     }
 
-    add_fov(entity_id, field_of_vision){
+    add_fov(entity_id, field_of_vision, force_keep = false){
         debug.assertion(()=>Number.isInteger(entity_id));
         debug.assertion(()=>field_of_vision instanceof visibility.FieldOfVision);
         this.fovs[entity_id] = field_of_vision;
+        if(force_keep){
+            this._permanent_fovs[entity_id] = field_of_vision;
+        }
     }
 
     remove_fov(entity_id){
@@ -49,7 +54,7 @@ class FogOfWar {
         this.fovs = {};
     }
 
-    get fov_list() { return Object.values(this.fovs); }
+    get fov_list() { return [...Object.values(this._permanent_fovs), ...Object.values(this.fovs) ]; }
 
     index(position){
         return index_from_position(this.world.width, this.world.height, position);
