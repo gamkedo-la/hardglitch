@@ -67,6 +67,9 @@ Structural integrity, or health,
 of the data constituing this entity.
 
 If at 0, this entity is destroyed!
+
+Use [LCTRL] key to show/hide health
+constantly.
 `,
 
 action_points:
