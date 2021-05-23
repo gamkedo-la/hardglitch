@@ -102,10 +102,13 @@ class Highlight{
         if(this._help_text){
             this._help_text.update(delta_time);
             if(this._help_text.visible){
-                let text_pos = mouse_game_position().translate({x:16, y:-50}); // TODO: something less arbitrary?
-                this._help_text.position = text_pos;
-                text_pos = keep_in_rectangle(this._help_text._area, graphics.camera.rectangle).position; // Adjust to always be in screen.
-                this._help_text.position = text_pos;
+                const mouse_pos = mouse_grid_position();
+                if(mouse_pos){
+                    let text_pos = graphic_position(mouse_pos.translate({ x:1, y:0 }));
+                    this._help_text.position = text_pos;
+                    text_pos = keep_in_rectangle(this._help_text._area, graphics.camera.rectangle).position; // Adjust to always be in screen.
+                    this._help_text.position = text_pos;
+                }
             }
         }
 
