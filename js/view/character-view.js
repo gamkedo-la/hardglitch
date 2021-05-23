@@ -5,10 +5,9 @@ export {
 }
 
 import * as debug from "../system/debug.js";
-import * as graphics from "../system/graphics.js";
 import * as ui from "../system/ui.js";
 import { config, fov_view_styles } from "../game-config.js";
-import { EntityView, graphic_position, PIXELS_PER_HALF_SIDE, PIXELS_PER_TILES_SIDE, square_half_unit_vector } from "./entity-view.js";
+import { EntityView, graphic_position, PIXELS_PER_HALF_SIDE, PIXELS_PER_TILES_SIDE } from "./entity-view.js";
 import { Character } from "../core/character.js";
 import { sprite_defs } from "../game-assets.js";
 import { Sprite } from "../system/graphics.js";
@@ -56,6 +55,10 @@ class CharacterView extends EntityView {
 
     change_health(new_health){
         this._health_bar.value = new_health;
+    }
+
+    sync_health(){
+        update_stat_bar(this._health_bar, this._character.stats.integrity);
     }
 
     render_graphics(canvas_context){
