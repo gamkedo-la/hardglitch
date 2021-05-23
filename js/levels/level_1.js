@@ -39,7 +39,29 @@ const startup_room = {
     "width" : 8,
     "height" : 8,
     "grids" : {"floor":[11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,121,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,121,11,11,121,11,121,11,11,11,11,121,121,11,11,11,11,11,11,121,121,121,121,11,121,121,121,121],"surface":[null,null,null,null,null,null,null,null,null,null,0,null,null,0,null,null,null,0,null,null,null,null,0,null,null,null,0,null,0,null,null,null,null,null,null,0,null,null,0,null,null,0,null,null,null,0,null,null,null,null,0,null,0,null,null,null,null,null,null,null,null,null,null,null],"corruption":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"unstable":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},
-    "entities" : [{"type":"LifeForm_Weak","position":{"x":2,"y":2}},{"type":"CryptoFile_Triangle","position":{"x":3,"y":7}},{"type":"CryptoKey_Triangle","position":{"x":5,"y":2}}]
+    "entities" : [
+        {
+            "__class_type_name": "LifeForm_Weak",
+            "_position": {
+                "__class_type_name": "Position",
+                "x": 1,
+                "y": 1
+            },
+            "stats": {
+                "__class_type_name": "CharacterStats",
+                "integrity": {
+                    "__class_type_name": "StatValue",
+                    "_value": 2,
+                    "_max": 10,
+                    "_min": 0,
+                    "_modifiers": {},
+                    "_listeners": {}
+                },
+            },
+        },
+        {"type":"CryptoFile_Triangle","position":{"x":3,"y":7}},
+        {"type":"CryptoKey_Triangle","position":{"x":5,"y":2}}
+    ]
 };
 
 const exit_rooms = {

@@ -9,6 +9,7 @@ export {
     DropItem,
     DestroyInventoryItem,
     handle_items_in_limbo,
+    drop_items_around,
 }
 
 import * as debug from "../system/debug.js";

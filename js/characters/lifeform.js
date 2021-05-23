@@ -10,12 +10,15 @@ export {
 
 import * as debug from "../system/debug.js";
 import * as concepts from "../core/concepts.js";
+import * as tiles from "../definitions-tiles.js";
 import { sprite_defs } from "../game-assets.js";
 import { Character, CharacterStats } from "../core/character.js"
 import { random_sample, rotate_array, random_int, auto_newlines } from "../system/utility.js";
-import { Item_BadCode, Item_LifeStrength } from "../definitions-items.js";
+import { Item_AutoRepair, Item_BadCode, Item_LifeStrength } from "../definitions-items.js";
 import { Push } from "../rules/rules-forces.js";
 import { move_towards, select_action_by_type, closest_entity } from "./characters-common.js";
+import { DropItem, drop_items_around } from "../rules/rules-items.js";
+import { valid_spawn_positions } from "../core/visibility.js";
 
 const reverse_move_id = {
     move_east : "move_west",
@@ -44,9 +47,30 @@ function maybe_push(world, possible_actions){
     }
 }
 
+function maybe_drop_thanks_items(world, character){
+    if(!(character._thanks_drops instanceof Array))
+        return;
+
+    const drop_positions = valid_spawn_positions(world, character.position, tiles.is_walkable);
+    if(drop_positions.length == 0)
+        return;
+
+    const thanks_drops = character._thanks_drops;
+    delete character._thanks_drops;
+    const random_drop = random_sample(thanks_drops);
+    const item_idx = character.inventory.add(random_drop);
+    return new DropItem(drop_positions[0], item_idx);
+
+}
+
 class MoveUntilYouCant extends concepts.Actor {
 
     decide_next_action(world, character, possible_actions) {
+        const thanks_drop = maybe_drop_thanks_items(world, character);
+        if(thanks_drop instanceof concepts.Action){
+            return thanks_drop;
+        }
+
         const push_action = maybe_push(world, possible_actions);
         if(push_action instanceof concepts.Action)
             return push_action;
@@ -97,6 +121,11 @@ class MoveInCircles extends concepts.Actor {
 
 
     decide_next_action(world, character, possible_actions) {
+        const thanks_drop = maybe_drop_thanks_items(world, character);
+        if(thanks_drop instanceof concepts.Action){
+            return thanks_drop;
+        }
+
         const push_action = maybe_push(world, possible_actions);
         if(push_action instanceof concepts.Action)
             return push_action;
@@ -156,6 +185,14 @@ class LifeForm_Weak extends Character {
     }
 
     drops = [ new Item_BadCode(), null, null ];
+
+    repair(integrity_amount){
+        const repaired = super.repair(integrity_amount);
+        if(repaired > 0 && this.stats.integrity.value == this.stats.integrity.max){
+            this._thanks_drops = [ new Item_AutoRepair() ];
+        }
+        return repaired;
+    }
 };
 class LifeForm_Strong extends Character {
     assets = {
