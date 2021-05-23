@@ -273,7 +273,7 @@ function deserialize_grid_elements(grid_id, grid_elements){
         case grid_ID.unstable:
             return grid_elements.map(value => value ? new Unstability(value) : null);
         default:
-            return grid_elements;
+            return new Array(...grid_elements);
     }
 }
 
