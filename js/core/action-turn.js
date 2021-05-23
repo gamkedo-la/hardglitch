@@ -15,6 +15,7 @@ import { Body as Character } from "./concepts.js";
 
 import * as audio from "../system/audio.js"; // FIXME: this file should never be exposed to this.
 import { config } from "../game-config.js";
+import { wait } from "../system/animation.js";
 
 // Data needed for the the "view" part of the game code to:
 // - know what happened since last character's turn;
@@ -78,6 +79,7 @@ class NewTurn extends concepts.Event {
         // TODO: make this code external from this file.
         game_view._last_turn_ids_sequence = this.turn_ids_sequence;
         game_view.ui.timeline.request_refresh(this.turn_ids_sequence);
+        yield* wait(1000 / 8);
         if(config.enable_turn_sound)
             audio.playEvent('newCycle');
     }
