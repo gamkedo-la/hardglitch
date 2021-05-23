@@ -24,8 +24,8 @@ class CharacterView extends EntityView {
         this._fov_sprite = new Sprite(sprite_defs.vision);
 
         this._health_bar = new ui.Bar({
-            position: this.position,
-            width: PIXELS_PER_TILES_SIDE, height: 8,
+            position: this.position.translate( {x:2} ),
+            width: PIXELS_PER_TILES_SIDE - 4, height: 8,
             bar_name: "NEVER SHOW THIS TEXT bar_name",
             help_text: "NEVER SHOW THIS TEXT help_text",
             visible: true,
