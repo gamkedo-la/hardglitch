@@ -7,6 +7,7 @@ import * as game_input from "./game-input.js";
 import { Game } from "./game.js";
 import { GameView } from "./game-view.js";
 import { World } from "./core/concepts.js";
+import { Character } from "./core/character.js";
 
 // Gather all the data and systems that are needed to play a game level.
 // This is manipulated by some other systems, like the screen state, the game-input system, the editor etc.
@@ -25,6 +26,7 @@ class GameSession {
 
     get is_game_finished() { return this.game.is_finished; }
     get is_any_player_character_alive() { return this.game.player_characters.length > 0; }
+    get is_player_character_exiting() { return this.game.world.exiting_character instanceof Character && this.game.world.exiting_character.is_player_actor; }
 
     get world() { return this.game.world; }
 

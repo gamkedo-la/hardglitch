@@ -97,10 +97,10 @@ class PlayingGame extends fsm.State{
 
     on_player_ready_to_leave(){
         this._player_ready_to_leave = true;
-        if(this.game_session.is_any_player_character_alive){
-            this.state_machine.escape();
+        if(this.game_session.is_player_character_exiting){
+            this.state_machine.player_escaped();
         } else {
-            this.state_machine.horrible_death();
+            this.state_machine.player_failed();
         }
     }
 
@@ -653,7 +653,7 @@ class GameScreen extends fsm.StateMachine {
         this.push_action("back");
     }
 
-    escape(){
+    player_escaped(){
         const next_level = Number.isInteger(this.current_level_idx) ? this.current_level_idx + 1 : undefined;
         if(next_level == undefined || next_level >= game_levels.length){
             this.state_machine.push_action("escape");
@@ -667,8 +667,8 @@ class GameScreen extends fsm.StateMachine {
         }
     }
 
-    horrible_death(){
-        this.state_machine.push_action("died", this._level_to_play);
+    player_failed(){
+        this.state_machine.push_action("failed", this._level_to_play);
     }
 
     on_canvas_resized(){
