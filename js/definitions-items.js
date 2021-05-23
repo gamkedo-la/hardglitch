@@ -658,7 +658,7 @@ class Item_LifeStrength extends concepts.Item {
 class Item_MemoryCleanup extends concepts.Item {
     assets = {
         graphics : { body: {
-            sprite_def : sprite_defs.item_generic_4,
+            sprite_def : sprite_defs.item_generic_7,
         }}
     };
 
@@ -788,7 +788,7 @@ class Item_Merge extends concepts.Item {
 class Item_AutoRepair extends concepts.Item {
     assets = {
         graphics : { body: {
-            sprite_def : sprite_defs.item_generic_6,
+            sprite_def : sprite_defs.item_generic_7,
         }}
     };
     description = auto_newlines("Repairs a bit its owner's memory at each new cycle.", 35);
