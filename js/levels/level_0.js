@@ -84,10 +84,11 @@ const startup_rooms = {
             { "type": "MovableWall_Red", "position": { "x": 5, "y": 14 } },
             { "type": "MovableWall_Green", "position": { "x": 0, "y": 14 } },
             { "type": "MovableWall_Green", "position": { "x": 1, "y": 15 } },
-            { "type": "MovableWall_Green", "position": { "x": 0, "y": 16 } },
+            { "type": "MovableWall_Green", "position": { "x": 0, "y": 15 } },
             { "type": "MovableWall_Green", "position": { "x": 1, "y": 16 } },
+            { "type": "MovableWall_Green", "position": { "x": 2, "y": 16 } },
             { "type": "MovableWall_Green", "position": { "x": 1, "y": 14 } },
-            { "type": "CryptoKey_Plus", "position": { "x": 0, "y": 15 } },
+            { "type": "CryptoKey_Plus", "position": { "x": 0, "y": 16 } },
         ]
     },
 
