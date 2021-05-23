@@ -109,7 +109,7 @@ class VirusBehavior extends concepts.Actor {
                                         .filter(info => info.item instanceof concepts.Item
                                                         && !interersting_item_types.some(item_type => info.item instanceof item_type));
         if(uninteresting_items.length > 0){
-            const drop_positions = valid_spawn_positions(world, character.position, tiles.is_walkable).reverse(); // Reversed so that pop gives us the closest position.
+            const drop_positions = valid_spawn_positions(world, character.position, tiles.is_walkable);
             return new DropItem(drop_positions.shift(), uninteresting_items.shift().idx);
         }
     }
