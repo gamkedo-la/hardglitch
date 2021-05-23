@@ -49,9 +49,9 @@ const startup_rooms = {
         },
         "entities": [
             { "type": "GlitchyGlitchMacGlitchy", "position": { "x": 2, "y": 2 } },
-            { "type": "LifeForm_Weak", "position": { "x": 7, "y": 11 }, drops: ["Item_Pull"] },
+            { "type": "LifeForm_Weak", "position": { "x": 7, "y": 11 }, drops: ["Item_Pull"], drops_are_crucial: true},
             { "type": "CryptoKey_Triangle", "position": { "x": 7, "y": 3 }, is_crucial: true, },
-            { "type": "CryptoFile_Triangle", "position": { "x": 4, "y": 7 }, drops: ["Item_Push"], },
+            { "type": "CryptoFile_Triangle", "position": { "x": 4, "y": 7 }, drops: ["Item_Push"], drops_are_crucial: true },
             { "type": "MovableWall_Glass_Purple", "position": { "x": 3, "y": 9 } },
             { "type": "MovableWall_Purple", "position": { "x": 3, "y": 10 } }
         ],
