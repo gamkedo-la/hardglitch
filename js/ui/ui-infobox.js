@@ -13,6 +13,8 @@ import { sprite_defs } from "../game-assets.js";
 import { Vector2, Rectangle, is_point_under } from "../system/spatial.js";
 import { add_text_line } from "../system/utility.js";
 import { config } from "../game-config.js";
+import { mouse_grid_position } from "../game-input.js";
+import { graphic_position } from "../view/entity-view.js";
 
 const info_box_background_style = "#111177a0";
 const info_box_border_style = "orange";
@@ -96,6 +98,16 @@ class InfoBox {
 
     }
 
+    _setup_line(canvas_context){
+        canvas_context.fillStyle =info_box_background_style;
+        canvas_context.strokeStyle =info_box_border_style;
+        canvas_context.lineWidth = 4;
+        canvas_context.lineCap = "round";
+        canvas_context.lineDashOffset = 8;
+        canvas_context.setLineDash([8, 8]);
+
+    }
+
     draw(canvas_context){
         if(this._is_open){
             canvas_context.save();
@@ -106,19 +118,36 @@ class InfoBox {
                                 this._area.width+info_box_background_margin,
                                 this._area.height+info_box_background_margin
                                 );
-            canvas_context.fillStyle =info_box_background_style;
-            canvas_context.strokeStyle =info_box_border_style;
-            canvas_context.lineWidth = 4;
-            canvas_context.lineCap = "round";
-            canvas_context.lineDashOffset = 8;
-            canvas_context.setLineDash([8, 8]);
 
+            this._setup_line(canvas_context);
             canvas_context.fill();
             canvas_context.stroke();
 
             canvas_context.restore();
 
             this._text_display.draw(canvas_context);
+
+            if(config.enable_infobox_pointer
+            && this._text.length > 0 // Draw a line to the thing being described.
+            ){
+                const mouse_pos = mouse_grid_position();
+                if(mouse_pos){
+                    const pointed_gfx_pos = graphic_position(mouse_pos.translate({x:1, y:1})).translate(graphics.camera.position.inverse);
+
+                    canvas_context.save();
+                    canvas_context.beginPath();
+                    this._setup_line(canvas_context);
+                    canvas_context.fillStyle = info_box_border_style;
+
+                    canvas_context.arc(pointed_gfx_pos.x, pointed_gfx_pos.y, 10, 0, Math.PI * 2, true);
+                    canvas_context.moveTo(pointed_gfx_pos.x, pointed_gfx_pos.y);
+                    canvas_context.lineTo(this._area.position.x, this._area.position.y);
+                    canvas_context.fill();
+                    canvas_context.stroke();
+                    canvas_context.restore();
+                }
+            }
+
         }
 
         this._button_hide.draw(canvas_context);

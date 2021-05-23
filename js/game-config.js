@@ -24,6 +24,7 @@ export const config = {
     fov_view_style: fov_view_styles.EYE_SPRITE,
     enable_view_healthbars: false,
     force_view_healthbars: false,
+    enable_infobox_pointer: false,
 };
 
 window.game_config = config;
