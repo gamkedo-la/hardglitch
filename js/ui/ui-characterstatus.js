@@ -46,8 +46,8 @@ class CharacterStatus{
         }));
 
         this.health_bar = new ui.Bar({
-            position: position,
-            width: bar_size.width, height: bar_size.height,
+            position: position.translate({ y:-6 }),
+            width: bar_size.width + 40, height: bar_size.height + 10,
             bar_name: "Integrity",
             help_text: bar_text,
             visible: false,
