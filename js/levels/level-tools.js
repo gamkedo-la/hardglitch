@@ -222,7 +222,9 @@ function serialize_world(world, complete_state){
             debug.assertion(()=>entity instanceof concepts.Entity);
             entities.push({
                 type: entity.constructor.name,
-                position: { x: entity.position.x, y: entity.position.y }
+                position: { x: entity.position.x, y: entity.position.y },
+                drops: entity.drops,
+                drops_are_crucial: entity.drops_are_crucial,
             });
         });
         return entities;
@@ -285,6 +287,7 @@ function deserialize_entity_desc(entity_desc){
     debug.assertion(()=>entity instanceof concepts.Entity);
     entity.position = entity_desc.position ? entity_desc.position : new concepts.Position();
     entity.is_crucial = entity_desc.is_crucial;
+    entity.drops_are_crucial = entity_desc.drops_are_crucial;
     if(entity_desc.drops){
         debug.assertion(()=>entity_desc.drops instanceof Array);
         entity.drops = [];
@@ -292,6 +295,7 @@ function deserialize_entity_desc(entity_desc){
             debug.assertion(()=>typeof drop_type_name === "string");
             const drop_type = get_entity_type(drop_type_name);
             const drop = new drop_type();
+            drop.is_crucial = entity_desc.drops_are_crucial;
             debug.assertion(()=>drop instanceof concepts.Entity);
             entity.drops.push(drop);
         }

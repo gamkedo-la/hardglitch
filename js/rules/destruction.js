@@ -96,8 +96,14 @@ function drop_entity_drops(entity, world){
         debug.assertion(()=>entity.drops instanceof Array);
         const dropped = random_sample(entity.drops);
         if(dropped instanceof Array){
-            dropped.forEach(item => drop(item, -1)); // -1 idx means it's not from the inventory.
+            dropped.forEach(item => {
+                if(entity.drops_are_crucial)
+                    item.is_crucial = true;
+                drop(item, -1); // -1 idx means it's not from the inventory.
+            });
         } else {
+            if(entity.drops_are_crucial)
+                dropped.is_crucial = true;
             drop(dropped);
         }
     }

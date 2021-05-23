@@ -197,7 +197,11 @@ class CryptoFile extends concepts.Item {
     decrypt(){
         if(this.drops){
             debug.assertion(()=>this.drops instanceof Array && this.drops.every(entity=>entity instanceof concepts.Entity));
-            return random_sample(this.drops);
+            const to_drop = random_sample(this.drops);
+            if(this.drops_are_crucial){
+                to_drop.is_crucial = true;
+            }
+            return to_drop;
         }
     }
 
