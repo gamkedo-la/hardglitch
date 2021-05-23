@@ -263,6 +263,9 @@ function update(delta_time, input_config){
     if(input.keyboard.is_just_down(KEY.F7))
         config.enable_particles = !config.enable_particles;
 
+    if(input.keyboard.is_just_down(KEY.LEFT_CTRL))
+        config.enable_view_healthbars = !config.enable_view_healthbars;
+
     if(current_game_view){
         update_camera_control(delta_time, input_config.is_camera_dragging_allowed);
 

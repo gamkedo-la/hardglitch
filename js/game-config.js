@@ -22,6 +22,7 @@ export const config = {
     enable_infobox: true,
     enable_ground_descriptions: false,
     fov_view_style: fov_view_styles.EYE_SPRITE,
+    enable_view_healthbars: false,
 };
 
 window.game_config = config;

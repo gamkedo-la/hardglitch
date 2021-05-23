@@ -66,8 +66,8 @@ class CharacterView extends EntityView {
 
         this._health_bar.position = this.position;
         this._health_bar.update(this._health_bar._last_delta_time);
-        this._health_bar.draw(canvas_context);
-
+        if(config.enable_view_healthbars)
+            this._health_bar.draw(canvas_context);
     }
 
     draw_fov(canvas_context){
