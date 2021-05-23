@@ -105,6 +105,17 @@ class Game {
         const player = player_character ? player_character : new GlitchyGlitchMacGlitchy();
         player.skip_turn = true;
         player.position = position;
+
+        // Make sure we don't keep crucial items from before as crucial for this new level.
+        delete player.drops;
+        delete player.drops_are_crucial;
+        player.inventory.stored_items.forEach(item => {
+            if(item instanceof concepts.Item){
+                delete item.is_crucial;
+                delete item.drops_are_crucial;
+            }
+        });
+
         this.world.add_entity(player);
     }
 
