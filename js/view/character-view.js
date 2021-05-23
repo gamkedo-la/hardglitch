@@ -50,7 +50,8 @@ class CharacterView extends EntityView {
     update(delta_time){
         super.update(delta_time);
 
-        this._health_bar._last_delta_time = delta_time;
+        this._health_bar.position = this.position;
+        this._health_bar.update(delta_time);
     }
 
     change_health(new_health){
@@ -65,15 +66,23 @@ class CharacterView extends EntityView {
         super.render_graphics(canvas_context);
 
         this._health_bar.position = this.position;
-        this._health_bar.update(this._health_bar._last_delta_time);
         if(!this.is_being_destroyed
         && (config.enable_view_healthbars
             || this._health_bar.is_changing
             || this._health_bar.value_ratio != 1.0
             )
         ){
-            this._health_bar.draw(canvas_context);
+            this.draw_health_bar(canvas_context);
         }
+    }
+
+    draw_extra_info(canvas_context){
+        this.draw_fov(canvas_context);
+        this.draw_health_bar(canvas_context);
+    }
+
+    draw_health_bar(canvas_context){
+        this._health_bar.draw(canvas_context);
     }
 
     draw_fov(canvas_context){

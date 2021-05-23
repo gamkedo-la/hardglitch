@@ -26,7 +26,7 @@ import {
 } from "./spatial.js";
 import { is_number } from "./utility.js";
 import * as anim from "./animation.js";
-import { tween } from "./tweening.js";
+import { easing, tween } from "./tweening.js";
 import { Color } from "./color.js";
 import { sprite_defs } from "../game-assets.js";
 
@@ -743,39 +743,42 @@ class Bar extends UIElement {
             this.colors.change = this.colors.change_positive;
         }
 
-
-        const previous_x = this.graphic_width(previous_value);
-        const current_x = this.graphic_width(current_value);
-        const min_x = Math.min(previous_x, current_x);
-        const max_x = Math.max(previous_x, current_x);
-        const change_width = max_x - min_x;
-
-        const change_rect = new Rectangle({
-            position : this._value_rect.position.translate({ x: min_x, y: 0 }),
-            width: change_width,
-            height: this._value_rect.height,
-        });
-        this._change_rect = change_rect;
-
+        this._changing_target_value = previous_value;
+        this._update_change_rect(this._changing_target_value);
         yield* anim.wait(this.change_delay_ms);
-        yield* tween(change_width, 0, this.change_duration_ms, (value) => {
-            const previous_width = change_rect.width;
-            change_rect.width = value;
-            if(previous_x < current_x){
-                const width_diff = previous_width - value;
-                change_rect.position = change_rect.position.translate({ x: width_diff, y:0 });
-            }
-        });
+        yield* tween(this._changing_target_value, current_value, this.change_duration_ms, (value) => {
+            this._changing_target_value = value;
+        }, easing.in_out_quad);
 
         delete this._change_rect;
     }
 
+    _update_change_rect(target_value){
+        const current_x = this.graphic_width(this._clamp_to_visible(this.value));
+        const target_x = this.graphic_width(target_value);
+        const min_x = Math.min(current_x, target_x);
+        const max_x = Math.max(current_x, target_x);
+        const change_width = max_x - min_x;
+
+        if(!(this._change_rect instanceof Rectangle)){
+            const change_rect = new Rectangle();
+            this._change_rect = change_rect;
+            this._change_rect.height = this._value_rect.height;
+        }
+        this._change_rect.position = this._value_rect.position.translate({ x: min_x, y: 0 });
+        this._change_rect.width = change_width;
+    }
+
     _on_draw(canvas_context) {
+        this._value_rect.position = this.area.position;
+
         graphics.draw_rectangle(canvas_context, this.area, this.colors.background);
         graphics.draw_rectangle(canvas_context, this._value_rect, this.colors.value);
         if(this._change_rect){
+            this._update_change_rect(this._changing_target_value);
             graphics.draw_rectangle(canvas_context, this._change_rect, this.colors.change);
         } else if(this._preview_rect){
+            this._preview_rect.position = this._value_rect.position;
             graphics.draw_rectangle(canvas_context, this._preview_rect, this.colors.preview);
         }
 

@@ -724,7 +724,7 @@ class GameView {
             .forEach(view => view.render_graphics(canvas_context));
     }
 
-    _render_fov_view(canvas_context){
+    _render_pointed_character_extra_info(canvas_context){
         if(!this.is_time_for_player_to_chose_action)
             return;
         const entity_view = this.list_entity_views.find(entity_view=> entity_view.is_mouse_over);
@@ -732,7 +732,7 @@ class GameView {
         && !entity_view.is_playing
         && this.fog_of_war.is_visible(entity_view.game_position)
         ){
-            entity_view.draw_fov(canvas_context);
+            entity_view.draw_extra_info(canvas_context);
         }
     }
 
@@ -836,7 +836,7 @@ class GameView {
         this._render_entities(graphics.screen_canvas_context, entity_view => this.enable_edition || (!entity_view.is_flying && !entity_view.force_visible));
 
         if(!this.ui.is_selecting_action_target)
-            this._render_fov_view(graphics.screen_canvas_context);
+            this._render_pointed_character_extra_info(graphics.screen_canvas_context);
 
         if(this.enable_fog_of_war){
             this.fog_of_war.display(graphics.screen_canvas_context);
