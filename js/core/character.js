@@ -200,13 +200,9 @@ class Inventory {
     connect_stats(stats){
         debug.assertion(()=>stats instanceof CharacterStats || stats == null);
 
-        if(this.stats){
-            this.stats.inventory_size.remove_listener("inventory");
-            this.stats.activable_items.remove_listener("inventory");
-        }
-
         this.stats = stats;
 
+        this.stats.inventory_size.remove_listener("inventory");
         this.stats.inventory_size.add_listener("inventory", (inventory_size)=>{
             debug.assertion(()=>inventory_size instanceof StatValue);
             if(this.size !== inventory_size.value){
@@ -215,6 +211,7 @@ class Inventory {
             }
         });
 
+        this.stats.activable_items.remove_listener("inventory");
         this.stats.activable_items.add_listener("inventory", (activable_items)=>{
             debug.assertion(()=>activable_items instanceof StatValue);
             if(this._activable_items !== activable_items.value){
