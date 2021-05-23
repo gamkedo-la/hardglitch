@@ -53,7 +53,10 @@ const startup_rooms = {
             { "type": "CryptoKey_Triangle", "position": { "x": 7, "y": 3 }, is_crucial: true, },
             { "type": "CryptoFile_Triangle", "position": { "x": 4, "y": 7 }, drops: ["Item_Push"], drops_are_crucial: true },
             { "type": "MovableWall_Glass_Purple", "position": { "x": 3, "y": 9 } },
-            { "type": "MovableWall_Purple", "position": { "x": 3, "y": 10 } }
+            { "type": "MovableWall_Purple", "position": { "x": 3, "y": 10 } },
+            { "type": "MovableWall_Glass_Green", "position": { "x": 2, "y": 13 } },
+            { "type": "MovableWall_Glass_Green", "position": { "x": 2, "y": 14 } },
+            { "type": "MovableWall_Glass_Green", "position": { "x": 2, "y": 15 } },
         ],
     },
 
