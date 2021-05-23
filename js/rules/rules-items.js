@@ -131,7 +131,8 @@ class InventoryItemDropped extends concepts.Event {
             game_view.ui.inventory.request_refresh();
 
             const player_character_view = game_view.get_entity_view(this.dropper_id);
-            player_character_view.sync_health();
+            if(player_character_view)
+                player_character_view.sync_health();
         } else {
             const dropped_view = game_view.add_entity_view(this.dropped_id);
             const previous_visibility = dropped_view.is_visible;
@@ -219,7 +220,8 @@ class SwappedItemsSlots extends concepts.Event {
         inventory.request_refresh();
 
         const player_character_view = game_view.focus_on_current_player_character();
-        player_character_view.sync_health();
+        if(player_character_view)
+            player_character_view.sync_health();
     }
 }
 
