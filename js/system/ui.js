@@ -655,6 +655,8 @@ class Bar extends UIElement {
     get range_length() { return this._max_value - this._min_value; }
     get value_ratio() { return this._ratio(this._value, this._min_value); }
 
+    get is_changing() { return this._change_rect instanceof Rectangle; }
+
     _ratio(value){
         return (value - this._min_value) / this.range_length;
     }
