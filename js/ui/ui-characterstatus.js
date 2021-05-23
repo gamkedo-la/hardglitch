@@ -139,6 +139,12 @@ class CharacterStatus{
         }else if(this.action_recovery_text.is_mouse_over){
             show_info(texts.ui.ap_per_cycle);
         }
+
+        if(this.health_bar.is_mouse_over){
+            config.force_view_healthbars = true;
+        } else {
+            config.force_view_healthbars = false;
+        }
     }
 
     draw(canvas_context){

@@ -71,6 +71,7 @@ class CharacterView extends EntityView {
         this._health_bar.position = this.position;
         if(!this.is_being_destroyed
         && (config.enable_view_healthbars
+            || config.force_view_healthbars
             || this._health_bar.is_changing
             || this._health_bar.value_ratio != 1.0
             )
