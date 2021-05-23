@@ -79,7 +79,8 @@ class NewTurn extends concepts.Event {
         // TODO: make this code external from this file.
         game_view._last_turn_ids_sequence = this.turn_ids_sequence;
         game_view.ui.timeline.request_refresh(this.turn_ids_sequence);
-        yield* wait(1000 / 8);
+        if(config.enable_new_turn_wait)
+            yield* wait(1000 / 5);
         if(config.enable_turn_sound)
             audio.playEvent('newCycle');
     }

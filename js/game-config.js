@@ -25,6 +25,7 @@ export const config = {
     enable_view_healthbars: false,
     force_view_healthbars: false,
     enable_infobox_pointer: false,
+    enable_new_turn_wait: false,
 };
 
 window.game_config = config;
