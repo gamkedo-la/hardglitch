@@ -223,7 +223,7 @@ function serialize_world(world, complete_state){
             entities.push({
                 type: entity.constructor.name,
                 position: { x: entity.position.x, y: entity.position.y },
-                drops: entity.drops,
+                drops: entity.drops instanceof Array ? entity.drops.map(drop_item => drop_item ? drop_item.constructor.name : drop_item) : undefined,
                 drops_are_crucial: entity.drops_are_crucial,
             });
         });
