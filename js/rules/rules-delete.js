@@ -9,7 +9,7 @@ import { Character } from "../core/character.js";
 import * as concepts from "../core/concepts.js";
 import * as visibility from "../core/visibility.js";
 import { sprite_defs } from "../game-assets.js";
-import { Damaged, deal_damage } from "./destruction.js";
+import { deal_damage } from "./destruction.js";
 import * as anim from "../game-animations.js";
 import { ranged_actions_for_each_target } from "./rules-common.js";
 import { auto_newlines } from "../system/utility.js";

@@ -5,11 +5,14 @@ export {
 }
 
 import * as debug from "../system/debug.js";
+import * as graphics from "../system/graphics.js";
+import * as ui from "../system/ui.js";
 import { config, fov_view_styles } from "../game-config.js";
-import { EntityView, graphic_position, PIXELS_PER_HALF_SIDE, PIXELS_PER_TILES_SIDE } from "./entity-view.js";
+import { EntityView, graphic_position, PIXELS_PER_HALF_SIDE, PIXELS_PER_TILES_SIDE, square_half_unit_vector } from "./entity-view.js";
 import { Character } from "../core/character.js";
 import { sprite_defs } from "../game-assets.js";
 import { Sprite } from "../system/graphics.js";
+import { update_stat_bar } from "../ui/ui-characterstatus.js";
 
 // Representation of a character's body.
 class CharacterView extends EntityView {
@@ -20,12 +23,39 @@ class CharacterView extends EntityView {
         this._character = character;
         this.is_floating = character.is_floating ? true : false;
         this._fov_sprite = new Sprite(sprite_defs.vision);
+
+        this._health_bar = new ui.Bar({
+            position: this.position,
+            width: PIXELS_PER_TILES_SIDE, height: 8,
+            bar_name: "NEVER SHOW THIS TEXT bar_name",
+            help_text: "NEVER SHOW THIS TEXT help_text",
+            visible: true,
+            bar_colors:{
+                value: "#FF006E",
+                change_negative: "#FB5607",
+                change_positive: "#ffffff",
+                preview: "#8338EC",
+                background:"#3A86FF",
+            }
+        });
+        this._health_bar.short_text.visible = false;
+
+        update_stat_bar(this._health_bar, this._character.stats.integrity);
     }
 
     get is_player() { return this._character.is_player_actor; }
 
     get is_virus() { return this._character.is_virus; }
 
+    update(delta_time){
+        super.update(delta_time);
+
+        this._health_bar._last_delta_time = delta_time;
+    }
+
+    change_health(new_health){
+        this._health_bar.value = new_health;
+    }
 
     render_graphics(canvas_context){
         if(this.is_virus && !this._has_infected_shadow){
@@ -33,6 +63,11 @@ class CharacterView extends EntityView {
             this.set_shadow(sprite_defs.shadow_red);
         }
         super.render_graphics(canvas_context);
+
+        this._health_bar.position = this.position;
+        this._health_bar.update(this._health_bar._last_delta_time);
+        this._health_bar.draw(canvas_context);
+
     }
 
     draw_fov(canvas_context){

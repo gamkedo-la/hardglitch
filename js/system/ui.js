@@ -591,7 +591,7 @@ class Bar extends UIElement {
         this._value = bar_def.value !== undefined ? bar_def.value : 50;
         debug.assertion(()=>Number.isInteger(this._value));
         this._name = bar_def.bar_name;
-        debug.assertion(()=>typeof this._name === "string");
+        debug.assertion(()=>typeof this._name === "string" || this._name == null);
         this._is_horizontal_bar = bar_def.is_horizontal_bar ? bar_def.is_horizontal_bar : true;
         debug.assertion(()=>typeof this._is_horizontal_bar === "boolean");
         this._animations = new anim.AnimationGroup();
@@ -674,8 +674,9 @@ class Bar extends UIElement {
             this._cancel_change_animation();
             this._current_change_animation_promise = this._animations.play(this._change_animation(this._previous_value, this.value));
             debug.assertion(()=>this._current_change_animation_promise.cancel instanceof Function);
-            this._current_change_animation_promise.then(()=>{
-                this._cancel_change_animation();
+            this._current_change_animation_promise.then((cancel_token)=>{
+                if(!(cancel_token instanceof anim.CancelToken))
+                    this._cancel_change_animation();
             });
             delete this._previous_value;
         }

@@ -20,18 +20,20 @@ import { random_sample } from "../system/utility.js";
 import { spawn_entities_around } from "./spawn.js";
 import { fail_game } from "./rules-basic.js";
 import { in_parallel, wait } from "../system/animation.js";
+import { CharacterView } from "../view/character-view.js";
 
 
 class Damaged extends concepts.Event {
-    constructor(entity_id, entity_position, damage_count){
+    constructor(entity_id, entity_position, damage_count, final_health){
         super({
-            description: `Entity ${entity_id} took ${damage_count} damages!`
+            description: `Entity ${entity_id} took ${damage_count} damages! Final health = ${final_health}`
         });
 
         this.allow_parallel_animation = true;
         this.entity_id = entity_id;
         this.entity_position = entity_position;
         this.damage_count = damage_count;
+        this.final_health = final_health;
     }
 
     get focus_positions() { return [ this.entity_position ]; }
@@ -42,6 +44,9 @@ class Damaged extends concepts.Event {
         if(entity_view instanceof EntityView){ // FIXME: was an assertion, not sure why it went false.
             if(game_view.fog_of_war.is_visible(entity_view.game_position)){
                 game_view.special_animations.play(integrity_value_change(game_view, -this.damage_count, entity_view.position));
+            }
+            if(entity_view instanceof CharacterView){
+                entity_view.change_health(this.final_health);
             }
         }
         yield* wait(1);
@@ -149,10 +154,12 @@ function destroy_at(position, world){
 function deal_damage(entity, damage){
     debug.assertion(()=>Number.isInteger(damage) && damage >= 0);
     debug.assertion(()=>entity instanceof concepts.Entity);
+    let final_health;
     if(entity instanceof Character){
         entity.take_damage(damage);
+        final_health = entity.stats.integrity.value;
     } else {
         damage = 0; // All other entities take 0 damage.
     }
-    return [ new Damaged(entity.id, entity.position, damage) ];
+    return [ new Damaged(entity.id, entity.position, damage, final_health) ];
 }

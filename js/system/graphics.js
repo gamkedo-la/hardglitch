@@ -11,6 +11,7 @@ export {
   TileGrid,
   create_canvas_context,
   execute_without_transform,
+  execute_within_screen_rendering,
   draw_text,
   measure_text,
   draw_rectangle,
@@ -123,6 +124,18 @@ class Camera{
 
 };
 const camera = new Camera();
+
+function execute_within_screen_rendering(func){
+  debug.assertion(()=>func instanceof Function);
+  const was_in_screen_rendering = camera.is_rendering_in_screen;
+  if(!was_in_screen_rendering)
+    camera.begin_in_screen_rendering();
+
+  func();
+
+  if(!was_in_screen_rendering)
+    camera.end_in_screen_rendering();
+}
 
 class Sprite {
   transform = new spatial.Transform();

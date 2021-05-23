@@ -1,7 +1,7 @@
 
 export {
     CharacterStatus,
-
+    update_stat_bar,
 }
 
 import * as debug from "../system/debug.js";

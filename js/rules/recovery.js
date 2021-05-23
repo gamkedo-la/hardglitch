@@ -11,11 +11,12 @@ import { GameView } from "../game-view.js";
 import { EntityView, graphic_position } from "../view/entity-view.js";
 import { Character } from "../core/character.js";
 import { in_parallel } from "../system/animation.js";
+import { CharacterView } from "../view/character-view.js";
 
 class Repaired extends concepts.Event {
-    constructor(entity_id, entity_position, repair_amount, from_position){
+    constructor(entity_id, entity_position, repair_amount, from_position, final_health){
         super({
-            description: `Entity ${entity_id} was repaired ${repair_amount} integrity!`
+            description: `Entity ${entity_id} was repaired ${repair_amount} integrity! Final health = ${final_health}`
         });
 
         this.allow_parallel_animation = false;
@@ -23,6 +24,7 @@ class Repaired extends concepts.Event {
         this.entity_position = entity_position;
         this.from_position = from_position;
         this.repair_amount = repair_amount;
+        this.final_health = final_health;
     }
 
     get focus_positions() { return [ this.entity_position ]; }
@@ -45,6 +47,9 @@ class Repaired extends concepts.Event {
                 game_view.special_animations.play(animations.integrity_value_change(game_view, this.repair_amount, entity_view.position));
         }
 
+        if(entity_view instanceof CharacterView){
+            entity_view.change_health(this.final_health);
+        }
 
     }
 
@@ -54,13 +59,15 @@ function repair(entity, amount, repairer_position){
     debug.assertion(()=>entity instanceof concepts.Entity);
     debug.assertion(()=>repairer_position instanceof concepts.Position || repairer_position === undefined);
     debug.assertion(()=>Number.isInteger(amount) && amount >= 0);
+    let final_health;
     if(entity instanceof Character){
         amount = entity.repair(amount);
+        final_health = entity.stats.integrity.value;
     } else {
         amount = 0; // Other kinds of entities can't really be repaired.
     }
     return [
-        new Repaired(entity.id, entity.position, amount, repairer_position),
+        new Repaired(entity.id, entity.position, amount, repairer_position, final_health),
     ];
 
 
