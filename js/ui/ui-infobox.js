@@ -60,6 +60,8 @@ class InfoBox {
         });
 
         current_info_box = this;
+
+        this.offset = 0;
     }
 
     get position() { return new Vector2(this._area.position); }
@@ -79,6 +81,8 @@ class InfoBox {
     }
 
     update(delta_time){
+        this._last_delta_time = delta_time;
+
         this._button_hide.update(delta_time);
         this._button_show.update(delta_time);
 
@@ -95,16 +99,15 @@ class InfoBox {
             this._text_display.visible = false;
         }
         this._text_display.update(delta_time);
-
     }
 
     _setup_line(canvas_context){
         canvas_context.fillStyle =info_box_background_style;
         canvas_context.strokeStyle =info_box_border_style;
-        canvas_context.lineWidth = 4;
+        canvas_context.lineWidth = 6;
         canvas_context.lineCap = "round";
         canvas_context.lineDashOffset = 8;
-        canvas_context.setLineDash([8, 8]);
+        canvas_context.setLineDash([16, 16]);
 
     }
 
@@ -120,6 +123,10 @@ class InfoBox {
                                 );
 
             this._setup_line(canvas_context);
+            if(this._text_display.visible){ // Line dash animation
+                this.offset += this._last_delta_time * 0.05;
+            }
+            canvas_context.lineDashOffset = Math.round(this.offset);
             canvas_context.fill();
             canvas_context.stroke();
 
@@ -128,7 +135,7 @@ class InfoBox {
             this._text_display.draw(canvas_context);
 
             if(config.enable_infobox_pointer
-            && this._text.length > 0 // Draw a line to the thing being described.
+            && this._text_display.visible > 0 // Draw a line to the thing being described.
             ){
                 const mouse_pos = mouse_grid_position();
                 if(mouse_pos){
