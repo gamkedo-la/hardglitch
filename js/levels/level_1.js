@@ -42,11 +42,7 @@ const startup_room = {
     "entities" : [
         {
             "__class_type_name": "LifeForm_Weak",
-            "_position": {
-                "__class_type_name": "Position",
-                "x": 1,
-                "y": 1
-            },
+            position: { x:1, y:1 },
             "stats": {
                 "__class_type_name": "CharacterStats",
                 "integrity": {
