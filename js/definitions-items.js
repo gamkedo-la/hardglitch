@@ -33,6 +33,7 @@ export {
     Item_FrequencyBoost,
     Item_DataBender,
     Item_PowerGlove,
+    Item_BlockMaster,
 
     MovableWall,
     MovableWall_Blue,
@@ -154,6 +155,7 @@ function all_item_types(){
         Item_FrequencyBoost,
         Item_DataBender,
         Item_PowerGlove,
+        Item_BlockMaster,
 
         ...all_movable_walls(),
 
@@ -847,7 +849,7 @@ class Item_FrequencyBoost extends concepts.Item {
 class Item_PowerGlove extends concepts.Item {
     assets = {
         graphics : { body: {
-            sprite_def : sprite_defs.item_generic_7,
+            sprite_def : sprite_defs.item_generic_6,
         }}
     };
 
@@ -874,6 +876,38 @@ class Item_PowerGlove extends concepts.Item {
         }
     }
 };
+
+class Item_BlockMaster extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_6,
+        }}
+    };
+
+    get can_be_taken() { return true; }
+    description = auto_newlines("Allows one to take and drop any Mutex or Atomic.", 35);
+
+    constructor(){
+        super("Block Master");
+    }
+
+    on_activated(){
+        debug.assertion(()=>this.owner instanceof Character);
+        debug.assertion(()=>this.world instanceof concepts.World);
+        if(this.owner.inventory.active_items.filter(item=>item instanceof Item_BlockMaster).length > 0){
+            this.owner.can_take_movable_walls = true;
+        }
+    }
+
+    on_deactivated(){
+        debug.assertion(()=>this.owner instanceof Character);
+        debug.assertion(()=>this.world instanceof concepts.World);
+        if(this.owner.inventory.active_items.filter(item=>item instanceof Item_BlockMaster).length < 1){
+            this.owner.can_take_movable_walls = false;
+        }
+    }
+};
+
 
 ///////////////////////////////////////////////////////////////////////////
 // DEBUG ITEMS

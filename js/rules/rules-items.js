@@ -24,6 +24,7 @@ import { spawn_entities_around } from "./spawn.js";
 import { auto_newlines } from "../system/utility.js";
 import { EntityView } from "../view/entity-view.js";
 import { add_default_action_if_adjacent } from "./rules-common.js";
+import { MovableWall } from "../definitions-items.js";
 
 const take_item_range = new visibility.Range_Cross_Axis(1,2);
 
@@ -364,8 +365,19 @@ class Rule_TakeItem extends concepts.Rule {
         visibility.valid_target_positions(world, character, TakeItem.range)
             .filter(target=> { // Only if there is an item to take.
                 const item = world.entity_at(target);
-                return (item instanceof concepts.Item && item.can_be_taken === true)
-                    || (character.can_take_entities && item instanceof concepts.Body);
+                if(item instanceof concepts.Item){
+                    if(item.can_be_taken === true)
+                        return true;
+                    if(character.can_take_movable_walls && item instanceof MovableWall)
+                        return true;
+
+                    return false;
+                }
+
+                if(character.can_take_entities && item instanceof concepts.Entity)
+                    return true;
+
+                return false;
             })
             .forEach((target)=>{
                 const action = new TakeItem(target);
