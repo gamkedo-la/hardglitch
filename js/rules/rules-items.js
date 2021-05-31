@@ -361,7 +361,7 @@ class Rule_TakeItem extends concepts.Rule {
             .filter(target=> { // Only if there is an item to take.
                 const item = world.entity_at(target);
                 return (item instanceof concepts.Item && item.can_be_taken === true)
-                    || (character.can_take_entities && item instanceof concepts.Entity);
+                    || (character.can_take_entities && item instanceof concepts.Body);
             })
             .forEach((target)=>{
                 const action = new TakeItem(target);
