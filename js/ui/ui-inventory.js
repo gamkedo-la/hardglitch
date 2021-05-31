@@ -556,7 +556,7 @@ class InventoryUI {
         for (const [item_idx, item] of items.entries()){
             if(item instanceof concepts.Item){
                 this.set_item_view_at(item_idx, new ItemView(item));
-            } if(item instanceof Character){
+            } else if(item instanceof Character){
                 this.set_item_view_at(item_idx, new CharacterView(item));
             } else {
                 debug.assertion(()=>!item);
