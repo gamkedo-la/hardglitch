@@ -22,7 +22,8 @@ import { CharacterStatus } from "./ui-characterstatus.js";
 import { GameFxView } from "../game-effects.js";
 import { is_blocked_position } from "../definitions-world.js";
 import { show_info } from "./ui-infobox.js";
-import { square_half_unit_vector } from "../view/entity-view.js";
+import { EntityView, square_half_unit_vector } from "../view/entity-view.js";
+import { CharacterView } from "../game-view.js";
 
 const item_slot_vertical_padding = 0;
 const item_slot_vertical_size = 72;
@@ -108,7 +109,7 @@ class ItemSlot {
         this._sprite.update(delta_time);
         this._help_text.update(delta_time);
         if(this._item_view){
-            debug.assertion(()=>this._item_view instanceof ItemView);
+            debug.assertion(()=>this._item_view instanceof EntityView);
             this._item_view.update(delta_time);
         }
     }
@@ -121,7 +122,7 @@ class ItemSlot {
 
     draw_item(canvas_context){
         if(this._item_view){
-            debug.assertion(()=>this._item_view instanceof ItemView);
+            debug.assertion(()=>this._item_view instanceof EntityView);
             this._item_view.render_graphics(canvas_context);
         }
     }
@@ -141,7 +142,7 @@ class ItemSlot {
 
     set_item(new_item){
         debug.assertion(()=>this._item_view === null);
-        debug.assertion(()=>new_item instanceof ItemView);
+        debug.assertion(()=>new_item instanceof EntityView);
         debug.assertion(()=>typeof new_item.name === "string");
 
         if(this.type === slot_types.DESTROY){
@@ -151,7 +152,8 @@ class ItemSlot {
         }
 
         if(this.is_active){
-            new_item.on_active_begin();
+            if(new_item.on_active_begin instanceof Function)
+                new_item.on_active_begin();
         }
 
         this._item_view = new_item;
@@ -166,7 +168,7 @@ class ItemSlot {
         this._stop_fx();
         const item = this._item_view;
         if(item){
-            if(this.is_active){
+            if(this.is_active && item.on_active_end instanceof Function){
                 item.on_active_end();
             }
             delete item._item_slot;
@@ -200,7 +202,7 @@ class ItemSlot {
         if(!this._item_view)
             return;
 
-        debug.assertion(()=>this._item_view instanceof ItemView);
+        debug.assertion(()=>this._item_view instanceof EntityView);
         this._item_view.position = spatial.center_in_rectangle(this._item_view.area, this._sprite.area).position;
         if(this._item_view.is_being_destroyed){
             this._item_view.position = this._item_view.position.translate(square_half_unit_vector);
@@ -294,7 +296,7 @@ class InventoryUI {
     set_item_view_at(idx, item_view){
         debug.assertion(()=>Number.isInteger(idx));
         debug.assertion(()=>idx < this._slots.length);
-        debug.assertion(()=>item_view instanceof ItemView);
+        debug.assertion(()=>item_view instanceof EntityView);
         this._slots[idx].set_item(item_view);
     }
 
@@ -373,7 +375,8 @@ class InventoryUI {
 
                     }
                 } else { // Stopped dragging.
-                    this._dragging_item.item.on_dragging_end();
+                    if(this._dragging_item.item.on_dragging_end instanceof Function)
+                        this._dragging_item.item.on_dragging_end();
                     const destination_slot = this._find_slot_under(input.mouse.dragging_positions.end);
                     if(destination_slot){
                         const destination_slot_idx = this._slots.indexOf(destination_slot);
@@ -429,7 +432,8 @@ class InventoryUI {
                     if(item_view){ // Begin dragging an item from a slot.
                         this._dragging_item.item = item_view;
                         this._dragging_item.item.for_each_sprite(sprite=>sprite.move_origin_to_center());
-                        this._dragging_item.item.on_dragging_begin();
+                        if(this._dragging_item.item.on_dragging_begin instanceof Function)
+                            this._dragging_item.item.on_dragging_begin();
 
                         debug.assertion(()=>this._current_character instanceof Character);
                         debug.assertion(()=>this.world instanceof concepts.World);
@@ -552,6 +556,8 @@ class InventoryUI {
         for (const [item_idx, item] of items.entries()){
             if(item instanceof concepts.Item){
                 this.set_item_view_at(item_idx, new ItemView(item));
+            } if(item instanceof Character){
+                this.set_item_view_at(item_idx, new CharacterView(item));
             } else {
                 debug.assertion(()=>!item);
                 debug.assertion(()=>!this._slots[item_idx].item);

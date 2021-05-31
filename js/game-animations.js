@@ -270,7 +270,7 @@ function* take_item(fx_view, taker_view, item_view, target_slot_pos){
 
 function* player_take_item(fx_view, taker_view, item_view, target_slot_pos){
     debug.assertion(()=>taker_view instanceof CharacterView);
-    debug.assertion(()=>item_view instanceof ItemView);
+    debug.assertion(()=>item_view instanceof EntityView);
     const take_duration_ms = 500;
 
     // Make the move into the inventory visible:

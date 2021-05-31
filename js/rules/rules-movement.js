@@ -243,7 +243,7 @@ class Rule_RandomJump extends concepts.Rule {
 
     get_actions_for(character, world){
         debug.assertion(()=>character instanceof Character);
-        const random_jump_actions = character.inventory.get_enabled_action_types(RandomJump).reverse();
+        const random_jump_actions = character.inventory.get_enabled_action_types_related_to(RandomJump).reverse();
         const events = {};
         while(random_jump_actions.length){
             const action_type = random_jump_actions.pop();

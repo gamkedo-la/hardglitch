@@ -20,6 +20,7 @@ class CharacterView extends EntityView {
         debug.assertion(()=>character instanceof Character);
         super(character.id, character.position, character.assets);
         this._character = character;
+        this.name = character.name;
         this.is_floating = character.is_floating ? true : false;
         this._fov_sprite = new Sprite(sprite_defs.vision);
 

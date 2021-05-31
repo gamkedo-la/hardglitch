@@ -21,6 +21,8 @@ class GlitchyGlitchMacGlitchy extends Character {
 
     is_floating = true; // For graphic coolness.
 
+    //can_take_entities = true; // for testing
+
     description = auto_newlines("Sentient glitch, computer bug with a conscience, ghost in the machine. Will probably be destroyed by the computer's protection.", 35);
 
     is_anomaly = true;

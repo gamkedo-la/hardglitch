@@ -30,7 +30,7 @@ function actions_for_each_target(character, parent_action_type, valid_target_gen
     debug.assertion(()=>valid_target_generator);
     debug.assertion(()=>action_maker instanceof Function);
 
-    const enabled_action_types = character.get_enabled_action_types(parent_action_type);
+    const enabled_action_types = character.get_enabled_action_types_related_to(parent_action_type);
 
     const actions = {};
     enabled_action_types.forEach(action_type => {

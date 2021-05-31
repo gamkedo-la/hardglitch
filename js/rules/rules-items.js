@@ -20,7 +20,6 @@ import { Character } from "../core/character.js";
 import { GameView } from "../game-view.js";
 import { CharacterView } from "../view/character-view.js";
 import { sprite_defs } from "../game-assets.js";
-import { ItemView } from "../view/item-view.js";
 import { spawn_entities_around } from "./spawn.js";
 import { auto_newlines } from "../system/utility.js";
 import { EntityView } from "../view/entity-view.js";
@@ -31,7 +30,7 @@ const take_item_range = new visibility.Range_Cross_Axis(1,2);
 class ItemTaken extends concepts.Event {
     constructor(taker, item, inventory_idx){
         debug.assertion(()=>taker instanceof Character);
-        debug.assertion(()=>item instanceof concepts.Item);
+        debug.assertion(()=>item instanceof concepts.Item || (taker.can_take_entities && item instanceof concepts.Entity));
         debug.assertion(()=>Number.isInteger(inventory_idx));
 
         super({
@@ -53,14 +52,14 @@ class ItemTaken extends concepts.Event {
         debug.assertion(()=>character_view instanceof CharacterView);
         const item_view = game_view.focus_on_entity(this.item_id);
         const slot_position = game_view.ui.inventory.get_slot_position(this.inventory_idx);
-        if(item_view instanceof ItemView){
+        if(item_view instanceof EntityView){
             const take_animation = character_view.is_player ? anim.player_take_item : anim.take_item;
             yield* take_animation(game_view.fx_view, character_view, item_view, slot_position);
         }
 
         game_view.remove_entity_view(this.item_id);
         if(character_view.is_player){
-            debug.assertion(()=>item_view instanceof ItemView);
+            debug.assertion(()=>item_view instanceof EntityView);
             game_view.ui.inventory.set_item_view_at(this.inventory_idx, item_view);
             yield* anim.inventory_add(game_view.ui.inventory.fx_view, game_view.ui.inventory, this.inventory_idx);
             game_view.ui.inventory.request_refresh();
@@ -120,7 +119,7 @@ class InventoryItemDropped extends concepts.Event {
         if(this.dropper_is_player) {
             yield* anim.inventory_remove(game_view.ui.inventory.fx_view, game_view.ui.inventory, this.item_idx);
             const item_view = game_view.ui.inventory.remove_item_view_at(this.item_idx);
-            if(item_view instanceof ItemView){
+            if(item_view instanceof EntityView){ // Could be something else than an item.
                 const previous_visibility = item_view.is_visible;
                 item_view.is_visible = false;
                 item_view.game_position = this.drop_position;
@@ -171,15 +170,15 @@ class TakeItem extends concepts.Action {
     constructor(target_position){
         debug.assertion(()=>target_position instanceof concepts.Position);
         super(`take_item_at_${target_position.x}_${target_position.y}`,
-            "Take this item", target_position);
+            "Take this", target_position);
         this.is_basic = true;
     }
 
     execute(world, character){
         debug.assertion(()=>world instanceof concepts.World);
         debug.assertion(()=>character instanceof Character);
-        const item = world.item_at(this.target_position);
-        debug.assertion(()=>item instanceof concepts.Item);
+        const item = world.entity_at(this.target_position);
+        debug.assertion(()=>item instanceof concepts.Item || (character.can_take_entities && item instanceof concepts.Entity));
         world.remove_entity(item.id);
         const item_idx = character.inventory.add(item);
         character.inventory.update_modifiers();
@@ -338,7 +337,7 @@ class DropItem extends concepts.Action {
         debug.assertion(()=>world instanceof concepts.World);
         debug.assertion(()=>character instanceof Character);
         const item = character.inventory.remove(this.item_idx);
-        debug.assertion(()=>item instanceof concepts.Item);
+        debug.assertion(()=>item instanceof concepts.Item || (character.can_take_entities && item instanceof concepts.Entity));
         item.position = this.target;
         world.add_entity(item);
         character.inventory.update_modifiers();
@@ -354,18 +353,15 @@ class Rule_TakeItem extends concepts.Rule {
     get_actions_for(character, world){
         debug.assertion(()=>character instanceof Character);
 
-        // if(!character.is_player_actor) // Only allow the player to take items. Discutable XD
-        //     return {};
-
         if(character.inventory.is_full)
             return {};
 
         const actions = {};
         visibility.valid_target_positions(world, character, TakeItem.range)
             .filter(target=> { // Only if there is an item to take.
-                const item = world.item_at(target);
-                return item instanceof concepts.Item
-                    && item.can_be_taken === true;
+                const item = world.entity_at(target);
+                return (item instanceof concepts.Item && item.can_be_taken === true)
+                    || (character.can_take_entities && item instanceof concepts.Entity);
             })
             .forEach((target)=>{
                 const action = new TakeItem(target);

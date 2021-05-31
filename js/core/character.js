@@ -230,7 +230,7 @@ class Inventory {
 
     move_all_items_into_limbo() {
         this._item_slots
-            .filter(item => item instanceof concepts.Item)
+            .filter(item => item instanceof concepts.Entity)
             .forEach(item => this._limbo.push(item) );
         this._item_slots = [];
     }
@@ -243,7 +243,7 @@ class Inventory {
 
     add(item){
 
-        debug.assertion(()=>item instanceof concepts.Item);
+        debug.assertion(()=>item instanceof concepts.Entity);
         debug.assertion(()=>this.have_empty_slots);
 
         // Put the item in the first free slot that is not an active slot.
@@ -268,7 +268,7 @@ class Inventory {
     set_item_at(idx, item){
         //
         debug.assertion(()=>idx >= 0 && idx < this._item_slots.length);
-        debug.assertion(()=>item instanceof concepts.Item);
+        debug.assertion(()=>item instanceof concepts.Entity);
         debug.assertion(()=>this._item_slots[idx] == null);
         this._item_slots[idx] = item;
         if(this.is_active_slot(idx))
@@ -281,7 +281,7 @@ class Inventory {
     }
 
     _apply_modifiers(item){
-        debug.assertion(()=>item instanceof concepts.Item);
+        debug.assertion(()=>item instanceof concepts.Entity);
         if(item.stats_modifiers instanceof Object){
             const modifier_id = `item_${item.id}`;
             for(const [stat_name, modifier_value] of Object.entries(item.stats_modifiers)){
@@ -292,7 +292,7 @@ class Inventory {
     }
 
     _reverse_modifiers(item){
-        debug.assertion(()=>item instanceof concepts.Item);
+        debug.assertion(()=>item instanceof concepts.Entity);
         if(item.stats_modifiers instanceof Object){
             const modifier_id = `item_${item.id}`;
             Object.keys(item.stats_modifiers).forEach(stat_name =>{
@@ -304,10 +304,10 @@ class Inventory {
 
     update_modifiers(){
         this._item_slots.slice(0, this._activable_items)
-            .filter(item => item instanceof concepts.Item)
+            .filter(item => item instanceof concepts.Entity)
             .forEach(item => this._apply_modifiers(item));
         this._item_slots.slice(this._activable_items)
-            .filter(item => item instanceof concepts.Item)
+            .filter(item => item instanceof concepts.Entity)
             .forEach(item => this._reverse_modifiers(item));
     }
 
@@ -315,7 +315,7 @@ class Inventory {
         debug.assertion(()=>idx >= 0 && idx < this._item_slots.length);
         const item = this._item_slots[idx];
         this._item_slots[idx] = undefined;
-        if(item instanceof concepts.Item
+        if(item instanceof concepts.Entity
         && this.is_active_slot(idx)){
             this._reverse_modifiers(item);
         }
@@ -362,14 +362,14 @@ class Inventory {
         }
 
         previous_items.slice(0, this._activable_items)
-            .filter(item => item instanceof concepts.Item)
+            .filter(item => item instanceof concepts.Entity)
             .forEach(item => this._reverse_modifiers(item));
 
         this._item_slots = new_item_storage;
         Object.seal(this._item_slots);
 
         // Return the items we couldn't put in the new inventory.
-        const left_items = previous_items.filter(item => item instanceof concepts.Item);
+        const left_items = previous_items.filter(item => item instanceof concepts.Entity);
         while(this.have_empty_slots && left_items.length > 0){ // If we can still put the item somewhere, just put it there.
             this.add(left_items.pop());
         }
@@ -390,7 +390,7 @@ class Inventory {
         return idx < this._activable_items;
     }
 
-    get_enabled_action_types(action_type){
+    get_enabled_action_types_related_to(action_type){
         debug.assertion(()=>action_type && action_type.prototype instanceof concepts.Action);
         return this.get_all_enabled_action_types(type => {
             while(type){
@@ -406,10 +406,12 @@ class Inventory {
     get_all_enabled_action_types(predicate = ()=>true){
         const enabled_action_types = [];
         this._item_slots.slice(0, this._activable_items)
-            .filter(item => item instanceof concepts.Item)
+            .filter(item => item instanceof concepts.Entity)
             .forEach(item => {
-                const types = item.get_enabled_action_types().filter(predicate);
-                enabled_action_types.push(...types);
+                if(item.get_enabled_action_types instanceof Function){
+                    const types = item.get_enabled_action_types().filter(predicate);
+                    enabled_action_types.push(...types);
+                }
             });
         return enabled_action_types;
     }
@@ -509,7 +511,10 @@ class Character extends concepts.Body {
         this.stats.action_points.decrease(action.constructor.costs.action_points.value);
 
         // Make sure the item providing that action will be updated, if any:
-        const item = this.inventory.active_items.find(item=> item instanceof concepts.Item && item.get_enabled_action_types().some((action_type)=> action instanceof action_type));
+        const item = this.inventory.active_items.find(item=> item instanceof concepts.Entity
+                                                          && item.get_enabled_action_types instanceof Function
+                                                          && item.get_enabled_action_types().some((action_type)=> action instanceof action_type)
+                                                          );
 
         // Then execute the action:
         const action_result = action.execute(world, this);
@@ -550,8 +555,8 @@ class Character extends concepts.Body {
         ];
     }
 
-    get_enabled_action_types(action_type){
-        return this.inventory.get_enabled_action_types(action_type);
+    get_enabled_action_types_related_to(action_type){
+        return this.inventory.get_enabled_action_types_related_to(action_type);
     }
 
 };
