@@ -391,11 +391,11 @@ function populate_entities(world, central_area_rect, start_items){
         // Or... do what you can
         return random_spawn_pos(dangerous_area);
     };
-    const dangerous_foe_type = random_sample(["Microcode", "Virus"]);
+    const dangerous_foe_type = random_sample(["Virus"]);
     const dangerous_foe_pos = find_nice_spot_for_dangerous_foe();
     const dangerous_foe = { type: dangerous_foe_type, position: dangerous_foe_pos };
     add_entities_from_desc(dangerous_foe);
-    add_entities_from_desc(...dangerous_foe_pos.adjacents_diags.map(position=> { return { type: "MovableWall_Purple", position }; }));
+    add_entities_from_desc(...dangerous_foe_pos.adjacents_diags.map(position=> { return { type: "MovableWall_Red", position }; }));
 
     // 4: add one sample slightly aggressive kind of lifeform...
     add_entities_from_desc({ type: "LifeForm_Aggressive", position: random_spawn_pos(dangerous_area) });
