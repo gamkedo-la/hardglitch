@@ -217,6 +217,8 @@ const __entity_serialization_ignore_list = [
     "assets", // Don't de/serialize asset information associated with that entity.
     "description", // No need to serialized descriptions.
     "name", // Names depends on types. (?)
+    "owner", // Character owning another entity (in it's inventory)
+    "world", // Never serialize a reference to the world.
 ];
 
 // Entities are things that have a "physical" existence, that is it can be located in the space of the game (it have a position).

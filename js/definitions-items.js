@@ -32,7 +32,7 @@ export {
     Item_IntegrityBoost,
     Item_FrequencyBoost,
     Item_DataBender,
-
+    Item_PowerGlove,
 
     MovableWall,
     MovableWall_Blue,
@@ -69,6 +69,7 @@ import { Delete } from "./rules/rules-delete.js";
 import { Copy } from "./rules/rules-copy.js";
 import { Merge } from "./rules/rules-merge.js";
 import { Destabilize } from "./rules/rules-unstability.js";
+import { Character } from "./core/character.js";
 
 function all_crypto_file_types() {
     return [
@@ -152,6 +153,7 @@ function all_item_types(){
         Item_IntegrityBoost,
         Item_FrequencyBoost,
         Item_DataBender,
+        Item_PowerGlove,
 
         ...all_movable_walls(),
 
@@ -842,7 +844,36 @@ class Item_FrequencyBoost extends concepts.Item {
     }
 };
 
+class Item_PowerGlove extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_7,
+        }}
+    };
 
+    get can_be_taken() { return true; }
+    description = auto_newlines("Allows one to take any entity including other characters. Put that character in an Active Slot to enable that character's powers!", 35);
+
+    constructor(){
+        super("Power Glove");
+    }
+
+    on_activated(){
+        debug.assertion(()=>this.owner instanceof Character);
+        debug.assertion(()=>this.world instanceof concepts.World);
+        if(this.owner.inventory.active_items.filter(item=>item instanceof Item_PowerGlove).length > 0){
+            this.owner.can_take_entities = true;
+        }
+    }
+
+    on_deactivated(){
+        debug.assertion(()=>this.owner instanceof Character);
+        debug.assertion(()=>this.world instanceof concepts.World);
+        if(this.owner.inventory.active_items.filter(item=>item instanceof Item_PowerGlove).length < 1){
+            this.owner.can_take_entities = false;
+        }
+    }
+};
 
 ///////////////////////////////////////////////////////////////////////////
 // DEBUG ITEMS

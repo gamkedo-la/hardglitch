@@ -271,13 +271,30 @@ class Inventory {
         debug.assertion(()=>item instanceof concepts.Entity);
         debug.assertion(()=>this._item_slots[idx] == null);
         this._item_slots[idx] = item;
-        if(this.is_active_slot(idx))
-            this._apply_modifiers(item);
+        if(this.is_active_slot(idx)){
+            this._activate(item);
+        }
     }
 
     get_item_at(idx){
         debug.assertion(()=>idx >= 0 && idx < this._item_slots.length);
         return this._item_slots[idx];
+    }
+
+    _activate(item){
+        debug.assertion(()=>item instanceof concepts.Entity);
+        this._apply_modifiers(item);
+        if(item.on_activated instanceof Function){
+            item.on_activated();
+        }
+    }
+
+    _deactivate(item){
+        debug.assertion(()=>item instanceof concepts.Entity);
+        if(item.on_deactivated instanceof Function){
+            this._reverse_modifiers(item);
+            item.on_deactivated();
+        }
     }
 
     _apply_modifiers(item){
@@ -303,12 +320,12 @@ class Inventory {
     }
 
     update_modifiers(){
-        this._item_slots.slice(0, this._activable_items)
-            .filter(item => item instanceof concepts.Entity)
-            .forEach(item => this._apply_modifiers(item));
         this._item_slots.slice(this._activable_items)
             .filter(item => item instanceof concepts.Entity)
-            .forEach(item => this._reverse_modifiers(item));
+            .forEach(item => this._deactivate(item));
+        this._item_slots.slice(0, this._activable_items)
+            .filter(item => item instanceof concepts.Entity)
+            .forEach(item => this._activate(item));
     }
 
     remove(idx){
@@ -317,7 +334,7 @@ class Inventory {
         this._item_slots[idx] = undefined;
         if(item instanceof concepts.Entity
         && this.is_active_slot(idx)){
-            this._reverse_modifiers(item);
+            this._deactivate(item);
         }
         return item;
     }
@@ -334,14 +351,14 @@ class Inventory {
         if(is_slot_a_active !== is_slot_b_active){
             if(is_slot_a_active){
                 if(b instanceof concepts.Item)
-                    this._apply_modifiers(b);
+                    this._activate(b);
                 if(a instanceof concepts.Item)
-                    this._reverse_modifiers(a);
+                    this._deactivate(a);
             } else {
                 if(a instanceof concepts.Item)
-                    this._apply_modifiers(a);
+                    this._activate(a);
                 if(b instanceof concepts.Item)
-                    this._reverse_modifiers(b);
+                    this._deactivate(b);
             }
         }
     }
@@ -363,7 +380,7 @@ class Inventory {
 
         previous_items.slice(0, this._activable_items)
             .filter(item => item instanceof concepts.Entity)
-            .forEach(item => this._reverse_modifiers(item));
+            .forEach(item => this._deactivate(item));
 
         this._item_slots = new_item_storage;
         Object.seal(this._item_slots);

@@ -180,6 +180,8 @@ class TakeItem extends concepts.Action {
         const item = world.entity_at(this.target_position);
         debug.assertion(()=>item instanceof concepts.Item || (character.can_take_entities && item instanceof concepts.Entity));
         world.remove_entity(item.id);
+        item.owner = character;
+        item.world = world;
         const item_idx = character.inventory.add(item);
         character.inventory.update_modifiers();
         return [
@@ -337,8 +339,10 @@ class DropItem extends concepts.Action {
         debug.assertion(()=>world instanceof concepts.World);
         debug.assertion(()=>character instanceof Character);
         const item = character.inventory.remove(this.item_idx);
-        debug.assertion(()=>item instanceof concepts.Item || (character.can_take_entities && item instanceof concepts.Entity));
+        debug.assertion(()=>item instanceof concepts.Entity);
         item.position = this.target;
+        delete item.owner;
+        delete item.world;
         world.add_entity(item);
         character.inventory.update_modifiers();
         return [
