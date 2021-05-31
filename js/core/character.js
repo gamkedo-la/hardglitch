@@ -520,7 +520,7 @@ class Character extends concepts.Body {
         const action_result = action.execute(world, this);
 
         // Update the item.
-        if(item){
+        if(item && item.on_action_used instanceof Function){
             item.on_action_used();
         }
         return action_result;
@@ -553,6 +553,10 @@ class Character extends concepts.Body {
             ... this.inventory.get_all_enabled_action_types(),
             TakeItem,
         ];
+    }
+
+    get_enabled_action_types(){
+        return this.get_all_enabled_actions_types();
     }
 
     get_enabled_action_types_related_to(action_type){
