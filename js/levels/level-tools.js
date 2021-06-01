@@ -302,8 +302,7 @@ function deserialize_entity_desc(entity_desc){
         entity_desc.drops.forEach(drop_type_name => {
             if(typeof drop_type_name === "string"){
                 drop_it(drop_type_name);
-            } else {
-                debug.assertion(()=>drop_type_name instanceof Array);
+            } else if (drop_type_name instanceof Array) {
                 const drops = drop_type_name;
                 drops.forEach(drop_it);
             }
