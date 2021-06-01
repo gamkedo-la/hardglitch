@@ -23,7 +23,7 @@ import { Rule_Stream } from "./rules/rules-stream.js";
 import { Rule_Destroy } from "./rules/rules-destroy.js";
 import { Rule_Delete } from "./rules/rules-delete.js";
 import { Rule_Repair } from "./rules/rules-repair.js";
-import { Rule_TakeItem } from "./rules/rules-items.js";
+import { Rule_TakeItem, Rule_WallControl } from "./rules/rules-items.js";
 import { Rule_Decrypt } from "./rules/rules-decrypt.js";
 import { Rule_Copy } from "./rules/rules-copy.js";
 import { Rule_Corruption } from "./rules/rules-corruption.js";
@@ -61,6 +61,8 @@ const default_rules = [ // BEWARE: rules will be applied in-order.
     new Rule_Repair(),
     new Rule_Destroy(),
     new Rule_Delete(),
+
+    new Rule_WallControl(),
 
     new Rule_Copy(),
     new Rule_Merge(),

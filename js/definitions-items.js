@@ -34,6 +34,7 @@ export {
     Item_DataBender,
     Item_PowerGlove,
     Item_BlockMaster,
+    Item_CriticalSection,
 
     MovableWall,
     MovableWall_Blue,
@@ -52,6 +53,8 @@ export {
     all_crypto_file_types,
     all_crypto_key_types,
     all_item_types,
+    all_opaque_movable_walls,
+    all_transparent_movable_walls,
     all_movable_walls,
 
     Debug_AllActions,
@@ -71,6 +74,7 @@ import { Copy } from "./rules/rules-copy.js";
 import { Merge } from "./rules/rules-merge.js";
 import { Destabilize } from "./rules/rules-unstability.js";
 import { Character } from "./core/character.js";
+import { CreateMovableWall_Opaque, CreateMovableWall_Transparent, DestroyMovableWall } from "./rules/rules-items.js";
 
 function all_crypto_file_types() {
     return [
@@ -111,19 +115,28 @@ function all_debug_item_types(){
     ];
 }
 
-function all_movable_walls(){
+function all_opaque_movable_walls(){
     return [
         MovableWall_Blue,
         MovableWall_Green,
         MovableWall_Orange,
         MovableWall_Purple,
         MovableWall_Red,
+    ];
+}
+
+function all_transparent_movable_walls(){
+    return [
         MovableWall_Glass_Blue,
         MovableWall_Glass_Green,
         MovableWall_Glass_Orange,
         MovableWall_Glass_Purple,
         MovableWall_Glass_Red,
-    ];
+    ]
+}
+
+function all_movable_walls(){
+    return [ ...all_opaque_movable_walls(), ...all_transparent_movable_walls() ];
 }
 
 
@@ -156,6 +169,7 @@ function all_item_types(){
         Item_DataBender,
         Item_PowerGlove,
         Item_BlockMaster,
+        Item_CriticalSection,
 
         ...all_movable_walls(),
 
@@ -906,6 +920,29 @@ class Item_BlockMaster extends concepts.Item {
             this.owner.can_take_movable_walls = false;
         }
     }
+};
+
+
+
+class Item_CriticalSection extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_6,
+        }}
+    };
+
+    get can_be_taken() { return true; }
+    description = auto_newlines("Allows one to create and destroy Mutex or Atomic blocks. Useful to manipulate enemies field of view or move set!", 35);
+
+    constructor(){
+        super("Critical Section");
+    }
+
+
+    get_enabled_action_types(){
+        return [ CreateMovableWall_Opaque, CreateMovableWall_Transparent, DestroyMovableWall ];
+    }
+
 };
 
 
