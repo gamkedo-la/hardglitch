@@ -74,7 +74,8 @@ const game_assets = { // Description of the assets to load.
         shadow_red: "./images/shadow_red.png",
         life_form: "./images/life-form.png",
         life_form_weak: "./images/life_form_weak.png",
-        life_form_aggressive: "./images/life-form-aggressive.png", //klaim, idk what you wanna call this.
+        life_form_aggressive: "./images/life-form-aggressive.png",
+        life_form_berserk: "./images/life-form-berserk.png",
         virus: "./images/virus.png",
         antivirus: "./images/anti-virus.png",
         program: "./images/program.png",
@@ -490,6 +491,33 @@ const sprite_defs = {
                                 { frame: 3, duration: 200 },
                                 { frame: 2, duration: 200 },
                                 { frame: 1, duration: 200 },
+                            ],
+                },
+        },
+    },
+
+
+    life_form_berserk: {
+        image: "life_form_berserk",
+        frames: [
+            { x: 0, y: 0, width: 64, height: 64 },
+            { x: 64, y: 0, width: 64, height: 64 },
+            { x: 128, y: 0, width: 64, height: 64 },
+            { x: 192, y: 0, width: 64, height: 64 },
+            { x: 256, y: 0, width: 64, height: 64 },
+        ],
+        animations: {
+            idle: {
+                    loop: true,
+                    timeline: [
+                                { frame: 0, duration: 50 },
+                                { frame: 1, duration: 100 },
+                                { frame: 2, duration: 200 },
+                                { frame: 3, duration: 200 },
+                                { frame: 4, duration: 400 },
+                                { frame: 3, duration: 200 },
+                                { frame: 2, duration: 200 },
+                                { frame: 1, duration: 100 },
                             ],
                 },
         },

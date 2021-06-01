@@ -2,6 +2,7 @@ export {
     LifeForm_Weak,
     LifeForm_Strong,
     LifeForm_Aggressive,
+    LifeForm_Berserk,
 
     MoveUntilYouCant,
     MoveInCircles,
@@ -14,7 +15,7 @@ import * as tiles from "../definitions-tiles.js";
 import { sprite_defs } from "../game-assets.js";
 import { Character, CharacterStats } from "../core/character.js"
 import { random_sample, rotate_array, random_int, auto_newlines } from "../system/utility.js";
-import { Item_AutoRepair, Item_BadCode, Item_LifeStrength } from "../definitions-items.js";
+import { Item_AutoRepair, Item_BadCode, Item_FrequencyBoost, Item_LifeStrength } from "../definitions-items.js";
 import { Push } from "../rules/rules-forces.js";
 import { move_towards, select_action_by_type, closest_entity } from "./characters-common.js";
 import { DropItem, drop_items_around } from "../rules/rules-items.js";
@@ -27,7 +28,7 @@ const reverse_move_id = {
     move_south: "move_north",
 };
 
-function all_lifeform_types() { return [ LifeForm_Strong, LifeForm_Weak, LifeForm_Aggressive ]; };
+function all_lifeform_types() { return [ LifeForm_Strong, LifeForm_Weak, LifeForm_Aggressive, LifeForm_Berserk ]; };
 
 function maybe_push(world, possible_actions){
     const push_actions = Object.values(possible_actions)
@@ -222,6 +223,8 @@ class LifeForm_Strong extends Character {
 
 class Crusher extends concepts.Actor {
 
+    attack_life_forms = false;
+
     constructor(){
         super();
         const base_behavior_type = random_sample(lifeform_possible_behavior);
@@ -241,12 +244,17 @@ class Crusher extends concepts.Actor {
             }
         }
 
-        return this.base_behavior.decide_next_action(world, character, possible_actions);
+        if(this.base_behavior)
+            return this.base_behavior.decide_next_action(world, character, possible_actions);
+        else
+            return possible_actions.wait;
     }
 
     find_someone_to_crush(world, character){
         const target = closest_entity(character, world,
-            entity => entity instanceof Character && all_lifeform_types().every(lifeform_type => !(entity instanceof lifeform_type))
+            entity => entity instanceof Character && entity != character
+                    && (this.attack_life_forms || all_lifeform_types().every(lifeform_type => !(entity instanceof lifeform_type))
+                    )
         );
         return target;
     }
@@ -265,7 +273,7 @@ class LifeForm_Aggressive extends Character {
         }}
     };
 
-    description = auto_newlines("Uncivilized life-form living in the computer's memory. They crush anyone coming in their sight.", 35);
+    description = auto_newlines("Uncivilized life-form living in the computer's memory. They crush anyone coming in their sight! Except maybe other life-forms?", 35);
     is_anomaly = true;
 
     constructor(){
@@ -283,4 +291,24 @@ class LifeForm_Aggressive extends Character {
     }
 
     drops = [ new LifeForm_Weak(), null, null ];
+};
+
+class LifeForm_Berserk extends LifeForm_Aggressive {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.life_form_berserk,
+        }}
+    };
+
+    description = auto_newlines("Enraged emergent life-form. Charge and crush anyone coming in their sight, even other life-forms!", 35);
+
+    constructor(...args){
+        super(...args);
+        this.name = "Berserk Life Form";
+        this.inventory.add(new Item_FrequencyBoost()); // We want it to be fast and dangerous! And drop that item if killed :D
+        this.actor.attack_life_forms = true; // We want it to attack any other life-forms too, anyone actually!
+        delete this.actor.base_behavior; // When nobody attackable is around, just wait.
+    }
+
+    drops = [ new LifeForm_Aggressive(), null ];
 };

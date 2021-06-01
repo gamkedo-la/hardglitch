@@ -29,7 +29,7 @@ import { EntitySpawned, spawn_entities_around } from "./spawn.js";
 import { auto_newlines, lazy_call, random_sample } from "../system/utility.js";
 import { EntityView } from "../view/entity-view.js";
 import { actions_for_each_target, add_default_action_if_adjacent, ranged_actions_for_each_target } from "./rules-common.js";
-import { all_movable_walls, all_opaque_movable_walls, all_transparent_movable_walls, MovableWall, MovableWall_Glass } from "../definitions-items.js";
+import { all_opaque_movable_walls, all_transparent_movable_walls, MovableWall, MovableWall_Glass } from "../definitions-items.js";
 import { destroy_at } from "./destruction.js";
 
 const take_item_range = new visibility.Range_Cross_Axis(1,2);
