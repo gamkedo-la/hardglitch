@@ -16,6 +16,7 @@ import { KEY } from "./game-input.js";
 import { GlitchyGlitchMacGlitchy } from "./characters/glitch.js";
 import { CharacterView } from "./view/character-view.js";
 import { GameFxView } from "./game-effects.js";
+import { config } from "./game-config.js";
 
 class IntroScreen extends fsm.State {
     fader = new ScreenFader();
@@ -198,6 +199,7 @@ Click or [Space] to begin the journey.
     }
 
     go_to_next_screen(){
+        config.enable_item_slot_help = true; // Activate item-slot help display first time starting from the first level.
         this.state_machine.push_action("ok", this.level_to_play, ...this.other_data);
     }
 

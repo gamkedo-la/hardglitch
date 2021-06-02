@@ -84,6 +84,7 @@ const game_assets = { // Description of the assets to load.
         menu_button: "./images/menu_button.png",
         stream_buffer: "./images/streambuffer.png",
         item_slot: "./images/itemslot.png",
+        help_item_slot: "./images/itemslot-help.png",
         item_generic_1: "./images/genericitem1.png",
         item_generic_2: "./images/genericitem2.png",
         item_generic_3: "./images/genericitem3.png",
@@ -690,6 +691,25 @@ const sprite_defs = {
             { x:144, y:0, width:72, height:72 }
          ]
     },
+
+    help_item_slot :{
+        image: "help_item_slot",
+        frames: [
+            { x:0, y:0, width:144, height:144 },
+            { x:144, y:0, width:144, height:144 },
+        ],
+        animations: {
+            blinking: {
+                loop: true,
+                timeline: [
+                    { frame: 0, duration: 1000 },
+                    { frame: 1, duration: 1000 * (2/3) },
+                ],
+            },
+        },
+    },
+
+
     crypto_file_0 : crypto_file_def(0),
     crypto_file_1 : crypto_file_def(1),
     crypto_file_2 : crypto_file_def(2),

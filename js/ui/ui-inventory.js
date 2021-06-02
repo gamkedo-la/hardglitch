@@ -11,6 +11,7 @@ import * as game_input from "../game-input.js";
 import * as tiles from "../definitions-tiles.js";
 import * as audio from "../system/audio.js";
 import * as texts from "../definitions-texts.js";
+import * as items from "../definitions-items.js";
 
 import { Character, Inventory } from "../core/character.js";
 import { sprite_defs } from "../game-assets.js";
@@ -24,6 +25,7 @@ import { is_blocked_position } from "../definitions-world.js";
 import { show_info } from "./ui-infobox.js";
 import { EntityView, square_half_unit_vector } from "../view/entity-view.js";
 import { CharacterView } from "../game-view.js";
+import { config } from "../game-config.js";
 
 const item_slot_vertical_padding = 0;
 const item_slot_vertical_size = 72;
@@ -36,6 +38,12 @@ const item_slot_name = "Item Slot";
 const active_item_slot_name = "Active Item Slot";
 const destroy_item_slot_name = "Destruction Slot";
 
+
+function is_activable_item(item_view){
+    return item_view instanceof ItemView
+        && !(item_view._item instanceof items.CryptoKey)
+        ;
+}
 
 const slot_types = {
     NORMAL: 0,
@@ -236,6 +244,8 @@ class InventoryUI {
     visible = true;
     dragging_enabled = false;
 
+    help_item_slot_enabled = false;
+
     constructor(position, character_status, events){
         debug.assertion(()=>position instanceof spatial.Vector2);
         debug.assertion(()=>character_status instanceof CharacterStatus);
@@ -246,6 +256,8 @@ class InventoryUI {
         this._need_refresh = false;
         this.fx_view = new GameFxView();
         this.fx_view.particleSystem.alwaysActive = true;
+
+        this.help_item_slot_sprite = new graphics.Sprite(sprite_defs.help_item_slot);
     }
 
     get position() { return this._position; }
@@ -273,6 +285,10 @@ class InventoryUI {
         this._slots.forEach(slot=>slot.update(delta_time));
 
         this.fx_view.update(delta_time);
+
+        if(this.help_item_slot_enabled){
+            this.help_item_slot_sprite.update(delta_time);
+        }
     }
 
     get is_dragging_item() { return this._dragging_item && this._dragging_item.item; }
@@ -297,14 +313,37 @@ class InventoryUI {
         debug.assertion(()=>Number.isInteger(idx));
         debug.assertion(()=>idx < this._slots.length);
         debug.assertion(()=>item_view instanceof EntityView);
-        this._slots[idx].set_item(item_view);
+        const item_slot = this._slots[idx];
+        item_slot.set_item(item_view);
+
+        if(config.enable_item_slot_help
+        && is_activable_item(item_view)){
+            if(item_slot.is_active){
+                this.help_item_slot_enabled = false;
+                config.enable_item_slot_help = false;
+            } else {
+                this.help_item_slot_enabled = true;
+            }
+        }
     }
 
     remove_item_view_at(idx){
         debug.assertion(()=>Number.isInteger(idx));
         debug.assertion(()=>idx < this._slots.length);
-        return this._slots[idx].remove_item();
+
+        const removed_item_view = this._slots[idx].remove_item();
+
+        if(config.enable_item_slot_help
+        && this.help_item_slot_enabled
+        && this.count_activable_items == 0
+        ){
+            this.help_item_slot_enabled = false;
+        }
+
+        return removed_item_view;
     }
+
+    get count_activable_items() { return this._slots.filter(slot=> is_activable_item(slot.item) ).length; }
 
     _find_slot_under(position){
         debug.assertion(()=>position instanceof spatial.Vector2);
@@ -454,6 +493,9 @@ class InventoryUI {
         this._slots.slice().reverse().forEach(slot=>slot.draw(canvas_context));
         this._slots.slice().reverse().forEach(slot=>slot.draw_item(canvas_context));
         this.fx_view.draw(canvas_context);
+        if(this.help_item_slot_enabled){
+            this.help_item_slot_sprite.draw(canvas_context);
+        }
     }
 
     refresh(character){
@@ -478,6 +520,9 @@ class InventoryUI {
             if(!slots_have_been_reset)
                 this._reset_slots(inventory_size, active_slot_count);
         }
+
+
+        this.help_item_slot_sprite.position = this.get_slot_position(1);
 
         this._need_refresh = false;
     }
