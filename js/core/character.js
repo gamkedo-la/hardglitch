@@ -291,8 +291,8 @@ class Inventory {
 
     _deactivate(item){
         debug.assertion(()=>item instanceof concepts.Entity);
+        this._reverse_modifiers(item);
         if(item.on_deactivated instanceof Function){
-            this._reverse_modifiers(item);
             item.on_deactivated();
         }
     }
