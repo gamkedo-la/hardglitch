@@ -22,7 +22,7 @@ import {
     fill_area_floor,
 } from "./level-tools.js";
 import { Position, World } from "../core/concepts.js";
-import { Rectangle } from "../system/spatial.js";
+import { is_point_under, Rectangle } from "../system/spatial.js";
 import { grid_ID } from "../definitions-world.js";
 
 const level_name = "Level 1: Buggy Program";
@@ -245,27 +245,48 @@ const level1_special_rooms = {
 }
 
 
+const berserk_rooms = {
+    arena_1: {
+        "name" : "Berserk Arena 1",
+        "width" : 9,
+        "height" : 9,
+        "grids" : {"floor":[100,100,121,100,121,100,121,100,100,100,121,121,100,100,100,121,121,100,121,121,10,121,10,121,10,121,121,100,100,121,10,10,10,121,100,100,121,100,10,10,10,10,10,100,121,100,100,121,10,10,10,121,100,100,121,121,10,121,10,121,10,121,121,100,121,121,100,100,100,121,121,100,100,100,121,100,121,100,121,100,100],"surface":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"corruption":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"unstable":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},
+        "entities" : [{"type":"LifeForm_Berserk","position":{"x":4,"y":4},"drops":["LifeForm_Aggressive",null]}]
+    },
+    arena_2: {
+        "name" : "Berserk Arena 2",
+        "width" : 9,
+        "height" : 9,
+        "grids" : {"floor":[121,100,100,100,121,100,100,100,121,100,121,121,100,121,100,121,121,100,100,121,10,100,10,100,10,121,100,100,100,100,121,10,121,100,100,100,121,121,10,10,10,10,10,121,121,100,100,100,121,10,121,100,100,100,100,121,10,100,10,100,10,121,100,100,121,121,100,121,100,121,121,100,121,100,100,100,121,100,100,100,121],"surface":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"corruption":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"unstable":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},
+        "entities" : [{"type":"LifeForm_Berserk","position":{"x":4,"y":4},"drops":["LifeForm_Aggressive",null]}]
+    }
+}
+
 window.level_1_startup_room = startup_room; // For debugging.
 window.exit_rooms = exit_rooms; // For debugging.
 window.level1_special_rooms = level1_special_rooms; // For debugging.
+window.level1_berserk_rooms = berserk_rooms; // For debugging.
 
 const starting_items = [ "Item_Push", "Item_Pull",  "Item_Swap", "Item_Jump"];
 
 
 
-function populate_entities(world, central_area_rect, start_items){
+function populate_entities(world, central_area_rect, avoid_areas, start_items){
     debug.assertion(()=> world instanceof World);
     debug.assertion(()=> central_area_rect instanceof Rectangle);
-    debug.assertion(()=>start_items instanceof Array);
+    debug.assertion(()=> avoid_areas instanceof Array && avoid_areas.every(area => area instanceof Rectangle));
+    debug.assertion(()=> start_items instanceof Array);
 
     const entities = [];
     const add_entities_from_desc = (...entities_descs)=>{ // FIXME: THIS IS A HACK TO KEEP THE WORLD AND DESCS IN SYNC ;__;
         entities.push(...entities_descs);
         deserialize_entities(entities_descs).forEach(entity => world.add_entity(entity));
     };
-    const is_spawn_position = predicate_entity_spawn_pos(world);
+    const is_world_spawn_position = predicate_entity_spawn_pos(world);
+    const is_spawn_position =  position => avoid_areas.every(area => !is_point_under(position, area))
+                                        && is_world_spawn_position(position);
 
-    const random_spawn_pos = (area = central_area_rect)=> random_available_entity_position(world, area);
+    const random_spawn_pos = (area = central_area_rect)=> random_available_entity_position(world, area, is_spawn_position);
 
     const bonus_bag = [
         { type: "Item_Scanner" },
@@ -534,7 +555,7 @@ function generate_world() {
     const subchunks_2x2 = () => {
         return random_sample([
             random_empty_2x2_floor(defaults.floor, defaults.wall),
-            random_empty_2x2_floor(defaults.floor, defaults.wall_alt),
+            random_empty_2x2_floor(defaults.floor, defaults.wall),
             random_empty_2x2_floor(defaults.floor, tiles.ID.VOID),
             random_empty_2x2_floor(defaults.floor, tiles.ID.HOLE),
         ]);
@@ -570,10 +591,11 @@ function generate_world() {
 
 
     const level_central_chunks = new ChunkGrid({
-        width: 3, height: 4, // These are number of chunks
+        width: 3, height: 5, // These are number of chunks
         chunk_width: 8, chunk_height: 8,
         default_grid_values: defaults,
         chunks: [
+            subchunk_8x8,       subchunk_8x8,       subchunk_8x8,
             subchunk_8x8,       subchunk_8x8,       subchunk_8x8,
             subchunk_8x8,       subchunk_8x8,       subchunk_8x8,
             subchunk_8x8,       subchunk_8x8,       subchunk_8x8,
@@ -583,6 +605,14 @@ function generate_world() {
 
     const central_chunk_width = level_central_chunks.width * level_central_chunks.chunk_width;
     const central_chunk_height = level_central_chunks.height * level_central_chunks.chunk_height;
+    const central_chunk_half_width = Math.floor(central_chunk_width / 2);
+    const central_chunk_half_height = Math.floor(central_chunk_height / 2);
+    const central_chunk_center_rect = new Rectangle({
+        x: central_chunk_half_width  - Math.floor(central_chunk_half_width / 2),
+        y: central_chunk_half_height - Math.floor(central_chunk_half_height / 2),
+        width: central_chunk_half_width,
+        height: central_chunk_half_height,
+    });
 
     const start_pos = {
         x: random_int(0, central_chunk_width - starting_room.width),
@@ -596,17 +626,28 @@ function generate_world() {
     fill_area_floor(central_part, new Rectangle({ position:{ x:0, y:0 }, width: central_part.width, height: safe_space}), defaults.floor);
     fill_area_floor(central_part, new Rectangle({ position:{ x:0, y:central_part.height - safe_space }, width: central_part.width, height: safe_space}), defaults.floor);
 
-    const level_with_starting_room = merge_world_chunks(level_name, { floor: defaults.wall },
-        { position: central_part_pos, world_desc: central_part, },
-        { position: start_pos, world_desc: starting_room, },
+    const berserk_arena = random_sample(Object.values(berserk_rooms));
+    const berserk_arena_pos = {
+        x: random_int(central_chunk_center_rect.top_left.x, central_chunk_center_rect.top_right.x - berserk_arena.width),
+        y: random_int(central_chunk_center_rect.top_left.y, central_chunk_center_rect.bottom_right.y - berserk_arena.height),
+    };
+
+    const level_with_berserk_room = merge_world_chunks(level_name, { floor: defaults.wall },
+        { position: { x: 0, y: 0 }, world_desc: central_part, },
+        { position: berserk_arena_pos, world_desc: berserk_arena, },
     );
 
+    const level_with_starting_room = merge_world_chunks(level_name, { floor: defaults.wall },
+        { position: { x: 0, y: start_pos.y + starting_room.height }, world_desc: level_with_berserk_room, },
+        { position: start_pos, world_desc: starting_room, },
+    );
 
     const exit_left = random_int(0, level_with_starting_room.width - exit_room.width);
     const exit_top = level_with_starting_room.height - random_int(0, 4);
     const level_with_exit_room = merge_world_chunks(level_name, { floor: defaults.wall },
         { position: { x: 0, y: 0 }, world_desc: level_with_starting_room, },
         { position: { x: exit_left, y: exit_top }, world_desc: exit_room, },
+
     );
 
     const [special_room_east, special_room_west] = random_bag_pick(Object.values(level1_special_rooms), 2).map(random_variation);
@@ -634,11 +675,23 @@ function generate_world() {
     const world_so_far = deserialize_world(level_desc);
 
     const central_area = new Rectangle({
-        position: { x: west_room.world_desc.width + central_part_pos.x, y: central_part_pos.y }, // the central area is pushed on the east by the west room, so we need to take that into acount to find it's real position (FIXME)
+        position: {
+            x: west_room.world_desc.width + central_part_pos.x,  // the central area is pushed on the east by the west room, so we need to take that into acount to find it's real position (FIXME)
+            y: central_part_pos.y
+        },
         width: central_part.width,
         height: central_part.height
     });
-    level_desc.entities.push(...populate_entities(world_so_far, central_area, start_items));
+
+    const berserk_arena_area = new Rectangle({
+        position: {
+            x: west_room.world_desc.width + central_part_pos.x + berserk_arena_pos.x,  // the central area is pushed on the east by the west room, so we need to take that into acount to find it's real position (FIXME)
+            y: central_part_pos.y + berserk_arena_pos.y
+        },
+        width: berserk_arena.width + 2,
+        height: berserk_arena.height + 2,
+    });
+    level_desc.entities.push(...populate_entities(world_so_far, central_area, [ berserk_arena_area ], start_items));
 
     const world_desc = random_variation(level_desc);
     const world = deserialize_world(world_desc);
@@ -667,7 +720,7 @@ function generate_world() {
     const exit_positions = world.grids[grid_ID.surface].matching_positions(tile_id => tile_id == tiles.ID.EXIT);
     debug.assertion(()=>exit_positions.length === 1);
     const exit_position = new Position(exit_positions[0]);
-    const close_to_exit_range = new visibility.Range_Circle(0, 16);
+    const close_to_exit_range = new visibility.Range_Circle(0, 12);
     visibility.positions_in_range(exit_position, close_to_exit_range,
                                 position => world.is_valid_position(position) && world.grids[grid_ID.floor].get_at(position) === defaults.floor)
         .forEach(position => {

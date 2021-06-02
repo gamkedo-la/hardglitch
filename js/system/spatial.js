@@ -218,7 +218,9 @@ class Rectangle {
     get height(){ return this.size.y; }
 
     get top_left() { return new Vector2(this.position); }
-    get bottom_right() { return new Vector2({x: this.position.x + this.width, y: this.position.y + this.height}); }
+    get top_right() { return this.position.translate({ x: this.width }); }
+    get bottom_left() { return this.position.translate({y: this.height}); }
+    get bottom_right() { return this.position.translate({x: this.width, y: this.height}); }
 
     get center() { return this.position.translate({ x: this.width / 2.0, y: this.height / 2.0 }); }
 };
