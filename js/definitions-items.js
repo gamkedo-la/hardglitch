@@ -868,7 +868,7 @@ class Item_PowerGlove extends concepts.Item {
     };
 
     get can_be_taken() { return true; }
-    description = auto_newlines("Allows one to take any entity including other characters. Put that character in an Active Slot to enable that character's powers!", 35);
+    description = auto_newlines("Allows one to take and drop any character. Putting a character in an Active Slot will enable that character's powers!", 35);
 
     constructor(){
         super("Power Glove");
