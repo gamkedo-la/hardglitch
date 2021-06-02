@@ -306,6 +306,7 @@ class LifeForm_Berserk extends LifeForm_Aggressive {
         super(...args);
         this.name = "Berserk Life Form";
         this.inventory.add(new Item_FrequencyBoost()); // We want it to be fast and dangerous! And drop that item if killed :D
+        this.stats.view_distance.real_value = 4; // Don't see too far, to be avoidable.
         this.actor.attack_life_forms = true; // We want it to attack any other life-forms too, anyone actually!
         delete this.actor.base_behavior; // When nobody attackable is around, just wait.
     }
