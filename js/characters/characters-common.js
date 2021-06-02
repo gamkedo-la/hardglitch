@@ -71,7 +71,7 @@ function move_towards(character, possible_actions, target_position, allowed_move
     const moves = moves_sorted_by_distance(possible_actions, target_position, allowed_move_types);
     const best_move = moves.shift();
     if(best_move
-    && distance_grid_precise(best_move.target_position, target_position) < distance_grid_precise(character.position, target_position))
+    && distance_grid_precise(best_move.target_position, target_position) <= distance_grid_precise(character.position, target_position))
         return best_move;
     else
         return undefined;
@@ -81,7 +81,7 @@ function move_away(character, possible_actions, target_position, allowed_move_ty
     const moves = moves_sorted_by_distance(possible_actions, target_position, allowed_move_types);
     const best_move = moves.pop();
     if(best_move
-    && distance_grid_precise(best_move.target_position, target_position) > distance_grid_precise(character.position, target_position))
+    && distance_grid_precise(best_move.target_position, target_position) >= distance_grid_precise(character.position, target_position))
         return best_move;
     else
         return undefined;
