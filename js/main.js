@@ -171,6 +171,7 @@ function start() { // Now we can start the game!
   audio.setVolume("Music", 0.5);
   audio.setVolume("SoundEffects", 0.5);
   game_state_machine.game_is_ready = true;
+  game_state_machine.states.loading_game.mute_button = mute_button;
   debug.log("GAME READY - STARTING");
   window.requestAnimationFrame(update_cycle);
 }

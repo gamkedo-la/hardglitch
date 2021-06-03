@@ -44,7 +44,10 @@ class LoadingGameScreen extends fsm.State {
             next_line();
             canvas_context.fillText(this.instructions, 20, next_line());
 
-            if(!this.is_starting && input.mouse.buttons.is_any_key_just_down()){
+            if(!this.mute_button.is_mouse_over
+            && !this.is_starting
+            && input.mouse.buttons.is_any_key_just_down()
+            ){
                 this.is_starting = true;
                 audio.playEvent("EditorButtonClick"); // This is to unlock the audio system.
                 setTimeout(()=> this.state_machine.push_action("game_ready"), 1000 / 2);
