@@ -238,6 +238,7 @@ class Inventory {
     extract_all_items_slots() {
         const slots = this._item_slots;
         this._item_slots = [];
+        this.resize(this.stats.inventory_size.value);
         return slots;
     }
 
