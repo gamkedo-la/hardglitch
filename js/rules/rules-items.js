@@ -31,6 +31,7 @@ import { EntityView } from "../view/entity-view.js";
 import { actions_for_each_target, add_default_action_if_adjacent, ranged_actions_for_each_target } from "./rules-common.js";
 import { all_opaque_movable_walls, all_transparent_movable_walls, MovableWall, MovableWall_Glass } from "../definitions-items.js";
 import { destroy_at } from "./destruction.js";
+import { config } from "../game-config.js";
 
 const take_item_range = new visibility.Range_Cross_Axis(1,2);
 const create_block_range = new visibility.Range_Square(1,3);
@@ -390,7 +391,9 @@ class Rule_TakeItem extends concepts.Rule {
             .forEach((target)=>{
                 const action = new TakeItem(target);
                 actions[action.id] = action;
-                add_default_action_if_adjacent(character.position, actions, action, target);
+                if(config.enable_take_by_move){
+                    add_default_action_if_adjacent(character.position, actions, action, target);
+                }
             });
         return actions;
     }
