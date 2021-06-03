@@ -716,7 +716,6 @@ function generate_world() {
         { type: "Item_ThreadPool" },
         { type: "Item_Zip" },
         { type: "Item_DataBender" },
-        { type: "Item_PowerGlove" },
         { type: "Item_BlockMaster" },
         { type: "Item_CriticalSection" },
     ];
