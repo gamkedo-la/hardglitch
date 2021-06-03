@@ -15,7 +15,7 @@ import * as tiles from "../definitions-tiles.js";
 import { sprite_defs } from "../game-assets.js";
 import { Character, CharacterStats } from "../core/character.js"
 import { random_sample, rotate_array, random_int, auto_newlines } from "../system/utility.js";
-import { Item_AutoRepair, Item_BadCode, Item_FrequencyBoost, Item_LifeStrength } from "../definitions-items.js";
+import { Item_AutoRepair, Item_BadCode, Item_FrequencyBoost, Item_IntegrityBoost, Item_LifeStrength } from "../definitions-items.js";
 import { Push } from "../rules/rules-forces.js";
 import { move_towards, select_action_by_type, closest_entity } from "./characters-common.js";
 import { DropItem, drop_items_around } from "../rules/rules-items.js";
@@ -217,6 +217,15 @@ class LifeForm_Strong extends Character {
     }
 
     drops = [ [ new LifeForm_Weak(), new LifeForm_Weak(), ] ];
+
+
+    repair(integrity_amount){
+        const repaired = super.repair(integrity_amount);
+        if(repaired > 0 && this.stats.integrity.value == this.stats.integrity.max){
+            this._thanks_drops = [ new Item_IntegrityBoost() ];
+        }
+        return repaired;
+    }
 };
 
 
@@ -232,6 +241,11 @@ class Crusher extends concepts.Actor {
     }
 
     decide_next_action(world, character, possible_actions) {
+        const thanks_drop = maybe_drop_thanks_items(world, character);
+        if(thanks_drop instanceof concepts.Action){
+            return thanks_drop;
+        }
+
         const target = this.find_someone_to_crush(world, character);
         if(target instanceof Character){
             const push_action = this.push(target, possible_actions);
@@ -308,8 +322,21 @@ class LifeForm_Berserk extends LifeForm_Aggressive {
         this.inventory.add(new Item_FrequencyBoost()); // We want it to be fast and dangerous! And drop that item if killed :D
         this.stats.view_distance.real_value = 4; // Don't see too far, to be avoidable.
         this.actor.attack_life_forms = true; // We want it to attack any other life-forms too, anyone actually!
+
+        this.actor._initial_base_behavior = this.actor.base_behavior;
         delete this.actor.base_behavior; // When nobody attackable is around, just wait.
     }
 
     drops = [ new LifeForm_Aggressive(), null ];
+
+    repair(integrity_amount){
+        const repaired = super.repair(integrity_amount);
+        // Drops everything if you attempt to appease it. (and return to default behavior)
+        this.inventory.extract_all_items_slots();
+        this._thanks_drops = [ new Item_FrequencyBoost() ];
+        if(this.actor instanceof Crusher){
+            this.actor = this.actor._initial_base_behavior;
+        }
+        return repaired;
+    }
 };
