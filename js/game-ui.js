@@ -12,6 +12,7 @@ import * as audio from "./system/audio.js"
 import * as graphics from "./system/graphics.js";
 import * as ui from "./system/ui.js";
 import * as anim from "./system/animation.js";
+import * as animations from "./game-animations.js";
 import { sprite_defs } from "./game-assets.js";
 import * as concepts from "./core/concepts.js";
 import * as texts from "./definitions-texts.js";
@@ -24,6 +25,7 @@ import { InfoBox, show_info } from "./ui/ui-infobox.js";
 import { Timeline } from "./ui/ui-timeline.js";
 import { mute_button } from "./main.js";
 import { easing, tween } from "./system/tweening.js";
+import { GameFxView } from "./game-effects.js";
 
 const action_button_size = 50;
 const player_ui_top_from_bottom = 66;
@@ -423,6 +425,9 @@ class GameInterface {
         this._action_buttons = [];
         this.config = config;
 
+        this.fx_view = new GameFxView();
+        this.fx_view.particleSystem.alwaysActive = true;
+
         this.on_canvas_resized();
     }
 
@@ -453,6 +458,7 @@ class GameInterface {
         this.animations.update(delta_time);
         Object.values(this.ingame_elements).forEach(element => element.update(delta_time, current_character, world));
         this.elements.forEach(element => element.update(delta_time, current_character, world));
+        this.fx_view.update(delta_time);
         this._handle_action_target_selection(delta_time);
     }
 
@@ -460,6 +466,7 @@ class GameInterface {
         Object.values(this.ingame_elements).forEach(element => element.draw(graphics.screen_canvas_context)); // These must not be drawn in-screen, but in-game.
         graphics.camera.begin_in_screen_rendering();
         this.elements.forEach(element => element.draw(graphics.screen_canvas_context));
+        this.fx_view.draw(graphics.screen_canvas_context);
         graphics.camera.end_in_screen_rendering();
     }
 
@@ -530,6 +537,10 @@ class GameInterface {
             ++key_number;
         }
 
+        const fx_view = this.fx_view;
+        const slot_idxs_per_action_name = this.inventory.slot_idxs_per_action_name;
+        const inventory = this.inventory;
+
         this._action_buttons.forEach(action_button => {
             action_button.help_text.position = { x: action_button.position.x, y: line_y - action_button.help_text.height };
             action_button.cancel_button_position = { x: action_button.position.x, y: line_y - this.button_cancel_action_selection.width };
@@ -538,7 +549,25 @@ class GameInterface {
                 const animation = function*(){
                     const target_position = action_button.position;
                     action_button.position = action_button.position.translate({ y: -action_button.height });
-                    yield* anim.wait(500);
+                    const spawn_fx_pos = action_button.position.translate({
+                        x: Math.round(action_button.width / 2),
+                        y: Math.round(action_button.height / 2)
+                    });
+
+                    const button_animations = [
+                        anim.wait(1000),
+                      animations.in_screen_spawn(fx_view, spawn_fx_pos),
+                    ];
+
+                    const related_slot_idxs = slot_idxs_per_action_name[action_button.action_text_name];
+                    if(related_slot_idxs instanceof Array){
+                        related_slot_idxs.forEach(idx => {
+                            const position = inventory.get_slot_position(idx);
+                            button_animations.push(animations.lightning_between(fx_view, action_button, { position }, 1000 / 16))
+                        });
+                    }
+
+                    yield* anim.in_parallel(...button_animations);
                     yield* tween(action_button.position, target_position, 500, (new_pos) => action_button.position = new_pos, easing.in_out_quad);
                 };
                 this.animations.play(animation());

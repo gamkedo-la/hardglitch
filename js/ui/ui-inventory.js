@@ -39,7 +39,7 @@ const active_item_slot_name = "Active Item Slot";
 const destroy_item_slot_name = "Destruction Slot";
 
 
-function is_activable_item(item_view){
+function is_activable_item_view(item_view){
     return item_view instanceof ItemView
         && !(item_view._item instanceof items.CryptoKey)
         ;
@@ -316,8 +316,10 @@ class InventoryUI {
         const item_slot = this._slots[idx];
         item_slot.set_item(item_view);
 
+        const is_activable_item = is_activable_item_view(item_view);
+
         if(config.enable_item_slot_help
-        && is_activable_item(item_view)){
+        && is_activable_item){
             if(item_slot.is_active){
                 this.help_item_slot_enabled = false;
                 config.enable_item_slot_help = false;
@@ -343,7 +345,27 @@ class InventoryUI {
         return removed_item_view;
     }
 
-    get count_activable_items() { return this._slots.filter(slot=> is_activable_item(slot.item) ).length; }
+    get count_activable_items() { return this._slots.filter(slot=> is_activable_item_view(slot.item) ).length; }
+
+    get slot_idxs_per_action_name(){
+        const result = {};
+        this._slots.forEach((slot, idx)=>{
+            if(!slot.is_active || slot.item == null)
+                return;
+
+            const item = slot.item._item;
+            if(!(item instanceof concepts.Item))
+                return;
+
+            const action_types = item.get_enabled_action_types();
+            action_types.forEach(action_type => {
+                if(result[action_type.action_type_name] == null)
+                    result[action_type.action_type_name] = [];
+                result[action_type.action_type_name].push(idx);
+            })
+        });
+        return result;
+    };
 
     _find_slot_under(position){
         debug.assertion(()=>position instanceof spatial.Vector2);

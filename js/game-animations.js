@@ -26,10 +26,12 @@ export {
     pulled,
     scanned,
     spawned,
+    in_screen_spawn,
     exited,
     merge_characters,
     value_animation,
     integrity_value_change,
+    lightning_between,
 }
 
 import * as debug from "./system/debug.js";
@@ -402,6 +404,24 @@ function* decrypt_file(file_view, file_fx_view, key_view, key_fx_view, crypto_ki
     file_view.is_visible = false;
 }
 
+function* lightning_between(fx_view, source_objet, target_object, duration_ms){
+
+    const source_pos = source_objet.position.translate(square_half_unit_vector);
+    const target_pos = target_object.position.translate(square_half_unit_vector);
+    const fx = fx_view.lightningJump(target_pos, source_pos, [ new Color(255, 255, 255) ]);
+    const update_fx_pos = function*(){
+        fx.position = target_object.position.translate(square_half_unit_vector);
+        yield;
+    };
+
+    yield* animation.in_parallel(
+        animation.wait(duration_ms),
+        update_fx_pos()
+    );
+
+    fx.done = true;
+}
+
 function* pushed(fx_view, entity_view, to_position){
     debug.assertion(()=>entity_view instanceof EntityView);
     debug.assertion(()=>to_position instanceof Position);
@@ -417,18 +437,26 @@ const pulled = pushed;
 
 function* scanned(fx_view, game_pos){
     debug.assertion(()=>fx_view instanceof GameFxView);
-    let fx_pos = graphic_position(game_pos).translate(square_half_unit_vector);
-    let fx = fx_view.scan(fx_pos);
+    const fx_pos = graphic_position(game_pos).translate(square_half_unit_vector);
+    const fx = fx_view.scan(fx_pos);
     audio.playEvent('scanAnim');
     yield* animation.wait(700);
 }
 
-function* spawned(fx_view, game_pos){
+function* spawned(fx_view, game_pos, with_sounds=true){
     debug.assertion(()=>fx_view instanceof GameFxView);
-    let fx_pos = graphic_position(game_pos).translate(square_half_unit_vector);
-    let fx = fx_view.spawn(fx_pos);
-    audio.playEvent('spawnAnim');
+    const fx_pos = graphic_position(game_pos).translate(square_half_unit_vector);
+    const fx = fx_view.spawn(fx_pos);
+    if(with_sounds)
+        audio.playEvent('spawnAnim');
     yield* animation.wait(1200);
+}
+
+function* in_screen_spawn(fx_view, object_pos){
+    debug.assertion(()=>fx_view instanceof GameFxView);
+    const fx = fx_view.spawn(object_pos);
+    yield* animation.wait(400);
+    fx.done = true;
 }
 
 function* exited(fx_view, entity_view){
