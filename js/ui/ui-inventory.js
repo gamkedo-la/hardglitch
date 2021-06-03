@@ -499,7 +499,7 @@ class InventoryUI {
                         debug.assertion(()=>this._current_character instanceof Character);
                         debug.assertion(()=>this.world instanceof concepts.World);
                         this._possible_drop_positions = this._current_character.allowed_drops()
-                            .filter(position => !is_blocked_position(this.world, position, tiles.is_safely_walkable));
+                            .filter(position => !is_blocked_position(this.world, position, tiles.is_walkable));
 
                         if(this.events)
                             this.events.on_item_dragging_begin(this._possible_drop_positions);
