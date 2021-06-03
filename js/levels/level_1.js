@@ -715,6 +715,10 @@ function generate_world() {
         { type: "Item_Scanner" },
         { type: "Item_ThreadPool" },
         { type: "Item_Zip" },
+        { type: "Item_DataBender" },
+        { type: "Item_PowerGlove" },
+        { type: "Item_BlockMaster" },
+        { type: "Item_CriticalSection" },
     ];
 
     world.items.filter(item => item instanceof items.CryptoFile  // Crypto-files...
