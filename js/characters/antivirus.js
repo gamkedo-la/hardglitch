@@ -20,11 +20,18 @@ class AnomalyHunter extends concepts.Actor {
         debug.assertion(()=>character instanceof Character);
         debug.assertion(()=>possible_actions instanceof Object);
 
-        const friend_to_heal = this._find_friend_to_heal(character, world);
         const attack = this._attack_any_virus_around(possible_actions, character, world);
+        const friend_to_heal_dying = this._find_friend_to_heal(character, world, 1/2);
+        const friend_to_heal_hurt = this._find_friend_to_heal(character, world, 1/10);
+
+        const friend_to_heal = friend_to_heal_dying instanceof Character ? friend_to_heal_dying : friend_to_heal_hurt;
 
         if(friend_to_heal instanceof Character
-        && (!attack || random_int(1, 100) > 50) // Don't heal all the time if there are enemies around.
+        && (!attack
+           || friend_to_heal == character   // Heal yourself as a priority...
+           || friend_to_heal == friend_to_heal_dying // ...then dying friends have priority.
+           || random_int(1, 100) > 80       // Don't heal all the time if there are enemies around.
+           )
         ){
             const heal_friend = this._heal_target(possible_actions, friend_to_heal.position);
             if(heal_friend instanceof concepts.Action)
@@ -136,11 +143,11 @@ class AnomalyHunter extends concepts.Actor {
             return closest_entity(character, world, (entity)=>entity instanceof Character && entity.is_anomaly);
     }
 
-    _find_friend_to_heal(character, world){
+    _find_friend_to_heal(character, world, ration_of_life_left){
         return closest_entity(character, world, (entity)=>entity instanceof Character
                                                         && !entity.is_virus
                                                         && !entity.is_anomaly
-                                                        && entity.stats.integrity.value < entity.stats.integrity.max);
+                                                        && entity.stats.integrity.value <= Math.floor(entity.stats.integrity.max * ration_of_life_left));
     }
 }
 
