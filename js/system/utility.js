@@ -31,6 +31,7 @@ export {
     no_linejumps,
     some_member,
     every_members,
+    predicate_unique,
 }
 
 import * as debug from "../system/debug.js";
@@ -388,4 +389,9 @@ return typeof fn === 'function' &&
 
 function is_iterable(object){
     return object != null && typeof object[Symbol.iterator] === 'function';
+}
+
+// See: https://stackoverflow.com/questions/1960473/get-all-unique-values-in-a-javascript-array-remove-duplicates
+function predicate_unique(value, index, self) {
+    return self.indexOf(value) === index;
 }

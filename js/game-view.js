@@ -36,7 +36,7 @@ import { ItemView } from "./view/item-view.js";
 import { FogOfWar } from "./view/fogofwar.js";
 import { TakeItem } from "./rules/rules-items.js";
 import { GameFxView } from "./game-effects.js";
-import { add_text_line, group_per_type, position_from_index } from "./system/utility.js";
+import { add_text_line, group_per_type, position_from_index, predicate_unique } from "./system/utility.js";
 import { config } from "./game-config.js";
 import { turn_sequence } from "./core/action-turn.js";
 import { grid_ID } from "./definitions-world.js";
@@ -398,7 +398,7 @@ class GameView {
 
         debug.assertion(()=>this.player_character instanceof Character);
         const available_actions = this.game.turn_info.possible_actions;
-        for(const action of Object.values(available_actions)){
+        for(const action of Object.values(available_actions).filter(predicate_unique)){ // Each action once (otherwise we get multiple descriptions for the same action)
             debug.assertion(()=>action instanceof concepts.Action);
             if(action.is_basic ){ //&& action.is_safe){
                 const help_texts = this.help_text_over_action(action);
