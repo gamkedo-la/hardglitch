@@ -878,7 +878,7 @@ class Item_PowerGlove extends concepts.Item {
         debug.assertion(()=>this.owner instanceof Character);
         debug.assertion(()=>this.world instanceof concepts.World);
         if(this.owner.inventory.active_items.filter(item=>item instanceof Item_PowerGlove).length > 0){
-            this.owner.can_take_entities = true;
+            this.owner.can_take_entities = true; // TODO FIXME : this should have been a special action TakeEntity (+TakeItem) so that we don't have weird state to handle.
         }
     }
 
@@ -886,7 +886,7 @@ class Item_PowerGlove extends concepts.Item {
         debug.assertion(()=>this.owner instanceof Character);
         debug.assertion(()=>this.world instanceof concepts.World);
         if(this.owner.inventory.active_items.filter(item=>item instanceof Item_PowerGlove).length < 1){
-            this.owner.can_take_entities = false;
+            this.owner.can_take_entities = false; // TODO FIXME : this should have been a special action TakeEntity (+TakeItem) so that we don't have weird state to handle.
         }
     }
 };
@@ -909,7 +909,7 @@ class Item_BlockMaster extends concepts.Item {
         debug.assertion(()=>this.owner instanceof Character);
         debug.assertion(()=>this.world instanceof concepts.World);
         if(this.owner.inventory.active_items.filter(item=>item instanceof Item_BlockMaster).length > 0){
-            this.owner.can_take_movable_walls = true;
+            this.owner.can_take_movable_walls = true; // TODO FIXME : this should have been a special action TakeMovableWall (+TakeItem) so that we don't have weird state to handle.
         }
     }
 
@@ -917,7 +917,7 @@ class Item_BlockMaster extends concepts.Item {
         debug.assertion(()=>this.owner instanceof Character);
         debug.assertion(()=>this.world instanceof concepts.World);
         if(this.owner.inventory.active_items.filter(item=>item instanceof Item_BlockMaster).length < 1){
-            this.owner.can_take_movable_walls = false;
+            this.owner.can_take_movable_walls = false; // TODO FIXME : this should have been a special action TakeMovableWall (+TakeItem) so that we don't have weird state to handle.
         }
     }
 };
@@ -965,6 +965,27 @@ class Debug_AllActions extends concepts.Item {
 
     get_enabled_action_types(){
         return [ ...Object.values(all_uncommon_action_types) ];
+    }
+
+
+    on_activated(){
+        // TODO FIXME : this should have been a special action TakeEntity + TakeMovableWall + TakeItem so that we don't have weird state to handle.
+        debug.assertion(()=>this.owner instanceof Character);
+        debug.assertion(()=>this.world instanceof concepts.World);
+        if(this.owner.inventory.active_items.filter(item=>item instanceof Debug_AllActions).length > 0){
+            this.owner.can_take_entities = true;
+            this.owner.can_take_movable_walls = true;
+        }
+    }
+
+    on_deactivated(){
+        // TODO FIXME : this should have been a special action TakeEntity + TakeMovableWall + TakeItem so that we don't have weird state to handle.
+        debug.assertion(()=>this.owner instanceof Character);
+        debug.assertion(()=>this.world instanceof concepts.World);
+        if(this.owner.inventory.active_items.filter(item=>item instanceof Debug_AllActions).length < 1){
+            this.owner.can_take_entities = false;
+            this.owner.can_take_movable_walls = false;
+        }
     }
 
 }
