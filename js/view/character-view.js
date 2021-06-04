@@ -21,6 +21,7 @@ class CharacterView extends EntityView {
         super(character.id, character.position, character.assets);
         this._character = character;
         this.name = character.name;
+        this.description = character.description;
         this.is_floating = character.is_floating ? true : false;
         this._fov_sprite = new Sprite(sprite_defs.vision);
 

@@ -219,11 +219,10 @@ class ItemSlot {
 
     _show_info(){
         if(this._item_view != undefined){
-            if(this.is_active){
-                show_info(`Active Item: ${this._item_view.description}`);
-            } else {
-                show_info(`Item: ${this._item_view.description}`);
-            }
+            const kind_and_name = this._item_view instanceof ItemView ? `Item: ` : `Entity: ${this._item_view.name}` + '\n\n';
+            const active_label = this.is_active ? "Active " : "";
+            show_info(`${active_label}${kind_and_name}${this._item_view.description}`);
+
         } else {
             switch(this.type)
             {
