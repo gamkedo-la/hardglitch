@@ -291,18 +291,24 @@ function* drop_item(fx_view, drop_position, raw_position=false) {
 }
 
 function* inventory_add(fx_view, inv, idx) {
+    if(inv._slots[idx] == null)
+        return;
     const fx_pos = inv._slots[idx].position.translate({x:36,y:36});
     const fx = fx_view.drop(fx_pos, .25);
     audio.playEvent('swapItem');
 }
 
 function* inventory_remove(fx_view, inv, idx) {
+    if(inv._slots[idx] == null)
+        return;
     const fx_pos = inv._slots[idx].position.translate({x:36,y:36});
     const fx = fx_view.take(fx_pos, .25);
     audio.playEvent('swapItem');
 }
 
 function* inventory_destroy(fx_view, inv, idx) {
+    if(inv._slots[idx] == null)
+        return;
     const fx_pos = inv._slots[idx].position.translate({x:36,y:36});
     const fx = fx_view.destruction(fx_pos, .25);
     audio.playEvent('explode');
