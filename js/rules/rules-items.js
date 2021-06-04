@@ -377,7 +377,7 @@ class Rule_TakeItem extends concepts.Rule {
                 if(item instanceof concepts.Item){
                     if(item.can_be_taken === true)
                         return true;
-                    if(character.can_take_movable_walls && item instanceof MovableWall)
+                    if(character.can_take_movable_walls && (item instanceof MovableWall || item instanceof MovableWall_Glass))
                         return true;
 
                     return false;
