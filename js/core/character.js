@@ -458,6 +458,18 @@ class Character extends concepts.Body {
 
     _on_deserialized(){
         this.inventory.connect_stats(this.stats);
+        this._reset_ownership_of_items_in_inventory();
+    }
+
+    _reset_ownership_of_items_in_inventory(world){
+        const character = this;
+        this.inventory.stored_items
+            .forEach(item=> {
+                if(item instanceof concepts.Item){
+                    item.owner = character;
+                    item.world = world
+                }
+            });
     }
 
     get position() { return super.position; }
@@ -472,6 +484,8 @@ class Character extends concepts.Body {
         this.field_of_vision.position = this.position;
         this.field_of_vision.view_distance = this.stats.view_distance.value;
         this.field_of_vision.update(world);
+
+        this._reset_ownership_of_items_in_inventory(world);
 
         this._need_perception_update = false;
     }
