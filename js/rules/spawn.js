@@ -2,6 +2,8 @@ export {
     EntityScanned,
     EntitySpawned,
     spawn_entities_around,
+
+    default_spawn_position_predicate,
 }
 
 import * as debug from "../system/debug.js";
@@ -58,7 +60,9 @@ class EntitySpawned extends concepts.Event {
     }
 };
 
-function spawn_entities_around(world, center_position, entities, spawn_event = EntitySpawned, position_predicate = tiles.is_walkable, max_range){
+const default_spawn_position_predicate = tiles.is_walkable;
+
+function spawn_entities_around(world, center_position, entities, spawn_event = EntitySpawned, position_predicate = default_spawn_position_predicate, max_range){
     debug.assertion(()=>center_position instanceof concepts.Position);
     debug.assertion(()=>entities instanceof Array);
     debug.assertion(()=>entities.every(entity => entity instanceof concepts.Entity));

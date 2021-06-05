@@ -5,6 +5,7 @@ export {
     world_grid, default_rules, game_levels, grid_ID,
     is_blocked_position,
     is_valid_world,
+    has_any_free_adjacent_positions,
     get_entity_type,
     get_any_serializable_type,
 };
@@ -40,6 +41,7 @@ import { all_characters_types, all_actor_types } from "./deflinitions-characters
 import { all_item_types } from "./definitions-items.js";
 import { CharacterStats, StatValue, Inventory } from "./core/character.js";
 import { FieldOfVision } from "./core/visibility.js";
+import { is_safely_walkable } from "./definitions-tiles.js";
 
 const world_grid = {
     width: 64,
@@ -171,4 +173,10 @@ function is_valid_world(world){
         && world.all_grids.every(grid => grid.width === world.width && grid.height === world.height)
         && world.entities.every(entity => entity instanceof concepts.Entity)
         ;
+}
+
+
+function has_any_free_adjacent_positions(world, position, predicate_is_free = is_safely_walkable){
+    debug.assertion(()=>position instanceof concepts.Position);
+    return position.adjacents.some(neighbor_pos=> !is_blocked_position(world, neighbor_pos, predicate_is_free, true))
 }

@@ -9,10 +9,12 @@ import * as debug from "../system/debug.js";
 import { Character } from "../core/character.js";
 import * as concepts from "../core/concepts.js";
 import * as visibility from "../core/visibility.js";
+import * as tiles from "../definitions-tiles.js";
 import { sprite_defs } from "../game-assets.js";
 import { ranged_actions_for_each_target } from "./rules-common.js";
 import { EntityScanned, EntitySpawned, spawn_entities_around } from "./spawn.js";
 import { auto_newlines } from "../system/utility.js";
+import { has_any_free_adjacent_positions } from "../definitions-world.js";
 
 const copy_ap_cost = 20;
 
@@ -63,14 +65,19 @@ class Rule_Copy extends concepts.Rule {
     get_actions_for(character, world){
         debug.assertion(()=>character instanceof Character);
         return ranged_actions_for_each_target(world, character, Copy, (position)=> {
-            const item = world.item_at(position);
+            const entity = world.entity_at(position);
+
+            // Don't allow to copy entities which don't have an adjacent free square. Also allow that adjacent square to not be visible to the character doing the copy.
+            if(!has_any_free_adjacent_positions(world, entity.position))
+                return false;
+
             // Disable copy of items that provide copy (otherwise it's too easy to copy these items to get more copy actions)
-            if(item){
-                debug.assertion(()=>item instanceof concepts.Item);
-                if(item.get_enabled_action_types().some((action_type)=> action_type === Copy)){
+            if(entity instanceof concepts.Item){
+                if(entity.get_enabled_action_types().some((action_type)=> action_type === Copy)){
                     return false;
                 }
             }
+
             return true;
         });
     }
