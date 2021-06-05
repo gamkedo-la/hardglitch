@@ -87,7 +87,10 @@ class Merge extends concepts.Action {
             merged_entity.actor = character.actor; // It's that simple.
             events.push(new Merged(character, merged_entity));
 
-            // 3. Lose the previous body.
+            // 3. Rename the new entity appropriately.
+            merged_entity.name = `${merged_entity.name}-${character.name}`;
+
+            // 4. Lose the previous body.
             world.remove_entity(character.id);
 
         } else {
