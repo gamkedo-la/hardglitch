@@ -107,7 +107,6 @@ class ItemSlot {
             this.position = position;
 
         this.is_active = this.type === slot_types.ACTIVE;
-        this._fx = null;
     }
 
     get is_mouse_over() { return this._help_text.is_mouse_over_area_to_help; }
@@ -203,7 +202,7 @@ class ItemSlot {
 
     _destroy_fx(){
         let fx_pos = this._sprite.area.center;
-        this.fx = this._fx_view.destruction(fx_pos);
+        this.destroy_fx = this._fx_view.destruction(fx_pos);
     }
 
     _update_item_position(){
@@ -295,7 +294,9 @@ class InventoryUI {
 
     is_under(position){ return this._find_slot_under(position) !== undefined; }
 
-    request_refresh(){ this._need_refresh = true; }
+    request_refresh(){
+        this._need_refresh = true;
+    }
 
     get_slot_position(idx) {
         debug.assertion(()=>idx < this._slots.length);
@@ -528,7 +529,7 @@ class InventoryUI {
         const inventory_size = character.stats.inventory_size.value;
         const active_slot_count = character.stats.activable_items.value;
         let slots_have_been_reset = false;
-        if(this._slots.length !== inventory_size
+        if(this._slots.length !== inventory_size + 1 // Don't count the destruction slot
         || this._active_slots_count !== active_slot_count
         || this._need_refresh){
             this._reset_slots(inventory_size, active_slot_count);
