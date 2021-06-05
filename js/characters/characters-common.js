@@ -1,5 +1,5 @@
 export {
-    scan_entities_around,
+    scan_visible_entities_around,
     closest_entity,
     select_action_by_type,
     move_towards,
@@ -17,17 +17,18 @@ import { Character } from "../core/character.js";
 const default_movement_types = [Move, Jump];
 
 // Returns a list of visible entities, sorted by distance, matching the given predicate.
-function scan_entities_around(character, world, predicate){
+function scan_visible_entities_around(character, world, predicate){
     debug.assertion(()=>character instanceof Character);
     debug.assertion(()=>world instanceof concepts.World);
     debug.assertion(()=>predicate instanceof Function);
     return character.field_of_vision.visible_entities(world).filter(predicate);
 }
 
+
 // Returns the closest visible entity from the specified character, which matches the given predicate.
 // Returns undefined if none matches these conditions.
 function closest_entity(character, world, predicate){
-    const potential_targets = scan_entities_around(character, world, predicate);
+    const potential_targets = scan_visible_entities_around(character, world, predicate);
     if(potential_targets.length > 0){
         return potential_targets.shift();
     }

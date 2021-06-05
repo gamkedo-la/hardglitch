@@ -3,6 +3,7 @@
 export {
     FieldOfVision,
     positions_in_range,
+    search_entities,
     valid_target_positions,
     valid_move_positions,
     valid_spawn_positions,
@@ -233,6 +234,26 @@ function valid_spawn_positions(world, center_position, tile_filter, max_range = 
 }
 
 
+
+// Returns a list of entities, visible or not, sorted by distance, matching the predicate and shape or list of positions to check.
+function search_entities(world, position, range_shape_or_list_of_pos , predicate = ()=>true){
+    debug.assertion(()=>world instanceof concepts.World);
+    debug.assertion(()=>position instanceof concepts.Position);
+    debug.assertion(()=>range_shape_or_list_of_pos instanceof RangeShape || (range_shape_or_list_of_pos instanceof Array && range_shape_or_list_of_pos.every(position=>position instanceof concepts.Position)));
+    debug.assertion(()=>predicate instanceof Function);
+
+    const possible_positions = range_shape_or_list_of_pos instanceof RangeShape
+                             ? positions_in_range(position, range_shape_or_list_of_pos)
+                            : range_shape_or_list_of_pos;
+    debug.assertion(()=> possible_positions instanceof Array && possible_positions.every(position=>position instanceof concepts.Position));
+    const valid_positions = possible_positions.filter(position => world.is_valid_position(position));
+    const entities = valid_positions.map(position => world.entity_at(position))
+                                    .filter(entity => entity instanceof concepts.Entity && predicate(entity));
+    const sorted_entities = entities.sort((entity_a, entity_b)=> distance_grid_precise(position,entity_a.position) - distance_grid_precise(position, entity_b.position));
+    return sorted_entities;
+}
+
+
 class FieldOfVision {
 
     constructor(position, view_distance){
@@ -280,13 +301,7 @@ class FieldOfVision {
 
     // Returns the visible entities ordered by distance from the center.
     visible_entities(world){
-        return this._visible_positions
-            .filter(position => world.is_valid_position(position))
-            .map(position => world.entity_at(position))
-            .filter(entity => entity instanceof concepts.Entity)
-            .sort((entity_a, entity_b)=> distance_grid_precise(this._center,entity_a.position) - distance_grid_precise(this._center, entity_b.position));
+        return search_entities(world, this.position, this._visible_positions);
     }
 
 };
-
-

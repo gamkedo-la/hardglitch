@@ -9,7 +9,7 @@ import * as items from "../definitions-items.js";
 import { Character } from "../core/character.js";
 import { sprite_defs } from "../game-assets.js";
 import { auto_newlines, random_int, random_sample } from "../system/utility.js";
-import { scan_entities_around, select_action_by_type, wander } from "./characters-common.js";
+import { scan_visible_entities_around, select_action_by_type, wander } from "./characters-common.js";
 import { Corrupt } from "../rules/rules-corruption.js";
 import { Jump } from "../rules/rules-movement.js";
 import { is_walkable } from "../definitions-tiles.js";
@@ -49,7 +49,7 @@ class Corrupter extends concepts.Actor {
     }
 
     can_see_another_character(character, world) {
-        return scan_entities_around(character, world, entity=> entity instanceof Character
+        return scan_visible_entities_around(character, world, entity=> entity instanceof Character
                                                             && !(entity instanceof Microcode)
                                                             && entity !== character
                                     ).length > 0;

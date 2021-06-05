@@ -9,16 +9,19 @@ import * as tiles from "../definitions-tiles.js";
 import { Character } from "../core/character.js";
 import { sprite_defs } from "../game-assets.js";
 import { auto_newlines, random_int } from "../system/utility.js";
-import { closest_entity, move_away, move_towards, scan_entities_around, select_action_by_type, wander } from "./characters-common.js";
+import { closest_entity, move_away, move_towards, scan_visible_entities_around, select_action_by_type, wander } from "./characters-common.js";
 import { AntiVirus } from "./antivirus.js";
 import { Copy } from "../rules/rules-copy.js";
 import { Merge } from "../rules/rules-merge.js";
 import { DropItem, TakeItem } from "../rules/rules-items.js";
-import { valid_spawn_positions } from "../core/visibility.js";
+import { Range_Square, search_entities, valid_spawn_positions } from "../core/visibility.js";
 import { Delete } from "../rules/rules-delete.js";
 
-const virus_gang_size = 3;
-const virus_gang_distance = 5;
+const virus_gang_size = 3; // Total count of Virus that should be around each-other when hunting.
+const virus_gang_range = new Range_Square(0, 7); // Range in which Virus around another are considered a gang.
+const virus_gang_entity_predicate = entity => entity instanceof Character
+                                           && entity.actor instanceof VirusBehavior
+                                            ;
 const interersting_item_types = [ items.Item_Copy, items.Item_Merge, items.Item_Jump, items.Item_ByteClearer ];
 class VirusBehavior extends concepts.Actor {
 
@@ -143,9 +146,7 @@ class VirusBehavior extends concepts.Actor {
     }
 
     _gang_size(character, world){
-        const gang = scan_entities_around(character, world, entity => entity instanceof Character
-                                                                   && entity.actor instanceof VirusBehavior
-                                                                   && entity.position.distance(character.position) <= virus_gang_distance);
+        const gang = search_entities(world, character.position, virus_gang_range, virus_gang_entity_predicate);
         return gang.length;
     }
 
