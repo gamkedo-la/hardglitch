@@ -278,7 +278,7 @@ function update(delta_time, input_config){
             // Only handle input from the player when it's "visible" that it's player's turn.
             if(!input.mouse.is_dragging && !input.mouse.was_dragging
             && current_game_view.is_time_for_player_to_chose_action
-            && !current_game_view.ui.is_mouse_over
+            && (config.enable_keyboard_input_when_mouse_over_ui || !current_game_view.ui.is_mouse_over)
             && input_config.is_player_action_allowed
             ){
                 const player_action = select_player_action();

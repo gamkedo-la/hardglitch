@@ -30,6 +30,8 @@ export const config = {
     enable_take_by_move: true,
 
     enable_item_slot_help: false,
+
+    enable_keyboard_input_when_mouse_over_ui: true,
 };
 
 window.game_config = config;
