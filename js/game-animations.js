@@ -32,6 +32,7 @@ export {
     value_animation,
     integrity_value_change,
     lightning_between,
+    invokation,
 }
 
 import * as debug from "./system/debug.js";
@@ -46,7 +47,7 @@ import { CharacterView } from "./view/character-view.js";
 import { ItemView } from "./view/item-view.js";
 import { Position } from "./core/concepts.js";
 import * as graphics from "./system/graphics.js";
-import { is_number, random_float } from "./system/utility.js";
+import { is_number, random_float, random_int } from "./system/utility.js";
 import { crypto_kind as crypto_kinds } from "./definitions-items.js";
 import { GameView } from "./game-view.js";
 import { Color } from "./system/color.js";
@@ -488,6 +489,42 @@ function* exited(fx_view, entity_view){
             easing.in_out_quad
     );
     fx.done = true;
+}
+
+function* invokation(fx_view, entity_view_to_invoke, invoker_position){
+    debug.assertion(()=>fx_view instanceof GameFxView);
+    debug.assertion(()=>entity_view_to_invoke instanceof CharacterView);
+
+    entity_view_to_invoke.is_visible = false;
+
+    const invoker_gfx_pos = graphic_position(invoker_position).translate(square_half_unit_vector);
+    const invokation_gfx_pos = entity_view_to_invoke.position.translate(square_half_unit_vector);
+
+    const fx_lightning = ()=>{
+        audio.playEvent("deleteAction2");
+        return fx_view.lightningJump(invokation_gfx_pos.translate({
+            x: random_int(-40, 40),
+            y: random_int(-40, 40)
+        }), invoker_gfx_pos);
+    };
+
+    let ms_to_lightning = 1000;
+    for(let i = 0; i < 8; ++i){
+        let lightning = fx_lightning();
+        yield* animation.wait(ms_to_lightning);
+        lightning.done = true;
+        ms_to_lightning = Math.log(i) * 100;
+    }
+
+    audio.playEvent("explode");
+    const spawn_fxs = [
+        fx_view.destruction(invokation_gfx_pos),
+        fx_view.portalOut(invokation_gfx_pos),
+        fx_view.exitPortal(invokation_gfx_pos),
+    ];
+    entity_view_to_invoke.is_visible = true;
+    yield* animation.wait(1000);
+    spawn_fxs.forEach(fx=>fx.done = true);
 }
 
 

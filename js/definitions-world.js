@@ -42,6 +42,7 @@ import { all_item_types } from "./definitions-items.js";
 import { CharacterStats, StatValue, Inventory } from "./core/character.js";
 import { FieldOfVision } from "./core/visibility.js";
 import { is_safely_walkable } from "./definitions-tiles.js";
+import { Rules_Invokation } from "./rules/rules-invocation.js";
 
 const world_grid = {
     width: 64,
@@ -65,6 +66,7 @@ const default_rules = [ // BEWARE: rules will be applied in-order.
     new Rule_Delete(),
 
     new Rule_WallControl(),
+    new Rules_Invokation(),
 
     new Rule_Copy(),
     new Rule_Merge(),

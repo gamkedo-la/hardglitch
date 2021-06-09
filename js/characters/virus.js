@@ -9,7 +9,7 @@ import * as tiles from "../definitions-tiles.js";
 import { Character } from "../core/character.js";
 import { sprite_defs } from "../game-assets.js";
 import { auto_newlines, random_int } from "../system/utility.js";
-import { closest_entity, move_away, move_towards, scan_visible_entities_around, select_action_by_type, wander } from "./characters-common.js";
+import { closest_entity, move_away, move_towards, select_action_by_type, wander } from "./characters-common.js";
 import { AntiVirus } from "./antivirus.js";
 import { Copy } from "../rules/rules-copy.js";
 import { Merge } from "../rules/rules-merge.js";
