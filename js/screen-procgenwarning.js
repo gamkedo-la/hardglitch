@@ -96,7 +96,7 @@ Click or [Space] to continue.
 
     update(delta_time){
 
-        if(!this.fader.is_fading){
+        if(!this.fader.is_fading && !window.is_mouse_over_mute_button()){
             if(input.keyboard.is_just_down(KEY.SPACE) || input.mouse.buttons.is_any_key_just_down()){
                 this.go_to_next_screen();
             } else {

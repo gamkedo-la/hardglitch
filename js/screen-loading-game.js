@@ -44,7 +44,7 @@ class LoadingGameScreen extends fsm.State {
             next_line();
             canvas_context.fillText(this.instructions, 20, next_line());
 
-            if(!this.mute_button.is_mouse_over
+            if(!window.is_mouse_over_mute_button()
             && !this.is_starting
             && input.mouse.buttons.is_any_key_just_down()
             ){

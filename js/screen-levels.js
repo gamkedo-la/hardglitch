@@ -162,7 +162,8 @@ class LevelIntroScreen extends fsm.State {
     }
 
     update(delta_time){
-        if(input.keyboard.is_down(KEY.SPACE) || input.mouse.buttons.is_any_key_just_down()){
+        if(!window.is_mouse_over_mute_button()
+        && (input.keyboard.is_down(KEY.SPACE) || input.mouse.buttons.is_any_key_just_down())){
             this.continue();
         }
 
