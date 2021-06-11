@@ -29,6 +29,9 @@ import { Character } from "./core/character.js";
 import { serialize_entity } from "./levels/level-tools.js";
 import { Entity } from "./core/concepts.js";
 
+
+const button_text_font = "18px Space Mono";
+
 class PlayingGame extends fsm.State{
 
     *enter(){
@@ -262,6 +265,7 @@ class InGameMenu extends fsm.State {
                 text: "Particles: " + (
                     window.game_config.enable_particles ? "On" : "Off"
                 ),
+                font: button_text_font,
                 action: ()=>{
                     this.toggle_game_config('enable_particles');
                 },
@@ -277,6 +281,7 @@ class InGameMenu extends fsm.State {
                 text: "Status Bar: " + (
                     window.game_config.enable_stats_bar_value_always_visible ? "Always" : "Auto"
                 ),
+                font: button_text_font,
                 action: ()=>{
                     this.toggle_game_config(
                         'enable_stats_bar_value_always_visible'
@@ -296,6 +301,7 @@ class InGameMenu extends fsm.State {
                 action: ()=>{
                     this.toggle_game_config('enable_turn_message');
                 },
+                font: button_text_font,
                 position: Vector2_origin,
                 sprite_def: sprite_defs.button_menu,
                 sounds:{
@@ -310,6 +316,7 @@ class InGameMenu extends fsm.State {
                 action: ()=>{
                     this.toggle_game_config('enable_turn_sound');
                 },
+                font: button_text_font,
                 position: Vector2_origin,
                 sprite_def: sprite_defs.button_menu,
                 sounds:{
@@ -324,6 +331,7 @@ class InGameMenu extends fsm.State {
                 action: ()=>{
                     this.toggle_game_config('enable_timeline');
                 },
+                font: button_text_font,
                 position: Vector2_origin,
                 sprite_def: sprite_defs.button_menu,
                 sounds:{
@@ -338,6 +346,7 @@ class InGameMenu extends fsm.State {
                 action: ()=>{
                     this.toggle_game_config('enable_infobox');
                 },
+                font: button_text_font,
                 position: Vector2_origin,
                 sprite_def: sprite_defs.button_menu,
                 sounds:{
