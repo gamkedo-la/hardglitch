@@ -167,7 +167,7 @@ class Button extends UIElement {
     //   sprite_def: ..., // graphics.Sprite definition to use, with all the frames defined.
     //   frames: { up: 0, down: 1, over: 2, disabled:3 }, // Which sprite frame for which situation. Use 0 for any unspecified frame.
     //   is_action_on_up: true, // If true, the action is triggered on releasing the button, not on pressing it. True if not specified.
-    //   action: ()=> {}, // Function to call when you press that button. Calls nothing if undefined.
+    //   action: (ui_element)=> {}, // Function to call when you press that button. Calls nothing if undefined.
     //   sounds: { // Optional sounds to play when the state change.
     //      up: "sound_a", down: "sound_b", etc.
     //      action: "sound_x", // Sound to play before running the action associated with this button.
@@ -252,7 +252,7 @@ class Button extends UIElement {
         if(this.enabled && mouse_is_over_now && !input.mouse.was_dragging){
             const is_time_to_trigger_action = this.is_action_on_up ? input.mouse.buttons.is_just_released(input.MOUSE_BUTTON.LEFT) : input.mouse.buttons.is_just_down(input.MOUSE_BUTTON.LEFT);
             if(is_time_to_trigger_action && this.action != undefined){
-                this.action();
+                this.action(this);
             }
         }
 
@@ -504,6 +504,9 @@ class TextButton extends Button {
         // TEMPORARY: just center the text in the button display
         this.textbox.area = center_in_rectangle(this.textbox.area, this.area);
     }
+
+    get text() { return this.textbox.text; }
+    set text(new_text) { this.textbox.text = new_text; }
 
 }
 
