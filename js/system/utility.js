@@ -70,7 +70,7 @@ function random_sample(array){
 }
 
 // Return several elements from the provided array, picked randomly and removed when picked.
-function random_bag_pick(array, count){
+function random_bag_pick(array, count=1){
     debug.assertion(()=>array instanceof Array);
     debug.assertion(()=>Number.isInteger(count) && count >= 0);
     const picked = [];

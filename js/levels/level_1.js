@@ -709,22 +709,36 @@ function generate_world() {
     const world = deserialize_world(world_desc);
 
     // Fill crypto-files which are empty with nice items.
-    const rare_items = [
-        { type: "Item_IntegrityBoost" },
-        { type: "Item_FrequencyBoost" },
-        { type: "Item_Scanner" },
-        { type: "Item_ThreadPool" },
-        { type: "Item_Zip" },
-        { type: "Item_DataBender" },
-        { type: "Item_BlockMaster" },
-        { type: "Item_CriticalSection" },
-    ];
+    function* item_selector(){
+        const rare_items = [ // These items should allow defending and "attacks".
+            { type: "Item_DataBender" },
+            { type: "Item_BlockMaster" },
+            { type: "Item_CriticalSection" },
+        ];
+
+        const nice_boost_items = [
+            { type: "Item_IntegrityBoost" },
+            { type: "Item_FrequencyBoost" },
+            { type: "Item_Scanner" },
+            { type: "Item_ThreadPool" },
+            { type: "Item_Zip" },
+        ];
+
+        // Alternate between rare items and nice boosts.
+        while(true){
+            if(rare_items.length > 0)
+                yield random_bag_pick(rare_items);
+            yield random_bag_pick(nice_boost_items);
+        }
+    };
+    const item_selection_generator = item_selector();
 
     world.items.filter(item => item instanceof items.CryptoFile  // Crypto-files...
                              && (!item.drops || item.drops.length == 0)) // ... that didn't already have dropes set.
         .forEach(cryptofile => {
             if(!cryptofile.drops) cryptofile.drops = [];
-            const items = deserialize_entities(random_bag_pick(rare_items, 1));
+            const selected_item_name = item_selection_generator.next().value;
+            const items = deserialize_entities(selected_item_name);
             debug.assertion(()=>items.length === 1);
             cryptofile.drops.push(items[0]);
         });
