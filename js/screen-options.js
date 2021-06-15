@@ -20,6 +20,7 @@ const cycle_message_button_text = ()=> `Cycle Message: ${window.game_config.enab
 const timeline_button_text = ()=> `Timeline: ${window.game_config.enable_timeline ? "On" : "Off"}`;
 const cycle_sound_button_text = ()=> `Cycle Sound: ${window.game_config.enable_turn_sound ? "On" : "Off"}`;
 const infobox_button_text = ()=> `Infobox: ${window.game_config.enable_infobox ? "On" : "Off"}`;
+const screens_fades_button_text = ()=> `Fade Screens: ${window.game_config.enable_screen_fades ? "On" : "Off"}`;
 
 const button_text_font = "18px Space Mono";
 
@@ -140,7 +141,20 @@ class Options {
                     down: 'EditorButtonClick',
                 },
             }),
-
+            screens_fades_button: new ui.TextButton({
+                text: screens_fades_button_text(),
+                font: button_text_font,
+                action: (button)=>{
+                    this.toggle_game_config('enable_screen_fades');
+                    button.text = screens_fades_button_text();
+                },
+                position: null,
+                sprite_def: sprite_defs.button_menu,
+                sounds:{
+                    over: 'EditorButtonHover',
+                    down: 'EditorButtonClick',
+                },
+            }),
             update: function(delta_time) {
                 invoke_on_members(this, "update", delta_time);
             },

@@ -356,6 +356,22 @@ class InGameMenu extends fsm.State {
                 visible: this.menu_screen == "config",
             }),
 
+            screens_fade_button: new ui.TextButton({
+                text: "Fade Screens: " + (
+                    window.game_config.enable_screen_fades ? "On" : "Off"),
+                action: ()=>{
+                    this.toggle_game_config('enable_screen_fades');
+                },
+                font: button_text_font,
+                position: Vector2_origin,
+                sprite_def: sprite_defs.button_menu,
+                sounds:{
+                    over: 'EditorButtonHover',
+                    down: 'EditorButtonClick',
+                },
+                visible: this.menu_screen == "config",
+            }),
+
             resume_button: new ui.TextButton({
                 text: "Resume Game",
                 action: ()=>{ this.go_back(); },

@@ -8,6 +8,7 @@ import * as graphics from "./graphics.js";
 import { tween } from "./tweening.js";
 import { Color } from "./color.js";
 import { AnimationGroup } from "./animation.js";
+import { config } from "../game-config.js";
 
 
 class ScreenFader {
@@ -24,7 +25,11 @@ class ScreenFader {
         this._color = new_color;
     }
 
-    get is_fading() { return this._fade !== this._fade_target; }
+    get is_fading() {
+        return config.enable_screen_fades
+            && typeof this._fade === 'number'
+            && this._fade !== this._fade_target;
+    }
 
     // To be called at each update cycle.
     update(delta_time){
@@ -33,7 +38,8 @@ class ScreenFader {
 
     // To be called last in graphic rendering.
     display(canvas_context){
-        if(this._fade !== 0){
+
+        if(typeof this._fade === 'number' && this._fade !== 0){
             this._color.a = this._fade;
             graphics.execute_without_transform(canvas_context, ()=>{
                 graphics.draw_rectangle(canvas_context, graphics.canvas_rect(), this._color.toString());
@@ -63,6 +69,10 @@ class ScreenFader {
 
     *_launch_fade(from, to){
         this.cancel();
+        if(!config.enable_screen_fades){
+            this._fade = to;
+            return;
+        }
         this._current_generator = tween(from, to, this.duration_ms, value => this._fade = value);
         yield* this._current_generator;
     }
@@ -73,7 +83,7 @@ class ScreenFader {
     }
 
     fade_out(){
-        this._current_promise = this._animator.play(this.generate_fade_in());
+        this._current_promise = this._animator.play(this.generate_fade_out());
         return this._current_promise;
     }
 
