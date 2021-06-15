@@ -75,6 +75,7 @@ import { Merge } from "./rules/rules-merge.js";
 import { Destabilize } from "./rules/rules-unstability.js";
 import { Character } from "./core/character.js";
 import { CreateMovableWall_Opaque, CreateMovableWall_Transparent, DestroyMovableWall } from "./rules/rules-items.js";
+import { Invoke_AntiVirus, Invoke_Virus } from "./rules/rules-invocation.js";
 
 function all_crypto_file_types() {
     return [
@@ -170,6 +171,8 @@ function all_item_types(){
         Item_PowerGlove,
         Item_BlockMaster,
         Item_CriticalSection,
+        Item_InvokeAntiVirus,
+        Item_InvokeVirus,
 
         ...all_movable_walls(),
 
@@ -799,6 +802,47 @@ class Item_Merge extends concepts.Item {
 
     get_enabled_action_types(){
         return [ Merge ];
+    }
+
+}
+
+class Item_InvokeVirus extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_6,
+        }}
+    };
+
+    description = auto_newlines("Allows one to invoke a Virus. Be cautious what you wish for.", 35);
+    get can_be_taken() { return true; }
+
+    constructor(){
+        super("Digital Pentagram");
+    }
+
+    get_enabled_action_types(){
+        return [ Invoke_Virus ];
+    }
+
+}
+
+
+class Item_InvokeAntiVirus extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_6,
+        }}
+    };
+
+    description = auto_newlines("Allows one to invoke an Anti-Virus. Be cautious what you wish for.", 35);
+    get can_be_taken() { return true; }
+
+    constructor(){
+        super("Deus Ex Machina");
+    }
+
+    get_enabled_action_types(){
+        return [ Invoke_AntiVirus ];
     }
 
 }
