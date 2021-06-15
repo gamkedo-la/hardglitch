@@ -715,6 +715,10 @@ function generate_world() {
             { type: "Item_BlockMaster" },
             { type: "Item_CriticalSection" },
         ];
+        rare_items.push(random_sample([ // Add one or the other.
+            { type: "Item_InvokeAntiVirus" },
+            { type: "Item_InvokeVirus" }
+        ]));
 
         const nice_boost_items = [
             { type: "Item_IntegrityBoost" },
