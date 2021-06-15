@@ -200,7 +200,9 @@ function* execute_turns_v2(world) {
             const actor = character.actor;
             debug.assertion(()=>actor instanceof concepts.Actor); // At this point we have to have a decision maker.
 
-            while(character.can_perform_actions){ // Characters can take actions until they don't have enough action poitns OR until they skip the turn.
+            while(world.bodies.includes(character) // Make sure the character's body is still in the world (not destroyed).
+            && character.can_perform_actions // Characters can take actions until they don't have enough action points OR until they skip the turn.
+            ){
 
                 let player_character_exists = true;
                 let action = null;
