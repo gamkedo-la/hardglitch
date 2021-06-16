@@ -712,6 +712,7 @@ function generate_world() {
     function* item_selector(){
         const rare_items = [ // These items should allow defending and "attacks".
             { type: "Item_DataBender" },
+            { type: "Item_Shift" },
             { type: "Item_BlockMaster" },
             { type: "Item_CriticalSection" },
         ];
