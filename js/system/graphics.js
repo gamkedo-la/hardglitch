@@ -563,6 +563,10 @@ function canvas_resize_to_window(){
   // We want an even picture to avoid weird scaling issues making sprites display weirdly.
   canvas.width  = window.innerWidth % 2 === 0 ? window.innerWidth : window.innerWidth - 1;
   canvas.height = window.innerHeight % 2 === 0 ? window.innerHeight : window.innerHeight - 1;
+
+  canvas.width = Math.max(canvas.width, 1100);
+  canvas.height = Math.max(canvas.height, 750);
+
   screen_canvas_context = canvas.getContext('2d');
   screen_canvas_context.imageSmoothingEnabled = false;
 }
