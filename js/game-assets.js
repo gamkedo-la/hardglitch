@@ -96,6 +96,7 @@ const game_assets = { // Description of the assets to load.
         item_generic_5: "./images/genericitem5.png",
         item_generic_6: "./images/genericitem6.png",
         item_generic_7: "./images/genericitem7.png",
+        item_corrupt: "./images/item_corrupt.png",
         info_box_button: "./images/infoboxbutton.png",
         game_over_skull: "./images/game-over-skull.png",
         vision: "./images/vision.png",
@@ -751,6 +752,9 @@ const sprite_defs = {
     },
     item_generic_7 : {
         image: "item_generic_7",
+    },
+    item_corrupt : {
+        image: "item_corrupt",
     },
 
     button_up : test_button("up_down"),
