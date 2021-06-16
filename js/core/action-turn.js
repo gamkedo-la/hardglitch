@@ -234,11 +234,15 @@ function* execute_turns_v2(world) {
 
                 // Apply the selected action.
                 const action_events = character.perform_action(action, world);
+                debug.assertion(()=> action_events instanceof Array);
+                debug.assertion(()=> action_events.every(event=> event instanceof concepts.Event));
                 yield* action_events;
 
                 // In all cases:
                 // Update the world according to it's rules.
                 const rules_events = world.apply_rules_end_of_characters_turn(character);
+                debug.assertion(()=> rules_events instanceof Array);
+                debug.assertion(()=> rules_events.every(event=> event instanceof concepts.Event));
                 yield* rules_events;
 
                 // Keep the view of the world up to date after having performed the action and it's consequences.
