@@ -19,6 +19,13 @@ export {
     Body,
     Position,
 
+    Position_origin,
+    Position_unit_x,
+    Position_unit_y,
+    Position_negative_unit_x,
+    Position_negative_unit_y,
+    Position_unit,
+
     __entity_serialization_ignore_list,
 };
 
@@ -210,6 +217,13 @@ class Position {
     }
 
 };
+
+const Position_origin = Object.freeze(new Position());
+const Position_unit_x = Object.freeze(new Position({ x: 1, y:0 }));
+const Position_unit_y = Object.freeze(new Position({ x: 0, y: 1 }));
+const Position_negative_unit_x = Object.freeze(new Position({ x: -1, y: 0 }));
+const Position_negative_unit_y = Object.freeze(new Position({ x: 0, y: -1 }));
+const Position_unit = Object.freeze(new Position({ x: 1, y: 1 }));
 
 
 

@@ -137,12 +137,12 @@ class Vector2{
 
     };
 
-const Vector2_origin = new Vector2();
-const Vector2_unit_x = new Vector2({ x: 1.0 });
-const Vector2_unit_y = new Vector2({ y: 1.0 });
-const Vector2_negative_unit_x = new Vector2({ x: -1.0 });
-const Vector2_negative_unit_y = new Vector2({ y: -1.0 });
-const Vector2_unit = new Vector2({ x: 1.0, y: 1.0 });
+const Vector2_origin = Object.freeze(new Vector2());
+const Vector2_unit_x = Object.freeze(new Vector2({ x: 1.0 }));
+const Vector2_unit_y = Object.freeze(new Vector2({ y: 1.0 }));
+const Vector2_negative_unit_x = Object.freeze(new Vector2({ x: -1.0 }));
+const Vector2_negative_unit_y = Object.freeze(new Vector2({ y: -1.0 }));
+const Vector2_unit = Object.freeze(new Vector2({ x: 1.0, y: 1.0 }));
 
 function degrees_to_radian(degrees) {
     return degrees * (Math.PI / 180);
