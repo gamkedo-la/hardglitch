@@ -27,22 +27,39 @@ export {
     Position_unit,
 
     __entity_serialization_ignore_list,
+
+    reset_ids,
+    enable_id_increments,
 };
 
 import * as debug from "../system/debug.js";
 import { is_number, clamp } from "../system/utility.js";
 import { Grid } from "../system/grid.js";
 
+let is_id_increments_enabled = true;
+function enable_id_increments(value){
+    debug.assertion(()=>typeof value === "boolean");
+    is_id_increments_enabled = value;
+}
+
+
 let next_entity_id = 0;
 function new_entity_id(){
-    return ++next_entity_id;
+    if(is_id_increments_enabled)
+        return ++next_entity_id;
 }
 
 let next_actor_id = 0;
 function new_actor_id(){
-    return ++next_actor_id;
+    if(is_id_increments_enabled)
+        return ++next_actor_id;
 }
 
+
+function reset_ids(){
+    next_entity_id = 0;
+    next_actor_id = 0;
+}
 
 // An action is when an Actor changes something (using its Body) in the world, following the
 // world's rules.
@@ -254,7 +271,7 @@ class Entity {
         this._position = new Position(new_pos);
     }
     get id() {
-        debug.assertion(()=>this._entity_id);
+        debug.assertion(()=>Number.isInteger(this._entity_id) || !is_id_increments_enabled);
         return this._entity_id;
     }
 

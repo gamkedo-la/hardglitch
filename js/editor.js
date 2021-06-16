@@ -257,6 +257,9 @@ class EditionPaletteUI {
             return new EditPaletteButton(`Surface Tile: ${tiles.defs[tile_id].editor_name} (${tile_id})`, make_edit_operation_change_tile(tile_id, grid_ID.surface));
         }), null);
 
+
+        concepts.enable_id_increments(false); // Make sure we don't impact entity id generation.
+
         this.palette_buttons.push( ...items.all_item_types().map(item_type => {
             return new EditPaletteButton(`Item: ${editor_name(item_type)}`, make_edit_operation_add_entity_at(item_type));
         }), null);
@@ -265,6 +268,7 @@ class EditionPaletteUI {
             return new EditPaletteButton(`Character: ${editor_name(character_type)}`, make_edit_operation_add_entity_at(character_type));
         }), null);
 
+        concepts.enable_id_increments(true); // Make sure we don't impact entity id generation.
 
         // Place all the palette buttons in columns.
         const button_palette_top_left = new Vector2({ x: 20, y: 100 });

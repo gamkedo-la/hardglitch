@@ -6,7 +6,7 @@ import * as debug from "./system/debug.js";
 import * as game_input from "./game-input.js";
 import { Game } from "./game.js";
 import { GameView } from "./game-view.js";
-import { World } from "./core/concepts.js";
+import { reset_ids, World } from "./core/concepts.js";
 import { Character } from "./core/character.js";
 
 // Gather all the data and systems that are needed to play a game level.
@@ -14,6 +14,7 @@ import { Character } from "./core/character.js";
 class GameSession {
 
     constructor(level_generator, open_menu, player_character){
+        reset_ids();
         const world = level_generator();
         debug.assertion(()=>world instanceof World);
         this.game = new Game(world, player_character);
