@@ -33,6 +33,7 @@ export {
     integrity_value_change,
     lightning_between,
     invokation,
+    shift_cast,
 }
 
 import * as debug from "./system/debug.js";
@@ -313,6 +314,7 @@ function* inventory_destroy(fx_view, inv, idx) {
     const fx_pos = inv._slots[idx].position.translate({x:36,y:36});
     const fx = fx_view.destruction(fx_pos, .25);
     audio.playEvent('explode');
+    return fx;
 }
 
 function* dissolve_item(item_view){
@@ -595,5 +597,19 @@ function* integrity_value_change(game_view, value, gfx_position){
         background_color: value < 0 ? "red" : value > 0 ? "green" : undefined,
         font: "24px Space Mono",
     });
+}
+
+function* shift_cast(fx_view, gfx_position) {
+    debug.assertion(()=> gfx_position instanceof Vector2);
+
+    const fx_pos = gfx_position.translate({x:36,y:36});
+    const fx_scan = fx_view.scan(fx_pos);
+    audio.playEvent('scanAnim');
+    yield* animation.wait(700);
+
+    const fx_explode = fx_view.destruction(fx_pos);
+    audio.playEvent('explode');
+    yield* animation.wait(1000 / 2);
+    return fx_explode;
 }
 

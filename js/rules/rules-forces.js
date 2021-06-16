@@ -2,17 +2,22 @@
 export {
     Rule_Push,
     Rule_Pull,
+    Rule_Shift,
     apply_directional_force,
     Pushed,
     Pulled,
     Push,
     Push_Short,
     Pull,
+    Shift_North,
+    Shift_South,
+    Shift_East,
+    Shift_West,
 }
 
 import * as debug from "../system/debug.js";
 import * as concepts from "../core/concepts.js";
-import { Vector2 } from "../system/spatial.js";
+import { distance_grid_precise, Vector2 } from "../system/spatial.js";
 import { sprite_defs } from "../game-assets.js";
 import * as animations from "../game-animations.js";
 import * as audio from "../system/audio.js";
@@ -25,6 +30,7 @@ import { ranged_actions_for_each_target } from "./rules-common.js";
 import { is_blocked_position } from "../definitions-world.js";
 import { auto_newlines } from "../system/utility.js";
 import { deal_damage } from "./destruction.js";
+import { scan_visible_entities_around } from "../characters/characters-common.js";
 
 const push_range = new visibility.Range_Square(1, 4);
 const push_short_range = new visibility.Range_Cross_Axis(1, 2);
@@ -107,7 +113,9 @@ class Bounced extends concepts.Event {
 function apply_directional_force(world, target_pos, direction, force_action, origin_pos){
     debug.assertion(()=>world instanceof concepts.World);
     debug.assertion(()=>target_pos instanceof concepts.Position);
-    debug.assertion(()=>direction instanceof Vector2);
+    debug.assertion(()=>direction instanceof Vector2 || direction instanceof concepts.Position);
+    if(direction instanceof concepts.Position)
+        direction = new Vector2(direction);
     debug.assertion(()=>direction.length > 0);
 
     const events = [];
@@ -193,7 +201,7 @@ class Push extends concepts.Action {
 }
 
 class Push_Short extends Push {
-    static get action_type_description() { return auto_newlines("Tries to move a close entity away from this character, bouncing on anything blocking that move.", 35); }
+    static get action_type_description() { return auto_newlines("Tries to move a close entity away from this character, bouncing on anything blocking that move.", 33); }
     static get action_type_name() { return "Short Push"; }
     static get range() { return push_short_range; }
     static get costs(){
@@ -207,7 +215,7 @@ class Push_Short extends Push {
 class Pull extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_pull; }
     static get action_type_name() { return "Pull"; }
-    static get action_type_description() { return auto_newlines("Tries to move the target entity towards this character, bouncing on anything blocking that move..", 35); }
+    static get action_type_description() { return auto_newlines("Tries to move the target entity towards this character, bouncing on anything blocking that move..", 33); }
     static get range() { return pull_range; }
     static get costs(){
         return {
@@ -245,6 +253,106 @@ class Rule_Pull extends concepts.Rule {
     get_actions_for(character, world){
         debug.assertion(()=>character instanceof Character);
         return ranged_actions_for_each_target(world, character, Pull);
+    }
+};
+
+
+class ShiftCasted extends concepts.Event {
+    constructor(entity){
+        super({
+            allow_parallel_animation: true,
+            description: `Entity ${entity.id} shifted everything in it's FOV`
+        });
+        this.entity_id = entity.id;
+        this.entity_pos = entity.position;
+    }
+
+    get focus_positions() { return [ this.entity_pos ]; }
+
+    *animation(game_view){
+        debug.assertion(()=>game_view instanceof GameView);
+        const entity_view = game_view.focus_on_entity(this.entity_id);
+        if(!(entity_view instanceof EntityView)) return; // FIXME
+        yield* animations.shift_cast(game_view.fx_view, entity_view.position);
+    }
+};
+
+
+const shift_description_format = "Pushes all visible entities towards the {}, including the entity performing the Shift, in order of the farthest from that direction to the closest. Entities can bounce against anything blocking that push."
+class Shift extends concepts.Action {
+    static get icon_def(){ return sprite_defs.icon_action_south; }
+    static get action_type_name() { return "SHIFT - SHOULD NEVER BE READABLE"; }
+    static get action_type_description() { return "SHOULD NEVER BE READABLE"; }
+    static get costs(){
+        return {
+            action_points: { value: base_force_cost * 2 },
+        };
+    }
+
+    constructor(target_direction){
+        debug.assertion(()=> target_direction instanceof concepts.Position);
+        debug.assertion(()=> distance_grid_precise(concepts.Position_origin, target_direction) === 1);
+        const action_id = `shift_towards_${target_direction.x}_${target_direction.y}`;
+        super(action_id, `Shift`, target_direction);
+        this.target_direction = target_direction;
+    }
+
+    execute(world, character){
+        debug.assertion(()=>world instanceof concepts.World);
+        debug.assertion(()=>character instanceof Character);
+
+        const far_point = this.target_direction.multiply(10000);
+
+        const visible_entities_around = scan_visible_entities_around(character, world, ()=>true); // Any visible entity
+        visible_entities_around.sort((first, second)=>{ // We want to apply the shift from the farthest  from that direction to the closest from that direction.
+            const first_distance = distance_grid_precise(far_point, first.position);
+            const second_distance = distance_grid_precise(far_point, second.position);
+            const value = second_distance - first_distance;
+            return value;
+        });
+        const events = visible_entities_around.flatMap(entity=> apply_directional_force(world, entity.position, this.target_direction, Pushed));
+        return [ new ShiftCasted(character), ...events];
+    }
+};
+
+class Shift_North extends Shift {
+    static get action_type_name() { return "Shift North"; }
+    static get action_type_description() { return auto_newlines(shift_description_format.replace("{}", "north"), 33); }
+    static get icon_def(){ return sprite_defs.icon_action_shift_north; }
+    constructor() { super(concepts.Position_negative_unit_y); }
+};
+class Shift_South extends Shift {
+    static get action_type_name() { return "Shift South"; }
+    static get action_type_description() { return auto_newlines(shift_description_format.replace("{}", "south"), 33); }
+    static get icon_def(){ return sprite_defs.icon_action_shift_south; }
+    constructor() { super(concepts.Position_unit_y); }
+};
+
+class Shift_East extends Shift {
+    static get action_type_name() { return "Shift East"; }
+    static get action_type_description() { return auto_newlines(shift_description_format.replace("{}", "east"), 33); }
+    static get icon_def(){ return sprite_defs.icon_action_shift_east; }
+    constructor() { super(concepts.Position_unit_x); }
+};
+
+class Shift_West extends Shift {
+    static get action_type_name() { return "Shift West"; }
+    static get action_type_description() { return auto_newlines(shift_description_format.replace("{}", "west"), 33); }
+    static get icon_def(){ return sprite_defs.icon_action_shift_west; }
+    constructor() { super(concepts.Position_negative_unit_x); }
+};
+
+class Rule_Shift extends concepts.Rule {
+
+    get_actions_for(character, world){
+        debug.assertion(()=>character instanceof Character);
+        const shift_action_ypes = character.get_enabled_action_types_related_to(Shift);
+        const possible_shift_actions = {};
+        shift_action_ypes.forEach(action_type => {
+            const action = new action_type();
+            possible_shift_actions[action.id] = action;
+        });
+        return possible_shift_actions;
     }
 };
 

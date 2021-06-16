@@ -18,7 +18,7 @@ import { Grid } from "./system/grid.js";
 
 import { Rule_Movements, Rule_Jump, Rule_Swap, Rule_RandomJump } from "./rules/rules-movement.js";
 import { Rule_ActionPoints } from "./rules/rules-actionpoints.js";
-import { Rule_Push, Rule_Pull } from "./rules/rules-forces.js";
+import { Rule_Push, Rule_Pull, Rule_Shift } from "./rules/rules-forces.js";
 import { Rule_Void } from "./rules/rules-void.js";
 import { Rule_Stream } from "./rules/rules-stream.js";
 import { Rule_Destroy } from "./rules/rules-destroy.js";
@@ -59,6 +59,7 @@ const default_rules = [ // BEWARE: rules will be applied in-order.
     new Rule_RandomJump(),
     new Rule_Push(),
     new Rule_Pull(),
+    new Rule_Shift(),
     new Rule_Swap(),
 
     new Rule_Repair(),
