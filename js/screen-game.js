@@ -195,6 +195,11 @@ class EditorMode extends fsm.State {
         editor.display(this.game_session);
         this.fader.display(canvas_context);
     }
+
+    on_canvas_resized(){
+        editor.end_edition(this.game_session, false);
+        editor.begin_edition(this.game_session);
+    }
 };
 
 class InGameMenu extends fsm.State {

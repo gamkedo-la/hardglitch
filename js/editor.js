@@ -307,30 +307,37 @@ class EditionPaletteUI {
 
         this.palette_buttons.push( ...tiles.procgen_floor_tiles.map(tile_id => {
             return add_sprite(tile_id, new EditPaletteButton(`ProcGen Floor Tile: ${tiles.defs[tile_id].editor_name} (${tile_id})`, make_edit_operation_change_tile(tile_id, grid_ID.floor)));
-        }), null);
+        }));
 
         this.palette_buttons.push( ...tiles.procgen_surface_tiles.map(tile_id => {
             return add_sprite(tile_id, new EditPaletteButton(`ProcGen Surface Tile: ${tiles.defs[tile_id].editor_name} (${tile_id})`, make_edit_operation_change_tile(tile_id, grid_ID.surface)));
-        }), null);
+        }));
 
-        this.palette_buttons.push( ...tiles.floor_tiles.map(tile_id => {
-            return add_sprite(tile_id, new EditPaletteButton(`Floor Tile: ${tiles.defs[tile_id].editor_name} (${tile_id})`, make_edit_operation_change_tile(tile_id, grid_ID.floor)));
-        }), null);
+        this.palette_buttons.push(null);
 
         this.palette_buttons.push( ...tiles.surface_tiles.map(tile_id => {
             return add_sprite(tile_id, new EditPaletteButton(`Surface Tile: ${tiles.defs[tile_id].editor_name} (${tile_id})`, make_edit_operation_change_tile(tile_id, grid_ID.surface)));
-        }), null);
+        }));
 
+        this.palette_buttons.push( ...tiles.floor_tiles.map(tile_id => {
+            return add_sprite(tile_id, new EditPaletteButton(`Floor Tile: ${tiles.defs[tile_id].editor_name} (${tile_id})`, make_edit_operation_change_tile(tile_id, grid_ID.floor)));
+        }));
+
+
+        this.palette_buttons.push(null);
 
         concepts.enable_id_increments(false); // Make sure we don't impact entity id generation.
 
         this.palette_buttons.push( ...items.all_item_types().map(item_type => {
             return add_sprite(item_type, new EditPaletteButton(`Item: ${editor_name(item_type)}`, make_edit_operation_add_entity_at(item_type)));
-        }), null);
+        }));
+
+
+        this.palette_buttons.push(null);
 
         this.palette_buttons.push( ...all_characters_types().map(character_type => {
             return add_sprite(character_type, new EditPaletteButton(`Character: ${editor_name(character_type)}`, make_edit_operation_add_entity_at(character_type)));
-        }), null);
+        }));
 
         concepts.enable_id_increments(true); // Make sure we don't impact entity id generation.
 
@@ -343,29 +350,37 @@ class EditionPaletteUI {
         const initial_position = button_palette_top_left.translate({ x: 0, y: 100 });
         let next_button_x = initial_position.x;
         let next_button_y = initial_position.y;
-        let buttons_column_count = 0;
+        let buttons_in_column_count = 0;
         const next_column = ()=> {
             next_button_x += column_width;
             next_button_y = initial_position.y;
-            buttons_column_count = 0;
+            buttons_in_column_count = 0;
         };
+        const canvas_rect = graphics.canvas_rect();
         const next_button_position = ()=>{
             const new_position = { x: next_button_x, y: next_button_y };
-            ++buttons_column_count;
-            if(buttons_column_count > 1 && buttons_column_count % buttons_per_column === 0){
+            ++buttons_in_column_count;
+            // if(buttons_column_count > 1 && buttons_column_count % buttons_per_column === 0){
+            next_button_y += row_height;
+            if(next_button_y + row_height > canvas_rect.height) {
                 next_column();
-            } else {
-                next_button_y += row_height;
             }
+
             return new_position;
         };
 
+        let column_have_at_least_one_button = false;
         this.palette_buttons
             .forEach(palette_button => {
-                if(palette_button)
+                if(palette_button){
                     palette_button.position = next_button_position();
-                else
-                    next_column();
+                    column_have_at_least_one_button = true;
+                } else {
+                    if(column_have_at_least_one_button){
+                        next_column();
+                        column_have_at_least_one_button = false;
+                    }
+                }
             });
 
 
@@ -735,9 +750,10 @@ function begin_edition(game_session){
     game_session.view.enable_fog_of_war = false;
 }
 
-function end_edition(game_session){
+function end_edition(game_session, allow_playing_action = true){
     // Make sure the changes are taken into account:
-    play_action();
+    if(allow_playing_action)
+        play_action();
     game_session.view.enable_fog_of_war = was_fog_of_war_activated;
     game_session.view.enable_tile_rendering_debug = false;
     game_session.view.enable_edition = false;
