@@ -22,8 +22,8 @@ import { mouse_grid_position, mouse_game_position, KEY, play_action } from "./ga
 import { Character } from "./core/character.js";
 import { random_float } from "./system/utility.js";
 import { GameSession } from "./game-session.js";
-import { sprite_defs } from "./game-assets.js";
-import { Vector2_origin, Vector2 } from "./system/spatial.js";
+import { assets, sprite_defs } from "./game-assets.js";
+import { Vector2_origin, Vector2, center_in_rectangle, Rectangle } from "./system/spatial.js";
 import { Grid } from "./system/grid.js";
 import { all_characters_types } from "./deflinitions-characters.js";
 import { grid_ID } from "./definitions-world.js";
@@ -218,6 +218,16 @@ class EditPaletteButton extends ui.Button {
     set position(new_pos) {
         super.position = new_pos;
         this.helptext.area_to_help = this.area;
+        if(this.edition_sprites instanceof Array){
+            this.edition_sprites.forEach(sprite => {
+                if(sprite instanceof graphics.Sprite){
+                    const sprite_scale = sprite.transform.scale;
+                    const sprite_rect = new Rectangle(sprite.area);
+                    sprite_rect.size = sprite_rect.size.multiply(sprite_scale);
+                    sprite.position = center_in_rectangle(sprite_rect, this.area).position;
+                }
+            });
+        }
     }
 
     get text() { return this.helptext.text; }
@@ -237,35 +247,89 @@ class EditionPaletteUI {
     constructor(game_session){
         debug.assertion(()=>game_session instanceof GameSession);
 
+        const cancel_icon = new graphics.Sprite(sprite_defs.icon_action_cancel);
+        const erase_tile_icon = new graphics.Sprite(sprite_defs.icon_action_corrupt);
+        const remove_entity = new graphics.Sprite(sprite_defs.icon_action_delete);
+
+        this.button_no_selection.edition_sprites = [ cancel_icon ];
+        this.button_no_selection.icon = cancel_icon;
+        this.button_remove_surface_tile.edition_sprites = [ erase_tile_icon ];
+        this.button_remove_surface_tile.icon = erase_tile_icon;
+        this.button_remove_entity.edition_sprites = [ remove_entity ];
+        this.button_remove_entity.icon = remove_entity
+
+
         this.palette_buttons = [];
 
         // Fill our palette with buttons!
 
+        const add_sprite = (tile_id_or_entity_type, button)=>{
+            const button_sprite_defs = [];
+            if(tile_id_or_entity_type.prototype instanceof concepts.Entity){
+                concepts.enable_id_increments(false);
+                const entity = new tile_id_or_entity_type();
+                concepts.enable_id_increments(true);
+
+                if(entity.assets && entity.assets.graphics){
+                    button_sprite_defs.push(entity.assets.graphics.body.sprite_def);
+                    if(entity.assets.graphics.top)
+                        button_sprite_defs.push(entity.assets.graphics.top.sprite_def);
+
+                }
+            } else if (Number.isInteger(tile_id_or_entity_type)){
+                const tile_id = tile_id_or_entity_type;
+                button_sprite_defs.push(tiles.defs[tile_id].sprite_def);
+            }
+
+            let sprite_idx = 0;
+            button_sprite_defs.forEach(sprite_def => {
+                if(sprite_def instanceof Object){
+                    if(!(button.edition_sprites instanceof Array)){
+                        button.edition_sprites = [];
+                    }
+
+                    const sprite = new graphics.Sprite(sprite_def);
+                    if(sprite.source_image){
+                        sprite.transform.scale = { x: 0.7, y: 0.7 };
+                        if(!(sprite.frames instanceof Array)){
+                            sprite.frames = [ { x:0, y:0, width: 64, height: 64 } ];
+                            sprite.force_frame(0);
+                        }
+
+                        button.edition_sprites.push(sprite);
+                        button[`edition_sprite_${sprite_idx}`] = sprite;
+                        sprite_idx++;
+                    }
+                }
+            });
+            return button;
+        };
+
         this.palette_buttons.push( ...tiles.procgen_floor_tiles.map(tile_id => {
-            return new EditPaletteButton(`ProcGen Floor Tile: ${tiles.defs[tile_id].editor_name} (${tile_id})`, make_edit_operation_change_tile(tile_id, grid_ID.floor));
+            return add_sprite(tile_id, new EditPaletteButton(`ProcGen Floor Tile: ${tiles.defs[tile_id].editor_name} (${tile_id})`, make_edit_operation_change_tile(tile_id, grid_ID.floor)));
         }), null);
 
         this.palette_buttons.push( ...tiles.procgen_surface_tiles.map(tile_id => {
-            return new EditPaletteButton(`ProcGen Surface Tile: ${tiles.defs[tile_id].editor_name} (${tile_id})`, make_edit_operation_change_tile(tile_id, grid_ID.surface));
+            return add_sprite(tile_id, new EditPaletteButton(`ProcGen Surface Tile: ${tiles.defs[tile_id].editor_name} (${tile_id})`, make_edit_operation_change_tile(tile_id, grid_ID.surface)));
         }), null);
 
         this.palette_buttons.push( ...tiles.floor_tiles.map(tile_id => {
-            return new EditPaletteButton(`Floor Tile: ${tiles.defs[tile_id].editor_name} (${tile_id})`, make_edit_operation_change_tile(tile_id, grid_ID.floor));
+            return add_sprite(tile_id, new EditPaletteButton(`Floor Tile: ${tiles.defs[tile_id].editor_name} (${tile_id})`, make_edit_operation_change_tile(tile_id, grid_ID.floor)));
         }), null);
 
         this.palette_buttons.push( ...tiles.surface_tiles.map(tile_id => {
-            return new EditPaletteButton(`Surface Tile: ${tiles.defs[tile_id].editor_name} (${tile_id})`, make_edit_operation_change_tile(tile_id, grid_ID.surface));
+            return add_sprite(tile_id, new EditPaletteButton(`Surface Tile: ${tiles.defs[tile_id].editor_name} (${tile_id})`, make_edit_operation_change_tile(tile_id, grid_ID.surface)));
         }), null);
 
 
         concepts.enable_id_increments(false); // Make sure we don't impact entity id generation.
 
         this.palette_buttons.push( ...items.all_item_types().map(item_type => {
-            return new EditPaletteButton(`Item: ${editor_name(item_type)}`, make_edit_operation_add_entity_at(item_type));
+            return add_sprite(item_type, new EditPaletteButton(`Item: ${editor_name(item_type)}`, make_edit_operation_add_entity_at(item_type)));
         }), null);
 
         this.palette_buttons.push( ...all_characters_types().map(character_type => {
-            return new EditPaletteButton(`Character: ${editor_name(character_type)}`, make_edit_operation_add_entity_at(character_type));
+            return add_sprite(character_type, new EditPaletteButton(`Character: ${editor_name(character_type)}`, make_edit_operation_add_entity_at(character_type)));
         }), null);
 
         concepts.enable_id_increments(true); // Make sure we don't impact entity id generation.
