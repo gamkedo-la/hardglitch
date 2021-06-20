@@ -197,8 +197,10 @@ class EditorMode extends fsm.State {
     }
 
     on_canvas_resized(){
-        editor.end_edition(this.game_session, false);
-        editor.begin_edition(this.game_session);
+        if(editor.is_enabled){
+            editor.end_edition(this.game_session, false);
+            editor.begin_edition(this.game_session);
+        }
     }
 };
 
