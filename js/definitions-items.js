@@ -38,6 +38,7 @@ export {
     Item_PowerGlove,
     Item_BlockMaster,
     Item_CriticalSection,
+    Item_Destroyer,
 
     MovableWall,
     MovableWall_Blue,
@@ -79,6 +80,7 @@ import { Destabilize } from "./rules/rules-unstability.js";
 import { Character } from "./core/character.js";
 import { CreateMovableWall_Opaque, CreateMovableWall_Transparent, DestroyMovableWall } from "./rules/rules-items.js";
 import { Invoke_AntiVirus, Invoke_Virus } from "./rules/rules-invocation.js";
+import { Destroy } from "./rules/rules-destroy.js";
 
 function all_crypto_file_types() {
     return [
@@ -179,6 +181,7 @@ function all_item_types(){
         Item_CriticalSection,
         Item_InvokeAntiVirus,
         Item_InvokeVirus,
+        Item_Destroyer,
 
         ...all_movable_walls(),
 
@@ -1058,6 +1061,35 @@ class Item_CriticalSection extends concepts.Item {
 
 };
 
+
+class Item_Destroyer extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_2,
+        }}
+    };
+
+    count = 1; // How many times we can use this item's action.
+
+    get description(){ return auto_newlines(`Secret system command allowing to instantly destroy any entity. Usage left: ${this.count}`, 35); }
+    get can_be_taken() { return true; }
+
+    constructor(){
+        super("kill -9");
+    }
+
+    get_enabled_action_types(){
+        if(this.count > 0)
+            return [ Destroy ];
+        else
+            return [];
+    }
+
+    on_action_used(){
+        --this.count;
+    }
+
+};
 
 ///////////////////////////////////////////////////////////////////////////
 // DEBUG ITEMS
