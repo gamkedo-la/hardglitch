@@ -293,5 +293,7 @@ function containing_rectangle(...rectangles){
 
 // Return the distance between two positions on a grid, but with high precision (not Manhatan distance).
 function distance_grid_precise(source, target){
-    return Math.ceil(new Vector2(source).distance(new Vector2(target)));
+    debug.assertion(()=>source instanceof Object && Number.isInteger(source.x) && Number.isInteger(source.y));
+    debug.assertion(()=>target instanceof Object && Number.isInteger(target.x) && Number.isInteger(target.y));
+    return new Vector2(source).distance(new Vector2(target));
 }

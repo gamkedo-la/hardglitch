@@ -7,6 +7,7 @@ export {
     valid_target_positions,
     valid_move_positions,
     valid_spawn_positions,
+    fov_range,
     RangeShape,
     Range_Diamond,
     Range_Circle,
@@ -14,11 +15,13 @@ export {
     Range_Cross_Axis,
     Range_Cross_Diagonal,
     Range_Cross_Star,
+
+    Visibility_Range_Type,
 }
 
 import * as debug from "../system/debug.js";
 import * as concepts from "./concepts.js";
-import { distance_grid_precise, Vector2 } from "../system/spatial.js";
+import { distance_grid_precise } from "../system/spatial.js";
 import { compute_fov } from "../system/shadowcasting.js";
 import * as tiles from "../definitions-tiles.js";
 import { Character } from "./character.js";
@@ -59,7 +62,7 @@ class Range_Circle extends RangeShape {
     }
 
     _range_match(center, position){
-        const distance = distance_grid_precise(center, position);
+        const distance = Math.ceil(distance_grid_precise(center, position));
         return distance < this.end_distance && distance >= this.begin_distance;
     }
 };
@@ -134,7 +137,7 @@ function positions_in_range(center_position, range_shape, valid_position_predica
     debug.assertion(()=>center_position instanceof concepts.Position);
     debug.assertion(()=>range_shape instanceof RangeShape);
 
-    const begin =  -range_shape.end_distance -1 ;
+    const begin =  -(range_shape.end_distance - 1);
     const end =  range_shape.end_distance;
 
     const matching_positions = [];
@@ -164,17 +167,24 @@ function is_anything_blocking_view(world, position){
     return false;
 }
 
+const Visibility_Range_Type  = Range_Circle; // Range used for field of vision.
+
+function fov_range(view_distance){
+    debug.assertion(()=>Number.isInteger(view_distance) && view_distance >= 0);
+    return new Visibility_Range_Type(0, view_distance + 1)
+}
+
 // Provides all the positions that are currently "visible" by a character at the provided center position in the world.
 function find_visible_positions(world, center, view_distance){
     debug.assertion(()=>world instanceof concepts.World);
     debug.assertion(()=>center instanceof concepts.Position);
     debug.assertion(()=>Number.isInteger(view_distance) && view_distance >= 0);
 
-    const test_shape = new Range_Circle(0, view_distance);
+    const view_range = fov_range(view_distance);
 
     const is_blocking_vision = (x, y)=>{
         const position = new concepts.Position({x, y});
-        return !test_shape.is_inside(center, position)      // If it's outside the view range, this is blocking the view.
+        return !view_range.is_inside(center, position)      // If it's outside the view range, this is blocking the view.
             || !world.is_valid_position(position)           // If its outside the world grid, this is blocking the view.
             || is_anything_blocking_view(world, position)   // If anything inside this position is blocking the view...this is blocking the view.
             ;
@@ -182,13 +192,22 @@ function find_visible_positions(world, center, view_distance){
 
     const visible_positions = [];
     const mark_visible = (x, y)=>{
-        if(visible_positions.every(position=> !position.equals({x, y})))
-            visible_positions.push(new concepts.Position({x,y}));
+        if(world.is_valid_position({x, y})
+        && visible_positions.every(position=> !position.equals({x, y}))
+        ){
+            visible_positions.push(new concepts.Position({x, y}));
+        }
     };
 
-    compute_fov(center, is_blocking_vision, mark_visible);
+    compute_fov(center, is_blocking_vision, mark_visible, view_distance);
 
-    return visible_positions;
+    // FIXME: For some reason compute_fov outputs more positions than what's in range, not sure why.
+    // the following block is a workaround trimming positions outside the view range.
+    const pos_in_range = positions_in_range(center, view_range, (pos)=>world.is_valid_position(pos));
+    const actually_visible_positions = visible_positions.filter(pos=> pos_in_range.some(range_pos => pos.equals(range_pos)));
+    debug.assertion(()=> actually_visible_positions.every(pos=> pos_in_range.some(range_pos => pos.equals(range_pos))));
+
+    return actually_visible_positions;
 }
 
 function valid_target_positions(world, character, action_range_shape, predicate = ()=>true){
@@ -278,6 +297,8 @@ class FieldOfVision {
 
     get visible_positions() { return [ ...this._visible_positions ]; } // We return a copy.
     get visible_walkable_positions() { return [ ...this._visible_walkable_positions ]; } // We return a copy.
+
+    get range() { return fov_range(this.view_distance); }
 
     update(world){
         debug.assertion(()=>world instanceof concepts.World);

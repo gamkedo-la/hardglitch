@@ -102,10 +102,11 @@ class Row {
 };
 
 
-function compute_fov(origin, is_blocking, mark_visible){
-    debug.assertion(()=>is_position(origin));
-    debug.assertion(()=>is_blocking instanceof Function);
-    debug.assertion(()=>mark_visible instanceof Function);
+function compute_fov(origin, is_blocking, mark_visible, max_distance){
+    debug.assertion(()=> is_position(origin));
+    debug.assertion(()=> is_blocking instanceof Function);
+    debug.assertion(()=> mark_visible instanceof Function);
+    debug.assertion(()=> Number.isInteger(max_distance));
 
     mark_visible(origin.x, origin.y);
 
@@ -137,6 +138,8 @@ function compute_fov(origin, is_blocking, mark_visible){
             const rows = [row];
             while(rows.length > 0){
                 const row = rows.pop();
+                if(row.depth > max_distance) // Don't take into account rows that are beyound the given distance.
+                    continue;
                 let prev_tile;
                 for(const tile of row.tiles()){
                     if(is_wall(tile) || is_symmetric(row, tile))
