@@ -783,7 +783,7 @@ class Item_Destabilize extends concepts.Item {
 class Item_Copy extends concepts.Item {
     assets = {
         graphics : { body: {
-            sprite_def : sprite_defs.item_generic_6,
+            sprite_def : sprite_defs.item_copy,
         }}
     };
 
