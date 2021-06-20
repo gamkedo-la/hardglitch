@@ -28,6 +28,7 @@ export {
     Item_LifeStrength,
     Item_MemoryCleanup,
     Item_ByteClearer,
+    Item_Freeze,
     Item_Corrupt,
     Item_Destabilize,
     Item_Copy,
@@ -82,6 +83,7 @@ import { Character } from "./core/character.js";
 import { CreateMovableWall_Opaque, CreateMovableWall_Transparent, DestroyMovableWall } from "./rules/rules-items.js";
 import { Invoke_AntiVirus, Invoke_Virus } from "./rules/rules-invocation.js";
 import { Destroy } from "./rules/rules-destroy.js";
+import { Freeze } from "./rules/rules-freeze.js";
 
 function all_crypto_file_types() {
     return [
@@ -170,6 +172,7 @@ function all_item_types(){
         Item_LifeStrength,
         Item_MemoryCleanup,
         Item_ByteClearer,
+        Item_Freeze,
         Item_Corrupt,
         Item_Destabilize,
         Item_Copy,
@@ -786,6 +789,26 @@ class Item_ByteClearer extends concepts.Item {
 
     get_enabled_action_types(){
         return [ Delete ];
+    }
+
+}
+
+class Item_Freeze extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_6,
+        }}
+    };
+
+    description = auto_newlines("Hidden system functionality to reduce the execution priority of some programs. Very useful for preventing a dangerous program to act.", 35);
+    get can_be_taken() { return true; }
+
+    constructor(){
+        super("Priority Stab");
+    }
+
+    get_enabled_action_types(){
+        return [ Freeze ];
     }
 
 }
