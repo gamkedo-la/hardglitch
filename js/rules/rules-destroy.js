@@ -17,11 +17,11 @@ const destroy_range = new visibility.Range_Diamond(0,7);
 class Destroy extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_delete; }
     static get action_type_name() { return "Destroy"; }
-    static get action_type_description() { return auto_newlines("Destroys the target entity. Brutal and effective, but very expensive.", 35); }
+    static get action_type_description() { return auto_newlines("Destroys the target entity. Brutal and effective, but very expensive. Using this might freez the caster for a while.", 35); }
     static get range() { return destroy_range; }
     static get costs(){
         return {
-            action_points: { value: 50 },
+            action_points: { value: 30 },
             integrity: { value: 3},
         };
     }
