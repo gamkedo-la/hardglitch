@@ -89,6 +89,18 @@ const KEY = {
     F10: 121,
     F11: 122,
     F12: 123,
+
+    PAD_0: 96,
+    PAD_1: 97,
+    PAD_2: 98,
+    PAD_3: 99,
+    PAD_4: 100,
+    PAD_5: 101,
+    PAD_6: 102,
+    PAD_7: 103,
+    PAD_8: 104,
+    PAD_9: 105,
+
 };
 
 // Returns the pixel position inside the game space (taking into acount the camera).
@@ -142,10 +154,10 @@ function select_player_action(){
     }
 
     let default_action_through_keyboard;
-    if(keyboard.is_down(KEY.W) || keyboard.is_down(KEY.UP_ARROW)) default_action_through_keyboard = possible_actions.default_north;
-    if(keyboard.is_down(KEY.S) || keyboard.is_down(KEY.DOWN_ARROW)) default_action_through_keyboard = possible_actions.default_south;
-    if(keyboard.is_down(KEY.D) || keyboard.is_down(KEY.RIGHT_ARROW)) default_action_through_keyboard = possible_actions.default_east;
-    if(keyboard.is_down(KEY.A) || keyboard.is_down(KEY.LEFT_ARROW)) default_action_through_keyboard = possible_actions.default_west;
+    if(keyboard.is_down(KEY.W) || keyboard.is_down(KEY.UP_ARROW)    || keyboard.is_down(KEY.PAD_8)) default_action_through_keyboard = possible_actions.default_north;
+    if(keyboard.is_down(KEY.S) || keyboard.is_down(KEY.DOWN_ARROW)  || keyboard.is_down(KEY.PAD_2) || keyboard.is_down(KEY.PAD_5)) default_action_through_keyboard = possible_actions.default_south;
+    if(keyboard.is_down(KEY.D) || keyboard.is_down(KEY.RIGHT_ARROW) || keyboard.is_down(KEY.PAD_6)) default_action_through_keyboard = possible_actions.default_east;
+    if(keyboard.is_down(KEY.A) || keyboard.is_down(KEY.LEFT_ARROW)  || keyboard.is_down(KEY.PAD_4))  default_action_through_keyboard = possible_actions.default_west;
     if(default_action_through_keyboard instanceof concepts.Action
     && (!(default_action_through_keyboard instanceof Move) || default_action_through_keyboard.is_safe) // Using the keyboard, it's too easy to walk into unsafe places, so we don't allow it. It can be done with the mouse though.
     ){
