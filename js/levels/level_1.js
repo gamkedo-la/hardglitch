@@ -723,6 +723,7 @@ function generate_world() {
             { type: "Item_BlockMaster" },
             { type: "Item_CriticalSection" },
             { type: "Item_Destructor" },
+            { type: "Item_Freeze" },
         ];
         rare_items.push(random_sample([ // Add one or the other.
             { type: "Item_InvokeAntiVirus" },
