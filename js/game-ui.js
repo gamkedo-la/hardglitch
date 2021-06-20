@@ -480,7 +480,7 @@ class GameInterface {
         const action_entries = Object.entries(actions_per_types);
         const space_between_buttons = action_button_size;
         const canvas_rect = graphics.canvas_rect();
-        const max_buttons_per_lines = Math.ceil(Math.ceil(canvas_rect.width / 4) / space_between_buttons);
+        const max_buttons_per_lines = Math.ceil(Math.ceil(canvas_rect.width / 3) / space_between_buttons);
         const base_line_y = canvas_rect.height - space_between_buttons;
         const base_line_x = graphics.centered_rectangle_in_screen(new Rectangle({
             size: {
