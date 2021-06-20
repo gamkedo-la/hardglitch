@@ -722,6 +722,7 @@ function generate_world() {
             { type: "Item_ForceWave" },
             { type: "Item_BlockMaster" },
             { type: "Item_CriticalSection" },
+            { type: "Item_Destructor" },
         ];
         rare_items.push(random_sample([ // Add one or the other.
             { type: "Item_InvokeAntiVirus" },
@@ -735,6 +736,7 @@ function generate_world() {
             { type: "Item_ThreadPool" },
             { type: "Item_Zip" },
             { type: "Item_FreeJump" },
+            { type: "Item_Crawl" },
         ];
 
         // Alternate between rare items and nice boosts.
