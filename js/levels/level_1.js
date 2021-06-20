@@ -728,6 +728,7 @@ function generate_world() {
             { type: "Item_Scanner" },
             { type: "Item_ThreadPool" },
             { type: "Item_Zip" },
+            { type: "Item_FreeJump" },
         ];
 
         // Alternate between rare items and nice boosts.
