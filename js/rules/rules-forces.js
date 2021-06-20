@@ -283,6 +283,10 @@ class Shift extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_south; }
     static get action_type_name() { return "SHIFT - SHOULD NEVER BE READABLE"; }
     static get action_type_description() { return "SHOULD NEVER BE READABLE"; }
+    static range(character) {
+        debug.assertion(()=>character instanceof Character);
+        return character.field_of_vision.range;
+    }
     static get costs(){
         return {
             action_points: { value: base_force_cost * 2 },
@@ -293,7 +297,7 @@ class Shift extends concepts.Action {
         debug.assertion(()=> target_direction instanceof concepts.Position);
         debug.assertion(()=> distance_grid_precise(concepts.Position_origin, target_direction) === 1);
         const action_id = `shift_towards_${target_direction.x}_${target_direction.y}`;
-        super(action_id, `Shift`, target_direction);
+        super(action_id, `Shift`);
         this.target_direction = target_direction;
     }
 

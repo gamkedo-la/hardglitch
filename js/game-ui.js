@@ -513,7 +513,9 @@ class GameInterface {
                     debug.assertion(()=>action_info.actions instanceof Array);
                     if(action_info.actions.length == 0) return; // Only allow clicking enabled (aka allowed) action buttons.
                     debug.assertion(()=>action_info.actions.every(action => action instanceof concepts.Action));
-                    if(action_info.actions.length == 1 && action_info.action_type.range === undefined){ // No need for targets
+                    if(action_info.actions.length == 1
+                    && (action_info.action_type.range == null || action_info.actions[0].target_position == null)
+                    ){ // No need for targets
                         const action = action_info.actions[0];
                         debug.assertion(()=>action instanceof concepts.Action);
                         play_action(action); // Play the action immediately
@@ -525,7 +527,7 @@ class GameInterface {
                     audio.playEvent('actionClick');
                     this.lock_actions(); // Can be unlocked by clicking somewhere there is no action target.
                 },
-                ()=> this.config.on_action_pointed_begin(action_range, action_info.actions.map(action=>action.target_position)),
+                ()=> this.config.on_action_pointed_begin(action_range, action_info.actions.map(action=>action.target_position).filter(action => action != null)),
                 ()=> {
                     if(!this.is_mouse_over)
                         this.config.on_action_pointed_end();

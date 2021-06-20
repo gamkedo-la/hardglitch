@@ -434,16 +434,21 @@ class GameView {
     }
 
     highlight_action_range(action_range, action_targets){
+        debug.assertion(()=>action_targets instanceof Array);
+        debug.assertion(()=>action_targets.every(target=> target instanceof concepts.Position));
+
         this.clear_highlights_basic_actions();
         this.clear_action_range_highlight();
+
+        if(action_range instanceof Function)
+            action_range = action_range(this.player_character);
+
         if(action_range instanceof visibility.RangeShape){
-            const possible_targets = visibility.positions_in_range(this.player_character.position,
-                action_range,
-                (pos)=>this.game.world.is_valid_position(pos));
-            for(const target of possible_targets){
+            const possible_targets = visibility.positions_in_range(this.player_character.position, action_range, (pos)=>this.game.world.is_valid_position(pos));
+            possible_targets.forEach(target =>{
                 const highlight_sprite = action_targets.some(action_target=> action_target.equals(target)) ? this._highlight_sprites.action_range : this._highlight_sprites.action_range_forbidden;
                 this.action_range_highlights.push(new Highlight(target, highlight_sprite));
-            }
+            });
         }
     }
 

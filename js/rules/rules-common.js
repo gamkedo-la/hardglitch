@@ -35,7 +35,9 @@ function actions_for_each_target(character, parent_action_type, valid_target_gen
     const actions = {};
     enabled_action_types.forEach(action_type => {
         debug.assertion(()=>action_type && (action_type === parent_action_type || action_type.prototype instanceof parent_action_type));
-        const target_generator = valid_target_generator(action_type.range);
+        const action_range = action_type.range instanceof Function ? action_type.range(character) : action_type.range;
+        debug.assertion(()=>action_range instanceof visibility.RangeShape);
+        const target_generator = valid_target_generator(action_range);
         for(const target of target_generator){
             debug.assertion(()=>target instanceof concepts.Position);
             const action = action_maker(action_type, target);
