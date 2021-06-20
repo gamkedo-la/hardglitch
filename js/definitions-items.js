@@ -17,6 +17,7 @@ export {
     Item_Push,
     Item_Pull,
     Item_Shift,
+    Item_ForceWave,
     Item_Swap,
     Item_Scanner,
     Item_ClosedScope,
@@ -67,7 +68,7 @@ import { sprite_defs } from "./game-assets.js";
 import { all_uncommon_action_types } from "./definitions-actions.js";
 import { auto_newlines, random_sample } from "./system/utility.js";
 import { Jump, Swap } from "./rules/rules-movement.js";
-import { Pull, Push, Push_Short, Shift_East, Shift_West, Shift_South, Shift_North } from "./rules/rules-forces.js";
+import { Pull, Push, Push_Short, Shift_East, Shift_West, Shift_South, Shift_North, PushWave, PullWave } from "./rules/rules-forces.js";
 import { Repair } from "./rules/rules-repair.js";
 import { Corrupt } from "./rules/rules-corruption.js";
 import { Delete } from "./rules/rules-delete.js";
@@ -155,6 +156,7 @@ function all_item_types(){
         Item_Push,
         Item_Pull,
         Item_Shift,
+        Item_ForceWave,
         Item_Swap,
         Item_Scanner,
         Item_ThreadPool,
@@ -546,6 +548,27 @@ class Item_Shift extends concepts.Item {
 
     get_enabled_action_types(){
         return [ Shift_East, Shift_West, Shift_South, Shift_North ];
+    }
+
+}
+
+class Item_ForceWave extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_4_2,
+        }}
+    };
+
+    get can_be_taken() { return true; }
+
+    description = auto_newlines("Simple but powerful algorithm allowing to push or pull entities around in a range.", 35);
+
+    constructor(){
+        super("Force-Each Loop");
+    }
+
+    get_enabled_action_types(){
+        return [ PushWave, PullWave ];
     }
 
 }
