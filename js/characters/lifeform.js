@@ -314,7 +314,7 @@ class LifeForm_Berserk extends LifeForm_Aggressive {
         }}
     };
 
-    description = auto_newlines("Enraged emergent life-form. Charge and crush anyone coming in their sight, even other life-forms!", 35);
+    description = auto_newlines("Enraged emergent life-form. Charge and crush anyone coming in their sight, even other life-forms! Might be tamed by kindness.", 35);
 
     constructor(...args){
         super(...args);
