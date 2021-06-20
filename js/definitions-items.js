@@ -40,7 +40,7 @@ export {
     Item_PowerGlove,
     Item_BlockMaster,
     Item_CriticalSection,
-    Item_Destroyer,
+    Item_Destructor,
 
     MovableWall,
     MovableWall_Blue,
@@ -186,7 +186,7 @@ function all_item_types(){
         Item_CriticalSection,
         Item_InvokeAntiVirus,
         Item_InvokeVirus,
-        Item_Destroyer,
+        Item_Destructor,
 
         ...all_movable_walls(),
 
@@ -1107,7 +1107,7 @@ class Item_CriticalSection extends concepts.Item {
 };
 
 
-class Item_Destroyer extends concepts.Item {
+class Item_Destructor extends concepts.Item {
     assets = {
         graphics : { body: {
             sprite_def : sprite_defs.item_generic_2,
