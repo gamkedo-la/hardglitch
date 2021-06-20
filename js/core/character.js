@@ -565,6 +565,13 @@ class Character extends concepts.Body {
         return damage_taken;
     }
 
+    take_ap_damage(damage_count){ // TODO: maybe handle some kind of armor
+        const initial_value = this.stats.action_points.value;
+        this.stats.action_points.decrease(damage_count);
+        const damage_taken = initial_value - this.stats.action_points.value;
+        return damage_taken;
+    }
+
     repair(integrity_amount){
         const initial_value = this.stats.integrity.value;
         this.stats.integrity.increase(integrity_amount);

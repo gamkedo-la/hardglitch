@@ -43,6 +43,7 @@ import { CharacterStats, StatValue, Inventory } from "./core/character.js";
 import { FieldOfVision } from "./core/visibility.js";
 import { is_safely_walkable } from "./definitions-tiles.js";
 import { Rules_Invokation } from "./rules/rules-invocation.js";
+import { Rule_Freeze } from "./rules/rules-freeze.js";
 
 const world_grid = {
     width: 64,
@@ -67,6 +68,7 @@ const default_rules = [ // BEWARE: rules will be applied in-order.
     new Rule_Repair(),
     new Rule_Destroy(),
     new Rule_Delete(),
+    new Rule_Freeze(),
 
     new Rule_WallControl(),
     new Rules_Invokation(),

@@ -3,6 +3,7 @@ export {
     destroy_entity,
     destroy_at,
     deal_damage,
+    deal_ap_damage,
     drop_entity_drops,
     Destroyed,
     Damaged,
@@ -13,7 +14,7 @@ import * as concepts from "../core/concepts.js";
 import * as tiles from "../definitions-tiles.js";
 import { GameView } from "../game-view.js";
 import { EntityView } from "../view/entity-view.js";
-import { destroyed, integrity_value_change, take_hit_damage } from "../game-animations.js";
+import { action_points_value_change, destroyed, integrity_value_change } from "../game-animations.js";
 import { Character } from "../core/character.js";
 import { InventoryItemDropped } from "./rules-items.js";
 import { random_sample } from "../system/utility.js";
@@ -47,6 +48,35 @@ class Damaged extends concepts.Event {
             }
             if(entity_view instanceof CharacterView){
                 entity_view.change_health(this.final_health);
+            }
+        }
+        yield* wait(1);
+    }
+
+}
+
+
+class Damaged_AP extends concepts.Event {
+    constructor(entity_id, entity_position, damage_count, final_action_points){
+        super({
+            description: `Entity ${entity_id} took ${damage_count} AP damages! Final AP = ${final_action_points}`
+        });
+
+        this.allow_parallel_animation = true;
+        this.entity_id = entity_id;
+        this.entity_position = entity_position;
+        this.damage_count = damage_count;
+        this.final_action_points = final_action_points;
+    }
+
+    get focus_positions() { return [ this.entity_position ]; }
+
+    *animation(game_view){
+        debug.assertion(()=>game_view instanceof GameView);
+        const entity_view = game_view.focus_on_entity(this.entity_id);
+        if(entity_view instanceof EntityView){ // FIXME: was an assertion, not sure why it went false.
+            if(game_view.fog_of_war.is_visible(entity_view.game_position)){
+                game_view.special_animations.play(action_points_value_change(game_view, -this.damage_count, entity_view.position));
             }
         }
         yield* wait(1);
@@ -162,4 +192,18 @@ function deal_damage(entity, damage){
         damage = 0; // All other entities take 0 damage.
     }
     return [ new Damaged(entity.id, entity.position, damage, final_health) ];
+}
+
+
+function deal_ap_damage(entity, damage){
+    debug.assertion(()=>Number.isInteger(damage) && damage >= 0);
+    debug.assertion(()=>entity instanceof concepts.Entity);
+    let final_action_points;
+    if(entity instanceof Character){
+        entity.take_ap_damage(damage);
+        final_action_points = entity.stats.action_points.value;
+    } else {
+        damage = 0; // All other entities take 0 damage.
+    }
+    return [ new Damaged_AP(entity.id, entity.position, damage, final_action_points) ];
 }

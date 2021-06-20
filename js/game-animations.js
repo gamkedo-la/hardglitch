@@ -31,6 +31,7 @@ export {
     merge_characters,
     value_animation,
     integrity_value_change,
+    action_points_value_change,
     lightning_between,
     invokation,
     shift_cast,
@@ -595,6 +596,17 @@ function* integrity_value_change(game_view, value, gfx_position){
         // stroke_color: "black",
         // line_width: 1,
         background_color: value < 0 ? "red" : value > 0 ? "green" : undefined,
+        font: "24px Space Mono",
+    });
+}
+
+
+function* action_points_value_change(game_view, value, gfx_position){
+    yield* value_animation(game_view, value, gfx_position, default_move_duration_ms, {
+        color: "orange",
+        // stroke_color: "black",
+        // line_width: 1,
+        background_color: "yellow",
         font: "24px Space Mono",
     });
 }

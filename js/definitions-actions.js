@@ -13,6 +13,7 @@ import { Copy } from "./rules/rules-copy.js";
 import { Merge } from "./rules/rules-merge.js";
 import { TakeItem, DestroyMovableWall, CreateMovableWall_Transparent, CreateMovableWall_Opaque } from "./rules/rules-items.js";
 import { Invoke_AntiVirus, Invoke_Virus } from "./rules/rules-invocation.js";
+import { Freeze } from "./rules/rules-freeze.js";
 
 
 const all_uncommon_action_types = { // Action types which are not by default (like Move, etc.)
@@ -31,6 +32,7 @@ const all_uncommon_action_types = { // Action types which are not by default (li
     Shift_West,
 
     Delete,
+    Freeze,
     Destroy,
     Repair,
 
