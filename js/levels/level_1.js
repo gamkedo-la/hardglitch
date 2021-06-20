@@ -713,6 +713,7 @@ function generate_world() {
         const rare_items = [ // These items should allow defending and "attacks".
             { type: "Item_DataBender" },
             { type: "Item_Shift" },
+            { type: "Item_ForceWave" },
             { type: "Item_BlockMaster" },
             { type: "Item_CriticalSection" },
         ];
@@ -742,8 +743,11 @@ function generate_world() {
                              && (!item.drops || item.drops.length == 0)) // ... that didn't already have dropes set.
         .forEach(cryptofile => {
             if(!cryptofile.drops) cryptofile.drops = [];
-            const selected_item_name = item_selection_generator.next().value;
-            const items = deserialize_entities(selected_item_name);
+            const selected_item_defs = item_selection_generator.next().value;
+            if(window.debug_tools_enabled)
+                selected_item_defs.forEach(item_def => console.debug(`DROPABLE ITEM: ${item_def.type}`));
+
+            const items = deserialize_entities(selected_item_defs);
             debug.assertion(()=>items.length === 1);
             cryptofile.drops.push(items[0]);
         });
