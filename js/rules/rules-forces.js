@@ -3,6 +3,7 @@ export {
     Rule_Push,
     Rule_Pull,
     Rule_Shift,
+    Rule_ForceWave,
     apply_directional_force,
     Pushed,
     Pulled,
@@ -13,6 +14,8 @@ export {
     Shift_South,
     Shift_East,
     Shift_West,
+    PushWave,
+    PullWave,
 }
 
 import * as debug from "../system/debug.js";
@@ -35,6 +38,7 @@ import { scan_visible_entities_around } from "../characters/characters-common.js
 const push_range = new visibility.Range_Square(1, 4);
 const push_short_range = new visibility.Range_Cross_Axis(1, 2);
 const pull_range = new visibility.Range_Square(1, 4);
+const force_wave_range = new visibility.Range_Circle(1, 5);
 
 const base_force_cost = 5;
 
@@ -351,6 +355,93 @@ class Rule_Shift extends concepts.Rule {
     get_actions_for(character, world){
         debug.assertion(()=>character instanceof Character);
         const shift_action_ypes = character.get_enabled_action_types_related_to(Shift);
+        const possible_shift_actions = {};
+        shift_action_ypes.forEach(action_type => {
+            const action = new action_type();
+            possible_shift_actions[action.id] = action;
+        });
+        return possible_shift_actions;
+    }
+};
+
+
+
+class ForceWaveCasted extends concepts.Event {
+    constructor(entity){
+        super({
+            allow_parallel_animation: true,
+            description: `Entity ${entity.id} casted a force wave`
+        });
+        this.entity_id = entity.id;
+        this.entity_pos = entity.position;
+    }
+
+    get focus_positions() { return [ this.entity_pos ]; }
+
+    *animation(game_view){
+        debug.assertion(()=>game_view instanceof GameView);
+        const entity_view = game_view.focus_on_entity(this.entity_id);
+        if(!(entity_view instanceof EntityView)) return; // FIXME
+        yield* animations.shift_cast(game_view.fx_view, entity_view.position);
+    }
+};
+
+
+
+class ForceWave extends concepts.Action {
+    static get range() { return force_wave_range; }
+    static get costs(){
+        return {
+            action_points: { value: base_force_cost },
+        };
+    }
+
+    execute(world, character){
+        debug.assertion(()=>world instanceof concepts.World);
+        debug.assertion(()=>character instanceof Character);
+        const entities_in_range = visibility.search_entities(world, character.position, ForceWave.range);
+        const events = entities_in_range.flatMap(entity=>{
+            debug.assertion(()=> entity instanceof concepts.Entity);
+            let force_translation = compute_push_translation(character.position, entity.position);
+            if(this.inwards) force_translation = force_translation.inverse;
+            const force_event_type = this.inwards ? Pulled : Pushed;
+            debug.assertion(()=>force_translation.length == 1);
+            return apply_directional_force(world, entity.position, force_translation, force_event_type);
+        });
+        return [ new ForceWaveCasted(character), ...events ];
+    }
+}
+
+
+class PushWave extends ForceWave {
+    static get icon_def(){ return sprite_defs.icon_action_push; }
+    static get action_type_name() { return "Push Wave"; }
+    static get action_type_description() { return auto_newlines("Pushes away from this character any entity in range, bouncing on anything blocking. This effect is not limited by visibility or walls.", 33); }
+
+    constructor(){
+        const action_id = `push_wave`;
+        super(action_id, `Never displayed`, undefined);
+    }
+}
+
+class PullWave extends ForceWave {
+    static get icon_def(){ return sprite_defs.icon_action_pull; }
+    static get action_type_name() { return "Pull Wave"; }
+    static get action_type_description() { return auto_newlines("Pulls towards this character any entity in range, bouncing on anything blocking. This effect is not limited by visibility or walls.", 33); }
+
+    constructor(){
+        const action_id = `pull_wave`;
+        super(action_id, `Never displayed`, undefined);
+        this.inwards = true;
+    }
+}
+
+
+class Rule_ForceWave extends concepts.Rule {
+
+    get_actions_for(character, world){
+        debug.assertion(()=>character instanceof Character);
+        const shift_action_ypes = character.get_enabled_action_types_related_to(ForceWave);
         const possible_shift_actions = {};
         shift_action_ypes.forEach(action_type => {
             const action = new action_type();

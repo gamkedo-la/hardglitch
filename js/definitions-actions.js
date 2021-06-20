@@ -4,7 +4,7 @@ export {
 
 import { Delete } from "./rules/rules-delete.js";
 import { Destroy } from "./rules/rules-destroy.js";
-import { Push, Pull, Shift_East, Shift_North, Shift_South, Shift_West } from "./rules/rules-forces.js";
+import { Push, Pull, PushWave, PullWave, Shift_East, Shift_North, Shift_South, Shift_West } from "./rules/rules-forces.js";
 import { Corrupt } from "./rules/rules-corruption.js";
 import { Destabilize } from "./rules/rules-unstability.js";
 import { Jump, RandomJump, Swap } from "./rules/rules-movement.js";
@@ -22,6 +22,8 @@ const all_uncommon_action_types = { // Action types which are not by default (li
 
     Push,
     Pull,
+    PushWave,
+    PullWave,
     Shift_North,
     Shift_South,
     Shift_East,
