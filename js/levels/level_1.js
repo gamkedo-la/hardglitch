@@ -742,6 +742,7 @@ function generate_world() {
             if(rare_items.length > 0)
                 yield random_bag_pick(rare_items);
             yield random_bag_pick(nice_boost_items);
+            yield random_bag_pick(nice_boost_items);
         }
     };
     const item_selection_generator = item_selector();
