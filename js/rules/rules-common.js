@@ -12,7 +12,7 @@ import * as visibility from "../core/visibility.js";
 import { Character } from "../core/character.js";
 import { lazy_call } from "../system/utility.js";
 
-function add_default_action_if_adjacent(character_position, possible_actions, action, action_target){
+function add_default_action_if_adjacent(character_position, possible_actions, action, action_target, allow_diagnoals = false){
     debug.assertion(()=> character_position instanceof concepts.Position);
     debug.assertion(()=> possible_actions instanceof Object);
     debug.assertion(()=> action_target instanceof concepts.Position);
@@ -22,6 +22,13 @@ function add_default_action_if_adjacent(character_position, possible_actions, ac
     else if(character_position.south.equals(action_target)) possible_actions["default_south"] = action;
     else if(character_position.east.equals(action_target)) possible_actions["default_east"] = action;
     else if(character_position.west.equals(action_target)) possible_actions["default_west"] = action;
+
+    if(allow_diagnoals){
+        if(character_position.north_west.equals(action_target)) possible_actions["default_north_west"] = action;
+        else if(character_position.north_east.equals(action_target)) possible_actions["default_north_east"] = action;
+        else if(character_position.south_west.equals(action_target)) possible_actions["default_south_west"] = action;
+        else if(character_position.south_east.equals(action_target)) possible_actions["default_south_east"] = action;
+    }
 }
 
 function actions_for_each_target(character, parent_action_type, valid_target_generator, action_maker = (action_type, target) => new action_type(target)){

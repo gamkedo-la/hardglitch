@@ -50,19 +50,22 @@ const KEY = {
     TAB: 9,
     W: 87,
     A: 65,
-    S: 83,
+    C: 67,
     D: 68,
+    E: 69,
     F: 70,
-    P: 80,
+    I: 73,
+    J: 74,
+    K: 75,
+    L: 76,
     M: 77,
     N: 78,
     O: 79,
-    C: 67,
+    P: 80,
+    Q: 81,
+    S: 83,
     X: 88,
-    I: 73,
-    K: 75,
-    J: 74,
-    L: 76,
+    Z: 90,
     NUMBER_0: 48,
     NUMBER_1: 49,
     NUMBER_2: 50,
@@ -158,6 +161,10 @@ function select_player_action(){
     if(keyboard.is_down(KEY.S) || keyboard.is_down(KEY.DOWN_ARROW)  || keyboard.is_down(KEY.PAD_2) || keyboard.is_down(KEY.PAD_5)) default_action_through_keyboard = possible_actions.default_south;
     if(keyboard.is_down(KEY.D) || keyboard.is_down(KEY.RIGHT_ARROW) || keyboard.is_down(KEY.PAD_6)) default_action_through_keyboard = possible_actions.default_east;
     if(keyboard.is_down(KEY.A) || keyboard.is_down(KEY.LEFT_ARROW)  || keyboard.is_down(KEY.PAD_4))  default_action_through_keyboard = possible_actions.default_west;
+    if(keyboard.is_down(KEY.Q) || keyboard.is_down(KEY.PAD_7))  default_action_through_keyboard = possible_actions.default_north_west;
+    if(keyboard.is_down(KEY.E) || keyboard.is_down(KEY.PAD_9))  default_action_through_keyboard = possible_actions.default_north_east;
+    if(keyboard.is_down(KEY.Z) || keyboard.is_down(KEY.PAD_1))  default_action_through_keyboard = possible_actions.default_south_west;
+    if(keyboard.is_down(KEY.C) || keyboard.is_down(KEY.PAD_3))  default_action_through_keyboard = possible_actions.default_south_east;
     if(default_action_through_keyboard instanceof concepts.Action
     && (!(default_action_through_keyboard instanceof Move) || default_action_through_keyboard.is_safe) // Using the keyboard, it's too easy to walk into unsafe places, so we don't allow it. It can be done with the mouse though.
     ){

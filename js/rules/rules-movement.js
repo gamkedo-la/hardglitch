@@ -153,6 +153,7 @@ class Rule_Crawling extends concepts.Rule {
             safe_if_safe_arrival(crawl, world);
             return crawl;
         });
+        Object.values(possible_crawls).forEach(action=> add_default_action_if_adjacent(character.position, possible_crawls, action, action.target_position, true))
         return possible_crawls;
     }
 };
