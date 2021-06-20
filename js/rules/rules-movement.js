@@ -10,6 +10,7 @@ export {
     Jump,
     Jumped,
     RandomJump,
+    FreeJump,
     Swap,
     Swaped,
     random_jump,
@@ -31,6 +32,7 @@ import { is_blocked_position } from "../definitions-world.js";
 const move_range = new visibility.Range_Cross_Axis(1,2); // TODO: obtain that from the bodie's data!
 const jump_range = new visibility.Range_Cross_Star(3, 4);
 const swap_range = new visibility.Range_Diamond(1, 4);
+const free_jump_range = new visibility.Range_Square(1, 4);
 
 const move_base_cost = 10;
 
@@ -182,6 +184,12 @@ class Jump extends concepts.Action {
     }
 };
 
+class FreeJump extends Jump {
+    static get action_type_name() { return "Free Jump"; }
+    static get range() { return free_jump_range; }
+    static get action_type_description() { return `${super.action_type_description} More precise and different range than a simple Jump.`; }
+}
+
 class Rule_Jump extends concepts.Rule {
 
     get_actions_for(character, world){
@@ -196,6 +204,7 @@ class Rule_Jump extends concepts.Rule {
         return possible_jumps;
     }
 };
+
 
 const random_jump_shape = new visibility.Range_Square(3, 64);
 

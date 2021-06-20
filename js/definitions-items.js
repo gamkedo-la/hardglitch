@@ -14,6 +14,7 @@ export {
 
     Item_BadCode,
     Item_Jump,
+    Item_FreeJump,
     Item_Push,
     Item_Pull,
     Item_Shift,
@@ -67,7 +68,7 @@ import * as concepts from "./core/concepts.js";
 import { sprite_defs } from "./game-assets.js";
 import { all_uncommon_action_types } from "./definitions-actions.js";
 import { auto_newlines, random_sample } from "./system/utility.js";
-import { Jump, Swap } from "./rules/rules-movement.js";
+import { FreeJump, Jump, Swap } from "./rules/rules-movement.js";
 import { Pull, Push, Push_Short, Shift_East, Shift_West, Shift_South, Shift_North, PushWave, PullWave } from "./rules/rules-forces.js";
 import { Repair } from "./rules/rules-repair.js";
 import { Corrupt } from "./rules/rules-corruption.js";
@@ -153,6 +154,7 @@ function all_item_types(){
         Item_BadCode,
         Item_ClosedScope,
         Item_Jump,
+        Item_FreeJump,
         Item_Push,
         Item_Pull,
         Item_Shift,
@@ -1014,6 +1016,26 @@ class Item_BlockMaster extends concepts.Item {
 };
 
 
+class Item_FreeJump extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_3_1,
+        }}
+    };
+
+
+    description = auto_newlines("Forbidden black-art CPU instruction, considered evil by most programmers. Useful if you have an escape plan and need precise relocation.", 35);
+    get can_be_taken() { return true; }
+
+    constructor(){
+        super("ASM JMP");
+    }
+
+    get_enabled_action_types(){
+        return [ FreeJump ];
+    }
+
+};
 
 class Item_CriticalSection extends concepts.Item {
     assets = {
