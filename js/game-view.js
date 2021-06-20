@@ -737,7 +737,6 @@ class GameView {
             return;
         const entity_view = this.list_entity_views.find(entity_view=> entity_view.is_mouse_over);
         if(entity_view instanceof CharacterView
-        && !entity_view.is_playing
         && this.fog_of_war.is_visible(entity_view.game_position)
         ){
             entity_view.draw_extra_info(canvas_context);
