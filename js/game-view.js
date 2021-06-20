@@ -281,8 +281,6 @@ class GameView {
             graphics.camera.center_position = gfx_position;
         }
 
-        this._start_player_turn();
-
         // Display the goal message and disappear.
         const goal_display_duration_ms = 6000;
         this.show_central_message(goal_message, goal_display_duration_ms);
@@ -628,7 +626,7 @@ class GameView {
             && this.next_event === undefined
             ){
                 this._sync_fix_entity_view_positions();
-                this._start_player_turn();
+                this.start_player_turn();
             } else {
                 if(this.player_character
                 && (this.player_character.stats.action_points.value <= 0
@@ -660,10 +658,10 @@ class GameView {
         this.ui.lock_actions();
     }
 
-    _start_player_turn(){
+    start_player_turn(){
         this.is_time_for_player_to_chose_action = true;
         this._clear_current_playing_character_view();
-        if(this.player_character){
+        if(this.player_character != null){
 
             const player_view = this.get_entity_view(this.player_character.id);
             if(player_view instanceof CharacterView){
