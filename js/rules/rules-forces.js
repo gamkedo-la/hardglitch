@@ -392,7 +392,7 @@ class ForceWave extends concepts.Action {
     static get range() { return force_wave_range; }
     static get costs(){
         return {
-            action_points: { value: base_force_cost },
+            action_points: { value: base_force_cost * 2 },
         };
     }
 
@@ -400,6 +400,12 @@ class ForceWave extends concepts.Action {
         debug.assertion(()=>world instanceof concepts.World);
         debug.assertion(()=>character instanceof Character);
         const entities_in_range = visibility.search_entities(world, character.position, ForceWave.range);
+        entities_in_range.sort((first, second)=>{ // We want to apply the force from the closest to the farthest entity.
+            const first_distance = distance_grid_precise(character.position, first.position);
+            const second_distance = distance_grid_precise(character.position, second.position);
+            const value = first_distance - second_distance;
+            return value;
+        });
         const events = entities_in_range.flatMap(entity=>{
             debug.assertion(()=> entity instanceof concepts.Entity);
             let force_translation = compute_push_translation(character.position, entity.position);
@@ -416,7 +422,7 @@ class ForceWave extends concepts.Action {
 class PushWave extends ForceWave {
     static get icon_def(){ return sprite_defs.icon_action_push; }
     static get action_type_name() { return "Push Wave"; }
-    static get action_type_description() { return auto_newlines("Pushes away from this character any entity in range, bouncing on anything blocking. This effect is not limited by visibility or walls.", 33); }
+    static get action_type_description() { return auto_newlines("Pushes away from this character any entity in range, bouncing on anything blocking. Not limited by visibility or walls and applies in order of the closest to the farthest entity.", 33); }
 
     constructor(){
         const action_id = `push_wave`;
@@ -427,7 +433,7 @@ class PushWave extends ForceWave {
 class PullWave extends ForceWave {
     static get icon_def(){ return sprite_defs.icon_action_pull; }
     static get action_type_name() { return "Pull Wave"; }
-    static get action_type_description() { return auto_newlines("Pulls towards this character any entity in range, bouncing on anything blocking. This effect is not limited by visibility or walls.", 33); }
+    static get action_type_description() { return auto_newlines("Pulls towards this character any entity in range, bouncing on anything blocking. Not limited by visibility or walls and applies in order of the closest to the farthest entity.", 33); }
 
     constructor(){
         const action_id = `pull_wave`;
