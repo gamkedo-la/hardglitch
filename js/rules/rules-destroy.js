@@ -13,7 +13,7 @@ import { Character } from "../core/character.js";
 import { ranged_actions_for_each_target } from "./rules-common.js";
 import { auto_newlines } from "../system/utility.js";
 
-const destroy_range = new visibility.Range_Diamond(0,7);
+const destroy_range = new visibility.Range_Diamond(0,3);
 class Destroy extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_delete; }
     static get action_type_name() { return "Destroy"; }
