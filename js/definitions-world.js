@@ -16,7 +16,7 @@ import * as concepts from "./core/concepts.js";
 import { not } from "./system/utility.js";
 import { Grid } from "./system/grid.js";
 
-import { Rule_Movements, Rule_Jump, Rule_Swap, Rule_RandomJump } from "./rules/rules-movement.js";
+import { Rule_Movements, Rule_Jump, Rule_Swap, Rule_RandomJump, Rule_Crawling } from "./rules/rules-movement.js";
 import { Rule_ActionPoints } from "./rules/rules-actionpoints.js";
 import { Rule_Push, Rule_Pull, Rule_Shift, Rule_ForceWave } from "./rules/rules-forces.js";
 import { Rule_Void } from "./rules/rules-void.js";
@@ -52,6 +52,7 @@ const world_grid = {
 const default_rules = [ // BEWARE: rules will be applied in-order.
     new basic_rules.Rule_BasicActions(),
     new Rule_Movements(),
+    new Rule_Crawling(),
     new Rule_TakeItem(),
     new Rule_Decrypt(),
 

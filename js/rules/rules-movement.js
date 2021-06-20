@@ -5,6 +5,7 @@ export {
     Rule_Jump,
     Rule_RandomJump,
     Rule_Swap,
+    Rule_Crawling,
     Move,
     Moved,
     Jump,
@@ -13,6 +14,7 @@ export {
     FreeJump,
     Swap,
     Swaped,
+    Crawl,
     random_jump,
 }
 
@@ -30,6 +32,7 @@ import { auto_newlines, lazy_call, random_sample } from "../system/utility.js";
 import { is_blocked_position } from "../definitions-world.js";
 
 const move_range = new visibility.Range_Cross_Axis(1,2); // TODO: obtain that from the bodie's data!
+const crawl_range = new visibility.Range_Cross_Diagonal(1,2); // TODO: obtain that from the bodie's data!
 const jump_range = new visibility.Range_Cross_Star(3, 4);
 const swap_range = new visibility.Range_Diamond(1, 4);
 const free_jump_range = new visibility.Range_Square(1, 4);
@@ -83,8 +86,8 @@ class Move extends concepts.Action {
         };
     }
 
-    constructor(move_name, new_position){
-        super(move_name, `Move to this memory section`, new_position);
+    constructor(move_name, new_position, desc= `Move to this memory section`){
+        super(move_name, desc, new_position);
         this.is_basic = true;
     }
 
@@ -97,7 +100,6 @@ class Move extends concepts.Action {
         return [ move_event ];
     }
 };
-
 
 // Rule: can move (depending on what is arround).
 // Movement can be done only 1 square per turn.
@@ -128,6 +130,34 @@ class Rule_Movements extends concepts.Rule {
     }
 
 };
+
+
+class Crawl extends Move {
+    static get action_type_name() { return "Crawl"; }
+    static get action_type_description() { return auto_newlines("Move this character on the target memory section, by crawling awkwardly.", 35); }
+    static get range(){ return crawl_range; }
+
+    constructor(target){
+        super(`crawl_tp_${target.x}_${target.y}`, target, `Crawl to this memory section`);
+    }
+};
+
+class Rule_Crawling extends concepts.Rule {
+
+    get_actions_for(character, world){
+        debug.assertion(()=>character instanceof Character);
+
+        const valid_targets = (range) => lazy_call(visibility.valid_move_positions, world, character, range, tiles.is_walkable);
+        const possible_crawls = actions_for_each_target(character, Crawl, valid_targets, (crawl_type, target)=>{
+            const crawl = new crawl_type(target);
+            safe_if_safe_arrival(crawl, world);
+            return crawl;
+        });
+        return possible_crawls;
+    }
+};
+
+
 
 class Jumped extends concepts.Event {
     constructor(entity, from_pos, to_pos, duration=666) {
