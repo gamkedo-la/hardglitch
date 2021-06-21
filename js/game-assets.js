@@ -141,6 +141,7 @@ const game_assets = { // Description of the assets to load.
         asset_loader: asset_system.audiobuffer_loader,
         test: './audio/test.mp3',
         newCycle: './audio/NewCycle4.mp3',
+        streaming: './audio/NewCycle.mp3',
         click: './audio/Click.mp3',
         delete: './audio/Delete3.mp3',
         delete2: './audio/Delete2.mp3',
@@ -237,6 +238,12 @@ const highlight_animations = {
 
 const stream_animations = {
     idle: {
+        loop: false,
+        timeline: [
+                    { frame: 0, duration: 50 },
+                  ],
+      },
+    moving: {
             loop: true,
             timeline: [
                         { frame: 0, duration: 50 },
@@ -1384,6 +1391,15 @@ const sound_event_defs = {
         source_type: 'audiostream',
         source_name: 'glitchshell',
         group_name: 'Music',
+        loop: true,
+        volume: 0.7,
+        unique: true, // Will not create a new event instance if true
+    },
+
+    'Streaming': {
+        source_type: 'audiobuffer',
+        source_name: 'streaming',
+        group_name: 'SoundEffects',
         loop: true,
         volume: 0.7,
         unique: true, // Will not create a new event instance if true

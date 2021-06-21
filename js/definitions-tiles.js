@@ -7,9 +7,10 @@ export {
     is_safely_walkable,
     is_safe,
     is_blocking_view,
+    is_stream_tile,
     info_text,
     name_text,
-    floor_tiles, surface_tiles, procgen_floor_tiles, procgen_surface_tiles,
+    floor_tiles, surface_tiles, procgen_floor_tiles, procgen_surface_tiles, stream_tile_ids,
 }
 
 import * as debug from "./system/debug.js";
@@ -811,4 +812,15 @@ function name_text(tile_id){
     const tile_def = defs[tile_id];
     debug.assertion(()=>tile_def);
     return tile_def.name;
+}
+
+const stream_tile_ids = [
+    ID.STREAM_LEFT,
+    ID.STREAM_RIGHT,
+    ID.STREAM_UP,
+    ID.STREAM_DOWN,
+];
+
+function is_stream_tile(tile_id){
+    return stream_tile_ids.includes(tile_id);
 }
