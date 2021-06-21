@@ -72,6 +72,8 @@ class Telekynesy extends concepts.Event {
 
 class Pushed extends concepts.Event {
     constructor(entity, from, to){
+        debug.assertion(()=>from instanceof concepts.Position);
+        debug.assertion(()=>to instanceof concepts.Position);
         super({
             allow_parallel_animation: false,
             description: `Entity ${entity.id} was Pushed from ${JSON.stringify(from)} to ${JSON.stringify(to)}`
@@ -95,6 +97,8 @@ const Pulled = Pushed; // For now, pulling is just pushing in reverse, don't tel
 
 class Bounced extends concepts.Event {
     constructor(entity, from, to){
+        debug.assertion(()=>from instanceof concepts.Position);
+        debug.assertion(()=>to instanceof concepts.Position);
         super({
             allow_parallel_animation: false,
             description: `Entity ${entity.id} Bounced from ${JSON.stringify(from)} against ${JSON.stringify(to)}`
@@ -145,7 +149,7 @@ function apply_directional_force(world, target_pos, direction, force_action, ori
         || is_blocked_position(world, next_pos, tiles.is_walkable) // Something is behind, we'll bounce against it.
         ){
             // TODO: only bounce IFF the kind of entity will not moved if second-pushed XD
-            events.push(new Bounced(target_entity, target_pos, next_pos),
+            events.push(new Bounced(target_entity, new concepts.Position(target_pos), new concepts.Position(next_pos)),
                 ...deal_damage(target_entity, 2),
             );
 

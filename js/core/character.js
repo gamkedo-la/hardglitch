@@ -494,6 +494,10 @@ class Character extends concepts.Body {
         return this.field_of_vision.is_visible(...positions);
     }
 
+    can_see_any(...positions){
+        return this.field_of_vision.is_any_visible(...positions);
+    }
+
     // True if this body can perform actions (have an actor for decisions and have enough action points).
     get can_perform_actions(){
         return this.actor // Cannot perform actions if we don't have an actor to decide which action to perform.

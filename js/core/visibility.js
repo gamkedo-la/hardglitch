@@ -313,6 +313,13 @@ class FieldOfVision {
         });
     }
 
+    is_any_visible(...positions){ // TODO: probably optimizable
+        return positions.some(position => {
+            debug.assertion(()=>position instanceof concepts.Position);
+            return this._visible_positions.some(visible_pos => position.equals(visible_pos));
+        });
+    }
+
     filter_visible(...positions){ // TODO: probably optimizable
         return positions.filter(position => {
             debug.assertion(()=>position instanceof concepts.Position);
