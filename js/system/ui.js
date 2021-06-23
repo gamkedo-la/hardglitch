@@ -249,7 +249,7 @@ class Button extends UIElement {
                 this._on_end_over();
         }
 
-        if(this.enabled && mouse_is_over_now && !input.mouse.was_dragging){
+        if(this.enabled && this.visible && mouse_is_over_now && !input.mouse.was_dragging){
             const is_time_to_trigger_action = this.is_action_on_up ? input.mouse.buttons.is_just_released(input.MOUSE_BUTTON.LEFT) : input.mouse.buttons.is_just_down(input.MOUSE_BUTTON.LEFT);
             if(is_time_to_trigger_action && this.action != undefined){
                 this.action(this);

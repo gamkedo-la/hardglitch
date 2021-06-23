@@ -104,7 +104,7 @@ class ActionButton extends ui.Button {
                 y: this.height - this.key_label.height,
             });
         }
-        this.help_text.position = this.position.translate({x:0, y: -this.help_text.height - 4 });
+        // this.help_text.position = this.position.translate({x:0, y: -this.help_text.height - 4 }); // commmented re-placement of button text because it should be specific at creation
     }
 
     _on_begin_over(){
@@ -135,7 +135,13 @@ class CancelActionButton extends ui.Button {
             text: "Cancel",
             delay_ms: 0,
         },{
-            on_mouse_over: ()=> { if(this.visible) show_info(texts.ui.cancel_action) },
+            on_mouse_over: ()=> {
+                if(this.visible) {
+                    show_info(texts.ui.cancel_action);
+                    if(this.on_mouse_over)
+                        this.on_mouse_over();
+                }
+            },
         });
 
     }
@@ -402,7 +408,7 @@ class GameInterface {
             debug.log("CANCEL ACTION BUTTON");
             this.cancel_action_target_selection();
             this.button_cancel_action_selection.visible = false;
-
+            this._cancel_button_was_clicked = true;
     });
 
     character_status = new CharacterStatus(character_status_position());
@@ -422,8 +428,9 @@ class GameInterface {
         debug.assertion(()=>config.on_item_dragging_end instanceof Function);
         debug.assertion(()=>config.view_finder instanceof Function);
         debug.assertion(()=>config.visibility_predicate instanceof Function);
-        this._action_buttons = [];
         this.config = config;
+
+        this._action_buttons = [];
 
         this.fx_view = new GameFxView();
         this.fx_view.particleSystem.alwaysActive = true;
@@ -460,6 +467,8 @@ class GameInterface {
         this.elements.forEach(element => element.update(delta_time, current_character, world));
         this.fx_view.update(delta_time);
         this._handle_action_target_selection(delta_time);
+
+        this._cancel_button_was_clicked = false;
     }
 
     display() {
@@ -511,7 +520,12 @@ class GameInterface {
             const action_button = new ActionButton(position, action_type.icon_def, action_name, action_name_text, key_name, action_description,
                 (clicked_button)=>{ // on clicked
                     debug.assertion(()=>action_info.actions instanceof Array);
+                    if(this._cancel_button_was_clicked) // Do nothing this frame if the cancel button was clicked.
+                        return;
+
+                    this.cancel_action_target_selection(false); // Make sure we are not in a previous action target selection already.
                     this.unlock_actions(); // Make sure all the buttons are stil usable.
+
                     if(action_info.actions.length == 0) return; // Only allow clicking enabled (aka allowed) action buttons.
                     debug.assertion(()=>action_info.actions.every(action => action instanceof concepts.Action));
                     if(action_info.actions.length == 1
@@ -523,12 +537,18 @@ class GameInterface {
                     } else {
                         // Need to select an highlited target!
                         this.button_cancel_action_selection.position = clicked_button.cancel_button_position;
-                        this._begin_target_selection(action_name, action_info.actions);
+                        const target_selection = ()=> this._begin_target_selection(action_name, action_info.actions);
+                        this.button_cancel_action_selection.on_mouse_over = target_selection;
+                        action_button.visible = false; // To be sure the cancel button is displayed instead.
+                        target_selection();
+
                     }
                     audio.playEvent('actionClick');
                     action_button.enabled = false; // only lock this button until next unlock.
                 },
-                ()=> this.config.on_action_pointed_begin(action_range, action_info.actions.map(action=>action.target_position).filter(action => action != null)),
+                ()=> {
+                    this.config.on_action_pointed_begin(action_range, action_info.actions.map(action=>action.target_position).filter(action => action != null));
+                },
                 ()=> {
                     if(!this.is_mouse_over)
                         this.config.on_action_pointed_end();
@@ -546,7 +566,7 @@ class GameInterface {
 
         this._action_buttons.forEach(action_button => {
             action_button.help_text.position = { x: action_button.position.x, y: line_y - action_button.help_text.height };
-            action_button.cancel_button_position = { x: action_button.position.x, y: line_y - this.button_cancel_action_selection.width };
+            action_button.cancel_button_position = action_button.position;
 
             if(!previous_actions_names.includes(action_button.action_text_name)){ // Actions that were added will play the animation.
                 const animation = function*(){
@@ -594,7 +614,10 @@ class GameInterface {
     }
 
     unlock_actions(){
-        this._action_buttons.forEach(button => button.enabled = button.enabled_default);
+        this._action_buttons.forEach(button => {
+            button.enabled = button.enabled_default;
+            button.visible = true;
+        });
         this.inventory.dragging_enabled = true;
     }
 
@@ -604,6 +627,7 @@ class GameInterface {
         this._selected_action = { action_name, actions };
         this.config.on_action_selection_begin(this._selected_action);
         this.button_cancel_action_selection.visible = true;
+        this.button_cancel_action_selection.help_text.text = `Cancel: ${action_name}`;
     }
 
     _end_target_selection(action){
@@ -611,6 +635,7 @@ class GameInterface {
         this._selected_action = undefined;
         this.config.on_action_selection_end(action);
         this.button_cancel_action_selection.visible = false;
+        this._action_buttons.forEach(button => button.visible = true);
     }
 
     _handle_action_target_selection(delta_time){

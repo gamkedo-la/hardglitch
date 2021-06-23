@@ -203,18 +203,26 @@ class GameView {
         this._enable_tile_rendering_debug = false;
 
         const ui_config = {
-            on_action_selection_begin: (...args) => this.on_action_selection_begin(...args),
+            on_action_selection_begin: (...args) => {
+                this._last_action_selection_args = [...args];
+                this.on_action_selection_begin(...args);
+            },
             on_action_selection_end: (...args) => this.on_action_selection_end(...args),
             on_action_pointed_begin: (...args) => {
-                if(!this.ui.is_selecting_action_target){
+                // if(!this.ui.is_selecting_action_target){
                     this.clear_highlights_basic_actions();
                     this.highlight_action_range(...args);
-                }
+                    this._last_action_pointed_data = [...args];
+                // }
             },
             on_action_pointed_end: (...args) => {
-                if(!this.ui.is_selecting_action_target){
+                if(this.ui.is_selecting_action_target && this._last_action_selection_args instanceof Array){
+                    this.clear_action_range_highlight();
+                    ui_config.on_action_selection_begin(...this._last_action_selection_args);
+                } else {
                     this.clear_action_range_highlight(...args);
                     this.highlight_available_basic_actions();
+                    delete this._last_action_selection_args;
                 }
             },
             toggle_autofocus: () => {
