@@ -511,6 +511,7 @@ class GameInterface {
             const action_button = new ActionButton(position, action_type.icon_def, action_name, action_name_text, key_name, action_description,
                 (clicked_button)=>{ // on clicked
                     debug.assertion(()=>action_info.actions instanceof Array);
+                    this.unlock_actions(); // Make sure all the buttons are stil usable.
                     if(action_info.actions.length == 0) return; // Only allow clicking enabled (aka allowed) action buttons.
                     debug.assertion(()=>action_info.actions.every(action => action instanceof concepts.Action));
                     if(action_info.actions.length == 1
@@ -525,7 +526,7 @@ class GameInterface {
                         this._begin_target_selection(action_name, action_info.actions);
                     }
                     audio.playEvent('actionClick');
-                    this.lock_actions(); // Can be unlocked by clicking somewhere there is no action target.
+                    action_button.enabled = false; // only lock this button until next unlock.
                 },
                 ()=> this.config.on_action_pointed_begin(action_range, action_info.actions.map(action=>action.target_position).filter(action => action != null)),
                 ()=> {
