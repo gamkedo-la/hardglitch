@@ -5,9 +5,9 @@ export {
     assertion,
 }
 
-window.enable_logs = true; // Set to true (even while playing) to see the logs).
+window.enable_logs = false; // Set to true (even while playing) to see the logs).
 window.enable_warnings = true; // Set to true (even while playing) to see the logs).
-window.enable_assertions = true; // Set to true (even while playing) to see the logs).
+window.enable_assertions = false; // Set to true (even while playing) to see the logs).
 
 function log(...anything){
     if(window.enable_logs){
