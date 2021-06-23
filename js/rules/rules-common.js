@@ -33,15 +33,20 @@ function add_default_action_if_adjacent(character_position, possible_actions, ac
 
 function actions_for_each_target(character, parent_action_type, valid_target_generator, action_maker = (action_type, target) => new action_type(target)){
     debug.assertion(()=>character instanceof Character);
-    debug.assertion(()=>parent_action_type && parent_action_type.prototype instanceof concepts.Action);
+    debug.assertion(()=>(parent_action_type && parent_action_type.prototype instanceof concepts.Action)
+                    || (parent_action_type instanceof Array && parent_action_type.every(action_type=>action_type.prototype instanceof concepts.Action ))
+                    );
     debug.assertion(()=>valid_target_generator);
     debug.assertion(()=>action_maker instanceof Function);
 
-    const enabled_action_types = character.get_enabled_action_types_related_to(parent_action_type);
+    if(!(parent_action_type instanceof Array)) parent_action_type = [parent_action_type];
+    debug.assertion(()=> parent_action_type instanceof Array && parent_action_type.length > 0 && parent_action_type.every(action_type=>action_type.prototype instanceof concepts.Action ));
+
+    const enabled_action_types = character.get_enabled_action_types_related_to(...parent_action_type);
 
     const actions = {};
     enabled_action_types.forEach(action_type => {
-        debug.assertion(()=>action_type && (action_type === parent_action_type || action_type.prototype instanceof parent_action_type));
+        debug.assertion(()=>action_type && (parent_action_type.includes(action_type) || parent_action_type.some(type => action_type.prototype instanceof type)));
         const action_range = action_type.range instanceof Function ? action_type.range(character) : action_type.range;
         debug.assertion(()=>action_range instanceof visibility.RangeShape);
         const target_generator = valid_target_generator(action_range);
@@ -57,7 +62,10 @@ function actions_for_each_target(character, parent_action_type, valid_target_gen
 function ranged_actions_for_each_target(world, character, parent_action_type, predicate){
     debug.assertion(()=>world instanceof concepts.World);
     debug.assertion(()=>character instanceof Character);
-    debug.assertion(()=>parent_action_type && parent_action_type.prototype instanceof concepts.Action);
+    debug.assertion(()=>(parent_action_type && parent_action_type.prototype instanceof concepts.Action)
+                    || (parent_action_type instanceof Array && parent_action_type.every(action_type=>action_type.prototype instanceof concepts.Action ))
+                    );
+
 
     const valid_targets = (range) => lazy_call(visibility.valid_target_positions, world, character, range, predicate);
     const actions = actions_for_each_target(character, parent_action_type, valid_targets, (action_type, target)=>{

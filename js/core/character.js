@@ -408,11 +408,11 @@ class Inventory {
         return idx < this._activable_items;
     }
 
-    get_enabled_action_types_related_to(action_type){
-        debug.assertion(()=>action_type && action_type.prototype instanceof concepts.Action);
+    get_enabled_action_types_related_to(...action_types){
+        debug.assertion(()=>action_types.length > 0 && action_types.every(action_type=> action_type.prototype instanceof concepts.Action));
         return this.get_all_enabled_action_types(type => {
             while(type){
-                if(type === action_type || type.prototype instanceof action_type)
+                if(action_types.includes(type) || action_types.some(action_type => type.prototype instanceof action_type))
                     return true;
                 if(type === type.prototype.constructor)
                     return false;
@@ -602,8 +602,8 @@ class Character extends concepts.Body {
         return this.get_all_enabled_actions_types();
     }
 
-    get_enabled_action_types_related_to(action_type){
-        return this.inventory.get_enabled_action_types_related_to(action_type);
+    get_enabled_action_types_related_to(...action_type){
+        return this.inventory.get_enabled_action_types_related_to(...action_type);
     }
 
 };

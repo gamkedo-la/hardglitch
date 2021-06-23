@@ -1,7 +1,6 @@
 
 export {
-    Rule_Push,
-    Rule_Pull,
+    Rule_PushPull,
     Rule_Shift,
     Rule_ForceWave,
     apply_directional_force,
@@ -247,23 +246,13 @@ class Pull extends concepts.Action {
 
 
 // TODO: factorize code common between Pull and Push rules!
-class Rule_Push extends concepts.Rule {
+class Rule_PushPull extends concepts.Rule {
 
     get_actions_for(character, world){
         debug.assertion(()=>character instanceof Character);
-         return ranged_actions_for_each_target(world, character, Push);
+         return ranged_actions_for_each_target(world, character, [Push, Pull]);
     }
 };
-
-
-class Rule_Pull extends concepts.Rule {
-
-    get_actions_for(character, world){
-        debug.assertion(()=>character instanceof Character);
-        return ranged_actions_for_each_target(world, character, Pull);
-    }
-};
-
 
 class ShiftCasted extends concepts.Event {
     constructor(entity){
