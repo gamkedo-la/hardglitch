@@ -124,7 +124,6 @@ class ItemSlot {
 
     draw(canvas_context){
         this._sprite.draw(canvas_context);
-        this._help_text.draw(canvas_context);
     }
 
     draw_item(canvas_context){
@@ -132,6 +131,10 @@ class ItemSlot {
             debug.assertion(()=>this._item_view instanceof EntityView);
             this._item_view.render_graphics(canvas_context);
         }
+    }
+
+    draw_help(canvas_context){
+        this._help_text.draw(canvas_context);
     }
 
     get position() { return this._sprite.position; }
@@ -515,6 +518,7 @@ class InventoryUI {
         this._slots.slice().reverse().forEach(slot=>slot.draw(canvas_context));
         this._slots.slice().reverse().forEach(slot=>slot.draw_item(canvas_context));
         this.fx_view.draw(canvas_context);
+        this._slots.slice().reverse().forEach(slot=>slot.draw_help(canvas_context));
         if(this.help_item_slot_enabled){
             this.help_item_slot_sprite.draw(canvas_context);
         }
