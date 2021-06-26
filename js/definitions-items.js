@@ -25,6 +25,7 @@ export {
     Item_ClosedScope,
     Item_ThreadPool,
     Item_Zip,
+    Item_ComputeCluster,
     Item_LifeStrength,
     Item_MemoryCleanup,
     Item_ByteClearer,
@@ -169,6 +170,7 @@ function all_item_types(){
         Item_Scanner,
         Item_ThreadPool,
         Item_Zip,
+        Item_ComputeCluster,
         Item_LifeStrength,
         Item_MemoryCleanup,
         Item_ByteClearer,
@@ -727,6 +729,29 @@ class Item_Zip extends concepts.Item {
 
     constructor(){
         super("Zip");
+    }
+
+}
+
+
+class Item_ComputeCluster extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_5,
+        }}
+    };
+
+    get can_be_taken() { return true; }
+
+    description = auto_newlines("Access to a remote cluster of computers, ready to help with improving speed of execution and size of storage.", 33);
+
+    stats_modifiers = {
+        inventory_size: { value: +4 },
+        activable_items: { value: +4 },
+    }
+
+    constructor(){
+        super("Computer Cluster");
     }
 
 }
