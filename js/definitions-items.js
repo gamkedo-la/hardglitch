@@ -692,7 +692,7 @@ class Item_ClosedScope extends concepts.Item {
 class Item_ThreadPool extends concepts.Item {
     assets = {
         graphics : { body: {
-            sprite_def : sprite_defs.item_generic_5,
+            sprite_def : sprite_defs.item_threadpool,
         }}
     };
 
