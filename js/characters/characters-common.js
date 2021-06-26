@@ -88,9 +88,12 @@ function move_away(character, possible_actions, target_position, allowed_move_ty
         return undefined;
 }
 
-function wander(possible_actions, allowed_move_types = default_movement_types){
+function wander(possible_actions, allowed_move_types = default_movement_types, predicate_next_pos = ()=>true){
     debug.assertion(()=>possible_actions instanceof Array || possible_actions instanceof Object);
     if(possible_actions instanceof Object) possible_actions = Object.values(possible_actions);
-    const all_moves = possible_actions.filter(action => allowed_move_types.some(move_type => action instanceof move_type) && action.is_safe);
+    const all_moves = possible_actions.filter(action => allowed_move_types.some(move_type => action instanceof move_type)
+                                                     && action.is_safe
+                                                     && predicate_next_pos(action.target_position)
+                                                     );
     return random_sample(all_moves);
 }

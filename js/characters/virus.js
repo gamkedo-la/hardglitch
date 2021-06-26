@@ -14,14 +14,13 @@ import { AntiVirus } from "./antivirus.js";
 import { Copy } from "../rules/rules-copy.js";
 import { Merge } from "../rules/rules-merge.js";
 import { DropItem, TakeItem } from "../rules/rules-items.js";
-import { Range_Square, search_entities, valid_spawn_positions } from "../core/visibility.js";
+import { Range_Circle, search_entities, valid_spawn_positions } from "../core/visibility.js";
 import { Delete } from "../rules/rules-delete.js";
+import { distance_grid_precise } from "../system/spatial.js";
 
 const virus_gang_size = 3; // Total count of Virus that should be around each-other when hunting.
-const virus_gang_range = new Range_Square(0, 7); // Range in which Virus around another are considered a gang.
-const virus_gang_entity_predicate = entity => entity instanceof Character
-                                           && entity.actor instanceof VirusBehavior
-                                            ;
+const virus_max_gang_distance = 3;
+const virus_gang_range = new Range_Circle(0, 6); // Range in which Virus around another are considered a gang.
 const interersting_item_types = [ items.Item_Copy, items.Item_Merge, items.Item_Jump, items.Item_ByteClearer ];
 class VirusBehavior extends concepts.Actor {
 
@@ -64,10 +63,11 @@ class VirusBehavior extends concepts.Actor {
             return gather_items;
 
         const target = this._get_target(character, world);
+        const gang = this._get_gang(character, world);
         if(target instanceof Character){
             const distance_to_target = target.position.distance(character.position);
             if(distance_to_target > 1){
-                if(this._gang_size(character, world) < virus_gang_size){
+                if(gang.length < virus_gang_size){
                     const duplicates = this._duplicates(possible_actions, character);
                     if(duplicates instanceof concepts.Action)
                         return duplicates;
@@ -85,7 +85,11 @@ class VirusBehavior extends concepts.Actor {
             }
         }
 
-        const move = wander(possible_actions);
+        const farthest_gang_member = gang.reverse().find(virus => virus != character);
+        debug.assertion(()=>farthest_gang_member == null || farthest_gang_member.is_virus);
+        const move = wander(possible_actions, undefined, (next_position)=>{ // Wander but keep close to other
+            return farthest_gang_member == null || distance_grid_precise(next_position, farthest_gang_member.position) <= virus_max_gang_distance;
+        });
         if(move)
             return move;
 
@@ -145,10 +149,11 @@ class VirusBehavior extends concepts.Actor {
         return select_action_by_type(possible_actions, character.position, Copy);
     }
 
-    _gang_size(character, world){
-        const gang = search_entities(world, character.position, virus_gang_range, virus_gang_entity_predicate);
-        return gang.length;
+    _get_gang(character, world){
+        const gang = search_entities(world, character.position, virus_gang_range, (entity)=> entity.is_virus);
+        return gang;
     }
+
 
 };
 
