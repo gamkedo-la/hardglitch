@@ -589,7 +589,7 @@ class GameInterface {
 
                     const button_animations = [
                         anim.wait(1000),
-                      animations.in_screen_spawn(fx_view, spawn_fx_pos),
+                        animations.in_screen_spawn(fx_view, spawn_fx_pos),
                     ];
 
                     const related_slot_idxs = slot_idxs_per_action_name[action_button.action_text_name];
@@ -687,7 +687,9 @@ class GameInterface {
         this.button_main_menu.position = this.button_main_menu.position.translate({ x: this.button_main_menu.width * 2 }); // Assuming the mute button is the same size as the menu button
 
         this.character_status = new CharacterStatus(character_status_position());
+        const was_dragging_enabled = this.inventory && this.inventory.dragging_enabled;
         this.inventory = new InventoryUI(inventory_position(), this.character_status, this.config);
+        this.inventory.dragging_enabled = was_dragging_enabled;
         this.timeline = new Timeline(timeline_position(), this.config.view_finder, this.config.visibility_predicate);
         this.info_box = new InfoBox(infobox_rectangle());
     }
