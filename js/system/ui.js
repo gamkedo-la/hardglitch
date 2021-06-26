@@ -781,7 +781,6 @@ class Bar extends UIElement {
             this._update_change_rect(this._changing_target_value);
             graphics.draw_rectangle(canvas_context, this._change_rect, this.colors.change);
         } else if(this._preview_rect){
-            this._preview_rect.position = this._value_rect.position;
             graphics.draw_rectangle(canvas_context, this._preview_rect, this.colors.preview);
         }
 
