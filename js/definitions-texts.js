@@ -50,7 +50,8 @@ detroy_slot:
 `Destroy Slot:
 
 Put an item here to destroy it.
-The item can never be retrieved once destroyed.
+The item can never be retrieved once
+destroyed.
 
 Moving Items in slots costs 1 AP.
 `,
