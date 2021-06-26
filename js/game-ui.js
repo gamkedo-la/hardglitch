@@ -516,6 +516,7 @@ class GameInterface {
             const key_name = key_number <= 10 ? `${key_number === 0 ? "SPACE" : (key_number === 10 ? 0 : key_number) }` : "";
             const action_description = texts.action_description(action_type);
             const action_name_text = action_type.action_type_name;
+            const is_no_target_action = action_info.actions.length == 1 && (action_info.action_type.range == null || action_info.actions[0].target_position == null);
             const action_button = new ActionButton(position, action_type.icon_def, action_name, action_name_text, key_name, action_description,
                 (clicked_button)=>{ // on clicked
                     debug.assertion(()=>action_info.actions instanceof Array);
@@ -527,9 +528,7 @@ class GameInterface {
 
                     if(action_info.actions.length == 0) return; // Only allow clicking enabled (aka allowed) action buttons.
                     debug.assertion(()=>action_info.actions.every(action => action instanceof concepts.Action));
-                    if(action_info.actions.length == 1
-                    && (action_info.action_type.range == null || action_info.actions[0].target_position == null)
-                    ){ // No need for targets
+                    if(is_no_target_action){ // No need for targets
                         const action = action_info.actions[0];
                         debug.assertion(()=>action instanceof concepts.Action);
                         play_action(action); // Play the action immediately
@@ -548,10 +547,19 @@ class GameInterface {
                 },
                 ()=> {
                     this.config.on_action_pointed_begin(action_range, action_info.actions.map(action=>action.target_position).filter(action => action != null));
+
+                    if(action_info.actions.length > 0){
+                        const action = action_info.actions[0];
+                        if(action instanceof concepts.Action){
+                            this.character_status.begin_preview_action_costs(action);
+                        }
+                    }
                 },
                 ()=> {
-                    if(!this.is_mouse_over)
+                    if(!this.is_mouse_over){
                         this.config.on_action_pointed_end();
+                        this.character_status.end_preview_costs();
+                    }
                 });
             const can_be_performed = action_info.actions && action_info.actions.length > 0; // Disabled if we don't have any actions anyway.
             action_button.enabled = can_be_performed;

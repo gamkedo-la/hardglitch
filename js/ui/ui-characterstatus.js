@@ -12,6 +12,7 @@ import { Character, StatValue } from "../core/character.js";
 import { Vector2 } from "../system/spatial.js";
 import { config } from "../game-config.js";
 import { show_info } from "./ui-infobox.js";
+import { Action } from "../core/concepts.js";
 
 const bar_text = {
     font: "18px Space Mono",
@@ -156,6 +157,15 @@ class CharacterStatus{
     begin_preview_costs(preview_values){
         this.health_bar.show_preview_value(preview_values.integrity);
         this.action_bar.show_preview_value(preview_values.action_points);
+    }
+
+    begin_preview_action_costs(action){
+        debug.assertion(()=>action instanceof Action);
+        if(this.character instanceof Character){
+            this.begin_preview_costs({
+                action_points: this.character.stats.action_points.value - action.constructor.costs.action_points.value,
+            });
+        }
     }
 
     end_preview_costs(){
