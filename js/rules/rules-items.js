@@ -63,6 +63,9 @@ class ItemTaken extends concepts.Event {
         const item_view = game_view.focus_on_entity(this.item_id);
         const slot_position = game_view.ui.inventory.get_slot_position(this.inventory_idx);
         if(item_view instanceof EntityView){
+            if(item_view instanceof CharacterView && item_view.is_player){ // Avoid moving the camera focusing on a player character
+                game_view.stop_camera_animation();
+            }
             const take_animation = character_view.is_player ? anim.player_take_item : anim.take_item;
             yield* take_animation(game_view.fx_view, character_view, item_view, slot_position);
         }

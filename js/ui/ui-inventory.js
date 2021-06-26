@@ -371,21 +371,29 @@ class InventoryUI {
 
     get slot_idxs_per_action_name(){
         const result = {};
+
+        const gather_actions_from = (entity, idx)=>{
+            if(entity instanceof concepts.Item){
+                const item = entity;
+                const action_types = item.get_enabled_action_types();
+                action_types.forEach(action_type => {
+                    if(result[action_type.action_type_name] == null)
+                        result[action_type.action_type_name] = [];
+                    result[action_type.action_type_name].push(idx);
+                });
+
+            } else if (entity instanceof Character){
+                const character = entity;
+                character.inventory.stored_items.forEach(maybe_item => gather_actions_from(maybe_item, idx));
+            }
+        };
+
         this._slots.forEach((slot, idx)=>{
-            if(!slot.is_active || slot.item == null)
-                return;
-
-            const item = slot.item._item;
-            if(!(item instanceof concepts.Item))
-                return;
-
-            const action_types = item.get_enabled_action_types();
-            action_types.forEach(action_type => {
-                if(result[action_type.action_type_name] == null)
-                    result[action_type.action_type_name] = [];
-                result[action_type.action_type_name].push(idx);
-            })
+            if(!slot.is_active || slot.item == null) return;
+            const item = slot.item instanceof ItemView ? slot.item._item : slot.item._character;
+            gather_actions_from(item, idx);
         });
+
         return result;
     };
 

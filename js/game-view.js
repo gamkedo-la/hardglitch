@@ -1140,17 +1140,21 @@ class GameView {
             const entity = entity_or_view_or_id;
             const view_type = entity instanceof Character ? CharacterView : ItemView;
             entity_view = new view_type(entity);
-            if(entity.is_player_actor){
-                this.fog_of_war.add_fov(entity.id, entity.field_of_vision);
-                this._require_tiles_update = true;
-            }
-            if(entity.id === this.player_character.id){
-                entity_view.is_playing = true;
-            }
         } else {
             debug.assertion(()=>entity_or_view_or_id instanceof EntityView);
             entity_view = entity_or_view_or_id;
         }
+
+        debug.assertion(()=>entity_view instanceof EntityView);
+        const entity = entity_view instanceof ItemView ? entity_view._item : entity_view._character;
+        if(entity.is_player_actor){
+            this.fog_of_war.add_fov(entity.id, entity.field_of_vision);
+            this._require_tiles_update = true;
+        }
+        if(entity.id === this.player_character.id){
+            entity_view.is_playing = true;
+        }
+
         debug.assertion(()=>entity_view instanceof EntityView);
         debug.assertion(()=>this.entity_views[entity_view.id] === undefined || this.entity_views[entity_view.id].id === entity_view.id);
         this.entity_views[entity_view.id] = entity_view;
