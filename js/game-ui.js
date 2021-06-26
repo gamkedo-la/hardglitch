@@ -148,7 +148,6 @@ class CancelActionButton extends ui.Button {
 
     set position(new_pos){
         super.position = new_pos;
-        this.help_text.position = super.position.translate({x:0, y: -this.help_text.height - 4 });
         this.help_text.area_to_help = this.area;
         this.icon.position = center_in_rectangle(this.icon, this.area).position;
     }
@@ -537,6 +536,7 @@ class GameInterface {
                     } else {
                         // Need to select an highlited target!
                         this.button_cancel_action_selection.position = clicked_button.cancel_button_position;
+                        this.button_cancel_action_selection.help_text.position = clicked_button.cancel_help_text_position;
                         const target_selection = ()=> this._begin_target_selection(action_name, action_info.actions);
                         this.button_cancel_action_selection.on_mouse_over = target_selection;
                         action_button.visible = false; // To be sure the cancel button is displayed instead.
@@ -565,8 +565,10 @@ class GameInterface {
         const inventory = this.inventory;
 
         this._action_buttons.forEach(action_button => {
-            action_button.help_text.position = { x: action_button.position.x, y: line_y - action_button.help_text.height };
+            const help_text_position = { x: action_button.position.x, y: line_y - action_button.help_text.height };
+            action_button.help_text.position = help_text_position;
             action_button.cancel_button_position = action_button.position;
+            action_button.cancel_help_text_position = help_text_position;
 
             if(!previous_actions_names.includes(action_button.action_text_name)){ // Actions that were added will play the animation.
                 const animation = function*(){
