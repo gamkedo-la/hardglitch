@@ -414,14 +414,17 @@ function* decrypt_file(file_view, file_fx_view, key_view, key_fx_view, crypto_ki
     file_view.is_visible = false;
 }
 
-function* lightning_between(fx_view, source_objet, target_object, duration_ms){
+function* lightning_between(fx_view, source_objet, target_object, duration_ms, stop_predicate=()=>false){
+
+    if(stop_predicate())
+        return;
 
     const source_pos = source_objet.position.translate(square_half_unit_vector);
     const target_pos = target_object.position.translate(square_half_unit_vector);
     const fx = fx_view.lightningJump(target_pos, source_pos, [ new Color(255, 255, 255) ]);
 
-    const update_fx_pos = function*(target_object, fx){
-        while(true){
+    const update_fx_pos = function*(target_object, fx, stop_predicate){
+        while(!stop_predicate()){
             fx.position = target_object.position.translate(square_half_unit_vector);
             yield;
         }
@@ -429,7 +432,7 @@ function* lightning_between(fx_view, source_objet, target_object, duration_ms){
 
     yield* animation.in_parallel_any(
         animation.wait(duration_ms),
-        update_fx_pos(target_object, fx),
+        update_fx_pos(target_object, fx, stop_predicate),
     );
 
     fx.done = true;

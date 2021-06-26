@@ -27,7 +27,8 @@ import { show_info } from "./ui-infobox.js";
 import { EntityView, square_half_unit_vector } from "../view/entity-view.js";
 import { CharacterView } from "../game-view.js";
 import { config } from "../game-config.js";
-import { AnimationGroup, CancelToken } from "../system/animation.js";
+import { AnimationGroup } from "../system/animation.js";
+import { random_bag_pick } from "../system/utility.js";
 
 const item_slot_vertical_padding = 0;
 const item_slot_vertical_size = 72;
@@ -638,31 +639,39 @@ class InventoryUI {
     }
 
     launch_slots_modification_effects(...slot_idxes){
+
         const is_slot_bending_slot = (item_slot) =>{
             return item_slot.is_item_affecting_slots && item_slot.is_active
         }
-
-        const launch_fx = item_slot => {
-            if(is_slot_bending_slot(item_slot)){
-                this.fx_animations.play(this._animation_item_effect_on_slots(item_slot));
-            }
-        };
-
         // If any of the items OR any of the specified items are changing slots, we play the effect on ALL possible slots.
         if(slot_idxes.length == 0 || slot_idxes.some(idx => is_slot_bending_slot(this._slots[idx]))){
-            this._slots.forEach(launch_fx);
+
+            if(this._fx_status) this._fx_status.running = false;
+            this._fx_status = { running : true };
+
+            this._slots.forEach(item_slot => {
+                if(is_slot_bending_slot(item_slot)){
+                    this.fx_animations.play(this._animation_item_effect_on_slots(item_slot, this._fx_status));
+                }
+            });
         }
     }
 
-    *_animation_item_effect_on_slots(item_slot){
+    *_animation_item_effect_on_slots(item_slot, status){
         yield;
         yield; // To be sure we get an up to date slots size.
-        const slots = [...this._slots];
-        for(const other_slot of slots){
-            if(other_slot === item_slot || other_slot.type === slot_types.DESTROY) continue;
-            const token = yield* animations.lightning_between(this.fx_view, item_slot, other_slot, 1000 / 32);
-            if(token instanceof CancelToken)
-                return;
+        const slots = this._slots.filter(other_slot => status.running
+                                                    && other_slot !== item_slot
+                                                    && other_slot.type !== slot_types.DESTROY
+                                       );
+        const selected_slots = random_bag_pick(slots, 8); // To avoid performance drops, limit the number of slots we send lightning to.
+        selected_slots.sort((first, second)=>{
+            const first_distance = first.position.distance(item_slot.position);
+            const second_distance = second.position.distance(item_slot.position);
+            return first_distance - second_distance;
+        });
+        for(const other_slot of selected_slots){
+            yield* animations.lightning_between(this.fx_view, item_slot, other_slot, 1000 / 8, ()=>!status.running);
         };
     }
 
