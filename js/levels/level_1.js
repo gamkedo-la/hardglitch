@@ -394,10 +394,10 @@ function populate_entities(world, central_area_rect, avoid_areas, start_items){
         { type: "CryptoFile_Circle", position: random_spawn_pos(crypto_file_area), drops: start_items },
         { type: "CryptoKey_Circle", position: random_spawn_pos(crypto_key_area) },
     );
-    add_entities_from_desc(
-        { type: "CryptoFile_Circle", position: random_spawn_pos(crypto_file_area) },
-        { type: "CryptoKey_Circle", position: random_spawn_pos(crypto_key_area) },
-    );
+    // add_entities_from_desc(
+    //     { type: "CryptoFile_Circle", position: random_spawn_pos(crypto_file_area) },
+    //     { type: "CryptoKey_Circle", position: random_spawn_pos(crypto_key_area) },
+    // );
 
     // 2: add some entities in the central area - some items in particular
     add_entities_from_desc(...bonus_bag.map(desc => { desc.position = random_spawn_pos(central_area_rect); return desc; }));
