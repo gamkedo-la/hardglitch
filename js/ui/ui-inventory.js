@@ -609,9 +609,11 @@ class InventoryUI {
         }
 
         // Last slot is always the one to destroy items.
+        const last_column_slots = column_slots;
         next_column();
         this.destroy_item_slot = new ItemSlot(undefined, slot_types.DESTROY, this.fx_view);
-        this.destroy_item_slot.position = next_slot_position().translate({ x: 20 });
+        // place it on top right of the previous column:
+        this.destroy_item_slot.position = next_slot_position().translate({ x: 20, y: -(item_slots_vertical_space * (last_column_slots - 1)) });
         this._slots.push(this.destroy_item_slot);
         this.destroy_item_slot.idx = this._slots.length - 1;
     }
