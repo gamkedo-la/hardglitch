@@ -700,7 +700,7 @@ class Item_ThreadPool extends concepts.Item {
 
     get can_be_taken() { return true; }
 
-    description = auto_newlines("Enables concurrent execution of tasks. Do not share your data between threads, or at least protect accessing them!", 35);
+    description = auto_newlines("Enables concurrent execution of tasks. Do not share your data between threads, or at least protect accessing them!\nMakes more item slots Active but do not increase the number of item slots.", 35);
 
     stats_modifiers = {
         activable_items: { value: +4 },
@@ -721,7 +721,7 @@ class Item_Zip extends concepts.Item {
 
     get can_be_taken() { return true; }
 
-    description = auto_newlines("Compression algorithm allowing to store more data in the same space.", 35);
+    description = auto_newlines("Compression algorithm allowing to store more data in the same space.\nIncreases the number of item slots, but not the number of Active slots.", 33);
 
     stats_modifiers = {
         inventory_size: { value: +4 },
@@ -743,7 +743,7 @@ class Item_ComputeCluster extends concepts.Item {
 
     get can_be_taken() { return true; }
 
-    description = auto_newlines("Access to a remote cluster of computers, ready to help with improving speed of execution and size of storage.", 33);
+    description = auto_newlines("Access to a remote cluster of computers, ready to help with improving speed of execution and size of storage.\nIncreases the number of item slots and make them Active.", 33);
 
     stats_modifiers = {
         inventory_size: { value: +4 },

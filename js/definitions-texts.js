@@ -205,7 +205,7 @@ function stats_modifiers_description(modifiers, with_signs = true){
         description += `${maybe_newline()}${value_str(modifiers.inventory_size.value)} Item Slots`;
     }
     if(modifiers.activable_items){
-        description += `${maybe_newline()}${value_str(modifiers.activable_items.value)} Active Item Slots`;
+        description += `${maybe_newline()}${value_str(modifiers.activable_items.value)} Slots Activation`;
     }
     if(modifiers.view_distance){
         description += `${maybe_newline()}${value_str(modifiers.view_distance.value)} View Distance`;
