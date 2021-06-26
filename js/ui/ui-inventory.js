@@ -12,6 +12,7 @@ import * as tiles from "../definitions-tiles.js";
 import * as audio from "../system/audio.js";
 import * as texts from "../definitions-texts.js";
 import * as items from "../definitions-items.js";
+import * as animations from "../game-animations.js";
 
 import { Character, Inventory } from "../core/character.js";
 import { sprite_defs } from "../game-assets.js";
@@ -26,6 +27,7 @@ import { show_info } from "./ui-infobox.js";
 import { EntityView, square_half_unit_vector } from "../view/entity-view.js";
 import { CharacterView } from "../game-view.js";
 import { config } from "../game-config.js";
+import { AnimationGroup, CancelToken } from "../system/animation.js";
 
 const item_slot_vertical_padding = 0;
 const item_slot_vertical_size = 72;
@@ -148,7 +150,12 @@ class ItemSlot {
     get size() { return this._sprite.size; }
 
     get item() { return this._item_view; }
-
+    get is_item_affecting_slots() {
+        return this.item instanceof ItemView
+            && this.item._item.stats_modifiers
+            && (this.item._item.stats_modifiers.inventory_size || this.item._item.stats_modifiers.activable_items)
+            ;
+    }
 
     set_item(new_item){
         debug.assertion(()=>this._item_view === null);
@@ -194,8 +201,7 @@ class ItemSlot {
             let fx_pos = this._sprite.area.center;
             this.fx = this._fx_view.action(fx_pos);
 
-            if(this.item._item.stats_modifiers
-            && (this.item._item.stats_modifiers.inventory_size || this.item._item.stats_modifiers.activable_items)){
+            if(this.is_item_affecting_slots){
                 this.fx_slots = this._fx_view.slots_effect(fx_pos);
             }
         }
@@ -266,6 +272,7 @@ class InventoryUI {
         this._need_refresh = false;
         this.fx_view = new GameFxView();
         this.fx_view.particleSystem.alwaysActive = true;
+        this.fx_animations = new AnimationGroup();
 
         this.help_item_slot_sprite = new graphics.Sprite(sprite_defs.help_item_slot);
     }
@@ -280,6 +287,7 @@ class InventoryUI {
         debug.assertion(()=>world instanceof concepts.World);
         this.world = world;
 
+
         if(current_character){
             this.refresh(current_character);
         } else {
@@ -290,10 +298,11 @@ class InventoryUI {
         }
 
         if(this.dragging_enabled)
-            this._update_item_dragging();
+        this._update_item_dragging();
 
         this._slots.forEach(slot=>slot.update(delta_time));
 
+        this.fx_animations.update(delta_time);
         this.fx_view.update(delta_time);
 
         if(this.help_item_slot_enabled){
@@ -610,6 +619,7 @@ class InventoryUI {
             item_slot.position = next_slot_position();
 
             this._slots.push(item_slot);
+
             if(this._slots.length <= previous_items.length){
                 const previous_item = previous_items[this._slots.length -1];
                 if(previous_item)
@@ -625,6 +635,35 @@ class InventoryUI {
         this.destroy_item_slot.position = next_slot_position().translate({ x: 20, y: -(item_slots_vertical_space * (last_column_slots - 1)) });
         this._slots.push(this.destroy_item_slot);
         this.destroy_item_slot.idx = this._slots.length - 1;
+    }
+
+    launch_slots_modification_effects(...slot_idxes){
+        const is_slot_bending_slot = (item_slot) =>{
+            return item_slot.is_item_affecting_slots && item_slot.is_active
+        }
+
+        const launch_fx = item_slot => {
+            if(is_slot_bending_slot(item_slot)){
+                this.fx_animations.play(this._animation_item_effect_on_slots(item_slot));
+            }
+        };
+
+        // If any of the items OR any of the specified items are changing slots, we play the effect on ALL possible slots.
+        if(slot_idxes.length == 0 || slot_idxes.some(idx => is_slot_bending_slot(this._slots[idx]))){
+            this._slots.forEach(launch_fx);
+        }
+    }
+
+    *_animation_item_effect_on_slots(item_slot){
+        yield;
+        yield; // To be sure we get an up to date slots size.
+        const slots = [...this._slots];
+        for(const other_slot of slots){
+            if(other_slot === item_slot || other_slot.type === slot_types.DESTROY) continue;
+            const token = yield* animations.lightning_between(this.fx_view, item_slot, other_slot, 1000 / 32);
+            if(token instanceof CancelToken)
+                return;
+        };
     }
 
     _reset_items(inventory){

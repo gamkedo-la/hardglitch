@@ -73,6 +73,7 @@ class ItemTaken extends concepts.Event {
             game_view.ui.inventory.set_item_view_at(this.inventory_idx, item_view);
             yield* anim.inventory_add(game_view.ui.inventory.fx_view, game_view.ui.inventory, this.inventory_idx);
             game_view.ui.inventory.request_refresh();
+            game_view.ui.inventory.launch_slots_modification_effects(this.inventory_idx);
             character_view.sync_health();
         }
         game_view.clear_focus();
@@ -229,6 +230,7 @@ class SwappedItemsSlots extends concepts.Event {
         if(right_item_view)
             inventory.set_item_view_at(this.left_item_idx, right_item_view);
         inventory.request_refresh();
+        inventory.launch_slots_modification_effects(this.right_item_idx, this.left_item_idx);
 
         const player_character_view = game_view.focus_on_current_player_character();
         if(player_character_view)

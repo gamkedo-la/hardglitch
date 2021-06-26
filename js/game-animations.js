@@ -419,14 +419,17 @@ function* lightning_between(fx_view, source_objet, target_object, duration_ms){
     const source_pos = source_objet.position.translate(square_half_unit_vector);
     const target_pos = target_object.position.translate(square_half_unit_vector);
     const fx = fx_view.lightningJump(target_pos, source_pos, [ new Color(255, 255, 255) ]);
-    const update_fx_pos = function*(){
-        fx.position = target_object.position.translate(square_half_unit_vector);
-        yield;
+
+    const update_fx_pos = function*(target_object, fx){
+        while(true){
+            fx.position = target_object.position.translate(square_half_unit_vector);
+            yield;
+        }
     };
 
-    yield* animation.in_parallel(
+    yield* animation.in_parallel_any(
         animation.wait(duration_ms),
-        update_fx_pos()
+        update_fx_pos(target_object, fx),
     );
 
     fx.done = true;

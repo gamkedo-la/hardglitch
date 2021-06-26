@@ -5,6 +5,7 @@
 export {
     AnimationGroup,
     in_parallel,
+    in_parallel_any,
     wait,
     delay,
     wait_until,
@@ -20,11 +21,23 @@ import { not } from "./utility.js";
 function* in_parallel(...animations){
     while(animations.length > 0){
         const delta_time = yield;
-        animations.map((animation_iterator, index)=>{
+        animations.forEach((animation_iterator, index)=>{
             const state = animation_iterator.next(delta_time);
             if(state.done)
                 animations.splice(index, 1);
         });
+    }
+}
+
+
+function* in_parallel_any(...animations){
+    while(animations.length > 0){
+        const delta_time = yield;
+        for(const animation_iterator of animations){
+            const state = animation_iterator.next(delta_time);
+            if(state.done)
+                return;
+        }
     }
 }
 
@@ -68,7 +81,7 @@ class AnimationGroup {
     animations = [];
 
     update(delta_time){
-        this.animations.map((animation, idx) => {
+        this.animations.forEach((animation, idx) => {
             const animation_state = animation.iterator.next(delta_time);
             if(animation_state.done){
                 this.animations.splice(idx, 1);
@@ -104,7 +117,10 @@ class AnimationGroup {
         return promise;
     }
 
-    clear() { this.animations = []; }
+    clear() {
+        this.animations.forEach(animation => animation.resolver(new CancelToken()));
+        this.animations = [];
+    }
 
     get animation_count() { return this.animations.length; }
 
