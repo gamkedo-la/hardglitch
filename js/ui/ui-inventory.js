@@ -193,6 +193,11 @@ class ItemSlot {
         if (this.is_active) {
             let fx_pos = this._sprite.area.center;
             this.fx = this._fx_view.action(fx_pos);
+
+            if(this.item._item.stats_modifiers
+            && (this.item._item.stats_modifiers.inventory_size || this.item._item.stats_modifiers.activable_items)){
+                this.fx_slots = this._fx_view.slots_effect(fx_pos);
+            }
         }
     }
 
@@ -200,6 +205,10 @@ class ItemSlot {
         if (this.fx) {
             this.fx.done = true;
             delete this.fx;
+        }
+        if(this.fx_slots){
+            this.fx_slots.done = true;
+            delete this.fx_slots;
         }
     }
 

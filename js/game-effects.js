@@ -556,6 +556,38 @@ class GameFxView {
         return fx;
     }
 
+
+    slots_effect(position){
+        let fx = new GameFx(position);
+        let offset = 16;
+        let size = 72;
+        let ttl = 0;
+        let hicolor = new Color(253,20,120,.45);
+        let hiWidth = 6;
+        let hiSpeed = .10;
+        let locolor = new Color(253,30,120,.2);
+        let loWidth = 10;
+        let loSpeed = .80;
+        let particle;
+        particle = new ActionParticle(position.x, position.y, offset, size, hicolor, hiSpeed, ttl, hiWidth, false);
+        this.particleSystem.add(particle);
+        fx.sentinels.push(particle);
+        fx.relocatables.push(particle);
+        particle = new ActionParticle(position.x, position.y, offset, size, hicolor, hiSpeed, ttl, hiWidth, true);
+        this.particleSystem.add(particle);
+        fx.sentinels.push(particle);
+        fx.relocatables.push(particle);
+        particle = new ActionParticle(position.x, position.y, offset, size, locolor, loSpeed, ttl, loWidth, false);
+        this.particleSystem.add(particle);
+        fx.sentinels.push(particle);
+        fx.relocatables.push(particle);
+        particle = new ActionParticle(position.x, position.y, offset, size, locolor, loSpeed, ttl, loWidth, true);
+        this.particleSystem.add(particle);
+        fx.sentinels.push(particle);
+        fx.relocatables.push(particle);
+        return fx;
+    }
+
     unlock(position, ttl) {
         let fx = new GameFx(position);
         // combo lock rings
