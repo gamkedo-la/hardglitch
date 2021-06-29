@@ -715,7 +715,7 @@ class Item_ThreadPool extends concepts.Item {
 class Item_Zip extends concepts.Item {
     assets = {
         graphics : { body: {
-            sprite_def : sprite_defs.item_generic_3,
+            sprite_def : sprite_defs.item_zip,
         }}
     };
 

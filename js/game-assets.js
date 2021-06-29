@@ -99,6 +99,7 @@ const game_assets = { // Description of the assets to load.
         item_corrupt: "./images/item_corrupt.png",
         item_copy: "./images/item_copy.png",
         item_threadpool: "./images/item_threadpool.png",
+        item_zip: "./images/item_zip.png",
         info_box_button: "./images/infoboxbutton.png",
         game_over_skull: "./images/game-over-skull.png",
         vision: "./images/vision.png",
@@ -590,6 +591,35 @@ const sprite_defs = {
         },
     },
 
+    item_zip: {
+        image: "item_zip",
+        frames: [
+            { x: 0, y: 0, width: 64, height: 64 },
+            { x: 64, y: 0, width: 64, height: 64 },
+            { x: 128, y: 0, width: 64, height: 64 },
+            { x: 192, y: 0, width: 64, height: 64 },
+            { x: 0, y: 64, width: 64, height: 64 },
+            { x: 64, y: 64, width: 64, height: 64 },
+            { x: 128, y: 64, width: 64, height: 64 },
+            { x: 192, y: 64, width: 64, height: 64 },
+        ],
+        animations: {
+            idle: {
+                    loop: true,
+                    timeline: [
+                                { frame: 0, duration: 500 },
+                                { frame: 1, duration: 500 },
+                                { frame: 2, duration: 200 },
+                                { frame: 3, duration: 200 },
+                                { frame: 4, duration: 500 },
+                                { frame: 5, duration: 500 },
+                                { frame: 6, duration: 200 },
+                                { frame: 7, duration: 200 },
+                            ],
+                },
+        },
+    },
+    
     vision : {
         image: "vision",
     },
