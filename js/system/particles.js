@@ -650,7 +650,7 @@ class CanvasGlitchParticle extends Particle {
                 );
             this.sdata = this.smaller_context.getImageData(0, 0, this.smaller_context.canvas.width, this.smaller_context.canvas.height);
             this.needData = false;
-            const background_alpha = ((Math.sin(performance.now() / 100) + 1) / 2) * 0.1;
+            const background_alpha = ((Math.sin(performance.now() / 100) + 1) / 2) * 0.2;
             this.background_color = new Color(20,20,20, background_alpha).toString();
         }
         if (this.midDraw) this.midDraw(canvas_context);

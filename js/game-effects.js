@@ -322,7 +322,7 @@ class GameFxView {
     }
 
     corrupt(position, srcCtx) {
-        const emitInterval = 0.2;
+        const emitInterval = 0.5;
         const emitJitter = 50;
         const offsetEmitter = new ParticleEmitter(this.particleSystem, position.x-32, position.y-32, (e) => {
             let xoff = random_int(4,50);
