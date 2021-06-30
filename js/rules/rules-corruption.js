@@ -40,6 +40,13 @@ const corruption_desc = auto_newlines(`Deals from ${corruption_damage_min} to ${
 
 const corrupt_desc = auto_newlines(`Corrupts the target memory section.\nThe corrupted memory will deal damage every cycles to any entity in it. All corruption updates every computer Cycle multiple of ${corruption_turns_to_update} following the rules of Conway's Game Of Life.`, 35);
 
+function play_corruption_update_sound(){
+    if(Rule_Corruption.need_corruption_update_sound){
+        Rule_Corruption.need_corruption_update_sound = false;
+        audio.playEvent("spawnAnim");
+    }
+}
+
 class Corruption {
     get name(){ return corruption_name; }
     get description(){ return corruption_desc };
@@ -74,8 +81,8 @@ class CorruptionSpawned extends concepts.Event {
 
         // TODO: consider adding a spawining effet just for now.
         this.corruption.fx = game_view.fx_view.corrupt(target_gfx_pos);
-        // TODO: add sound?
-        yield* anim.wait(1000 / 64);
+        play_corruption_update_sound();
+        yield* anim.wait(1000 / 32);
     }
 };
 
@@ -99,7 +106,7 @@ class CorruptionVanished extends concepts.Event {
         if(this.corruption.fx){
             // TODO: consider adding a "speeshhh" effet just for now.
             this.corruption.fx.done = true;
-            // TODO: add sound?
+            play_corruption_update_sound();
         }
         yield* anim.wait(1000 / 64);
     }
@@ -271,7 +278,14 @@ function damage_anything_in_corrupted_tiles(world){
 
 class Rule_Corruption extends concepts.Rule {
 
+    static need_corruption_update_sound = false;
+
     turns_since_last_corruption_update = 0;
+
+    constructor(){
+        super();
+        Rule_Corruption.need_corruption_update_sound = false;
+    }
 
     update_world_at_the_beginning_of_game_turn(world){
         ++this.turns_since_last_corruption_update;
@@ -283,8 +297,12 @@ class Rule_Corruption extends concepts.Rule {
         const events = [];
 
         if(this.turns_since_last_corruption_update >= corruption_turns_to_update){ // We update the corruption positions.
-            events.push(...update_corruption_state(world));
+            const corruption_update_events = update_corruption_state(world);
+            events.push(...corruption_update_events);
             this.turns_since_last_corruption_update = 0;
+            if(corruption_update_events.length > 0){
+                Rule_Corruption.need_corruption_update_sound = true;
+            }
         }
 
         events.push(...damage_anything_in_corrupted_tiles(world));
