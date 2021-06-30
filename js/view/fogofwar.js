@@ -56,6 +56,11 @@ class FogOfWar {
 
     get fov_list() { return [...Object.values(this._permanent_fovs), ...Object.values(this.fovs) ]; }
 
+    get all_visible_positions() {
+        return this.fov_list.flatMap(fov => fov.visible_positions)
+                            .filter((pos, index, self) => index === self.findIndex((t) => t.equals(pos))) // TODO: find a way to remove duplicates efficiently.
+    }
+
     index(position){
         return index_from_position(this.world.width, this.world.height, position);
     }
@@ -144,6 +149,12 @@ class FogOfWar {
                                         && this.viewed_at_least_once_grid[this.index(position)] === true);
     }
 
+    // Returns true if the predicate is true for one of the squares visibles.
+    can_see(predicate){
+        debug.assertion(()=>predicate instanceof Function);
+        return this.all_visible_positions.some(predicate);
+    }
+
     _draw_dark_unknown(canvas_context){
         canvas_context.drawImage(this._dark_canvas_context.canvas, 0, 0);
     }
@@ -156,8 +167,8 @@ class FogOfWar {
         this._dark_canvas_context.fillStyle = "#ffffffff";
         this._dark_canvas_context.globalCompositeOperation = "destination-out";
 
-        const all_visible_positions = this.fov_list.flatMap(fov => fov.visible_positions);
-        all_visible_positions.forEach(position => {
+
+        this.all_visible_positions.forEach(position => {
             const gfx_position = graphic_position(position);
             this._dark_canvas_context.fillRect(gfx_position.x, gfx_position.y, PIXELS_PER_TILES_SIDE, PIXELS_PER_TILES_SIDE);
         });

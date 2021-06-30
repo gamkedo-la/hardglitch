@@ -12,7 +12,8 @@ import { config } from "../game-config.js";
 import { Vector2, Rectangle, is_point_under } from "../system/spatial.js";
 import { CharacterView } from "../view/character-view.js";
 import { show_info } from "./ui-infobox.js";
-import { EntityView, square_half_unit_vector } from "../view/entity-view.js";
+import { EntityView, graphic_position, square_half_unit_vector } from "../view/entity-view.js";
+import { corruption_turns_to_update } from "../rules/rules-corruption.js";
 
 const timeline_config = {
     line_width: 16,
@@ -81,6 +82,7 @@ class Timeline
     }
 
     visible = true;
+    is_corruption_visible = false;
 
     update(delta_time, character, world){
         debug.assertion(()=>world instanceof concepts.World);
@@ -148,10 +150,35 @@ class Timeline
             return;
 
         this._draw_line(canvas_context);
+
+        if(this.is_corruption_visible)
+            this._draw_corruption_countdown(canvas_context);
+
         this._draw_cycle_clock(canvas_context);
+
         this._draw_characters(canvas_context);
         this._draw_current_turn_arrow(canvas_context);
         this._draw_locator(canvas_context);
+    }
+
+    _draw_corruption_countdown(canvas_context){
+
+        const text_position = this.position.translate({ x: -350, y: -10 });
+        const cycles_until_corruption_update = corruption_turns_to_update - (this.cycle_count % corruption_turns_to_update);
+        const text = `Corruption updates in ${cycles_until_corruption_update} Cycles`;
+        const text_color = cycles_until_corruption_update < 3 ? "red" : "orange";
+
+        canvas_context.save();
+
+        canvas_context.fillStyle = "#00000044";
+        canvas_context.fillRect(text_position.x - 4, text_position.y -4, 350, 28);
+
+        graphics.draw_text(canvas_context, text, text_position, {
+            color: text_color,
+            font: cycle_counter.font,
+        });
+
+        canvas_context.restore();
     }
 
     _draw_cycle_clock(canvas_context){
@@ -181,8 +208,6 @@ class Timeline
             color: cycle_counter.text_color,
             font: cycle_counter.font,
         });
-
-
 
         canvas_context.restore();
     }

@@ -201,6 +201,7 @@ class GameView {
         this._require_tiles_update = true;
         this._enable_fog_of_war = true;
         this._enable_tile_rendering_debug = false;
+        this._corrutions_count = 0;
 
         const ui_config = {
             on_action_selection_begin: (...args) => {
@@ -526,8 +527,11 @@ class GameView {
 
         this.fog_of_war.update(delta_time);
 
-        if(this.player_character)
+        if(this.player_character){
+            this.ui.timeline.is_corruption_visible = this._corrutions_count > 0
+                                                    && this.fog_of_war.can_see(pos=> this.game.world.grids[grid_ID.corruption].get_at(pos) instanceof Corruption);
             this.ui.update(delta_time, this.player_character, this.game.world);
+        }
 
         this._update_turn_message(delta_time);
 
@@ -1035,6 +1039,9 @@ class GameView {
                     const position = position_from_index(this.game.world.width, this.game.world.height, idx);
                     const fx_position = graphic_position(position).translate(square_half_unit_vector);
                     effect.fx = effect_func(fx_position);
+                    if(effect_type === Corruption){
+                        ++this._corrutions_count;
+                    }
                 }
             });
         };

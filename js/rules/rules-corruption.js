@@ -5,6 +5,7 @@ export {
     Corrupt,
     CorruptionSpawned,
     CorruptionVanished,
+    corruption_turns_to_update,
 }
 
 import * as debug from "../system/debug.js";
@@ -81,6 +82,7 @@ class CorruptionSpawned extends concepts.Event {
 
         // TODO: consider adding a spawining effet just for now.
         this.corruption.fx = game_view.fx_view.corrupt(target_gfx_pos);
+        ++game_view._visible_corruptions;
         play_corruption_update_sound();
         yield* anim.wait(1000 / 32);
     }
@@ -106,6 +108,7 @@ class CorruptionVanished extends concepts.Event {
         if(this.corruption.fx){
             // TODO: consider adding a "speeshhh" effet just for now.
             this.corruption.fx.done = true;
+            --game_view._visible_corruptions;
             play_corruption_update_sound();
         }
         yield* anim.wait(1000 / 64);
