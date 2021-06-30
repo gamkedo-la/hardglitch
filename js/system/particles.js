@@ -597,7 +597,7 @@ class FadeParticle extends Particle {
 
 // =============================================================================
 class CanvasGlitchParticle extends Particle {
-    constructor(x, y, width, height, xforms, srcCtx, xformTTL=0) {
+    constructor(x, y, width, height, xforms, srcCtx, xformTTL=0, glitchCanvasContext) {
         super(x, y);
         this.width = width;
         this.height = height;
@@ -610,7 +610,8 @@ class CanvasGlitchParticle extends Particle {
         this.xformTTL = xformTTL * 1000;
         this.dx = 0;
         this.dy = 0;
-        this.glitchCanvasContext = create_canvas_context(this.width * 2, this.height * 2);
+        this.glitchCanvasContext = glitchCanvasContext != null ? glitchCanvasContext : create_canvas_context(this.width * 2, this.height * 2);
+        this.smaller_context = create_canvas_context(this.width, this.height);
         this.dataInterval = 1000;
     }
 
@@ -642,9 +643,12 @@ class CanvasGlitchParticle extends Particle {
     draw(canvas_context) {
         // pull image data (if needed)
         if (this.needData) {
-            let srcCtx = (this.srcCtx) ? this.srcCtx : canvas_context;
-            this.sdata = srcCtx.getImageData(this.x - camera.position.x, this.y - camera.position.y, this.width, this.height); // TODO: replace by this.x-xoffset+this.dx, this.y-yoffset+this.dy
-            //this.sdata = srcCtx.getImageData(this.x, this.y, this.width, this.height);
+            const srcCtx = (this.srcCtx) ? this.srcCtx : canvas_context;
+            this.smaller_context.drawImage(srcCtx.canvas,
+                this.x - camera.position.x, this.y - camera.position.y, this.smaller_context.canvas.width, this.smaller_context.canvas.height,
+                0, 0, this.smaller_context.canvas.width, this.smaller_context.canvas.height,
+                );
+            this.sdata = this.smaller_context.getImageData(0, 0, this.width, this.height);
             this.needData = false;
         }
         if (this.midDraw) this.midDraw(canvas_context);
@@ -661,10 +665,10 @@ class CanvasGlitchParticle extends Particle {
 }
 
 class OffsetGlitchParticle extends CanvasGlitchParticle {
-    constructor(x, y, width, height, dx, dy, ttl, fillColor="black", srcCtx) {
+    constructor(x, y, width, height, dx, dy, ttl, fillColor="black", srcCtx, glitchCanvasContext) {
         let adx = Math.abs(dx);
         let ady = Math.abs(dy);
-        super(x-adx, y-ady, width+adx*2, height+ady*2, [], srcCtx, ttl);
+        super(x-adx, y-ady, width+adx*2, height+ady*2, [], srcCtx, ttl, glitchCanvasContext);
         this.dx = dx;
         this.dy = dy;
         this.ttl = ttl;

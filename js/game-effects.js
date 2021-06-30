@@ -30,8 +30,11 @@ import {
 import { Color } from "./system/color.js";
 import { Vector2 } from "./system/spatial.js";
 import { random_int, random_float, random_sample } from "./system/utility.js";
+import { create_canvas_context } from "./system/graphics.js";
 
 class GameFxView {
+
+    static fx_canvas = create_canvas_context(64, 64);
 
     constructor() {
         this.particleSystem = new ParticleSystem();
@@ -319,9 +322,9 @@ class GameFxView {
     }
 
     corrupt(position, srcCtx) {
-        let emitInterval = .2;
-        let emitJitter = 50;
-        let offsetEmitter = new ParticleEmitter(this.particleSystem, position.x-32, position.y-32, (e) => {
+        const emitInterval = 0.2;
+        const emitJitter = 50;
+        const offsetEmitter = new ParticleEmitter(this.particleSystem, position.x-32, position.y-32, (e) => {
             let xoff = random_int(4,50);
             let yoff = random_int(4,50);
             let ttl = random_float(.1,1);
@@ -329,9 +332,9 @@ class GameFxView {
             let height = random_float(5,14);
             let dx = random_float(-5,5);
             let dy = random_float(-5,5);
-            return new OffsetGlitchParticle(e.x+xoff, e.y+yoff, width, height, dx, dy, ttl, "", srcCtx);
+            return new OffsetGlitchParticle(e.x+xoff, e.y+yoff, width, height, dx, dy, ttl, "", srcCtx, GameFxView.fx_canvas);
         }, emitInterval, emitJitter);
-        let colorEmitter = new ParticleEmitter(this.particleSystem, position.x-32, position.y-32, (e) => {
+        const colorEmitter = new ParticleEmitter(this.particleSystem, position.x-32, position.y-32, (e) => {
             let xoff = random_int(1,50);
             let yoff = random_int(1,50);
             let width = random_float(10,Math.min(40,64-xoff));
@@ -340,9 +343,9 @@ class GameFxView {
             let goff = random_float(0,255);
             let boff = random_float(0,255);
             let ttl = random_float(.1,1);
-            return new ColorGlitchParticle(e.x+xoff, e.y+yoff, width, height, roff, goff, boff, ttl, srcCtx);
+            return new ColorGlitchParticle(e.x+xoff, e.y+yoff, width, height, roff, goff, boff, ttl, srcCtx, GameFxView.fx_canvas);
         }, emitInterval, emitJitter);
-        let damageEmitter = new ParticleEmitter(this.particleSystem, position.x-32, position.y-32, (e) => {
+        const damageEmitter = new ParticleEmitter(this.particleSystem, position.x-32, position.y-32, (e) => {
             const xoff = random_int(4,60);
             const yoff = random_int(4,60);
             const width = random_int(15,30);
@@ -353,7 +356,7 @@ class GameFxView {
         this.particleSystem.add(offsetEmitter);
         this.particleSystem.add(colorEmitter);
         this.particleSystem.add(damageEmitter);
-        let fx = new GameFx(position);
+        const fx = new GameFx(position);
         fx.sentinels.push(offsetEmitter);
         fx.sentinels.push(colorEmitter);
         fx.sentinels.push(damageEmitter);
