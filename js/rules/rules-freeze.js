@@ -16,7 +16,7 @@ import { auto_newlines } from "../system/utility.js";
 import { EntityView, graphic_position } from "../view/entity-view.js";
 import { deal_ap_damage } from "./destruction.js";
 
-const freeze_damage = 20;
+const freeze_damage = 30;
 const freeze_ap_cost = 8;
 const freeze_range = new visibility.Range_Cross_Star(0,5);
 
