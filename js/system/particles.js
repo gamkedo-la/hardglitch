@@ -34,9 +34,9 @@ import { camera, create_canvas_context } from "./graphics.js";
 import { random_int, random_float, ofmt } from "./utility.js";
 import { Color } from "./color.js";
 import { Vector2 } from "./spatial.js";
-import { lifetime, linearFadeInOut } from "../view/xforms.js";
+import { linearFadeInOut } from "../view/xforms.js";
 import { ColorShiftDataXForm, HorizontalBandingDataXForm, ColorSwapDataXForm, ClearOutsideWindowDataXForm } from "../view/img_data_fx.js";
-import { PathShape } from "../view/proc-wall.js";
+import { PIXELS_PER_TILES_SIDE } from "../view/entity-view.js";
 
 
 // This object is reused for optimization, do not move it into the functions using it.
@@ -648,8 +648,10 @@ class CanvasGlitchParticle extends Particle {
                 this.x - camera.position.x, this.y - camera.position.y, this.smaller_context.canvas.width, this.smaller_context.canvas.height,
                 0, 0, this.smaller_context.canvas.width, this.smaller_context.canvas.height,
                 );
-            this.sdata = this.smaller_context.getImageData(0, 0, this.width, this.height);
+            this.sdata = this.smaller_context.getImageData(0, 0, this.smaller_context.canvas.width, this.smaller_context.canvas.height);
             this.needData = false;
+            const background_alpha = ((Math.sin(performance.now() / 100) + 1) / 2) * 0.1;
+            this.background_color = new Color(20,20,20, background_alpha).toString();
         }
         if (this.midDraw) this.midDraw(canvas_context);
         // output image data
@@ -658,7 +660,16 @@ class CanvasGlitchParticle extends Particle {
             let yoffset = this.height*.5;
             let gctx = this.glitchCanvasContext;
             gctx.putImageData(this.xdata, xoffset, yoffset);
+
+            canvas_context.save();
+            // For clarity, add a randomly colored faint background color before adding the effect drawing.
+            const square_x = Math.floor(this.x / PIXELS_PER_TILES_SIDE) * PIXELS_PER_TILES_SIDE;
+            const square_y = Math.floor(this.y / PIXELS_PER_TILES_SIDE) * PIXELS_PER_TILES_SIDE;
+            canvas_context.fillStyle = this.background_color;
+            canvas_context.fillRect(square_x, square_y, PIXELS_PER_TILES_SIDE, PIXELS_PER_TILES_SIDE);
+
             canvas_context.drawImage(gctx.canvas, this.x-xoffset+this.dx, this.y-yoffset+this.dy);
+            canvas_context.restore();
         }
     }
 
