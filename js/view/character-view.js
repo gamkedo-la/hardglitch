@@ -12,6 +12,7 @@ import { Character } from "../core/character.js";
 import { sprite_defs } from "../game-assets.js";
 import { Sprite } from "../system/graphics.js";
 import { update_stat_bar } from "../ui/ui-characterstatus.js";
+import { positions_in_range } from "../core/visibility.js";
 
 // Representation of a character's body.
 class CharacterView extends EntityView {
@@ -96,13 +97,16 @@ class CharacterView extends EntityView {
 
         canvas_context.lineWidth = 0;
 
-        const draw_square = (gfx_pos)=>{
-            canvas_context.fillStyle = "#ffffff55";
+        const dangerous_position_color = "#ff111155";
+        const normal_position_color = "#ffffff55";
+
+        const draw_square = (gfx_pos, color)=>{
+            canvas_context.fillStyle = color;
             canvas_context.fillRect(gfx_pos.x, gfx_pos.y, PIXELS_PER_TILES_SIDE, PIXELS_PER_TILES_SIDE);
         }
 
-        const draw_eye = (gfx_pos) => {
-            canvas_context.fillStyle = "#ffffff55";
+        const draw_eye = (gfx_pos, color) => {
+            canvas_context.fillStyle = color;
             canvas_context.beginPath();
             canvas_context.arc(gfx_pos.x + PIXELS_PER_HALF_SIDE, gfx_pos.y + PIXELS_PER_HALF_SIDE, PIXELS_PER_HALF_SIDE/2, 0, 360);
             canvas_context.fill();
@@ -134,9 +138,9 @@ class CharacterView extends EntityView {
                 break;
 
             case fov_view_styles.EYE_ON_SQUARE:
-                draw_func = (gfx_pos)=>{
-                    draw_square(gfx_pos);
-                    draw_eye(gfx_pos);
+                draw_func = (gfx_pos, color)=>{
+                    draw_square(gfx_pos, color);
+                    draw_eye(gfx_pos, color);
                 };
                 break;
 
@@ -144,11 +148,27 @@ class CharacterView extends EntityView {
                 draw_func = draw_square;
         }
 
+        const attack_positions = this._character.get_all_enabled_actions_types()
+            .filter(action_type => action_type.is_attack)
+            .flatMap(action_type=>{
+                const range = action_type.range instanceof Function ? action_type.range(this._character) : action_type.range;
+                return positions_in_range(this._character.position, range);
+            })
+            .filter((pos, index, self) => index === self.findIndex((t) => t.equals(pos))) // Remove duplicates.
+            ;
+
         this._character.field_of_vision.visible_walkable_positions.forEach(position => {
             if(position.equals(this._character.position)) // Ignore the square where this entity is.
                 return;
             const gfx_pos = graphic_position(position);
-            draw_func(gfx_pos);
+            const is_dangerous = attack_positions.some(attack_pos => attack_pos.equals(position));
+            const color = is_dangerous ? dangerous_position_color : normal_position_color;
+            if(is_dangerous){
+                canvas_context.fillStyle = color;
+                canvas_context.fillRect(gfx_pos.x, gfx_pos.y, PIXELS_PER_TILES_SIDE, PIXELS_PER_TILES_SIDE);
+            }
+
+            draw_func(gfx_pos, color);
         });
         canvas_context.restore();
     }

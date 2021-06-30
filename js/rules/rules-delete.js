@@ -52,6 +52,7 @@ class Delete extends concepts.Action {
             action_points: { value: delete_ap_cost },
         };
     }
+    static get is_attack(){ return true; }
 
     constructor(target_position){
         super(`delete_${target_position.x}_${target_position.y}`,

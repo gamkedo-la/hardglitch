@@ -173,6 +173,7 @@ class Corrupt extends concepts.Action {
         };
     }
     static get range() { return corrupt_range; }
+    static get is_attack(){ return true; }
 
     constructor(target){
         const action_id = `corrupt_${target.x}_${target.y}`;

@@ -58,7 +58,7 @@ class FogOfWar {
 
     get all_visible_positions() {
         return this.fov_list.flatMap(fov => fov.visible_positions)
-                            .filter((pos, index, self) => index === self.findIndex((t) => t.equals(pos))) // TODO: find a way to remove duplicates efficiently.
+                            .filter((pos, index, self) => index === self.findIndex((t) => t.equals(pos)));
     }
 
     index(position){

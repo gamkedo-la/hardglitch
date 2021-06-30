@@ -61,6 +61,7 @@ class Merge extends concepts.Action {
             action_points: { value: merge_ap_cost },
         };
     }
+    static get is_attack(){ return true; }
 
     constructor(target_position){
         super(`merge_${target_position.x}_${target_position.y}`,

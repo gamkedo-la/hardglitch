@@ -25,6 +25,7 @@ class Destroy extends concepts.Action {
             integrity: { value: 3},
         };
     }
+    static get is_attack(){ return true; }
 
     constructor(target_position){
         super(`destroy_${target_position.x}_${target_position.y}`,

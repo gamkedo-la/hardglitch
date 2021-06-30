@@ -58,6 +58,7 @@ class Freeze extends concepts.Action {
             action_points: { value: freeze_ap_cost },
         };
     }
+    static get is_attack(){ return true; }
 
     constructor(target_position){
         super(`freeze_${target_position.x}_${target_position.y}`,

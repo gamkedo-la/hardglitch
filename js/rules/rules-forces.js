@@ -197,6 +197,7 @@ class Push extends concepts.Action {
             action_points: { value: base_force_cost },
         };
     }
+    static get is_attack(){ return true; }
 
     constructor(target){
         const action_id = `push_${target.x}_${target.y}`;
@@ -234,6 +235,7 @@ class Pull extends concepts.Action {
             action_points: { value: base_force_cost },
         };
     }
+    static get is_attack(){ return true; }
 
     constructor(target){
         const action_id = `pull_${target.x}_${target.y}`;
@@ -469,6 +471,8 @@ class Push_Cardinal extends concepts.Action {
             action_points: { value: base_force_cost },
         };
     }
+
+    static get is_attack(){ return true; }
 
     constructor(target, target_direction){
         debug.assertion(()=> target instanceof concepts.Position);
