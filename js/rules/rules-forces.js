@@ -3,6 +3,7 @@ export {
     Rule_PushPull,
     Rule_Shift,
     Rule_ForceWave,
+    Rule_PushCardinal,
     apply_directional_force,
     Pushed,
     Pulled,
@@ -15,6 +16,10 @@ export {
     Shift_West,
     PushWave,
     PullWave,
+    Push_North,
+    Push_South,
+    Push_East,
+    Push_West,
 }
 
 import * as debug from "../system/debug.js";
@@ -245,7 +250,6 @@ class Pull extends concepts.Action {
 }
 
 
-// TODO: factorize code common between Pull and Push rules!
 class Rule_PushPull extends concepts.Rule {
 
     get_actions_for(character, world){
@@ -447,6 +451,74 @@ class Rule_ForceWave extends concepts.Rule {
             possible_shift_actions[action.id] = action;
         });
         return possible_shift_actions;
+    }
+};
+
+
+
+
+
+
+class Push_Cardinal extends concepts.Action {
+    static get icon_def(){ return sprite_defs.icon_action_south; }
+    static get action_type_name() { return "PUSH CARDINAL - SHOULD NEVER BE READABLE"; }
+    static get action_type_description() { return "SHOULD NEVER BE READABLE"; }
+    static range(character) { return push_range; }
+    static get costs(){
+        return {
+            action_points: { value: base_force_cost },
+        };
+    }
+
+    constructor(target, target_direction){
+        debug.assertion(()=> target instanceof concepts.Position);
+        debug.assertion(()=> target_direction instanceof concepts.Position);
+        debug.assertion(()=> distance_grid_precise(concepts.Position_origin, target_direction) === 1);
+        const action_id = `push_${target.x}_${target.y}_towards_${target_direction.x}_${target_direction.y}`;
+        super(action_id, `Push Cardinal`, target);
+        this.target_direction = target_direction;
+    }
+
+    execute(world, character){
+        debug.assertion(()=>world instanceof concepts.World);
+        debug.assertion(()=>character instanceof Character);
+        return apply_directional_force(world, this.target_position, this.target_direction, Pushed, character.position);
+    }
+};
+
+class Push_North extends Push_Cardinal {
+    static get action_type_name() { return "Push North"; }
+    static get action_type_description() { return auto_newlines(shift_description_format.replace("{}", "north"), 33); }
+    static get icon_def(){ return sprite_defs.icon_action_shift_north; }
+    constructor(target) { super(target, concepts.Position_negative_unit_y); }
+};
+class Push_South extends Push_Cardinal {
+    static get action_type_name() { return "Push South"; }
+    static get action_type_description() { return auto_newlines(shift_description_format.replace("{}", "south"), 33); }
+    static get icon_def(){ return sprite_defs.icon_action_shift_south; }
+    constructor(target) { super(target, concepts.Position_unit_y); }
+};
+
+class Push_East extends Push_Cardinal {
+    static get action_type_name() { return "Push East"; }
+    static get action_type_description() { return auto_newlines(shift_description_format.replace("{}", "east"), 33); }
+    static get icon_def(){ return sprite_defs.icon_action_shift_east; }
+    constructor(target) { super(target, concepts.Position_unit_x); }
+};
+
+class Push_West extends Push_Cardinal {
+    static get action_type_name() { return "Push West"; }
+    static get action_type_description() { return auto_newlines(shift_description_format.replace("{}", "west"), 33); }
+    static get icon_def(){ return sprite_defs.icon_action_shift_west; }
+    constructor(target) { super(target, concepts.Position_negative_unit_x); }
+};
+
+
+class Rule_PushCardinal extends concepts.Rule {
+
+    get_actions_for(character, world){
+        debug.assertion(()=>character instanceof Character);
+         return ranged_actions_for_each_target(world, character, Push_Cardinal);
     }
 };
 
