@@ -164,8 +164,20 @@ class CharacterView extends EntityView {
             const is_dangerous = attack_positions.some(attack_pos => attack_pos.equals(position));
             const color = is_dangerous ? dangerous_position_color : normal_position_color;
             if(is_dangerous){
-                canvas_context.fillStyle = color;
+                canvas_context.save();
+
+                const rect_line_width = 4;
+                const rect_padding = rect_line_width / 2;
+                canvas_context.strokeStyle = "red"
+                canvas_context.lineWidth = rect_line_width;
+                canvas_context.beginPath();
+                canvas_context.rect(gfx_pos.x + rect_padding, gfx_pos.y + rect_padding, PIXELS_PER_TILES_SIDE - rect_padding * 2, PIXELS_PER_TILES_SIDE - rect_padding * 2);
+                canvas_context.stroke();
+
+                canvas_context.fillStyle = dangerous_position_color;
                 canvas_context.fillRect(gfx_pos.x, gfx_pos.y, PIXELS_PER_TILES_SIDE, PIXELS_PER_TILES_SIDE);
+
+                canvas_context.restore();
             }
 
             draw_func(gfx_pos, color);
