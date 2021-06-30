@@ -166,13 +166,15 @@ class CharacterView extends EntityView {
             if(is_dangerous){
                 canvas_context.save();
 
-                const rect_line_width = 4;
-                const rect_padding = rect_line_width / 2;
-                canvas_context.strokeStyle = "red"
-                canvas_context.lineWidth = rect_line_width;
-                canvas_context.beginPath();
-                canvas_context.rect(gfx_pos.x + rect_padding, gfx_pos.y + rect_padding, PIXELS_PER_TILES_SIDE - rect_padding * 2, PIXELS_PER_TILES_SIDE - rect_padding * 2);
-                canvas_context.stroke();
+                if(!this._character.is_player_actor){
+                    const rect_line_width = 4;
+                    const rect_padding = rect_line_width / 2;
+                    canvas_context.strokeStyle = "red"
+                    canvas_context.lineWidth = rect_line_width;
+                    canvas_context.beginPath();
+                    canvas_context.rect(gfx_pos.x + rect_padding, gfx_pos.y + rect_padding, PIXELS_PER_TILES_SIDE - rect_padding * 2, PIXELS_PER_TILES_SIDE - rect_padding * 2);
+                    canvas_context.stroke();
+                }
 
                 canvas_context.fillStyle = dangerous_position_color;
                 canvas_context.fillRect(gfx_pos.x, gfx_pos.y, PIXELS_PER_TILES_SIDE, PIXELS_PER_TILES_SIDE);
