@@ -42,7 +42,7 @@ const corruption_desc = auto_newlines(`Deals from ${corruption_damage_min} to ${
 const corrupt_desc = auto_newlines(`Corrupts the target memory section.\nThe corrupted memory will deal damage every cycles to any entity in it. All corruption updates every computer Cycle multiple of ${corruption_turns_to_update} following the rules of Conway's Game Of Life.`, 35);
 
 function play_corruption_update_sound(){
-    if(Rule_Corruption.need_corruption_update_sound){
+    if(Rule_Corruption.need_corruption_update_sound && audio.are_events_enabled()){ // We make sure that the sound will be heard if visible.
         Rule_Corruption.need_corruption_update_sound = false;
         audio.playEvent("spawnAnim");
     }
