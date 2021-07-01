@@ -26,7 +26,7 @@ export {
     Item_ClosedScope,
     Item_ThreadPool,
     Item_Zip,
-    Item_ComputeCluster,
+    Item_ComputerCluster,
     Item_LifeStrength,
     Item_MemoryCleanup,
     Item_ByteClearer,
@@ -172,7 +172,7 @@ function all_item_types(){
         Item_Scanner,
         Item_ThreadPool,
         Item_Zip,
-        Item_ComputeCluster,
+        Item_ComputerCluster,
         Item_LifeStrength,
         Item_MemoryCleanup,
         Item_ByteClearer,
@@ -758,10 +758,10 @@ class Item_Zip extends concepts.Item {
 }
 
 
-class Item_ComputeCluster extends concepts.Item {
+class Item_ComputerCluster extends concepts.Item {
     assets = {
         graphics : { body: {
-            sprite_def : sprite_defs.item_generic_5,
+            sprite_def : sprite_defs.item_computercluster,
         }}
     };
 
