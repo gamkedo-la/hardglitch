@@ -12,7 +12,7 @@ import { config } from "../game-config.js";
 import { Vector2, Rectangle, is_point_under } from "../system/spatial.js";
 import { CharacterView } from "../view/character-view.js";
 import { show_info } from "./ui-infobox.js";
-import { EntityView, graphic_position, square_half_unit_vector } from "../view/entity-view.js";
+import { EntityView, square_half_unit_vector } from "../view/entity-view.js";
 import { corruption_turns_to_update } from "../rules/rules-corruption.js";
 
 const timeline_config = {

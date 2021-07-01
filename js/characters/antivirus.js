@@ -15,6 +15,9 @@ import { closest_entity, move_towards, select_action_by_type, wander } from "./c
 
 
 class AnomalyHunter extends concepts.Actor {
+
+    __serialization_ignore_list = [ "target" ];
+
     decide_next_action(world, character, possible_actions){
         debug.assertion(()=>world instanceof concepts.World);
         debug.assertion(()=>character instanceof Character);

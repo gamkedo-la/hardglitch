@@ -30,12 +30,6 @@ import { Unstability } from "../rules/rules-unstability.js";
 import { all_item_types } from "../definitions-items.js";
 import { Rectangle } from "../system/spatial.js";
 
-const default_defaults = {
-    ground : tiles.ID.GROUND,
-    ground_alt: tiles.ID.GROUND2,
-    wall : tiles.ID.WALL,
-    wall_alt : tiles.ID.WALL2,
-};
 
 const tileChoices = [
     tiles.ID.LVL1A,
@@ -132,10 +126,14 @@ function generate_empty_world(name, width, height, defaults = defaults_gen){
     return world;
 }
 
+let encoding_depth = 0;
+
 // Inject the name of the type/class (if any) inside each Object recursively to be able to serialize it and find it again when deserialized.
 function encode_type_recursively(object){
     if(object == null)
         return object;
+
+    debug.assertion(()=>encoding_depth < 100); // If this triggers, something is wrong!
 
     if(object instanceof Object
     && !(object instanceof Array)
@@ -147,10 +145,14 @@ function encode_type_recursively(object){
 
         const ignore_list = object.__serialization_ignore_list instanceof Array ? object.__serialization_ignore_list : [];
 
-        Object.entries(object).forEach(([key, value])=>{
-            if(!ignore_list.includes(key))
+        for(const [key, value] of Object.entries(object)) {
+            if(!ignore_list.includes(key)){
+                ++encoding_depth;
                 result_object[key] = encode_type_recursively(value);
-        });
+                --encoding_depth;
+            }
+        }
+
 
         return result_object;
 
