@@ -112,7 +112,7 @@ function image_loader(group_name, name, path) {
 function audiobuffer_loader(group_name, name, path) {
     const audio_context = new AudioContext();
     return new Promise((resolve) => {
-        //debug.log( `image loading: ${name} => ${path} ...` );
+        debug.log( `audiobuffer loading: ${name} => ${path} ...` );
         let request = new XMLHttpRequest();
         let result = {};
         result[group_name] = {};
@@ -120,7 +120,7 @@ function audiobuffer_loader(group_name, name, path) {
         request.open('GET', path);
         request.responseType = 'arraybuffer';
         request.onload = () => {
-            // debug.log(`audiobuffer loading: ${name} => ${path} - DONE`);
+            debug.log(`audiobuffer loading: ${name} => ${path} - DONE`);
             audio_context.decodeAudioData(request.response,
                 (buffer) => {
                     result[group_name][name] = buffer;
@@ -134,15 +134,14 @@ function audiobuffer_loader(group_name, name, path) {
 
 function audiostream_loader(group_name, name, path) {
     return new Promise((resolve) => {
-        //debug.log( `image loading: ${name} => ${path} ...` );
+        debug.log( `audiostream loading: ${name} => ${path} ...` );
         let audiostream = new Audio(path);
         let result = {};
         result[group_name] = {};
-        audiostream.oncanplay = () => {
-            audiostream.oncanplay = null;
-            debug.log(`audiostream loaded: ${name} => ${path} - DONE`);
+        audiostream.addEventListener('canplay', (event) => {
+            debug.log(`audiostream loaded: ${name} => ${path} - DONE (${event})`);
             result[group_name][name] = audiostream;
             resolve(result);
-        };
+        });
     });
 }
