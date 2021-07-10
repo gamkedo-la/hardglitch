@@ -312,7 +312,11 @@ class Keyboard {
       }
     }
 
-    this._raw_states_changes.fill(undefined); // Reset until next update!
+    this.reset(); // Reset until next update!
+  }
+
+  reset(){
+    this._raw_states_changes.fill(undefined);
   }
 
   on_key_down(key_code){
@@ -362,6 +366,13 @@ function initialize(canvas_context) {
 
   document.addEventListener("keyup", function(event) {
     input_update_queue.push(()=> keyboard.on_key_up(event.keyCode) );
+  });
+
+  window.addEventListener('blur', function(event){  // Losing focus to the window is like releasing all keys.
+    input_update_queue.push(()=> {
+      keyboard.reset();
+      mouse.buttons.reset();
+    });
   });
 
   canvas.addEventListener('mousemove', function(event) {
