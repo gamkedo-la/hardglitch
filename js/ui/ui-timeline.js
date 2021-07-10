@@ -7,13 +7,15 @@ import * as graphics from "../system/graphics.js";
 import * as input from "../system/input.js";
 import * as concepts from "../core/concepts.js";
 import * as texts from "../definitions-texts.js";
+import * as ui from "../system/ui.js";
 
 import { config } from "../game-config.js";
 import { Vector2, Rectangle, is_point_under } from "../system/spatial.js";
 import { CharacterView } from "../view/character-view.js";
 import { show_info } from "./ui-infobox.js";
-import { EntityView, square_half_unit_vector } from "../view/entity-view.js";
+import { EntityView, PIXELS_PER_TILES_SIDE, square_half_unit_vector } from "../view/entity-view.js";
 import { corruption_turns_to_update } from "../rules/rules-corruption.js";
+import { update_stat_bar } from "./ui-characterstatus.js";
 
 const timeline_config = {
     line_width: 16,
@@ -44,6 +46,8 @@ const cycle_counter = {
     text_color: "white",
     font: "18px Space Mono",
 }
+
+const ap_bar_width = 24;
 
 class CycleChangeMarker
 {
@@ -106,6 +110,37 @@ class Timeline
                 show_info(texts.ui.new_cycle);
         }
 
+        this._character_views.forEach(view => {
+            if(!(view instanceof CharacterView))
+                return;
+
+            if(view._ap_bar == null){
+                view._ap_bar = new ui.Bar({
+                    position: view.position.translate({x: -ap_bar_width}),
+                    is_horizontal_bar: false,
+                    width: ap_bar_width, height: PIXELS_PER_TILES_SIDE - 2,
+                    bar_name: "A.P.",
+                    help_text: "Action Points",
+                    visible: false,
+                    bar_colors:{
+                        value: "#ffbe0b",
+                        change_negative: "#FB5607",
+                        change_positive: "#ffffff",
+                        preview: "#8338ec",
+                        background:"#3A86FF",
+                    }
+                });
+                view._ap_bar.helptext_always_visible = false;
+                view._ap_bar.short_text.visible = false;
+                view._ap_bar.short_text.enabled = view.is_player;
+                view._ap_bar.helptext.enabled = view.is_player;
+                view._ap_bar.helptext._events = {
+                    on_mouse_over: ()=> show_info(texts.ui.action_points),
+                };
+            }
+
+            view._ap_bar._next_update_delta_time = delta_time; // We defer the update to just before rendering to avoid some issues.
+        })
 
     }
 
@@ -118,6 +153,8 @@ class Timeline
         debug.assertion(()=>this._turn_ids_sequence instanceof Object);
         debug.assertion(()=>this._turn_ids_sequence.this_turn_ids instanceof Array);
         debug.assertion(()=>this._turn_ids_sequence.next_turn_ids instanceof Array);
+
+        this.end_preview_costs();
 
         this._character_views = [];
 
@@ -267,6 +304,18 @@ class Timeline
             }
             view.render_graphics(canvas_context);
 
+            if(view instanceof CharacterView && !view.is_being_destroyed){
+                debug.assertion(()=>view._ap_bar instanceof ui.Bar);
+                view._ap_bar.position = view.position.translate({x: -ap_bar_width});
+                update_stat_bar(view._ap_bar, view._character.stats.action_points);
+                view._ap_bar.update(view._ap_bar._next_update_delta_time);
+                view._ap_bar.helptext.position = view._ap_bar.position.translate({ x: -view._ap_bar.helptext.width, y: -view._ap_bar.helptext.height });
+
+                view._ap_bar.visible = true;
+                view._ap_bar.draw(canvas_context);
+                view._ap_bar.visible = false;
+            }
+
             view.position = initial_position;
 
             if(view instanceof EntityView)
@@ -275,7 +324,10 @@ class Timeline
     }
 
     pointed_slot(pointed_position){
-        return this.find_slot((view, pos, slot_rect) => is_point_under(pointed_position, slot_rect));
+        return this.find_slot((view, pos, slot_rect) => {
+            return is_point_under(pointed_position, slot_rect)
+                || (view._ap_bar instanceof ui.Bar && is_point_under(pointed_position, view._ap_bar.area))
+        });
     }
 
     find_slot(predicate) {
@@ -313,8 +365,8 @@ class Timeline
 
         const character_gfx_position = character_view.position.translate(graphics.camera.position.inverse);
 
-        const position = pointed_slot.slot_rect.position;
-        const width = pointed_slot.slot_rect.width;
+        const position = pointed_slot.slot_rect.position.translate({ x: -ap_bar_width });
+        const width = pointed_slot.slot_rect.width + ap_bar_width;
         const height = pointed_slot.slot_rect.height;
         canvas_context.save();
 
@@ -359,6 +411,20 @@ class Timeline
         canvas_context.fill();
 
         canvas_context.restore();
+    }
+
+    begin_preview_costs(costs){
+        const character_view = this._character_views[0];
+        if(character_view instanceof CharacterView){
+            character_view._ap_bar.show_preview_value(costs.action_points);
+        }
+    }
+
+    end_preview_costs(){
+        const character_view = this._character_views[0];
+        if(character_view instanceof CharacterView){
+            character_view._ap_bar.hide_preview_value();
+        }
     }
 
 };

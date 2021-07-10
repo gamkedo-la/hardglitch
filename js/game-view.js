@@ -375,12 +375,15 @@ class GameView {
         const events = {
             on_mouse_over_begin: () => {
                 if(this.player_character){
-                    this.ui.character_status.begin_preview_costs({
+                    const preview_costs = {
                         action_points: this.player_character.stats.action_points.value - action.constructor.costs.action_points.value,
-                    });
+                    };
+                    this.ui.character_status.begin_preview_costs(preview_costs);
+                    this.ui.timeline.begin_preview_costs(preview_costs);
                 }
             },
             on_mouse_over_end: () => {
+                this.ui.timeline.end_preview_costs();
                 this.ui.character_status.end_preview_costs();
             },
         };
