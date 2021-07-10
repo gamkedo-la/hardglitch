@@ -16,12 +16,20 @@ import { show_info } from "./ui-infobox.js";
 import { EntityView, PIXELS_PER_TILES_SIDE, square_half_unit_vector } from "../view/entity-view.js";
 import { corruption_turns_to_update } from "../rules/rules-corruption.js";
 import { update_stat_bar } from "./ui-characterstatus.js";
+import { Arrive, Kinematics, SteeringSystem } from "../system/steering.js";
 
 const timeline_config = {
     line_width: 16,
     line_color: "white",
     line_shift_x: 36,
     space_between_elements: 64,
+};
+
+window.timeline_steering = {
+    max_acceleration: 8000.0,
+    max_speed: 2000.0,
+    slow_radius: 256,
+    target_radius: 1,
 };
 
 const translation_between_positions = new Vector2({ y: timeline_config.space_between_elements });
@@ -55,6 +63,8 @@ class CycleChangeMarker
         this.position = new Vector2(position);
     }
 
+    get id() { return -1 ; }
+
     update(delta_time){
 
     }
@@ -83,6 +93,7 @@ class Timeline
         this._view_finder = view_finder;
         this._is_entity_visible = visibility_predicate;
         this._character_views = [];
+        this._slots = {};
     }
 
     visible = true;
@@ -101,6 +112,8 @@ class Timeline
             this._refresh(world);
         }
 
+        Object.values(this._slots).forEach(slot => slot.update(delta_time));
+
         const pointed_slot = this.pointed_slot(input.mouse.position);
         if(pointed_slot){
             const character_view = this._character_views[pointed_slot.idx];
@@ -110,7 +123,8 @@ class Timeline
                 show_info(texts.ui.new_cycle);
         }
 
-        this._character_views.forEach(view => {
+        this._character_views.forEach((view, idx) => {
+
             if(!(view instanceof CharacterView))
                 return;
 
@@ -140,6 +154,8 @@ class Timeline
             }
 
             view._ap_bar._next_update_delta_time = delta_time; // We defer the update to just before rendering to avoid some issues.
+
+
         })
 
     }
@@ -160,7 +176,9 @@ class Timeline
 
         // Now we can gather the views:
         this._add_character_views(this._turn_ids_sequence.this_turn_ids);
-        this._character_views.push(new CycleChangeMarker()); // Mark the beginning of the next turn.
+        const new_cycle_marker = new CycleChangeMarker();
+        this._character_views.push(new_cycle_marker); // Mark the beginning of the next turn.
+        this._setup_slot(new_cycle_marker, this._character_views.length - 1);
         this._add_character_views(this._turn_ids_sequence.next_turn_ids);
 
         delete this._turn_ids_sequence;
@@ -177,9 +195,42 @@ class Timeline
                 if(!this._is_entity_visible(character_view.game_position))
                     continue; // Don't show characters that are not visible to the player on the timeline.
                 this._character_views.push(character_view);
+                this._setup_slot(character_view, this._character_views.length - 1);
             }
 
         };
+    }
+
+    _setup_slot(view, idx){
+        const slot_target = { position: this.position_of(idx) };
+        let slot = this._slots[view.id];
+        if(slot == null){
+            const timeline = this;
+            const new_slot = new class Slot{
+                kinematics = new Kinematics();
+
+                constructor(){
+                    this.steering_system = new SteeringSystem(this.kinematics);
+                    this.steering = new Arrive({
+                        target: slot_target,
+                        max_acceleration: window.timeline_steering.max_acceleration,
+                        max_speed: window.timeline_steering.max_speed,
+                        slow_radius: window.timeline_steering.slow_radius,
+                        target_radius: window.timeline_steering.target_radius,
+                        never_done: true,
+                    });
+                    this.steering_system.add(this.steering);
+                    this.kinematics.position = timeline.position.translate({ y: this.line_length }); // Initial slot position is always far in the timeline.
+                }
+                update(delta_time){
+                    this.steering_system.update(delta_time);
+                }
+            }();
+            this._slots[view.id] = new_slot;
+            slot = new_slot;
+        }
+
+        slot.steering.target = slot_target;
     }
 
     draw(canvas_context){
@@ -249,9 +300,10 @@ class Timeline
         canvas_context.restore();
     }
 
-    _draw_line(canvas_context){
-        const line_length = (this._character_views.length + 1.5) * timeline_config.space_between_elements;
+    get line_length() { return  (this._character_views.length + 1.5) * timeline_config.space_between_elements; }
 
+    _draw_line(canvas_context){
+        const line_length = this.line_length;
         canvas_context.save();
         canvas_context.beginPath(); // Line
 
@@ -278,27 +330,28 @@ class Timeline
         canvas_context.restore();
     }
 
-    *position_sequence(){
-        let position = this.position;
-        while(true){
-            position = position.translate(translation_between_positions);
-            yield position;
-        }
+    position_of(idx){
+        debug.assertion(()=>Number.isInteger(idx) && idx >= 0);
+        return this.position.translate({ y: (idx + 1) * translation_between_positions.y });
     }
 
     _draw_characters(canvas_context){
 
-        const position_sequence = this.position_sequence();
-        const next_position = ()=> position_sequence.next().value;
-
-        this._character_views.forEach(view=>{
+        this._character_views.forEach((view, idx)=>{
             const initial_sprite_positions = [];
             const initial_position = view.position;
 
-            if(view instanceof EntityView)
+            if(view instanceof EntityView){
                 view.for_each_sprite(sprite => initial_sprite_positions.push(sprite.position));
+            }
 
-            view.position = next_position();
+            if(config.enable_timeline_movement){
+                const slot = this._slots[view.id];
+                view.position = slot.kinematics.position;
+            } else {
+                view.position = this.position_of(idx);
+            }
+
             if(view.is_being_destroyed){
                 view.position = view.position.translate(square_half_unit_vector);
             }
@@ -333,12 +386,9 @@ class Timeline
     find_slot(predicate) {
         debug.assertion(()=>predicate instanceof Function);
 
-        const position_sequence = this.position_sequence();
-        const next_position = ()=> position_sequence.next().value;
-
         for(let idx = 0; idx < this._character_views.length; ++idx){
             const character_view = this._character_views[idx];
-            const position = next_position();
+            const position = this._slots[character_view.id].kinematics.position;
             const slot_rect = new Rectangle({ position, width: timeline_config.space_between_elements, height: timeline_config.space_between_elements });
             if(predicate(character_view, position, slot_rect)){
                 return { idx, slot_rect };

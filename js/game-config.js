@@ -34,6 +34,7 @@ export const config = {
     enable_keyboard_input_when_mouse_over_ui: true,
 
     enable_screen_fades: true,
+    enable_timeline_movement: true,
 };
 
 window.game_config = config;
