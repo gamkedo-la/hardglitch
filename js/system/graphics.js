@@ -16,6 +16,7 @@ export {
   measure_text,
   draw_rectangle,
   draw_circle,
+  draw_check_cross,
   canvas_center_position,
   canvas_rect,
   centered_rectangle_in_screen,
@@ -693,4 +694,17 @@ function draw_grid_lines(width, height, square_size, start_position={x:0, y:0}, 
   context.restore();
 }
 
-
+function draw_check_cross(position, style="Fuchsia", context=screen_canvas_context){
+  const length = 12;
+  const half_lengh = length / 2;
+  context.save();
+  context.strokeStyle = style;
+  context.lineWidth = 3;
+  context.beginPath();
+  context.moveTo(position.x - half_lengh, position.y);
+  context.lineTo(position.x + half_lengh, position.y);
+  context.moveTo(position.x, position.y - half_lengh);
+  context.lineTo(position.x, position.y + half_lengh);
+  context.stroke();
+  context.restore();
+}

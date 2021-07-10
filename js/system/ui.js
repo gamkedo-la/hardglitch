@@ -583,25 +583,22 @@ class Bar extends UIElement {
         };
 
         this.colors = Object.assign(default_bar_colors, bar_def.bar_colors);
-        this.change_delay_ms = bar_def.change_delay_ms !== undefined ? bar_def.change_delay_ms : 500;
-        debug.assertion(()=>Number.isInteger(this.change_delay_ms));
-        this.change_duration_ms = bar_def.change_duration_ms !== undefined ? bar_def.change_duration_ms : 800;
-        debug.assertion(()=>Number.isInteger(this.change_duration_ms));
+        this.change_delay_ms = bar_def.change_delay_ms !== undefined ? bar_def.change_delay_ms : 1000 / 5;
+        debug.assertion(()=>is_number(this.change_delay_ms));
+        this.change_duration_ms = bar_def.change_duration_ms !== undefined ? bar_def.change_duration_ms : 1000 / 3;
+        debug.assertion(()=>is_number(this.change_duration_ms));
         this._min_value = bar_def.min_value !== undefined ? bar_def.min_value : 0;
-        debug.assertion(()=>Number.isInteger(this._min_value));
+        debug.assertion(()=>is_number(this._min_value));
         this._max_value = bar_def.max_value !== undefined ? bar_def.max_value : 100;
-        debug.assertion(()=>Number.isInteger(this._max_value));
+        debug.assertion(()=>is_number(this._max_value));
         this._value = bar_def.value !== undefined ? bar_def.value : 50;
-        debug.assertion(()=>Number.isInteger(this._value));
+        debug.assertion(()=>is_number(this._value));
         this._name = bar_def.bar_name;
         debug.assertion(()=>typeof this._name === "string" || this._name == null);
-        this._is_horizontal_bar = bar_def.is_horizontal_bar ? bar_def.is_horizontal_bar : true;
+        this._is_horizontal_bar = bar_def.is_horizontal_bar != null ? bar_def.is_horizontal_bar : true;
         debug.assertion(()=>typeof this._is_horizontal_bar === "boolean");
         this._animations = new anim.AnimationGroup();
         this._text_always_visible = false;
-
-        if(this._is_horizontal_bar === false)
-            throw "VERTICAL BARS NOT IMPLEMENTED YET";
 
         const center_position = this.area.center;
         this.helptext = new HelpText(Object.assign({
@@ -617,6 +614,18 @@ class Bar extends UIElement {
         }, bar_def.help_text));
 
         this._require_update = true;
+
+
+        this._field_to_change = this._is_horizontal_bar ? 'width' : 'height';
+        this._field_to_maintain = this._is_horizontal_bar ? 'height' : 'width';
+    }
+
+    get position() { return super.position; }
+    set position(new_pos) {
+        super.position = new_pos;
+        this.helptext.position = this.position;
+        this.helptext._area_to_help = this.area;
+        this.short_text = this.position;
     }
 
     get value() { return this._value; }
@@ -672,17 +681,19 @@ class Bar extends UIElement {
             return;
 
         this._value_rect = new Rectangle(this.area);
-        this._value_rect.width = Math.max(this.value_ratio, 0) * this._value_rect.width;
+        this._value_rect[this._field_to_change] = Math.max(this.value_ratio, 0) * this._value_rect[this._field_to_change];
+        if(!this._is_horizontal_bar) this._value_rect.position = this._value_rect.position.translate({ y: this.area.height - this._value_rect.height });
 
         // Check if we changed the value, if yes we have to udpate the change bar
         if(this._previous_value !== undefined){
-            this._cancel_change_animation();
-            this._current_change_animation_promise = this._animations.play(this._change_animation(this._previous_value, this.value));
-            debug.assertion(()=>this._current_change_animation_promise.cancel instanceof Function);
-            this._current_change_animation_promise.then((cancel_token)=>{
-                if(!(cancel_token instanceof anim.CancelToken))
-                    this._cancel_change_animation();
-            });
+            // this._cancel_change_animation();
+            const next_animation = this._change_animation(this._previous_value, this.value);
+            const play_anim = ()=>this._current_change_animation_promise = this._animations.play(next_animation);
+            if(this._current_change_animation_promise)
+                this._current_change_animation_promise.then(play_anim);
+            else
+                this._current_change_animation_promise = play_anim();
+
             delete this._previous_value;
         }
 
@@ -712,13 +723,13 @@ class Bar extends UIElement {
         this._replace_helptext();
     }
 
-    _cancel_change_animation(){
-        delete this._change_rect;
-        if(this._current_change_animation_promise){
-            this._current_change_animation_promise.cancel();
-            delete this._current_change_animation_promise;
-        }
-    }
+    // _cancel_change_animation(){
+    //     delete this._change_rect;
+    //     if(this._current_change_animation_promise){
+    //         this._current_change_animation_promise.cancel();
+    //         delete this._current_change_animation_promise;
+    //     }
+    // }
 
     _clamp_to_visible(value){
         if(value < this.min_value)
@@ -729,8 +740,8 @@ class Bar extends UIElement {
     }
 
 
-    graphic_width(value){
-        return this._ratio(value) * this.area.width;
+    graphic_length(value){
+        return this._ratio(value) * this.area[this._field_to_change];
     };
 
     *_change_animation(previous_value, current_value){
@@ -747,7 +758,10 @@ class Bar extends UIElement {
         }
 
         this._changing_target_value = previous_value;
-        this._update_change_rect(this._changing_target_value);
+
+        this._change_rect = new Rectangle();
+        this._change_rect[this._field_to_maintain] = this._value_rect[this._field_to_maintain];
+
         yield* anim.wait(this.change_delay_ms);
         yield* tween(this._changing_target_value, current_value, this.change_duration_ms, (value) => {
             this._changing_target_value = value;
@@ -756,37 +770,47 @@ class Bar extends UIElement {
         delete this._change_rect;
     }
 
-    _update_change_rect(target_value){
-        const current_x = this.graphic_width(this._clamp_to_visible(this.value));
-        const target_x = this.graphic_width(target_value);
-        const min_x = Math.min(current_x, target_x);
-        const max_x = Math.max(current_x, target_x);
-        const change_width = max_x - min_x;
+    _update_change_rect(){
+        debug.assertion(()=> this._change_rect instanceof Rectangle);
+        const real_value_length = this.graphic_length(this._clamp_to_visible(this.value));
+        const change_value_length = this.graphic_length(this._changing_target_value);
+        const change_diff = change_value_length - real_value_length;
+        const change_length = Math.abs(change_diff);
 
-        if(!(this._change_rect instanceof Rectangle)){
-            const change_rect = new Rectangle();
-            this._change_rect = change_rect;
-            this._change_rect.height = this._value_rect.height;
+        this._change_rect[this._field_to_change] = change_length;
+
+        if(this._is_horizontal_bar){
+            this._change_rect.position = this._value_rect.top_right.translate({ x: change_diff < 0 ? -change_length : 0 });
+        } else {
+            this._change_rect.position = this._value_rect.position.translate({ y: change_diff > 0 ? -change_length : 0 });
         }
-        this._change_rect.position = this._value_rect.position.translate({ x: min_x, y: 0 });
-        this._change_rect.width = change_width;
+
     }
 
     _on_draw(canvas_context) {
-        this._value_rect.position = this.area.position;
+        this._value_rect.position = this._is_horizontal_bar ? this.area.position : this.area.position.translate({ y: this.area.height - this._value_rect.height });
+
+        canvas_context.save();
 
         graphics.draw_rectangle(canvas_context, this.area, this.colors.background);
         graphics.draw_rectangle(canvas_context, this._value_rect, this.colors.value);
         if(this._change_rect){
-            this._update_change_rect(this._changing_target_value);
+            this._update_change_rect();
             graphics.draw_rectangle(canvas_context, this._change_rect, this.colors.change);
         } else if(this._preview_rect){
             graphics.draw_rectangle(canvas_context, this._preview_rect, this.colors.preview);
         }
 
+    //    graphics. draw_check_cross(this._value_rect.position);
+    //    graphics. draw_check_cross(this._value_rect.top_right, "white");
+    //     if(this._change_rect)
+    //         graphics.draw_check_cross(this._change_rect.position, "red");
+
         if(this._text_always_visible){
             this.short_text.visible = !this.helptext.visible; // Display the short text if we are not displaying the helptext already.
         }
+
+        canvas_context.restore();
     }
 
     show_preview_value(value){
@@ -803,17 +827,20 @@ class Bar extends UIElement {
 
         this.preview_value = value;
 
-        const current_x = this.graphic_width(current_value);
-        const preview_x = this.graphic_width(preview_value);
-        const min_x = Math.min(current_x, preview_x);
-        const max_x = Math.max(current_x, preview_x);
-        const preview_width = max_x - min_x;
+        const current_value_gfx = this.graphic_length(current_value);
+        const preview_value_gfx = this.graphic_length(preview_value);
+        const diff_length = preview_value_gfx - current_value_gfx;
+        const preview_length = Math.abs(diff_length);
 
-        this._preview_rect = new Rectangle({
-            position : this._value_rect.position.translate({ x: min_x, y: 0 }),
-            width: preview_width,
-            height: this._value_rect.height,
-        });
+        this._preview_rect = new Rectangle();
+        this._preview_rect[this._field_to_maintain] = this._value_rect[this._field_to_maintain];
+        this._preview_rect[this._field_to_change] = preview_length;
+
+        if(this._is_horizontal_bar){
+            this._preview_rect.position = this._value_rect.top_right.translate({ x: diff_length < 0 ? -preview_length : 0 });
+        } else {
+            this._preview_rect.position = this._value_rect.position.translate({ y: diff_length > 0 ? -preview_length : 0 });
+        }
 
         this._require_update = true;
     }
