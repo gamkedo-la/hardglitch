@@ -25,7 +25,7 @@ export const config = {
     enable_view_healthbars: false,
     force_view_healthbars: false,
     enable_infobox_pointer: false,
-    enable_new_turn_wait: false,
+    enable_new_turn_wait: true,
     enable_decrypt_by_move: true,
     enable_take_by_move: true,
 
