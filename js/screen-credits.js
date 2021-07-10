@@ -50,6 +50,10 @@ Allan Regush: <br>State machine v1
 Jonathan Peterson: <br>Pause menu options
 <br><br>
 Antonio Malafronte: <br>Special thanks (practice commit - welcome!), playtesting, game options (ingame and in main options)
+<br><br>
+Patrick McKeown: <br>Item sprites (Memory Trasher, Zip, Thread-Pool, Computer Cluster, Cloner), tool to check items sprites against levels contrasts
+<br><br>
+Chris DeLeon: <br>Compiled credits, HometeamGamedev.com
 <br><br>`;
 
 const initial_credits_y = 100;
