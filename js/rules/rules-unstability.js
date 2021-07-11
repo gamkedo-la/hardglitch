@@ -169,7 +169,7 @@ function teleport_entities_in_unstable_tiles_and_vanish(world) {
         const entity = world.entity_at(position);
         if(entity){
             // Randomly teleport the entity
-            const valid_positions = (pos) => !is_blocked_position(world, pos, tiles.is_walkable); // Can be teleported in unsafe places! As long as it's valid.
+            const valid_positions = (pos) => !is_blocked_position(world, pos, tiles.is_safely_walkable);
             events.push(...random_jump(world, entity, unstable_random_jump_range, valid_positions)); // If the entity is a character, they can be teleported outside their range of view.
             // Vanish the unstability
             delete unstable_grid.elements[idx];
