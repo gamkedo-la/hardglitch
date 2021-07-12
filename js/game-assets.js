@@ -545,19 +545,13 @@ const sprite_defs = {
         frames: [
             { x: 0, y: 0, width: 64, height: 64 },
             { x: 64, y: 0, width: 64, height: 64 },
-            { x: 128, y: 0, width: 64, height: 64 },
-            { x: 192, y: 0, width: 64, height: 64 },
-            { x: 256, y: 0, width: 64, height: 64 },
         ],
         animations: {
             idle: {
                     loop: true,
                     timeline: [
-                                { frame: 0, duration: 400 },
-                                { frame: 1, duration: 150 },
-                                { frame: 2, duration: 300 },
-                                { frame: 3, duration: 200 },
-                                { frame: 4, duration: 200 },
+                                { frame: 0, duration: 700 },
+                                { frame: 1, duration: 700 },
                             ],
                 },
         },
