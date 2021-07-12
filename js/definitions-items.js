@@ -485,7 +485,7 @@ class Item_BadCode extends concepts.Item {
 class Item_Jump extends concepts.Item {
     assets = {
         graphics : { body: {
-            sprite_def : sprite_defs.item_generic_3_1,
+            sprite_def : sprite_defs.item_jump,
         }}
     };
 
