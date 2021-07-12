@@ -557,6 +557,23 @@ const sprite_defs = {
         },
     },
 
+    item_corrupt: {
+      image: "item_corrupt",
+      frames: [
+          { x: 0, y: 0, width: 64, height: 64 },
+          { x: 64, y: 0, width: 64, height: 64 },
+      ],
+      animations: {
+          idle: {
+                  loop: true,
+                  timeline: [
+                              { frame: 0, duration: 700 },
+                              { frame: 1, duration: 700 },
+                          ],
+              },
+      },
+    },
+
     item_threadpool: {
         image: "item_threadpool",
         frames: [
@@ -871,9 +888,6 @@ const sprite_defs = {
     },
     item_generic_7 : {
         image: "item_generic_7",
-    },
-    item_corrupt : {
-        image: "item_corrupt",
     },
 
     button_up : test_button("up_down"),
