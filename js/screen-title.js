@@ -9,11 +9,12 @@ import * as ui from "./system/ui.js";
 import * as audio from "./system/audio.js";
 
 import { music_id, sprite_defs } from "./game-assets.js";
-import { invoke_on_members } from "./system/utility.js";
+import { auto_newlines, invoke_on_members } from "./system/utility.js";
 import { Vector2, Vector2_origin } from "./system/spatial.js";
 import { ScreenFader } from "./system/screenfader.js";
 
 import { HARD_GLITCH_VERSION } from "./version.js";
+import { save_names } from "./game-config.js";
 
 const buttons_font = "22px Space Mono";
 const button_text_color = "#32258b";
@@ -47,11 +48,57 @@ class MainMenu {
 
         };
 
+        const last_save = window.localStorage.getItem(save_names.last_exit_save);
+        const last_save_music = window.localStorage.getItem(save_names.last_exit_save_music);
+        const last_level = window.localStorage.getItem(save_names.last_level_reached);
+        const last_level_idx = window.localStorage.getItem(save_names.last_level_reached_idx);
+        const last_character = window.localStorage.getItem(save_names.last_level_reached_character);
+        const level_reached_idx = last_level_idx ? JSON.parse(last_level_idx) : undefined;
+
+        if(last_save || (last_level && level_reached_idx > 0)){
+            this.button_continue = new ui.TextButton({
+                text: last_save ? "Continue" : `Retry LVL ${last_level_idx}`,
+                color: button_text_color,
+                font: buttons_font,
+                action: ()=> {
+                    if(last_save){
+                        const level_world_desc = JSON.parse(last_save);
+                        const options = last_save_music ? { play_music: JSON.parse(last_save_music) } : undefined;
+                        state_machine.push_action('continue', ()=>window.deserialize_world(level_world_desc), undefined, options);
+                    } else {
+                        const player_character = last_character ? window.deserialize_entity(last_character) : undefined;
+                        const options = level_reached_idx ? { play_music: level_reached_idx } : undefined;
+                        debug.assertion(()=> Number.isInteger(level_reached_idx) && (player_character instanceof Object || player_character == null));
+                        state_machine.push_action('continue', Number.isInteger(level_reached_idx) ? level_reached_idx : last_level, player_character, options);
+                    }
+                },
+                position: Vector2_origin,
+                sprite_def: sprite_defs.button_menu,
+                sounds:{
+                    over: 'selectButton',
+                    down: 'clickButton',
+                },
+            });
+
+            this.button_continue.helptext = new ui.HelpText({
+                text: auto_newlines(last_save ? "Continue exactly where you were last time you 'Saved & Exit' the game." : `You died (or quit without saving) last time you played Level ${last_level_idx}.\nRetry a variation of this level with the same character and items you had when entering it the first time.`, 24),
+                area_to_help: this.button_continue.area,
+                delay_ms: 0,
+                position: this.button_continue.position.translate({ x: this.button_continue.width }),
+            });
+
+        }
+
         this.button_new_game = new ui.TextButton({
             text: "New Game",
             color: button_text_color,
             font: buttons_font,
-            action: ()=> { state_machine.push_action("new_game", 0); },
+            action: ()=> {
+                window.localStorage.removeItem(save_names.last_exit_save);
+                window.localStorage.removeItem(save_names.last_level_reached);
+                window.localStorage.removeItem(save_names.last_level_reached_character);
+                state_machine.push_action("new_game", 0);
+            },
             position: Vector2_origin,
             sprite_def: sprite_defs.button_menu,
             sounds:{
@@ -59,6 +106,15 @@ class MainMenu {
                 down: 'clickButton',
             },
         });
+
+        if(this.button_continue != null){
+            this.button_new_game.helptext = new ui.HelpText({
+                text: auto_newlines("Start a new game. Deletes previous saved games.", 24),
+                area_to_help: this.button_new_game.area,
+                delay_ms: 0,
+                position: this.button_new_game.position.translate({ x: this.button_new_game.width }),
+            });
+        }
 
         this.button_options = new ui.TextButton({
             text: "Options",
@@ -123,7 +179,13 @@ class MainMenu {
             .forEach(button => {
                 const center_pos = graphics.centered_rectangle_in_screen(button.area).position;
                 button.position = { x: center_pos.x, y: bottom_y - button_y_drift() };
+                if(button.helptext != null) {
+                    button.helptext.area_to_help = button.area;
+                    button.helptext.position = button.position.translate({ x: button.width });
+                }
             });
+
+
 
     }
 

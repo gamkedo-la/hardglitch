@@ -775,5 +775,6 @@ function generate_world() {
             world.grids[grid_ID.floor].set_at(defaults.floor_alt, position);
         });
 
+    world.level_id = 1;
     return world;
 }

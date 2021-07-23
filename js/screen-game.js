@@ -26,8 +26,9 @@ import { game_levels } from "./definitions-world.js";
 import { tween, easing } from "./system/tweening.js";
 import { auto_newlines, is_number, random_sample } from "./system/utility.js";
 import { Character } from "./core/character.js";
-import { serialize_entity } from "./levels/level-tools.js";
+import { serialize_entity, serialize_world } from "./levels/level-tools.js";
 import { Entity } from "./core/concepts.js";
+import { save_names } from "./game-config.js";
 
 
 const button_text_font = "18px Space Mono";
@@ -247,8 +248,8 @@ class InGameMenu extends fsm.State {
                 visible: this.menu_screen == "main",
             }),
             exit_button: new ui.TextButton({
-                text: "Exit Game",
-                action: ()=>{ this.exit_game(); },
+                text: "Save & Exit",
+                action: ()=>{ this.exit_game(true); },
                 position: Vector2_origin,
                 sprite_def: sprite_defs.button_menu,
                 sounds:{
@@ -469,8 +470,19 @@ class InGameMenu extends fsm.State {
         this.state_machine.push_action("back");
     }
 
-    exit_game(){
+    exit_game(must_save){
         debug.assertion(()=>this.state_machine instanceof GameScreen);
+
+        if(must_save){
+            debug.log(`Saving...`)
+            const level_save = serialize_world(this.state_machine.game_session.world, true); // Exact and complete save to come back to.
+            window.localStorage.setItem(save_names.last_exit_save, level_save);
+            if(Number.isInteger(this.state_machine._level_to_play)){
+                window.localStorage.setItem(save_names.last_exit_save_music, this.state_machine._level_to_play);
+            }
+            debug.log(`Save - DONE`)
+        }
+
         this.state_machine.exit();
     }
 
@@ -571,7 +583,7 @@ class GameScreen extends fsm.StateMachine {
             this.music = music_id[`level_${level_to_play}`];
         }
         if(options instanceof Object && Number.isInteger(options.play_music)){
-            this.music = music_id[`level_${level_to_play}`];
+            this.music = music_id[`level_${options.play_music}`];
         }
         if(this.music){
             audio.playEvent(this.music);
@@ -592,7 +604,6 @@ class GameScreen extends fsm.StateMachine {
         var level_world_generator;
         if(is_number(level_to_play)){
             debug.assertion(()=>Number.isInteger(level_to_play) && level_to_play < game_levels.length);
-            this.current_level_idx = level_to_play;
             level_world_generator = level_generator(level_to_play);
         }
         else {
@@ -605,6 +616,8 @@ class GameScreen extends fsm.StateMachine {
         debug.assertion(()=>!this.game_session);
         debug.assertion(()=>!this.level_title);
         this.game_session = new GameSession(level_world_generator, ()=>{ this.ingame_menu(); }, player_character);
+        this.current_level_idx = this.game_session.game.world.level_id;
+        debug.assertion(()=> (Number.isInteger(this.current_level_idx) && this.current_level_idx >= 0 && this.current_level_idx <= 4) || this.current_level_idx == null)
         this.level_title = new ui.Text({
             text: this.game_session.world.name,
             font: "64px ZingDiddlyDooZapped",
@@ -626,9 +639,24 @@ class GameScreen extends fsm.StateMachine {
         this.ready = true;
 
         // Save the state of the world once beginning so that when the player dies they can come back at that exact point.
-        window.last_world_entered = editor.export_world(this.game_session.world, true); // Complete save for when the player dies.
+        debug.log(`Saving progression...`)
+        // window.last_world_entered = editor.export_world(this.game_session.world, true); // Complete save for when the player dies.
         window.last_level_played = level_to_play;
+        window.last_level_played_idx = this.current_level_idx;
         window.last_player_character = player_character instanceof Entity ? serialize_entity(player_character) : player_character;
+        // window.localStorage.setItem(save_names.last_level_reached, window.last_world_entered)
+        window.localStorage.setItem(save_names.last_level_reached, window.last_level_played);
+        if(Number.isInteger(window.last_level_played_idx)) {
+            window.localStorage.setItem(save_names.last_level_reached_idx, window.last_level_played_idx);
+        } else {
+            window.localStorage.removeItem(save_names.last_level_reached_idx);
+        }
+        if(window.last_player_character !== null) {
+            window.localStorage.setItem(save_names.last_level_reached_character, window.last_player_character);
+        } else {
+            window.localStorage.removeItem(save_names.last_level_reached_character);
+        }
+        debug.log(`Save progression - DONE`)
     }
 
     *leave(){

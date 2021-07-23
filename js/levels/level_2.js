@@ -617,6 +617,8 @@ function generate_world(){
         // Pass 4: add entities
 
         const world = tools.deserialize_world(world_desc);
+        world.level_id = 2;
+
         if(validate(world))
             return world;
 

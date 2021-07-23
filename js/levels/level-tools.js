@@ -239,6 +239,7 @@ function serialize_world(world, complete_state){
     const world_serialized =
 `{
     "name" : ${as_string(escaped(world.name))},
+    "level_id": ${world.level_id},
     "width" : ${world.width},
     "height" : ${world.height},
     "grids" : ${as_string(grids)},
@@ -346,6 +347,8 @@ function deserialize_world(world_desc){
     entities.forEach(entity => world.add_entity(entity));
 
     world.set_rules(...default_rules);
+
+    world.level_id = world_desc.level_id;
 
     debug.assertion(()=>is_valid_world(world));
     return world;

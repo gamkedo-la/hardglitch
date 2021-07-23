@@ -62,6 +62,7 @@ const game_state_machine = new class extends fsm.StateMachine {
       },
       title: {
         new_game: "game_intro",
+        continue: "game",
         options: "options",
         credits: "credits",
       },
@@ -207,7 +208,7 @@ function update_cycle(highres_timestamp){
 // The following code allows us to use the console to load specific levels.
 
 import * as random_test_level from "./testing/test-level.js";
-import { deserialize_world, generate_empty_world } from "./levels/level-tools.js";
+import { deserialize_entity, deserialize_world, generate_empty_world } from "./levels/level-tools.js";
 import { ProcgenWarningScreen } from "./screen-procgenwarning.js";
 import { IntroScreen } from "./screen-intro.js";
 
@@ -237,5 +238,6 @@ window.load_level = load_level;
 window.load_test_level = load_test_level;
 window.load_random_test_level = load_random_test_level;
 window.load_serialized_level = load_serialized_level;
-
+window.deserialize_world = deserialize_world; // FIXME: this is for cheating in loading code, sorry!
+window.deserialize_entity = deserialize_entity; // FIXME: this is for cheating in loading code, sorry!
 

@@ -133,6 +133,7 @@ function generate_world() {
 
     const level_chunk = tools.random_variation(tools.add_padding_around(start_and_exit, { floor: defaults.wall }));
     const world = tools.deserialize_world(level_chunk);
+    world.level_id = 0;
 
     return world;
 }

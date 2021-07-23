@@ -31,8 +31,9 @@ class ProcgenWarningScreen extends fsm.State {
 
 If you are stuck, you can retry the game: the world will have changed and will probably be easier.
 
-Tips and help can be found in the menu
-(top left of the screen).
+Tips and help can be found in the menu (top left of the screen).
+
+Use the 'Save & Exit' button in the menu to save the game and continue another time.
 
 Click or [Space] to continue.
 `, 80),

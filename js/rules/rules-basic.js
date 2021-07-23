@@ -25,6 +25,7 @@ import * as audio from "../system/audio.js";
 import { grid_ID } from "../definitions-world.js";
 import { auto_newlines } from "../system/utility.js";
 import { FieldOfVision } from "../core/visibility.js";
+import { save_names } from "../game-config.js";
 
 // That actor decided to take a pause.
 class Waited extends concepts.Event {
@@ -134,6 +135,7 @@ class GameOver extends concepts.Event {
 
 function fail_game(world){
     world.is_finished = true;
+    window.localStorage.removeItem(save_names.last_exit_save); // Remove the last save-by-exit
     return [ new GameOver() ]; // This event will notify the rest of the code that the game is over.
 }
 
