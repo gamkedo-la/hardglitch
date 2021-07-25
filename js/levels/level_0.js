@@ -46,7 +46,8 @@ const startup_rooms = {
             "unstable": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
         },
         "entities" : [
-            { "type": "LifeForm_Weak", "position": { "x": 7, "y": 11 }, "drops": ["Item_Pull"], "drops_are_crucial": true },
+            { "type": "LifeForm_Weak", "position": { "x": 8, "y": 1 } },
+            { "type": "BlackBox", "position": { "x": 7, "y": 11 }, "drops": ["Item_Pull"], "drops_are_crucial": true },
             { "type": "CryptoKey_Triangle", "position": { "x": 7, "y": 3 } },
             { "type": "CryptoFile_Triangle", "position": { "x": 4, "y": 7 }, "drops": ["Item_Push"], "drops_are_crucial": true },
             { "type": "MovableWall_Glass_Purple", "position": { "x": 3, "y": 9 } },

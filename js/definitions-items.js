@@ -11,6 +11,7 @@ export {
     CryptoKey_Triangle,
     CryptoKey_Plus,
     CryptoKey_Equal,
+    BlackBox,
 
     Item_BadCode,
     Item_Crawl,
@@ -157,6 +158,8 @@ function all_item_types(){
 
         ...all_crypto_file_types(),
         ...all_crypto_key_types(),
+
+        BlackBox,
 
         Item_BadCode,
         Item_ClosedScope,
@@ -309,6 +312,27 @@ class CryptoKey_Plus extends CryptoKey{
 
 class CryptoKey_Circle extends CryptoKey{
     constructor() { super(crypto_kind.circle); }
+};
+
+class BlackBox extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.black_box,
+        }}
+    };
+
+    description = auto_newlines(`Dark data block hiding something inside. Can only be open by destroying it to drop their content.`, 35);
+
+    static get editor_name(){ return "Black Box"; };
+
+    get can_be_taken() { return false; }
+    is_blocking_vision = false;
+    is_floating = true;
+
+    constructor(){
+        super("Black Box");
+    }
+
 };
 
 

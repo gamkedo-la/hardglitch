@@ -57,6 +57,7 @@ const game_assets = { // Description of the assets to load.
         crypto_key_2: "./images/cryptokeyplus2.png",
         crypto_key_3: "./images/cryptokeycircle2.png",
         movable_wall: "./images/column5.png",
+        black_box: "./images/black_box.png",
         movewall_blue: "./images/movewall_blue.png",
         movewall_green: "./images/movewall_green.png",
         movewall_orange: "./images/movewall_orange.png",
@@ -665,7 +666,7 @@ const sprite_defs = {
                 },
         },
     },
-   
+
     item_computercluster: {
         image: "item_computercluster",
         frames: [
@@ -704,6 +705,9 @@ const sprite_defs = {
     },
     wall : {
         image: "wall",
+    },
+    black_box: {
+        image: "black_box",
     },
     movable_wall: {
         image: "movable_wall",
