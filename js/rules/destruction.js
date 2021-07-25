@@ -122,7 +122,7 @@ function drop_entity_drops(entity, world){
     const drop = (dropped, idx) => {
         if(!(dropped instanceof concepts.Entity)) return;
         // Only drop around the character's position, where it's safe to walk, or don't.
-        const spawn_events = spawn_entities_around(world, entity.position, [dropped], undefined, tiles.is_safely_walkable, 1);
+        const spawn_events = spawn_entities_around(world, entity.position, [dropped], undefined, tiles.is_safely_walkable, 2);
         if(spawn_events.length > 0) // Use that event instead, but only if the item was actually dropped.
             events.push(new InventoryItemDropped(entity, idx, dropped.position, dropped.id));
     }
