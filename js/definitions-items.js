@@ -232,6 +232,8 @@ class CryptoFile extends concepts.Item {
     get can_be_taken() { return false; }
     get can_be_moved() { return false; }
 
+    is_blocking_vision = true; // We need to block vision for when using CryptoFiles as doors. Otherwise it's possible to "jump" behind a CryptoFile.
+
     // Decrypting can return (or not) an object
     decrypt(){
         if(this.drops){
@@ -322,11 +324,11 @@ class MovableWall extends concepts.Item {
     static get editor_name(){ return "Movable Wall"; };
 
     get can_be_taken() { return false; }
+    is_blocking_vision = true;
+    is_floating = true;
 
     constructor(){
         super("Mutex");
-        this.is_blocking_vision = true;
-        this.is_floating = true;
     }
 
 };
