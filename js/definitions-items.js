@@ -319,7 +319,7 @@ class MovableWall extends concepts.Item {
         }}
     };
 
-    description = auto_newlines(`Data access protection mechanism that can be moved in memory.\nDo not allow seeing what is beyond it.`, 35);
+    description = auto_newlines(`Data access protection mechanism that can be moved in memory.\nDoes not allow seeing what is beyond it.`, 35);
 
     static get editor_name(){ return "Movable Wall"; };
 
@@ -726,7 +726,7 @@ class Item_ThreadPool extends concepts.Item {
 
     get can_be_taken() { return true; }
 
-    description = auto_newlines("Makes more item slots Active but do not increase the number of item slots.\n A Thread Pool enables concurrent execution of tasks. Do not share your data between threads, or at least protect accessing them!", 35);
+    description = auto_newlines("Makes more item slots Active but does not increase the number of item slots.\n A Thread Pool enables concurrent execution of tasks. Does not share your data between threads, or at least protect accessing them!", 35);
 
     stats_modifiers = {
         activable_items: { value: +4 },
