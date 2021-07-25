@@ -28,7 +28,7 @@ import { auto_newlines, is_number, random_sample } from "./system/utility.js";
 import { Character } from "./core/character.js";
 import { serialize_entity, serialize_world } from "./levels/level-tools.js";
 import { Entity } from "./core/concepts.js";
-import { save_names } from "./game-config.js";
+import { config, save_names } from "./game-config.js";
 
 
 const button_text_font = "18px Space Mono";
@@ -618,6 +618,11 @@ class GameScreen extends fsm.StateMachine {
         this.game_session = new GameSession(level_world_generator, ()=>{ this.ingame_menu(); }, player_character);
         this.current_level_idx = this.game_session.game.world.level_id;
         debug.assertion(()=> (Number.isInteger(this.current_level_idx) && this.current_level_idx >= 0 && this.current_level_idx <= 4) || this.current_level_idx == null)
+
+        if(this.current_level_idx === 0){ // Every time we re-do the first level...
+            config.enable_item_slot_help = true; // Activate item-slot help display first time starting from the first level.
+        }
+
         this.level_title = new ui.Text({
             text: this.game_session.world.name,
             font: "64px ZingDiddlyDooZapped",

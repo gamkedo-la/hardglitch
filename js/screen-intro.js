@@ -199,7 +199,6 @@ Click or [Space] to begin the journey.
     }
 
     go_to_next_screen(){
-        config.enable_item_slot_help = true; // Activate item-slot help display first time starting from the first level.
         this.state_machine.push_action("ok", this.level_to_play, ...this.other_data);
     }
 
