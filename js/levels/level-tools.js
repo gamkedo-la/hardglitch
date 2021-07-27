@@ -239,7 +239,7 @@ function serialize_world(world, complete_state){
     const world_serialized =
 `{
     "name" : ${as_string(escaped(world.name))},
-    "level_id": ${world.level_id == null? 'null': world_level_id},
+    "level_id": ${world.level_id == null? 'null': world.level_id},
     "width" : ${world.width},
     "height" : ${world.height},
     "grids" : ${as_string(grids)},
