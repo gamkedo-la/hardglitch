@@ -50,10 +50,12 @@ class MainMenu {
 
         const last_save = window.localStorage.getItem(save_names.last_exit_save);
         const last_save_music = window.localStorage.getItem(save_names.last_exit_save_music);
-        const last_level = window.localStorage.getItem(save_names.last_level_reached);
-        const last_level_idx = window.localStorage.getItem(save_names.last_level_reached_idx);
-        const last_character = window.localStorage.getItem(save_names.last_level_reached_character);
-        const level_reached_idx = last_level_idx ? JSON.parse(last_level_idx) : undefined;
+        // Deactivated continu button upon death
+        const last_level = undefined;
+        // const last_level = window.localStorage.getItem(save_names.last_level_reached);
+        // const last_level_idx = window.localStorage.getItem(save_names.last_level_reached_idx);
+        // const last_character = window.localStorage.getItem(save_names.last_level_reached_character);
+        // const level_reached_idx = last_level_idx ? JSON.parse(last_level_idx) : undefined;
 
         if(last_save || (last_level && level_reached_idx > 0)){
             this.button_continue = new ui.TextButton({
