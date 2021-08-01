@@ -128,18 +128,27 @@ const game_assets = { // Description of the assets to load.
         icon_take: "./images/iconpickup.png",
         icon_observe: "./images/iconobserve.png",
 
-        // FIXME:
         procgen_template : "./images/procgen_tiles_template.png",
         procgen_tile_1: "./images/procgen_tile_1.png",
         procgen_tile_2: "./images/procgen_tile_2.png",
         procgen_tile_3: "./images/procgen_tile_3.png",
         procgen_tile_4: "./images/procgen_tile_4.png",
         procgen_tile_5: "./images/procgen_tile_5.png",
+        procgen_tile_6: "./images/procgen_tile_6.png",
+        procgen_tile_7: "./images/procgen_tile_7.png",
+        procgen_tile_8: "./images/procgen_tile_8.png",
+        procgen_tile_9: "./images/procgen_tile_9.png",
+        procgen_tile_10: "./images/procgen_tile_10.png",
         procgen_spawn_1: "./images/procgen_spawn_1.png",
         procgen_spawn_2: "./images/procgen_spawn_2.png",
         procgen_spawn_3: "./images/procgen_spawn_3.png",
         procgen_spawn_4: "./images/procgen_spawn_4.png",
         procgen_spawn_5: "./images/procgen_spawn_5.png",
+        procgen_spawn_6: "./images/procgen_spawn_6.png",
+        procgen_spawn_7: "./images/procgen_spawn_7.png",
+        procgen_spawn_8: "./images/procgen_spawn_8.png",
+        procgen_spawn_9: "./images/procgen_spawn_9.png",
+        procgen_spawn_10: "./images/procgen_spawn_10.png",
     },
 
     audio_buffers: { // Short audio assets held in memory. No hard limit on duplicates/overlaps.
@@ -1042,7 +1051,7 @@ const sprite_defs = {
 };
 
 // FIXME
-for(let i = 1; i < 6; ++i){
+for(let i = 1; i < 11; ++i){
     const id_tile = `PROCGEN_TILE_${i}`;
     const id_spawn = `PROCGEN_SPAWN_${i}`;
     sprite_defs[id_tile] = {
