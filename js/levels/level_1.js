@@ -301,12 +301,6 @@ function populate_entities(world, central_area_rect, avoid_areas, start_items){
 
     const random_spawn_pos = (area = central_area_rect)=> random_available_entity_position(world, area, is_spawn_position);
 
-    const bonus_bag = [
-        { type: "Item_Scanner" },
-        { type: "Item_ThreadPool" },
-        { type: "Item_Zip" },
-    ];
-
     const entity_bag =  function*() {
         const bag = [
             { type: "LifeForm_Strong" },
@@ -401,7 +395,36 @@ function populate_entities(world, central_area_rect, avoid_areas, start_items){
     // );
 
     // 2: add some entities in the central area - some items in particular
-    add_entities_from_desc(...bonus_bag.map(desc => { desc.position = random_spawn_pos(central_area_rect); return desc; }));
+    const half_central_area_width = Math.floor(central_area_rect.width / 2);
+    const half_central_area_height = Math.floor(central_area_rect.height / 2);
+    const quarter_central_area_width = Math.floor(half_central_area_width / 2);
+    const area_close_to_entry = new Rectangle({
+        position: {
+            x: central_area_rect.position.x + quarter_central_area_width,
+            y: central_area_rect.position.y,
+        },
+        width: half_central_area_width,
+        height: half_central_area_height,
+    });
+    const important_items_spawn_pos = random_spawn_pos(area_close_to_entry);
+    const random_pos_around_important_item = ()=>{
+        const range = new visibility.Range_Circle(5, 8);
+        const selected_pos = visibility.random_range_position(important_items_spawn_pos, range, is_spawn_position);
+        if(selected_pos == null){
+            return random_spawn_pos(new Rectangle({ position: important_items_spawn_pos, width: 8, height: 8 }));
+        }
+        return selected_pos;
+    };
+
+    const bonus_bag = [
+        { type: "Item_Scanner",     position: random_spawn_pos(area_close_to_entry) },
+        { type: "Item_ThreadPool",  position: important_items_spawn_pos },
+        { type: "Item_Zip",         position: random_pos_around_important_item(important_items_spawn_pos) },
+    ];
+
+    add_entities_from_desc(...bonus_bag);
+
+
     for(let i = 0; i < 8; ++i){
         const entity_desc = entities_generator.next().value;
         if(entity_desc)

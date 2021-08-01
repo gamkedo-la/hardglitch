@@ -7,6 +7,7 @@ export {
     valid_target_positions,
     valid_move_positions,
     valid_spawn_positions,
+    random_range_position,
     fov_range,
     RangeShape,
     Range_Diamond,
@@ -26,7 +27,7 @@ import { compute_fov } from "../system/shadowcasting.js";
 import * as tiles from "../definitions-tiles.js";
 import { Character } from "./character.js";
 import { is_blocked_position } from "../definitions-world.js";
-import { shuffle_array } from "../system/utility.js";
+import { random_sample, shuffle_array } from "../system/utility.js";
 
 class RangeShape {
     // The range is [begin_distance, end_distance) , so end_distance is excluded.
@@ -252,6 +253,12 @@ function valid_spawn_positions(world, center_position, tile_filter, max_range = 
     return sorted_positions;
 }
 
+function random_range_position(center, range, pos_filter){
+    debug.assertion(()=> center instanceof concepts.Position);
+    debug.assertion(()=> range instanceof RangeShape);
+    const positions = positions_in_range(center, range, pos_filter);
+    return random_sample(positions);
+}
 
 
 // Returns a list of entities, visible or not, sorted by distance, matching the predicate and shape or list of positions to check.
