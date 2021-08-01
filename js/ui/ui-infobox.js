@@ -49,6 +49,7 @@ class InfoBox {
             sprite_def: sprite_defs.button_info_box_close,
             position: this.position,
             action: ()=>this._hide(),
+            visible: config.enable_infobox
         });
         this._button_hide.position = this.position.translate({ y: -this._button_hide.height });
 
@@ -56,7 +57,7 @@ class InfoBox {
             sprite_def: sprite_defs.button_info_box_open,
             position: { x: this.position.x, y: graphics.canvas_rect().height - this._button_hide.height },
             action: ()=>this._show(),
-            visible: false,
+            visible: !config.enable_infobox,
         });
 
         current_info_box = this;
