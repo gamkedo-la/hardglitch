@@ -17,7 +17,7 @@ import { game_levels } from "./definitions-world.js";
 import { music_id, sprite_defs } from "./game-assets.js";
 import { CharacterView } from "./view/character-view.js";
 import { GlitchyGlitchMacGlitchy } from "./characters/glitch.js";
-import { center_in_rectangle } from "./system/spatial.js";
+import { center_in_rectangle, Vector2 } from "./system/spatial.js";
 import { AnimationGroup } from "./system/animation.js";
 import { easing, tween } from "./system/tweening.js";
 import { KEY } from "./game-input.js";
@@ -28,6 +28,7 @@ class LevelInfoDisplay {
     constructor(title, x, y, bgColor){
 
         this.timer = 330;
+        this.is_drawing = false;
 
         this.title = new ui.Text({
             text: title,
@@ -54,6 +55,7 @@ class LevelInfoDisplay {
 
         if(this.timer <= 0){
             invoke_on_members(this, "draw", canvas_context);
+            this.is_drawing = true;
         }
 
     }
@@ -162,10 +164,15 @@ class LevelIntroScreen extends fsm.State {
     }
 
     update(delta_time){
-        if(!window.is_mouse_over_mute_button()
-        && (input.keyboard.is_down(KEY.SPACE) || input.mouse.buttons.is_any_key_just_down())){
-            this.continue();
+        if(!window.is_mouse_over_mute_button()){
+            if(input.keyboard.is_down(KEY.SPACE))
+                this.continue();
+
+            if(input.mouse.buttons.is_any_key_down()){
+                this.show_info()
+            }
         }
+
 
         this.animations.update(delta_time);
 
@@ -174,6 +181,9 @@ class LevelIntroScreen extends fsm.State {
         this.info_display.update(delta_time);
         this.idx_display.update(delta_time);
         this.desc_display.update(delta_time);
+
+        this.button_continue.visible = this.info_display.is_drawing;
+        this.button_continue.update(delta_time);
 
         this.fader.update(delta_time);
 
@@ -187,6 +197,8 @@ class LevelIntroScreen extends fsm.State {
         this.draw_level_transition(canvas_context);
         this.moveText();
 
+        this.button_continue.draw(canvas_context);
+
         this.fader.display(canvas_context);
         graphics.camera.end_in_screen_rendering();
 
@@ -198,6 +210,12 @@ class LevelIntroScreen extends fsm.State {
 
     on_canvas_resized(){
         this.init_level_transition();
+    }
+
+    show_info(){
+        this.info_display.timer = 0;
+        this.idx_display.timer = 0;
+        this.desc_display.timer = 0;
     }
 
     init_level_transition(){
@@ -242,6 +260,22 @@ class LevelIntroScreen extends fsm.State {
         this.animations.play(this.animation());
         this.animations.play(this.move_background(background_y_move));
         this.animations.play(this.animateCopy());
+
+
+        this.button_continue = new ui.TextButton({
+            text: "Continue [SPACE]",
+            sprite_def: sprite_defs.button_menu,
+            action: ()=> { this.continue(); },
+            sounds:{
+                over: 'selectButton',
+                down: 'clickButton',
+            }
+        });
+        this.button_continue.visible = false;
+        this.button_continue.position = new Vector2({
+            x: graphics.centered_rectangle_in_screen(this.button_continue.area).position.x,
+            y: graphics.canvas_rect().height - (this.button_continue.height * 2)
+        });
     }
 
     draw_level_transition(screen_canvas_context){
