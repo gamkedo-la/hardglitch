@@ -30,6 +30,7 @@ import * as visibility from "../core/visibility.js";
 import { ranged_actions_for_each_target, actions_for_each_target, add_default_action_if_adjacent } from "./rules-common.js";
 import { auto_newlines, lazy_call, random_sample } from "../system/utility.js";
 import { is_blocked_position } from "../definitions-world.js";
+import { desc_chars_per_line } from "../definitions-texts.js";
 
 const move_range = new visibility.Range_Cross_Axis(1,2); // TODO: obtain that from the bodie's data!
 const crawl_range = new visibility.Range_Cross_Diagonal(1,2); // TODO: obtain that from the bodie's data!
@@ -78,7 +79,7 @@ class Moved extends concepts.Event {
 class Move extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_move; }
     static get action_type_name() { return "Move"; }
-    static get action_type_description() { return auto_newlines("Move this character on the target memory section.", 35); }
+    static get action_type_description() { return auto_newlines("Move this character on the target memory section.", desc_chars_per_line); }
     static get range(){ return move_range; }
     static get costs(){
         return {
@@ -134,7 +135,7 @@ class Rule_Movements extends concepts.Rule {
 
 class Crawl extends Move {
     static get action_type_name() { return "Crawl"; }
-    static get action_type_description() { return auto_newlines("Move this character on the target memory section, by crawling awkwardly.", 35); }
+    static get action_type_description() { return auto_newlines("Move this character on the target memory section, by crawling awkwardly.", desc_chars_per_line); }
     static get range(){ return crawl_range; }
 
     constructor(target){
@@ -192,7 +193,7 @@ class Jumped extends concepts.Event {
 class Jump extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_move; }
     static get action_type_name() { return "Jump"; }
-    static get action_type_description() { return auto_newlines("Transfers data and execution thread of this character to a remote target readable memory section.", 35); }
+    static get action_type_description() { return auto_newlines("Transfers data and execution thread of this character to a remote target readable memory section.", desc_chars_per_line); }
     static get range() { return jump_range; }
     static get costs(){
         return {
@@ -218,7 +219,7 @@ class Jump extends concepts.Action {
 class FreeJump extends Jump {
     static get action_type_name() { return "Free Jump"; }
     static get range() { return free_jump_range; }
-    static get action_type_description() { return `${super.action_type_description} More precise and different range than a simple Jump.`; }
+    static get action_type_description() { return auto_newlines(`${super.action_type_description} More precise and different range than a simple Jump.`, 32); }
 }
 
 class Rule_Jump extends concepts.Rule {
@@ -257,7 +258,7 @@ function random_jump(world, entity, range, position_predicate = ()=>true){
 class RandomJump extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_move; }
     static get action_type_name() { return "RandomJump"; }
-    static get action_type_description() { return auto_newlines("Transfers data and execution of this character to a random memory section, even if unreachable.", 35); }
+    static get action_type_description() { return auto_newlines("Transfers data and execution of this character to a random memory section, even if unreachable.", desc_chars_per_line); }
     static get costs(){
         return {
             action_points: { value: 20 },
@@ -333,7 +334,7 @@ class Swaped extends concepts.Event {
 class Swap extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_swap; }
     static get action_type_name() { return "Swap"; }
-    static get action_type_description() { return auto_newlines("Exchange position with the target entity.", 35); }
+    static get action_type_description() { return auto_newlines("Exchange position with the target entity.", desc_chars_per_line); }
     static get range() { return swap_range; }
     static get costs(){
         return {

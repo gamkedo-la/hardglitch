@@ -5,6 +5,9 @@ import * as debug from "./system/debug.js";
 import * as concepts from "./core/concepts.js";
 import { auto_newlines } from "./system/utility.js";
 
+
+export const desc_chars_per_line = 32;
+
 export {
     item_description,
     action_description,

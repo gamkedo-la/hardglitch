@@ -87,6 +87,7 @@ import { CreateMovableWall_Opaque, CreateMovableWall_Transparent, DestroyMovable
 import { Invoke_AntiVirus, Invoke_Virus } from "./rules/rules-invocation.js";
 import { Destroy } from "./rules/rules-destroy.js";
 import { Freeze } from "./rules/rules-freeze.js";
+import { desc_chars_per_line } from "./definitions-texts.js";
 
 function all_crypto_file_types() {
     return [
@@ -214,10 +215,9 @@ const crypto_names = {
     [crypto_kind.circle]: "Circle",
 };
 
-
 class CryptoFile extends concepts.Item {
 
-    description = auto_newlines(`Crypted memory section preventing access to this memory section. Can be decrypted using a Crypto-Key with the same symbol. May contain some secret data item.`, 35);
+    description = auto_newlines(`Crypted memory section preventing access to this memory section. Can be decrypted using a Crypto-Key with the same symbol. May contain some secret data item.`, desc_chars_per_line);
 
     constructor(kind){
         debug.assertion(()=>Number.isInteger(kind));
@@ -278,7 +278,7 @@ class CryptoFile_Circle extends CryptoFile {
 
 class CryptoKey extends concepts.Item {
 
-    description = auto_newlines(`Decryption key used to decrypt a Crypto-File with the same symbol.`, 35);
+    description = auto_newlines(`Decryption key used to decrypt a Crypto-File with the same symbol.`, desc_chars_per_line);
 
     get can_be_taken() { return true; }
     get can_be_moved() { return true; }
@@ -321,7 +321,7 @@ class BlackBox extends concepts.Item {
         }}
     };
 
-    description = auto_newlines(`Dark data block hiding something inside. Can only be open by destroying it to drop their content.`, 35);
+    description = auto_newlines(`Dark data block hiding something inside. Can only be open by destroying it to drop their content.`, desc_chars_per_line);
 
     static get editor_name(){ return "Black Box"; };
 
@@ -343,7 +343,7 @@ class MovableWall extends concepts.Item {
         }}
     };
 
-    description = auto_newlines(`Data access protection mechanism that can be moved in memory.\nDoes not allow seeing what is beyond it.`, 35);
+    description = auto_newlines(`Data access protection mechanism that can be moved in memory.\nDoes not allow seeing what is beyond it.`, desc_chars_per_line);
 
     static get editor_name(){ return "Movable Wall"; };
 
@@ -419,7 +419,7 @@ class MovableWall_Glass extends concepts.Item {
         }}
     };
 
-    description = auto_newlines(`Data access protection mechanism that can be moved in memory.\nAllows seeing what is beyond it.`, 35);
+    description = auto_newlines(`Data access protection mechanism that can be moved in memory.\nAllows seeing what is beyond it.`, desc_chars_per_line);
 
     static get editor_name(){ return "Movable Wall"; };
 
@@ -495,7 +495,7 @@ class Item_BadCode extends concepts.Item {
         }}
     };
 
-    description = auto_newlines(`Scrambled data. Probably dangerous to use.`, 35);
+    description = auto_newlines(`Scrambled data. Probably dangerous to use.`, desc_chars_per_line);
 
     get can_be_taken() { return true; }
 
@@ -515,7 +515,7 @@ class Item_Jump extends concepts.Item {
         }}
     };
 
-    description = auto_newlines("Rare secret CPU instruction, considered taboo by most programmers. Useful if you have an escape plan and are in a hurry.", 35);
+    description = auto_newlines("Rare secret CPU instruction, considered taboo by most programmers. Useful if you have an escape plan and are in a hurry.", desc_chars_per_line);
     get can_be_taken() { return true; }
 
     constructor(){
@@ -535,7 +535,7 @@ class Item_Crawl extends concepts.Item {
         }}
     };
 
-    description = auto_newlines("Secret file containing secrets programs of the computer's owner. Allows one to crawl through data in new ways.", 35);
+    description = auto_newlines("Secret file containing secrets programs of the computer's owner. Allows one to crawl through data in new ways.", desc_chars_per_line);
     get can_be_taken() { return true; }
 
     constructor(){
@@ -557,7 +557,7 @@ class Item_Push extends concepts.Item {
 
     get can_be_taken() { return true; }
 
-    description = auto_newlines("Producer side of a concurrent data queue mechanism.", 35);
+    description = auto_newlines("Producer side of a concurrent data queue mechanism.", desc_chars_per_line);
 
     constructor(){
         super("Data Pusher");
@@ -576,7 +576,7 @@ class Item_Pull extends concepts.Item {
         }}
     };
 
-    description = auto_newlines("Consumer side of a concurrent data queue mechanism.", 35);
+    description = auto_newlines("Consumer side of a concurrent data queue mechanism.", desc_chars_per_line);
 
     get can_be_taken() { return true; }
 
@@ -600,7 +600,7 @@ class Item_Shift extends concepts.Item {
 
     get can_be_taken() { return true; }
 
-    description = auto_newlines("Optimized algorithm to shift bits in memory efficiently. Shifts everything visible in one direction.", 35);
+    description = auto_newlines("Optimized algorithm to shift bits in memory efficiently. Shifts everything visible in one direction.", desc_chars_per_line);
 
     constructor(){
         super("Bit Shifter");
@@ -621,7 +621,7 @@ class Item_ForceWave extends concepts.Item {
 
     get can_be_taken() { return true; }
 
-    description = auto_newlines("Simple but powerful algorithm allowing to push or pull entities around in a range.", 35);
+    description = auto_newlines("Simple but powerful algorithm allowing to push or pull entities around in a range.", desc_chars_per_line);
 
     constructor(){
         super("Force-Each Loop");
@@ -643,7 +643,7 @@ class Item_PushCardinal extends concepts.Item {
 
     get can_be_taken() { return true; }
 
-    description = auto_newlines("Arcane algorithm used by secret hardware manufacturer socities which allow precise move of targetted data.", 35);
+    description = auto_newlines("Arcane algorithm used by secret hardware manufacturer socities which allow precise move of targetted data.", desc_chars_per_line);
 
     constructor(){
         super("Barrel-Shift");
@@ -664,7 +664,7 @@ class Item_Swap extends concepts.Item {
 
     get can_be_taken() { return true; }
 
-    description = auto_newlines("Programming knowledge held secretly by experienced programmers in sacred books.", 35);
+    description = auto_newlines("Programming knowledge held secretly by experienced programmers in sacred books.", desc_chars_per_line);
 
     constructor(){
         super("Hexchanger");
@@ -686,7 +686,7 @@ class Item_DataBender extends concepts.Item {
 
     get can_be_taken() { return true; }
 
-    description = auto_newlines("Provides data manipulation and transfer powers beyond imagination.", 35);
+    description = auto_newlines("Provides data manipulation and transfer powers beyond imagination.", desc_chars_per_line);
 
     constructor(){
         super("Data Bender");
@@ -707,7 +707,7 @@ class Item_Scanner extends concepts.Item {
 
     get can_be_taken() { return true; }
 
-    description = auto_newlines("Scanner algorithm allowing one to read more memory around at the same time.", 35);
+    description = auto_newlines("Scanner algorithm allowing one to read more memory around at the same time.", desc_chars_per_line);
 
     stats_modifiers = {
         view_distance: { value: +4 },
@@ -728,7 +728,7 @@ class Item_ClosedScope extends concepts.Item {
 
     get can_be_taken() { return true; }
 
-    description = auto_newlines("Reduces the scope of the readable data available.", 35);
+    description = auto_newlines("Reduces the scope of the readable data available.", desc_chars_per_line);
 
     stats_modifiers = {
         view_distance: { value: -3 },
@@ -750,7 +750,7 @@ class Item_ThreadPool extends concepts.Item {
 
     get can_be_taken() { return true; }
 
-    description = auto_newlines("Makes more item slots Active but does not increase the number of item slots.\n A Thread Pool enables concurrent execution of tasks. Does not share your data between threads, or at least protect accessing them!", 35);
+    description = auto_newlines("Makes more item slots Active but does not increase the number of item slots.\n A Thread Pool enables concurrent execution of tasks. Does not share your data between threads, or at least protect accessing them!", desc_chars_per_line);
 
     stats_modifiers = {
         activable_items: { value: +4 },
@@ -814,7 +814,7 @@ class Item_LifeStrength extends concepts.Item {
         }}
     };
 
-    description = auto_newlines("Instinct of the newborn who needs to push things around. Allow to push close entities.", 35);
+    description = auto_newlines("Instinct of the newborn who needs to push things around. Allow to push close entities.", desc_chars_per_line);
     get can_be_taken() { return true; }
 
     constructor(){
@@ -835,7 +835,7 @@ class Item_MemoryCleanup extends concepts.Item {
         }}
     };
 
-    description = auto_newlines("Cleans up memory and restore it to its initial state.", 35);
+    description = auto_newlines("Cleans up memory and restore it to its initial state.", desc_chars_per_line);
     get can_be_taken() { return true; }
 
     constructor(){
@@ -855,7 +855,7 @@ class Item_ByteClearer extends concepts.Item {
         }}
     };
 
-    description = auto_newlines("Simple data deletion tool, used by Anti-Virus to clear \"anomalies\" from the system.", 35);
+    description = auto_newlines("Simple data deletion tool, used by Anti-Virus to clear \"anomalies\" from the system.", desc_chars_per_line);
     get can_be_taken() { return true; }
 
     constructor(){
@@ -875,7 +875,7 @@ class Item_Freeze extends concepts.Item {
         }}
     };
 
-    description = auto_newlines("Hidden system functionality to reduce the execution priority of some programs. Very useful for preventing a dangerous program to act.", 35);
+    description = auto_newlines("Hidden system functionality to reduce the execution priority of some programs. Very useful for preventing a dangerous program to act.", desc_chars_per_line);
     get can_be_taken() { return true; }
 
     constructor(){
@@ -895,7 +895,7 @@ class Item_Corrupt extends concepts.Item {
         }}
     };
 
-    description = auto_newlines("Trashes memory to corrupt it.", 35);
+    description = auto_newlines("Trashes memory to corrupt it.", desc_chars_per_line);
     get can_be_taken() { return true; }
 
     constructor(){
@@ -915,7 +915,7 @@ class Item_Destabilize extends concepts.Item {
         }}
     };
 
-    description = auto_newlines("Allows to make a memory section unstable.", 35);
+    description = auto_newlines("Allows to make a memory section unstable.", desc_chars_per_line);
     get can_be_taken() { return true; }
 
     constructor(){
@@ -937,7 +937,7 @@ class Item_Copy extends concepts.Item {
 
     count = 3; // How many times we can use this item's action.
 
-    get description(){ return auto_newlines(`Allows duplicating entities in memory. Usage left: ${this.count}`, 35); }
+    get description(){ return auto_newlines(`Allows duplicating entities in memory. Usage left: ${this.count}`, desc_chars_per_line); }
     get can_be_taken() { return true; }
 
     constructor(){
@@ -965,7 +965,7 @@ class Item_Merge extends concepts.Item {
         }}
     };
 
-    description = auto_newlines("Allows merging an entity into another one.", 35);
+    description = auto_newlines("Allows merging an entity into another one.", desc_chars_per_line);
     get can_be_taken() { return true; }
 
     constructor(){
@@ -985,7 +985,7 @@ class Item_InvokeVirus extends concepts.Item {
         }}
     };
 
-    description = auto_newlines("Allows one to invoke a Virus. Be cautious what you wish for.", 35);
+    description = auto_newlines("Allows one to invoke a Virus. Be cautious what you wish for.", desc_chars_per_line);
     get can_be_taken() { return true; }
 
     constructor(){
@@ -1006,7 +1006,7 @@ class Item_InvokeAntiVirus extends concepts.Item {
         }}
     };
 
-    description = auto_newlines("Allows one to invoke an Anti-Virus. Be cautious what you wish for.", 35);
+    description = auto_newlines("Allows one to invoke an Anti-Virus. Be cautious what you wish for.", desc_chars_per_line);
     get can_be_taken() { return true; }
 
     constructor(){
@@ -1025,7 +1025,7 @@ class Item_AutoRepair extends concepts.Item {
             sprite_def : sprite_defs.item_generic_7,
         }}
     };
-    description = auto_newlines("Repairs a bit its owner's memory at each new cycle.", 35);
+    description = auto_newlines("Repairs a bit its owner's memory at each new cycle.", desc_chars_per_line);
     get can_be_taken() { return true; }
 
     stats_modifiers = {
@@ -1044,7 +1044,7 @@ class Item_IntegrityBoost extends concepts.Item {
         }}
     };
 
-    description = auto_newlines("Boosts the memory integrity of its owner.", 35);
+    description = auto_newlines("Boosts the memory integrity of its owner.", desc_chars_per_line);
     get can_be_taken() { return true; }
 
     stats_modifiers = {
@@ -1064,7 +1064,7 @@ class Item_FrequencyBoost extends concepts.Item {
     };
 
     get can_be_taken() { return true; }
-    description = auto_newlines("Boosts frequency of the owner's code, making them faster.", 35);
+    description = auto_newlines("Boosts frequency of the owner's code, making them faster.", desc_chars_per_line);
 
     stats_modifiers = {
         action_points: { max: +10 },
@@ -1084,7 +1084,7 @@ class Item_PowerGlove extends concepts.Item {
     };
 
     get can_be_taken() { return true; }
-    description = auto_newlines("Allows one to take and drop any character. Putting a character in an Active Slot will enable that character's powers!", 35);
+    description = auto_newlines("Allows one to take and drop any character. Putting a character in an Active Slot will enable that character's powers!", desc_chars_per_line);
 
     constructor(){
         super("Power Glove");
@@ -1115,7 +1115,7 @@ class Item_BlockMaster extends concepts.Item {
     };
 
     get can_be_taken() { return true; }
-    description = auto_newlines("Allows one to take and drop any Mutex or Atomic.", 35);
+    description = auto_newlines("Allows one to take and drop any Mutex or Atomic.", desc_chars_per_line);
 
     constructor(){
         super("Block Master");
@@ -1147,7 +1147,7 @@ class Item_FreeJump extends concepts.Item {
     };
 
 
-    description = auto_newlines("Forbidden black-art CPU instruction, considered evil by most programmers. Useful if you have an escape plan and need precise relocation.", 35);
+    description = auto_newlines("Forbidden black-art CPU instruction, considered evil by most programmers. Useful if you have an escape plan and need precise relocation.", 32);
     get can_be_taken() { return true; }
 
     constructor(){
@@ -1168,7 +1168,7 @@ class Item_CriticalSection extends concepts.Item {
     };
 
     get can_be_taken() { return true; }
-    description = auto_newlines("Allows one to create and destroy Mutex or Atomic blocks. Useful to manipulate enemies field of view or move set!", 35);
+    description = auto_newlines("Allows one to create and destroy Mutex or Atomic blocks. Useful to manipulate enemies field of view or move set!", desc_chars_per_line);
 
     constructor(){
         super("Critical Section");
@@ -1191,7 +1191,7 @@ class Item_Destructor extends concepts.Item {
 
     count = 1; // How many times we can use this item's action.
 
-    get description(){ return auto_newlines(`Secret system command allowing to instantly destroy any entity. Usage left: ${this.count}`, 35); }
+    get description(){ return auto_newlines(`Secret system command allowing to instantly destroy any entity. Usage left: ${this.count}`, desc_chars_per_line); }
     get can_be_taken() { return true; }
 
     constructor(){
