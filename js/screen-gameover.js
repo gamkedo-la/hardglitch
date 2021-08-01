@@ -34,6 +34,9 @@ class GameOverScreen_Success extends fsm.State {
         debug.assertion(()=>this.ui === undefined);
 
 
+// TODO: put this in the end screen
+//"Will they start a romance with an attractive spreadsheet across town?\nMine bitcoin and buy a nice server\nto live in on the Cayman Islands?\nThe sky is truly the limit."
+
         this.ui = {
             message : new ui.Text({
                 text: "Congratulations! You escaped the computer!",

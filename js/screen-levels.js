@@ -400,6 +400,3 @@ class Level_4_IntroScreen extends LevelIntroScreen {
     }
 
 };
-
-//TODO put this in the end screen
-//"Will they start a romance with an attractive spreadsheet across town?\nMine bitcoin and buy a nice server\nto live in on the Cayman Islands?\nThe sky is truly the limit."
