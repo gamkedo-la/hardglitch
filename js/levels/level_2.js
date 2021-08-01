@@ -566,6 +566,26 @@ function* generate_room_positions(horizontal_room_count, vertical_room_count){
     yield* selected_generation_rule();
 }
 
+const any_opaque_block = [ "MovableWall_Blue", "MovableWall_Green", "MovableWall_Orange", "MovableWall_Purple", "MovableWall_Red" ];
+const any_transparent_block = [ "MovableWall_Glass_Blue", "MovableWall_Glass_Green", "MovableWall_Glass_Orange", "MovableWall_Glass_Purple", "MovableWall_Glass_Red" ];
+const any_block = [...any_opaque_block, ...any_transparent_block];
+
+function as_entity(entity_type_name){
+    debug.assertion(()=> typeof entity_type_name === 'string' || entity_type_name == null);
+    if(entity_type_name == null){
+        return null;
+    }
+    return {
+        type: entity_type_name,
+    };
+}
+
+function make_random_entity_gen_from(possible_type_names){
+    debug.assertion(()=> possible_type_names instanceof Array);
+    debug.assertion(()=> possible_type_names.every(name => (typeof name === 'string' && name.length > 1) || name == null) );
+    return ()=> as_entity(random_sample(possible_type_names));
+}
+
 function populate_entities(room_info){
     debug.assertion(()=> room_info instanceof Object);
     debug.assertion(()=> room_info.world_desc instanceof Object);
@@ -577,29 +597,28 @@ function populate_entities(room_info){
     const converted_desc = copy_data(room_desc);
     // We convert proc-gen tiles to some choices, the choices must be the same for the whole chunk being worked on.
 
-    const spawn = (entity_type_name, position)=>{
-        debug.assertion(()=> typeof entity_type_name === 'string');
+    const spawn = (entity_template, position)=>{
+        debug.assertion(()=> entity_template instanceof Object && typeof entity_template.type === 'string');
         debug.assertion(()=> position instanceof Position);
-        const entity = {
-            type: entity_type_name,
-            position: position
-        };
+        const entity = Object.assign(copy_data(entity_template), {
+            position: position,
+        });
         converted_desc.entities.push(entity);
     };
 
-    const spawn_tile_converter = (tile_match, possible_entities) => {
+    const spawn_tile_converter = (tile_match, entity_generator) => {
         debug.assertion(()=>Number.isInteger(tile_match) && tile_match >= 0);
-        debug.assertion(()=>possible_entities instanceof Array && possible_entities.every(entity_type_name=> typeof entity_type_name === 'string' || entity_type_name === null));
+        debug.assertion(()=>entity_generator instanceof Function);
 
-        const selected_entity_type_name = random_sample(possible_entities);
-        if(selected_entity_type_name == null){
+        const entity_template = entity_generator();
+        if(entity_template == null){
             return (tile) => tile === tile_match ? null : tile;
         }
 
         return (tile, tile_idx) => {
             if(tile === tile_match){
                 const position = new Position(position_from_index(room_desc.width, room_desc.height, tile_idx));
-                spawn(selected_entity_type_name, position);
+                spawn(entity_template, position);
                 return null;
             } else {
                 return tile;
@@ -607,9 +626,29 @@ function populate_entities(room_info){
         };
     }
 
+
     const spawn_tile_conversions = [
-        spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_1, ["LifeForm_Weak", "LifeForm_Strong", null]),
-        spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_2, ["MovableWall_Purple", "MovableWall_Red", null]),
+        // SPAWN 1 : Any movable bock (opaque or not)
+        spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_1, make_random_entity_gen_from(any_block)),
+
+        // SPAWN 2 : Any movable bock (opaque or not) or none.
+        spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_2, make_random_entity_gen_from([ ...any_block, null ])),
+
+        // SPAWN: opaque blocks
+        // SPAWN: transparent blocks
+
+        // SPAWN: weak characters
+        // SPAWN: slightly dangerous characters
+        // SPAWN: very dangerous characters
+        // SPAWN: AntiVirus or Program (used to put them together)
+        // SPAWN: useful items or none
+        // SPAWN: random items (useful or not) or none
+        // SPAWN: crypto-keys
+        // SPAWN: crypto-files (with powerful items in them)
+        // SPAWN: crypto-files (empty)
+        // SPAWN: black box or none
+        // SPAWN: stream buffers (in one direction) or none
+
 
     ].reduce((acc, val) => ((x, idx) => val(acc(x, idx), idx)), x => x); // Reduced to 1 function
 
