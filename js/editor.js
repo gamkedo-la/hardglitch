@@ -22,7 +22,7 @@ import { mouse_grid_position, mouse_game_position, KEY, play_action } from "./ga
 import { Character } from "./core/character.js";
 import { random_float } from "./system/utility.js";
 import { GameSession } from "./game-session.js";
-import { assets, sprite_defs } from "./game-assets.js";
+import { sprite_defs } from "./game-assets.js";
 import { Vector2_origin, Vector2, center_in_rectangle, Rectangle } from "./system/spatial.js";
 import { Grid } from "./system/grid.js";
 import { all_characters_types } from "./deflinitions-characters.js";
