@@ -47,7 +47,7 @@ const rooms = {
         "name" : "room 1",
         "width" : 9,
         "height" : 9,
-        "grids" : {"floor":[9001,9001,103,9001,103,9001,103,9001,9001,103,9001,103,103,103,103,103,9001,103,103,9001,9001,9001,103,9001,9001,9001,103,103,103,9001,103,103,103,9001,103,103,103,103,103,103,103,103,103,103,103,103,103,9001,103,103,103,9001,103,103,103,9001,9001,9001,103,9001,9001,9001,103,103,9001,103,103,103,103,103,9001,103,9001,9001,103,9001,103,9001,103,9001,9001],"surface":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"corruption":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"unstable":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},
+        "grids" : {"floor":[9001,9001,103,9001,103,9001,103,9001,9001,103,9001,103,103,103,103,103,9001,103,103,9001,9001,9001,103,9001,9001,9001,103,103,103,9001,103,103,103,9001,103,103,103,103,103,103,103,103,103,103,103,103,103,9001,103,103,103,9001,103,103,103,9001,9001,9001,103,9001,9001,9001,103,103,9001,103,103,103,103,103,9001,103,9001,9001,103,9001,103,9001,103,9001,9001],"surface":[null,null,null,null,null,null,null,null,null,null,null,null,null,9101,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,9101,null,null,9100,null,null,9101,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,9101,null,null,null,null,null,null,null,null,null,null,null,null,null],"corruption":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"unstable":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},
         "entities" : []
     },
     room_2: {
@@ -406,7 +406,6 @@ window.level_2_procgen_test_room = {
     "grids" : {"floor":[104,104,104,9003,9003,9003,9002,9002,9002,104,104,104,9003,9003,9003,9002,9002,9002,104,104,104,9003,9003,9003,9002,9002,9002,104,104,104,9000,9000,9000,9001,9001,9001,104,104,104,9000,9000,9000,9001,9001,9001,104,104,104,9000,9000,9000,9001,9001,9001,104,104,104,9004,9004,9004,104,104,104,104,104,104,9004,9004,9004,104,104,104,104,104,104,9004,9004,9004,104,104,104],"surface":[0,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,1],"corruption":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"unstable":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},
     "entities" : []
 };
-window.level_2_process_procgen_tiles = process_procgen_tiles;
 
 function process_procgen_tiles(world_desc){
     tools.check_world_desc(world_desc);
@@ -442,7 +441,7 @@ function process_procgen_tiles(world_desc){
     ].reduce((acc, val) => (x => val(acc(x))), x => x); // Reduced to 1 function
 
 
-    converted_desc.grids.floor = converted_desc.grids.floor.map(tile => tile_conversions(tile));
+    converted_desc.grids.floor = converted_desc.grids.floor.map(tile_conversions);
 
     return converted_desc;
 }
@@ -567,6 +566,60 @@ function* generate_room_positions(horizontal_room_count, vertical_room_count){
     yield* selected_generation_rule();
 }
 
+function populate_entities(room_info){
+    debug.assertion(()=> room_info instanceof Object);
+    debug.assertion(()=> room_info.world_desc instanceof Object);
+    debug.assertion(()=> room_info.position instanceof Position);
+
+    const room_desc = room_info.world_desc;
+
+    tools.check_world_desc(room_desc);
+    const converted_desc = copy_data(room_desc);
+    // We convert proc-gen tiles to some choices, the choices must be the same for the whole chunk being worked on.
+
+    const spawn = (entity_type_name, position)=>{
+        debug.assertion(()=> typeof entity_type_name === 'string');
+        debug.assertion(()=> position instanceof Position);
+        const entity = {
+            type: entity_type_name,
+            position: position
+        };
+        converted_desc.entities.push(entity);
+    };
+
+    const spawn_tile_converter = (tile_match, possible_entities) => {
+        debug.assertion(()=>Number.isInteger(tile_match) && tile_match >= 0);
+        debug.assertion(()=>possible_entities instanceof Array && possible_entities.every(entity_type_name=> typeof entity_type_name === 'string' || entity_type_name === null));
+
+        const selected_entity_type_name = random_sample(possible_entities);
+        if(selected_entity_type_name == null){
+            return (tile) => tile === tile_match ? null : tile;
+        }
+
+        return (tile, tile_idx) => {
+            if(tile === tile_match){
+                const position = new Position(position_from_index(room_desc.width, room_desc.height, tile_idx));
+                spawn(selected_entity_type_name, position);
+                return null;
+            } else {
+                return tile;
+            }
+        };
+    }
+
+    const spawn_tile_conversions = [
+        spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_1, ["LifeForm_Weak", "LifeForm_Strong", null]),
+        spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_2, ["MovableWall_Purple", "MovableWall_Red", null]),
+
+    ].reduce((acc, val) => ((x, idx) => val(acc(x, idx), idx)), x => x); // Reduced to 1 function
+
+    converted_desc.grids.surface = converted_desc.grids.surface.map(spawn_tile_conversions);
+
+    room_info.world_desc = converted_desc;
+
+    return room_info;
+}
+
 // Checks that the generated world matches our requirements for a decent level.
 function validate(world){
     // At least one exit is "reachable".
@@ -605,16 +658,22 @@ function generate_world(){
             };
         });
 
+
+        // Pass 3: add entities in each room
+        positionned_selected_rooms.map(populate_entities);
+
+
+        // Pass 4: merge rooms into a big world
+
         const ram_world_with_rooms = tools.merge_world_chunks(level_name, defaults,
             { position: { x:0, y: 0}, world_desc: ram_world_chunk },
             ...positionned_selected_rooms
         );
 
-        // Pass 3: fill the inter-room corridors with walls and entities
+        // Pass 5: fill the inter-room corridors with walls and entities
 
         const world_desc = tools.random_variation(tools.add_padding_around(ram_world_with_rooms, { floor: tiles.ID.VOID }));
 
-        // Pass 4: add entities
 
         const world = tools.deserialize_world(world_desc);
         world.level_id = 2;
@@ -628,4 +687,13 @@ function generate_world(){
             return world;
         }
     }
+}
+
+
+/// TOOL for helping in level design
+
+window.level_2_process_procgen_tiles = (world_desc)=> {
+    world_desc = process_procgen_tiles(world_desc);
+    const world_info = populate_entities({ position: new Position(), world_desc: world_desc });
+    return world_info.world_desc;
 }
