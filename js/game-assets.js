@@ -149,6 +149,16 @@ const game_assets = { // Description of the assets to load.
         procgen_spawn_8: "./images/procgen_spawn_8.png",
         procgen_spawn_9: "./images/procgen_spawn_9.png",
         procgen_spawn_10: "./images/procgen_spawn_10.png",
+        procgen_spawn_11: "./images/procgen_spawn_11.png",
+        procgen_spawn_12: "./images/procgen_spawn_12.png",
+        procgen_spawn_13: "./images/procgen_spawn_13.png",
+        procgen_spawn_14: "./images/procgen_spawn_14.png",
+        procgen_spawn_15: "./images/procgen_spawn_15.png",
+        procgen_spawn_16: "./images/procgen_spawn_16.png",
+        procgen_spawn_17: "./images/procgen_spawn_17.png",
+        procgen_spawn_18: "./images/procgen_spawn_18.png",
+        procgen_spawn_19: "./images/procgen_spawn_19.png",
+        procgen_spawn_20: "./images/procgen_spawn_20.png",
     },
 
     audio_buffers: { // Short audio assets held in memory. No hard limit on duplicates/overlaps.
@@ -1050,8 +1060,8 @@ const sprite_defs = {
 
 };
 
-// FIXME
-for(let i = 1; i < 11; ++i){
+// Generate sprites for the proc-gen tiles
+for(let i = 1; i < 21; ++i){
     const id_tile = `PROCGEN_TILE_${i}`;
     const id_spawn = `PROCGEN_SPAWN_${i}`;
     sprite_defs[id_tile] = {

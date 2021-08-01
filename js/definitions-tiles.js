@@ -84,6 +84,16 @@ const ID = {
     PROCGEN_SPAWN_8: 9107,
     PROCGEN_SPAWN_9: 9108,
     PROCGEN_SPAWN_10: 9109,
+    PROCGEN_SPAWN_11: 9110,
+    PROCGEN_SPAWN_12: 9111,
+    PROCGEN_SPAWN_13: 9112,
+    PROCGEN_SPAWN_14: 9113,
+    PROCGEN_SPAWN_15: 9114,
+    PROCGEN_SPAWN_16: 9115,
+    PROCGEN_SPAWN_17: 9116,
+    PROCGEN_SPAWN_18: 9117,
+    PROCGEN_SPAWN_19: 9118,
+    PROCGEN_SPAWN_20: 9120,
 };
 
 // NOTE: these are filled out by iterating through the definitions below.  if is_surface is included, the tile type is added to surface_tiles, otherwise to floor tiles
