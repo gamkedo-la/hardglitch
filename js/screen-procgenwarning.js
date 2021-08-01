@@ -13,6 +13,7 @@ import { auto_newlines, invoke_on_members } from "./system/utility.js";
 import { KEY } from "./game-input.js";
 import { LifeForm_Weak } from "./characters/lifeform.js";
 import { CharacterView } from "./view/character-view.js";
+import { sprite_defs } from "./game-assets.js";
 
 class ProcgenWarningScreen extends fsm.State {
     fader = new ScreenFader();
@@ -35,22 +36,21 @@ Tips and help can be found in the menu (top left of the screen).
 
 Use the 'Save & Exit' button in the menu to save the game and continue another time.
 
-Click or [Space] to continue.
+
 `, 80),
                 color: "white",
                 background_color: "0x00000000",
                 text_align: "center",
             }),
-            // button_back : new ui.TextButton({
-            //     text: "Continue [SPACE]",
-            //     position: Vector2_origin,
-            //     sprite_def: sprite_defs.button_menu,
-            //     action: ()=> { this.go_to_next_screen(); },
-            //     sounds:{
-            //         over: 'selectButton',
-            //         down: 'clickButton',
-            //     }
-            // }),
+            button_continue : new ui.TextButton({
+                text: "Continue [SPACE]",
+                sprite_def: sprite_defs.button_menu,
+                action: ()=> { this.go_to_next_screen(); },
+                sounds:{
+                    over: 'selectButton',
+                    down: 'clickButton',
+                }
+            }),
         };
         this.ui.message.position = graphics.canvas_center_position().translate({ y: -200 });
 
@@ -64,7 +64,7 @@ Click or [Space] to continue.
         Object.values(this.ui).forEach(button => {
             if(!(button instanceof ui.Button))
                 return;
-            const center_pos = graphics.centered_rectangle_in_screen(button.area).position;
+            const center_pos = this.ui.message.position.translate({ x: -button.area.width / 2,  y: (this.ui.message.area.height / 2) + button.area.height });
             button.position = center_pos.translate({ x:0, y: next_pad_y() });
         });
 
@@ -98,7 +98,7 @@ Click or [Space] to continue.
     update(delta_time){
 
         if(!this.fader.is_fading && !window.is_mouse_over_mute_button()){
-            if(input.keyboard.is_just_down(KEY.SPACE) || input.mouse.buttons.is_any_key_just_down()){
+            if(input.keyboard.is_just_down(KEY.SPACE)){
                 this.go_to_next_screen();
             } else {
                 invoke_on_members(this.ui, "update", delta_time);
