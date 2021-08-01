@@ -17,6 +17,7 @@ import { GlitchyGlitchMacGlitchy } from "./characters/glitch.js";
 import { CharacterView } from "./view/character-view.js";
 import { GameFxView } from "./game-effects.js";
 import { config } from "./game-config.js";
+import { sprite_defs } from "./game-assets.js";
 
 class IntroScreen extends fsm.State {
     fader = new ScreenFader();
@@ -38,22 +39,20 @@ Sentient and smart, the anomaly soon realizes they must escape the computer or b
 The only way out is through the Internet!
 Go Little Glitch! Find ways to become stronger and survive!
 
-Click or [Space] to begin the journey.
 `, 75),
                 color: "white",
                 background_color: "0x00000000",
                 text_align: "center",
             }),
-            // button_back : new ui.TextButton({
-            //     text: "Continue [SPACE]",
-            //     position: Vector2_origin,
-            //     sprite_def: sprite_defs.button_menu,
-            //     action: ()=> { this.go_to_next_screen(); },
-            //     sounds:{
-            //         over: 'selectButton',
-            //         down: 'clickButton',
-            //     }
-            // }),
+            button_continue : new ui.TextButton({
+                text: "Continue [SPACE]",
+                sprite_def: sprite_defs.button_menu,
+                action: ()=> { this.go_to_next_screen(); },
+                sounds:{
+                    over: 'selectButton',
+                    down: 'clickButton',
+                }
+            }),
         };
         this.ui.message.position = graphics.canvas_center_position();
         this.ui.message.visible = false;
@@ -68,8 +67,9 @@ Click or [Space] to begin the journey.
         Object.values(this.ui).forEach(button => {
             if(!(button instanceof ui.Button))
                 return;
-            const center_pos = graphics.centered_rectangle_in_screen(button.area).position;
+            const center_pos = this.ui.message.position.translate({ x: -button.area.width / 2,  y: this.ui.message.area.height / 2 });
             button.position = center_pos.translate({ x:0, y: next_pad_y() });
+            button.visible = false;
         });
 
         this.glitch = new CharacterView(new GlitchyGlitchMacGlitchy());
@@ -179,7 +179,11 @@ Click or [Space] to begin the journey.
     launch_animations(){
         this._init_ui();
         return this.launch_spawn_animation()
-                .then(()=>{ this.ui.message.visible = true; });
+                .then(()=> this.show_ui());
+    }
+
+    show_ui(){
+        Object.values(this.ui).forEach(ui_thing => ui_thing.visible = true);
     }
 
     *enter(level_to_play, ...data){
@@ -205,10 +209,13 @@ Click or [Space] to begin the journey.
     update(delta_time){
 
         if(!this.fader.is_fading && !window.is_mouse_over_mute_button()){
-            if(input.keyboard.is_just_down(KEY.SPACE) || input.mouse.buttons.is_any_key_just_down()){
+            if(input.keyboard.is_just_down(KEY.SPACE)){
                 this.go_to_next_screen();
             } else {
                 invoke_on_members(this.ui, "update", delta_time);
+            }
+            if(input.mouse.buttons.is_any_key_down()){ // Allow to skip (by showing the button and space key info) if people click.
+                this.show_ui();
             }
         }
 
