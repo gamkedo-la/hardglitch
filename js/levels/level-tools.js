@@ -9,6 +9,7 @@ export {
     random_variation,
     merge_world_chunks,
     add_padding_around,
+    is_entity_desc,
 
     predicate_entity_spawn_pos,
     random_available_entity_position,

@@ -8,7 +8,7 @@ import * as debug from "../system/debug.js";
 import * as tiles from "../definitions-tiles.js";
 import * as tools from "./level-tools.js";
 import { Position } from "../core/concepts.js";
-import { copy_data, position_from_index, random_int, random_sample } from "../system/utility.js";
+import { copy_data, position_from_index, random_bag_pick, random_int, random_sample } from "../system/utility.js";
 import { Vector2 } from "../system/spatial.js";
 
 
@@ -598,61 +598,132 @@ function populate_entities(room_info){
     // We convert proc-gen tiles to some choices, the choices must be the same for the whole chunk being worked on.
 
     const spawn = (entity_template, position)=>{
-        debug.assertion(()=> entity_template instanceof Object && typeof entity_template.type === 'string');
+        debug.assertion(()=> (entity_template instanceof Object && typeof entity_template.type === 'string') || entity_template instanceof Function || entity_template.next instanceof Function);
         debug.assertion(()=> position instanceof Position);
-        const entity = Object.assign(copy_data(entity_template), {
+        let entity;
+        if(entity_template instanceof Function){
+            entity = entity_template();
+        } else if(entity_template.next instanceof Function) {
+            entity = entity_template.next().value;
+        } else {
+            entity = copy_data(entity_template);
+        }
+
+        debug.assertion(()=> entity instanceof Object);
+        const final_entity = Object.assign(entity, {
             position: position,
         });
-        converted_desc.entities.push(entity);
+
+        debug.assertion(() => tools.is_entity_desc(final_entity));
+        converted_desc.entities.push(final_entity);
     };
 
     const spawn_tile_converter = (tile_match, entity_generator) => {
         debug.assertion(()=>Number.isInteger(tile_match) && tile_match >= 0);
-        debug.assertion(()=>entity_generator instanceof Function);
+        debug.assertion(()=>entity_generator instanceof Function || entity_generator.next instanceof Function);
 
-        const entity_template = entity_generator();
+        const entity_template = entity_generator instanceof Function ? entity_generator() : entity_generator.next().value;
         if(entity_template == null){
             return (tile) => tile === tile_match ? null : tile;
         }
 
+        debug.assertion(()=> entity_template instanceof Object || Number.isInteger(entity_template));
+
         return (tile, tile_idx) => {
             if(tile === tile_match){
+                if(Number.isInteger(entity_template)){ // We got a tile id instead of an entity: replace the previous tile by that one.
+                    return entity_template;
+                }
+
+                debug.assertion(()=> entity_template instanceof Object);
+                // We got an entity.
                 const position = new Position(position_from_index(room_desc.width, room_desc.height, tile_idx));
                 spawn(entity_template, position);
                 return null;
+
             } else {
-                return tile;
+                return tile; // No match: keep the same tile id.
             }
         };
     }
 
 
     const spawn_tile_conversions = [
-        // SPAWN 1 : Any movable bock (opaque or not)
-        spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_1, make_random_entity_gen_from(any_block)),
-
-        // SPAWN 2 : Any movable bock (opaque or not) or none.
-        spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_2, make_random_entity_gen_from([ ...any_block, null ])),
+        // SPAWN: Any movable bock (opaque or not) or none
+        spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_1, make_random_entity_gen_from([ ...any_block, null ])),
 
         // SPAWN: opaque blocks
+        spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_2, make_random_entity_gen_from(any_opaque_block)),
+
         // SPAWN: transparent blocks
+        spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_3, make_random_entity_gen_from(any_transparent_block)),
 
-        // SPAWN: weak characters
+        // SPAWN: peaceful characters
+        spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_4, make_random_entity_gen_from([ "LifeForm_Weak", "LifeForm_Strong", "Program", "WaitingNPC", "RandomActionEnemy" ])),
+
         // SPAWN: slightly dangerous characters
-        // SPAWN: very dangerous characters
-        // SPAWN: AntiVirus or Program (used to put them together)
-        // SPAWN: useful items or none
-        // SPAWN: random items (useful or not) or none
-        // SPAWN: crypto-keys
-        // SPAWN: crypto-files (with powerful items in them)
-        // SPAWN: crypto-files (empty)
-        // SPAWN: black box or none
-        // SPAWN: stream buffers (in one direction) or none
+        spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_5, make_random_entity_gen_from([ "LifeForm_Aggressive", "LifeForm_Strong", "Microcode", "Program" ])),
 
+        // SPAWN: very dangerous characters
+        spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_6, make_random_entity_gen_from([ "Virus", "AntiVirus", "Microcode", "LifeForm_Berserk" ])),
+
+        // SPAWN: AntiVirus or Program (used to put them together)
+        spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_7, ()=>{
+            function* generator(){
+                const entities = [ "AntiVirus", "Program", "Program" ];
+                while(entities.length > 0)
+                    yield as_entity(random_bag_pick(entities)[0]);
+
+                while(true) yield as_entity("Program");
+            }; // call to get an Iterator
+            return generator();
+        }),
+
+        // SPAWN: useful items or none
+        spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_8, ()=> as_entity("Debug_AllActions")),
+
+        // SPAWN: crypto-keys
+        spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_9, ()=> {
+            const generator = function*(){
+                const keys = [ "CryptoKey_Circle", "CryptoKey_Triangle", "CryptoKey_Plus", "CryptoKey_Equal" ];
+                while(true) yield as_entity(random_sample(keys));
+            };
+            return generator();
+        }),
+
+        // SPAWN : chest - crypto-files with powerful items in them
+        spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_10, ()=> {
+            const  generator = function*(){
+                const keys = [ "CryptoFile_Circle", "CryptoFile_Triangle", "CryptoFile_Plus", "CryptoFile_Equal" ];
+                while(true) yield as_entity(random_sample(keys));
+            };
+            return generator();
+        }),
+
+        // SPAWN : crypto-files empty
+        spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_11, ()=>{
+            const generator = function*(){
+                const keys = [ "CryptoFile_Circle", "CryptoFile_Triangle", "CryptoFile_Plus", "CryptoFile_Equal" ];
+                while(true) yield Object.assign(as_entity(random_sample(keys), { drops: [] }));
+            };
+            return generator();
+        }),
+
+        // SPAWN: black box or none (contain powerful item)
+        spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_12, ()=> as_entity("BlackBox")),
+
+        // SPAWN: stream buffers (in one direction) or none
+        spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_13, ()=> random_sample([ tiles.ID.STREAM_DOWN, tiles.ID.STREAM_UP, tiles.ID.STREAM_LEFT, tiles.ID.STREAM_RIGHT ])),
+
+        // SPAWN: block, character or stream
 
     ].reduce((acc, val) => ((x, idx) => val(acc(x, idx), idx)), x => x); // Reduced to 1 function
 
-    converted_desc.grids.surface = converted_desc.grids.surface.map(spawn_tile_conversions);
+    converted_desc.grids.surface = converted_desc.grids.surface.map((tile_id, tile_idx)=>{
+        const new_tile_id = spawn_tile_conversions(tile_id, tile_idx);
+        debug.assertion(()=> converted_desc.entities.length === 0 || tools.is_entity_desc(converted_desc.entities[converted_desc.entities.length - 1]))
+        return new_tile_id
+    });
 
     room_info.world_desc = converted_desc;
 
@@ -736,3 +807,13 @@ window.level_2_process_procgen_tiles = (world_desc)=> {
     const world_info = populate_entities({ position: new Position(), world_desc: world_desc });
     return world_info.world_desc;
 }
+
+
+window.level_test_spawn_tiles = {
+    "name" : "Test Level 'testing' 25 x 25",
+    "level_id": null,
+    "width" : 25,
+    "height" : 25,
+    "grids" : {"floor":[107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107,107],"surface":[0,null,null,9100,9100,9100,9100,9100,9100,9100,9100,9100,9100,9100,9100,9100,9100,9100,9100,9100,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,9101,9101,9101,9101,9101,9101,null,9102,9102,9102,9102,9102,9102,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,9103,9103,9103,9103,9103,9103,9103,9103,9103,9103,9103,9103,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,9104,9104,9104,9104,9104,9104,null,9105,9105,9105,9105,9105,9105,9105,9105,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,9106,9106,9106,9106,9106,9106,9106,9106,9106,null,9107,9107,9107,9107,9107,9107,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,9108,9108,9108,9108,9108,9108,9108,null,9109,9109,9109,9109,9109,9109,9109,9109,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,9110,9110,9110,9110,9110,9110,9110,null,9111,9111,9111,9111,9111,9111,9111,9111,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,9112,9112,9112,9112,9112,9112,9112,null,9113,9113,9113,9113,9113,9113,9113,9113,9113,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,9114,9114,9114,9114,9114,9114,9114,null,9115,9115,9115,9115,9115,9115,9115,9115,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,9116,9116,9116,9116,9116,9116,9116,null,9117,9117,9117,9117,9117,9117,9117,9117,9117,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,9118,9118,9118,9118,9118,9118,9118,null,9120,9120,9120,9120,9120,9120,9120,9120,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,1],"corruption":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"unstable":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},
+    "entities" : [{"type":"GlitchyGlitchMacGlitchy","position":{"x":0,"y":0}}]
+};
