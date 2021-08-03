@@ -49,12 +49,14 @@ class RandomActionEnemy extends Character {
 class WaitingNPC extends Character {
     assets = {
         graphics : { body: {
-            sprite_def : sprite_defs.test_enemy,
+            sprite_def : sprite_defs.test_enemy_2,
         }}
     };
 
+    description = auto_newlines("Background program that does nothing apparent.", 35);
+
     constructor(){
-        super("Wait Man", new CharacterStats());
+        super("Background Service", new CharacterStats());
         this.actor = new class extends concepts.Actor{
             decide_next_action(world, character, possible_actions) { return possible_actions.wait; }
         };

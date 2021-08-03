@@ -23,6 +23,7 @@ const game_assets = { // Description of the assets to load.
 
         glitch: "./images/glitch-painting.png",
         test_enemy: "./images/test_enemy.png",
+        test_enemy_2: "./images/test_enemy_2.png",
         tileset_entry_exit : "./images/portalinout.png",
         exit_portal : "./images/exit_portal.png",
         exit_portal2 : "./images/portal9.png",
@@ -386,6 +387,22 @@ const sprite_defs = {
                     timeline: [
                                 { frame: 0, duration: 400 },
                                 { frame: 1, duration: 400 }
+                              ],
+                  },
+        },
+    },
+    test_enemy_2: {
+        image: "test_enemy_2",
+        frames: [
+                    { x: 0, y: 0, width: 64, height: 64 },
+                    { x: 64, y: 0, width: 64, height: 64 },
+                ],
+        animations: {
+            idle: {
+                    loop: true,
+                    timeline: [
+                                { frame: 0, duration: 8000 },
+                                { frame: 1, duration: 8000 }
                               ],
                   },
         },
