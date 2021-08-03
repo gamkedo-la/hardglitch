@@ -90,7 +90,7 @@ class Program extends Character {
         }}
     };
 
-    description = auto_newlines("User-space program. Eats memory for no reason.", 30);
+    description = auto_newlines("User-space program. Eats memory for no reason. Fears anomalies. Peasible until scared. Protected by Anti-Virus.", 30);
 
     is_floating = true; // rule of cool
 
