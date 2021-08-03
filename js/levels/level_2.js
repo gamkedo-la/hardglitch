@@ -397,7 +397,41 @@ const rooms = {
 
 };
 
-window.level_2_rooms = rooms;
+const starting_rooms = {
+    block_master: {
+        "name" : "Level 2 Starting Room 0",
+        "width" : 9,
+        "height" : 9,
+        "grids" : {"floor":[122,122,122,122,102,122,122,122,122,122,102,102,102,102,102,102,102,122,122,102,102,102,102,102,102,102,122,122,102,102,102,122,102,102,102,122,102,102,102,122,122,122,102,102,102,122,102,102,102,122,102,102,102,122,122,102,102,102,102,102,102,102,122,122,102,102,102,102,102,102,102,122,122,122,122,122,102,122,122,122,122],"surface":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,0,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"corruption":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"unstable":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},
+        "entities" : [{"type":"Program","position":{"x":6,"y":3}},{"type":"Item_BlockMaster","position":{"x":1,"y":6}},{"type":"MovableWall_Blue","position":{"x":4,"y":0}},{"type":"MovableWall_Green","position":{"x":0,"y":4}},{"type":"MovableWall_Purple","position":{"x":4,"y":8}},{"type":"MovableWall_Orange","position":{"x":8,"y":4}}]
+    },
+
+    critical_section: {
+        "name" : "Level 2 Starting Room 1",
+        "width" : 9,
+        "height" : 9,
+        "grids" : {"floor":[102,102,102,102,102,102,102,102,102,102,122,102,102,102,102,102,122,102,102,102,102,102,102,102,102,102,102,102,102,102,102,102,102,102,102,102,102,102,102,102,102,102,102,102,102,102,102,102,102,102,102,102,102,102,102,102,102,102,102,102,102,102,102,102,122,102,102,102,102,102,122,102,102,102,102,102,102,102,102,102,102],"surface":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,0,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"corruption":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"unstable":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},
+        "entities" : [{"type":"Program","position":{"x":4,"y":5}},{"type":"MovableWall_Blue","position":{"x":2,"y":1}},{"type":"MovableWall_Blue","position":{"x":1,"y":2}},{"type":"MovableWall_Blue","position":{"x":3,"y":2}},{"type":"MovableWall_Blue","position":{"x":4,"y":1}},{"type":"MovableWall_Blue","position":{"x":5,"y":2}},{"type":"MovableWall_Blue","position":{"x":6,"y":3}},{"type":"MovableWall_Blue","position":{"x":6,"y":4}},{"type":"MovableWall_Blue","position":{"x":6,"y":5}},{"type":"MovableWall_Blue","position":{"x":6,"y":6}},{"type":"MovableWall_Blue","position":{"x":6,"y":7}},{"type":"MovableWall_Blue","position":{"x":7,"y":5}},{"type":"MovableWall_Blue","position":{"x":5,"y":8}},{"type":"MovableWall_Blue","position":{"x":4,"y":7}},{"type":"MovableWall_Blue","position":{"x":3,"y":7}},{"type":"MovableWall_Blue","position":{"x":5,"y":7}},{"type":"MovableWall_Blue","position":{"x":3,"y":6}},{"type":"MovableWall_Blue","position":{"x":3,"y":5}},{"type":"MovableWall_Blue","position":{"x":2,"y":5}},{"type":"MovableWall_Blue","position":{"x":3,"y":4}},{"type":"MovableWall_Blue","position":{"x":1,"y":4}},{"type":"MovableWall_Blue","position":{"x":1,"y":3}},{"type":"MovableWall_Blue","position":{"x":0,"y":4}},{"type":"MovableWall_Blue","position":{"x":7,"y":2}},{"type":"Item_CriticalSection","position":{"x":2,"y":4}}]
+    },
+
+    jump: {
+        "name" : "Level 2 Starting Room 2",
+        "width" : 9,
+        "height" : 9,
+        "grids" : {"floor":[122,122,122,122,122,122,122,122,122,122,102,102,102,102,102,102,102,122,122,102,102,102,102,102,30,30,122,122,102,102,102,102,102,122,102,102,122,102,102,122,122,122,122,102,102,122,102,102,102,122,102,102,102,102,122,122,102,30,122,102,102,102,122,122,102,102,30,102,102,102,102,122,122,122,122,102,102,102,122,122,122],"surface":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,0,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"corruption":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"unstable":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},
+        "entities" : [{"type":"Program","position":{"x":3,"y":3}},{"type":"Item_Jump","position":{"x":1,"y":7}}]
+    },
+
+    crypto: {
+        "name" : "Test Level 'testing' 9 x 9",
+        "width" : 9,
+        "height" : 9,
+        "grids" : {"floor":[122,122,122,122,122,122,122,122,122,122,102,102,102,102,102,102,30,122,122,102,30,102,102,102,102,30,122,122,30,102,102,102,122,122,102,122,102,30,30,102,102,102,102,102,102,122,30,122,102,102,102,102,102,122,122,102,102,102,30,102,102,102,122,122,102,102,30,30,30,102,102,122,122,122,122,122,102,122,122,122,122],"surface":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,0,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"corruption":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"unstable":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},
+        "entities" : [{"type":"Program","position":{"x":6,"y":1}},{"type":"CryptoKey_Plus","position":{"x":1,"y":6}},{"type":"CryptoFile_Plus","position":{"x":8,"y":4}},{"type":"MovableWall_Red","position":{"x":0,"y":4}},{"type":"MovableWall_Orange","position":{"x":4,"y":8}}]
+    }
+
+};
+
 
 window.level_2_procgen_test_room = {
     "name" : "Test Level 'testing' 9 x 9",
@@ -449,7 +483,7 @@ function process_procgen_tiles(world_desc){
 
 function* generate_room_selection(room_count){
     debug.assertion(()=>Number.isInteger(room_count) && room_count >= 0);
-    const possible_rooms = Object.values(rooms);
+    const possible_rooms = [ ...Object.values(rooms), ...Object.values(starting_rooms) ];;
     while(room_count > 0){
         const selected_room = random_sample(possible_rooms);
         const procgen_processed_room = process_procgen_tiles(selected_room);
@@ -553,7 +587,7 @@ function* generate_room_positions(horizontal_room_count, vertical_room_count){
                     if(virtual_grid[virtual_idx] === false){
                         virtual_grid[virtual_idx] = true;
                         const virtual_pos = position_from_index(virtual_grid_size.width, virtual_grid_size.height, virtual_idx);
-                        const pos = new Vector2(virtual_pos).multiply(room_size).translate(inter_room_space);
+                        const pos = new Position(new Vector2(virtual_pos).multiply(room_size).translate(inter_room_space));
                         yield pos;
                         break;
                     }
@@ -801,6 +835,9 @@ function generate_world(){
 
 
 /// TOOL for helping in level design
+
+window.level_2_rooms = rooms;
+window.level_2_starting_rooms = starting_rooms;
 
 window.level_2_process_procgen_tiles = (world_desc)=> {
     world_desc = process_procgen_tiles(world_desc);
