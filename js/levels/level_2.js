@@ -619,7 +619,6 @@ function populate_entities(room_info){
     debug.assertion(()=> room_info.position instanceof Position);
 
     const room_desc = room_info.world_desc;
-
     tools.check_world_desc(room_desc);
     const converted_desc = copy_data(room_desc);
     // We convert proc-gen tiles to some choices, the choices must be the same for the whole chunk being worked on.
@@ -753,7 +752,21 @@ function populate_entities(room_info){
     });
 
     room_info.world_desc = converted_desc;
+    return room_info;
+}
 
+function clear_room(room_info){
+    const room_desc = room_info.world_desc;
+    tools.check_world_desc(room_desc);
+    const converted_desc = copy_data(room_desc);
+
+    // Replace procgen floor tiles by default tiles.
+    converted_desc.grids.floor = converted_desc.grids.floor.map(tile_id => tiles.procgen_floor_tiles.includes(tile_id) ? defaults.floor : tile_id);
+
+    // Remove procgen surface tiles.
+    converted_desc.grids.surface = converted_desc.grids.surface.map(tile_id => tiles.procgen_surface_tiles.includes(tile_id) ? null : tile_id);
+
+    room_info.world_desc = converted_desc;
     return room_info;
 }
 
@@ -804,7 +817,14 @@ function generate_world(){
 
 
         // Pass 3: add entities in each room
-        positionned_selected_rooms.map(populate_entities);
+        // Probability of populating a room is not 100%
+        const probability_of_a_room_to_be_populated = 33;
+        positionned_selected_rooms.map((room_info)=>{
+            if(random_int(1, 100) <= probability_of_a_room_to_be_populated)
+                return populate_entities(room_info);
+            else
+                return clear_room(room_info);
+        });
 
 
         // Pass 4: merge rooms into a big world
