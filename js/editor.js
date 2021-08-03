@@ -774,6 +774,8 @@ function export_world(world, complete_state = false){
     if(window.debug_tools_enabled){
         debug.log("WORLD EXPORT:");
         debug.log(world_json);
+        navigator.clipboard.writeText(world_json);
+        debug.log("WORLD DESC JSON COPIED TO CLIPBOARD");
     }
 
     const world_desc = JSON.parse(world_json);
