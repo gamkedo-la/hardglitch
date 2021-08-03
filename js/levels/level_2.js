@@ -707,11 +707,13 @@ function populate_entities(room_info){
         // SPAWN: AntiVirus or Program (used to put them together)
         spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_7, ()=>{
             function* generator(){
-                const entities = [ "AntiVirus", "Program", "Program" ];
-                while(entities.length > 0)
-                    yield as_entity(random_bag_pick(entities)[0]);
-
-                while(true) yield as_entity("Program");
+                while(true){
+                    if(random_int(1, 100) < 20){
+                        yield as_entity("AntiVirus");
+                    } else {
+                        yield as_entity("Program");
+                    }
+                }
             }; // call to get an Iterator
             return generator();
         }),
