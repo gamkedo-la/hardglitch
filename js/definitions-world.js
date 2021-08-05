@@ -8,6 +8,7 @@ export {
     has_any_free_adjacent_positions,
     get_entity_type,
     get_any_serializable_type,
+    all_entity_types,
 };
 
 import * as debug from "./system/debug.js";
