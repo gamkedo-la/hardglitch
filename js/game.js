@@ -89,19 +89,23 @@ class Game {
             this.add_player_character(position, player_character);
         } else {
             debug.warn("Could not find an entry point for the player character! - Force place it somewhere safe.");
-            while(true){
-                const random_position = new concepts.Position({ x: random_int(0, this.world.width-1), y: random_int(0, this.world.height-1)});
-                if(this.is_safely_walkable(random_position)){
-                    this.add_player_character(random_position, player_character);
-                    break;
+            const random_position = () => new concepts.Position({ x: random_int(0, this.world.width-1), y: random_int(0, this.world.height-1)});
+            let attempts = 64;
+            while(attempts-- > 0){
+                const pos = random_position()
+                if(this.is_safely_walkable(pos)){
+                    this.add_player_character(pos, player_character);
+                    return;
                 }
             }
+            debug.warn("Could not find a safe place, so inserting it somewhere impossible.");
+            this.add_player_character(random_position(), player_character, true);
         }
     }
 
-    add_player_character(position, player_character){
+    add_player_character(position, player_character, force=false){
         debug.assertion(()=>player_character === undefined || player_character instanceof Character);
-        debug.assertion(()=>this.is_safely_walkable(position));
+        debug.assertion(()=>force || this.is_safely_walkable(position));
         const player = player_character ? player_character : new GlitchyGlitchMacGlitchy();
         player.skip_turn = true;
         player.position = position;
