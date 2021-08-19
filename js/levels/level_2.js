@@ -236,11 +236,12 @@ const rooms = {
         "grids" : {"floor":[122,122,102,102,122,122,102,102,122,122,122,102,102,122,122,102,102,122,122,122,102,102,122,122,102,102,122,122,122,102,102,122,122,102,102,122,122,122,122,122,122,122,122,122,122,122,102,102,122,122,102,102,122,122,122,102,102,122,122,102,102,122,122,122,102,102,122,122,102,102,122,122,122,102,102,122,122,102,102,122,122],"surface":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"corruption":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"unstable":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},
         "entities" : []
     },
-    room_12_2:{
+    room_12_2: {
         "name" : "room 12-2",
+        "level_id": null,
         "width" : 9,
         "height" : 9,
-        "grids" : {"floor":[9001,9001,9004,9004,9001,9001,9004,9004,9001,9001,9001,9004,9004,9001,9001,9004,9004,9001,9001,9001,9004,9004,9001,9001,9004,9004,9001,9001,9001,9004,9004,9001,9001,9004,9004,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9004,9004,9001,9001,9004,9004,9001,9001,9001,9004,9004,9001,9001,9004,9004,9001,9001,9001,9004,9004,9001,9001,9004,9004,9001,9001,9001,9004,9004,9001,9001,9004,9004,9001,9001],"surface":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"corruption":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"unstable":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},
+        "grids" : {"floor":[9001,9001,9004,9004,9001,9001,9004,9004,9001,9001,9001,9004,9004,9001,9001,9004,9004,9001,9001,9001,9004,9004,9001,9001,9004,9004,9001,9001,9001,9004,9004,9001,9001,9004,9004,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9004,9004,9001,9001,9004,9004,9001,9001,9001,9004,9004,9001,9001,9004,9004,9001,9001,9001,9004,9004,9001,9001,9004,9004,9001,9001,9001,9004,9004,9001,9001,9004,9004,9001,9001],"surface":[null,null,9116,9116,null,null,9116,9116,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,9115,9115,null,null,9117,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,9105,null,null,null,null,9117,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,9116,9116,null,null,9116,9116,null,null],"corruption":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"unstable":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},
         "entities" : []
     },
     room_13: {
@@ -507,7 +508,7 @@ function process_procgen_tiles(world_desc){
         make_tile_converter(tiles.ID.PROCGEN_TILE_1, [defaults.floor_alt, defaults.wall, defaults.wall]),
 
         // PROCGEN_TILE_2 : Wall or Void or Hole
-        make_tile_converter(tiles.ID.PROCGEN_TILE_2, [defaults.wall, defaults.wall, defaults.wall, tiles.ID.VOID, tiles.ID.HOLE]),
+        make_tile_converter(tiles.ID.PROCGEN_TILE_2, [defaults.wall, tiles.ID.VOID, tiles.ID.HOLE]),
 
         // PROCGEN_TILE_3 : Void or Hole
         make_tile_converter(tiles.ID.PROCGEN_TILE_3, [tiles.ID.VOID, tiles.ID.HOLE]),
@@ -516,7 +517,7 @@ function process_procgen_tiles(world_desc){
         make_tile_converter(tiles.ID.PROCGEN_TILE_4, [tiles.ID.VOID, defaults.wall, defaults.wall]),
 
         // PROCGEN_TILE_5 : Ground or Wall or Void or Hole
-        make_tile_converter(tiles.ID.PROCGEN_TILE_5, [defaults.floor_alt, defaults.wall,defaults.wall,defaults.wall,defaults.wall, tiles.ID.VOID, tiles.ID.HOLE]),
+        make_tile_converter(tiles.ID.PROCGEN_TILE_5, [defaults.floor_alt, defaults.floor_alt, defaults.floor_alt, defaults.floor_alt, defaults.floor_alt, defaults.wall, tiles.ID.VOID, tiles.ID.HOLE]),
 
     ].reduce((acc, val) => (x => val(acc(x))), x => x); // Reduced to 1 function
 
