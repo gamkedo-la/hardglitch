@@ -731,10 +731,13 @@ function populate_entities(room_info){
 
                 debug.assertion(()=> entity_template instanceof Object);
                 // We got an entity.
-                const position = new Position(position_from_index(room_desc.width, room_desc.height, tile_idx));
-                spawn(entity_template, position);
-                return null;
 
+                if(tiles.is_safely_walkable(room_desc.grids.floor[tile_idx])){ // Ignore spawn tiles when they are on unwalkable places
+                    const position = new Position(position_from_index(room_desc.width, room_desc.height, tile_idx));
+                    spawn(entity_template, position);
+                }
+
+                return null;
             } else {
                 return tile; // No match: keep the same tile id.
             }
