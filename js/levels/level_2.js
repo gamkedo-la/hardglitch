@@ -539,11 +539,19 @@ const rooms = {
         "grids" : {"floor":[102,102,102,102,102,102,102,102,102,103,103,103,103,103,103,103,103,103,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,103,103,103,103,103,103,103,103,103,102,102,102,102,102,102,102,102,102],"surface":[9113,9113,9113,9113,9113,9113,9113,9113,9113,9113,9113,9113,9113,9113,9113,9113,9113,9113,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,9113,9113,9113,9113,9113,9113,9113,9113,9113,9113,9113,9113,9113,9113,9113,9113,9113,9113],"corruption":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"unstable":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},
         "entities" : []
     },
-    room_35: {
-        "name" : "room 35",
+    room_35_1: {
+        "name" : "room 35-1",
         "width" : 9,
         "height" : 9,
         "grids" : {"floor":[102,102,103,103,9001,9001,9001,9001,9001,102,103,103,9001,9001,9001,9001,9001,9001,103,103,9001,9001,9001,9001,9001,9001,9001,103,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,103,9001,9001,9001,9001,9001,9001,9001,103,103,9001,9001,9001,9001,9001,9001,103,103,102,9001,9001,9001,9001,9001,103,103,102,102],"surface":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"corruption":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"unstable":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},
+        "entities" : []
+    },
+    room_35_2: {
+        "name" : "room 35-2",
+        "level_id": null,
+        "width" : 9,
+        "height" : 9,
+        "grids" : {"floor":[102,102,103,103,9001,9001,9001,9001,9001,102,103,103,9001,9001,9001,9001,9001,9001,103,103,9001,9001,9001,9001,9001,9001,9001,103,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,9001,103,9001,9001,9001,9001,9001,9001,9001,103,103,9001,9001,9001,9001,9001,9001,103,103,102,9001,9001,9001,9001,9001,103,103,102,102],"surface":[null,null,9113,9113,null,null,null,null,null,null,9113,9113,null,null,null,null,null,null,9113,9113,null,null,null,null,null,null,null,9113,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,9113,null,null,null,null,null,null,null,9113,9113,null,null,null,null,null,null,9113,9113,null,null,null,null,null,null,9113,9113,null,9114],"corruption":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"unstable":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},
         "entities" : []
     },
     room_36: {
@@ -956,7 +964,7 @@ function populate_entities(room_info){
         }),
 
         // SPAWN: stream buffers (in one direction) or none
-        spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_14, ()=> random_sample([ tiles.ID.STREAM_DOWN, tiles.ID.STREAM_UP, tiles.ID.STREAM_LEFT, tiles.ID.STREAM_RIGHT ])),
+        spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_14, ()=> random_sample([ tiles.ID.STREAM_DOWN, tiles.ID.STREAM_UP, tiles.ID.STREAM_LEFT, tiles.ID.STREAM_RIGHT, null ])),
 
 
         // SPAWN: maybe any entity that is not a key/file o
