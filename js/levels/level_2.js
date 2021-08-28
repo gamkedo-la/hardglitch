@@ -653,6 +653,16 @@ function* generate_room_positions(horizontal_room_count, vertical_room_count){
 
     const room_size = { x: 9, y: 9 };
 
+    class InterRoomRandom
+    {
+        constructor(min, max){
+            this.min = min;
+            this.max = max;
+        }
+        get x(){ return random_int(this.min, this.max); }
+        get y(){ return random_int(this.min, this.max); }
+
+    };
 
     const rules = {
         spaced_grid: function*(){
@@ -677,7 +687,7 @@ function* generate_room_positions(horizontal_room_count, vertical_room_count){
             }
         },
         big_blob: function*(){
-            const inter_room_space = { x: random_int(3, 5), y: random_int(3, 5) };
+            const inter_room_space = new InterRoomRandom(0, 2);
             for(let y = 0; y < vertical_room_count; ++y){
                 for(let x = 0; x < horizontal_room_count; ++x){
                     const normal_position = new Position({x: x * room_size.x, y: y * room_size.y}).translate(inter_room_space); // top-left inter-room space.
@@ -686,7 +696,7 @@ function* generate_room_positions(horizontal_room_count, vertical_room_count){
             }
         },
         square_2x2_blobs: function*(){
-            const inter_room_space = { x: random_int(2, 3), y: random_int(2, 3) };
+            const inter_room_space = new InterRoomRandom(0, 2);
             const drift = { x: 0, y: 0};
             for(let y = 0; y < vertical_room_count; ++y){
                 if(y > 0 && y % 2 === 0){
@@ -707,7 +717,7 @@ function* generate_room_positions(horizontal_room_count, vertical_room_count){
             }
         },
         square_3x3_blobs: function*(){
-            const inter_room_space = { x: random_int(2, 3), y: random_int(2, 3) };
+            const inter_room_space = new InterRoomRandom(0, 2);
             const drift = { x: 0, y: 0};
             for(let y = 0; y < vertical_room_count; ++y){
                 if(y > 0 && y % 3 === 0){
@@ -728,7 +738,7 @@ function* generate_room_positions(horizontal_room_count, vertical_room_count){
             }
         },
         random_grid: function*(){
-            const inter_room_space = { x: 2, y: 2 };
+            const inter_room_space = new InterRoomRandom(0, 2);
             const room_count = vertical_room_count * horizontal_room_count;
             const virtual_grid_size = {
                 width: horizontal_room_count + 1,
