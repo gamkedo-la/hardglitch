@@ -770,6 +770,7 @@ const any_block = [...any_opaque_block, ...any_transparent_block];
 
 function as_entity(entity_type_name){
     debug.assertion(()=> typeof entity_type_name === 'string' || entity_type_name == null);
+    debug.assertion(()=> entity_type_name != "GlitchyGlitchMacGlitchy");
     if(entity_type_name == null){
         return null;
     }
@@ -809,6 +810,7 @@ function populate_entities(room_info){
         }
 
         debug.assertion(()=> entity instanceof Object);
+        debug.assertion(()=> entity.type !== "GlitchyGlitchMacGlitchy");
         const final_entity = Object.assign(entity, {
             position: position,
         });
@@ -950,7 +952,7 @@ function populate_entities(room_info){
             return function*() {
                 while(true) {
                     if(random_int(1, 100) < 50){
-                        const selection = random_sample(all_characters_types().filter(type_name=> type_name != "GlitchyGlitchMacGlitchy")).name;
+                        const selection = random_sample(all_characters_types().filter(type=> type.name != "GlitchyGlitchMacGlitchy")).name;
                         yield as_entity(selection);
                     } else {
                         yield null;
