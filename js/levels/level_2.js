@@ -904,7 +904,7 @@ function populate_entities(room_info){
         // SPAWN: maybe any entity that is not a key/file o
         spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_15, ()=>{
             return function*() {
-                const all_non_crypto_types_names = Object.keys(all_entity_types()).filter(type_name => !type_name.startsWith("Crypto") && type_name != "BlackBox");
+                const all_non_crypto_types_names = Object.keys(all_entity_types()).filter(type_name => !type_name.startsWith("Crypto") && type_name != "BlackBox" && type_name != "GlitchyGlitchMacGlitchy");
                 while(true) {
                     if(random_int(1, 100) < 50){
                         const selection = random_sample(all_non_crypto_types_names);
@@ -948,7 +948,7 @@ function populate_entities(room_info){
         // SPAWN: maybe any entity (crypto-files/keys too)
         spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_18, ()=>{
             return function*() {
-                const all_entity_types_names = Object.keys(all_entity_types());
+                const all_entity_types_names = Object.keys(all_entity_types()).filter(type_name=> type_name != "GlitchyGlitchMacGlitchy");
                 while(true) {
                     if(random_int(1, 100) < 66){
                         const selection = random_sample(all_entity_types_names);
