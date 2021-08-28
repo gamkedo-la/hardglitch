@@ -10,6 +10,7 @@ export {
 import * as debug from "./system/debug.js";
 import * as audio from "./system/audio.js"
 import * as graphics from "./system/graphics.js";
+import * as input from "./system/input.js";
 import * as ui from "./system/ui.js";
 import * as anim from "./system/animation.js";
 import * as animations from "./game-animations.js";
@@ -462,6 +463,11 @@ class GameInterface {
 
     update(delta_time, current_character, world){
         this.animations.update(delta_time);
+
+        if(input.keyboard.is_just_down(KEY.TAB) || input.keyboard.is_just_down(KEY.ESCAPE)){
+            this.button_main_menu.action();
+        }
+
         Object.values(this.ingame_elements).forEach(element => element.update(delta_time, current_character, world));
         this.elements.forEach(element => element.update(delta_time, current_character, world));
         this.fx_view.update(delta_time);
