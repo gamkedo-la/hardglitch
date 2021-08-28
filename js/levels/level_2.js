@@ -502,9 +502,10 @@ const rooms = {
     },
     room_32: {
         "name" : "room 32",
+        "level_id": null,
         "width" : 9,
         "height" : 9,
-        "grids" : {"floor":[9001,9001,9001,9001,102,9001,9001,9001,9001,9001,9001,9001,9001,103,9001,9001,9001,9001,9001,9001,9001,9001,103,9001,9001,9001,9001,9001,9001,9001,9001,103,9001,9001,9001,9001,102,103,103,103,103,103,103,103,102,9001,9001,9001,9001,103,9001,9001,9001,9001,9001,9001,9001,9001,103,9001,9001,9001,9001,9001,9001,9001,9001,103,9001,9001,9001,9001,9001,9001,9001,9001,102,9001,9001,9001,9001],"surface":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"corruption":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"unstable":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},
+        "grids" : {"floor":[9001,9001,9001,9001,102,9001,9001,9001,9001,9001,9001,9001,9001,103,9001,9001,9001,9001,9001,9001,9001,9001,103,9001,9001,9001,9001,9001,9001,9001,9001,103,9001,9001,9001,9001,102,103,103,103,103,103,103,103,102,9001,9001,9001,9001,103,9001,9001,9001,9001,9001,9001,9001,9001,103,9001,9001,9001,9001,9001,9001,9001,9001,103,9001,9001,9001,9001,9001,9001,9001,9001,102,9001,9001,9001,9001],"surface":[null,null,null,null,9116,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,9116,null,null,null,9117,null,null,null,9116,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,9116,null,null,null,null],"corruption":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"unstable":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},
         "entities" : []
     },
     room_33: {
@@ -1018,7 +1019,7 @@ function populate_entities(room_info){
             }();
         }),
 
-        // SPAWN: maybe any crypto-file or blackbox, or random block
+        // SPAWN: maybe any crypto-file (empty) or blackbox, or random block
         spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_20, ()=>{
             return function*() {
                 const all_entity_types_names = [ "CryptoFile_Circle", "CryptoFile_Triangle", "CryptoFile_Plus", "CryptoFile_Equal", "BlackBox",
@@ -1028,6 +1029,7 @@ function populate_entities(room_info){
                  while(true) {
                     if(random_int(1, 100) < 66){
                         const selection = random_sample(all_entity_types_names);
+                        // TODO: make sure the crypto-file is empty
                         yield as_entity(selection);
                     } else {
                         yield null;
