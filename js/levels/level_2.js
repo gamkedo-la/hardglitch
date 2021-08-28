@@ -1102,7 +1102,7 @@ function generate_world(){
 
         // Pass 3: add entities in each room
         // Probability of populating a room is not 100%
-        const probability_of_a_room_to_be_populated = 33;
+        const probability_of_a_room_to_be_populated = 85;
         positionned_selected_rooms.map((room_info)=>{
             if(random_int(1, 100) <= probability_of_a_room_to_be_populated)
                 return populate_entities(room_info);
