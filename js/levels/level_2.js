@@ -797,10 +797,6 @@ function* generate_room_positions(horizontal_room_count, vertical_room_count){
     yield* selected_generation_rule();
 }
 
-const any_opaque_block = [ "MovableWall_Blue", "MovableWall_Green", "MovableWall_Orange", "MovableWall_Purple", "MovableWall_Red" ];
-const any_transparent_block = [ "MovableWall_Glass_Blue", "MovableWall_Glass_Green", "MovableWall_Glass_Orange", "MovableWall_Glass_Purple", "MovableWall_Glass_Red" ];
-const any_block = [...any_opaque_block, ...any_transparent_block];
-
 function as_entity(entity_type_name){
     debug.assertion(()=> typeof entity_type_name === 'string' || entity_type_name == null);
     debug.assertion(()=> entity_type_name != "GlitchyGlitchMacGlitchy");
@@ -818,10 +814,24 @@ function make_random_entity_gen_from(possible_type_names){
     return ()=> as_entity(random_sample(possible_type_names));
 }
 
+
 function populate_entities(room_info){
     debug.assertion(()=> room_info instanceof Object);
     debug.assertion(()=> room_info.world_desc instanceof Object);
     debug.assertion(()=> room_info.position instanceof Position);
+
+
+    const any_valid_entity = Object.keys(all_entity_types()).filter(type_name => !type_name.startsWith("Debug_") && type_name != "GlitchyGlitchMacGlitchy");
+    const any_opaque_block = [ "MovableWall_Blue", "MovableWall_Green", "MovableWall_Orange", "MovableWall_Purple", "MovableWall_Red" ];
+    const any_transparent_block = [ "MovableWall_Glass_Blue", "MovableWall_Glass_Green", "MovableWall_Glass_Orange", "MovableWall_Glass_Purple", "MovableWall_Glass_Red" ];
+    const any_block = [...any_opaque_block, ...any_transparent_block];
+    const any_random_crypto_file = any_valid_entity.filter(type_name => type_name.startsWith("CryptoFile_"));
+    const any_random_crypto_keys = any_valid_entity.filter(type_name => type_name.startsWith("CryptoKey_"));
+    const any_stream_buffer_id = [ tiles.ID.STREAM_DOWN, tiles.ID.STREAM_UP, tiles.ID.STREAM_LEFT, tiles.ID.STREAM_RIGHT ];
+    const any_random_usable_item = any_valid_entity.filter(type_name => type_name.startsWith("Item_"));
+    const any_nonplayer_character_types_names = all_characters_types().map(type=> type.name).filter(type_name => type_name != "GlitchyGlitchMacGlitchy");
+    const all_non_crypto_types_names = any_valid_entity.filter(type_name => !type_name.startsWith("Crypto") && type_name != "BlackBox");
+
 
     const room_desc = room_info.world_desc;
     tools.check_world_desc(room_desc);
@@ -921,13 +931,22 @@ function populate_entities(room_info){
         }),
 
         // SPAWN: useful items or none
-        spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_8, ()=> as_entity("Item_Push")), // TODO: fill the list
+        spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_8, ()=> {
+            return function*(){
+                while(true) {
+                    if(random_int(1, 100) < 66){
+                        yield as_entity(random_sample(any_random_usable_item));
+                    } else {
+                        yield null;
+                    }
+                }
+            }();
+        }),
 
         // SPAWN: crypto-keys
         spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_10, ()=> {
             const generator = function*(){
-                const keys = [ "CryptoKey_Circle", "CryptoKey_Triangle", "CryptoKey_Plus", "CryptoKey_Equal" ];
-                while(true) yield as_entity(random_sample(keys));
+                while(true) yield as_entity(random_sample(any_random_crypto_keys));
             };
             return generator();
         }),
@@ -935,17 +954,16 @@ function populate_entities(room_info){
         // SPAWN : chest - crypto-files or black-box with powerful items in them
         spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_11, ()=> {
             const  generator = function*(){
-                const keys = [ "CryptoFile_Circle", "CryptoFile_Triangle", "CryptoFile_Plus", "CryptoFile_Equal", "BlackBox" ];
-                while(true) yield as_entity(random_sample(keys));
+                const type_names = [ ...any_random_crypto_file, "BlackBox" ];
+                while(true) yield as_entity(random_sample(type_names));
             };
             return generator();
         }),
 
-        // SPAWN : crypto-files empty
+        // SPAWN : doors - empty crypto-files
         spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_12, ()=>{
             const generator = function*(){
-                const keys = [ "CryptoFile_Circle", "CryptoFile_Triangle", "CryptoFile_Plus", "CryptoFile_Equal" ];
-                while(true) yield Object.assign(as_entity(random_sample(keys), { drops: [] }));
+                while(true) yield Object.assign(as_entity(random_sample(any_random_crypto_file), { drops: [] }));
             };
             return generator();
         }),
@@ -964,13 +982,11 @@ function populate_entities(room_info){
         }),
 
         // SPAWN: stream buffers (in one direction) or none
-        spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_14, ()=> random_sample([ tiles.ID.STREAM_DOWN, tiles.ID.STREAM_UP, tiles.ID.STREAM_LEFT, tiles.ID.STREAM_RIGHT, null ])),
-
+        spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_14, ()=> random_sample([ ...any_stream_buffer_id, null ])),
 
         // SPAWN: maybe any entity that is not a key/file o
         spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_15, ()=>{
             return function*() {
-                const all_non_crypto_types_names = Object.keys(all_entity_types()).filter(type_name => !type_name.startsWith("Crypto") && type_name != "BlackBox" && type_name != "GlitchyGlitchMacGlitchy");
                 while(true) {
                     if(random_int(1, 100) < 50){
                         const selection = random_sample(all_non_crypto_types_names);
@@ -987,7 +1003,7 @@ function populate_entities(room_info){
             return function*() {
                 while(true) {
                     if(random_int(1, 100) < 50){
-                        const selection = random_sample(all_characters_types().filter(type=> type.name != "GlitchyGlitchMacGlitchy")).name;
+                        const selection = random_sample(any_nonplayer_character_types_names);
                         yield as_entity(selection);
                     } else {
                         yield null;
@@ -999,10 +1015,9 @@ function populate_entities(room_info){
         // SPAWN: maybe any block
         spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_17, ()=>{
             return function*() {
-                const all_movable_wall_types_names = Object.keys(all_entity_types()).filter(type_name => type_name.startsWith("MovableWall_"));
                 while(true) {
                     if(random_int(1, 100) < 66){
-                        const selection = random_sample(all_movable_wall_types_names);
+                        const selection = random_sample(any_block);
                         yield as_entity(selection);
                     } else {
                         yield null;
@@ -1014,10 +1029,9 @@ function populate_entities(room_info){
         // SPAWN: maybe any entity (crypto-files/keys too)
         spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_18, ()=>{
             return function*() {
-                const all_entity_types_names = Object.keys(all_entity_types()).filter(type_name=> type_name != "GlitchyGlitchMacGlitchy");
                 while(true) {
                     if(random_int(1, 100) < 66){
-                        const selection = random_sample(all_entity_types_names);
+                        const selection = random_sample(any_valid_entity);
                         yield as_entity(selection);
                     } else {
                         yield null;
@@ -1029,9 +1043,11 @@ function populate_entities(room_info){
         // SPAWN: maybe any crypto-file or crypto-key or useful item
         spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_19, ()=>{
             return function*() {
-                const all_entity_types_names = [ "CryptoFile_Circle", "CryptoFile_Triangle", "CryptoFile_Plus", "CryptoFile_Equal", "BlackBox",
-                    "CryptoKey_Circle", "CryptoKey_Triangle", "CryptoKey_Plus", "CryptoKey_Equal",
-                    "Item_Push", // TODO: useful items here
+                const all_entity_types_names = [
+                    "BlackBox",
+                    ...any_random_crypto_file,
+                    ...any_random_crypto_keys,
+                    ...any_random_usable_item
                  ];
                  while(true) {
                     if(random_int(1, 100) < 66){
@@ -1047,15 +1063,19 @@ function populate_entities(room_info){
         // SPAWN: maybe any crypto-file (empty) or blackbox, or random block
         spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_20, ()=>{
             return function*() {
-                const all_entity_types_names = [ "CryptoFile_Circle", "CryptoFile_Triangle", "CryptoFile_Plus", "CryptoFile_Equal", "BlackBox",
-                    "CryptoKey_Circle", "CryptoKey_Triangle", "CryptoKey_Plus", "CryptoKey_Equal",
-                    ...Object.keys(all_entity_types()).filter(type_name => type_name.startsWith("MovableWall_"))
+                const all_entity_types_names = [
+                    "BlackBox",
+                    ...any_random_crypto_file,
+                    ...any_block,
                  ];
                  while(true) {
                     if(random_int(1, 100) < 66){
                         const selection = random_sample(all_entity_types_names);
-                        // TODO: make sure the crypto-file is empty
-                        yield as_entity(selection);
+                        const need_empty_drop = selection.startsWith("Crypto");
+                        const entity = as_entity(selection);
+                        if(need_empty_drop)
+                            entity.drops = [];
+                        yield entity;
                     } else {
                         yield null;
                     }
