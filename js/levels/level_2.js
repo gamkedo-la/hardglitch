@@ -1206,7 +1206,7 @@ function generate_world(){
         debug.log(`EXIT ROOM CRYPTO KIND: ${selected_exit_crypto_kind}`);
 
         // Probability of populating a room is not 100%
-        const probability_of_a_room_to_be_populated = 60;
+        const probability_of_a_room_to_be_populated = 80;
         positionned_selected_rooms.map((room_info)=>{
             if(random_int(1, 100) <= probability_of_a_room_to_be_populated)
                 return populate_entities(room_info, selected_exit_crypto_kind);
