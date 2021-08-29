@@ -383,8 +383,11 @@ class World
         debug.assertion(()=>entity.position);
         this.has_entity_list_changed = true;
 
-        // Make sure that new ids are always up to date (otherwise deserialized objects could have ids colliding):
-        next_entity_id = Math.max(next_entity_id, entity.id + 1);
+        if(this.get_entity(entity.id) != null){
+            // We are in a case where the entity was taken from another world (probably between levels).
+            // Just assign a new id for this world.
+            entity._entity_id = new_entity_id();
+        }
 
         if(entity instanceof Body){
             debug.assertion(()=>this._bodies[entity.id] == null);
