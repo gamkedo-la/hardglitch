@@ -1230,10 +1230,20 @@ function generate_world(){
 
         // Pass 5: TODO: fill the inter-room corridors with walls and entities
 
+        // Pass 6: cleanup, variations and validation.
+
         const world_desc = tools.random_variation(tools.add_padding_around(ram_world_with_rooms_and_exit, { floor: tiles.ID.VOID }));
 
         const world = tools.deserialize_world(world_desc);
         world.level_id = 2;
+
+        // remove all entities that should not be there:
+        world.entities.forEach(entity=>{
+            if(!tiles.is_safely_walkable(world.grids.floor.get_at(entity.position))){
+                world.remove_entity(entity.id);
+            }
+        });
+
 
         if(validate(world))
             return world;
