@@ -12,6 +12,7 @@ import { Position, World } from "../core/concepts.js";
 import { copy_data, position_from_index, random_int, random_sample } from "../system/utility.js";
 import { Vector2 } from "../system/spatial.js";
 import { all_characters_types } from "../deflinitions-characters.js";
+import { crypto_names } from "../definitions-items.js";
 
 
 const level_name = "Level 2: Random Access Memory";
@@ -593,6 +594,7 @@ const rooms = {
 
 const starting_rooms = {
     block_master: {
+        is_start: true,
         "name" : "Level 2 Starting Room 0",
         "width" : 9,
         "height" : 9,
@@ -601,6 +603,7 @@ const starting_rooms = {
     },
 
     critical_section: {
+        is_start: true,
         "name" : "Level 2 Starting Room 1",
         "width" : 9,
         "height" : 9,
@@ -609,6 +612,7 @@ const starting_rooms = {
     },
 
     jump: {
+        is_start: true,
         "name" : "Level 2 Starting Room 2",
         "width" : 9,
         "height" : 9,
@@ -617,11 +621,13 @@ const starting_rooms = {
     },
 
     crypto: {
-        "name" : "Test Level 'testing' 9 x 9",
+        is_start: true,
+        "name" : "Level 2 Starting Room 3",
+        "level_id": null,
         "width" : 9,
         "height" : 9,
-        "grids" : {"floor":[122,122,122,122,122,122,122,122,122,122,102,102,102,102,102,102,30,122,122,102,30,102,102,102,102,30,122,122,30,102,102,102,122,122,102,122,102,30,30,102,102,102,102,102,102,122,30,122,102,102,102,102,102,122,122,102,102,102,30,102,102,102,122,122,102,102,30,30,30,102,102,122,122,122,122,122,102,122,122,122,122],"surface":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,0,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"corruption":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"unstable":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},
-        "entities" : [{"type":"Program","position":{"x":6,"y":1}},{"type":"CryptoKey_Plus","position":{"x":1,"y":6}},{"type":"CryptoFile_Plus","position":{"x":8,"y":4}},{"type":"MovableWall_Red","position":{"x":0,"y":4}},{"type":"MovableWall_Orange","position":{"x":4,"y":8}}]
+        "grids" : {"floor":[122,122,122,122,122,122,122,122,122,122,102,102,102,102,102,102,30,122,122,102,30,102,102,102,102,30,122,122,30,102,102,102,122,122,102,122,102,30,30,102,102,102,102,102,102,122,30,122,102,102,102,102,102,122,122,102,102,102,30,102,102,102,122,122,102,102,30,30,30,102,102,122,122,122,122,122,102,122,122,122,122],"surface":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,0,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,9110,null,null,null,null,null,null,null,null,null,null,9109,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"corruption":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"unstable":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},
+        "entities" : [{"type":"Program","position":{"x":6,"y":1}},{"type":"GlitchyGlitchMacGlitchy","position":{"x":5,"y":1}},{"type":"MovableWall_Red","position":{"x":0,"y":4}},{"type":"MovableWall_Orange","position":{"x":4,"y":8}}]
     }
 
 };
@@ -826,18 +832,36 @@ function make_random_entity_gen_from(possible_type_names){
 }
 
 
-function populate_entities(room_info){
+function populate_entities(room_info, exit_crypto_kind, is_exit=false){
     debug.assertion(()=> room_info instanceof Object);
     debug.assertion(()=> room_info.world_desc instanceof Object);
     debug.assertion(()=> room_info.position instanceof Position);
+    debug.assertion(()=> Object.values(crypto_names).includes(exit_crypto_kind));
+    debug.assertion(()=> typeof is_exit === 'boolean');
 
 
     const any_valid_entity = Object.keys(all_entity_types()).filter(type_name => !type_name.startsWith("Debug_") && type_name != "GlitchyGlitchMacGlitchy");
     const any_opaque_block = [ "MovableWall_Blue", "MovableWall_Green", "MovableWall_Orange", "MovableWall_Purple", "MovableWall_Red" ];
     const any_transparent_block = [ "MovableWall_Glass_Blue", "MovableWall_Glass_Green", "MovableWall_Glass_Orange", "MovableWall_Glass_Purple", "MovableWall_Glass_Red" ];
     const any_block = [...any_opaque_block, ...any_transparent_block];
-    const any_random_crypto_file = any_valid_entity.filter(type_name => type_name.startsWith("CryptoFile_"));
-    const any_random_crypto_keys = any_valid_entity.filter(type_name => type_name.startsWith("CryptoKey_"));
+    const any_random_crypto_file = function() {
+        if(is_exit)
+            return [ `CryptoFile_${exit_crypto_kind}` ];
+
+        const valid_crypto_file = any_valid_entity.filter(type_name => type_name.startsWith("CryptoFile_") && !type_name.endsWith(exit_crypto_kind));
+
+        if(room_info.world_desc.is_start){
+            return [ random_sample(valid_crypto_file) ];
+        }
+
+        return valid_crypto_file;
+    }();
+
+    const any_random_crypto_keys = room_info.world_desc.is_start ? any_random_crypto_file.map(file_name => file_name.replace("CryptoFile_", "CryptoKey_"))
+                                 : any_valid_entity.filter(type_name => type_name.startsWith("CryptoKey_") && !type_name.endsWith(exit_crypto_kind));
+
+    debug.assertion(()=> !room_info.is_start || (any_random_crypto_file.length === 1 && any_random_crypto_keys.length === 1 && [...any_random_crypto_keys, ...any_random_crypto_file ].every(name => name.startsWith("Crypto"))));
+
     const any_stream_buffer_id = [ tiles.ID.STREAM_DOWN, tiles.ID.STREAM_UP, tiles.ID.STREAM_LEFT, tiles.ID.STREAM_RIGHT ];
     const any_random_usable_item = any_valid_entity.filter(type_name => type_name.startsWith("Item_"));
     const any_nonplayer_character_types_names = all_characters_types().map(type=> type.name).filter(type_name => type_name != "GlitchyGlitchMacGlitchy");
@@ -965,7 +989,7 @@ function populate_entities(room_info){
         // SPAWN : chest - crypto-files or black-box with powerful items in them
         spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_11, ()=> {
             const  generator = function*(){
-                const type_names = [ ...any_random_crypto_file, "BlackBox" ];
+                const type_names = room_info.world_desc.is_start ? any_random_crypto_file : [ ...any_random_crypto_file, "BlackBox" ];
                 while(true) yield as_entity(random_sample(type_names));
             };
             return generator();
@@ -1121,10 +1145,12 @@ function clear_room(room_info){
     return room_info;
 }
 
-function generate_exit_room() {
+function generate_exit_room(exit_crypto_kind) {
+    debug.assertion(()=> Object.values(crypto_names).includes(exit_crypto_kind));
+
     let room = random_sample(Object.values(exit_rooms));
     room = process_procgen_tiles(room);
-    const room_info = populate_entities({ position: new Position(),world_desc: room });
+    const room_info = populate_entities({ position: new Position(),world_desc: room }, exit_crypto_kind, true);
     return room_info.world_desc;
 };
 
@@ -1175,11 +1201,15 @@ function generate_world(){
 
 
         // Pass 3: add entities in each room
+        // Some entities need to know which key should be used for the door of the exit.
+        const selected_exit_crypto_kind = random_sample(Object.values(crypto_names));
+        debug.log(`EXIT ROOM CRYPTO KIND: ${selected_exit_crypto_kind}`);
+
         // Probability of populating a room is not 100%
         const probability_of_a_room_to_be_populated = 60;
         positionned_selected_rooms.map((room_info)=>{
             if(random_int(1, 100) <= probability_of_a_room_to_be_populated)
-                return populate_entities(room_info);
+                return populate_entities(room_info, selected_exit_crypto_kind);
             else
                 return clear_room(room_info);
         });
@@ -1192,7 +1222,7 @@ function generate_world(){
             ...positionned_selected_rooms
         );
 
-        const selected_exit_room = generate_exit_room();
+        const selected_exit_room = generate_exit_room(selected_exit_crypto_kind);
         const ram_world_with_rooms_and_exit = tools.merge_world_chunks(level_name, { floor: tiles.ID.VOID },
             { position: { x: 0, y: 0}, world_desc: ram_world_with_rooms },
             { position: { x: random_int(0, ram_world_with_rooms.width - 8), y: ram_world_with_rooms.height }, world_desc: selected_exit_room }
