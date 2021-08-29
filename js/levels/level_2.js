@@ -1138,7 +1138,7 @@ function generate_world(){
 
         // Pass 3: add entities in each room
         // Probability of populating a room is not 100%
-        const probability_of_a_room_to_be_populated = 90;
+        const probability_of_a_room_to_be_populated = 60;
         positionned_selected_rooms.map((room_info)=>{
             if(random_int(1, 100) <= probability_of_a_room_to_be_populated)
                 return populate_entities(room_info);
@@ -1157,7 +1157,6 @@ function generate_world(){
         // Pass 5: fill the inter-room corridors with walls and entities
 
         const world_desc = tools.random_variation(tools.add_padding_around(ram_world_with_rooms, { floor: tiles.ID.VOID }));
-
 
         const world = tools.deserialize_world(world_desc);
         world.level_id = 2;
