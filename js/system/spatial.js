@@ -34,8 +34,6 @@ Math.degrees = function(radians) {
 /////////////////////////////////////////////
 
 class Vector2{
-    x = 0.0;
-    y = 0.0;
 
     constructor(values = {}){
         this.x = values.x || 0.0;
