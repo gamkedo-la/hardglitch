@@ -1,6 +1,7 @@
 
 export {
     crypto_kind,
+    crypto_names,
     CryptoFile,
     CryptoFile_Circle,
     CryptoFile_Triangle,
@@ -116,11 +117,11 @@ function all_debug_item_types(){
         Debug_AugmentActionPoints,
         Debug_ReduceActionPoints,
         Debug_HealthRecovery,
-        Debut_NegativeHealthRecovery,
+        Debug_NegativeHealthRecovery,
         Debug_ActionPointsRecovery,
         Debug_NegativeActionPointsRecovery,
         Debug_BiggerInventory,
-        Debut_SmallerInventory,
+        Debug_SmallerInventory,
         Debug_AddActivableItem,
         Debug_RemoveActivableItem,
         Debug_AugmentViewDistance,
@@ -1291,7 +1292,7 @@ class Debug_HealthRecovery extends concepts.Item {
     }
 };
 
-class Debut_NegativeHealthRecovery extends concepts.Item {
+class Debug_NegativeHealthRecovery extends concepts.Item {
     assets = {
         graphics : { body: {
             sprite_def : sprite_defs.item_generic_1,
@@ -1440,7 +1441,7 @@ class Debug_BiggerInventory extends concepts.Item {
     }
 };
 
-class Debut_SmallerInventory extends concepts.Item {
+class Debug_SmallerInventory extends concepts.Item {
     assets = {
         graphics : { body: {
             sprite_def : sprite_defs.item_generic_1,
