@@ -1155,7 +1155,7 @@ function generate_exit_room(exit_crypto_kind) {
 };
 
 // Checks that the generated world matches our requirements for a decent level.
-function validate(world){
+function validate_world(world){
     debug.assertion(()=> world instanceof World);
 
 
@@ -1164,6 +1164,9 @@ function validate(world){
 
 
     // At least one exit is "reachable".
+
+    // At least one key to the exit is "reachable" (in or out a crypto-file).
+
     // etc.
 
 
@@ -1245,7 +1248,7 @@ function generate_world(){
         });
 
 
-        if(validate(world))
+        if(validate_world(world))
             return world;
 
         ++attempts;
