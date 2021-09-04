@@ -223,12 +223,25 @@ function serialize_world(world, complete_state){
         const entities = [];
         world.entities.forEach(entity => {
             debug.assertion(()=>entity instanceof concepts.Entity);
+
+            const simple_serialize = thing => {
+                if(thing instanceof Array)
+                    return thing.map(simple_serialize);
+                if(thing instanceof concepts.Entity)
+                    return thing.constructor.name;
+                else {
+                    debug.assertion(()=> thing == null);
+                    return null;
+                }
+            };
+
             entities.push({
                 type: entity.constructor.name,
                 position: { x: entity.position.x, y: entity.position.y },
-                drops: entity.drops instanceof Array ? entity.drops.map(drop_item => drop_item ? drop_item.constructor.name : drop_item) : undefined,
+                drops: simple_serialize(entity.drops),
                 drops_are_crucial: entity.drops_are_crucial,
             });
+
         });
         return entities;
     }
