@@ -383,7 +383,7 @@ class World
         debug.assertion(()=>entity.position);
         this.has_entity_list_changed = true;
 
-        if(this.get_entity(entity.id) != null){
+        while(this.get_entity(entity.id) != null) {
             // We are in a case where the entity was taken from another world (probably between levels).
             // Just assign a new id for this world.
             entity._entity_id = new_entity_id();

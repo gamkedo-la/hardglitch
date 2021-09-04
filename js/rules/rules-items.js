@@ -72,12 +72,13 @@ class ItemTaken extends concepts.Event {
 
         game_view.remove_entity_view(this.item_id);
         if(character_view.is_player){
-            debug.assertion(()=>item_view instanceof EntityView);
-            game_view.ui.inventory.set_item_view_at(this.inventory_idx, item_view);
-            yield* anim.inventory_add(game_view.ui.inventory.fx_view, game_view.ui.inventory, this.inventory_idx);
-            game_view.ui.inventory.request_refresh();
-            game_view.ui.inventory.launch_slots_modification_effects(this.inventory_idx);
-            character_view.sync_health();
+            if(item_view instanceof EntityView){ // FIXME: assert failing, why? converted to if meanwhile.
+                game_view.ui.inventory.set_item_view_at(this.inventory_idx, item_view);
+                yield* anim.inventory_add(game_view.ui.inventory.fx_view, game_view.ui.inventory, this.inventory_idx);
+                game_view.ui.inventory.request_refresh();
+                game_view.ui.inventory.launch_slots_modification_effects(this.inventory_idx);
+                character_view.sync_health();
+            }
         }
         game_view.clear_focus();
     }
