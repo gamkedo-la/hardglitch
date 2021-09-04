@@ -464,10 +464,6 @@ class GameInterface {
     update(delta_time, current_character, world){
         this.animations.update(delta_time);
 
-        if(input.keyboard.is_just_down(KEY.TAB) || input.keyboard.is_just_down(KEY.ESCAPE)){
-            this.button_main_menu.action();
-        }
-
         Object.values(this.ingame_elements).forEach(element => element.update(delta_time, current_character, world));
         this.elements.forEach(element => element.update(delta_time, current_character, world));
         this.fx_view.update(delta_time);

@@ -76,21 +76,22 @@ class PlayingGame extends fsm.State{
         });
 
         if(window.debug_tools_enabled){
-            editor.update_debug_keys(this.game_session); // Debug action update // TODO: remove this later
+            editor.update_debug_keys(this.game_session); // Debug action update
+        }
 
-            if(!ongoing_target_selection
-            && this.game_session.view.is_time_for_player_to_chose_action
-            && !input.mouse.is_dragging
-            ){
-                if(input.keyboard.is_just_down(KEY.F2)){
-                    this.state_machine.push_action("edit", this.game_session);
-                }
+        if(!ongoing_target_selection
+        && this.game_session.view.is_time_for_player_to_chose_action
+        && !input.mouse.is_dragging
+        ){
+            if(window.debug_tools_enabled && input.keyboard.is_just_down(KEY.F2)){
+                this.state_machine.push_action("edit", this.game_session);
+            }
 
-                if(input.keyboard.is_just_down(KEY.TAB) || input.keyboard.is_just_down(KEY.ESCAPE)){
-                    this.state_machine.push_action("back");
-                }
+            if(input.keyboard.is_just_down(KEY.TAB) || input.keyboard.is_just_down(KEY.ESCAPE)){
+                this.state_machine.push_action("menu");
             }
         }
+
     }
 
     display(canvas_context){
@@ -558,7 +559,7 @@ class GameScreen extends fsm.StateMachine {
             initial_state: "playing",
             playing: {
                 edit: "editor",
-                back: "menu",
+                menu: "menu",
             },
             menu: {
                 back: "playing",
@@ -715,7 +716,7 @@ class GameScreen extends fsm.StateMachine {
     }
 
     ingame_menu(){
-        this.push_action("back");
+        this.push_action("menu");
     }
 
     player_escaped(){
