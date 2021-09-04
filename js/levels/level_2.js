@@ -627,7 +627,7 @@ const starting_rooms = {
         "width" : 9,
         "height" : 9,
         "grids" : {"floor":[122,122,122,122,122,122,122,122,122,122,102,102,102,102,102,102,30,122,122,102,30,102,102,102,102,30,122,122,30,102,102,102,122,122,102,122,102,30,30,102,102,102,102,102,102,122,30,122,102,102,102,102,102,122,122,102,102,102,30,102,102,102,122,122,102,102,30,30,30,102,102,122,122,122,122,122,102,122,122,122,122],"surface":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,0,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,9110,null,null,null,null,null,null,null,null,null,null,9109,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"corruption":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"unstable":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},
-        "entities" : [{"type":"Program","position":{"x":6,"y":1}},{"type":"GlitchyGlitchMacGlitchy","position":{"x":5,"y":1}},{"type":"MovableWall_Red","position":{"x":0,"y":4}},{"type":"MovableWall_Orange","position":{"x":4,"y":8}}]
+        "entities" : [{"type":"Program","position":{"x":6,"y":1}},{"type":"MovableWall_Red","position":{"x":0,"y":4}},{"type":"MovableWall_Orange","position":{"x":4,"y":8}}]
     }
 
 };
@@ -1157,7 +1157,7 @@ function generate_exit_room(exit_crypto_kind) {
 // Checks that the generated world matches our requirements for a decent level.
 function validate_world(world){
     debug.assertion(()=> world instanceof World);
-
+    debug.assertion(()=> world.bodies.every(character=> character.constructor.name !== "GlitchyGlitchMacGlitchy")); // No Glitch already put anywhere (mistake in level design).
 
     // At least one entry point.
     if(!world.grids.surface.elements.includes(tiles.ID.ENTRY)) return false;
