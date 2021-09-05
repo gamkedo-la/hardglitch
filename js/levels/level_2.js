@@ -10,7 +10,7 @@ import * as tools from "./level-tools.js";
 import { all_entity_types, is_valid_world } from "../definitions-world.js";
 import { Position } from "../core/concepts.js";
 import { copy_data, position_from_index, random_bag_pick, random_int, random_sample, shuffle_array } from "../system/utility.js";
-import { Vector2 } from "../system/spatial.js";
+import { Rectangle, Vector2 } from "../system/spatial.js";
 import { all_characters_types } from "../deflinitions-characters.js";
 import { crypto_names } from "../definitions-items.js";
 
@@ -1159,11 +1159,28 @@ function populate_entities(room_info, crypto_config, is_exit=false){
     converted_desc.grids.surface = converted_desc.grids.surface.map((tile_id, tile_idx)=>{
         const new_tile_id = spawn_tile_conversions(tile_id, tile_idx);
         debug.assertion(()=> converted_desc.entities.length === 0 || tools.is_entity_desc(converted_desc.entities[converted_desc.entities.length - 1]))
-        return new_tile_id
+        if(tiles.is_procgen_tile(new_tile_id))
+            return null;
+        else
+            return new_tile_id;
     });
 
     room_info.world_desc = converted_desc;
     return room_info;
+}
+
+function find_random_empty_area(world){
+    is_valid_world(world);
+    const world_area = new Rectangle({ width: world.width, height: world.height });
+    const free_space_predicate = tools.predicate_entity_spawn_pos(world);
+    const max_attempts = 500;
+    let attempts = 0;
+    while(attempts < max_attempts){
+        ++attempts;
+        const position = tools.random_available_entity_position(world, world_area);
+        if(position.adjacents.every(free_space_predicate))
+            return position;
+    }
 }
 
 function populate_crypto_files(world_desc, crypto_config){
@@ -1200,7 +1217,7 @@ function populate_crypto_files(world_desc, crypto_config){
     const special_chest_content_generator = function*(){
         for(let i = 0; i < max_exit_keys; ++i)
             yield as_entity(exit_crypto_key_type);
-        while(powerful_items.lengh > 0)
+        while(powerful_items.length > 0)
             yield random_bag_pick(powerful_items, 1)[0];
         while(true)
             yield random_sample(useful_items);
@@ -1215,20 +1232,31 @@ function populate_crypto_files(world_desc, crypto_config){
         const max_count_of_keys = Math.max(special_chests.length, max_special_keys);
         for(let i = 0; i < max_count_of_keys; ++i)
             yield as_entity(special_crypto_key_type);
-        while(powerful_items.lengh > 0)
+        while(powerful_items.length > 0)
             yield random_bag_pick(powerful_items, 1)[0];
         while(true)
             yield random_sample(useful_items);
     }();
 
+    const allowed_chests = chest_crypto_files.filter(chest => crypto_config.is_allowed(chest.type));
     const other_chests = [
-        ...chest_crypto_files.filter(chest => crypto_config.is_allowed(chest.type)),
+        ...allowed_chests,
         ...black_boxes,
     ];
     shuffle_array(other_chests);
     other_chests.forEach(chest => chest.drops = [ other_chest_content_generator.next().value ]);
 
-    // TODO: replace items which are rewards in the map by some crypto-keys for other chests.
+    // Add keys to find in deserted areas
+    let keys_to_add = Math.max(allowed_chests.length * 2, 8);
+    const world = tools.deserialize_world(new_world_desc); // for ease of processing
+    while(keys_to_add > 0){
+        const position = find_random_empty_area(world);
+        if(position == null) return null;
+        const key = as_entity(`CryptoKey_${random_sample(crypto_config.available_crypto_kinds)}`);
+        key.position = position;
+        new_world_desc.entities.push(key);
+        --keys_to_add;
+    }
 
     return new_world_desc;
 }
@@ -1322,7 +1350,7 @@ function generate_world(){
         const crypto_config = new CryptoConfig();
 
         // Probability of populating a room is not 100%
-        const probability_of_a_room_to_be_populated = 80;
+        const probability_of_a_room_to_be_populated = 95;
         positionned_selected_rooms.map((room_info)=>{
             if(random_int(1, 100) <= probability_of_a_room_to_be_populated)
                 return populate_entities(room_info, crypto_config);
@@ -1347,14 +1375,14 @@ function generate_world(){
         // Pass 5: TODO: fill the inter-room corridors with walls and entities
 
         // Pass 6: Add crypto-keys and rewards
-        const ram_world_merged = tools.random_variation(tools.add_padding_around(ram_world_with_rooms_and_exit, { floor: tiles.ID.VOID }));
-        const world_desc = populate_crypto_files(ram_world_merged, crypto_config);
-        if(world_desc == null){
+        const ram_world_completely_populated = populate_crypto_files(ram_world_with_rooms_and_exit, crypto_config);
+        if(ram_world_completely_populated == null){
             debug.log("Failed to validate crypto-requirements.");
             continue;
         }
 
         // Pass 7: cleanup, variations and validation.
+        const world_desc = tools.random_variation(tools.add_padding_around(ram_world_completely_populated, { floor: tiles.ID.VOID }));
         const world = tools.deserialize_world(world_desc);
         world.level_id = 2;
 

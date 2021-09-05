@@ -8,6 +8,7 @@ export {
     is_safe,
     is_blocking_view,
     is_stream_tile,
+    is_procgen_tile,
     info_text,
     name_text,
     floor_tiles, surface_tiles, procgen_floor_tiles, procgen_surface_tiles, stream_tile_ids,
@@ -844,4 +845,8 @@ const stream_tile_ids = [
 
 function is_stream_tile(tile_id){
     return stream_tile_ids.includes(tile_id);
+}
+
+function is_procgen_tile(tile_id){
+    return procgen_surface_tiles.includes(tile_id) || procgen_floor_tiles.includes(tile_id);
 }
