@@ -998,7 +998,7 @@ function populate_entities(room_info, exit_crypto_kind, is_exit=false){
         // SPAWN : doors - empty crypto-files
         spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_12, ()=>{
             const generator = function*(){
-                while(true) yield Object.assign(as_entity(random_sample(any_random_crypto_file), { drops: [] }));
+                while(true) yield Object.assign(as_entity(random_sample(any_random_crypto_file)), { drops: [] });
             };
             return generator();
         }),
