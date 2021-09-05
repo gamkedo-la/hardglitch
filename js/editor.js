@@ -29,7 +29,7 @@ import { all_characters_types } from "./deflinitions-characters.js";
 import { grid_ID } from "./definitions-world.js";
 import { serialize_world } from "./levels/level-tools.js";
 
-window.debug_tools_enabled = false; // Change to true to use the keys defined bellow.
+window.debug_tools_enabled = true; // Change to true to use the keys defined bellow.
 
 let is_enabled = false; // TURN THIS ON TO SEE THE EDITOR, see the update() function below
 let is_editing = false; // True if we are doing an edition manipulation and no other input should be handled.
