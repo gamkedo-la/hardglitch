@@ -8,8 +8,8 @@ import * as debug from "../system/debug.js";
 import * as tiles from "../definitions-tiles.js";
 import * as tools from "./level-tools.js";
 import { all_entity_types, is_valid_world } from "../definitions-world.js";
-import { Position, World } from "../core/concepts.js";
-import { copy_data, position_from_index, random_int, random_sample } from "../system/utility.js";
+import { Position } from "../core/concepts.js";
+import { copy_data, position_from_index, random_bag_pick, random_int, random_sample, shuffle_array } from "../system/utility.js";
 import { Vector2 } from "../system/spatial.js";
 import { all_characters_types } from "../deflinitions-characters.js";
 import { crypto_names } from "../definitions-items.js";
@@ -831,12 +831,48 @@ function make_random_entity_gen_from(possible_type_names){
     return ()=> as_entity(random_sample(possible_type_names));
 }
 
+class CryptoConfig
+{
+    constructor(){
+        // We need:
+        // 1. A crypto-kind for the key and file preventing from entering the exit room.
+        // 2. A crypto-kind for the files containing the key for the exit room (or useful items).
+        // 3. The other crypto-kinds + black box giving either the crypto-kind for 2 or useful items.
 
-function populate_entities(room_info, exit_crypto_kind, is_exit=false){
+        const possible_kinds = Object.values(crypto_names);
+        this.exit_crypto_kind = random_bag_pick(possible_kinds, 1)[0];  // 1
+        debug.assertion(()=> typeof this.exit_crypto_kind == "string");
+        this.special_crypto_kind = random_bag_pick(possible_kinds, 1)[0];
+        debug.assertion(()=> typeof this.special_crypto_kind == "string");
+
+        debug.assertion(()=> Object.values(crypto_names).includes(this.exit_crypto_kind));
+        debug.assertion(()=> Object.values(crypto_names).includes(this.special_crypto_kind));
+
+        this.reserved_crypto_kinds = [ this.exit_crypto_kind, this.special_crypto_kind ];
+        this.available_crypto_kinds = possible_kinds; // the kinds left.
+        debug.assertion(()=> !this.available_crypto_kinds.includes(this.exit_crypto_kind));
+        debug.assertion(()=> !this.available_crypto_kinds.includes(this.special_crypto_kind));
+
+        debug.log(`EXIT ROOM CRYPTO KIND: ${this.exit_crypto_kind}`);
+        debug.log(`SPECIAL CRYPTO KIND: ${this.special_crypto_kind}`);
+        debug.log(`OTHER CRYPTO KIND: ${this.available_crypto_kinds}`);
+
+    }
+
+    is_reserved(crypto_type_name){
+        debug.assertion(()=> typeof crypto_type_name === 'string');
+        return this.reserved_crypto_kinds.some(kind => crypto_type_name.endsWith(kind));
+    }
+
+    is_allowed(crypto_type_name){ return !this.is_reserved(crypto_type_name); }
+
+};
+
+function populate_entities(room_info, crypto_config, is_exit=false){
     debug.assertion(()=> room_info instanceof Object);
     debug.assertion(()=> room_info.world_desc instanceof Object);
     debug.assertion(()=> room_info.position instanceof Position);
-    debug.assertion(()=> Object.values(crypto_names).includes(exit_crypto_kind));
+    debug.assertion(()=> crypto_config instanceof CryptoConfig);
     debug.assertion(()=> typeof is_exit === 'boolean');
 
 
@@ -846,9 +882,9 @@ function populate_entities(room_info, exit_crypto_kind, is_exit=false){
     const any_block = [...any_opaque_block, ...any_transparent_block];
     const any_random_crypto_file = function() {
         if(is_exit)
-            return [ `CryptoFile_${exit_crypto_kind}` ];
+            return [ `CryptoFile_${crypto_config.exit_crypto_kind}` ];
 
-        const valid_crypto_file = any_valid_entity.filter(type_name => type_name.startsWith("CryptoFile_") && !type_name.endsWith(exit_crypto_kind));
+        const valid_crypto_file = any_valid_entity.filter(type_name => type_name.startsWith("CryptoFile_") && !type_name.endsWith(crypto_config.exit_crypto_kind));
 
         if(room_info.world_desc.is_start){
             return [ random_sample(valid_crypto_file) ];
@@ -858,7 +894,7 @@ function populate_entities(room_info, exit_crypto_kind, is_exit=false){
     }();
 
     const any_random_crypto_keys = room_info.world_desc.is_start ? any_random_crypto_file.map(file_name => file_name.replace("CryptoFile_", "CryptoKey_"))
-                                 : any_valid_entity.filter(type_name => type_name.startsWith("CryptoKey_") && !type_name.endsWith(exit_crypto_kind));
+                                 : any_valid_entity.filter(type_name => type_name.startsWith("CryptoKey_") && !crypto_config.is_reserved(type_name));
 
     debug.assertion(()=> !room_info.is_start || (any_random_crypto_file.length === 1 && any_random_crypto_keys.length === 1 && [...any_random_crypto_keys, ...any_random_crypto_file ].every(name => name.startsWith("Crypto"))));
 
@@ -1130,6 +1166,73 @@ function populate_entities(room_info, exit_crypto_kind, is_exit=false){
     return room_info;
 }
 
+function populate_crypto_files(world_desc, crypto_config){
+    tools.check_world_desc(world_desc);
+    debug.assertion(()=> crypto_config instanceof CryptoConfig);
+
+    const new_world_desc = copy_data(world_desc);
+
+    // get all crypto-files and crypto-keys
+    const black_boxes = new_world_desc.entities.filter(entity => entity.type == "BlackBox");
+    const crypto_files = new_world_desc.entities.filter(entity => entity.type.startsWith("CryptoFile_"));
+    const chest_crypto_files = crypto_files.filter(entity => entity.drops == null); // The ones which already have a drops defined should be left alone.
+    const crypto_keys = new_world_desc.entities.filter(entity => entity.type.startsWith("CryptoKey_"));
+
+    const exit_crypto_key_type = `CryptoKey_${crypto_config.exit_crypto_kind}`;
+    const exit_crypto_file_type = `CryptoFile_${crypto_config.exit_crypto_kind}`;
+    const special_crypto_key_type = `CryptoKey_${crypto_config.special_crypto_kind}`;
+    const special_crypto_file_type = `CryptoFile_${crypto_config.special_crypto_kind}`;
+
+    const powerful_items = [ "Item_ComputerCluster" ].map(as_entity); // TODO: fill this with powerful items
+    const useful_items = [ "Item_Crawl" ].map(as_entity); // TODO: fill this with powerful items
+
+    const max_exit_keys = 2;
+    const min_special_keys = 2;
+    const max_special_keys = 4;
+
+    const exit_door = crypto_files.filter(entity => entity.type == exit_crypto_file_type);
+    if(exit_door.length !== 1) return null;
+
+    const special_chests = chest_crypto_files.filter(entity => entity.type == special_crypto_file_type);
+    if(special_chests.length < min_special_keys) return null;
+
+    // Fill special chests
+    const special_chest_content_generator = function*(){
+        for(let i = 0; i < max_exit_keys; ++i)
+            yield as_entity(exit_crypto_key_type);
+        while(powerful_items.lengh > 0)
+            yield random_bag_pick(powerful_items, 1)[0];
+        while(true)
+            yield random_sample(useful_items);
+    }();
+
+    shuffle_array(special_chests);
+    special_chests.forEach(chest => chest.drops = [ special_chest_content_generator.next().value ]);
+    debug.assertion(()=> !special_chests.includes(null));
+
+    // Fill other chests
+    const other_chest_content_generator = function*(){
+        const max_count_of_keys = Math.max(special_chests.length, max_special_keys);
+        for(let i = 0; i < max_count_of_keys; ++i)
+            yield as_entity(special_crypto_key_type);
+        while(powerful_items.lengh > 0)
+            yield random_bag_pick(powerful_items, 1)[0];
+        while(true)
+            yield random_sample(useful_items);
+    }();
+
+    const other_chests = [
+        ...chest_crypto_files.filter(chest => crypto_config.is_allowed(chest.type)),
+        ...black_boxes,
+    ];
+    shuffle_array(other_chests);
+    other_chests.forEach(chest => chest.drops = [ other_chest_content_generator.next().value ]);
+
+    // TODO: replace items which are rewards in the map by some crypto-keys for other chests.
+
+    return new_world_desc;
+}
+
 function clear_room(room_info){
     const room_desc = room_info.world_desc;
     tools.check_world_desc(room_desc);
@@ -1145,12 +1248,12 @@ function clear_room(room_info){
     return room_info;
 }
 
-function generate_exit_room(exit_crypto_kind) {
-    debug.assertion(()=> Object.values(crypto_names).includes(exit_crypto_kind));
+function generate_exit_room(crypto_config) {
+    debug.assertion(()=> crypto_config instanceof CryptoConfig);
 
     let room = random_sample(Object.values(exit_rooms));
     room = process_procgen_tiles(room);
-    const room_info = populate_entities({ position: new Position(),world_desc: room }, exit_crypto_kind, true);
+    const room_info = populate_entities({ position: new Position(),world_desc: room }, crypto_config, true);
     return room_info.world_desc;
 };
 
@@ -1162,10 +1265,11 @@ function validate_world(world){
     // At least one entry point.
     if(!world.grids.surface.elements.includes(tiles.ID.ENTRY)) return false;
 
-
     // At least one exit is "reachable".
 
     // At least one key to the exit is "reachable" (in or out a crypto-file).
+
+    // All the required files and keys are "reachable".
 
     // etc.
 
@@ -1179,10 +1283,21 @@ function generate_world(){
     // LEVEL 2:
     // RAM: https://trello.com/c/wQCJeRfn/75-level-2-ram
     //
+    debug.log("GENERATING LEVEL 2 ... ");
 
     const max_attempts = 20;
     let attempts = 0;
+    let last_world_generated;
+
     while(true){
+        ++attempts;
+
+        if(attempts > max_attempts){
+            console.warn(`Failed to produce a valid level after ${attempts - 1} attempts - we will  the last generated level. ;_; `);
+            return last_world_generated;
+        }
+
+        debug.log(`Attempt: ${attempts} `);
         // Lesson learn from level 1: it's far better to build in layers/pass than to predetermine details and assemble later.
         // Therefore, we'll fill the world with different passes.
 
@@ -1204,15 +1319,13 @@ function generate_world(){
 
 
         // Pass 3: add entities in each room
-        // Some entities need to know which key should be used for the door of the exit.
-        const selected_exit_crypto_kind = random_sample(Object.values(crypto_names));
-        debug.log(`EXIT ROOM CRYPTO KIND: ${selected_exit_crypto_kind}`);
+        const crypto_config = new CryptoConfig();
 
         // Probability of populating a room is not 100%
         const probability_of_a_room_to_be_populated = 80;
         positionned_selected_rooms.map((room_info)=>{
             if(random_int(1, 100) <= probability_of_a_room_to_be_populated)
-                return populate_entities(room_info, selected_exit_crypto_kind);
+                return populate_entities(room_info, crypto_config);
             else
                 return clear_room(room_info);
         });
@@ -1225,7 +1338,7 @@ function generate_world(){
             ...positionned_selected_rooms
         );
 
-        const selected_exit_room = generate_exit_room(selected_exit_crypto_kind);
+        const selected_exit_room = generate_exit_room(crypto_config);
         const ram_world_with_rooms_and_exit = tools.merge_world_chunks(level_name, { floor: tiles.ID.VOID },
             { position: { x: 0, y: 0}, world_desc: ram_world_with_rooms },
             { position: { x: random_int(0, ram_world_with_rooms.width - 8), y: ram_world_with_rooms.height }, world_desc: selected_exit_room }
@@ -1233,10 +1346,15 @@ function generate_world(){
 
         // Pass 5: TODO: fill the inter-room corridors with walls and entities
 
-        // Pass 6: cleanup, variations and validation.
+        // Pass 6: Add crypto-keys and rewards
+        const ram_world_merged = tools.random_variation(tools.add_padding_around(ram_world_with_rooms_and_exit, { floor: tiles.ID.VOID }));
+        const world_desc = populate_crypto_files(ram_world_merged, crypto_config);
+        if(world_desc == null){
+            debug.log("Failed to validate crypto-requirements.");
+            continue;
+        }
 
-        const world_desc = tools.random_variation(tools.add_padding_around(ram_world_with_rooms_and_exit, { floor: tiles.ID.VOID }));
-
+        // Pass 7: cleanup, variations and validation.
         const world = tools.deserialize_world(world_desc);
         world.level_id = 2;
 
@@ -1247,15 +1365,12 @@ function generate_world(){
             }
         });
 
-
-        if(validate_world(world))
-            return world;
-
-        ++attempts;
-        if(attempts >= max_attempts){
-            console.warn(`Failed to produce a valid level after ${attempts} attempts - we will  the last generated level. ;_; `);
+        last_world_generated = world;
+        if(validate_world(world)){
+            debug.log("GENERATING LEVEL 2 - DONE ");
             return world;
         }
+
     }
 }
 
