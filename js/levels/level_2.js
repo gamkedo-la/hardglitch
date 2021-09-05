@@ -7,7 +7,7 @@ export {
 import * as debug from "../system/debug.js";
 import * as tiles from "../definitions-tiles.js";
 import * as tools from "./level-tools.js";
-import { all_entity_types } from "../definitions-world.js";
+import { all_entity_types, is_valid_world } from "../definitions-world.js";
 import { Position, World } from "../core/concepts.js";
 import { copy_data, position_from_index, random_int, random_sample } from "../system/utility.js";
 import { Vector2 } from "../system/spatial.js";
@@ -1156,7 +1156,7 @@ function generate_exit_room(exit_crypto_kind) {
 
 // Checks that the generated world matches our requirements for a decent level.
 function validate_world(world){
-    debug.assertion(()=> world instanceof World);
+    debug.assertion(()=> is_valid_world(world));
     debug.assertion(()=> world.bodies.every(character=> character.constructor.name !== "GlitchyGlitchMacGlitchy")); // No Glitch already put anywhere (mistake in level design).
 
     // At least one entry point.
