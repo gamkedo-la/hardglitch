@@ -145,13 +145,12 @@ class InfoBox {
                     canvas_context.save();
                     canvas_context.beginPath();
                     this._setup_line(canvas_context);
+                    canvas_context.lineDashOffset = -Math.round(this.offset);
                     canvas_context.fillStyle = info_box_border_style;
-
-                    canvas_context.arc(pointed_gfx_pos.x, pointed_gfx_pos.y, 10, 0, Math.PI * 2, true);
                     canvas_context.moveTo(pointed_gfx_pos.x, pointed_gfx_pos.y);
                     canvas_context.lineTo(this._area.position.x, this._area.position.y);
-                    canvas_context.fill();
                     canvas_context.stroke();
+                    canvas_context.fillRect(pointed_gfx_pos.x - 10, pointed_gfx_pos.y - 10, 20, 20);
                     canvas_context.restore();
                 }
             }

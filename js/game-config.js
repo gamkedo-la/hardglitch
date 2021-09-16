@@ -31,7 +31,7 @@ export const config = {
     fov_view_style: fov_view_styles.EYE_SPRITE,
     enable_view_healthbars: false,
     force_view_healthbars: false,
-    enable_infobox_pointer: false,
+    enable_infobox_pointer: true,
     enable_new_turn_wait: true,
     enable_decrypt_by_move: true,
     enable_take_by_move: true,
