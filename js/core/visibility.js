@@ -27,7 +27,8 @@ import { compute_fov } from "../system/shadowcasting.js";
 import * as tiles from "../definitions-tiles.js";
 import { Character } from "./character.js";
 import { is_blocked_position } from "../definitions-world.js";
-import { random_sample, shuffle_array } from "../system/utility.js";
+import { position_from_index, random_sample, shuffle_array } from "../system/utility.js";
+import { Grid } from "../system/grid.js";
 
 class RangeShape {
     // The range is [begin_distance, end_distance) , so end_distance is excluded.
@@ -191,16 +192,19 @@ function find_visible_positions(world, center, view_distance){
             ;
     };
 
-    const visible_positions = [];
+    const visibility_grid = new Grid(world.width, world.height);
     const mark_visible = (x, y)=>{
-        if(world.is_valid_position({x, y})
-        && visible_positions.every(position=> !position.equals({x, y}))
-        ){
-            visible_positions.push(new concepts.Position({x, y}));
+        if(world.is_valid_position({x, y})){
+            visibility_grid.set_at(true, x, y);
         }
     };
 
     compute_fov(center, is_blocking_vision, mark_visible, view_distance);
+    const visible_positions = [];
+    visibility_grid.elements.forEach((visible, idx) => {
+        const visible_pos = new concepts.Position(position_from_index(world.width, world.height, idx));
+        visible_positions.push(visible_pos);
+    });
 
     // FIXME: For some reason compute_fov outputs more positions than what's in range, not sure why.
     // the following block is a workaround trimming positions outside the view range.
