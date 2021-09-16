@@ -143,12 +143,10 @@ class Grid {
 
     matching_positions(predicate){
         const positions = [];
-        for(let idx = 0; idx < this.elements.length; ++idx){
-            const element = this.elements[idx];
-            if(element !== undefined && predicate(element)){
+        this.elements.forEach((element, idx)=>{
+            if(predicate(element))
                 positions.push(position_from_index(this.width, this.height, idx));
-            }
-        }
+        });
         return positions;
     }
 
