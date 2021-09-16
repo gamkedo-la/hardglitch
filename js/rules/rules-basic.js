@@ -210,13 +210,12 @@ class Rule_LevelExit extends concepts.Rule {
         if(world.is_finished) // The game is already finished.
             return [];
 
-        const exit_positions = world.grids[grid_ID.surface].matching_positions(tile_id => tile_id == tiles.ID.EXIT);
         const player_characters = world.bodies.filter(character => character.is_player_actor);
 
         for(const player_character of player_characters){
             debug.assertion(()=>player_character instanceof Character)
             const player_position = player_character.position;
-            if(exit_positions.some(position => player_position.equals(position))){
+            if(world.tiles_at(player_position).some(tile_id => tile_id == tiles.ID.EXIT)){
                 world.is_finished = true;
                 world.exiting_character = player_character;
                 return [ new PlayerExitLevel(player_character) ];
