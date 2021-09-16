@@ -17,6 +17,9 @@ const default_view_distance = 1;
 const default_inventory_size = 1;
 const default_activable_items = 1;
 
+const __statvalue_serialization_ignore_list = [
+    "_cache_is_valid", "_cache"
+];
 class StatValue {
 
     constructor(initial_value = 0, initial_max, initial_min){
@@ -28,6 +31,11 @@ class StatValue {
         this._min = initial_min;
         this._modifiers = {};
         this._listeners = {};
+
+        // these are for optimizations:
+        this._cache_is_valid = {};
+        this._cache = {};
+        this.__serialization_ignore_list = __statvalue_serialization_ignore_list;
     }
 
     get real_value() { return this._value; }
@@ -39,6 +47,27 @@ class StatValue {
         return Object.values(this._modifiers)
                     .filter(modifier => modifier[field_name] !== undefined)
                     .reduce((accumulated, modifier)=> accumulated + modifier[field_name], 0);
+    }
+
+    _compute_value_or_get_cache(field_name, compute){
+        if(this._cache_is_valid[field_name] === true){
+            const cached_value = this._cache[field_name];
+            debug.assertion(()=> Number.isInteger(cached_value));
+            return cached_value;
+        } else {
+            const new_value = compute();
+            this._cache[field_name] = new_value;
+            this._cache_is_valid[field_name] = true;
+            return new_value;
+        }
+    }
+
+    _invalidate_cache(field_name) {
+        if(field_name != null) {
+            this._cache_is_valid[field_name] = false;
+        } else {
+            this._cache_is_valid = {};
+        }
     }
 
     get accumulated_value_modifiers() {
@@ -54,17 +83,20 @@ class StatValue {
     }
 
     get value() {
-        let value = this._value + this.accumulated_value_modifiers;
-        if(this.max){
-            value = Math.min(value, this.max);
-        }
-        if(this.min){
-            value = Math.max(value, this.min);
-        }
-        return value;
+        const compute_current_value = ()=>{
+            let value = this._value + this.accumulated_value_modifiers;
+            if(this.max){
+                value = Math.min(value, this.max);
+            }
+            if(this.min){
+                value = Math.max(value, this.min);
+            }
+            return value;
+        };
+        return this._compute_value_or_get_cache("value", compute_current_value);
      }
-    get max() { return this._max == null ? undefined : this._max + this.accumulated_max_modifiers; }
-    get min() { return this._min == null ? undefined : this._min + this.accumulated_min_modifiers; }
+    get max() { return this._max == null ? null : this._compute_value_or_get_cache("max", ()=> this._max + this.accumulated_max_modifiers); }
+    get min() { return this._min == null ? null : this._compute_value_or_get_cache("min", ()=> this._min + this.accumulated_min_modifiers); }
 
     add_modifier(modifier_id, modifier){
 
@@ -73,10 +105,11 @@ class StatValue {
         debug.assertion(()=>modifier instanceof Object);
         debug.assertion(()=>modifier.value == null || Number.isInteger(modifier.value));
         // Min and Max must have been set for this stat to be able to be modified.
-        debug.assertion(()=>modifier.max == null || (Number.isInteger(modifier.max) && this._max !== undefined));
-        debug.assertion(()=>modifier.min == null || (Number.isInteger(modifier.min) && this._min !== undefined));
+        debug.assertion(()=>modifier.max == null || (Number.isInteger(modifier.max) && this._max != null));
+        debug.assertion(()=>modifier.min == null || (Number.isInteger(modifier.min) && this._min != null));
 
         this._modifiers[modifier_id] = modifier;
+        this._invalidate_cache();
         this._notify_listeners();
     }
 
@@ -84,6 +117,7 @@ class StatValue {
 
         debug.assertion(()=>typeof modifier_id === "string");
         delete this._modifiers[modifier_id];
+        this._invalidate_cache();
         debug.assertion(()=>this.max == null || this.min == null || this.min <= this.max);
         this._notify_listeners();
     }
@@ -100,19 +134,21 @@ class StatValue {
         }
 
         this._value = new_value;
+        this._invalidate_cache("value");
         this._notify_listeners();
     }
 
     set real_max(new_value) {
         debug.assertion(()=>Number.isInteger(new_value) && new_value >= 0);
         this._max = new_value;
+        this._invalidate_cache("max");
         this._notify_listeners();
     }
 
     set real_min(new_value) {
-
         debug.assertion(()=>Number.isInteger(new_value) && new_value < this.max);
         this._min = new_value;
+        this._invalidate_cache("min");
         this._notify_listeners();
     }
 
@@ -124,7 +160,7 @@ class StatValue {
             this._value = Math.min(new_value, this.max);
         else
             this._value = new_value;
-
+        this._invalidate_cache("value");
         this._notify_listeners();
     }
 
@@ -136,7 +172,7 @@ class StatValue {
             this._value = Math.max(new_value, this.min);
         else
             this._value = new_value;
-
+        this._invalidate_cache("value");
         this._notify_listeners();
     }
 
