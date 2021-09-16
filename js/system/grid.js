@@ -21,11 +21,11 @@ class Grid {
             debug.assertion(()=>elements instanceof Array);
             debug.assertion(()=>elements.length == width * height);
             this.elements = elements;
+            this.clean();
         } else {
             this.elements = new Array(width * height);
         }
 
-        this.clean();
     }
 
     get size() { return this.width * this.height; }
