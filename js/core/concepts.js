@@ -513,9 +513,7 @@ class World
 
     tiles_at(position){
         debug.assertion(()=>this.is_valid_position(position));
-        const things = [
-            ...this.all_grids.map(grid => grid.get_at(position)),
-        ];
+        const things = this.all_grids.map(grid => grid.get_at(position));
         return things.filter(thing => thing !== undefined && thing !== null);
     }
 
