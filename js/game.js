@@ -23,6 +23,7 @@ class Game {
         debug.assertion(()=>is_valid_world(world));
         debug.assertion(()=>player_character === undefined || player_character instanceof Character)
         this.world = world;
+        this.world._update_entities_locations();
 
         // Prepare the game turns to be ready to play (player's turn)
         this.add_player_character_if_none(player_character);
@@ -53,7 +54,7 @@ class Game {
 
             if(turn_iter.value instanceof concepts.Event){
                 const event = turn_iter.value;
-                debug.log(`-> ${event.constructor.name}: ${event.description}` );
+                // debug.log(`-> ${event.constructor.name}: ${event.description}` ); // commented for letting the game play faster
                 yield event;
             } else if(turn_iter.value instanceof turns.PlayerTurn){
                 this.turn_info = turn_iter.value;
