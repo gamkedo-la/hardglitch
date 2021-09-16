@@ -161,21 +161,23 @@ function teleport_entities_in_unstable_tiles_and_vanish(world) {
     debug.assertion(()=>world instanceof concepts.World);
     const unstable_grid = world.grids[grid_ID.unstable];
     debug.assertion(()=>unstable_grid instanceof Grid);
-    const events = [];
-    unstable_grid.elements.forEach((unstability, idx)=>{
-        debug.assertion(()=>unstability instanceof Unstability);
 
-        const position = position_from_index(world.width, world.height, idx);
-        const entity = world.entity_at(position);
-        if(entity){
-            // Randomly teleport the entity
-            const valid_positions = (pos) => !is_blocked_position(world, pos, tiles.is_safely_walkable);
-            events.push(...random_jump(world, entity, unstable_random_jump_range, valid_positions)); // If the entity is a character, they can be teleported outside their range of view.
-            // Vanish the unstability
-            delete unstable_grid.elements[idx];
-            events.push(new UnstabilityVanished(position, unstability));
-        }
+    const events = [];
+    const valid_positions = (pos) => !is_blocked_position(world, pos, tiles.is_safely_walkable);
+
+    world.entities.forEach(entity => {
+        const pos = entity.position;
+        const unstability = unstable_grid.get_at(pos);
+        if(!(unstability instanceof Unstability))
+            return;
+
+        // Randomly teleport the entity
+        events.push(...random_jump(world, entity, unstable_random_jump_range, valid_positions)); // If the entity is a character, they can be teleported outside their range of view.
+        // Vanish the unstability
+        unstable_grid.elements.remove_at(pos);
+        events.push(new UnstabilityVanished(pos, unstability));
     });
+
     return events;
 }
 

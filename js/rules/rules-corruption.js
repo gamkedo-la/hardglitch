@@ -266,16 +266,16 @@ function damage_anything_in_corrupted_tiles(world){
     const corruption_grid = world.grids[grid_ID.corruption];
     debug.assertion(()=>corruption_grid instanceof Grid);
 
-    world.entities
-        .filter(entity => corruption_grid.get_at(entity.position) instanceof Corruption)
-        .forEach(entity => {
-            if((!entity.immunity || !entity.immunity.corruption)
-            && !(entity instanceof concepts.Item)){ // Disable corruption effects on Items.
-                events.push( new CorruptionDamage(entity.position, entity.id)
-                           , ...deal_damage(entity, corruption_damage())
-                           );
-            }
-        });
+    world.entities.forEach(entity => {
+        if(!(corruption_grid.get_at(entity.position) instanceof Corruption))
+            return;
+        if((!entity.immunity || !entity.immunity.corruption)
+        && !(entity instanceof concepts.Item)){ // Disable corruption effects on Items.
+            events.push( new CorruptionDamage(entity.position, entity.id)
+                        , ...deal_damage(entity, corruption_damage())
+                        );
+        }
+    });
 
     return events;
 }

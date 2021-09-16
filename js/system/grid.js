@@ -68,6 +68,12 @@ class Grid {
         this.elements[idx] = v;
     }
 
+    remove_at(p, j){
+        const idx = this.index(p, j);
+        debug.assertion(()=>idx >= 0 && idx < this.elements.length);
+        delete this.elements[idx];
+    }
+
     /**
      *  get node left of given point
      */
