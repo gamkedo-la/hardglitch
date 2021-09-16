@@ -494,14 +494,12 @@ class World
 
     body_at(position){
         const found = this.entity_at(position);
-        if(found instanceof Item) return found;
-        else return null;
+        return found instanceof Body ? found : null;
     }
 
     item_at(position){
         const found = this.entity_at(position);
-        if(found instanceof Item) return found;
-        else return null;
+        return found instanceof Item ? found : null;
     }
 
     entity_at(position){
@@ -509,6 +507,7 @@ class World
         this._update_entities_locations();
         const found = this._entity_locations.get_at(position);
         debug.assertion(()=> found == null || (found instanceof Entity && found.position.equals(position)));
+        return found;
     }
 
     tiles_at(position){
