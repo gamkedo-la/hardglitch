@@ -3,6 +3,7 @@ export {
     RandomActionEnemy,
     RandomActionSelector,
     WaitingNPC,
+    WaitForever,
 };
 
 import * as debug from "../system/debug.js";
@@ -46,6 +47,10 @@ class RandomActionEnemy extends Character {
     }
 };
 
+class WaitForever extends concepts.Actor{
+    decide_next_action(world, character, possible_actions) { return possible_actions.wait; }
+}
+
 class WaitingNPC extends Character {
     assets = {
         graphics : { body: {
@@ -57,8 +62,6 @@ class WaitingNPC extends Character {
 
     constructor(){
         super("Background Service", new CharacterStats());
-        this.actor = new class extends concepts.Actor{
-            decide_next_action(world, character, possible_actions) { return possible_actions.wait; }
-        };
+        this.actor = new WaitForever();
     }
 };
