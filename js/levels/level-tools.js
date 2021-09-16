@@ -363,6 +363,7 @@ function deserialize_world(world_desc){
     world.set_rules(...default_rules);
 
     world.level_id = world_desc.level_id;
+    world._update_entities_locations();
 
     debug.assertion(()=>is_valid_world(world));
     return world;

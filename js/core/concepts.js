@@ -36,6 +36,8 @@ import * as debug from "../system/debug.js";
 import { is_number, clamp } from "../system/utility.js";
 import { Grid } from "../system/grid.js";
 
+let is_positions_update_necessary = true; // THIS IS FOR OPTIMIZATION ;__;
+
 let is_id_increments_enabled = true;
 function enable_id_increments(value){
     debug.assertion(()=>typeof value === "boolean");
@@ -269,6 +271,7 @@ class Entity {
     get position() { return this._position; }
     set position(new_pos){
         this._position = new Position(new_pos);
+        is_positions_update_necessary = true;
     }
     get id() {
         debug.assertion(()=>Number.isInteger(this._entity_id) || !is_id_increments_enabled);
@@ -331,6 +334,7 @@ class World
     _items = {};     // Items that are in the space of the world, not in other entities (not owned by Bodies).
     _bodies = {};    // Bodies are always in the space of the world. They can be controlled by Actors.
     _rules = [];     // Rules that will be applied through this game.
+    _entity_locations = null; // This is for optimizations.
     grids = {};      // Grids that makes this world, each layer adding information/content. Grids are named and order of addition is important. See: https://stackoverflow.com/questions/5525795/does-javascript-guarantee-object-property-order/38218582#38218582
     is_finished = false; // True if this world is in a finished state, in which case it should not be updated anymore. TODO: protect against manipulations
     has_entity_list_changed = false; // True if the list of entities existing have changed since the last turn update.
@@ -347,6 +351,7 @@ class World
         this.height = height;
         this.size = this.width * this.height;
         this.grids = grids;
+        is_positions_update_necessary = true;
     }
 
     get bodies() { return Object.values(this._bodies); }
@@ -488,32 +493,22 @@ class World
     }
 
     body_at(position){
-        debug.assertion(()=>this.is_valid_position(position));
-        // TODO: optimize this if necessary
-        for(const body of this.bodies){
-            if(body.position.equals(position))
-                return body;
-        }
-        return null;
+        const found = this.entity_at(position);
+        if(found instanceof Item) return found;
+        else return null;
     }
 
     item_at(position){
-        debug.assertion(()=>this.is_valid_position(position));
-        // TODO: optimize this if necessary
-        for(const item of this.items){
-            if(item.position.equals(position))
-                return item;
-        }
-        return null;
+        const found = this.entity_at(position);
+        if(found instanceof Item) return found;
+        else return null;
     }
 
     entity_at(position){
         debug.assertion(()=>this.is_valid_position(position));
-        const body = this.body_at(position);
-        if(body)
-            return body;
-        const item = this.item_at(position);
-        return item;
+        this._update_entities_locations();
+        const found = this._entity_locations.get_at(position);
+        debug.assertion(()=> found == null || (found instanceof Entity && found.position.equals(position)));
     }
 
     tiles_at(position){
@@ -528,10 +523,23 @@ class World
         debug.assertion(()=>this.is_valid_position(position));
         const things = [
             ...this.all_grids.map(grid => grid.get_at(position)),
-            this.item_at(position),
-            this.body_at(position),
+            this.entity_at(position),
         ];
         return things.filter(thing => thing !== undefined && thing !== null);
+    }
+
+    _update_entities_locations(){ // This is an optimization
+        if(this._entity_locations != null
+        && !is_positions_update_necessary
+        && !this.has_entity_list_changed
+        ) return;
+
+        this._entity_locations = new Grid(this.width, this.height);
+        this.entities.forEach(entity => {
+            debug.assertion(()=>entity instanceof Entity);
+            this._entity_locations.set_at(entity, entity.position);
+        });
+        is_positions_update_necessary = false;
     }
 
 };
