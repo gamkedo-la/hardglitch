@@ -15,10 +15,10 @@ class Rule_Void extends concepts.Rule {
         debug.assertion(()=>world instanceof concepts.World);
         const events = [];
 
-        world.entities.filter(entity => world.tiles_at(entity.position).some(tile_id => tile_id === tiles.ID.VOID))
-            .map((entity) => {
+        world.entities.forEach(entity => {
+            if(world.tiles_at(entity.position).some(tile_id => tile_id === tiles.ID.VOID))
                 events.push(...destroy_at(entity.position, world));
-            });
+        });
 
         return events;
     }
