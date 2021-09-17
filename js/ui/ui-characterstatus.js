@@ -61,7 +61,7 @@ class CharacterStatus{
             }
         });
         this.health_bar.helptext._events = {
-            on_mouse_over: ()=> show_info(texts.ui.integrity),
+            on_mouse_over: ()=> show_info(texts.ui.integrity, this.health_bar._area.top_right),
         };
 
         this.health_recovery_text = new ui.Text(Object.assign(stats_text, {
@@ -85,7 +85,7 @@ class CharacterStatus{
             }
         });
         this.action_bar.helptext._events = {
-            on_mouse_over: ()=> show_info(texts.ui.action_points),
+            on_mouse_over: ()=> show_info(texts.ui.action_points, this.action_bar._area.top_right),
         };
 
         this.action_recovery_text = new ui.Text(Object.assign(stats_text, {
@@ -134,11 +134,11 @@ class CharacterStatus{
         invoke_on_members(this, "update", delta_time);
 
         if(this.character_name.is_mouse_over){
-            show_info(texts.ui.character_name);
+            show_info(texts.ui.character_name, this.character_name._area.top_right);
         } else if(this.health_recovery_text.is_mouse_over){
-            show_info(texts.ui.integrity_per_cycle);
+            show_info(texts.ui.integrity_per_cycle, this.health_recovery_text._area.top_right);
         }else if(this.action_recovery_text.is_mouse_over){
-            show_info(texts.ui.ap_per_cycle);
+            show_info(texts.ui.ap_per_cycle, this.action_recovery_text._area.top_right);
         }
 
         if(this.health_bar.is_mouse_over){

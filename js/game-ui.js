@@ -89,7 +89,7 @@ class ActionButton extends ui.Button {
             text: action_text_name,
             delay_ms: 0, // Display the help text immediately when pointed.
         }, {
-            on_mouse_over: ()=> { show_info(info_desc); }
+            on_mouse_over: ()=> { show_info(info_desc, { x: this._area.top_right.x, y: this._area.center.y }); }
         });
         this.position = position;
 
@@ -138,7 +138,7 @@ class CancelActionButton extends ui.Button {
         },{
             on_mouse_over: ()=> {
                 if(this.visible) {
-                    show_info(texts.ui.cancel_action);
+                    show_info(texts.ui.cancel_action, this._area.top_right);
                     if(this.on_mouse_over)
                         this.on_mouse_over();
                 }
@@ -180,7 +180,7 @@ class MuteAudioButton extends ui.Button {
             text: "Mute",
             delay_ms: 0,
         },{
-            on_mouse_over: ()=> show_info(texts.ui.mute_button),
+            on_mouse_over: ()=> show_info(texts.ui.mute_button, this._area.bottom_right),
         });
 
         this.position = { x: 0, y: 0 };
@@ -344,7 +344,7 @@ class AutoFocusButton extends ui.Button {
             text: "Auto-Focus ([F] to focus manually)",
             delay_ms: 0,
         },{
-            on_mouse_over: ()=> show_info(texts.ui.autofocus_button),
+            on_mouse_over: ()=> show_info(texts.ui.autofocus_button, this._area.bottom_right),
         });
     }
 
@@ -382,7 +382,7 @@ class MenuButton extends ui.Button {
             text: "Menu [TAB] or [ESC]",
             delay_ms: 0,
         },{
-            on_mouse_over: ()=> show_info(texts.ui.menu_button),
+            on_mouse_over: ()=> show_info(texts.ui.menu_button, this._area.bottom_right),
         });
     }
 

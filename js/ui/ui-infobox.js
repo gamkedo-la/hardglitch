@@ -23,12 +23,14 @@ const info_box_text_font = "14px Space Mono";
 const info_box_text_color = "white";
 
 let current_info_box;
-
-function show_info(description){
+function show_info(description, position){
+    debug.assertion(()=> position == null || (position instanceof Object && typeof position.x === "number" && typeof position.y === "number"));
     if(!current_info_box)
         return;
 
     current_info_box.add_text(description);
+    if(position != null)
+        current_info_box._current_pointed_pos = position;
 }
 
 class InfoBox {
@@ -138,27 +140,42 @@ class InfoBox {
             if(config.enable_infobox_pointer
             && this._text_display.visible > 0 // Draw a line to the thing being described.
             ){
-                const mouse_pos = mouse_grid_position();
-                if(mouse_pos){
-                    const pointed_gfx_pos = graphic_position(mouse_pos.translate({x:1, y:1})).translate(graphics.camera.position.inverse);
-
-                    canvas_context.save();
-                    canvas_context.beginPath();
-                    this._setup_line(canvas_context);
-                    canvas_context.lineDashOffset = -Math.round(this.offset);
-                    canvas_context.fillStyle = info_box_border_style;
-                    canvas_context.moveTo(pointed_gfx_pos.x, pointed_gfx_pos.y);
-                    canvas_context.lineTo(this._area.position.x, this._area.position.y);
-                    canvas_context.stroke();
-                    canvas_context.fillRect(pointed_gfx_pos.x - 10, pointed_gfx_pos.y - 10, 20, 20);
-                    canvas_context.restore();
+                if(this._current_pointed_pos){
+                    this._draw_pointer(canvas_context, this._current_pointed_pos);
+                } else {
+                    const mouse_pos = mouse_grid_position();
+                    if(mouse_pos){
+                        const pointed_gfx_pos = graphic_position(mouse_pos.translate({x:1, y:1})).translate(graphics.camera.position.inverse);
+                        this._draw_pointer(canvas_context, pointed_gfx_pos);
+                    }
                 }
             }
-
+            delete this._current_pointed_pos;
         }
 
         this._button_hide.draw(canvas_context);
         this._button_show.draw(canvas_context);
+    }
+
+    _draw_pointer(canvas_context, pointed_gfx_pos){
+        canvas_context.save();
+        canvas_context.beginPath();
+        this._setup_line(canvas_context);
+        canvas_context.lineDashOffset = -Math.round(this.offset);
+        canvas_context.fillStyle = info_box_border_style;
+        canvas_context.moveTo(pointed_gfx_pos.x, pointed_gfx_pos.y);
+        canvas_context.lineTo(this._area.position.x, this._area.position.y);
+        canvas_context.stroke();
+
+        canvas_context.beginPath();
+        canvas_context.fillRect(pointed_gfx_pos.x - 8, pointed_gfx_pos.y - 8, 16, 16);
+        canvas_context.strokeStyle = "#6f33b1";
+        canvas_context.lineWidth = 1;
+        canvas_context.setLineDash([]);
+        canvas_context.rect(pointed_gfx_pos.x - 8, pointed_gfx_pos.y - 8, 16, 16);
+        canvas_context.stroke();
+
+        canvas_context.restore();
     }
 
     _hide(){

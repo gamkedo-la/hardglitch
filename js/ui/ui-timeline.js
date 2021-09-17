@@ -117,10 +117,15 @@ class Timeline
         const pointed_slot = this.pointed_slot(input.mouse.position);
         if(pointed_slot){
             const character_view = this._character_views[pointed_slot.idx];
-            if(character_view instanceof CharacterView)
-                show_info(texts.ui.timeline);
-            else
-                show_info(texts.ui.new_cycle);
+            const slot = this._slots[character_view.id];
+            const infobox_pos = slot.kinematics.position;
+            if(character_view instanceof CharacterView){
+               show_info(texts.ui.timeline, infobox_pos.translate({ x: 32, y: 64 }));
+            } else {
+                show_info(texts.ui.new_cycle, infobox_pos.translate({ y: 50  }));
+            }
+        } else if(this.is_mouse_over_cycle_clock){
+            show_info(texts.ui.new_cycle, this._cycle_rect.position.translate({ x: 30, y: 40 }));
         }
 
         this._character_views.forEach((view, idx) => {
@@ -149,7 +154,7 @@ class Timeline
                 view._ap_bar.short_text.enabled = view.is_player;
                 view._ap_bar.helptext.enabled = view.is_player;
                 view._ap_bar.helptext._events = {
-                    on_mouse_over: ()=> show_info(texts.ui.action_points),
+                    on_mouse_over: ()=> show_info(texts.ui.action_points, view._ap_bar._area.bottom_right),
                 };
             }
 
@@ -276,6 +281,8 @@ class Timeline
         const Xcenter = this.position.x + timeline_config.line_shift_x;
         const Ycenter = this.position.y;
 
+        this._cycle_rect = new Rectangle({ position: this.position, width: timeline_config.line_shift_x *2, height: timeline_config.line_shift_x * 2 });
+
         canvas_context.save();
         canvas_context.beginPath();
         canvas_context.moveTo (Xcenter +  size * Math.cos(0), Ycenter +  size *  Math.sin(0));
@@ -396,8 +403,11 @@ class Timeline
         }
     }
 
-    get is_mouse_over() { return this.pointed_slot(input.mouse.position) !== undefined; }
-    is_under(position) { return this.pointed_slot(position) !== undefined; }
+    get is_mouse_over() { return this.is_under(input.mouse.position); }
+    is_under(position) { return this.is_under_cycle_clock(position) || this.pointed_slot(position) !== undefined; }
+
+    get is_mouse_over_cycle_clock() { return this.is_under_cycle_clock(input.mouse.position); }
+    is_under_cycle_clock(position) { return this._cycle_rect && is_point_under(position, this._cycle_rect); }
 
     _draw_locator(canvas_context){
 
