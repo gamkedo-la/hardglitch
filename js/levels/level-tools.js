@@ -305,7 +305,7 @@ function deserialize_entity_desc(entity_desc){
     entity.position = entity_desc.position ? entity_desc.position : new concepts.Position();
     entity.is_crucial = entity_desc.is_crucial;
     entity.drops_are_crucial = entity_desc.drops_are_crucial;
-    if(entity_desc.drops){
+    if(entity_desc.drops != null){
         debug.assertion(()=>entity_desc.drops instanceof Array);
         entity.drops = [];
         const drop_it = (drop_type_name) => {
@@ -315,13 +315,25 @@ function deserialize_entity_desc(entity_desc){
             drop.is_crucial = entity_desc.drops_are_crucial;
             debug.assertion(()=>drop instanceof concepts.Entity);
             entity.drops.push(drop);
-        }
-        entity_desc.drops.forEach(drop_type_name => {
-            if(typeof drop_type_name === "string"){
-                drop_it(drop_type_name);
-            } else if (drop_type_name instanceof Array) {
-                const drops = drop_type_name;
+            return drop;
+        };
+
+        entity_desc.drops.forEach((drop_element)=>{
+            if(drop_element == null) return;
+            if(typeof drop_element === "string"){
+                drop_it(drop_element);
+            } else if (drop_element instanceof Array) {
+                const drops = drop_element;
                 drops.forEach(drop_it);
+            } else if (drop_element instanceof Object) {
+                debug.assertion(()=>typeof drop_element.type === "string");
+                const drop = drop_it(drop_element.type);
+                for(const [key,value] of Object.entries(drop_element)){
+                    if(key === "type") continue;
+                    drop[key] = value;
+                }
+            } else {
+                debug.assertion(false);
             }
         });
     }
