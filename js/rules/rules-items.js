@@ -161,7 +161,7 @@ class InventoryItemDropped extends concepts.Event {
 function drop_items_around(world, dropper, ...items){
     debug.assertion(()=>world instanceof concepts.World);
     debug.assertion(()=>dropper instanceof Character);
-    debug.assertion(()=>items.every(item => item instanceof concepts.Item));
+    debug.assertion(()=>items.every(item => item instanceof concepts.Entity));
     return spawn_entities_around(world, dropper.position, items, EntityDropped);
 }
 
