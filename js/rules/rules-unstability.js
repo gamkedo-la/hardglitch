@@ -174,7 +174,7 @@ function teleport_entities_in_unstable_tiles_and_vanish(world) {
         // Randomly teleport the entity
         events.push(...random_jump(world, entity, unstable_random_jump_range, valid_positions)); // If the entity is a character, they can be teleported outside their range of view.
         // Vanish the unstability
-        unstable_grid.elements.remove_at(pos);
+        unstable_grid.remove_at(pos);
         events.push(new UnstabilityVanished(pos, unstability));
     });
 
