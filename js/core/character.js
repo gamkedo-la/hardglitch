@@ -45,11 +45,14 @@ class StatValue {
     _accumulate_modifiers(field_name) {
         debug.assertion(()=>field_name === "value" || field_name === "max" || field_name === "min");
         return Object.values(this._modifiers)
-                    .filter(modifier => modifier[field_name] !== undefined)
+                    .filter(modifier => modifier[field_name] != null)
                     .reduce((accumulated, modifier)=> accumulated + modifier[field_name], 0);
     }
 
     _compute_value_or_get_cache(field_name, compute){
+        debug.assertion(()=> typeof field_name === "string");
+        debug.assertion(()=> compute instanceof Function);
+
         if(this._cache_is_valid[field_name] === true){
             const cached_value = this._cache[field_name];
             debug.assertion(()=> Number.isInteger(cached_value));
@@ -85,10 +88,10 @@ class StatValue {
     get value() {
         const compute_current_value = ()=>{
             let value = this._value + this.accumulated_value_modifiers;
-            if(this.max){
+            if(this.max != null){
                 value = Math.min(value, this.max);
             }
-            if(this.min){
+            if(this.min != null){
                 value = Math.max(value, this.min);
             }
             return value;
@@ -190,7 +193,10 @@ class StatValue {
     }
 
     _notify_listeners(){
-        Object.values(this._listeners).forEach(listener => listener(this));
+        Object.values(this._listeners).forEach(listener => {
+            this._invalidate_cache();
+            listener(this)
+        });
     }
 
 };
