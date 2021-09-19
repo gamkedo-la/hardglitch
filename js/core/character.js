@@ -326,26 +326,18 @@ class Inventory {
 
     _activate(item){
         debug.assertion(()=>item instanceof concepts.Entity);
-        if(this._item_being_activated === item)
-            return;
-        this._item_being_activated = item;
         this._apply_modifiers(item);
         if(item.on_activated instanceof Function){
             item.on_activated();
         }
-        delete this._item_being_activated;
     }
 
     _deactivate(item){
         debug.assertion(()=>item instanceof concepts.Entity);
-        if(this._item_being_deactivated === item)
-            return;
-        this._item_being_deactivated = item;
         this._reverse_modifiers(item);
         if(item.on_deactivated instanceof Function){
             item.on_deactivated();
         }
-        delete this._item_being_deactivated;
     }
 
     _apply_modifiers(item){
