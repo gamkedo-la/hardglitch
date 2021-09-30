@@ -343,7 +343,7 @@ const defs = {
     [ID.STREAM_LEFT] : {
         sprite_def: sprite_defs.stream_left,
         is_walkable: true,
-        is_safe: true,
+        is_safe: false,
         is_view_blocking: false,
         editor_name: "Stream Buffer -> West",
         name: "Stream Buffer -> West",
@@ -354,7 +354,7 @@ const defs = {
     [ID.STREAM_RIGHT] : {
         sprite_def: sprite_defs.stream_right,
         is_walkable: true,
-        is_safe: true,
+        is_safe: false,
         is_view_blocking: false,
         editor_name: "Stream Buffer -> East",
         name: "Stream Buffer -> East",
@@ -365,7 +365,7 @@ const defs = {
     [ID.STREAM_UP] : {
         sprite_def: sprite_defs.stream_up,
         is_walkable: true,
-        is_safe: true,
+        is_safe: false,
         is_view_blocking: false,
         editor_name: "Stream Buffer -> North",
         name: "Stream Buffer -> North",
@@ -376,7 +376,7 @@ const defs = {
     [ID.STREAM_DOWN] : {
         sprite_def: sprite_defs.stream_down,
         is_walkable: true,
-        is_safe: true,
+        is_safe: false,
         is_view_blocking: false,
         editor_name: "Stream Buffer -> South",
         name: "Stream Buffer -> South",
