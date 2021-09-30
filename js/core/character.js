@@ -212,7 +212,7 @@ class CharacterStats {
     action_points = new StatValue(10, 10);      // Action points (AP) are spent to perform actions. Can be negative.
     ap_recovery = new StatValue(10);            // How much AP to restore each turn.
 
-    view_distance = new StatValue(default_view_distance); // How far can the character perceive.
+    view_distance = new StatValue(default_view_distance, undefined, 0); // How far can the character perceive.
     inventory_size = new StatValue(default_inventory_size, undefined, 0); // How many items a character can store in inventory.
     activable_items = new StatValue(default_activable_items, undefined, 0); // How many inventory slots can active items.
 
