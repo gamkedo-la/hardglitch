@@ -642,6 +642,14 @@ const exit_rooms = {
         "grids" : {"floor":[123,123,123,123,103,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,30,30,123,103,123,30,30,30,30,123,30,103,103,30,103,103,103,103,103,103,103,103,123,103,103,123,123,30,103,103,103,103,103,103,103,103,123,30,103,103,103,103,122,122,103,103,30,30,103,103,103,103,123,123,103,103,103,103,103,103,103,103,103,123,30,103,122,103,103,30,103,103,103,103,103,103,123,103,30,123,123,103,103,103,103,103,103,103,103,103,103,103,103,103,103,103,103,103,103,103,122,103,103,123,103,103,123,123,103,103,103,103,103,103,103,103,103,123,30,103,103,103,103,103,103,103,103,103,122,103,123,103,103,123,123,103,103,103,103,103,103,103,103,103,123,30,103,30,122,103,103,122,103,103,103,122,122,123,103,103,123,123,103,103,103,103,103,103,103,103,103,123,103,103,103,122,103,103,103,122,103,103,103,30,123,103,103,123,123,103,103,103,103,103,103,103,103,103,123,103,103,103,103,103,103,103,103,103,103,103,30,123,103,103,123,123,30,103,103,103,103,103,103,103,103,123,30,103,122,30,103,122,122,103,30,122,103,30,123,103,103,123,123,30,30,103,103,103,103,103,103,103,123,30,103,103,103,103,103,103,103,103,103,103,30,123,103,103,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123],"surface":[null,null,null,null,9111,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,9111,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,9111,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,52,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,52,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,52,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,52,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,1,1,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"corruption":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"unstable":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},
         "entities" : [{"type":"Virus","position":{"x":6,"y":7},"drops":null},{"type":"Virus","position":{"x":3,"y":8},"drops":null},{"type":"Virus","position":{"x":8,"y":6},"drops":null},{"type":"AntiVirus","position":{"x":17,"y":1},"drops":null},{"type":"AntiVirus","position":{"x":16,"y":5},"drops":null},{"type":"AntiVirus","position":{"x":15,"y":7},"drops":null},{"type":"AntiVirus","position":{"x":19,"y":7},"drops":null},{"type":"LifeForm_Berserk","position":{"x":22,"y":5},"drops":["LifeForm_Aggressive"]},{"type":"Program","position":{"x":13,"y":4},"drops":null},{"type":"Program","position":{"x":14,"y":4},"drops":null},{"type":"Program","position":{"x":18,"y":4},"drops":null},{"type":"Microcode","position":{"x":25,"y":1},"drops":null},{"type":"MovableWall_Blue","position":{"x":3,"y":7},"drops":null},{"type":"MovableWall_Blue","position":{"x":6,"y":6},"drops":null},{"type":"MovableWall_Blue","position":{"x":8,"y":5},"drops":null},{"type":"MovableWall_Blue","position":{"x":7,"y":6},"drops":null},{"type":"MovableWall_Blue","position":{"x":7,"y":5},"drops":null},{"type":"MovableWall_Blue","position":{"x":5,"y":6},"drops":null},{"type":"MovableWall_Blue","position":{"x":5,"y":7},"drops":null},{"type":"MovableWall_Blue","position":{"x":4,"y":8},"drops":null},{"type":"MovableWall_Blue","position":{"x":2,"y":8},"drops":null},{"type":"MovableWall_Blue","position":{"x":4,"y":7},"drops":null},{"type":"MovableWall_Blue","position":{"x":2,"y":6},"drops":null},{"type":"MovableWall_Blue","position":{"x":4,"y":6},"drops":null},{"type":"MovableWall_Blue","position":{"x":3,"y":6},"drops":null},{"type":"MovableWall_Blue","position":{"x":9,"y":5},"drops":null},{"type":"MovableWall_Blue","position":{"x":1,"y":7},"drops":null},{"type":"MovableWall_Blue","position":{"x":6,"y":3},"drops":null},{"type":"MovableWall_Blue","position":{"x":4,"y":4},"drops":null},{"type":"MovableWall_Blue","position":{"x":2,"y":3},"drops":null},{"type":"MovableWall_Blue","position":{"x":8,"y":2},"drops":null},{"type":"MovableWall_Glass_Orange","position":{"x":7,"y":3},"drops":null},{"type":"MovableWall_Glass_Orange","position":{"x":5,"y":5},"drops":null},{"type":"MovableWall_Glass_Orange","position":{"x":2,"y":5},"drops":null},{"type":"MovableWall_Glass_Orange","position":{"x":9,"y":4},"drops":null},{"type":"MovableWall_Glass_Orange","position":{"x":6,"y":10},"drops":null},{"type":"MovableWall_Glass_Orange","position":{"x":6,"y":9},"drops":null},{"type":"MovableWall_Glass_Orange","position":{"x":7,"y":9},"drops":null},{"type":"MovableWall_Glass_Orange","position":{"x":8,"y":9},"drops":null},{"type":"MovableWall_Glass_Orange","position":{"x":8,"y":10},"drops":null},{"type":"MovableWall_Glass_Orange","position":{"x":4,"y":9},"drops":null},{"type":"MovableWall_Glass_Orange","position":{"x":8,"y":7},"drops":null},{"type":"BlackBox","position":{"x":7,"y":10},"drops":null},{"type":"BlackBox","position":{"x":20,"y":5},"drops":null}]
     },
+    dangerous: {
+        "name" : "Level 2 Exit - Dangerous",
+        "level_id": null,
+        "width" : 27,
+        "height" : 12,
+        "grids" : {"floor":[123,123,123,123,103,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,30,30,123,103,123,103,103,103,103,123,103,103,103,103,103,103,103,103,103,103,103,103,103,103,103,123,123,103,103,103,103,103,103,103,103,103,103,103,103,103,123,103,103,103,103,103,103,103,103,103,103,103,123,123,103,103,103,103,103,103,103,103,103,103,103,103,103,103,103,103,103,103,30,30,30,30,30,103,103,123,123,103,103,103,103,103,103,103,103,103,30,103,103,103,103,103,103,30,30,30,30,103,30,30,103,103,123,123,30,103,103,103,103,103,103,103,103,103,103,103,103,103,103,30,30,30,30,103,103,103,30,103,103,123,123,30,30,103,103,103,103,103,30,123,30,30,103,103,103,103,103,30,30,30,30,103,30,30,103,103,123,123,103,103,103,103,103,103,103,103,30,103,103,103,103,103,103,103,103,103,30,30,30,30,30,103,103,123,123,103,103,123,103,103,103,103,103,103,103,103,103,103,123,103,103,103,103,103,103,103,103,103,103,103,123,123,103,103,103,103,103,30,30,103,103,103,103,103,103,103,103,123,103,103,103,103,103,103,103,103,103,123,123,103,103,103,103,103,103,103,103,103,103,103,123,103,103,103,103,103,103,103,103,103,30,103,103,103,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123,123],"surface":[null,null,null,null,9111,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,null,null,9108,9108,null,null,null,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,53,53,53,53,53,9108,9108,null,null,9108,9108,null,null,null,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,53,53,null,null,null,null,null,50,9108,null,null,9108,9108,9108,9108,9108,9108,9108,9108,9108,null,9108,9108,9108,9108,51,51,null,null,null,null,null,null,null,50,9108,null,null,null,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,51,null,null,null,null,null,1,null,null,50,9108,null,null,null,null,9108,9108,9108,9108,9108,null,9108,null,null,9108,9108,9108,51,51,null,null,null,null,null,null,null,50,9108,null,null,9108,9108,9113,9108,9108,9108,9108,9108,null,9108,9108,9113,9108,9108,9108,9108,52,52,null,null,null,null,null,50,9108,null,null,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,52,52,52,52,52,9108,9108,null,null,9108,9108,9108,9108,9113,null,null,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,null,null,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,9108,null,9108,9108,9108,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"corruption":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"unstable":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},
+        "entities" : [{"type":"LifeForm_Berserk","position":{"x":11,"y":1},"drops":["LifeForm_Aggressive",null]},{"type":"LifeForm_Berserk","position":{"x":17,"y":10},"drops":["LifeForm_Aggressive",null]},{"type":"LifeForm_Berserk","position":{"x":3,"y":9},"drops":["LifeForm_Aggressive",null]}]
+    }
 };
 
 
@@ -893,8 +901,9 @@ function populate_entities(room_info, crypto_config, is_exit=false){
         return valid_crypto_file;
     }();
 
-    const any_random_crypto_keys = room_info.world_desc.is_start ? any_random_crypto_file.map(file_name => file_name.replace("CryptoFile_", "CryptoKey_"))
-                                 : any_valid_entity.filter(type_name => type_name.startsWith("CryptoKey_") && !crypto_config.is_reserved(type_name));
+    const any_random_crypto_keys = is_exit ? [ `CryptoKey_${crypto_config.exit_crypto_kind}` ]
+                                : room_info.world_desc.is_start ? any_random_crypto_file.map(file_name => file_name.replace("CryptoFile_", "CryptoKey_"))
+                                    : any_valid_entity.filter(type_name => type_name.startsWith("CryptoKey_") && !crypto_config.is_reserved(type_name));
 
     debug.assertion(()=> !room_info.is_start || (any_random_crypto_file.length === 1 && any_random_crypto_keys.length === 1 && [...any_random_crypto_keys, ...any_random_crypto_file ].every(name => name.startsWith("Crypto"))));
 
@@ -909,20 +918,8 @@ function populate_entities(room_info, crypto_config, is_exit=false){
     const converted_desc = copy_data(room_desc);
     // We convert proc-gen tiles to some choices, the choices must be the same for the whole chunk being worked on.
 
-    const spawn = (entity_template, position)=>{
-        debug.assertion(()=> (entity_template instanceof Object && typeof entity_template.type === 'string') || entity_template instanceof Function || entity_template.next instanceof Function);
+    const spawn = (entity, position)=>{
         debug.assertion(()=> position instanceof Position);
-        let entity;
-        if(entity_template instanceof Function){
-            entity = entity_template();
-            if(entity == null) return;
-        } else if(entity_template.next instanceof Function) {
-            entity = entity_template.next().value;
-            if(entity == null) return;
-        } else {
-            entity = copy_data(entity_template);
-        }
-
         debug.assertion(()=> entity instanceof Object);
         debug.assertion(()=> entity.type !== "GlitchyGlitchMacGlitchy");
         const final_entity = Object.assign(entity, {
@@ -946,18 +943,36 @@ function populate_entities(room_info, crypto_config, is_exit=false){
 
         return (tile, tile_idx) => {
             if(tile === tile_match){
+
                 if(Number.isInteger(entity_template)){ // We got a tile id instead of an entity: replace the previous tile by that one.
                     if(tiles.is_stream_tile(entity_template) && !tiles.is_safely_walkable(room_desc.grids.floor[tile_idx]))
                         return null; // Ignore stream-buffer tiles when over an unwalkable position.
                     return entity_template;
                 }
 
-                debug.assertion(()=> entity_template instanceof Object);
+                let entity;
+                if(entity_template instanceof Function){
+                    entity = entity_template();
+                    if(entity == null) return null;
+                } else if(entity_template.next instanceof Function) {
+                    entity = entity_template.next().value;
+                    if(entity == null) return null;
+                } else {
+                    entity = copy_data(entity_template);
+                }
+
+                if(Number.isInteger(entity)){ // We got a tile id instead of an entity: replace the previous tile by that one.
+                    if(tiles.is_stream_tile(entity) && !tiles.is_safely_walkable(room_desc.grids.floor[tile_idx]))
+                        return null; // Ignore stream-buffer tiles when over an unwalkable position.
+                    return entity;
+                }
+
+                debug.assertion(()=> entity instanceof Object);
                 // We got an entity.
 
                 if(tiles.is_safely_walkable(room_desc.grids.floor[tile_idx])){ // Ignore spawn tiles when they are on unwalkable places
                     const position = new Position(position_from_index(room_desc.width, room_desc.height, tile_idx));
-                    spawn(entity_template, position);
+                    spawn(entity, position);
                 }
 
                 return null;
@@ -1014,6 +1029,13 @@ function populate_entities(room_info, crypto_config, is_exit=false){
             }();
         }),
 
+        // SPAWN: stream buffers with random directions for each square
+        spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_9, ()=> {
+            return function*(){
+                while(true) yield random_sample(any_stream_buffer_id);
+            }();
+        }),
+
         // SPAWN: crypto-keys
         spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_10, ()=> {
             const generator = function*(){
@@ -1052,8 +1074,8 @@ function populate_entities(room_info, crypto_config, is_exit=false){
             }();
         }),
 
-        // SPAWN: stream buffers (in one direction) or none
-        spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_14, ()=> random_sample([ ...any_stream_buffer_id, null ])),
+        // SPAWN: stream buffers (in one direction)
+        spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_14, ()=> random_sample([ ...any_stream_buffer_id ])),
 
         // SPAWN: maybe any entity that is not a key/file o
         spawn_tile_converter(tiles.ID.PROCGEN_SPAWN_15, ()=>{
@@ -1165,6 +1187,14 @@ function populate_entities(room_info, crypto_config, is_exit=false){
             return new_tile_id;
     });
 
+    if(is_exit){
+        // Put the crypto-keys in the potential black boxes
+        converted_desc.entities.forEach(entity => {
+            if(entity.type === "BlackBox")
+                entity.drops = [`CryptoKey_${crypto_config.exit_crypto_kind}`];
+        })
+    }
+
     room_info.world_desc = converted_desc;
     return room_info;
 }
@@ -1183,7 +1213,7 @@ function find_random_empty_area(world){
     }
 }
 
-function populate_crypto_files(world_desc, crypto_config){
+function populate_crypto_files(world_desc, crypto_config, validate=true){
     tools.check_world_desc(world_desc);
     debug.assertion(()=> crypto_config instanceof CryptoConfig);
 
@@ -1208,10 +1238,10 @@ function populate_crypto_files(world_desc, crypto_config){
     const max_special_keys = 4;
 
     const exit_door = crypto_files.filter(entity => entity.type == exit_crypto_file_type);
-    if(exit_door.length !== 1) return null;
+    if(validate && exit_door.length < 1) return null;
 
     const special_chests = chest_crypto_files.filter(entity => entity.type == special_crypto_file_type);
-    if(special_chests.length < min_special_keys) return null;
+    if(validate && special_chests.length < min_special_keys) return null;
 
     // Fill special chests
     const special_chest_content_generator = function*(){
@@ -1244,7 +1274,11 @@ function populate_crypto_files(world_desc, crypto_config){
         ...black_boxes,
     ];
     shuffle_array(other_chests);
-    other_chests.forEach(chest => chest.drops = [ other_chest_content_generator.next().value ]);
+    other_chests.forEach(chest => {
+        if(chest.drops == null){
+            chest.drops = [ other_chest_content_generator.next().value ];
+        }
+    });
 
     // Add keys to find in deserted areas
     let keys_to_add = Math.max(allowed_chests.length * 2, 8);
@@ -1409,10 +1443,12 @@ window.level_2_rooms = rooms;
 window.level_2_starting_rooms = starting_rooms;
 window.level_2_exit_rooms = exit_rooms;
 
-window.level_2_process_procgen_tiles = (world_desc)=> {
+window.level_2_process_procgen_tiles = (world_desc, is_exit=false)=> {
     world_desc = process_procgen_tiles(world_desc);
-    const world_info = populate_entities({ position: new Position(), world_desc: world_desc });
-    return world_info.world_desc;
+    const crypto_config = new CryptoConfig();
+    const world_info = populate_entities({ position: new Position(), world_desc: world_desc }, crypto_config, is_exit);
+    const poulated_world_desc = populate_crypto_files(world_info.world_desc, crypto_config, false);
+    return poulated_world_desc;
 }
 
 window.level_2_procgen_test_room = {
