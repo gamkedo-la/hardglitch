@@ -1230,8 +1230,44 @@ function populate_crypto_files(world_desc, crypto_config, validate=true){
     const special_crypto_key_type = `CryptoKey_${crypto_config.special_crypto_kind}`;
     const special_crypto_file_type = `CryptoFile_${crypto_config.special_crypto_kind}`;
 
-    const powerful_items = [ "Item_ComputerCluster" ].map(as_entity); // TODO: fill this with powerful items
-    const useful_items = [ "Item_Crawl" ].map(as_entity); // TODO: fill this with powerful items
+    const powerful_items = [
+        "Item_FreeJump",
+        "Item_FreeJump",
+        "Item_ComputerCluster",
+        "Item_ComputerCluster",
+        "Item_ComputerCluster",
+        "Item_ComputerCluster",
+        "Item_FrequencyBoost",
+        "Item_DataBender",
+        "Item_DataBender",
+        "Item_PowerGlove",
+        "Item_Destructor",
+        "Item_Destructor",
+        "Item_Destructor",
+        "Item_Shift",
+        "Item_ForceWave",
+        "Item_PushCardinal",
+    ].map(as_entity);
+
+    const useful_items = [
+        "Item_IntegrityBoost",
+        "Item_Crawl",
+        "Item_Jump",
+        "Item_Push",
+        "Item_Pull",
+        "Item_Swap",
+        "Item_Scanner",
+        "Item_ThreadPool",
+        "Item_Zip",
+        "Item_MemoryCleanup",
+        "Item_ByteClearer",
+        "Item_Freeze",
+        "Item_Corrupt",
+        "Item_Destabilize",
+        "Item_AutoRepair",
+        "Item_BlockMaster",
+        "Item_CriticalSection",
+    ].map(as_entity);
 
     const max_exit_keys = 2;
     const min_special_keys = 2;
