@@ -883,8 +883,9 @@ function populate_entities(room_info, crypto_config, is_exit=false){
     debug.assertion(()=> crypto_config instanceof CryptoConfig);
     debug.assertion(()=> typeof is_exit === 'boolean');
 
-
-    const any_valid_entity = Object.keys(all_entity_types()).filter(type_name => !type_name.startsWith("Debug_") && type_name != "GlitchyGlitchMacGlitchy");
+    const is_allowed_cryptoitem_or_other = (type_name)=> !type_name.startsWith("Crypto") || !type_name.endsWith(crypto_config.exit_crypto_kind);
+    const any_valid_entity = Object.keys(all_entity_types()).filter(type_name => !type_name.startsWith("Debug_") && type_name != "GlitchyGlitchMacGlitchy" && is_allowed_cryptoitem_or_other(type_name));
+    const valid_crypto_files = Object.values(items.crypto_names).filter(kind => kind != crypto_config.exit_crypto_kind).map(kind => `CryptoFile_${kind}`);
     const any_opaque_block = [ "MovableWall_Blue", "MovableWall_Green", "MovableWall_Orange", "MovableWall_Purple", "MovableWall_Red" ];
     const any_transparent_block = [ "MovableWall_Glass_Blue", "MovableWall_Glass_Green", "MovableWall_Glass_Orange", "MovableWall_Glass_Purple", "MovableWall_Glass_Red" ];
     const any_block = [...any_opaque_block, ...any_transparent_block];
@@ -892,18 +893,21 @@ function populate_entities(room_info, crypto_config, is_exit=false){
         if(is_exit)
             return [ `CryptoFile_${crypto_config.exit_crypto_kind}` ];
 
-        const valid_crypto_file = any_valid_entity.filter(type_name => type_name.startsWith("CryptoFile_") && !type_name.endsWith(crypto_config.exit_crypto_kind));
-
         if(room_info.world_desc.is_start){
-            return [ random_sample(valid_crypto_file) ];
+            return [ random_sample(valid_crypto_files) ];
         }
 
-        return valid_crypto_file;
+        return valid_crypto_files;
     }();
 
-    const any_random_crypto_keys = is_exit ? [ `CryptoKey_${crypto_config.exit_crypto_kind}` ]
-                                : room_info.world_desc.is_start ? any_random_crypto_file.map(file_name => file_name.replace("CryptoFile_", "CryptoKey_"))
-                                    : any_valid_entity.filter(type_name => type_name.startsWith("CryptoKey_") && !crypto_config.is_reserved(type_name));
+    const any_random_crypto_keys = function(){
+        if(is_exit)
+            return [ `CryptoKey_${crypto_config.exit_crypto_kind}` ];
+        if(room_info.world_desc.is_start)
+            return any_random_crypto_file.map(file_name => file_name.replace("CryptoFile_", "CryptoKey_"));
+        else
+            return any_valid_entity.filter(type_name => type_name.startsWith("CryptoKey_") && !crypto_config.is_reserved(type_name));
+    }();
 
     debug.assertion(()=> !room_info.is_start || (any_random_crypto_file.length === 1 && any_random_crypto_keys.length === 1 && [...any_random_crypto_keys, ...any_random_crypto_file ].every(name => name.startsWith("Crypto"))));
 
@@ -1058,7 +1062,8 @@ function populate_entities(room_info, crypto_config, is_exit=false){
             const generator = function*(){
                 while(true) {
                     const door = as_entity(random_sample(any_random_crypto_file));
-                    door.drops = [ `CryptoKey_${door.type.substring("CryptoKey_".length+1)}` ];
+                    // if(!is_exit)
+                    //     door.drops = [ `CryptoKey_${door.type.substring("CryptoKey_".length+1)}` ];
                     yield door;
                 }
             };
@@ -1195,7 +1200,7 @@ function populate_entities(room_info, crypto_config, is_exit=false){
         // Put the crypto-keys in the potential black boxes
         converted_desc.entities.forEach(entity => {
             if(entity.type === "BlackBox")
-                entity.drops = [`CryptoKey_${crypto_config.exit_crypto_kind}`];
+                entity.drops = [`CryptoKey_${random_sample(crypto_config.reserved_crypto_kinds)}`];
         })
     }
 
@@ -1234,7 +1239,7 @@ function populate_crypto_files(world_desc, crypto_config, validate=true){
     const special_crypto_key_type = `CryptoKey_${crypto_config.special_crypto_kind}`;
     const special_crypto_file_type = `CryptoFile_${crypto_config.special_crypto_kind}`;
 
-    const powerful_items = items.powerful_items().map(item_type => as_entity(item_type.name));
+    const powerful_items = items.powerful_items_bag().map(item_type => as_entity(item_type.name));
     const useful_items = items.useful_items().map(item_type => as_entity(item_type.name));
 
     const max_exit_keys = 2;
@@ -1285,7 +1290,7 @@ function populate_crypto_files(world_desc, crypto_config, validate=true){
     });
 
     // Add keys to find in deserted areas
-    let keys_to_add = Math.max(allowed_chests.length * 2, 8);
+    let keys_to_add = Math.round(Math.max(allowed_chests.length + 4, 8));
     const world = tools.deserialize_world(new_world_desc); // for ease of processing
     while(keys_to_add > 0){
         const position = find_random_empty_area(world);

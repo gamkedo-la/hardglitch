@@ -67,7 +67,7 @@ export {
     all_transparent_movable_walls,
     all_movable_walls,
     useful_items,
-    powerful_items,
+    powerful_items_bag,
 
     Debug_AllActions,
 }
@@ -204,19 +204,14 @@ function all_item_types(){
     ];
 }
 
-function powerful_items() {
+function powerful_items_bag() {
     return [
         Item_FreeJump,
-        Item_FreeJump,
-        Item_ComputerCluster,
-        Item_ComputerCluster,
         Item_ComputerCluster,
         Item_ComputerCluster,
         Item_FrequencyBoost,
         Item_DataBender,
-        Item_DataBender,
         Item_PowerGlove,
-        Item_Destructor,
         Item_Destructor,
         Item_Destructor,
         Item_Shift,
