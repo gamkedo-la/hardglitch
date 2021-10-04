@@ -258,7 +258,7 @@ class GameOverScreen_Failure extends fsm.State {
     }
 
     display(canvas_context){
-        graphics.draw_rectangle(canvas_context, graphics.canvas_rect(), "red");
+        graphics.draw_rectangle(canvas_context, graphics.canvas_rect(), "black");
         invoke_on_members(this.ui, "draw", canvas_context);
         this.skull_icon.draw(canvas_context); //in display
         this.fader.display(canvas_context);
