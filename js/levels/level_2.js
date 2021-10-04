@@ -12,7 +12,7 @@ import { Position } from "../core/concepts.js";
 import { copy_data, position_from_index, random_bag_pick, random_int, random_sample, shuffle_array } from "../system/utility.js";
 import { Rectangle, Vector2 } from "../system/spatial.js";
 import { all_characters_types } from "../deflinitions-characters.js";
-import { crypto_names } from "../definitions-items.js";
+import * as items from "../definitions-items.js";
 
 
 const level_name = "Level 2: Random Access Memory";
@@ -847,14 +847,14 @@ class CryptoConfig
         // 2. A crypto-kind for the files containing the key for the exit room (or useful items).
         // 3. The other crypto-kinds + black box giving either the crypto-kind for 2 or useful items.
 
-        const possible_kinds = Object.values(crypto_names);
+        const possible_kinds = Object.values(items.crypto_names);
         this.exit_crypto_kind = random_bag_pick(possible_kinds, 1)[0];  // 1
         debug.assertion(()=> typeof this.exit_crypto_kind == "string");
         this.special_crypto_kind = random_bag_pick(possible_kinds, 1)[0];
         debug.assertion(()=> typeof this.special_crypto_kind == "string");
 
-        debug.assertion(()=> Object.values(crypto_names).includes(this.exit_crypto_kind));
-        debug.assertion(()=> Object.values(crypto_names).includes(this.special_crypto_kind));
+        debug.assertion(()=> Object.values(items.crypto_names).includes(this.exit_crypto_kind));
+        debug.assertion(()=> Object.values(items.crypto_names).includes(this.special_crypto_kind));
 
         this.reserved_crypto_kinds = [ this.exit_crypto_kind, this.special_crypto_kind ];
         this.available_crypto_kinds = possible_kinds; // the kinds left.
@@ -1234,44 +1234,8 @@ function populate_crypto_files(world_desc, crypto_config, validate=true){
     const special_crypto_key_type = `CryptoKey_${crypto_config.special_crypto_kind}`;
     const special_crypto_file_type = `CryptoFile_${crypto_config.special_crypto_kind}`;
 
-    const powerful_items = [
-        "Item_FreeJump",
-        "Item_FreeJump",
-        "Item_ComputerCluster",
-        "Item_ComputerCluster",
-        "Item_ComputerCluster",
-        "Item_ComputerCluster",
-        "Item_FrequencyBoost",
-        "Item_DataBender",
-        "Item_DataBender",
-        "Item_PowerGlove",
-        "Item_Destructor",
-        "Item_Destructor",
-        "Item_Destructor",
-        "Item_Shift",
-        "Item_ForceWave",
-        "Item_PushCardinal",
-    ].map(as_entity);
-
-    const useful_items = [
-        "Item_IntegrityBoost",
-        "Item_Crawl",
-        "Item_Jump",
-        "Item_Push",
-        "Item_Pull",
-        "Item_Swap",
-        "Item_Scanner",
-        "Item_ThreadPool",
-        "Item_Zip",
-        "Item_MemoryCleanup",
-        "Item_ByteClearer",
-        "Item_Freeze",
-        "Item_Corrupt",
-        "Item_Destabilize",
-        "Item_AutoRepair",
-        "Item_BlockMaster",
-        "Item_CriticalSection",
-    ].map(as_entity);
+    const powerful_items = items.powerful_items().map(item_type => as_entity(item_type.name));
+    const useful_items = items.useful_items().map(item_type => as_entity(item_type.name));
 
     const max_exit_keys = 2;
     const min_special_keys = 2;

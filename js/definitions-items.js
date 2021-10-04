@@ -66,6 +66,8 @@ export {
     all_opaque_movable_walls,
     all_transparent_movable_walls,
     all_movable_walls,
+    useful_items,
+    powerful_items,
 
     Debug_AllActions,
 }
@@ -201,6 +203,50 @@ function all_item_types(){
 
     ];
 }
+
+function powerful_items() {
+    return [
+        Item_FreeJump,
+        Item_FreeJump,
+        Item_ComputerCluster,
+        Item_ComputerCluster,
+        Item_ComputerCluster,
+        Item_ComputerCluster,
+        Item_FrequencyBoost,
+        Item_DataBender,
+        Item_DataBender,
+        Item_PowerGlove,
+        Item_Destructor,
+        Item_Destructor,
+        Item_Destructor,
+        Item_Shift,
+        Item_ForceWave,
+        Item_PushCardinal,
+    ];
+}
+
+function useful_items() {
+    return [
+        Item_IntegrityBoost,
+        Item_Crawl,
+        Item_Jump,
+        Item_Push,
+        Item_Pull,
+        Item_Swap,
+        Item_Scanner,
+        Item_ThreadPool,
+        Item_Zip,
+        Item_MemoryCleanup,
+        Item_ByteClearer,
+        Item_Freeze,
+        Item_Corrupt,
+        Item_Destabilize,
+        Item_AutoRepair,
+        Item_BlockMaster,
+        Item_CriticalSection,
+    ];
+}
+
 
 const crypto_kind = {
     triangle: 0,
