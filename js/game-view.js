@@ -617,7 +617,9 @@ class GameView {
                     view.game_position = entity.position;
                     if(entity instanceof Character
                     && !entity.position.equals(entity.field_of_vision.position)){
-                        console.warn(`INCONSISTENT FOV  ${entity.id}: entity = { ${entity.position.x}, ${entity.position.y} }, fov = { ${entity.field_of_vision.position.x}, ${entity.field_of_vision.position.y} }`);
+                        console.warn(`INCONSISTENT FOV  ${entity.id}: entity = { ${entity.position.x}, ${entity.position.y} }, fov = { ${entity.field_of_vision.position.x}, ${entity.field_of_vision.position.y} } - auto-fixing...`);
+                        entity.field_of_vision.position = entity.position;
+                        entity.field_of_vision.update(this.game.world);
                     }
                 }
             });
