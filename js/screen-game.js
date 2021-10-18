@@ -646,11 +646,16 @@ class GameScreen extends fsm.StateMachine {
 
         // Save the state of the world once beginning so that when the player dies they can come back at that exact point.
         debug.log(`Saving progression...`)
-        // window.last_world_entered = editor.export_world(this.game_session.world, true); // Complete save for when the player dies.
+        // const hard_glitch_mode = window.localStorage.getItem("hardglitch_mode");
+        // if(hard_glitch_mode === "glitch") {
+        //     window.last_world_entered = editor.export_world(this.game_session.world, true); // Complete save for when the player dies.
+        // }
         window.last_level_played = level_to_play;
         window.last_level_played_idx = this.current_level_idx;
         window.last_player_character = player_character instanceof Entity ? serialize_entity(player_character) : player_character;
-        // window.localStorage.setItem(save_names.last_level_reached, window.last_world_entered)
+        // if(hard_glitch_mode === "glitch") {
+        //     window.localStorage.setItem(save_names.last_level_reached, window.last_world_entered)
+        // }
         window.localStorage.setItem(save_names.last_level_reached, window.last_level_played);
         if(Number.isInteger(window.last_level_played_idx)) {
             window.localStorage.setItem(save_names.last_level_reached_idx, window.last_level_played_idx);

@@ -137,6 +137,7 @@ class GameOverScreen_Failure extends fsm.State {
                 position: Vector2_origin,
                 text_align: button_text_align,
                 sprite_def: sprite_defs.button_menu,
+                visible: window.localStorage.getItem("hardglitch_mode") === "glitch",
                 action: ()=> { this.retry_level(); },
                 sounds:{
                     over: 'selectButton',

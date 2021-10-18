@@ -91,6 +91,7 @@ const game_state_machine = new class extends fsm.StateMachine {
       gameover_failure: {
         back: "title",
         retry: "game",
+        restart: "game_intro",
       },
       demo: {
         back: "title",

@@ -50,14 +50,14 @@ class MainMenu {
 
         const last_save = window.localStorage.getItem(save_names.last_exit_save);
         const last_save_music = window.localStorage.getItem(save_names.last_exit_save_music);
+        const hard_glitch_mode = window.localStorage.getItem("hardglitch_mode");
         // Deactivated continu button upon death
-        const last_level = undefined;
-        // const last_level = window.localStorage.getItem(save_names.last_level_reached);
-        // const last_level_idx = window.localStorage.getItem(save_names.last_level_reached_idx);
-        // const last_character = window.localStorage.getItem(save_names.last_level_reached_character);
-        // const level_reached_idx = last_level_idx ? JSON.parse(last_level_idx) : undefined;
+        const last_level = window.localStorage.getItem(save_names.last_level_reached);
+        const last_level_idx = window.localStorage.getItem(save_names.last_level_reached_idx);
+        const last_character = window.localStorage.getItem(save_names.last_level_reached_character);
+        const level_reached_idx = last_level_idx ? JSON.parse(last_level_idx) : undefined;
 
-        if(last_save || (last_level && level_reached_idx > 0)){
+        if(last_save || (hard_glitch_mode === "glitch" && last_level && level_reached_idx > 0)){
             this.button_continue = new ui.TextButton({
                 text: last_save ? "Continue" : `Retry LVL ${last_level_idx}`,
                 color: button_text_color,
@@ -83,7 +83,7 @@ class MainMenu {
             });
 
             this.button_continue.helptext = new ui.HelpText({
-                text: auto_newlines(last_save ? "Continue exactly where you were last time you 'Saved & Exit' the game." : `You died (or quit without saving) last time you played Level ${last_level_idx}.\nRetry a variation of this level with the same character and items you had when entering it the first time.`, 24),
+                text: auto_newlines(last_save ? "Continue exactly where you were last time you 'Saved & Exit' the game." : `You died (or closed the window) in 'Glitch' mode last time you played Level ${last_level_idx}.\nRetry a variation of this level with the same character and items you had when entering it the first time.`, 24),
                 area_to_help: this.button_continue.area,
                 delay_ms: 0,
                 position: this.button_continue.position.translate({ x: this.button_continue.width }),
@@ -91,14 +91,15 @@ class MainMenu {
 
         }
 
-        this.button_new_game = new ui.TextButton({
-            text: "New Game",
+        this.button_new_game_easy = new ui.TextButton({
+            text: "New Glitch",
             color: button_text_color,
             font: buttons_font,
             action: ()=> {
                 window.localStorage.removeItem(save_names.last_exit_save);
                 window.localStorage.removeItem(save_names.last_level_reached);
                 window.localStorage.removeItem(save_names.last_level_reached_character);
+                window.localStorage.setItem("hardglitch_mode", "glitch");
                 state_machine.push_action("new_game", 0);
             },
             position: Vector2_origin,
@@ -109,14 +110,37 @@ class MainMenu {
             },
         });
 
-        if(this.button_continue != null){
-            this.button_new_game.helptext = new ui.HelpText({
-                text: auto_newlines("Start a new game. Deletes previous saved games.", 24),
-                area_to_help: this.button_new_game.area,
-                delay_ms: 0,
-                position: this.button_new_game.position.translate({ x: this.button_new_game.width }),
-            });
-        }
+        this.button_new_game_hard = new ui.TextButton({
+            text: "New Crash",
+            color: button_text_color,
+            font: buttons_font,
+            action: ()=> {
+                window.localStorage.removeItem(save_names.last_exit_save);
+                window.localStorage.removeItem(save_names.last_level_reached);
+                window.localStorage.removeItem(save_names.last_level_reached_character);
+                window.localStorage.setItem("hardglitch_mode", "crash");
+                state_machine.push_action("new_game", 0);
+            },
+            position: Vector2_origin,
+            sprite_def: sprite_defs.button_menu,
+            sounds:{
+                over: 'selectButton',
+                down: 'clickButton',
+            },
+        });
+        const desc_width = 26;
+        this.button_new_game_easy.helptext = new ui.HelpText({
+            text: auto_newlines("Start a new 'Glitch' game.\nDeletes previous saved games.\nAfter you die you can continue from the last level you reached.", desc_width),
+            area_to_help: this.button_new_game_easy.area,
+            delay_ms: 0,
+            position: this.button_new_game_easy.position.translate({ x: this.button_new_game_easy.width }),
+        });
+        this.button_new_game_hard.helptext = new ui.HelpText({
+            text: auto_newlines("Start a new 'Crash' game.\nDeletes previous saved game.\nYou have to restart from scratch if you die. Use 'Save & Exit' in the Menu to continue later.\nEnables secret ending.", desc_width),
+            area_to_help: this.button_new_game_hard.area,
+            delay_ms: 0,
+            position: this.button_new_game_hard.position.translate({ x: this.button_new_game_hard.width }),
+        });
 
         this.button_options = new ui.TextButton({
             text: "Options",
@@ -172,7 +196,7 @@ class MainMenu {
         });
 
 
-        const space_between_buttons = this.button_new_game.height + 6;
+        const space_between_buttons = this.button_new_game_easy.height + 6;
         let next_button_y_drift = 40;
         const button_y_drift = () => next_button_y_drift += space_between_buttons;
         const bottom_y = graphics.canvas_rect().bottom_right.y;
