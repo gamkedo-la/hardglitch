@@ -569,7 +569,7 @@ class GameScreen extends fsm.StateMachine {
             },
         });
 
-        this.fader.duration_ms = 2000;
+        this.fader.duration_ms = 800;
     }
 
     *enter(level_to_play, player_character, options){
