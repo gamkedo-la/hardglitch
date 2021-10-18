@@ -12,7 +12,7 @@ import { config } from "../game-config.js";
 
 
 class ScreenFader {
-    duration_ms = 1000;
+    duration_ms = 500;
 
     _color = new Color(0, 0, 0);
     _fade = 1;
