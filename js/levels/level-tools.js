@@ -479,14 +479,15 @@ const world_variations = [
     mirror_horizontal_axe,
 ];
 
-function random_variation(world_desc){
+function random_variation(world_desc, with_rotation=true){
     check_world_desc(world_desc);
     let result_world = copy_data(world_desc);
 
     // debug.log("++++++ World Variation BEGIN: ++++++");
     let variations_count = random_int(0, 5);
+    const possible_transforms = with_rotation ? world_variations : world_variations.filter(func => func !== rotate_world_desc);
     while(variations_count > 0){
-        const variation_func = random_sample(world_variations);
+        const variation_func = random_sample(possible_transforms);
         result_world = variation_func(result_world);
         --variations_count;
         // debug.log(` - ${variation_func.name}`);
