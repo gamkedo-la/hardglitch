@@ -1200,7 +1200,7 @@ function populate_entities(room_info, crypto_config, is_exit=false){
         // Put the crypto-keys in the potential black boxes
         converted_desc.entities.forEach(entity => {
             if(entity.type === "BlackBox")
-                entity.drops = [`CryptoKey_${random_sample(crypto_config.reserved_crypto_kinds)}`];
+                entity.drops = [`CryptoKey_${crypto_config.exit_crypto_kind}`];
         })
     }
 
