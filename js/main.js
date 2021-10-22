@@ -170,7 +170,7 @@ window.onload = async function() {
 function start() { // Now we can start the game!
   mute_button = new MuteAudioButton();
   window.is_mouse_over_mute_button = ()=> mute_button.is_mouse_over; // We pass through the window object to avoid dependency cycles.
-  audio.setVolume("Master", 0.8);
+  audio.setVolume("Master", 0.6);
   audio.setVolume("Music", 0.5);
   audio.setVolume("SoundEffects", 0.5);
   game_state_machine.game_is_ready = true;
