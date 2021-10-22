@@ -57,7 +57,7 @@ function maybe_drop_thanks_items(world, character){
         return;
 
     const thanks_drops = character._thanks_drops;
-    delete character._thanks_drops;
+    character._thanks_drops = true;
     const random_drop = random_sample(thanks_drops);
     const item_idx = character.inventory.add(random_drop);
     return new DropItem(drop_positions[0], item_idx);
@@ -331,11 +331,13 @@ class LifeForm_Berserk extends LifeForm_Aggressive {
 
     repair(integrity_amount){
         const repaired = super.repair(integrity_amount);
-        // Drops everything if you attempt to appease it. (and return to default behavior)
-        this.inventory.extract_all_items_slots();
-        this._thanks_drops = [ new Item_FrequencyBoost() ];
-        if(this.actor instanceof Crusher){
-            this.actor = this.actor._initial_base_behavior;
+        // Drops bonus if you attempt to appease it. (and change behavior)
+        if(!this._thanks_drops){
+            this.inventory.extract_all_items_slots();
+            this._thanks_drops = [ new Item_FrequencyBoost() ];
+            if(this.actor instanceof Crusher){
+                this.actor = this.actor._initial_base_behavior;
+            }
         }
         return repaired;
     }
