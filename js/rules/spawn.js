@@ -60,7 +60,7 @@ class EntitySpawned extends concepts.Event {
     }
 };
 
-const default_spawn_position_predicate = tiles.is_walkable;
+const default_spawn_position_predicate = tiles.is_safely_walkable;
 
 function spawn_entities_around(world, center_position, entities, spawn_event = EntitySpawned, position_predicate = default_spawn_position_predicate, max_range){
     debug.assertion(()=>center_position instanceof concepts.Position);
