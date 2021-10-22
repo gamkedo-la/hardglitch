@@ -966,7 +966,7 @@ function generate_world(){
         canvas_world_chunk.name = level_name;
 
         // Pass 2: put some rooms in a grid, with variations, including the exit and entry
-        const room_grid = { x: 9, y: 1 };
+        const room_grid = { x: 18, y: 1 };
         const room_count = room_grid.x * room_grid.y;
         const room_positions_iter = generate_room_positions(room_grid.x, room_grid.y);
         const selected_rooms_iter = generate_room_selection(room_count);
