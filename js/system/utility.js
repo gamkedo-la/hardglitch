@@ -32,6 +32,7 @@ export {
     some_member,
     every_members,
     predicate_unique,
+    disable_context_menu,
 }
 
 import * as debug from "../system/debug.js";
@@ -394,4 +395,17 @@ function is_iterable(object){
 // See: https://stackoverflow.com/questions/1960473/get-all-unique-values-in-a-javascript-array-remove-duplicates
 function predicate_unique(value, index, self) {
     return self.indexOf(value) === index;
+}
+
+// Source: https://gist.github.com/jvilk/fa21b1df1b08064208e7
+/**
+ * Disables the right click menu for the given element.
+ */
+function disable_context_menu(html_element) {
+    html_element.addEventListener('contextmenu', function (e) {
+        if (e.button == 2) {
+            // Block right-click menu thru preventing default action.
+            e.preventDefault();
+        }
+    });
 }

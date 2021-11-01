@@ -144,6 +144,7 @@ const game_state_machine = new class extends fsm.StateMachine {
 // Loading...
 window.onload = async function() {
   const canvas_context = graphics.initialize();
+  disable_context_menu(canvas_context.canvas);
 
   game_state_machine.start();
   const loading_update = ()=>{
@@ -212,6 +213,7 @@ import * as random_test_level from "./testing/test-level.js";
 import { deserialize_entity, deserialize_world, generate_empty_world } from "./levels/level-tools.js";
 import { ProcgenWarningScreen } from "./screen-procgenwarning.js";
 import { IntroScreen } from "./screen-intro.js";
+import { disable_context_menu } from "./system/utility.js";
 
 function load_level(level_number){
   debug.assertion(()=>Number.isInteger(level_number) && level_number >= 0);
