@@ -45,6 +45,7 @@ import { Unstability } from "./rules/rules-unstability.js";
 import { show_info } from "./ui/ui-infobox.js";
 import { item_description } from "./definitions-texts.js";
 import { CameraControl } from "./view/camera-control.js";
+import { CryptoFile } from "./definitions-items.js";
 
 const a_very_long_time = 99999999999999;
 const goal_message = "Find The Exit!";
@@ -732,6 +733,9 @@ class GameView {
         for(const entity_view of entity_views){
             debug.assertion(()=>entity_view instanceof EntityView);
             entity_view.update(delta_time);
+            if(entity_view.persist_visibility){
+                entity_view.force_visible = this.fog_of_war.was_visible(entity_view.game_position);
+            }
         };
     }
 
@@ -1152,6 +1156,9 @@ class GameView {
             const entity = entity_or_view_or_id;
             const view_type = entity instanceof Character ? CharacterView : ItemView;
             entity_view = new view_type(entity);
+            if(entity instanceof CryptoFile){ // We want to keep some types of entities always visible as soon as they have been seen once.
+                entity_view.persist_visibility = true;
+            }
         } else {
             debug.assertion(()=>entity_or_view_or_id instanceof EntityView);
             entity_view = entity_or_view_or_id;
