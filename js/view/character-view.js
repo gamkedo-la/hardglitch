@@ -25,6 +25,7 @@ class CharacterView extends EntityView {
         this.description = character.description;
         this.is_floating = character.is_floating ? true : false;
         this._fov_sprite = new Sprite(sprite_defs.vision);
+        this._love_sprite = new Sprite(sprite_defs.love);
 
         this._health_bar = new ui.Bar({
             position: this.position.translate( {x:2} ),
@@ -70,6 +71,11 @@ class CharacterView extends EntityView {
             this.set_shadow(sprite_defs.shadow_red);
         }
         super.render_graphics(canvas_context);
+
+        if(this._character.is_player_friend){
+            this._love_sprite.position = this.position;
+            this._love_sprite.draw(canvas_context);
+        }
 
         this._health_bar.position = this.position;
         if(!this.is_being_destroyed

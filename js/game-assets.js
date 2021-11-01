@@ -70,6 +70,7 @@ const game_assets = { // Description of the assets to load.
         movewall_glass_orange: "./images/movewall_orange3.png",
         movewall_glass_purple: "./images/movewall_purple3.png",
         movewall_glass_red: "./images/movewall_red3.png",
+        love: "./images/love.png",
         shadow: "./images/shadow.png",
         shadow2: "./images/shadow2.png",
         shadow_lg: "./images/shadow_lg.png",
@@ -344,6 +345,13 @@ const sprite_defs = {
     level_transition : { image: "level_transition" },
     title_bg : { image: "title_bg" },
     game_over_skull : {image: 'game_over_skull'},
+
+    love : {
+        image: "love",
+        frames: [
+                    { x: 0, y: 0, width: 64, height: 64 },
+                ],
+    },
 
     shadow : {
         image: "shadow",
