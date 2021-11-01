@@ -22,10 +22,12 @@ class FogOfWar {
         this.graphic_width = world.width * PIXELS_PER_TILES_SIDE;
         this.graphic_height = world.height * PIXELS_PER_TILES_SIDE;
 
-        this.viewed_at_least_once_grid = new Array(world.size).fill(false);
+        this.viewed_at_least_once_grid = world.viewed_at_least_once_grid ? world.viewed_at_least_once_grid : new Array(world.size).fill(false);
 
         this._last_seen_canvas_context = graphics.create_canvas_context( this.graphic_width, this.graphic_height);
         this._last_seen_canvas_context.filter = "sepia(60%) brightness(60%) contrast(60%)";
+        if(world.last_visible_fog != null)
+            this._load_fog(world.last_visible_fog, this._last_seen_canvas_context);
 
         this._fog_canvas_context = graphics.create_canvas_context( this.graphic_width, this.graphic_height);
         this._dark_canvas_context = graphics.create_canvas_context( this.graphic_width, this.graphic_height);
@@ -33,6 +35,20 @@ class FogOfWar {
         this._permanent_fovs = {};
 
         this.refresh(world);
+    }
+
+    _load_fog(serialized_fog, canvas_context){
+        const image = new Image();
+        image.src = serialized_fog;
+        image.onload = ()=>{
+            canvas_context.save();
+            const previous_filter = canvas_context.filter;
+            canvas_context.filter = "none";
+            canvas_context.clearRect(0, 0, canvas_context.canvas.width, canvas_context.canvas.height);
+            canvas_context.drawImage(image, 0, 0);
+            canvas_context.filter = previous_filter;
+            canvas_context.restore();
+        }
     }
 
     add_fov(entity_id, field_of_vision, force_keep = false){
@@ -85,6 +101,12 @@ class FogOfWar {
 
         this._render_dark_unknown();
         this._need_last_seen_capture = true;
+    }
+
+    save(){
+        // Keep the visibility memory information in the World so that it is automatically saved/restored.
+        this.world.viewed_at_least_once_grid = this.viewed_at_least_once_grid;
+        this.world.last_visible_fog = this._last_seen_canvas_context.canvas.toDataURL();
     }
 
     update(delta_time){

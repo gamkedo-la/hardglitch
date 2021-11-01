@@ -476,6 +476,7 @@ class InGameMenu extends fsm.State {
 
         if(must_save){
             debug.log(`Saving...`)
+            this.state_machine.game_session.view.fog_of_war.save();
             const level_save = serialize_world(this.state_machine.game_session.world, true); // Exact and complete save to come back to.
             window.localStorage.setItem(save_names.last_exit_save, level_save);
             if(Number.isInteger(this.state_machine._level_to_play)){

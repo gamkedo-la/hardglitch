@@ -257,7 +257,9 @@ function serialize_world(world, complete_state){
     "width" : ${world.width},
     "height" : ${world.height},
     "grids" : ${as_string(grids)},
-    "entities" : ${as_string(entities)}
+    "entities" : ${as_string(entities)},
+    "viewed_at_least_once_grid" : ${as_string(world.viewed_at_least_once_grid)},
+    "last_visible_fog" : ${as_string(world.last_visible_fog)}
 }`;
 
     return world_serialized;
@@ -371,6 +373,11 @@ function deserialize_world(world_desc){
 
     const entities = deserialize_entities(world_desc.entities);
     entities.forEach(entity => world.add_entity(entity));
+
+    if(world_desc.viewed_at_least_once_grid != null)
+        world.viewed_at_least_once_grid = world_desc.viewed_at_least_once_grid;
+    if(world_desc.last_visible_fog != null)
+        world.last_visible_fog = world_desc.last_visible_fog;
 
     world.set_rules(...default_rules);
 

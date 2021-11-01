@@ -659,10 +659,12 @@ function update_debug_keys(game_session){
 
 
     if (input.keyboard.is_just_down(KEY.F4)) { // Log the state of the world (for level edition).
+        game_session.view.fog_of_war.save();
         window.last_serialized_world = export_world(game_session.world);
     }
 
     if (input.keyboard.is_just_down(KEY.F5)) { // Log the state of the world (for level edition).
+        game_session.view.fog_of_war.save();
         window.last_serialized_world = export_world(game_session.world, true);
     }
 
