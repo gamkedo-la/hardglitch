@@ -30,6 +30,10 @@ const reverse_move_id = {
 
 function all_lifeform_types() { return [ LifeForm_Strong, LifeForm_Weak, LifeForm_Aggressive, LifeForm_Berserk ]; };
 
+function is_life_form(entity){
+    return all_lifeform_types().some(lifeform_type => entity instanceof lifeform_type);
+}
+
 function maybe_push(world, possible_actions){
     const push_actions = Object.values(possible_actions)
         .filter(action => {
@@ -189,8 +193,9 @@ class LifeForm_Weak extends Character {
 
     repair(integrity_amount){
         const repaired = super.repair(integrity_amount);
-        if(repaired > 0 && this.stats.integrity.value == this.stats.integrity.max){
+        if(!this.is_player_friend){
             this._thanks_drops = [ new Item_AutoRepair() ];
+            this.is_player_friend = true;
         }
         return repaired;
     }
@@ -216,13 +221,11 @@ class LifeForm_Strong extends Character {
         this.inventory.add(new Item_LifeStrength());
     }
 
-    drops = [ [ new LifeForm_Weak(), new LifeForm_Weak(), ] ];
-
-
     repair(integrity_amount){
         const repaired = super.repair(integrity_amount);
-        if(repaired > 0 && this.stats.integrity.value == this.stats.integrity.max){
+        if(!this.is_player_friend){
             this._thanks_drops = [ new Item_IntegrityBoost() ];
+            this.is_player_friend = true;
         }
         return repaired;
     }
@@ -266,9 +269,20 @@ class Crusher extends concepts.Actor {
 
     find_someone_to_crush(world, character){
         const target = closest_entity(character, world,
-            entity => entity instanceof Character && entity != character
-                    && (this.attack_life_forms || all_lifeform_types().every(lifeform_type => !(entity instanceof lifeform_type))
-                    )
+            entity => {
+                if(!(entity instanceof Character) || entity === character)  // Focus on characters which are not this character.
+                    return false;
+
+                if(character.is_player_friend
+                && (entity.is_player_actor || entity.is_player_friend))    // Only attack the player if they are not a friend, don't attack friends of player.
+                    return false;
+
+                if(is_life_form(entity) && !this.attack_life_forms)         // Only attack other life-forms if we are allowed to.
+                    return false;
+
+                return true;
+            }
+
         );
         return target;
     }
@@ -304,7 +318,17 @@ class LifeForm_Aggressive extends Character {
         this.inventory.add(new Item_LifeStrength());
     }
 
-    drops = [ new LifeForm_Weak(), null, null ];
+    repair(integrity_amount){
+        // Drops bonus if you attempt to appease it.
+        if(!this.is_player_friend){
+            this.inventory.extract_all_items_slots();
+            this._thanks_drops = [ new Item_LifeStrength() ];
+            this.is_player_friend = true;
+        }
+        const repaired = super.repair(integrity_amount);
+        return repaired;
+    }
+
 };
 
 class LifeForm_Berserk extends LifeForm_Aggressive {
@@ -323,22 +347,17 @@ class LifeForm_Berserk extends LifeForm_Aggressive {
         this.stats.view_distance.real_value = 4; // Don't see too far, to be avoidable.
         this.actor.attack_life_forms = true; // We want it to attack any other life-forms too, anyone actually!
 
-        this.actor._initial_base_behavior = this.actor.base_behavior;
-        delete this.actor.base_behavior; // When nobody attackable is around, just wait.
+        this.actor.base_behavior = null; // When nobody attackable is around, just wait.
     }
 
-    drops = [ new LifeForm_Aggressive(), null ];
-
     repair(integrity_amount){
-        const repaired = super.repair(integrity_amount);
         // Drops bonus if you attempt to appease it. (and change behavior)
-        if(!this._thanks_drops){
+        if(!this.is_player_friend){
             this.inventory.extract_all_items_slots();
             this._thanks_drops = [ new Item_FrequencyBoost() ];
-            if(this.actor instanceof Crusher){
-                this.actor = this.actor._initial_base_behavior;
-            }
+            this.is_player_friend = true;
         }
+        const repaired = super.repair(integrity_amount);
         return repaired;
     }
 };
