@@ -159,7 +159,7 @@ class StatValue {
 
         debug.assertion(()=>Number.isInteger(value_to_add) && value_to_add >= 0);
         const new_value = this.value + value_to_add;
-        if(this.max !== undefined)
+        if(this.max != null)
             this._value = Math.min(new_value, this.max);
         else
             this._value = new_value;
@@ -171,7 +171,7 @@ class StatValue {
 
         debug.assertion(()=>Number.isInteger(value_to_sub) && value_to_sub >= 0);
         const new_value = this.value - value_to_sub;
-        if(this.min !== undefined)
+        if(this.min != null)
             this._value = Math.max(new_value, this.min);
         else
             this._value = new_value;
