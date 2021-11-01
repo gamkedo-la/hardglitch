@@ -734,7 +734,7 @@ class GameView {
             debug.assertion(()=>entity_view instanceof EntityView);
             entity_view.update(delta_time);
             if(entity_view.persist_visibility){
-                entity_view.force_visible = this.fog_of_war.was_visible(entity_view.game_position);
+                entity_view.force_visible =  !this.fog_of_war.is_visible(entity_view.game_position) && this.fog_of_war.was_visible(entity_view.game_position);
             }
         };
     }
