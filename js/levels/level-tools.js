@@ -254,6 +254,7 @@ function serialize_world(world, complete_state){
 `{
     "name" : ${as_string(escaped(world.name))},
     "level_id": ${world.level_id == null? 'null': world.level_id},
+    "turn_id" : ${as_string(world.turn_id)},
     "width" : ${world.width},
     "height" : ${world.height},
     "grids" : ${as_string(grids)},
@@ -382,6 +383,7 @@ function deserialize_world(world_desc){
     world.set_rules(...default_rules);
 
     world.level_id = world_desc.level_id;
+    if(world_desc.turn_id != null) world.turn_id = world_desc.turn_id;
     world._update_entities_locations();
 
     debug.assertion(()=>is_valid_world(world));
