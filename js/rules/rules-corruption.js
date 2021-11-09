@@ -6,6 +6,7 @@ export {
     CorruptionSpawned,
     CorruptionVanished,
     corruption_turns_to_update,
+    turns_until_corruption_update,
 }
 
 import * as debug from "../system/debug.js";
@@ -50,7 +51,7 @@ function play_corruption_update_sound(){
 
 class Corruption {
     get name(){ return corruption_name; }
-    get description(){ return corruption_desc };
+    get description(){ return corruption_desc; };
     toJSON(key) { return {}; }
 };
 
@@ -280,11 +281,20 @@ function damage_anything_in_corrupted_tiles(world){
     return events;
 }
 
+
+function corruption_turn_idx(turn_id){
+    debug.assertion(()=> Number.isInteger(turn_id) && turn_id >= 0);
+    return turn_id % corruption_turns_to_update;
+}
+
+function turns_until_corruption_update(turn_id) {
+    debug.assertion(()=> Number.isInteger(turn_id) && turn_id >= 0);
+    return corruption_turns_to_update - corruption_turn_idx(turn_id);
+}
+
 class Rule_Corruption extends concepts.Rule {
 
     static need_corruption_update_sound = false;
-
-    turns_since_last_corruption_update = 0;
 
     constructor(){
         super();
@@ -292,18 +302,15 @@ class Rule_Corruption extends concepts.Rule {
     }
 
     update_world_at_the_beginning_of_game_turn(world){
-        ++this.turns_since_last_corruption_update;
-
         if(world.turn_id <= 1) // Don't apply this rule on the first turn.
             return [];
 
-
         const events = [];
 
-        if(this.turns_since_last_corruption_update >= corruption_turns_to_update){ // We update the corruption positions.
+        if(corruption_turn_idx(world.turn_id) === 0){ // We update the corruption positions.
             const corruption_update_events = update_corruption_state(world);
             events.push(...corruption_update_events);
-            this.turns_since_last_corruption_update = 0;
+            Rule_Corruption.turns_since_last_corruption_update = 0;
             if(corruption_update_events.length > 0){
                 Rule_Corruption.need_corruption_update_sound = true;
             }

@@ -14,7 +14,7 @@ import { Vector2, Rectangle, is_point_under } from "../system/spatial.js";
 import { CharacterView } from "../view/character-view.js";
 import { show_info } from "./ui-infobox.js";
 import { EntityView, PIXELS_PER_TILES_SIDE, square_half_unit_vector } from "../view/entity-view.js";
-import { corruption_turns_to_update } from "../rules/rules-corruption.js";
+import { corruption_turns_to_update, Rule_Corruption, turns_until_corruption_update } from "../rules/rules-corruption.js";
 import { update_stat_bar } from "./ui-characterstatus.js";
 import { Arrive, Kinematics, SteeringSystem } from "../system/steering.js";
 
@@ -257,7 +257,7 @@ class Timeline
     _draw_corruption_countdown(canvas_context){
 
         const text_position = this.position.translate({ x: -350, y: -10 });
-        const cycles_until_corruption_update = corruption_turns_to_update - (this.cycle_count % corruption_turns_to_update);
+        const cycles_until_corruption_update = turns_until_corruption_update(this.cycle_count);
         const text = `Corruption updates in ${cycles_until_corruption_update} Cycles`;
         const text_color = cycles_until_corruption_update < 3 ? "red" : "orange";
 

@@ -90,6 +90,7 @@ const default_rules = [ // BEWARE: rules will be applied in-order.
     new Rule_ActionPoints(), // TODO: check that it's in the right order
 ];
 
+
 let _all_entity_types;
 
 function all_entity_types(){
