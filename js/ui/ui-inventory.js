@@ -482,7 +482,7 @@ class InventoryUI {
                         if(this._dragging_item.source_slot_idx === destination_slot_idx){
                             this._dragging_item.slot._update_item_position(); // Reset the item position.
                         } else {
-                            debug.assertion(()=>this._dragging_item.destination_slot_idx === destination_slot_idx);
+                            // debug.assertion(()=>this._dragging_item.destination_slot_idx === destination_slot_idx);
                             if(destination_slot.type === slot_types.DESTROY){
                                 debug.assertion(()=>this._dragging_item.destroy_action instanceof concepts.Action);
                                 game_input.play_action(this._dragging_item.destroy_action);
