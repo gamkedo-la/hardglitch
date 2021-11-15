@@ -18,7 +18,7 @@ import { random_sample, rotate_array, random_int, auto_newlines } from "../syste
 import { Item_AutoRepair, Item_BadCode, Item_FrequencyBoost, Item_IntegrityBoost, Item_LifeStrength } from "../definitions-items.js";
 import { Push } from "../rules/rules-forces.js";
 import { move_towards, select_action_by_type, closest_entity } from "./characters-common.js";
-import { DropItem, drop_items_around } from "../rules/rules-items.js";
+import { DropItem } from "../rules/rules-items.js";
 import { valid_spawn_positions } from "../core/visibility.js";
 
 const reverse_move_id = {
@@ -34,15 +34,16 @@ function is_life_form(entity){
     return all_lifeform_types().some(lifeform_type => entity instanceof lifeform_type);
 }
 
-function maybe_push(world, possible_actions){
+function maybe_push(character, world, possible_actions){
     const push_actions = Object.values(possible_actions)
         .filter(action => {
                 if(!(action instanceof Push))
                     return false;
 
                 const target = world.entity_at(action.target_position);
-                return !(target instanceof concepts.Item)
-                    && all_lifeform_types().every(lifeform_type => !(target instanceof lifeform_type));
+                return !(target instanceof concepts.Item) // not an item
+                    && !all_lifeform_types().some(lifeform_type => target instanceof lifeform_type) // not a lifeform
+                    && (!target.is_player_actor || !character.is_player_friend); // Not a player or at least we are not friend
         });
 
 
@@ -76,7 +77,7 @@ class MoveUntilYouCant extends concepts.Actor {
             return thanks_drop;
         }
 
-        const push_action = maybe_push(world, possible_actions);
+        const push_action = maybe_push(character, world, possible_actions);
         if(push_action instanceof concepts.Action)
             return push_action;
 
@@ -131,7 +132,7 @@ class MoveInCircles extends concepts.Actor {
             return thanks_drop;
         }
 
-        const push_action = maybe_push(world, possible_actions);
+        const push_action = maybe_push(character, world, possible_actions);
         if(push_action instanceof concepts.Action)
             return push_action;
 
