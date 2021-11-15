@@ -10,7 +10,7 @@ import * as tools from "./level-tools.js";
 import { all_entity_types, is_valid_world } from "../definitions-world.js";
 import { Position } from "../core/concepts.js";
 import { clamp, copy_data, position_from_index, random_bag_pick, random_int, random_sample, shuffle_array } from "../system/utility.js";
-import { Rectangle, Vector2 } from "../system/spatial.js";
+import { Rectangle } from "../system/spatial.js";
 import { all_characters_types } from "../deflinitions-characters.js";
 import * as items from "../definitions-items.js";
 
@@ -22,8 +22,8 @@ const room_size = { x: 5, y: 12 };
 const defaults = {
     floor : tiles.ID.LVL3A,
     floor_alt: tiles.ID.LVL3B,
-    wall : tiles.ID.WALL2A,
-    wall_alt : tiles.ID.WALL2B,
+    wall : tiles.ID.WALL3A,
+    wall_alt : tiles.ID.WALL3B,
 };
 
 const rooms = {
@@ -335,7 +335,7 @@ const starting_rooms = {
 
 const exit_rooms = {
     exit: {
-        "name" : "Level 3: Exit",
+        "name" : "Level 3 : Exit",
         "level_id": null,
         "width" : 5,
         "height" : 12,
