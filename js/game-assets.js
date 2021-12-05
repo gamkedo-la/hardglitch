@@ -942,7 +942,7 @@ const sprite_defs = {
         image: "item_generic_1",
     },
     item_generic_2 : {
-        image: "item_generic_1",
+        image: "item_generic_2",
     },
     item_generic_3 : {
         image: "item_generic_3",
