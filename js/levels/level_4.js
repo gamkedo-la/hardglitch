@@ -763,7 +763,7 @@ function generate_world(){
         // Pass 7: cleanup, variations and validation.
         const world_desc = tools.random_variation(tools.add_padding_around(ram_world_completely_populated, { floor: tiles.ID.WALL4B }));
         const world = tools.deserialize_world(world_desc);
-        world.level_id = 3;
+        world.level_id = 4;
 
         // remove all entities that should not be there:
         world.entities.forEach(entity=>{
