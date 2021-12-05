@@ -111,7 +111,6 @@ class Range_Cross_Diagonal extends Range_Square {
     }
 
     _range_match(center, position){
-        const relative = center.substract(position).absolute();
         return is_in_diagonal_cross(center, position)
             && super._range_match(center, position)
             ;
@@ -124,7 +123,6 @@ class Range_Cross_Star extends Range_Square {
     }
 
     _range_match(center, position){
-        const relative = center.substract(position).absolute();
         return (is_in_aligned_cross(center, position) || is_in_diagonal_cross(center, position))
             && super._range_match(center, position)
             ;
@@ -192,27 +190,24 @@ function find_visible_positions(world, center, view_distance){
             ;
     };
 
-    const visibility_grid = new Grid(world.width, world.height);
+    const visible_positions = [];
     const mark_visible = (x, y)=>{
-        if(world.is_valid_position({x, y})){
-            visibility_grid.set_at(true, x, y);
+        const pos = new concepts.Position({x, y});
+        // FIXME: For some reason compute_fov outputs more positions than what's in range, not sure why.
+        // the following filter is a workaround trimming positions outside the view range.
+        if(world.is_valid_position(pos) && view_range.is_inside(center, pos)){
+            visible_positions.push(pos);
         }
     };
 
     compute_fov(center, is_blocking_vision, mark_visible, view_distance);
-    const visible_positions = [];
-    visibility_grid.elements.forEach((visible, idx) => {
-        const visible_pos = new concepts.Position(position_from_index(world.width, world.height, idx));
-        visible_positions.push(visible_pos);
+
+    debug.assertion(()=> {
+        const pos_in_range = positions_in_range(center, view_range, (pos)=>world.is_valid_position(pos));
+        return visible_positions.every(pos=> pos_in_range.some(range_pos => pos.equals(range_pos)));
     });
 
-    // FIXME: For some reason compute_fov outputs more positions than what's in range, not sure why.
-    // the following block is a workaround trimming positions outside the view range.
-    const pos_in_range = positions_in_range(center, view_range, (pos)=>world.is_valid_position(pos));
-    const actually_visible_positions = visible_positions.filter(pos=> pos_in_range.some(range_pos => pos.equals(range_pos)));
-    debug.assertion(()=> actually_visible_positions.every(pos=> pos_in_range.some(range_pos => pos.equals(range_pos))));
-
-    return actually_visible_positions;
+    return visible_positions;
 }
 
 function valid_target_positions(world, character, action_range_shape, predicate = ()=>true){
