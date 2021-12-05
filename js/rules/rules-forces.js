@@ -446,9 +446,9 @@ class Rule_ForceWave extends concepts.Rule {
 
     get_actions_for(character, world){
         debug.assertion(()=>character instanceof Character);
-        const shift_action_ypes = character.get_enabled_action_types_related_to(ForceWave);
+        const shift_action_types = character.get_enabled_action_types_related_to(ForceWave);
         const possible_shift_actions = {};
-        shift_action_ypes.forEach(action_type => {
+        shift_action_types.forEach(action_type => {
             const action = new action_type();
             possible_shift_actions[action.id] = action;
         });

@@ -330,6 +330,7 @@ class Rule_Corruption extends concepts.Rule {
         debug.assertion(()=>corruption_grid instanceof Grid);
 
         const is_valid_target = (position) => world.is_valid_position(position)
+                                        && character.can_see(position)
                                         && !(corruption_grid.get_at(position) instanceof Corruption);
 
         const targets = (range) => lazy_call(visibility.positions_in_range, character.position, range, is_valid_target);
