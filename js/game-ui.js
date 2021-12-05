@@ -49,8 +49,8 @@ function timeline_position() {
 
 function infobox_rectangle() {
     const canvas_rect = graphics.canvas_rect();
-    const width = 320;
-    const height = 200;
+    const width = 330;
+    const height = 250;
     return new Rectangle({
         position: { x: canvas_rect.width - width, y: canvas_rect.height - height },
         width, height,
