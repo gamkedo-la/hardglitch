@@ -25,7 +25,8 @@ import * as audio from "../system/audio.js";
 import { grid_ID } from "../definitions-world.js";
 import { auto_newlines } from "../system/utility.js";
 import { FieldOfVision } from "../core/visibility.js";
-import { save_names } from "../game-config.js";
+import { game_modes, save_names } from "../game-config.js";
+import { serialize_entity } from "../levels/level-tools.js";
 
 // That actor decided to take a pause.
 class Waited extends concepts.Event {
@@ -135,7 +136,7 @@ class GameOver extends concepts.Event {
 
 function fail_game(world){
     world.is_finished = true;
-    window.localStorage.removeItem(save_names.last_exit_save); // Remove the last save-by-exit
+    window.localStorage.removeItem(save_names.world_exit_save); // Remove the last save-by-exit
     return [ new GameOver() ]; // This event will notify the rest of the code that the game is over.
 }
 
@@ -218,6 +219,18 @@ class Rule_LevelExit extends concepts.Rule {
             if(world.tiles_at(player_position).some(tile_id => tile_id == tiles.ID.EXIT)){
                 world.is_finished = true;
                 world.exiting_character = player_character;
+
+                if(Number.isInteger(world.level_id)) { // This is a game's level, not a test level or anything else.
+                    // If there was a save in this level, we got beyond that point, save the progress (don't allow resuming from previous save).
+                    window.localStorage.removeItem(save_names.world_exit_save);
+
+                    // In 'glitch' mode we need to save our progress:
+                    if(window.localStorage.getItem(save_names.game_mode) === game_modes.glitch){
+                        window.localStorage.setItem(save_names.highest_level_reached_idx, world.level_id + 1); // Next level reached
+                        window.localStorage.setItem(save_names.character_first_entering_highest_level, serialize_entity(world.exiting_character)); // If we die in next level, we restart with the character we first entered with
+                    }
+                }
+
                 return [ new PlayerExitLevel(player_character) ];
             }
         }

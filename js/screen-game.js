@@ -478,10 +478,7 @@ class InGameMenu extends fsm.State {
             debug.log(`Saving...`)
             this.state_machine.game_session.view.fog_of_war.save();
             const level_save = serialize_world(this.state_machine.game_session.world, true); // Exact and complete save to come back to.
-            window.localStorage.setItem(save_names.last_exit_save, level_save);
-            if(Number.isInteger(this.state_machine._level_to_play)){
-                window.localStorage.setItem(save_names.last_exit_save_music, this.state_machine._level_to_play);
-            }
+            window.localStorage.setItem(save_names.world_exit_save, level_save);
             debug.log(`Save - DONE`)
         }
 
@@ -645,30 +642,7 @@ class GameScreen extends fsm.StateMachine {
         this.game_session.start();
         this.ready = true;
 
-        // Save the state of the world once beginning so that when the player dies they can come back at that exact point.
-        debug.log(`Saving progression...`)
-        // const hard_glitch_mode = window.localStorage.getItem("hardglitch_mode");
-        // if(hard_glitch_mode === "glitch") {
-        //     window.last_world_entered = editor.export_world(this.game_session.world, true); // Complete save for when the player dies.
-        // }
-        window.last_level_played = level_to_play;
-        window.last_level_played_idx = this.current_level_idx;
-        window.last_player_character = player_character instanceof Entity ? serialize_entity(player_character) : player_character;
-        // if(hard_glitch_mode === "glitch") {
-        //     window.localStorage.setItem(save_names.last_level_reached, window.last_world_entered)
-        // }
-        window.localStorage.setItem(save_names.last_level_reached, window.last_level_played);
-        if(Number.isInteger(window.last_level_played_idx)) {
-            window.localStorage.setItem(save_names.last_level_reached_idx, window.last_level_played_idx);
-        } else {
-            window.localStorage.removeItem(save_names.last_level_reached_idx);
-        }
-        if(window.last_player_character !== null) {
-            window.localStorage.setItem(save_names.last_level_reached_character, window.last_player_character);
-        } else {
-            window.localStorage.removeItem(save_names.last_level_reached_character);
-        }
-        debug.log(`Save progression - DONE`)
+
     }
 
     *leave(){

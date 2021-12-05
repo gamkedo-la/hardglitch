@@ -14,7 +14,7 @@ import { Vector2, Vector2_origin } from "./system/spatial.js";
 import { ScreenFader } from "./system/screenfader.js";
 
 import { HARD_GLITCH_VERSION } from "./version.js";
-import { save_names } from "./game-config.js";
+import { game_modes, levels_count, save_names } from "./game-config.js";
 
 const buttons_font = "22px Space Mono";
 const button_text_color = "#32258b";
@@ -48,31 +48,21 @@ class MainMenu {
 
         };
 
-        const last_save = window.localStorage.getItem(save_names.last_exit_save);
-        const last_save_music = window.localStorage.getItem(save_names.last_exit_save_music);
-        const hard_glitch_mode = window.localStorage.getItem("hardglitch_mode");
-        // Deactivated continu button upon death
-        const last_level = window.localStorage.getItem(save_names.last_level_reached);
-        const last_level_idx = window.localStorage.getItem(save_names.last_level_reached_idx);
-        const last_character = window.localStorage.getItem(save_names.last_level_reached_character);
-        const level_reached_idx = last_level_idx ? JSON.parse(last_level_idx) : undefined;
-
-        if(last_save || (hard_glitch_mode === "glitch" && last_level && level_reached_idx > 0)){
+        const hard_glitch_mode = window.localStorage.getItem(save_names.game_mode);
+        const world_to_continue = window.localStorage.getItem(save_names.world_exit_save);
+        const retry_level_idx = Number.parseInt(window.localStorage.getItem(save_names.highest_level_reached_idx));
+        const retry_character = window.localStorage.getItem(save_names.character_first_entering_highest_level);
+        // Deactivated continue button upon death
+        if(world_to_continue != null ){
             this.button_continue = new ui.TextButton({
-                text: last_save ? "Continue" : `Retry LVL ${last_level_idx}`,
+                text: "Continue",
                 color: button_text_color,
                 font: buttons_font,
                 action: ()=> {
-                    if(last_save){
-                        const level_world_desc = JSON.parse(last_save);
-                        const options = last_save_music ? { play_music: JSON.parse(last_save_music) } : undefined;
-                        state_machine.push_action('continue', ()=>window.deserialize_world(level_world_desc), undefined, options);
-                    } else {
-                        const player_character = last_character ? window.deserialize_entity(last_character) : undefined;
-                        const options = level_reached_idx ? { play_music: level_reached_idx } : undefined;
-                        debug.assertion(()=> Number.isInteger(level_reached_idx) && (player_character instanceof Object || player_character == null));
-                        state_machine.push_action('continue', Number.isInteger(level_reached_idx) ? level_reached_idx : last_level, player_character, options);
-                    }
+                    // Continue where we saved and left.
+                    const level_world_desc = JSON.parse(world_to_continue);
+                    const options = level_world_desc.level_id != null ? { play_music: level_world_desc.level_id } : undefined;
+                    state_machine.push_action('continue', ()=>window.deserialize_world(level_world_desc), undefined, options);
                 },
                 position: Vector2_origin,
                 sprite_def: sprite_defs.button_menu,
@@ -83,7 +73,39 @@ class MainMenu {
             });
 
             this.button_continue.helptext = new ui.HelpText({
-                text: auto_newlines(last_save ? "Continue exactly where you were last time you 'Saved & Exit' the game." : `You died (or closed the window) in 'Glitch' mode last time you played Level ${last_level_idx}.\nRetry a variation of this level with the same character and items you had when entering it the first time.`, 24),
+                text: auto_newlines("Continue exactly where you were last time you 'Saved & Exit' the game.", 24),
+                area_to_help: this.button_continue.area,
+                delay_ms: 0,
+                position: this.button_continue.position.translate({ x: this.button_continue.width }),
+            });
+
+        } else if (hard_glitch_mode === game_modes.glitch
+               && Number.isInteger(retry_level_idx)
+               && retry_level_idx > 0 // We don't "retry" level 0
+               && retry_level_idx < levels_count // The player already reached the end of the game, no need to allow retrying.
+        ){
+            this.button_continue = new ui.TextButton({
+                text: `Retry LVL ${retry_level_idx}`,
+                color: button_text_color,
+                font: buttons_font,
+                action: ()=> {
+                    // Retry last world reached (re-generated) with the character we had when reaching it.
+                    debug.assertion(()=> Number.isInteger(retry_level_idx));
+                    const player_character = retry_character != null ? window.deserialize_entity(retry_character) : undefined;
+                    debug.assertion(()=> player_character instanceof Object || player_character == null);
+                    const options = { play_music: retry_level_idx };
+                    state_machine.push_action('continue', retry_level_idx, player_character, options);
+                },
+                position: Vector2_origin,
+                sprite_def: sprite_defs.button_menu,
+                sounds:{
+                    over: 'selectButton',
+                    down: 'clickButton',
+                },
+            });
+
+            this.button_continue.helptext = new ui.HelpText({
+                text: auto_newlines(`You died (or closed the window) in 'Glitch' mode last time you played Level ${retry_level_idx}.\nRetry a variation of this level with the same character and items you had when entering it the first time.`, 24),
                 area_to_help: this.button_continue.area,
                 delay_ms: 0,
                 position: this.button_continue.position.translate({ x: this.button_continue.width }),
@@ -96,10 +118,8 @@ class MainMenu {
             color: button_text_color,
             font: buttons_font,
             action: ()=> {
-                window.localStorage.removeItem(save_names.last_exit_save);
-                window.localStorage.removeItem(save_names.last_level_reached);
-                window.localStorage.removeItem(save_names.last_level_reached_character);
-                window.localStorage.setItem("hardglitch_mode", "glitch");
+                Object.values(save_names).forEach(save_value => window.localStorage.removeItem(save_value));
+                window.localStorage.setItem(save_names.game_mode, game_modes.glitch);
                 state_machine.push_action("new_game", 0);
             },
             position: Vector2_origin,
@@ -115,10 +135,8 @@ class MainMenu {
             color: button_text_color,
             font: buttons_font,
             action: ()=> {
-                window.localStorage.removeItem(save_names.last_exit_save);
-                window.localStorage.removeItem(save_names.last_level_reached);
-                window.localStorage.removeItem(save_names.last_level_reached_character);
-                window.localStorage.setItem("hardglitch_mode", "crash");
+                Object.values(save_names).forEach(save_value => window.localStorage.removeItem(save_value));
+                window.localStorage.setItem(save_names.game_mode, game_modes.crash);
                 state_machine.push_action("new_game", 0);
             },
             position: Vector2_origin,

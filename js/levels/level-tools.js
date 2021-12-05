@@ -204,7 +204,19 @@ function serialize_entity(entity){
 }
 
 function deserialize_entity(entity_json){
-    const object = JSON.parse(entity_json);
+    const parse_object = ()=> {
+        try {
+            return JSON.parse(entity_json);
+        } catch(error) {
+            debug.warn(`failed to parse entity: entity=${entity_json}, error: ${error}`);
+            return;
+        }
+    };
+
+    const object = parse_object();
+    if(object == null)
+        return;
+
     const real_entity = decode_type_recursively(object, get_any_serializable_type);
     return real_entity;
 }

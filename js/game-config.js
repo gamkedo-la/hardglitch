@@ -12,12 +12,18 @@ export const fov_view_styles = {
 };
 
 export const save_names = {
-    last_exit_save: 'hardglitch.last_exit_save',
-    last_exit_save_music: 'hardglitch.last_exit_save_music',
-    last_level_reached: 'hardglitch.last_level_reached',
-    last_level_reached_idx: 'hardglitch.last_level_reached_idx',
-    last_level_reached_character: 'hardglitch.last_level_reached_character',
+    game_mode: 'hardglitch.game_mode',
+    world_exit_save: 'hardglitch.world_exit_save',
+    highest_level_reached_idx: 'hardglitch.highest_level_reached_idx',
+    character_first_entering_highest_level: 'hardglitch.character_first_entering_highest_level',
 };
+
+export const game_modes = {
+    glitch: "glitch",
+    crash: "crash",
+};
+
+export const levels_count = 5;
 
 export const config = {
 

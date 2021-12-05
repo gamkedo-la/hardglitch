@@ -17,6 +17,7 @@ import { music_id, sprite_defs } from "./game-assets.js";
 import { KEY } from "./game-input.js";
 import { deserialize_entity } from "./levels/level-tools.js";
 import { Character } from "./core/character.js";
+import { game_modes, save_names } from "./game-config.js";
 
 const button_text_font = "22px Space Mono";
 const button_text_align = undefined; // "center";
@@ -125,6 +126,8 @@ class GameOverScreen_Failure extends fsm.State {
     _init_ui(){
         debug.assertion(()=>this.ui === undefined);
 
+        const game_mode = window.localStorage.getItem(save_names.game_mode);
+
         this.ui = {
             message : new ui.Text({
                 text: "Glitch no longer occupies the memory they once did.",
@@ -137,7 +140,7 @@ class GameOverScreen_Failure extends fsm.State {
                 position: Vector2_origin,
                 text_align: button_text_align,
                 sprite_def: sprite_defs.button_menu,
-                visible: window.localStorage.getItem("hardglitch_mode") === "glitch",
+                visible: game_mode === game_modes.glitch,
                 action: ()=> { this.retry_level(); },
                 sounds:{
                     over: 'selectButton',
@@ -213,10 +216,8 @@ class GameOverScreen_Failure extends fsm.State {
     *enter(level_to_play){
         debug.assertion(()=>Number.isInteger(level_to_play) || level_to_play !== undefined);
         this._level_to_play = level_to_play;
-        if(!this.ui){
-            this._init_ui();
-        }
 
+        this.on_canvas_resized();
         audio.playEvent(music_id.gameover_failure);
         yield* this.fader.generate_fade_in();
     }
@@ -231,14 +232,23 @@ class GameOverScreen_Failure extends fsm.State {
     }
 
     retry_level(){
-        // this.state_machine.push_action("retry", () => deserialize_world(window.last_world_entered)); // exact same level
+        const level_reached_idx = Number.parseInt(window.localStorage.getItem(save_names.highest_level_reached_idx));
+        debug.assertion(()=>Number.isInteger(level_reached_idx) || Number.isNaN(level_reached_idx));
+        const level_to_retry = Number.isInteger(level_reached_idx) ? level_reached_idx : 0;
+        debug.assertion(()=>Number.isInteger(level_to_retry));
 
-        const player_character = typeof window.last_player_character === "string" ? deserialize_entity(window.last_player_character) : window.last_player_character;
-        debug.assertion(()=>player_character instanceof Character || player_character === undefined);
-        this.state_machine.push_action("retry", Number.isInteger(window.last_level_played_idx) ? window.last_level_played_idx : window.last_level_played, player_character, { play_music: window.last_level_played_idx }) // regenerated version of the same level but keep the same character
+        const saved_player_character = window.localStorage.getItem(save_names.character_first_entering_highest_level);
+        const player_character = saved_player_character ? deserialize_entity(saved_player_character) : undefined;
+        debug.assertion(()=>player_character instanceof Character || player_character == null);
+
+        this.state_machine.push_action("retry", level_to_retry, player_character, { play_music: level_to_retry }) // regenerated version of the same level but keep the same character
     }
 
     restart_game(){
+        // Delete all progression, but persist the game mode.
+        const game_mode = window.localStorage.getItem(save_names.game_mode);
+        Object.values(save_names).forEach(save_value => window.localStorage.removeItem(save_value));
+        window.localStorage.setItem(save_names.game_mode, game_mode);
         this.state_machine.push_action("retry", 0);
     }
 

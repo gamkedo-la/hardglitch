@@ -45,6 +45,7 @@ import { FieldOfVision } from "./core/visibility.js";
 import { is_safely_walkable } from "./definitions-tiles.js";
 import { Rules_Invokation } from "./rules/rules-invocation.js";
 import { Rule_Freeze } from "./rules/rules-freeze.js";
+import { levels_count } from "./game-config.js";
 
 const world_grid = {
     width: 64,
@@ -136,6 +137,8 @@ function get_any_serializable_type(type_name){
 const game_levels = [
     level_0, level_1, level_2, level_3, level_4,
 ];
+
+debug.assertion(()=> game_levels.length === levels_count);
 
 const grid_ID = {
     floor: "floor",
