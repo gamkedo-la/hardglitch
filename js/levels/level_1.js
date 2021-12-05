@@ -749,6 +749,8 @@ function generate_world() {
             { type: "Item_Destructor" },
             { type: "Item_Freeze" },
             { type: "Item_PushCardinal" },
+            { type: "Item_OctopusArms" },
+            { type: "Item_Extension" },
         ];
         rare_items.push(random_sample([ // Add one or the other.
             { type: "Item_InvokeAntiVirus" },

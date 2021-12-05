@@ -33,7 +33,7 @@ import { all_opaque_movable_walls, all_transparent_movable_walls, BlackBox, Mova
 import { destroy_at } from "./destruction.js";
 import { config } from "../game-config.js";
 
-const take_item_range = new visibility.Range_Cross_Axis(1,2);
+
 const create_block_range = new visibility.Range_Square(1,3);
 const destroy_block_range = new visibility.Range_Cross_Star(1,3);
 
@@ -175,19 +175,21 @@ class TakeItem extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_take; }
     static get action_type_name() { return "Take Item"; }
     static get action_type_description() { return auto_newlines("Transfer the target item in this character's free item slot.", 35); }
-    static get range() { return take_item_range; }
+    static get range() { return this._range; }
     static get costs(){
         return {
             action_points: { value: 1 },
         };
     }
 
-    constructor(target_position){
+    constructor(target_position, range){
         debug.assertion(()=>target_position instanceof concepts.Position);
         super(`take_item_at_${target_position.x}_${target_position.y}`,
             "Take this", target_position);
         this.is_basic = true;
+        this._range = range;
     }
+
 
     execute(world, character){
         debug.assertion(()=>world instanceof concepts.World);
@@ -377,7 +379,12 @@ class Rule_TakeItem extends concepts.Rule {
             return {};
 
         const actions = {};
-        visibility.valid_target_positions(world, character, TakeItem.range)
+
+        const max_take_distance = 1 + character.stats.take_distance.value;
+        debug.assertion(()=> typeof character.stats.diagonal_take === 'boolean');
+        const take_item_range = character.stats.diagonal_take ?  new visibility.Range_Cross_Star(1, max_take_distance) : new visibility.Range_Cross_Axis(1, max_take_distance);
+
+        visibility.valid_target_positions(world, character, take_item_range)
             .filter(target=> { // Only if there is an item to take.
                 const item = world.entity_at(target);
                 if(item instanceof concepts.Item){
@@ -395,7 +402,7 @@ class Rule_TakeItem extends concepts.Rule {
                 return false;
             })
             .forEach((target)=>{
-                const action = new TakeItem(target);
+                const action = new TakeItem(target, take_item_range);
                 actions[action.id] = action;
                 if(config.enable_take_by_move){
                     add_default_action_if_adjacent(character.position, actions, action, target);

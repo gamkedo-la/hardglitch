@@ -11,9 +11,10 @@ import { Wait } from "../rules/rules-basic.js";
 import { TakeItem } from "../rules/rules-items.js";
 import { Move } from "../rules/rules-movement.js";
 import * as concepts from "./concepts.js";
-import { FieldOfVision } from "./visibility.js";
+import { FieldOfVision, positions_in_range, Range_Cross_Star, Range_Square } from "./visibility.js";
 
 const default_view_distance = 1;
+const default_take_distance = 1;
 const default_inventory_size = 1;
 const default_activable_items = 1;
 
@@ -213,8 +214,11 @@ class CharacterStats {
     ap_recovery = new StatValue(10);            // How much AP to restore each turn.
 
     view_distance = new StatValue(default_view_distance, undefined, 0); // How far can the character perceive.
+    take_distance = new StatValue(default_take_distance, undefined, 0); // How far can the character perceive.
     inventory_size = new StatValue(default_inventory_size, undefined, 0); // How many items a character can store in inventory.
     activable_items = new StatValue(default_activable_items, undefined, 0); // How many inventory slots can active items.
+
+    diagonal_take = false;  // Is this entity allowed to take items in diagonal?
 
     constructor(){
         this._on_deserialized();
@@ -572,9 +576,13 @@ class Character extends concepts.Body {
         };
     }
 
-    // Describe the possible positions relative to the current one where an item can be dropped by this character.
+    // Describe the possible positions relative to the current character's position where an item can be dropped by this character.
     allowed_drops() {
-        return this.field_of_vision.filter_visible(...this.position.adjacents_diags); // Close to the character, and visible (which means valid to walk in, even if it's lethal).
+        // Close to the character, and visible (which means valid to walk in, even if it's lethal).
+        const drop_distance = this.stats.take_distance.value;
+        const drop_range = new Range_Square(1, 1 + drop_distance); // We allow to always drop in diagonal.
+        const possible_drop_positions = positions_in_range(this.position, drop_range, (pos)=> this.field_of_vision.is_visible(pos));
+        return possible_drop_positions;
     }
 
     // Properly performs an action after having spent the action points from the body etc.

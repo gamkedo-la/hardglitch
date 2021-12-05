@@ -25,6 +25,8 @@ export {
     Item_PushCardinal,
     Item_Swap,
     Item_Scanner,
+    Item_Extension,
+    Item_OctopusArms,
     Item_ClosedScope,
     Item_ThreadPool,
     Item_Zip,
@@ -177,6 +179,8 @@ function all_item_types(){
         Item_PushCardinal,
         Item_Swap,
         Item_Scanner,
+        Item_Extension,
+        Item_OctopusArms,
         Item_ThreadPool,
         Item_Zip,
         Item_ComputerCluster,
@@ -217,6 +221,8 @@ function powerful_items_bag() {
         Item_Shift,
         Item_ForceWave,
         Item_PushCardinal,
+        Item_Extension,
+        Item_OctopusArms,
     ];
 }
 
@@ -759,6 +765,60 @@ class Item_Scanner extends concepts.Item {
         super("Scanner");
     }
 
+};
+
+
+class Item_Extension extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_2,
+        }}
+    };
+
+    get can_be_taken() { return true; }
+
+    description = auto_newlines("Extends virtual 'arms' to allow taking and droping items at greater distance.\nIgnores blocking walls and entity but still needs the item to be visible.", desc_chars_per_line);
+
+    stats_modifiers = {
+        take_distance: { value: +1 },
+    }
+
+    constructor(){
+        super("Extension");
+    }
+
+};
+
+class Item_OctopusArms extends concepts.Item {
+    assets = {
+        graphics : { body: {
+            sprite_def : sprite_defs.item_generic_2,
+        }}
+    };
+
+    get can_be_taken() { return true; }
+
+    description = auto_newlines("Adds virtual 'arms' to allow taking items in diagonal.\nIgnores blocking walls and entity but still needs the item to be visible.", desc_chars_per_line);
+
+    constructor(){
+        super("Octopus Arms");
+    }
+
+    on_activated(){
+        debug.assertion(()=>this.owner instanceof Character);
+        debug.assertion(()=>this.world instanceof concepts.World);
+        if(this.owner.inventory.active_items.filter(item=>item instanceof Item_OctopusArms).length > 0){
+            this.owner.stats.diagonal_take = true; // TODO FIXME : this should have been a special action so that we don't have weird state to handle.
+        }
+    }
+
+    on_deactivated(){
+        debug.assertion(()=>this.owner instanceof Character);
+        debug.assertion(()=>this.world instanceof concepts.World);
+        if(this.owner.inventory.active_items.filter(item=>item instanceof Item_OctopusArms).length < 1){
+            this.owner.stats.diagonal_take = false; // TODO FIXME : this should have been a special action so that we don't have weird state to handle.
+        }
+    }
 };
 
 class Item_ClosedScope extends concepts.Item {
