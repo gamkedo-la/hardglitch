@@ -165,7 +165,7 @@ cancel_action: `Cancels the current Action.`
 };
 
 function action_description(action_type){ // TODO : also clarify the range.
-    return `Action: ${action_type.action_type_name}
+    return `Action -> ${action_type.action_type_name}
 ${action_type.action_type_name == "Wait" ? "" : `Costs:\n${stats_modifiers_description(action_type.costs, false)}\n`}
 ${action_type.action_type_description}
 `
@@ -184,7 +184,7 @@ function stats_modifiers_description(modifiers, with_signs = true){
     debug.assertion(()=>modifiers instanceof Object);
     let description = "";
     let line = 0;
-    const maybe_newline = ()=> line++ > 0 ? '\n  ' : '  ';
+    const maybe_newline = ()=> line++ > 0 ? '\n' : '';
     const value_str = with_signs ? signed_number_str : (value)=>value;
     if(modifiers.integrity){
         if(modifiers.integrity.max)
@@ -213,6 +213,9 @@ function stats_modifiers_description(modifiers, with_signs = true){
     if(modifiers.view_distance){
         description += `${maybe_newline()}${value_str(modifiers.view_distance.value)} View Distance`;
     }
+    if(modifiers.take_distance){
+        description += `${maybe_newline()}${value_str(modifiers.take_distance.value)} Take Distance`;
+    }
     return description;
 }
 
@@ -227,14 +230,15 @@ function item_description(item){
         .map(action_name=> `${action_count++ > 0 ? ', ' : ''}${action_name}`)
         .reduce((previous, current)=> { return previous += current}, "");
 
-    let description_text = `${item.name}`;
+    const prefix = item.can_be_taken ? "Item: " : "";
+    let description_text = `${prefix}${item.name}\n\n`;
     if(item_actions_names.length > 0){
-        description_text += `\n${auto_newlines("  + Actions : " + item_actions_names, max_action_list_line_width)}`;
+        description_text += `${auto_newlines("Enables Actions : " + item_actions_names, max_action_list_line_width)}\n\n`;
     }
     if(item_stats_modifiers){
-        description_text += `\n${item_stats_modifiers}`;
+        description_text += `${item_stats_modifiers}\n\n`;
     }
-    description_text += `\n\n${item.description}`;
+    description_text += `${item.description}`;
 
     return description_text;
 }

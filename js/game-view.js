@@ -982,6 +982,7 @@ class GameView {
         };
 
         const things_found = this.game.world.everything_at(position);
+        let described_count = 0;
         while(things_found.length){
             const entity_or_tileid = things_found.pop();
             if(entity_or_tileid instanceof concepts.Entity){
@@ -993,24 +994,25 @@ class GameView {
                 if(entity instanceof Character ){
                     const controller = entity.is_player_actor ? "(Player)" : "(AI)";
                     help_texts.tooltip = add_text_line(help_texts.tooltip, `${entity.name} ${controller}`);
-                    help_texts.info = add_text_line(help_texts.info, `@ ${entity.name}:\n${entity.description}`);
+                    help_texts.info = add_text_line(help_texts.info, `${entity.name} ${controller}\n\n${entity.description}`);
                 } else {
                     const item_desc = entity.can_be_taken ? "ITEM: " : "";
                     help_texts.tooltip = add_text_line(help_texts.tooltip, `${item_desc}${entity.name}`);
-                    help_texts.info = add_text_line(help_texts.info, `${item_desc}${item_description(entity)}`);
+                    help_texts.info = add_text_line(help_texts.info, `${item_description(entity)}`);
                 }
             } else if(Number.isInteger(entity_or_tileid)){ // Integers are tiles ids.
                 if(config.enable_ground_descriptions || !tiles.defs[entity_or_tileid].is_ground){
                     const tile_id = entity_or_tileid;
                     const tile_name = tiles.name_text(tile_id);
                     help_texts.tooltip = add_text_line(help_texts.tooltip, `# ${tile_name}`);
-                    help_texts.info = add_text_line(help_texts.info, `# ${tile_name}:\n${tiles.info_text(tile_id)}`);
+                    help_texts.info = add_text_line(help_texts.info, `${described_count > 0?'\n':''}# ${tile_name}\n${tiles.info_text(tile_id)}`);
                 }
             } else {
                 const thing = entity_or_tileid; // Probably an effect. We just want to display something
                 help_texts.tooltip = add_text_line(help_texts.tooltip, `*${thing.name}*`);
-                help_texts.info = add_text_line(help_texts.info, `*${thing.name}*:\n${thing.description}`);
+                help_texts.info = add_text_line(help_texts.info, `${described_count > 0?'\n':''}*${thing.name}*\n${thing.description}`);
             }
+            ++described_count;
         }
         return help_texts;
     }

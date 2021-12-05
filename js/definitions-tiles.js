@@ -825,7 +825,7 @@ function info_text(tile_id){
     const tile_def = defs[tile_id];
     debug.assertion(()=>tile_def);
     if(tile_def.description)
-        return auto_newlines(tile_def.description, 36);
+        return auto_newlines(tile_def.description, 30);
     else
         return "No description for this tile.";
 }

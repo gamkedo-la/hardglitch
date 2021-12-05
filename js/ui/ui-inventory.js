@@ -237,13 +237,9 @@ class ItemSlot {
 
     _show_info(){
         if(this._item_view != undefined){
-            const kind_and_name = this._item_view instanceof ItemView ? `Item: ` : `Entity: ${this._item_view.name}` + '\n\n';
-            const active_label = this.is_active ? "Active " : "";
             const area = this._item_view.area;
-            // area.width = 60;
-            // area.height = 60;
             const info_pos = { x: area.bottom_right.x, y: area.center.y };
-            show_info(`${active_label}${kind_and_name}${this._item_view.description}`, info_pos);
+            show_info(this._item_view.description, info_pos);
 
         } else {
             const area = this._sprite.area;
