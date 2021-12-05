@@ -397,7 +397,7 @@ class GameView {
         const maybe_linejump = help_texts.tooltip.length > 0 ? `\n` : '';
         const action_tooltip = `-> ACTION: ${action.name} (${action.constructor.costs.action_points.value} AP)`;
         help_texts.tooltip = add_text_line(help_texts.tooltip, action_tooltip);
-        help_texts.info = add_text_line(help_texts.info, `${maybe_linejump}-> ACTION: ${action.constructor.action_type_name}\n(see Action buttons for details)`);
+        //help_texts.info = add_text_line(help_texts.info, `${maybe_linejump}-> ACTION: ${action.constructor.action_type_name}\n(see Action buttons for details)`);
         return help_texts;
     }
 
@@ -413,7 +413,7 @@ class GameView {
             debug.assertion(()=>action instanceof concepts.Action);
             if(action.is_basic ){ //&& action.is_safe){
                 const help_texts = this.help_text_over_action(action);
-                debug.assertion(()=>typeof help_texts.info === "string" && help_texts.info.length > 0);
+                // debug.assertion(()=>typeof help_texts.info === "string" && help_texts.info.length > 0);
                 debug.assertion(()=>typeof help_texts.tooltip === "string" && help_texts.tooltip.length > 0);
                 const events = this._action_highlight_events(action);
                 if(action instanceof Move)
@@ -995,7 +995,7 @@ class GameView {
                     help_texts.tooltip = add_text_line(help_texts.tooltip, `${entity.name} ${controller}`);
                     help_texts.info = add_text_line(help_texts.info, `@ ${entity.name}:\n${entity.description}`);
                 } else {
-                    const item_desc = entity.can_be_taken ? "! ITEM: " : "! ";
+                    const item_desc = entity.can_be_taken ? "ITEM: " : "";
                     help_texts.tooltip = add_text_line(help_texts.tooltip, `${item_desc}${entity.name}`);
                     help_texts.info = add_text_line(help_texts.info, `${item_desc}${item_description(entity)}`);
                 }
