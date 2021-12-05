@@ -514,11 +514,12 @@ class GameInterface {
             const position = { x: next_x(), y: line_y };
 
             const action_type = action_info.action_type;
-            const action_range = action_type.range;
+            const action_range = action_info.range;
+
             const key_name = key_number <= 10 ? `${key_number === 0 ? "SPACE" : (key_number === 10 ? 0 : key_number) }` : "";
             const action_description = texts.action_description(action_type);
             const action_name_text = action_type.action_type_name;
-            const is_no_target_action = action_info.actions.length == 1 && (action_info.action_type.range == null || action_info.actions[0].target_position == null);
+            const is_no_target_action = action_info.actions.length == 1 && (action_range == null || action_info.actions[0].target_position == null);
             const action_button = new ActionButton(position, action_type.icon_def, action_name, action_name_text, key_name, action_description,
                 (clicked_button)=>{ // on clicked
                     debug.assertion(()=>action_info.actions instanceof Array);

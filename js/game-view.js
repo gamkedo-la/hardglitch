@@ -1080,7 +1080,9 @@ class GameView {
                     return {
                         [action_type_name]: {
                             actions: [],
-                            action_type: action_type
+                            action_type: action_type,
+                            range: action_type.range instanceof visibility.RangeShape ? action_type.range
+                                    : action_type.range instanceof Function ? action_type.range(this.player_character) : undefined,
                         },
                     };
                 }).reduce((result, value) => {
@@ -1096,9 +1098,10 @@ class GameView {
                 if(actions_infos[action_type_name]){
                     actions_infos[action_type_name].actions = actions;
                 } else {
+                    const action_type = actions[0].constructor;
                     actions_infos[action_type_name] = {
                         actions: actions,
-                        action_type: actions[0].constructor,
+                        action_type: action_type,
                     }
                 }
             }

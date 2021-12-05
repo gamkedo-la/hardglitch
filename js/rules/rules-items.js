@@ -175,7 +175,14 @@ class TakeItem extends concepts.Action {
     static get icon_def(){ return sprite_defs.icon_action_take; }
     static get action_type_name() { return "Take Item"; }
     static get action_type_description() { return auto_newlines("Transfer the target item in this character's free item slot.", 35); }
-    static get range() { return this._range; }
+    static range(character) {
+        debug.assertion(()=> character instanceof Character);
+        const max_take_distance = 1 + character.stats.take_distance.value;
+        debug.assertion(()=> typeof character.stats.diagonal_take === 'boolean');
+        const range = character.stats.diagonal_take ?  new visibility.Range_Cross_Star(1, max_take_distance) : new visibility.Range_Cross_Axis(1, max_take_distance);
+        return range;
+     }
+    get range() { return this._range; }
     static get costs(){
         return {
             action_points: { value: 1 },
@@ -380,9 +387,7 @@ class Rule_TakeItem extends concepts.Rule {
 
         const actions = {};
 
-        const max_take_distance = 1 + character.stats.take_distance.value;
-        debug.assertion(()=> typeof character.stats.diagonal_take === 'boolean');
-        const take_item_range = character.stats.diagonal_take ?  new visibility.Range_Cross_Star(1, max_take_distance) : new visibility.Range_Cross_Axis(1, max_take_distance);
+        const take_item_range = TakeItem.range(character);
 
         visibility.valid_target_positions(world, character, take_item_range)
             .filter(target=> { // Only if there is an item to take.
