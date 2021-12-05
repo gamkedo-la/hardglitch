@@ -249,7 +249,7 @@ class GameOverScreen_Failure extends fsm.State {
         const game_mode = window.localStorage.getItem(save_names.game_mode);
         Object.values(save_names).forEach(save_value => window.localStorage.removeItem(save_value));
         window.localStorage.setItem(save_names.game_mode, game_mode);
-        this.state_machine.push_action("retry", 0);
+        this.state_machine.push_action("restart", 0);
     }
 
     update(delta_time){
