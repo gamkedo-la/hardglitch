@@ -351,13 +351,14 @@ class World
         this.height = height;
         this.size = this.width * this.height;
         this.grids = grids;
+        this._all_grids = Object.values(this.grids); // Optimization: we assume that the grids entities will not change much after creation.
         is_positions_update_necessary = true;
     }
 
     get bodies() { return Object.values(this._bodies); }
     get items() { return Object.values(this._items); }
     get entities() { return [ ...this.bodies, ...this.items ]; }
-    get all_grids() { return Object.values(this.grids); }
+    get all_grids() { return this._all_grids; }
 
     get_entity(entity_id){
         debug.assertion(()=>Number.isInteger(entity_id));
@@ -372,6 +373,7 @@ class World
         debug.assertion(()=>this.grids[grid_id] === undefined);
         debug.assertion(()=>grid instanceof Grid && grid.width == this.width && grid.height == this.height);
         this.grids[grid_id] = grid;
+        this._all_grids = Object.values(this.grids); // Optimization: we assume that the grids entities will not change much after creation.
         return grid;
     }
 
@@ -379,6 +381,7 @@ class World
         debug.assertion(()=>grid_id !== undefined);
         const grid = this._grids[grid_id];
         delete this.grids[grid_id];
+        this._all_grids = Object.values(this.grids); // Optimization: we assume that the grids entities will not change much after creation.
         return grid;
     }
 
@@ -518,11 +521,17 @@ class World
 
     everything_at(position){
         debug.assertion(()=>this.is_valid_position(position));
-        const things = [
-            ...this.all_grids.map(grid => grid.get_at(position)),
-            this.entity_at(position),
-        ];
-        return things.filter(thing => thing !== undefined && thing !== null);
+
+        const things = [];
+        this.all_grids.forEach(grid => {
+            const thing = grid.get_at(position);
+            if(thing != null) things.push(thing);
+        })
+
+        const entity = this.entity_at(position);
+        if(entity != null) things.push(entity);
+
+        return things;
     }
 
     _update_entities_locations(){ // This is an optimization
