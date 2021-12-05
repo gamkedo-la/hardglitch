@@ -87,11 +87,15 @@ class VirusBehavior extends concepts.Actor {
 
         const farthest_gang_member = gang.reverse().find(virus => virus != character);
         debug.assertion(()=>farthest_gang_member == null || farthest_gang_member.is_virus);
-        const move = wander(possible_actions, undefined, (next_position)=>{ // Wander but keep close to other
-            return farthest_gang_member == null || distance_grid_precise(next_position, farthest_gang_member.position) <= virus_max_gang_distance;
-        });
-        if(move)
-            return move;
+
+        // Move towards gang's members if we have any and are too far.
+        if(farthest_gang_member instanceof Character
+        && distance_grid_precise(character.position, farthest_gang_member.position) > virus_max_gang_distance
+        ){
+            const move = move_towards(character, possible_actions, farthest_gang_member.position);
+            if(move)
+                return move;
+        }
 
         return possible_actions.wait;
     }
