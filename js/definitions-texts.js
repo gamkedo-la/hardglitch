@@ -233,7 +233,7 @@ function item_description(item){
     const prefix = item.can_be_taken ? "Item: " : "";
     let description_text = `${prefix}${item.name}\n\n`;
     if(item_actions_names.length > 0){
-        description_text += `${auto_newlines("Enables Actions : " + item_actions_names, max_action_list_line_width)}\n\n`;
+        description_text += `${auto_newlines("Actions: " + item_actions_names, max_action_list_line_width)}\n(see action buttons for details)\n\n`;
     }
     if(item_stats_modifiers){
         description_text += `${item_stats_modifiers}\n\n`;
