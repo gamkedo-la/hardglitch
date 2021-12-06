@@ -581,8 +581,9 @@ class GameScreen extends fsm.StateMachine {
         if(Number.isInteger(level_to_play)){
             this.music = music_id[`level_${level_to_play}`];
         }
-        if(options instanceof Object && Number.isInteger(options.play_music)){
-            this.music = music_id[`level_${options.play_music}`];
+        if(options instanceof Object) {
+            if(Number.isInteger(options.play_music))
+                this.music = music_id[`level_${options.play_music}`];
         }
         if(this.music){
             audio.playEvent(this.music);

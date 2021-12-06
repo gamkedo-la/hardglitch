@@ -3,6 +3,7 @@ export {
     Level_2_IntroScreen,
     Level_3_IntroScreen,
     Level_4_IntroScreen,
+    Level_IntroSelection,
 }
 
 import * as debug from "./system/debug.js";
@@ -434,3 +435,25 @@ class Level_4_IntroScreen extends LevelIntroScreen {
     }
 
 };
+
+
+// Used to route to the proper intro.
+class Level_IntroSelection extends fsm.State {
+    *enter(level_idx, ...data){
+        this.state_machine.push_action(`level_${level_idx}`, ...data);
+    }
+
+    *leave() {
+    }
+
+    update(){
+
+    }
+
+    display(canvas_context){
+        canvas_context.clearRect(0, 0, canvas_context.canvas.width, canvas_context.canvas.height);
+    }
+
+    on_canvas_resized(){}
+};
+

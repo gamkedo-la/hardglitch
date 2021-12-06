@@ -48,6 +48,7 @@ const game_state_machine = new class extends fsm.StateMachine {
       intro_level_2: new level_screens.Level_2_IntroScreen(),
       intro_level_3: new level_screens.Level_3_IntroScreen(),
       intro_level_4: new level_screens.Level_4_IntroScreen(),
+      level_intro_router: new level_screens.Level_IntroSelection(),
       demo: new Screen_Demo(),
       procgen_warning: new ProcgenWarningScreen(),
     },{
@@ -62,6 +63,7 @@ const game_state_machine = new class extends fsm.StateMachine {
       },
       title: {
         new_game: "game_intro",
+        retry: "level_intro_router",
         continue: "game",
         options: "options",
         credits: "credits",
@@ -85,12 +87,18 @@ const game_state_machine = new class extends fsm.StateMachine {
         level_4: "intro_level_4",
         demo: "demo",
       },
+      level_intro_router: {
+        level_1: "intro_level_1",
+        level_2: "intro_level_2",
+        level_3: "intro_level_3",
+        level_4: "intro_level_4",
+      },
       gameover_success: {
         ok: "credits",
       },
       gameover_failure: {
         back: "title",
-        retry: "game",
+        retry: "level_intro_router",
         restart: "game_intro",
       },
       demo: {

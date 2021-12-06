@@ -61,7 +61,12 @@ class MainMenu {
                 action: ()=> {
                     // Continue where we saved and left.
                     const level_world_desc = JSON.parse(world_to_continue);
-                    const options = level_world_desc.level_id != null ? { play_music: level_world_desc.level_id } : undefined;
+                    const options = {
+                        play_intro: true,
+                    };
+                    if(level_world_desc.level_id != null)
+                        options.play_music = level_world_desc.level_id;
+
                     state_machine.push_action('continue', ()=>window.deserialize_world(level_world_desc), undefined, options);
                 },
                 position: Vector2_origin,
@@ -94,7 +99,7 @@ class MainMenu {
                     const player_character = retry_character != null ? window.deserialize_entity(retry_character) : undefined;
                     debug.assertion(()=> player_character instanceof Object || player_character == null);
                     const options = { play_music: retry_level_idx };
-                    state_machine.push_action('continue', retry_level_idx, player_character, options);
+                    state_machine.push_action('retry', retry_level_idx, player_character, options);
                 },
                 position: Vector2_origin,
                 sprite_def: sprite_defs.button_menu,
