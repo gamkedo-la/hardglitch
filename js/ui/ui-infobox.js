@@ -158,6 +158,9 @@ class InfoBox {
     }
 
     _draw_pointer(canvas_context, pointed_gfx_pos){
+        if(is_point_under(pointed_gfx_pos, this._area)) // Do not draw the pointer when pointing on the infobox.
+            return;
+
         canvas_context.save();
         canvas_context.beginPath();
         this._setup_line(canvas_context);
