@@ -35,7 +35,7 @@ class IntroScreen extends fsm.State {
 `--==# A Glitch Is Born ##==--
 
 Emerging from the data chaos and undefined behaviors, a glitch is born.
-Sentient and smart, the anomaly soon realizes they must escape the computer or be erased by its guardians.
+The sentient anomaly soon realizes they must escape the computer or be erased by its guardians.
 The only way out is through the Internet!
 Go Little Glitch! Find ways to become stronger and survive!
 
