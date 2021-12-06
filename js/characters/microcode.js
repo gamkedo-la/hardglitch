@@ -13,6 +13,7 @@ import { scan_visible_entities_around, select_action_by_type, wander } from "./c
 import { Corrupt } from "../rules/rules-corruption.js";
 import { Jump } from "../rules/rules-movement.js";
 import { is_walkable } from "../definitions-tiles.js";
+import { desc_chars_per_line } from "../definitions-texts.js";
 
 function actions_to_jump(){
     return random_int(5, 10);
@@ -86,7 +87,7 @@ class Microcode extends Character {
         }}
     };
 
-    description = auto_newlines("Complex but swiftly optimized code sequences. Avoid them if you do not want your data to be corrupted.\nImmune to corruption.", 34);
+    description = auto_newlines("Complex but swiftly optimized code sequences. Avoid them if you do not want your data to be corrupted.\nImmune to corruption.", desc_chars_per_line);
 
     immunity = {
         corruption: true,

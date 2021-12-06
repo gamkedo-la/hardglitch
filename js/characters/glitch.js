@@ -7,6 +7,7 @@ import { sprite_defs } from "../game-assets.js";
 import { Character, CharacterStats } from "../core/character.js";
 import * as concepts from "../core/concepts.js";
 import { auto_newlines } from "../system/utility.js";
+import { desc_chars_per_line } from "../definitions-texts.js";
 
 const default_player_view_distance = 5;
 const default_player_inventory_slots = 3;
@@ -21,7 +22,7 @@ class GlitchyGlitchMacGlitchy extends Character {
 
     is_floating = true; // For graphic coolness.
 
-    description = auto_newlines("Sentient glitch, computer bug with a conscience, ghost in the machine. Will probably be destroyed by the computer's protection.", 35);
+    description = auto_newlines("Sentient glitch, computer bug with a conscience, ghost in the machine. Will probably be destroyed by the computer's protection.", desc_chars_per_line);
 
     is_anomaly = true;
 

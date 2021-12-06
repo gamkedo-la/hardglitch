@@ -17,6 +17,7 @@ import { DropItem, TakeItem } from "../rules/rules-items.js";
 import { Range_Circle, search_entities, valid_spawn_positions } from "../core/visibility.js";
 import { Delete } from "../rules/rules-delete.js";
 import { distance_grid_precise } from "../system/spatial.js";
+import { desc_chars_per_line } from "../definitions-texts.js";
 
 const virus_gang_size = 3; // Total count of Virus that should be around each-other when hunting.
 const virus_max_gang_distance = 3;
@@ -168,7 +169,7 @@ class Virus extends Character {
         }}
     };
 
-    description = auto_newlines("Self-replicating malware. Beware of its resistance and agressivity. Hunted by Anti-Viruses.", 35);
+    description = auto_newlines("Self-replicating malware. Beware of its resistance and agressivity. Can steal virtual bodies if close enough. Hunted by Anti-Viruses.", desc_chars_per_line);
     is_anomaly = true;
     is_floating = true; // rule of cool
 

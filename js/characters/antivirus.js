@@ -12,6 +12,7 @@ import { auto_newlines, random_int, random_sample } from "../system/utility.js";
 import { Delete } from "../rules/rules-delete.js";
 import { Repair } from "../rules/rules-repair.js";
 import { closest_entity, move_towards, select_action_by_type, wander } from "./characters-common.js";
+import { desc_chars_per_line } from "../definitions-texts.js";
 
 
 class AnomalyHunter extends concepts.Actor {
@@ -163,7 +164,7 @@ class AntiVirus extends Character {
         }}
     };
 
-    description = auto_newlines("Hunts defects, glitches, viruses, malwares. Very agressive and does not have any kind of pity.", 35);
+    description = auto_newlines("Hunts anomalies, glitches, viruses, malwares. Very agressive and does not have any kind of pity except towards the Programs it protects.", desc_chars_per_line);
     is_floating = true; // rule of cool
 
     constructor(){

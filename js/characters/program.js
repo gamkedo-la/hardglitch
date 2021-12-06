@@ -14,6 +14,7 @@ import { VirusBehavior } from "./virus.js";
 import { Destabilize, Unstability } from "../rules/rules-unstability.js";
 import { grid_ID } from "../definitions-world.js";
 import { Push } from "../rules/rules-forces.js";
+import { desc_chars_per_line } from "../definitions-texts.js";
 
 
 class ProgramBehavior extends concepts.Actor {
@@ -90,7 +91,7 @@ class Program extends Character {
         }}
     };
 
-    description = auto_newlines("User-space program. Eats memory for no reason. Fears anomalies. Peasible until scared. Protected by Anti-Virus.", 30);
+    description = auto_newlines("User-space program. Eats memory for no reason. Fears anomalies and will flee them or push them away. Peaceful until scared. Protected by Anti-Virus.", desc_chars_per_line);
 
     is_floating = true; // rule of cool
 

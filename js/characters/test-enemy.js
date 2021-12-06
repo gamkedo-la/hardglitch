@@ -12,6 +12,7 @@ import {auto_newlines, random_sample} from "../system/utility.js";
 import { Wait } from "../rules/rules-basic.js";
 import { sprite_defs } from "../game-assets.js";
 import { Character, CharacterStats } from "../core/character.js"
+import { desc_chars_per_line } from "../definitions-texts.js";
 
 class RandomActionSelector extends concepts.Actor {
 
@@ -39,7 +40,7 @@ class RandomActionEnemy extends Character {
         }}
     };
 
-    description = auto_newlines("Randomly generates data. Best source of randomness used by other programs.", 35);
+    description = auto_newlines("Randomly generates data. Best source of randomness used by other programs.", desc_chars_per_line);
 
     constructor(){
         super("Random Device", new CharacterStats());
@@ -58,7 +59,7 @@ class WaitingNPC extends Character {
         }}
     };
 
-    description = auto_newlines("Background program that does nothing apparent.", 35);
+    description = auto_newlines("Background program that does nothing apparent.", desc_chars_per_line);
 
     constructor(){
         super("Background Service", new CharacterStats());

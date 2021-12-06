@@ -20,6 +20,7 @@ import { Push } from "../rules/rules-forces.js";
 import { move_towards, select_action_by_type, closest_entity } from "./characters-common.js";
 import { DropItem } from "../rules/rules-items.js";
 import { valid_spawn_positions } from "../core/visibility.js";
+import { desc_chars_per_line } from "../definitions-texts.js";
 
 const reverse_move_id = {
     move_east : "move_west",
@@ -180,7 +181,7 @@ class LifeForm_Weak extends Character {
         }}
     };
 
-    description = auto_newlines("Unexpected anomaly life-form living in the computer's memory. Nobody knows where they come from.", 35);
+    description = auto_newlines("Unexpected anomaly life-form living in the computer's memory. Nobody knows where they come from. Cute and clueless.", desc_chars_per_line);
     is_anomaly = true;
 
     constructor(){
@@ -208,7 +209,7 @@ class LifeForm_Strong extends Character {
         }}
     };
 
-    description = auto_newlines("Stubborn life-form living in the computer's memory. They might not be sentient but they sure know what they want.", 35);
+    description = auto_newlines("Stubborn life-form living in the computer's memory. Don't stay too close from them if you don't want to be pushe away", desc_chars_per_line);
     is_anomaly = true;
 
     constructor(){
@@ -302,7 +303,7 @@ class LifeForm_Aggressive extends Character {
         }}
     };
 
-    description = auto_newlines("Uncivilized life-form living in the computer's memory. They crush anyone coming in their sight! Except maybe other life-forms?", 35);
+    description = auto_newlines("Uncivilized life-form living in the computer's memory. They crush anyone coming in their sight, except maybe other life-forms.", desc_chars_per_line);
     is_anomaly = true;
 
     constructor(){
@@ -339,7 +340,7 @@ class LifeForm_Berserk extends LifeForm_Aggressive {
         }}
     };
 
-    description = auto_newlines("Enraged emergent life-form. Charge and crush anyone coming in their sight, even other life-forms! Might be tamed by kindness.", 35);
+    description = auto_newlines("Enraged emergent life-form. Charges and crush anyone coming in their sight, even other life-forms. Might be tamed by kindness.", desc_chars_per_line);
 
     constructor(...args){
         super(...args);
