@@ -9,7 +9,7 @@ import * as tiles from "../definitions-tiles.js";
 import * as tools from "./level-tools.js";
 import { all_entity_types, is_valid_world } from "../definitions-world.js";
 import { Position } from "../core/concepts.js";
-import { copy_data, position_from_index, random_bag_pick, random_int, random_sample, shuffle_array } from "../system/utility.js";
+import { copy_data, index_from_position, position_from_index, random_bag_pick, random_int, random_sample, shuffle_array } from "../system/utility.js";
 import { Rectangle, Vector2 } from "../system/spatial.js";
 import { all_characters_types } from "../deflinitions-characters.js";
 import * as items from "../definitions-items.js";
@@ -1410,10 +1410,19 @@ function generate_world(){
         );
 
         const selected_exit_room = generate_exit_room(crypto_config);
+        const exit_room_position = new Position({ x: random_int(0, ram_world_with_rooms.width - 8), y: ram_world_with_rooms.height }) ;
         const ram_world_with_rooms_and_exit = tools.merge_world_chunks(level_name, { floor: tiles.ID.VOID },
             { position: { x: 0, y: 0}, world_desc: ram_world_with_rooms },
-            { position: { x: random_int(0, ram_world_with_rooms.width - 8), y: ram_world_with_rooms.height }, world_desc: selected_exit_room }
+            { position: exit_room_position, world_desc: selected_exit_room }
         );
+
+        // The exit door is always at position { 0, 4 } inside the exit room.
+        // Make sure the player have space to come in from of the door.
+        const exit_door_position = exit_room_position.translate({ x: 4, y: 0 });
+        const exit_door_front_position =  exit_door_position.translate({ x: 0, y: -1 });
+        const get_index = (position) => index_from_position(ram_world_with_rooms_and_exit.width, ram_world_with_rooms_and_exit.height, position);
+        ram_world_with_rooms_and_exit.grids.surface[ get_index(exit_door_front_position) ] = null;
+        ram_world_with_rooms_and_exit.grids.floor[ get_index(exit_door_front_position) ] = defaults.floor_alt;
 
         // Pass 5: TODO: fill the inter-room corridors with walls and entities
 
