@@ -203,11 +203,17 @@ function update_camera_control(delta_time, allow_camera_dragging){
     const current_speed = camera_speed * delta_time;
     const keyboard = input.keyboard;
 
+    if(current_game_view.player_character) {
 
-    if(keyboard.is_just_down(KEY.F) && current_game_view.player_character){
-        current_game_view.focus_on_current_player_character(true);
+        let player_character_view = current_game_view.get_entity_view(current_game_view.player_character.id);
+        if(player_character_view != null && graphics.camera.center_position.distance(player_character_view.position) > 128){
+            current_game_view.request_focus_message_draw();
+        }
+
+        if(keyboard.is_just_down(KEY.F)){
+            current_game_view.focus_on_current_player_character(true);
+        }
     }
-
 
     const drag_pos = input.mouse.dragging_positions;
     if(input.mouse.is_dragging

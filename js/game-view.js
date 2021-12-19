@@ -49,6 +49,7 @@ import { BlackBox, CryptoFile } from "./definitions-items.js";
 
 const a_very_long_time = 99999999999999;
 const goal_message = "Find The Exit!";
+const focus_message = "Press [F] to re-Focus on your character";
 const turn_message_player_turn = "Play";
 const turn_message_processing_turns = "...Processing Cycles...";
 const turn_message_action_selection = "Select A Target";
@@ -283,6 +284,15 @@ class GameView {
             align: "center",
         });
 
+        this._focus_message = new ui.Text({
+            text: focus_message,
+            font: "16px Space Mono",
+            background_color: "#000000a0",
+            color: "white",
+            enabled: true,
+            align: "center",
+        });
+
         this.reset();
 
         if(this.player_character){
@@ -290,6 +300,8 @@ class GameView {
             const gfx_position = this.get_entity_view(this.player_character.id).position;
             graphics.camera.center_position = gfx_position;
         }
+
+        this.on_canvas_resized(); // Make sure everything is placed correctly from the beginning.
 
         // Display the goal message and disappear.
         const goal_display_duration_ms = 6000;
@@ -540,6 +552,7 @@ class GameView {
         this._update_turn_message(delta_time);
 
         this._central_message.update(delta_time);
+        this._focus_message.update(delta_time);
     }
 
     _update_turn_message(delta_time){
@@ -961,6 +974,7 @@ class GameView {
         graphics.camera.begin_in_screen_rendering();
         if(this._central_message.enabled)
             this._central_message.draw(graphics.screen_canvas_context);
+        this._draw_focus_message(graphics.screen_canvas_context);
         graphics.camera.end_in_screen_rendering();
     }
 
@@ -1120,6 +1134,7 @@ class GameView {
         this.focus_on_current_player_character();
 
         this._relocate_goal_text();
+        this._relocate_focus_text();
     }
 
     _relocate_goal_text(){
@@ -1127,6 +1142,14 @@ class GameView {
         this._central_message.position = graphics.centered_rectangle_in_screen(this._central_message)
                                                 .position
                                                 .translate({ y: 120 });
+    }
+
+    _relocate_focus_text(){
+        this._focus_message._reset(graphics.screen_canvas_context); // To make sure it's always at the right position.
+        this._focus_message.position = {
+            x: graphics.centered_rectangle_in_screen(this._focus_message).position.x,
+            y: 8
+        };
     }
 
     _reset_tilegrid(world){
@@ -1241,6 +1264,18 @@ class GameView {
                     return;
                 this._central_message.enabled = false
             });
+        }
+    }
+
+    request_focus_message_draw() {
+        this._need_focus_message = true;
+    }
+
+    _draw_focus_message(canvas_context){
+        debug.assertion(()=>canvas_context instanceof Object);
+        if(this._need_focus_message === true){
+            delete this._need_focus_message;
+            this._focus_message.draw(canvas_context);
         }
     }
 
