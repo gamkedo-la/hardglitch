@@ -21,7 +21,7 @@ import { LoadingGameScreen } from "./screen-loading-game.js";
 import { TitleScreen } from "./screen-title.js";
 import { GameScreen } from "./screen-game.js";
 import { CreditsScreen } from "./screen-credits.js";
-import { GameOverScreen_Success, GameOverScreen_Failure } from "./screen-gameover.js";
+import { GameOverScreen_Success, GameOverScreen_Failure, GameOverScreen_GlitchMode, GameOverScreen_CrashMode } from "./screen-gameover.js";
 import * as level_screens from "./screen-levels.js";
 import { MuteAudioButton } from "./game-ui.js";
 import { OptionsScreen } from "./screen-options.js";
@@ -43,6 +43,8 @@ const game_state_machine = new class extends fsm.StateMachine {
       game: new GameScreen(),
       gameover_success: new GameOverScreen_Success(),
       gameover_failure: new GameOverScreen_Failure(),
+      gameover_glitch_mode: new GameOverScreen_GlitchMode(),
+      gameover_crash_mode: new GameOverScreen_CrashMode(),
       game_intro: new IntroScreen(),
       intro_level_1: new level_screens.Level_1_IntroScreen(),
       intro_level_2: new level_screens.Level_2_IntroScreen(),
@@ -94,7 +96,15 @@ const game_state_machine = new class extends fsm.StateMachine {
         level_4: "intro_level_4",
       },
       gameover_success: {
-        ok: "credits",
+        glitch: "gameover_glitch_mode",
+        crash: "gameover_crash_mode",
+        exit: "title",
+      },
+      gameover_glitch_mode: {
+        next: "credits",
+      },
+      gameover_crash_mode: {
+        next: "credits",
       },
       gameover_failure: {
         back: "title",

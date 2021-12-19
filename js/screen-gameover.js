@@ -1,6 +1,8 @@
 export {
     GameOverScreen_Success,
     GameOverScreen_Failure,
+    GameOverScreen_GlitchMode,
+    GameOverScreen_CrashMode,
 }
 
 import * as debug from "./system/debug.js";
@@ -37,13 +39,10 @@ class GameOverScreen_Success extends fsm.State {
         debug.assertion(()=>this.ui === undefined);
         debug.assertion(()=>this._player_character instanceof Character);
 
-
-// TODO: put this in the end screen
-//"Will they start a romance with an attractive spreadsheet across town?\nMine bitcoin and buy a nice server\nto live in on the Cayman Islands?\nThe sky is truly the limit."
-
         this.ui = {
             message : new ui.Text({
                 text: "Congratulations!\nYou did it!\nYou escaped the computer!",
+                visible: false,
                 font: "60px ZingDiddlyDooZapped",
                 color: "white",
                 // stroke_color: "purple",
@@ -54,6 +53,7 @@ class GameOverScreen_Success extends fsm.State {
             }),
             button_back : new ui.TextButton({
                 text: "Continue [SPACE]",
+                visible: false,
                 font: button_text_font,
                 text_align: button_text_align,
                 position: Vector2_origin,
@@ -113,17 +113,28 @@ class GameOverScreen_Success extends fsm.State {
     }
 
     go_to_next_screen(){
-        this.state_machine.push_action("ok");
+        const game_mode = window.localStorage.getItem(save_names.game_mode);
+        debug.assertion(()=>game_modes[game_mode] != null);
+        this.state_machine.push_action(game_mode, this._player_character);
     }
 
     update(delta_time){
 
         if(!this.fader.is_fading){
-            if(input.keyboard.is_just_down(KEY.SPACE)){
-                this.go_to_next_screen();
+            if(this.ui.button_back.visible) {
+                if(input.keyboard.is_just_down(KEY.SPACE)){
+                    this.go_to_next_screen();
+                }
             } else {
-                invoke_on_members(this.ui, "update", delta_time);
+                if(input.keyboard.is_just_down(KEY.SPACE)
+                || input.mouse.buttons.is_any_key_down()
+                ){
+                    this.ui.button_back.visible = true;
+                    this.ui.message.visible = true;
+                }
             }
+
+            invoke_on_members(this.ui, "update", delta_time);
         }
 
         this._update_background_movement(delta_time);
@@ -235,10 +246,18 @@ class GameOverScreen_Success extends fsm.State {
     }
 
     _update_background_movement(delta_time){
+        const time_since_start = performance.now() - this._background_start_time;
+        const show_time = 10000;
+
+        if(time_since_start > show_time){
+            this.ui.button_back.visible = true;
+            this.ui.message.visible = true;
+        }
+
         if(this.background.position.y === 0) return;
 
-        const time_since_start = performance.now() - this._background_start_time;
         if(time_since_start < 3000) return;
+
 
         const acceleration = 0.05;
         this._background_velocity = this._background_velocity.translate({ y: acceleration });
@@ -421,4 +440,199 @@ class GameOverScreen_Failure extends fsm.State {
 
 
 
+class GameOverScreen_GlitchMode extends fsm.State {
+    fader = new ScreenFader();
 
+    constructor(){
+        super();
+        this.fader.color = new Color(0,0,0);
+    }
+
+    _init_ui(){
+        debug.assertion(()=>this.ui === undefined);
+
+        this.ui = {
+            message_a : new ui.Text({
+                text: auto_newlines("Will they start a romance with an attractive spreadsheet across town?\nMine bitcoin and buy a nice server\nto live in on the Cayman Islands?\nThe sky is truly the limit.", 25),
+                text_align: "center",
+                color: "white",
+                background_color: "#00000000",
+                position: Vector2_origin,
+            }),
+
+            message_b : new ui.Text({
+                text: auto_newlines("Glitch might end up caught by the security system of another computer. To achieve total success, finish the game in Crash mode.", 25),
+                text_align: "center",
+                color: "orange",
+                background_color: "#00000000",
+                position: Vector2_origin,
+            }),
+
+            button : new ui.TextButton({
+                text: "Continue [SPACE]",
+                position: Vector2_origin,
+                font: button_text_font,
+                text_align: button_text_align,
+                sprite_def: sprite_defs.button_menu,
+                action: ()=> { this.next(); },
+                sounds:{
+                    over: 'selectButton',
+                    down: 'clickButton',
+                }
+            }),
+        };
+
+        this.ui.message_a.position = graphics.centered_rectangle_in_screen(this.ui.message_a.area).position.translate({
+            y: - 200,
+            x: (this.ui.message_a.width / 2)
+        });
+
+        this.ui.message_b.position = graphics.centered_rectangle_in_screen(this.ui.message_b.area).position.translate({
+            y: 100,
+            x: (this.ui.message_b.width / 2)
+        });
+
+        this.ui.button.position = graphics.centered_rectangle_in_screen(this.ui.button.area).position.translate({
+            y: 300,
+        });
+
+    }
+
+    *enter(player_character){
+        debug.assertion(()=> player_character instanceof Character);
+        this.on_canvas_resized();
+        yield* this.fader.generate_fade_in();
+    }
+
+    *leave(){
+        yield* this.fader.generate_fade_out();
+    }
+
+
+    next(){
+        this.state_machine.push_action("next");
+    }
+
+    update(delta_time){
+        if(!this.fader.is_fading){
+            if(input.keyboard.is_just_down(KEY.SPACE)){
+                this.next();
+            } else {
+                invoke_on_members(this.ui, "update", delta_time);
+            }
+        }
+        this.fader.update(delta_time);
+    }
+
+    display(canvas_context){
+        graphics.draw_rectangle(canvas_context, graphics.canvas_rect(), "black");
+        invoke_on_members(this.ui, "draw", canvas_context);
+        this.fader.display(canvas_context);
+    }
+
+
+    on_canvas_resized(){
+        delete this.ui;
+        this._init_ui();
+    }
+
+};
+
+
+class GameOverScreen_CrashMode extends fsm.State {
+    fader = new ScreenFader();
+
+    constructor(){
+        super();
+        this.fader.color = new Color(0,0,0);
+    }
+
+    _init_ui(){
+        debug.assertion(()=>this.ui === undefined);
+
+        this.ui = {
+            message_a : new ui.Text({
+                text: auto_newlines("Will they start a romance with an attractive spreadsheet across town?\nMine bitcoin and buy a nice server\nto live in on the Cayman Islands?\nThe sky is truly the limit.", 25),
+                text_align: "center",
+                color: "white",
+                background_color: "#00000000",
+                position: Vector2_origin,
+            }),
+
+            message_b : new ui.Text({
+                text: auto_newlines("Glitch duplicated themselves into multiple computer to survive forever!\nWell done!", 25),
+                text_align: "center",
+                color: "green",
+                background_color: "#00000000",
+                position: Vector2_origin,
+            }),
+
+            button : new ui.TextButton({
+                text: "Continue [SPACE]",
+                position: Vector2_origin,
+                font: button_text_font,
+                text_align: button_text_align,
+                sprite_def: sprite_defs.button_menu,
+                action: ()=> { this.next(); },
+                sounds:{
+                    over: 'selectButton',
+                    down: 'clickButton',
+                }
+            }),
+        };
+
+        this.ui.message_a.position = graphics.centered_rectangle_in_screen(this.ui.message_a.area).position.translate({
+            y: - 200,
+            x: (this.ui.message_a.width / 2)
+        });
+
+        this.ui.message_b.position = graphics.centered_rectangle_in_screen(this.ui.message_b.area).position.translate({
+            y: 100,
+            x: (this.ui.message_b.width / 2)
+        });
+
+        this.ui.button.position = graphics.centered_rectangle_in_screen(this.ui.button.area).position.translate({
+            y: 300,
+        });
+
+    }
+
+    *enter(player_character){
+        debug.assertion(()=> player_character instanceof Character);
+        this.on_canvas_resized();
+        yield* this.fader.generate_fade_in();
+    }
+
+    *leave(){
+        yield* this.fader.generate_fade_out();
+    }
+
+
+    next(){
+        this.state_machine.push_action("next");
+    }
+
+    update(delta_time){
+        if(!this.fader.is_fading){
+            if(input.keyboard.is_just_down(KEY.SPACE)){
+                this.next();
+            } else {
+                invoke_on_members(this.ui, "update", delta_time);
+            }
+        }
+        this.fader.update(delta_time);
+    }
+
+    display(canvas_context){
+        graphics.draw_rectangle(canvas_context, graphics.canvas_rect(), "black");
+        invoke_on_members(this.ui, "draw", canvas_context);
+        this.fader.display(canvas_context);
+    }
+
+
+    on_canvas_resized(){
+        delete this.ui;
+        this._init_ui();
+    }
+
+};

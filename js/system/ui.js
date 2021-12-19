@@ -52,9 +52,9 @@ class UIElement {
     constructor(def){
         debug.assertion(()=>is_number(def.height));
         debug.assertion(()=>is_number(def.width));
-        this._visible = def.visible == undefined ? true : def.visible;
-        this._enabled = def.enabled == undefined ? true : def.enabled;
-        this._in_screenspace = def.in_screenspace == undefined ? true : def.in_screenspace;
+        this._visible = def.visible == null ? true : def.visible;
+        this._enabled = def.enabled == null ? true : def.enabled;
+        this._in_screenspace = def.in_screenspace == null ? true : def.in_screenspace;
         this._area = new Rectangle({
             position: def.position, width: def.width, height: def.height,
         });
@@ -65,8 +65,8 @@ class UIElement {
     get visible() { return this._visible; }
     set visible(new_visible){
         const previous_visible = this._visible;
+        this._visible = new_visible;
         if(new_visible != previous_visible){
-            this._visible = new_visible;
             if(new_visible)
                 this._on_visible();
             else
@@ -366,6 +366,7 @@ class Text extends UIElement {
         this.text = text_def.text;
 
         this._reset();
+        if(text_def.visible != null) this.visible = text_def.visible;
     }
 
     get text(){ return this._text_lines; }
@@ -493,7 +494,8 @@ class TextButton extends Button {
         super(textbutton_def);
         this.textbox = new Text(Object.assign(textbutton_def, {
             position: this.position,
-            background_color: textbutton_def.background ? textbutton_def.background : "#ffffff00"
+            background_color: textbutton_def.background ? textbutton_def.background : "#ffffff00",
+            visible: true,
         }));
         this.position = this.position;
     }
