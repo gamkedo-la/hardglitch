@@ -172,6 +172,14 @@ class CreditsScreen extends fsm.State {
             this.go_back();
         }
 
+        if(input.keyboard.is_just_down(KEY.DOWN_ARROW) || input.keyboard.is_just_down(KEY.S)){
+            this.credits.button_down.action();
+        }
+
+        if(input.keyboard.is_just_down(KEY.UP_ARROW) || input.keyboard.is_just_down(KEY.W)){
+            this.credits.button_up.action();
+        }
+
         this.credits.update(delta_time);
 
         this.fader.update(delta_time);
