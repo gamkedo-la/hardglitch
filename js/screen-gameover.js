@@ -11,14 +11,15 @@ import * as graphics from "./system/graphics.js";
 import * as audio from "./system/audio.js";
 import { Color } from "./system/color.js";
 import { ScreenFader } from "./system/screenfader.js";
-import { Vector2_origin } from "./system/spatial.js";
-import { auto_newlines, invoke_on_members } from "./system/utility.js";
+import { Vector2, Vector2_origin } from "./system/spatial.js";
+import { auto_newlines, invoke_on_members, random_int, random_sample } from "./system/utility.js";
 import { music_id, sprite_defs } from "./game-assets.js";
 import { KEY } from "./game-input.js";
 import { deserialize_entity } from "./levels/level-tools.js";
 import { Character } from "./core/character.js";
 import { game_modes, save_names } from "./game-config.js";
 import { CharacterView } from "./game-view.js";
+import { GameFxView } from "./game-effects.js";
 
 const button_text_font = "22px Space Mono";
 const button_text_align = undefined; // "center";
@@ -80,12 +81,20 @@ class GameOverScreen_Success extends fsm.State {
         this.player_view = new CharacterView(this._player_character);
         this.player_view.position = graphics.camera.center_position.translate({ x: -(this.player_view.width / 2), y: - 100 });
 
-        this.background = new graphics.Sprite(sprite_defs.level_transition),
+        this.background = new graphics.Sprite(sprite_defs.level_transition_gameover),
         this.background.position = {
             x: this.player_view.position.x + (this.player_view.width / 2) - (this.background.size.width / 2),
             y: this.player_view.position.y - this.background.size.height + 732 + (this.player_view.height / 2), // we take the bottom border as reference and place the background so that the character is in the wifi spot
         };
 
+        this._background_start_time = performance.now();
+        this._background_velocity = new Vector2();
+
+        this.fx = new GameFxView();
+        this.fx.particleSystem.alwaysActive = true;
+        this._running_fx = [];
+        this._last_fx_spawn_time = performance.now();
+        delete this._main_lighting;
     }
 
     *enter(player_character){
@@ -117,7 +126,10 @@ class GameOverScreen_Success extends fsm.State {
             }
         }
 
+        this._update_background_movement(delta_time);
         this.player_view.update(delta_time);
+        this._update_effects(delta_time);
+        this.fx.update(delta_time);
 
         this.fader.update(delta_time);
     }
@@ -127,7 +139,9 @@ class GameOverScreen_Success extends fsm.State {
 
         this.background.draw(canvas_context);
 
+        this.fx.draw(canvas_context);
         this.player_view.render_graphics(canvas_context);
+
 
         invoke_on_members(this.ui, "draw", canvas_context);
 
@@ -137,6 +151,101 @@ class GameOverScreen_Success extends fsm.State {
     on_canvas_resized(){
         delete this.ui;
         this._init_ui();
+    }
+
+    _update_effects(delta_time){
+        const time_since_start = performance.now() - this._background_start_time;
+        if(time_since_start < 2000) return;
+
+        if(this._main_lighting == null){
+            this._main_lighting = [
+                this.fx.lightningJump(
+                    { x: this.player_view.position.x + 32, y: -200},
+                    { x: this.player_view.position.x + 32, y: graphics.canvas_rect().height + 200 },
+                ),
+                this.fx.lightningJump(
+                    { x: this.player_view.position.x + 32, y: -200},
+                    { x: this.player_view.position.x + 32, y: graphics.canvas_rect().height + 200 },
+                ),
+            ];
+        }
+
+        const time_since_last_fx = performance.now() - this._last_fx_spawn_time;
+        if(time_since_last_fx > random_int(500, 2000) && this._running_fx.length < 10) {
+            this._last_fx_spawn_time = performance.now();
+
+            const possible_fxs = [
+                ()=> {
+                    const target_x = this.player_view.position.x + random_int(-500, 500);
+                    return this.fx.lightningJump(
+                        { x: target_x, y: random_int(-10, -100)},
+                        { x: target_x + random_int(-10, 10), y: graphics.canvas_rect().height + random_int(-10, 150) },
+                    );
+                },
+                ()=> {
+                    const fx = this.fx.deleteBall({
+                        x: this.player_view.position.x + random_int(-500, 500),
+                        y: -10
+                    });
+                    fx.acceleration = new Vector2({ x: 0, y: 1 });
+                    return fx;
+                },
+                ()=> {
+                    const fx = this.fx.damage({
+                        x: this.player_view.position.x + random_int(-500, 500),
+                        y: -10
+                    });
+                    fx.acceleration = new Vector2({ x: 0, y: 1 });
+                    return fx;
+                },
+                ()=> {
+                    const fx = this.fx.destruction({
+                        x: this.player_view.position.x + random_int(-200, 200),
+                        y: random_int(0, 1000)
+                    });
+                    return fx;
+                },
+                ()=> {
+                    const fx = this.fx.portalOut({
+                        x: this.player_view.position.x + random_int(-200, 200),
+                        y: random_int(0, 1000)
+                    });
+                    return fx;
+                },
+            ];
+
+            const selected_fx_gen = random_sample(possible_fxs);
+            const selected_fx = selected_fx_gen();
+            selected_fx.start_time = performance.now();
+            this._running_fx.push(selected_fx);
+        }
+
+        this._running_fx.forEach(fx => {
+            if(performance.now() - fx.start_time > 1000)
+                fx.done = true;
+            if(fx.acceleration instanceof Vector2) {
+                if(!fx.velocity) {
+                    fx.velocity = new Vector2();
+                }
+                fx.velocity = fx.velocity.translate(fx.acceleration);
+                fx.position = new Vector2(fx.position).translate(fx.velocity);
+            }
+        });
+        this._running_fx = this._running_fx.filter(fx => !fx.done);
+    }
+
+    _update_background_movement(delta_time){
+        if(this.background.position.y === 0) return;
+
+        const time_since_start = performance.now() - this._background_start_time;
+        if(time_since_start < 3000) return;
+
+        const acceleration = 0.05;
+        this._background_velocity = this._background_velocity.translate({ y: acceleration });
+        this.background.position = this.background.position.translate({ y: this._background_velocity.y });
+        if(this.background.position.y > 0){
+            this.background.position = {x: this.background.position.x, y: 0 };
+        }
     }
 
 };
