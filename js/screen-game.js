@@ -703,7 +703,7 @@ class GameScreen extends fsm.StateMachine {
     player_escaped(){
         const next_level = Number.isInteger(this.current_level_idx) ? this.current_level_idx + 1 : undefined;
         if(next_level == undefined || next_level >= game_levels.length){
-            this.state_machine.push_action("escape");
+            this.state_machine.push_action("escape", this.game_session.world.exiting_character);
         }
         else {
             // DEMO MODE: we just jump to the demo scren

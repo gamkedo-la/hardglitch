@@ -18,6 +18,7 @@ import { KEY } from "./game-input.js";
 import { deserialize_entity } from "./levels/level-tools.js";
 import { Character } from "./core/character.js";
 import { game_modes, save_names } from "./game-config.js";
+import { CharacterView } from "./game-view.js";
 
 const button_text_font = "22px Space Mono";
 const button_text_align = undefined; // "center";
@@ -33,6 +34,7 @@ class GameOverScreen_Success extends fsm.State {
 
     _init_ui(){
         debug.assertion(()=>this.ui === undefined);
+        debug.assertion(()=>this._player_character instanceof Character);
 
 
 // TODO: put this in the end screen
@@ -40,8 +42,14 @@ class GameOverScreen_Success extends fsm.State {
 
         this.ui = {
             message : new ui.Text({
-                text: "Congratulations! You escaped the computer!",
-                position: graphics.canvas_center_position().translate({x:-200, y:0}),
+                text: "Congratulations!\nYou did it!\nYou escaped the computer!",
+                font: "60px ZingDiddlyDooZapped",
+                color: "white",
+                // stroke_color: "purple",
+                // line_width: 3,
+                background_color: "#00000000",
+                text_align: "center",
+                position: Vector2_origin,
             }),
             button_back : new ui.TextButton({
                 text: "Continue [SPACE]",
@@ -56,20 +64,33 @@ class GameOverScreen_Success extends fsm.State {
                 }
             }),
         };
-        // Center the buttons in the screen.
-        let button_pad_y = 0;
-        const next_pad_y = () => {
-            const result = button_pad_y;
-            button_pad_y += 80;
-            return result;
+
+        const canvas_rect = graphics.canvas_rect();
+
+        this.ui.button_back.position = {
+            x: graphics.centered_rectangle_in_screen(this.ui.button_back.area).position.x,
+            y: canvas_rect.height - (this.ui.button_back.height + 10),
         };
-        Object.values(this.ui).forEach(button => {
-            const center_pos = graphics.centered_rectangle_in_screen(button.area).position;
-            button.position = center_pos.translate({ x:0, y: next_pad_y() });
-        });
+
+        this.ui.message.position = {
+            x: graphics.centered_rectangle_in_screen(this.ui.message.area).position.x + (this.ui.message.width / 2),
+            y: this.ui.button_back.position.y - (this.ui.message.height + 8),
+        };
+
+        this.player_view = new CharacterView(this._player_character);
+        this.player_view.position = graphics.camera.center_position.translate({ x: -(this.player_view.width / 2), y: - 100 });
+
+        this.background = new graphics.Sprite(sprite_defs.level_transition),
+        this.background.position = {
+            x: this.player_view.position.x + (this.player_view.width / 2) - (this.background.size.width / 2),
+            y: this.player_view.position.y - this.background.size.height + 732 + (this.player_view.height / 2), // we take the bottom border as reference and place the background so that the character is in the wifi spot
+        };
+
     }
 
-    *enter(){
+    *enter(player_character){
+        debug.assertion(()=>player_character instanceof Character);
+        this._player_character = player_character;
         if(!this.ui){
             this._init_ui();
         }
@@ -96,11 +117,17 @@ class GameOverScreen_Success extends fsm.State {
             }
         }
 
+        this.player_view.update(delta_time);
+
         this.fader.update(delta_time);
     }
 
     display(canvas_context){
-        graphics.draw_rectangle(canvas_context, graphics.canvas_rect(), "white");
+        graphics.draw_rectangle(canvas_context, graphics.canvas_rect(), "black");
+
+        this.background.draw(canvas_context);
+
+        this.player_view.render_graphics(canvas_context);
 
         invoke_on_members(this.ui, "draw", canvas_context);
 
