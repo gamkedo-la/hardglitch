@@ -29,6 +29,7 @@ import { Character } from "./core/character.js";
 import { serialize_entity, serialize_world } from "./levels/level-tools.js";
 import { Entity } from "./core/concepts.js";
 import { config, save_names } from "./game-config.js";
+import { storage } from "./storage.js";
 
 
 const button_text_font = "18px Space Mono";
@@ -478,7 +479,7 @@ class InGameMenu extends fsm.State {
             debug.log(`Saving...`)
             this.state_machine.game_session.view.fog_of_war.save();
             const level_save = serialize_world(this.state_machine.game_session.world, true); // Exact and complete save to come back to.
-            window.localStorage.setItem(save_names.world_exit_save, level_save);
+            storage.setItem(save_names.world_exit_save, level_save);
             debug.log(`Save - DONE`)
         }
 

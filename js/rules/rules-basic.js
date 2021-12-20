@@ -27,6 +27,7 @@ import { auto_newlines } from "../system/utility.js";
 import { FieldOfVision } from "../core/visibility.js";
 import { game_modes, save_names } from "../game-config.js";
 import { serialize_entity } from "../levels/level-tools.js";
+import { storage } from "../storage.js";
 
 // That actor decided to take a pause.
 class Waited extends concepts.Event {
@@ -136,7 +137,7 @@ class GameOver extends concepts.Event {
 
 function fail_game(world){
     world.is_finished = true;
-    window.localStorage.removeItem(save_names.world_exit_save); // Remove the last save-by-exit
+    storage.removeItem(save_names.world_exit_save); // Remove the last save-by-exit
     return [ new GameOver() ]; // This event will notify the rest of the code that the game is over.
 }
 
@@ -222,12 +223,12 @@ class Rule_LevelExit extends concepts.Rule {
 
                 if(Number.isInteger(world.level_id)) { // This is a game's level, not a test level or anything else.
                     // If there was a save in this level, we got beyond that point, save the progress (don't allow resuming from previous save).
-                    window.localStorage.removeItem(save_names.world_exit_save);
+                    storage.removeItem(save_names.world_exit_save);
 
                     // In 'glitch' mode we need to save our progress:
-                    if(window.localStorage.getItem(save_names.game_mode) === game_modes.glitch){
-                        window.localStorage.setItem(save_names.highest_level_reached_idx, world.level_id + 1); // Next level reached
-                        window.localStorage.setItem(save_names.character_first_entering_highest_level, serialize_entity(world.exiting_character)); // If we die in next level, we restart with the character we first entered with
+                    if(storage.getItem(save_names.game_mode) === game_modes.glitch){
+                        storage.setItem(save_names.highest_level_reached_idx, world.level_id + 1); // Next level reached
+                        storage.setItem(save_names.character_first_entering_highest_level, serialize_entity(world.exiting_character)); // If we die in next level, we restart with the character we first entered with
                     }
                 }
 

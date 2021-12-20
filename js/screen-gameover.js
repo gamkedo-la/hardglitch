@@ -22,6 +22,7 @@ import { Character } from "./core/character.js";
 import { game_modes, save_names } from "./game-config.js";
 import { CharacterView } from "./game-view.js";
 import { GameFxView } from "./game-effects.js";
+import { storage } from "./storage.js";
 
 const button_text_font = "22px Space Mono";
 const button_text_align = undefined; // "center";
@@ -113,7 +114,7 @@ class GameOverScreen_Success extends fsm.State {
     }
 
     go_to_next_screen(){
-        const game_mode = window.localStorage.getItem(save_names.game_mode);
+        const game_mode = storage.getItem(save_names.game_mode);
         debug.assertion(()=>game_modes[game_mode] != null);
         this.state_machine.push_action(game_mode, this._player_character);
     }
@@ -281,7 +282,7 @@ class GameOverScreen_Failure extends fsm.State {
     _init_ui(){
         debug.assertion(()=>this.ui === undefined);
 
-        const game_mode = window.localStorage.getItem(save_names.game_mode);
+        const game_mode = storage.getItem(save_names.game_mode);
 
         this.ui = {
             message : new ui.Text({
@@ -387,12 +388,12 @@ class GameOverScreen_Failure extends fsm.State {
     }
 
     retry_level(){
-        const level_reached_idx = Number.parseInt(window.localStorage.getItem(save_names.highest_level_reached_idx));
+        const level_reached_idx = Number.parseInt(storage.getItem(save_names.highest_level_reached_idx));
         debug.assertion(()=>Number.isInteger(level_reached_idx) || Number.isNaN(level_reached_idx));
         const level_to_retry = Number.isInteger(level_reached_idx) ? level_reached_idx : 0;
         debug.assertion(()=>Number.isInteger(level_to_retry));
 
-        const saved_player_character = window.localStorage.getItem(save_names.character_first_entering_highest_level);
+        const saved_player_character = storage.getItem(save_names.character_first_entering_highest_level);
         const player_character = saved_player_character ? deserialize_entity(saved_player_character) : undefined;
         debug.assertion(()=>player_character instanceof Character || player_character == null);
 
@@ -401,9 +402,9 @@ class GameOverScreen_Failure extends fsm.State {
 
     restart_game(){
         // Delete all progression, but persist the game mode.
-        const game_mode = window.localStorage.getItem(save_names.game_mode);
-        Object.values(save_names).forEach(save_value => window.localStorage.removeItem(save_value));
-        window.localStorage.setItem(save_names.game_mode, game_mode);
+        const game_mode = storage.getItem(save_names.game_mode);
+        Object.values(save_names).forEach(save_value => storage.removeItem(save_value));
+        storage.setItem(save_names.game_mode, game_mode);
         this.state_machine.push_action("restart", 0);
     }
 

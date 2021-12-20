@@ -15,6 +15,7 @@ import { ScreenFader } from "./system/screenfader.js";
 
 import { HARD_GLITCH_VERSION } from "./version.js";
 import { game_modes, levels_count, save_names } from "./game-config.js";
+import { is_localstorage_allowed, storage } from "./storage.js";
 
 const buttons_font = "22px Space Mono";
 const button_text_color = "#32258b";
@@ -50,10 +51,10 @@ class MainMenu {
             }
         };
 
-        const hard_glitch_mode = window.localStorage.getItem(save_names.game_mode);
-        const world_to_continue = window.localStorage.getItem(save_names.world_exit_save);
-        const retry_level_idx = Number.parseInt(window.localStorage.getItem(save_names.highest_level_reached_idx));
-        const retry_character = window.localStorage.getItem(save_names.character_first_entering_highest_level);
+        const hard_glitch_mode = storage.getItem(save_names.game_mode);
+        const world_to_continue = storage.getItem(save_names.world_exit_save);
+        const retry_level_idx = Number.parseInt(storage.getItem(save_names.highest_level_reached_idx));
+        const retry_character = storage.getItem(save_names.character_first_entering_highest_level);
         // Deactivated continue button upon death
         if(world_to_continue != null ){
             this.button_continue = new ui.TextButton({
@@ -125,8 +126,8 @@ class MainMenu {
             color: button_text_color,
             font: buttons_font,
             action: ()=> {
-                Object.values(save_names).forEach(save_value => window.localStorage.removeItem(save_value));
-                window.localStorage.setItem(save_names.game_mode, game_modes.glitch);
+                Object.values(save_names).forEach(save_value => storage.removeItem(save_value));
+                storage.setItem(save_names.game_mode, game_modes.glitch);
                 state_machine.push_action("new_game", 0);
             },
             position: Vector2_origin,
@@ -142,8 +143,8 @@ class MainMenu {
             color: button_text_color,
             font: buttons_font,
             action: ()=> {
-                Object.values(save_names).forEach(save_value => window.localStorage.removeItem(save_value));
-                window.localStorage.setItem(save_names.game_mode, game_modes.crash);
+                Object.values(save_names).forEach(save_value => storage.removeItem(save_value));
+                storage.setItem(save_names.game_mode, game_modes.crash);
                 state_machine.push_action("new_game", 0);
             },
             position: Vector2_origin,
@@ -219,6 +220,26 @@ class MainMenu {
                 down: 'clickButton',
             }
         });
+
+        if(!is_localstorage_allowed) {
+
+            this.storage_warning_text = new ui.Text({
+                text: auto_newlines("Warning: Your browser is set to not allow local storage (cookies settings), game saves will not be persisted if you close the tab.", 25),
+                color: "orange",
+                background_color: "#000000a0",
+                position: Vector2_origin,
+                sprite_def: sprite_defs.button_menu,
+                sounds:{
+                    over: 'selectButton',
+                    down: 'clickButton',
+                }
+            });
+
+            this.storage_warning_text.position = {
+                x: 0,
+                y: graphics.canvas_rect().height - this.storage_warning_text.height - 8,
+            };
+        }
 
 
         const space_between_buttons = this.button_new_game_easy.height + 6;
