@@ -32,6 +32,7 @@ class MainMenu {
             sprite: new graphics.Sprite({
                     image: "title_bg",
             }),
+            drift: 0,
         };
 
         this.background.draw = (canvas_context)=>{ // We want to make sure the background is always filling the whole screen even with very big screens.
@@ -39,13 +40,14 @@ class MainMenu {
             const vertical_times = Math.ceil(graphics.canvas_rect().height / this.background.sprite.size.height);
             const max_x = horizontal_times * this.background.sprite.size.width;
             const max_y = vertical_times * this.background.sprite.size.height;
-            for(let y = 0; y < max_y; y += this.background.sprite.size.height){
-                for(let x = 0; x < max_x; x += this.background.sprite.size.width){
-                    this.background.sprite.position = {x, y};
-                    this.background.sprite.draw(canvas_context);
+            for(let idx = 0; idx < 2; ++idx) {
+                for(let y = 0; y < max_y; y += this.background.sprite.size.height){
+                    for(let x = 0; x < max_x; x += this.background.sprite.size.width){
+                        this.background.sprite.position = {x, y: y + this.background.drift - (idx * this.background.sprite.size.height)};
+                        this.background.sprite.draw(canvas_context);
+                    }
                 }
             }
-
         };
 
         const hard_glitch_mode = window.localStorage.getItem(save_names.game_mode);
@@ -238,8 +240,12 @@ class MainMenu {
 
     }
 
-    update(delta_time){
-        invoke_on_members(this, "update", delta_time);
+    update(delta_time, allow_buttons){
+        if(allow_buttons)
+            invoke_on_members(this, "update", delta_time);
+
+        this.background.drift += 1.5;
+        this.background.drift %= this.background.sprite.size.height;
     }
 
     draw(canvas_context){
@@ -319,8 +325,8 @@ class TitleScreen extends fsm.State {
 
     update(delta_time){
         this.fader.update(delta_time);
-        if(!this.fader.is_fading)
-            this.ui.main_menu.update(delta_time);
+        const allow_buttons = !this.fader.is_fading;
+        this.ui.main_menu.update(delta_time, allow_buttons);
         this.ui.title.update(delta_time);
         this.ui.demo.update(delta_time);
     }
