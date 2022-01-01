@@ -90,6 +90,7 @@ const game_state_machine = new class extends fsm.StateMachine {
         demo: "demo",
       },
       level_intro_router: {
+        level_0: "game_intro",
         level_1: "intro_level_1",
         level_2: "intro_level_2",
         level_3: "intro_level_3",

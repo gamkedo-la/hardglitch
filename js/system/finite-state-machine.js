@@ -151,8 +151,9 @@ class StateMachine extends State {
             return true;
         } else {
             // Forward to potential sub-statemachine.
-            return this.current_state instanceof StateMachine
+            const state_was_found = this.current_state instanceof StateMachine
                 && this.current_state.push_action(action);
+            debug.assertion(state_was_found);
         }
     }
 

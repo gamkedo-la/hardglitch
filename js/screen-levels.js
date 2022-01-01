@@ -22,6 +22,7 @@ import { center_in_rectangle, Vector2 } from "./system/spatial.js";
 import { AnimationGroup } from "./system/animation.js";
 import { easing, tween } from "./system/tweening.js";
 import { KEY } from "./game-input.js";
+import { levels_count } from "./game-config.js";
 
 //right now the below just outputs a title, we need to output a lil more.
 //maybe change this to "title display" like a title object
@@ -440,7 +441,12 @@ class Level_4_IntroScreen extends LevelIntroScreen {
 // Used to route to the proper intro.
 class Level_IntroSelection extends fsm.State {
     *enter(level_idx, ...data){
-        this.state_machine.push_action(`level_${level_idx}`, ...data);
+        debug.assertion(()=> Number.isInteger(level_idx) && level_idx >= 0 && level_idx < levels_count);
+        if(level_idx === 0) {
+            this .state_machine.push_action(`level_${level_idx}`, level_idx, ...data);
+        } else {
+            this .state_machine.push_action(`level_${level_idx}`, ...data);
+        }
     }
 
     *leave() {
