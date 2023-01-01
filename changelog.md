@@ -1,6 +1,26 @@
 Change Log
 ==========
 
+Sorry for the sparse after 0.11, it have been wild years...
+
+Hard Glitch v1.0.3 - 2023-01-01
+--------------------------------
+
+Added a "give feedback" button so that players find the feedback form easilly.
+
+
+Hard Glitch v1.0.2 - 2022-01-01
+--------------------------------
+
+Quick bugfix.
+
+
+Hard Glitch v1.0.0 - 2021-12-27
+--------------------------------
+
+First "complete" release.
+
+
 Hard Glitch v0.11.1 - 2021-02-05
 --------------------------------
 
