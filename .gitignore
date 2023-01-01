@@ -1,3 +1,6 @@
 .DS_Store
 .idea/
 .vscode/
+
+# dont commit release archives
+hardglitch-v*.zip
