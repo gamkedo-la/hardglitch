@@ -221,6 +221,21 @@ class MainMenu {
             }
         });
 
+        this.button_feedback = new ui.TextButton({
+            text: "Give Feedback",
+            font: buttons_font,
+            action: ()=> { 
+                window.open("https://docs.google.com/forms/d/1bXDZAI8ua-nf5AGz76eolMvuIdaqu1oHk7jSdrPDc_I/edit?usp=sharing");
+            },
+            position: Vector2_origin,
+            sprite_def: sprite_defs.button_menu,
+            sounds:{
+                over: 'selectButton',
+                down: 'clickButton',
+            }
+        });
+        
+
         if(!is_localstorage_allowed) {
 
             this.storage_warning_text = new ui.Text({
